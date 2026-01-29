@@ -1,6 +1,6 @@
-<div class="tw-flex tw-h-full">
+<div class="vault tw-flex tw-h-full">
   <div class="tw-flex tw-flex-col tw-w-6/12">
-    <div class="tw-px-2 tw-pt-6 tw-px-6">
+    <div class="tw-pt-6 tw-px-6">
       <app-header>
         <vault-new-cipher-menu
           [canCreateCipher]="true"
@@ -60,47 +60,40 @@
       />
     }
   </div>
-  @if (!!action()) {
-    <div class="tw-flex tw-flex-col tw-flex-1">
-      <app-header [title]="headerTitleKey() | i18n" class="tw-bg-bg-secondary tw-px-8 tw-pt-6">
-        <button
-          type="button"
-          bitIconButton="bwi-close"
-          [label]="'close' | i18n"
-          [disabled]="formDisabled"
-          (click)="cancelCipher()"
-        ></button>
-      </app-header>
-      <div class="tw-flex-auto tw-overflow-y-hidden">
-        <div class="tw-py-2.5 tw-px-1">
-          <div class="tw-mt-7 tw-pt-2.5 tw-pb-7">
-            @if (action() === "view") {
-              <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
-            }
-            @if (action() === "add" || action() === "edit" || action() === "clone") {
-              <vault-cipher-form
-                formId="cipherForm"
-                [config]="config"
-                (cipherSaved)="savedCipher($event)"
-                [submitBtn]="footer?.submitBtn"
-                (formStatusChange$)="formStatusChanged($event)"
-              >
-                <bit-item slot="attachment-button">
-                  <button
-                    bit-item-content
-                    type="button"
-                    (click)="openAttachmentsDialog()"
-                    [disabled]="formDisabled"
-                  >
-                    <div class="tw-flex tw-items-center tw-gap-2">
-                      {{ "attachments" | i18n }}
-                      <app-premium-badge></app-premium-badge>
-                    </div>
-                    <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-                  </button>
-                </bit-item>
-              </vault-cipher-form>
-            }
+  @if (action()) {
+    <div class="details">
+      <div class="content">
+        <div class="inner-content">
+          <div class="box">
+            <app-cipher-view
+              *ngIf="action() === 'view'"
+              [cipher]="cipher()"
+              [collections]="collections"
+            />
+            <vault-cipher-form
+              #vaultForm
+              *ngIf="action() === 'add' || action() === 'edit' || action() === 'clone'"
+              formId="cipherForm"
+              [config]="config"
+              (cipherSaved)="savedCipher($event)"
+              [submitBtn]="footer?.submitBtn"
+              (formStatusChange$)="formStatusChanged($event)"
+            >
+              <bit-item slot="attachment-button">
+                <button
+                  bit-item-content
+                  type="button"
+                  (click)="openAttachmentsDialog()"
+                  [disabled]="formDisabled"
+                >
+                  <div class="tw-flex tw-items-center tw-gap-2">
+                    {{ "attachments" | i18n }}
+                    <app-premium-badge />
+                  </div>
+                  <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+                </button>
+              </bit-item>
+            </vault-cipher-form>
           </div>
         </div>
       </div>
@@ -116,7 +109,15 @@
         (onCancel)="cancelCipher()"
         (onArchiveToggle)="refreshCurrentCipher()"
         [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
-      ></app-vault-item-footer>
+      />
+    </div>
+  } @else {
+    <div id="logo" class="logo">
+      <div class="content">
+        <div class="inner-content">
+          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+        </div>
+      </div>
     </div>
   }
 </div>

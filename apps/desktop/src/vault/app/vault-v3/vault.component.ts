@@ -1,8 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
-  computed,
   inject,
   NgZone,
   OnDestroy,
@@ -130,8 +131,8 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
+import { ItemFooterComponent } from "../vault/item-footer.component";
 
-import { ItemFooterComponent } from "./cipher-form/item-footer.component";
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -252,75 +253,6 @@ export class VaultComponent<C extends CipherViewLike>
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
-
-  /** Gets the appropriate translation key for the header based on cipher type */
-  protected readonly headerTitleKey = computed(() => {
-    const currentAction = this.action();
-    const currentCipher = this.cipher();
-
-    if (currentAction === "view" && currentCipher) {
-      switch (currentCipher.type) {
-        case CipherType.Login:
-          return "viewLogin";
-        case CipherType.Card:
-          return "viewCard";
-        case CipherType.Identity:
-          return "viewIdentity";
-        case CipherType.SecureNote:
-          return "viewSecureNote";
-        case CipherType.SshKey:
-          return "viewSshKey";
-        default:
-          return "viewItem";
-      }
-    } else if (currentAction === "add") {
-      switch (this.addType) {
-        case CipherType.Login:
-          return "addLogin";
-        case CipherType.Card:
-          return "addCard";
-        case CipherType.Identity:
-          return "addIdentity";
-        case CipherType.SecureNote:
-          return "addSecureNote";
-        case CipherType.SshKey:
-          return "addSshKey";
-        default:
-          return "addLogin";
-      }
-    } else if (currentAction === "edit") {
-      switch (currentCipher?.type) {
-        case CipherType.Login:
-          return "editLogin";
-        case CipherType.Card:
-          return "editCard";
-        case CipherType.Identity:
-          return "editIdentity";
-        case CipherType.SecureNote:
-          return "editSecureNote";
-        case CipherType.SshKey:
-          return "editSshKey";
-        default:
-          return "editItem";
-      }
-    } else if (currentAction === "clone") {
-      switch (currentCipher?.type) {
-        case CipherType.Login:
-          return "cloneLogin";
-        case CipherType.Card:
-          return "cloneCard";
-        case CipherType.Identity:
-          return "cloneIdentity";
-        case CipherType.SecureNote:
-          return "cloneSecureNote";
-        case CipherType.SshKey:
-          return "cloneSshKey";
-        default:
-          return "cloneItem";
-      }
-    }
-    return "viewItem";
-  });
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
