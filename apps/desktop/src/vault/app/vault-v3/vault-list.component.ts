@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { AsyncPipe } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
@@ -27,7 +26,6 @@ import {
   ButtonModule,
   IconButtonModule,
 } from "@bitwarden/components";
-import { OrganizationId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultItem, VaultItemEvent } from "@bitwarden/vault";
 
@@ -77,7 +75,6 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherArchiveService = inject(CipherArchiveService);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
   private restrictedTypes: RestrictedCipherType[] = [];
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
@@ -154,47 +151,6 @@ export class VaultListComponent<C extends CipherViewLike> {
     this.dataSource.data = items;
   }
 
-  protected assignToCollections() {
-    this.event({
-      type: "assignToCollections",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected showAssignToCollections(): boolean {
-    // When the user doesn't belong to an organization, hide assign to collections
-    if (this.allOrganizations().length === 0) {
-      return false;
-    }
-
-    if (this.selection.selected.length === 0) {
-      return false;
-    }
-
-    const hasPersonalItems = this.hasPersonalItems();
-    const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
-    const hasEditableCollections = this.allCollections().some((collection) => {
-      return !collection.readOnly;
-    });
-
-    // Return false if items are from different organizations
-    if (uniqueCipherOrgIds.size > 1) {
-      return false;
-    }
-
-    // If all selected items are personal, return based on personal items
-    if (uniqueCipherOrgIds.size === 0 && hasEditableCollections) {
-      return hasPersonalItems;
-    }
-
-    const collectionNotSelected =
-      this.selection.selected.filter((item) => item.collection).length === 0;
-
-    return this.allCiphersHaveEditAccess() && collectionNotSelected && hasEditableCollections;
-  }
-
   /**
    * Sorts VaultItems, grouping collections before ciphers, and sorting each group alphabetically by name.
    */
@@ -221,19 +177,5 @@ export class VaultListComponent<C extends CipherViewLike> {
   private compareNames(a: VaultItem<C>, b: VaultItem<C>): number {
     const getName = (item: VaultItem<C>) => item.collection?.name || item.cipher?.name;
     return getName(a)?.localeCompare(getName(b)) ?? -1;
-  }
-
-  private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
-  }
-
-  private allCiphersHaveEditAccess(): boolean {
-    return this.selection.selected
-      .filter(({ cipher }) => cipher)
-      .every(({ cipher }) => cipher?.edit && cipher?.viewPassword);
-  }
-
-  private getUniqueOrganizationIds(): Set<string | [] | OrganizationId> {
-    return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
   }
 }
