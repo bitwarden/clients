@@ -61,6 +61,8 @@ describe("DefaultOrganizationUserService", () => {
     organizationUserApiService = {
       postOrganizationUserConfirm: jest.fn(),
       postOrganizationUserBulkConfirm: jest.fn(),
+      restoreOrganizationUser_vNext: jest.fn(),
+      restoreManyOrganizationUsers_vNext: jest.fn(),
     } as any;
 
     accountService = {
@@ -168,6 +170,99 @@ describe("DefaultOrganizationUserService", () => {
 
           expect(response).toEqual(mockBulkResponse);
 
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("buildRestoreUserRequest", () => {
+    beforeEach(() => {
+      setupCommonMocks();
+    });
+
+    it("should build a restore request with encrypted collection name", (done) => {
+      service.buildRestoreUserRequest(mockOrganization).subscribe({
+        next: (request) => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(request).toEqual({
+            defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+          });
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("restoreUser", () => {
+    beforeEach(() => {
+      setupCommonMocks();
+      organizationUserApiService.restoreOrganizationUser_vNext.mockReturnValue(Promise.resolve());
+    });
+
+    it("should restore a user successfully", (done) => {
+      service.restoreUser(mockOrganization, mockUserId).subscribe({
+        next: () => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(organizationUserApiService.restoreOrganizationUser_vNext).toHaveBeenCalledWith(
+            mockOrganization.id,
+            mockUserId,
+            {
+              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+            },
+          );
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("bulkRestoreUsers", () => {
+    const mockUserIds = ["user-1", "user-2"];
+
+    const mockBulkResponse = {
+      data: [
+        { id: "user-1", error: null } as OrganizationUserBulkResponse,
+        { id: "user-2", error: null } as OrganizationUserBulkResponse,
+      ],
+    } as ListResponse<OrganizationUserBulkResponse>;
+
+    beforeEach(() => {
+      setupCommonMocks();
+      organizationUserApiService.restoreManyOrganizationUsers_vNext.mockReturnValue(
+        Promise.resolve(mockBulkResponse),
+      );
+    });
+
+    it("should bulk restore users successfully", (done) => {
+      service.bulkRestoreUsers(mockOrganization, mockUserIds).subscribe({
+        next: (response) => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(
+            organizationUserApiService.restoreManyOrganizationUsers_vNext,
+          ).toHaveBeenCalledWith(
+            mockOrganization.id,
+            expect.objectContaining({
+              userIds: mockUserIds,
+              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+            }),
+          );
+          expect(response).toEqual(mockBulkResponse);
           done();
         },
         error: done,
