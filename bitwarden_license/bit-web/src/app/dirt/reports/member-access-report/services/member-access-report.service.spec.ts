@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import {
   CollectionAdminService,
   OrganizationUserApiService,
+  OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
@@ -66,43 +67,52 @@ describe("MemberAccessReportService", () => {
     describe("(No Name) fallback", () => {
       it("should use '(No Name)' when user has empty name string", async () => {
         // Setup mock data with empty name
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "", // Empty name
-              email: "user@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group1"],
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
-
-        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-          of([
-            {
-              id: "col1",
-              name: "Test Collection",
-              groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
-              users: [],
-            } as CollectionAdminView,
-          ]),
+              Data: [
+                {
+                  id: "user1",
+                  name: "", // Empty name
+                  email: "user@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group1"],
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
         );
 
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Test Group",
-            collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        const collection = new CollectionAdminView({
+          id: "col1" as any,
+          name: "Test Collection",
+          organizationId: mockOrganizationId,
         });
+        Object.assign(collection, {
+          groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
+          users: [],
+        });
+
+        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([collection]));
+
+        const group = new GroupDetailsView();
+        Object.assign(group, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Test Group",
+          externalId: null,
+          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+        });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first (required before export)
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -119,43 +129,52 @@ describe("MemberAccessReportService", () => {
 
       it("should use actual name when user has non-empty name", async () => {
         // Setup mock data with actual name
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "John Doe",
-              email: "john@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group1"],
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
-
-        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-          of([
-            {
-              id: "col1",
-              name: "Test Collection",
-              groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
-              users: [],
-            } as CollectionAdminView,
-          ]),
+              Data: [
+                {
+                  id: "user1",
+                  name: "John Doe",
+                  email: "john@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group1"],
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
         );
 
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Test Group",
-            collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        const collection = new CollectionAdminView({
+          id: "col1" as any,
+          name: "Test Collection",
+          organizationId: mockOrganizationId,
         });
+        Object.assign(collection, {
+          groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
+          users: [],
+        });
+
+        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([collection]));
+
+        const group = new GroupDetailsView();
+        Object.assign(group, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Test Group",
+          externalId: null,
+          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+        });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -172,26 +191,31 @@ describe("MemberAccessReportService", () => {
 
       it("should use '(No Name)' for users with no collection or group access", async () => {
         // Setup mock data with empty name and no access
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "", // Empty name
-              email: "user@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: [], // No groups
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
+              Data: [
+                {
+                  id: "user1",
+                  name: "", // Empty name
+                  email: "user@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: [], // No groups
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
+        );
 
         mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([]));
         mockGroupApiService.getAllDetails.mockResolvedValue([]);
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
-        });
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -211,36 +235,44 @@ describe("MemberAccessReportService", () => {
     describe("Groups with no collections", () => {
       it("should include group membership even when group has no collections", async () => {
         // Setup: user in a group, but group has no collections
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "Jane Doe",
-              email: "jane@example.com",
-              twoFactorEnabled: true,
-              resetPasswordEnrolled: true,
-              usesKeyConnector: false,
-              groups: ["group1"], // User is in group1
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
+              Data: [
+                {
+                  id: "user1",
+                  name: "Jane Doe",
+                  email: "jane@example.com",
+                  twoFactorEnabled: true,
+                  resetPasswordEnrolled: true,
+                  usesKeyConnector: false,
+                  groups: ["group1"], // User is in group1
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
+        );
 
         // No collections at all
         mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([]));
 
         // Group exists but has no collections
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Empty Group",
-            collections: [], // No collections
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        const group = new GroupDetailsView();
+        Object.assign(group, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Empty Group",
+          externalId: null,
+          collections: [], // No collections
         });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -260,50 +292,62 @@ describe("MemberAccessReportService", () => {
 
       it("should create separate rows for groups with collections and groups without", async () => {
         // Setup: user in two groups, one with collections and one without
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "Multi Group User",
-              email: "multi@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group1", "group2"], // In both groups
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
-
-        // One collection assigned to group1
-        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-          of([
-            {
-              id: "col1",
-              name: "Collection 1",
-              groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: true }],
-              users: [],
-            } as CollectionAdminView,
-          ]),
+              Data: [
+                {
+                  id: "user1",
+                  name: "Multi Group User",
+                  email: "multi@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group1", "group2"], // In both groups
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
         );
 
-        // group1 has collection, group2 does not
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Group With Collection",
-            collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: true }],
-          } as GroupDetailsView,
-          {
-            id: "group2",
-            name: "Group Without Collection",
-            collections: [],
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        // One collection assigned to group1
+        const collection = new CollectionAdminView({
+          id: "col1" as any,
+          name: "Collection 1",
+          organizationId: mockOrganizationId,
         });
+        Object.assign(collection, {
+          groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: true }],
+          users: [],
+        });
+
+        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([collection]));
+
+        // group1 has collection, group2 does not
+        const group1 = new GroupDetailsView();
+        Object.assign(group1, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Group With Collection",
+          externalId: null,
+          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: true }],
+        });
+        const group2 = new GroupDetailsView();
+        Object.assign(group2, {
+          id: "group2",
+          organizationId: mockOrganizationId as any,
+          name: "Group Without Collection",
+          externalId: null,
+          collections: [],
+        });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group1, group2]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -332,53 +376,68 @@ describe("MemberAccessReportService", () => {
 
       it("should show multiple collections for group with collections", async () => {
         // Setup: user in group with multiple collections
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "User Name",
-              email: "user@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group1"],
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
-
-        // Two collections both assigned to group1
-        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-          of([
-            {
-              id: "col1",
-              name: "Collection 1",
-              groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
-              users: [],
-            } as CollectionAdminView,
-            {
-              id: "col2",
-              name: "Collection 2",
-              groups: [{ id: "group1", readOnly: true, hidePasswords: false, manage: false }],
-              users: [],
-            } as CollectionAdminView,
-          ]),
+              Data: [
+                {
+                  id: "user1",
+                  name: "User Name",
+                  email: "user@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group1"],
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
         );
 
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Multi Collection Group",
-            collections: [
-              { id: "col1", readOnly: false, hidePasswords: false, manage: false },
-              { id: "col2", readOnly: true, hidePasswords: false, manage: false },
-            ],
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        // Two collections both assigned to group1
+        const collection1 = new CollectionAdminView({
+          id: "col1" as any,
+          name: "Collection 1",
+          organizationId: mockOrganizationId,
         });
+        Object.assign(collection1, {
+          groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
+          users: [],
+        });
+
+        const collection2 = new CollectionAdminView({
+          id: "col2" as any,
+          name: "Collection 2",
+          organizationId: mockOrganizationId,
+        });
+        Object.assign(collection2, {
+          groups: [{ id: "group1", readOnly: true, hidePasswords: false, manage: false }],
+          users: [],
+        });
+
+        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
+          of([collection1, collection2]),
+        );
+
+        const group = new GroupDetailsView();
+        Object.assign(group, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Multi Collection Group",
+          externalId: null,
+          collections: [
+            { id: "col1", readOnly: false, hidePasswords: false, manage: false },
+            { id: "col2", readOnly: true, hidePasswords: false, manage: false },
+          ],
+        });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -399,34 +458,42 @@ describe("MemberAccessReportService", () => {
     describe("Combined scenarios", () => {
       it("should handle user with empty name in group with no collections", async () => {
         // Combines both fixes: empty name + group without collections
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "",
-              email: "noname@example.com",
-              twoFactorEnabled: true,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group1"],
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
+              Data: [
+                {
+                  id: "user1",
+                  name: "",
+                  email: "noname@example.com",
+                  twoFactorEnabled: true,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group1"],
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
+        );
 
         mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([]));
 
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "No Collection Group",
-            collections: [],
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        const group = new GroupDetailsView();
+        Object.assign(group, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "No Collection Group",
+          externalId: null,
+          collections: [],
         });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);
@@ -442,58 +509,70 @@ describe("MemberAccessReportService", () => {
 
       it("should handle multiple users with mixed name and group scenarios", async () => {
         // Complex scenario with multiple users
-        mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
-          data: [
+        mockOrganizationUserApiService.getAllUsers.mockResolvedValue(
+          new ListResponse(
             {
-              id: "user1",
-              name: "Alice",
-              email: "alice@example.com",
-              twoFactorEnabled: true,
-              resetPasswordEnrolled: true,
-              usesKeyConnector: false,
-              groups: ["group1"],
-              avatarColor: null,
-            } as any,
-            {
-              id: "user2",
-              name: "",
-              email: "bob@example.com",
-              twoFactorEnabled: false,
-              resetPasswordEnrolled: false,
-              usesKeyConnector: false,
-              groups: ["group2"],
-              avatarColor: null,
-            } as any,
-          ],
-        } as ListResponse<any>);
-
-        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-          of([
-            {
-              id: "col1",
-              name: "Collection A",
-              groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
-              users: [],
-            } as CollectionAdminView,
-          ]),
+              Data: [
+                {
+                  id: "user1",
+                  name: "Alice",
+                  email: "alice@example.com",
+                  twoFactorEnabled: true,
+                  resetPasswordEnrolled: true,
+                  usesKeyConnector: false,
+                  groups: ["group1"],
+                  avatarColor: null,
+                },
+                {
+                  id: "user2",
+                  name: "",
+                  email: "bob@example.com",
+                  twoFactorEnabled: false,
+                  resetPasswordEnrolled: false,
+                  usesKeyConnector: false,
+                  groups: ["group2"],
+                  avatarColor: null,
+                },
+              ],
+            },
+            OrganizationUserUserDetailsResponse,
+          ),
         );
 
-        mockGroupApiService.getAllDetails.mockResolvedValue([
-          {
-            id: "group1",
-            name: "Group A",
-            collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
-          } as GroupDetailsView,
-          {
-            id: "group2",
-            name: "Group B",
-            collections: [], // No collections
-          } as GroupDetailsView,
-        ]);
-
-        mockApiService.getCiphersOrganization.mockResolvedValue({
-          data: [] as CipherResponse[],
+        const collection = new CollectionAdminView({
+          id: "col1" as any,
+          name: "Collection A",
+          organizationId: mockOrganizationId,
         });
+        Object.assign(collection, {
+          groups: [{ id: "group1", readOnly: false, hidePasswords: false, manage: false }],
+          users: [],
+        });
+
+        mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([collection]));
+
+        const group1 = new GroupDetailsView();
+        Object.assign(group1, {
+          id: "group1",
+          organizationId: mockOrganizationId as any,
+          name: "Group A",
+          externalId: null,
+          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+        });
+        const group2 = new GroupDetailsView();
+        Object.assign(group2, {
+          id: "group2",
+          organizationId: mockOrganizationId as any,
+          name: "Group B",
+          externalId: null,
+          collections: [], // No collections
+        });
+
+        mockGroupApiService.getAllDetails.mockResolvedValue([group1, group2]);
+
+        mockApiService.getCiphersOrganization.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, CipherResponse),
+        );
 
         // Generate report view first
         await service.generateMemberAccessReportView(mockOrganizationId);

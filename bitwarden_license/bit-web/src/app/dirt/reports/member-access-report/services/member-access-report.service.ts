@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, firstValueFrom, Observable } from "rxjs";
 
@@ -83,7 +81,8 @@ export class MemberAccessReportService {
   private progressSubject = new BehaviorSubject<MemberAccessProgressState | null>(null);
 
   /** Observable for progress state updates */
-  progress$: Observable<MemberAccessProgressState | null> = this.progressSubject.asObservable();
+  readonly progress$: Observable<MemberAccessProgressState | null> =
+    this.progressSubject.asObservable();
 
   /** Cached lookup maps for export generation */
   private cachedLookupMaps: LookupMaps | null = null;
@@ -492,8 +491,9 @@ export class MemberAccessReportService {
       hidePasswords: access.hidePasswords,
       manage: access.manage,
     });
-    return this.i18nService.t(
-      permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
-    );
+    const labelId =
+      permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))
+        ?.labelId ?? "canView";
+    return this.i18nService.t(labelId);
   }
 }

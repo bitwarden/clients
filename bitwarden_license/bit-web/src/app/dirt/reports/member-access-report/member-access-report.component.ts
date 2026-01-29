@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom, skip } from "rxjs";
+import { debounceTime, firstValueFrom, lastValueFrom, skip } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -78,9 +76,9 @@ type ProgressStep = MemberAccessProgressState | null;
 export class MemberAccessReportComponent implements OnInit {
   protected dataSource = new TableDataSource<MemberAccessReportView>();
   protected searchControl = new FormControl("", { nonNullable: true });
-  protected organizationId: OrganizationId;
-  protected orgIsOnSecretsManagerStandalone: boolean;
-  protected isLoading$ = new BehaviorSubject(true);
+  protected organizationId!: OrganizationId;
+  protected orgIsOnSecretsManagerStandalone!: boolean;
+  protected readonly isLoading = signal(true);
 
   /** Current progress state for the loading component */
   protected readonly currentProgressStep = signal<ProgressStep>(null);
@@ -120,7 +118,7 @@ export class MemberAccessReportComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.isLoading$.next(true);
+    this.isLoading.set(true);
 
     const params = await firstValueFrom(this.route.params);
     this.organizationId = params.organizationId;
@@ -133,7 +131,7 @@ export class MemberAccessReportComponent implements OnInit {
 
     await this.load();
 
-    this.isLoading$.next(false);
+    this.isLoading.set(false);
   }
 
   async load() {
