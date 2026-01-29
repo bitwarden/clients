@@ -157,6 +157,8 @@ export default {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: of(false),
+            hasArchiveFlagEnabled$: of(false),
+            archiveWithServer: () => Promise.resolve(),
           },
         },
         {
@@ -274,12 +276,6 @@ export default {
           provide: PolicyService,
           useValue: {
             policiesByType$: new BehaviorSubject([]),
-          },
-        },
-        {
-          provide: CipherArchiveService,
-          useValue: {
-            archiveWithServer: () => Promise.resolve(),
           },
         },
       ],
