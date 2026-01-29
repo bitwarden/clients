@@ -1,14 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectorRef,
-  Component,
-  inject,
-  NgZone,
-  OnDestroy,
-  OnInit,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import {
@@ -158,6 +151,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
+    // VaultItemDrawerComponent
   ],
   providers: [
     {
@@ -727,7 +721,6 @@ export class VaultComponent<C extends CipherViewLike>
     });
   }
 
-
   async shouldReprompt(cipher: CipherView, action: "edit" | "clone" | "view"): Promise<boolean> {
     return !(await this.passwordReprompt(cipher));
   }
@@ -743,7 +736,6 @@ export class VaultComponent<C extends CipherViewLike>
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
   }
-
 
   async editCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "edit")) {
@@ -858,7 +850,6 @@ export class VaultComponent<C extends CipherViewLike>
     }
   }
 
-
   async deleteCipher(c: CipherView): Promise<boolean> {
     if (!(await this.repromptCipher([c as C]))) {
       return;
@@ -934,7 +925,6 @@ export class VaultComponent<C extends CipherViewLike>
     // this.changeDetectorRef.detectChanges();
     // await this.go().catch(() => {});
   };
-
 
   async handleFavoriteEvent(cipher: C) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1052,8 +1042,6 @@ export class VaultComponent<C extends CipherViewLike>
     this.refresh$.next();
   }
 
-
-
   async copy(cipher: C, field: "username" | "password" | "totp") {
     let aType;
     let value;
@@ -1127,7 +1115,10 @@ export class VaultComponent<C extends CipherViewLike>
    * Handles the result when the drawer closes and refreshes the vault if needed.
    */
   private async openDrawer(params: VaultItemDrawerParams) {
-    const dialogRef = VaultItemDrawerComponent.open(this.dialogService, params);
+    const dialogRef = VaultItemDrawerComponent.open(this.dialogService, {
+      ...params,
+      filter: this.filter,
+    });
     const result = await firstValueFrom(dialogRef.closed);
 
     if (result === VaultItemDrawerResult.Saved || result === VaultItemDrawerResult.Deleted) {

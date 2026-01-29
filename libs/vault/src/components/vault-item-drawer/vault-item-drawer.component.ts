@@ -7,6 +7,7 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  Optional,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -48,7 +49,11 @@ import {
   ToastService,
   CenterPositionStrategy,
   IconButtonModule,
+  BadgeModule,
+  DrawerModule,
+  // DialogComponent,
 } from "@bitwarden/components";
+// import { DrawerModule } from "@bitwarden/components/src/drawer";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentDialogCloseResult,
@@ -59,7 +64,7 @@ import {
   CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
-  RoutedVaultFilterService,
+  // RoutedVaultFilterService,
   RoutedVaultFilterModel,
 } from "@bitwarden/vault";
 
@@ -97,6 +102,11 @@ export interface VaultItemDrawerParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<boolean>;
+
+  /**
+   * The current vault filter state.
+   */
+  filter?: RoutedVaultFilterModel;
 }
 
 export const VaultItemDrawerResult = {
@@ -132,16 +142,15 @@ export type VaultItemDrawerResult = UnionOfValues<typeof VaultItemDrawerResult>;
     ButtonModule,
     IconButtonModule,
     CipherViewComponent,
-    DialogModule,
+    DrawerModule,
+    BadgeModule,
     CommonModule,
     I18nPipe,
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
     PremiumBadgeComponent,
-  ],
-  providers: [
-    RoutedVaultFilterService,
+    DialogModule,
   ],
 })
 export class VaultItemDrawerComponent implements OnInit, OnDestroy {
@@ -318,20 +327,20 @@ export class VaultItemDrawerComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private premiumUpgradeService: PremiumUpgradePromptService,
+    @Optional() private premiumUpgradeService: PremiumUpgradePromptService,
     private cipherAuthorizationService: CipherAuthorizationService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
-    private routedVaultFilterService: RoutedVaultFilterService,
+    // private routedVaultFilterService: RoutedVaultFilterService,
     private archiveService: CipherArchiveService,
   ) {
     this.updateTitle();
-    this.premiumUpgradeService.upgradeConfirmed$
-      .pipe(
+    this.premiumUpgradeService?.upgradeConfirmed$
+      ?.pipe(
         map((c) => c && (this.confirmedPremiumUpgrade = true)),
         takeUntilDestroyed(),
       )
-      .subscribe();
+      ?.subscribe();
   }
 
   async ngOnInit() {
@@ -368,7 +377,7 @@ export class VaultItemDrawerComponent implements OnInit, OnDestroy {
       );
     }
 
-    this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
+    this.filter = this.params.filter;
 
     this.showRestore = await this.canUserRestore();
     this.performingInitialLoad = false;
@@ -713,12 +722,12 @@ export class VaultItemDrawerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Opens the VaultItemDrawer.
+   * Opens the VaultItemDrawer as a side drawer.
    * @param dialogService
    * @param params
    */
   static open(dialogService: DialogService, params: VaultItemDrawerParams) {
-    return dialogService.open<VaultItemDrawerResult, VaultItemDrawerParams>(
+    return dialogService.openDrawer<VaultItemDrawerResult, VaultItemDrawerParams>(
       VaultItemDrawerComponent,
       {
         data: params,
