@@ -333,7 +333,7 @@ jobs:
       - name: Setup Ruby and Install Fastlane
         uses: ruby/setup-ruby@708024e6c902387ab41de36e1669e43b5ee7085e # v1.283.0
         with:
-          ruby-version: '3.4.7'
+          ruby-version: '4.0.0'
           bundler-cache: false
           working-directory: apps/desktop
 
