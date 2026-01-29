@@ -21,6 +21,8 @@ export class VaultProfileService {
    * Returns the creation date of the profile.
    * Note: `Date`s are mutable in JS, creating a new
    * instance is important to avoid unwanted changes.
+   *
+   * @deprecated use `creationDate` directly from the `AccountService.activeAccount$` instead.
    */
   async getProfileCreationDate(userId: string): Promise<Date> {
     if (this.profileCreatedDate && userId === this.userId) {
