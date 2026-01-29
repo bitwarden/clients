@@ -225,9 +225,12 @@ describe("RiskInsightsOrchestratorService", () => {
       it("should complete destroy$ subject and unsubscribe reportStateSubscription", () => {
         const harness = new TestHarness(service);
 
-        // Spy on the methods you expect to be called.
-        const destroyCompleteSpy = jest.spyOn(harness.getDestroySubject(), "complete");
-        const unsubscribeSpy = jest.spyOn(harness.getReportStateSubscription(), "unsubscribe");
+        const destroySubject = harness.getDestroySubject();
+        const destroyCompleteSpy = jest.spyOn(destroySubject, "complete");
+
+        const reportStateSubscription = harness.getReportStateSubscription();
+        expect(reportStateSubscription).not.toBeNull();
+        const unsubscribeSpy = jest.spyOn(reportStateSubscription!, "unsubscribe");
 
         // Execute the destroy method.
         service.destroy();
@@ -242,7 +245,6 @@ describe("RiskInsightsOrchestratorService", () => {
   describe("criticalReportResults$", () => {
     it("should filter reportData and applicationData to only include critical applications", (done) => {
       // Arrange: Create test data with both critical and non-critical applications
-      // Note: Using plain object instead of mock() because arrays need to work with .filter()
       const testEnrichedReportData: RiskInsightsEnrichedData = {
         reportData: [
           { ...mockEnrichedReportData[0], isMarkedAsCritical: true }, // Critical app
