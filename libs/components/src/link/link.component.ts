@@ -135,9 +135,8 @@ export class LinkComponent {
 
   readonly classList = computed(() => {
     return [
-      this.isButton
-        ? "before:-tw-inset-y-[0.25rem]"
-        : "before:-tw-inset-y-[0.125rem] tw-inline-flex",
+      this.isButton ? "before:-tw-inset-y-[0.25rem]" : "before:-tw-inset-y-[0.125rem]",
+      "tw-inline-flex",
     ]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
