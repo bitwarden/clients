@@ -983,7 +983,20 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleMutationObserverMutation = (mutations: MutationRecord[]) => {
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[AutofillMutation] %c🔔 Mutation observer triggered with ${mutations.length} mutation(s)`,
+      "color: #5856d6; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     if (this.currentLocationHref !== globalThis.location.href) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[AutofillMutation] %c🌐 Location changed → handling navigation",
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
       this.handleWindowLocationMutation();
 
       return;
@@ -992,6 +1005,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
     if (hasMutationsInShadowRoot) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[AutofillMutation] %c⚡ Shadow root mutation detected → scheduling debounced page update",
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
       this.debouncedRequirePageDetailsUpdate();
     }
 
@@ -999,13 +1018,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.pendingShadowDomCheck = true;
 
       if (this.shadowDomCheckTimeout) {
+        // eslint-disable-next-line no-console
+        console.log(
+          "%c[AutofillMutation] %c⏱️  Resetting expensive check timer (new mutation before timeout)",
+          "color: #5856d6; font-weight: bold",
+          "color: #a0a0a0",
+        );
         clearTimeout(this.shadowDomCheckTimeout);
       }
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[AutofillMutation] %c⏰ Scheduling expensive shadow root scan in ${this.shadowDomCheckTimeoutMs}ms`,
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
 
       this.shadowDomCheckTimeout = setTimeout(() => {
         this.checkForNewShadowRoots();
         this.pendingShadowDomCheck = false;
       }, this.shadowDomCheckTimeoutMs);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[AutofillMutation] %c⏭️  Expensive check already pending → skipping duplicate schedule",
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
     }
 
     if (!this.mutationsQueue.length) {
@@ -1067,6 +1106,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
   private requirePageDetailsUpdate = () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      "%c[AutofillMutation] %c📋 requirePageDetailsUpdate() executed → page will be rescanned",
+      "color: #5856d6; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
@@ -1088,7 +1134,20 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private checkForNewShadowRoots = () => {
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
     if (hasNewShadowRoots) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[AutofillMutation] %c🆕 New shadow roots found → triggering page rescan",
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
       this.debouncedRequirePageDetailsUpdate();
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[AutofillMutation] %c✅ No new shadow roots (all already observed)",
+        "color: #5856d6; font-weight: bold",
+        "color: #a0a0a0",
+      );
     }
   };
 

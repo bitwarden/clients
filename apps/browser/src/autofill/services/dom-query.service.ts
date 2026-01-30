@@ -92,10 +92,19 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any mutation occurred within a shadow root
    */
   checkMutationsInShadowRoots = (mutations: MutationRecord[]): boolean => {
-    return mutations.some((mutation) => {
+    const result = mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
       return root instanceof ShadowRoot;
     });
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[ShadowDOM:Lightweight] %cChecked ${mutations.length} mutation(s) → ${result ? "✓ Found in shadow root" : "✗ Light DOM only"}`,
+      "color: #00d4ff; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
+    return result;
   };
 
   /**
@@ -104,15 +113,32 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any new shadow roots are found that aren't being observed
    */
   checkForNewShadowRoots = (): boolean => {
+    // eslint-disable-next-line no-console
+    console.log(
+      "%c[ShadowDOM:Expensive] %c🔍 Scanning entire DOM for shadow roots...",
+      "color: #ff9500; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     const currentRoots = this.queryShadowRoots(globalThis.document.body);
+    let newRootsFound = 0;
 
     for (const root of currentRoots) {
       if (!this.observedShadowRoots.has(root)) {
-        return true;
+        newRootsFound++;
       }
     }
 
-    return false;
+    const result = newRootsFound > 0;
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[ShadowDOM:Expensive] %cFound ${currentRoots.length} total shadow root(s), ${newRootsFound} new → ${result ? "✓ Will observe new roots" : "✗ All already observed"}`,
+      "color: #ff9500; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
+    return result;
   };
 
   /**
@@ -120,6 +146,13 @@ export class DomQueryService implements DomQueryServiceInterface {
    * observer is recreated or on significant lifecycle events (like navigation).
    */
   resetObservedShadowRoots = (): void => {
+    // eslint-disable-next-line no-console
+    console.log(
+      "%c[ShadowDOM:Reset] %c🔄 Clearing observed shadow roots (navigation detected)",
+      "color: #ff3b30; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     this.observedShadowRoots = new WeakSet<ShadowRoot>();
   };
 
@@ -161,6 +194,14 @@ export class DomQueryService implements DomQueryServiceInterface {
           subtree: true,
         });
         this.observedShadowRoots.add(shadowRoot);
+
+        // eslint-disable-next-line no-console
+        console.log(
+          "%c[ShadowDOM:Track] %c➕ Added shadow root to WeakSet (deepQuery)",
+          "color: #34c759; font-weight: bold",
+          "color: #a0a0a0",
+          shadowRoot,
+        );
       }
     }
 
@@ -331,6 +372,14 @@ export class DomQueryService implements DomQueryServiceInterface {
             subtree: true,
           });
           this.observedShadowRoots.add(nodeShadowRoot);
+
+          // eslint-disable-next-line no-console
+          console.log(
+            "%c[ShadowDOM:Track] %c➕ Added shadow root to WeakSet (treeWalker)",
+            "color: #34c759; font-weight: bold",
+            "color: #a0a0a0",
+            nodeShadowRoot,
+          );
         }
 
         this.buildTreeWalkerNodesQueryResults(
