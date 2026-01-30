@@ -6,7 +6,9 @@
           bitCheckbox
           type="checkbox"
           [checked]="allAppsSelected()"
+          [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
           (change)="selectAllChanged($event.target)"
+          [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
         />
       </th>
       <th bitCell></th>

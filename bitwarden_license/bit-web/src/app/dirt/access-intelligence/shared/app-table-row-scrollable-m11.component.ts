@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { MenuModule, TableDataSource, TableModule } from "@bitwarden/components";
+import { MenuModule, TableDataSource, TableModule, TooltipDirective } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
@@ -14,7 +14,15 @@ import { ApplicationTableDataSource } from "./app-table-row-scrollable.component
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-table-row-scrollable-m11",
-  imports: [CommonModule, JslibModule, TableModule, SharedModule, PipesModule, MenuModule],
+  imports: [
+    CommonModule,
+    JslibModule,
+    TableModule,
+    SharedModule,
+    PipesModule,
+    MenuModule,
+    TooltipDirective,
+  ],
   templateUrl: "./app-table-row-scrollable-m11.component.html",
 })
 export class AppTableRowScrollableM11Component {
