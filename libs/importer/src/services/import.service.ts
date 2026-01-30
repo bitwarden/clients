@@ -31,6 +31,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { KeyService } from "@bitwarden/key-management";
 
 import {
+  ArcCsvImporter,
   AscendoCsvImporter,
   AvastCsvImporter,
   AvastJsonImporter,
@@ -256,6 +257,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "arccsv":
+        return new ArcCsvImporter();
       case "edgecsv":
       case "chromecsv":
       case "operacsv":

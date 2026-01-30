@@ -354,6 +354,57 @@ line2</Value>
 		</Group>
 		<DeletedObjects />
 </KeePassFile>`;
+export const TestDataWithProtectedFields = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<KeePassFile>
+	<Root>
+		<Group>
+			<UUID>KvS57lVwl13AfGFLwkvq4Q==</UUID>
+			<Name>Root</Name>
+			<Entry>
+				<UUID>fAa543oYlgnJKkhKag5HLw==</UUID>
+				<String>
+					<Key>Title</Key>
+					<Value>Test Entry</Value>
+				</String>
+				<String>
+					<Key>UserName</Key>
+					<Value>testuser</Value>
+				</String>
+				<String>
+					<Key>Password</Key>
+					<Value ProtectInMemory="True">testpass</Value>
+				</String>
+				<String>
+					<Key>URL</Key>
+					<Value>https://example.com</Value>
+				</String>
+				<String>
+					<Key>Notes</Key>
+					<Value>Regular notes</Value>
+				</String>
+				<String>
+					<Key>SAFE UN-LOCKING instructions</Key>
+					<Value ProtectInMemory="True">Secret instructions here</Value>
+				</String>
+				<String>
+					<Key>CustomField</Key>
+					<Value>Custom value</Value>
+				</String>
+				<String>
+					<Key>LongProtectedField</Key>
+					<Value ProtectInMemory="True">This is a very long protected field value that exceeds 200 characters. It contains sensitive information that should be imported as a hidden field and not appended to the notes section. This text is long enough to trigger the old behavior.</Value>
+				</String>
+				<String>
+					<Key>MultilineProtectedField</Key>
+					<Value ProtectInMemory="True">Line 1
+Line 2
+Line 3</Value>
+				</String>
+			</Entry>
+		</Group>
+	</Root>
+</KeePassFile>`;
+
 export const TestData2 = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 	<Meta>
 		<Generator>KeePass</Generator>

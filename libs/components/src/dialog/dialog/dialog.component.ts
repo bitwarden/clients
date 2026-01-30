@@ -145,6 +145,26 @@ export class DialogComponent implements AfterViewInit {
   });
 
   ngAfterViewInit() {
+    this.focusOnHeader();
+  }
+
+  handleEsc(event: Event) {
+    if (!this.dialogRef?.disableClose) {
+      this.dialogRef?.close();
+      event.stopPropagation();
+    }
+  }
+
+  onAnimationEnd() {
+    this.animationCompleted.set(true);
+  }
+
+  /**
+   * Moves focus to the dialog header element.
+   * This is done automatically when the dialog is opened but can be called manually
+   * when the contents of the dialog change and focus should be reset.
+   */
+  focusOnHeader(): void {
     /**
      * Wait a tick for any focus management to occur on the trigger element before moving focus to
      * the dialog header. We choose the dialog header because it is always present, unlike possible
@@ -158,16 +178,5 @@ export class DialogComponent implements AfterViewInit {
     }, 0);
 
     this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
-  }
-
-  handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
-      event.stopPropagation();
-    }
-  }
-
-  onAnimationEnd() {
-    this.animationCompleted.set(true);
   }
 }

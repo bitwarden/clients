@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Запис остаточно видалено"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "Запис відновлено"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Архівувати запис"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

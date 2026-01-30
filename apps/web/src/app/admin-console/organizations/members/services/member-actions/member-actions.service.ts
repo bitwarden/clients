@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom } from "rxjs";
+import { lastValueFrom, firstValueFrom, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -10,8 +10,8 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
-  OrganizationUserType,
   OrganizationUserStatusType,
+  OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -119,7 +119,21 @@ export class MemberActionsService {
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.restoreOrganizationUser(organization.id, userId);
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore).pipe(
+          switchMap((enabled) => {
+            if (enabled) {
+              return this.organizationUserService.restoreUser(organization, userId);
+            } else {
+              return this.organizationUserApiService.restoreOrganizationUser(
+                organization.id,
+                userId,
+              );
+            }
+          }),
+        ),
+      );
+
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
@@ -175,18 +189,9 @@ export class MemberActionsService {
   async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
     this.startProcessing();
     try {
-      const increaseBulkReinviteLimitForCloud = await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+      return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
+        this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
       );
-      if (increaseBulkReinviteLimitForCloud) {
-        return await this.vNextBulkReinvite(organization, userIds);
-      } else {
-        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
-          organization.id,
-          userIds,
-        );
-        return { successful: result, failed: [] };
-      }
     } catch (error) {
       return {
         failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
@@ -194,15 +199,6 @@ export class MemberActionsService {
     } finally {
       this.endProcessing();
     }
-  }
-
-  async vNextBulkReinvite(
-    organization: Organization,
-    userIds: UserId[],
-  ): Promise<BulkActionResult> {
-    return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
-      this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
-    );
   }
 
   allowResetPassword(

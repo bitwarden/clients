@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Vienums neatgriezeniski izdzēsts"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
   "restoredItem": {
     "message": "Vienums atjaunots"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Arhivēt vienumu"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "unArchiveAndSave": {
     "message": "Atcelt arhivēšanu un saglabāt"

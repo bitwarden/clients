@@ -353,6 +353,19 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-black);
+
+  /**========================================
+   * SIDENAV BACKGROUND COLORS (Light mode)
+   * ======================================== */
+  --color-sidenav-background: var(--color-brand-800);
+  --color-sidenav-text: var(--color-white);
+  --color-sidenav-active-item: var(--color-brand-900);
+  --color-sidenav-item-hover: var(--color-brand-900);
+
+  --color-admin-sidenav-background: var(--color-gray-100);
+  --color-admin-sidenav-text: var(--color-gray-900);
+  --color-admin-sidenav-active-item: var(--color-gray-300);
+  --color-admin-sidenav-item-hover: var(--color-gray-300);
 }
 
 .theme_light {
@@ -542,6 +555,19 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-white);
+
+  /**========================================
+    * SIDENAV BACKGROUND COLORS (Dark mode)
+    * ======================================== */
+  --color-sidenav-background: var(--color-gray-800);
+  --color-sidenav-text: var(--color-white);
+  --color-sidenav-active-item: var(--color-gray-900);
+  --color-sidenav-item-hover: var(--color-gray-900);
+
+  --color-admin-sidenav-background: var(--color-gray-800);
+  --color-admin-sidenav-text: var(--color-white);
+  --color-admin-sidenav-active-item: var(--color-gray-900);
+  --color-admin-sidenav-item-hover: var(--color-gray-900);
 }
 
 @layer components {
