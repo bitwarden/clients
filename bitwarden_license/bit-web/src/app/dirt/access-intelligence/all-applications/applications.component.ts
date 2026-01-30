@@ -178,8 +178,14 @@ export class ApplicationsComponent implements OnInit {
     this.selectedFilter.set(value);
   }
 
-  isMarkedAsCriticalItem(applicationName: string) {
-    return this.selectedUrls().has(applicationName);
+  allSelectedAppsAreCritical() {
+    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
+      return false;
+    }
+
+    return this.dataSource.filteredData
+      .filter((row) => this.selectedUrls().has(row.applicationName))
+      .every((row) => row.isMarkedAsCritical);
   }
 
   markAppsAsCritical = async () => {

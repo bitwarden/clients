@@ -22,18 +22,31 @@
         class="tw-min-w-48"
       ></bit-chip-select>
 
-      <button
-        type="button"
-        [buttonType]="'primary'"
-        bitButton
-        class="tw-ml-auto"
-        [disabled]="!selectedUrls().size"
-        [loading]="markingAsCritical()"
-        (click)="markAppsAsCritical()"
-      >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
-        {{ "markAppAsCritical" | i18n }}
-      </button>
+      @if (selectedUrls().size > 0) {
+        @if (allSelectedAppsAreCritical()) {
+          <button
+            type="button"
+            [buttonType]="'primary'"
+            bitButton
+            class="tw-ml-auto"
+            [loading]="markingAsCritical()"
+            (click)="markAppsAsCritical()"
+          >
+            {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            [buttonType]="'primary'"
+            bitButton
+            class="tw-ml-auto"
+            [loading]="markingAsCritical()"
+            (click)="markAppsAsCritical()"
+          >
+            {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}
+          </button>
+        }
+      }
     </div>
 
     <app-table-row-scrollable-m11
