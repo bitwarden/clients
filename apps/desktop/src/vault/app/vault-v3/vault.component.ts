@@ -879,6 +879,10 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
       ),
     );
+
+    this.cipherFormComponent?.clearCachedCipherView();
+
+    await this.buildFormConfig("edit");
   }
 
   private dirtyInput(): boolean {
