@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
   },
+  "unlockWithPasskey": {
+    "message": "Odomknúť pomocou prístupového kľúča"
+  },
   "useSingleSignOn": {
     "message": "Použiť jednotné prihlásenie"
   },
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Ktokoľvek s odkazom"
+  },
+  "anyOneWithPassword": {
+    "message": "Ktokoľvek s heslom od vás"
   },
   "location": {
     "message": "Poloha"
@@ -2044,6 +2053,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "E-maily"
   },
   "phone": {
     "message": "Telefón"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "prfUnlockFailed": {
+    "message": "Odomknutie pomocou prístupového kľúča zlyhalo. Skúste to znovu alebo použite inú metódu odomknutia."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Na odomkntuie nie sú k dispozícii žiadne PRF-enabled prístupové kľúče. Najskôr sa prihláste pomocou prístupového kľúča."
   },
   "decryptionError": {
     "message": "Chyba dešifrovania"
@@ -4992,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Stiahnuť prílohu"
+  },
   "downloadBitwarden": {
     "message": "Stiahnuť Bitwarden"
   },
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
+  },
+  "whoCanView": {
+    "message": "Kto môže zobraziť"
+  },
+  "specificPeople": {
+    "message": "Konkrétne osoby"
+  },
+  "emailVerificationDesc": {
+    "message": "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
+  },
+  "emailPlaceholder": {
+    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   }
 }

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
+  "unlockWithPasskey": {
+    "message": "Розблокувати з ключем доступу"
+  },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
@@ -583,7 +586,7 @@
     "message": "Архівувати запис"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення."
   },
   "archived": {
     "message": "Архівовано"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "noAuth": {
+    "message": "Будь-хто з посиланням"
+  },
+  "anyOneWithPassword": {
+    "message": "Будь-хто зі встановленим вами паролем"
   },
   "location": {
     "message": "Розташування"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "Е-пошта"
   },
+  "emails": {
+    "message": "Е-пошти"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2474,7 +2486,7 @@
     "message": "Запис остаточно видалено"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Архівований запис відновлено"
   },
   "restoreItem": {
     "message": "Відновити запис"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "prfUnlockFailed": {
+    "message": "Не вдалося розблокувати за допомогою ключа доступу. Повторіть спробу або скористайтеся іншим способом розблокування."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Немає ключів доступу з підтримкою PRF, доступних для розблокування. Спочатку увійдіть з ключем доступу."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -4743,7 +4761,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Більше опцій"
   },
   "moreOptionsTitle": {
     "message": "Інші можливості – $ITEMNAME$",
@@ -4992,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Завантажити вкладення"
+  },
   "downloadBitwarden": {
     "message": "Завантажити Bitwarden"
   },
@@ -5132,10 +5153,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Показати виявлення збігів"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Приховати виявлення збігів"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично заповнювати під час завантаження сторінки?"
@@ -5674,7 +5695,7 @@
     "message": "Дуже широке"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Вузький"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
+  },
+  "whoCanView": {
+    "message": "Хто може переглядати"
+  },
+  "specificPeople": {
+    "message": "Певні люди"
+  },
+  "emailVerificationDesc": {
+    "message": "Після того, як ви поділитеся цим посиланням на відправлення, особам необхідно буде підтвердити свої е-пошти за допомогою коду, щоб переглянути це відправлення."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

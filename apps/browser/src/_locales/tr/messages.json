@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
+  "unlockWithPasskey": {
+    "message": "Kilidi geçiş anahtarıyla aç"
+  },
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
   },
   "location": {
     "message": "Konum"
@@ -2044,6 +2053,9 @@
   },
   "email": {
     "message": "E-posta"
+  },
+  "emails": {
+    "message": "E-postalar"
   },
   "phone": {
     "message": "Telefon"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Hata"
+  },
+  "prfUnlockFailed": {
+    "message": "Kilit geçiş anahtarıyla açılamadı. Lütfen yeniden deneyin veya başka bir kilit açma yöntemi kullanın."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Kilit açma için PRF uyumlu bir geçiş anahtarı bulunamadı. Lütfen önce bir geçiş anahtarıyla giriş yapın."
   },
   "decryptionError": {
     "message": "Şifre çözme sorunu"
@@ -4992,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Ek dosyayı indir"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden’ı indirin"
   },
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
   }
 }

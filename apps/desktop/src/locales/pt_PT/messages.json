@@ -3499,7 +3499,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor introduzido deve ser, no mínimo, $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -4407,7 +4407,7 @@
     "message": "Desarquivar e guardar"
   },
   "restartPremium": {
-    "message": "Reiniciar Premium"
+    "message": "Reiniciar o Premium"
   },
   "premiumSubscriptionEnded": {
     "message": "A sua subscrição Premium terminou"

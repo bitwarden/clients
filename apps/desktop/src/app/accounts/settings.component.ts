@@ -385,7 +385,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
       ),
       pin: this.userHasPinSet,
-      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         activeAccount.id,
       )),

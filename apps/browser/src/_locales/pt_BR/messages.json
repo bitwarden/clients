@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Conectar-se com chave de acesso"
   },
+  "unlockWithPasskey": {
+    "message": "Desbloquear com chave de acesso"
+  },
   "useSingleSignOn": {
     "message": "Usar autenticação única"
   },
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Não"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Localização"
@@ -2044,6 +2053,9 @@
   },
   "email": {
     "message": "E-mail"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefone"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "prfUnlockFailed": {
+    "message": "Falha no desbloqueio com a chave de acesso. Tente novamente ou use outro método de desbloqueio."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Nenhuma chave de acesso com PRF está disponível para desbloqueio. Conecte-se com uma chave de acesso primeiro."
   },
   "decryptionError": {
     "message": "Erro de descriptografia"
@@ -4992,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Baixar anexo"
+  },
   "downloadBitwarden": {
     "message": "Baixar o Bitwarden"
   },
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

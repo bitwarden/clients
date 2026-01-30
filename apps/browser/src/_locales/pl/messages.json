@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Logowanie kluczem dostępu"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Użyj logowania jednokrotnego"
   },
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Lokalizacja"
@@ -2044,6 +2053,9 @@
   },
   "email": {
     "message": "Adres e-mail"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Numer telefonu"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Błąd"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Błąd odszyfrowywania"
@@ -4836,7 +4854,7 @@
     "message": "Konsola administratora"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Administrator"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4991,6 +5009,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Pobierz załącznik"
   },
   "downloadBitwarden": {
     "message": "Pobierz Bitwarden"
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

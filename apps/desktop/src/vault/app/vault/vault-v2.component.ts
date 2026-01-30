@@ -642,77 +642,80 @@ export class VaultV2Component<C extends CipherViewLike>
       });
     }
 
-    switch (cipher.type) {
-      case CipherType.Login:
-        if (
-          cipher.login.canLaunch ||
-          cipher.login.username != null ||
-          cipher.login.password != null
-        ) {
-          menu.push({ type: "separator" });
-        }
-        if (cipher.login.canLaunch) {
-          menu.push({
-            label: this.i18nService.t("launch"),
-            click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
-          });
-        }
-        if (cipher.login.username != null) {
-          menu.push({
-            label: this.i18nService.t("copyUsername"),
-            click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
-          });
-        }
-        if (cipher.login.password != null && cipher.viewPassword) {
-          menu.push({
-            label: this.i18nService.t("copyPassword"),
-            click: () => {
-              this.copyValue(cipher, cipher.login.password, "password", "Password");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
-        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
-          menu.push({
-            label: this.i18nService.t("copyVerificationCodeTotp"),
-            click: async () => {
-              const value = await firstValueFrom(
-                this.totpService.getCode$(cipher.login.totp),
-              ).catch((): any => null);
-              if (value) {
-                this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
-              }
-            },
-          });
-        }
-        break;
-      case CipherType.Card:
-        if (cipher.card.number != null || cipher.card.code != null) {
-          menu.push({ type: "separator" });
-        }
-        if (cipher.card.number != null) {
-          menu.push({
-            label: this.i18nService.t("copyNumber"),
-            click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
-          });
-        }
-        if (cipher.card.code != null) {
-          menu.push({
-            label: this.i18nService.t("copySecurityCode"),
-            click: () => {
-              this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
-        break;
-      default:
-        break;
+    if (!cipher.isDeleted) {
+      switch (cipher.type) {
+        case CipherType.Login:
+          if (
+            cipher.login.canLaunch ||
+            cipher.login.username != null ||
+            cipher.login.password != null
+          ) {
+            menu.push({ type: "separator" });
+          }
+          if (cipher.login.canLaunch) {
+            menu.push({
+              label: this.i18nService.t("launch"),
+              click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
+            });
+          }
+          if (cipher.login.username != null) {
+            menu.push({
+              label: this.i18nService.t("copyUsername"),
+              click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
+            });
+          }
+          if (cipher.login.password != null && cipher.viewPassword) {
+            menu.push({
+              label: this.i18nService.t("copyPassword"),
+              click: () => {
+                this.copyValue(cipher, cipher.login.password, "password", "Password");
+                this.eventCollectionService
+                  .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
+                  .catch(() => {});
+              },
+            });
+          }
+          if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
+            menu.push({
+              label: this.i18nService.t("copyVerificationCodeTotp"),
+              click: async () => {
+                const value = await firstValueFrom(
+                  this.totpService.getCode$(cipher.login.totp),
+                ).catch((): any => null);
+                if (value) {
+                  this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+                }
+              },
+            });
+          }
+          break;
+        case CipherType.Card:
+          if (cipher.card.number != null || cipher.card.code != null) {
+            menu.push({ type: "separator" });
+          }
+          if (cipher.card.number != null) {
+            menu.push({
+              label: this.i18nService.t("copyNumber"),
+              click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
+            });
+          }
+          if (cipher.card.code != null) {
+            menu.push({
+              label: this.i18nService.t("copySecurityCode"),
+              click: () => {
+                this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
+                this.eventCollectionService
+                  .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
+                  .catch(() => {});
+              },
+            });
+          }
+          break;
+        default:
+          break;
+      }
     }
+
     invokeMenu(menu);
   }
 
