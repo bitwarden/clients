@@ -1,18 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { AsyncPipe } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
 import { Observable, of, switchMap } from "rxjs";
 
-import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
@@ -30,20 +27,23 @@ import {
   MenuModule,
   ButtonModule,
   IconButtonModule,
-  SearchModule,
+  NoItemsModule,
 } from "@bitwarden/components";
-import { OrganizationId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { NewCipherMenuComponent, VaultItem, VaultItemEvent } from "@bitwarden/vault";
-
-import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
+import { NewCipherMenuComponent, VaultItem } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
+import { VaultItemEvent } from "./vault-items/vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 75;
 export const RowHeightClass = `tw-h-[75px]`;
+type EmptyStateItem = {
+  title: string;
+  description: string;
+  icon: BitSvg;
+};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -58,12 +58,10 @@ export const RowHeightClass = `tw-h-[75px]`;
     MenuModule,
     ButtonModule,
     IconButtonModule,
-    SearchModule,
-    FormsModule,
-    DesktopHeaderComponent,
-    NewCipherMenuComponent,
     VaultCollectionRowComponent,
     VaultCipherRowComponent,
+    NoItemsModule,
+    NewCipherMenuComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -71,7 +69,6 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly disabled = input<boolean>();
   protected readonly showOwner = input<boolean>();
-  protected readonly useEvents = input<boolean>();
   protected readonly showPremiumFeatures = input<boolean>();
   protected readonly allOrganizations = input<Organization[]>([]);
   protected readonly allCollections = input<CollectionView[]>([]);
@@ -80,6 +77,9 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly placeholderText = input<string>("");
   protected readonly ciphers = input<C[]>([]);
   protected readonly collections = input<CollectionView[]>([]);
+  protected readonly isEmpty = input<boolean>();
+  protected readonly showAddCipherBtn = input<boolean>();
+  protected readonly emptyStateItem = input<EmptyStateItem>();
 
   protected onEvent = output<VaultItemEvent<C>>();
   protected onAddCipher = output<CipherType>();
@@ -88,13 +88,9 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   protected cipherArchiveService = inject(CipherArchiveService);
-  private searchService = inject(SearchService);
-  private searchPipe = inject(SearchPipe);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
   private restrictedTypes: RestrictedCipherType[] = [];
-  protected searchText = "";
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
@@ -124,11 +120,6 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected addFolder() {
     this.onAddFolder.emit();
-  }
-
-  protected onSearchTextChanged(searchText: string) {
-    this.searchText = searchText;
-    this.refreshItems();
   }
 
   protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
@@ -170,69 +161,17 @@ export class VaultListComponent<C extends CipherViewLike> {
   }
 
   private refreshItems() {
-    const filteredCollections: CollectionView[] = this.searchText
-      ? this.searchPipe.transform(
-          this.collections() || [],
-          this.searchText,
-          (collection) => collection.name,
-          (collection) => collection.id,
-        )
-      : this.collections() || [];
-
-    const allowedCiphers = this.ciphers().filter(
-      (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
-    );
-
-    const filteredCiphers: C[] = this.searchText
-      ? this.searchService.searchCiphersBasic(allowedCiphers, this.searchText)
-      : allowedCiphers;
-
-    const collections: VaultItem<C>[] = filteredCollections.map((collection) => ({ collection }));
-    const ciphers: VaultItem<C>[] = filteredCiphers.map((cipher) => ({ cipher }));
+    const collections: VaultItem<C>[] =
+      this.collections()?.map((collection) => ({ collection })) || [];
+    const ciphers: VaultItem<C>[] = this.ciphers()
+      .filter(
+        (cipher) =>
+          !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
+      )
+      .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
     this.dataSource.data = items;
-  }
-
-  protected assignToCollections() {
-    this.event({
-      type: "assignToCollections",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected showAssignToCollections(): boolean {
-    // When the user doesn't belong to an organization, hide assign to collections
-    if (this.allOrganizations().length === 0) {
-      return false;
-    }
-
-    if (this.selection.selected.length === 0) {
-      return false;
-    }
-
-    const hasPersonalItems = this.hasPersonalItems();
-    const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
-    const hasEditableCollections = this.allCollections().some((collection) => {
-      return !collection.readOnly;
-    });
-
-    // Return false if items are from different organizations
-    if (uniqueCipherOrgIds.size > 1) {
-      return false;
-    }
-
-    // If all selected items are personal, return based on personal items
-    if (uniqueCipherOrgIds.size === 0 && hasEditableCollections) {
-      return hasPersonalItems;
-    }
-
-    const collectionNotSelected =
-      this.selection.selected.filter((item) => item.collection).length === 0;
-
-    return this.allCiphersHaveEditAccess() && collectionNotSelected && hasEditableCollections;
   }
 
   /**
@@ -263,17 +202,7 @@ export class VaultListComponent<C extends CipherViewLike> {
     return getName(a)?.localeCompare(getName(b)) ?? -1;
   }
 
-  private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
-  }
-
-  private allCiphersHaveEditAccess(): boolean {
-    return this.selection.selected
-      .filter(({ cipher }) => cipher)
-      .every(({ cipher }) => cipher?.edit && cipher?.viewPassword);
-  }
-
-  private getUniqueOrganizationIds(): Set<string | [] | OrganizationId> {
-    return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
+  protected trackByFn(index: number, item: VaultItem<C>) {
+    return item.cipher?.id || item.collection?.id || index;
   }
 }

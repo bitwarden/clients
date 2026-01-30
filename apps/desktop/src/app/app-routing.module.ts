@@ -359,6 +359,7 @@ const routes: Routes = [
       {
         path: "new-vault",
         component: VaultWrapperComponent,
+        data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
         path: "new-sends",

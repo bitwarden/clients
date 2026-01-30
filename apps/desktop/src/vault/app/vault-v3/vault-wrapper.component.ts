@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { from } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -20,7 +19,7 @@ export class VaultWrapperComponent {
   private configService: ConfigService = inject(ConfigService);
 
   protected readonly useMilestone3 = toSignal(
-    from(this.configService.getFeatureFlag(FeatureFlag.DesktopUiMigrationMilestone3)),
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3),
   );
 
   protected readonly componentToRender = computed(() =>

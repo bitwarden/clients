@@ -6,6 +6,7 @@ import { CollectionPermission } from "@bitwarden/web-vault/app/admin-console/org
 // Extend base events with web-specific events
 export type VaultItemEvent<C extends CipherViewLike> =
   | BaseVaultItemEvent<C>
+  | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
   | { type: "bulkEditCollectionAccess"; items: CollectionView[] }
   | {
       type: "viewCollectionAccess";
