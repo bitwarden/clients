@@ -20,7 +20,7 @@
 >
 </app-vault-onboarding>
 
-<div class="tw-flex tw-flex-row -tw-mx-2.5">
+<div class="tw-flex tw-flex-row -tw-mx-2.5 tw-flex-1">
   <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
     <app-vault-filter
       #vaultFilter
@@ -30,7 +30,7 @@
       (onEditFolder)="editFolder($event)"
     ></app-vault-filter>
   </div>
-  <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5">
+  <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5 tw-flex tw-flex-col tw-min-h-0">
     @if (activeFilter.isDeleted) {
       <bit-callout type="warning">
         {{ trashCleanupWarning }}
@@ -51,6 +51,7 @@
     }
 
     <app-vault-items
+      class="tw-flex-1 tw-min-h-0"
       #vaultItems
       [ciphers]="ciphers"
       [collections]="collections"

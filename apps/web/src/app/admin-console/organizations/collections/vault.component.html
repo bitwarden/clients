@@ -30,7 +30,7 @@
     ></app-org-vault-header>
   }
 
-  <div class="tw-flex tw-flex-row">
+  <div class="tw-flex tw-flex-row tw-flex-1">
     @let hideVaultFilters = hideVaultFilter$ | async;
     @if (!hideVaultFilters) {
       <div class="tw-w-1/4 tw-mr-5">
@@ -43,7 +43,9 @@
       </div>
     }
 
-    <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
+    <div
+      [class]="(hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0'"
+    >
       @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
         <bit-toggle-group
           [selected]="addAccessStatus$ | async"
@@ -68,6 +70,7 @@
 
       @if (filter) {
         <app-vault-items
+          class="tw-flex-1 tw-min-h-0"
           #vaultItems
           [ciphers]="ciphers$ | async"
           [collections]="collections$ | async"
