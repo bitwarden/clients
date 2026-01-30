@@ -183,7 +183,7 @@ jobs:
         uses: bitwarden/gh-actions/free-disk-space@main
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -339,7 +339,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -487,7 +487,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -755,7 +755,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -1000,14 +1000,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: '3.14.2'
 
@@ -1240,14 +1240,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: '3.14.2'
 
@@ -1515,14 +1515,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: '3.14.2'
 
@@ -1873,7 +1873,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
+        uses: crowdin/github-action@60debf382ee245b21794321190ad0501db89d8c1 # v2.13.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

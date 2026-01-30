@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Пријавите се са приступним кључем"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Архивирај ставку"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Не"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Локација"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "Имејл"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2472,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Трајно избрисана ставка"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Врати ставку"
@@ -3363,6 +3378,12 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Грешка при декрипцији"
@@ -4739,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Више опција - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Преузети Bitwarden"
   },
@@ -5125,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Сакриј откривање подударања $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Ауто-попуњавање при учитавању странице?"
@@ -5670,6 +5694,9 @@
   "extraWide": {
     "message": "Врло широко"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Лозинка коју сте унели није тачна."
   },
@@ -6102,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

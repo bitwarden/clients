@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
   },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
+  },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Kaydı arşivle"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Arşivden çıkar ve kaydet"

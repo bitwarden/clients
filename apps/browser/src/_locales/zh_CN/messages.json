@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "使用通行密钥登录"
   },
+  "unlockWithPasskey": {
+    "message": "使用通行密钥解锁"
+  },
   "useSingleSignOn": {
     "message": "使用单点登录"
   },
@@ -582,14 +585,14 @@
   "archiveItem": {
     "message": "归档项目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  "archiveItemDialogContent": {
+    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
   },
   "archived": {
-    "message": "Archived"
+    "message": "已归档"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "取消归档并保存"
   },
   "upgradeToUseArchive": {
     "message": "需要高级会员才能使用归档。"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "否"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "位置"
@@ -1546,13 +1555,13 @@
     "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "您的高级版订阅已结束"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "重启高级版"
   },
   "ppremiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
@@ -1843,7 +1852,7 @@
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
   "experimentalFeature": {
-    "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
+    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "进一步了解风险"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "电子邮箱"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "电话"
   },
@@ -2240,7 +2252,7 @@
     }
   },
   "passwordSafe": {
-    "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
+    "message": "在任何已知的数据泄露中均未发现此密码。它暂时比较安全。"
   },
   "baseDomain": {
     "message": "基础域名",
@@ -2472,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "项目已永久删除"
+  },
+  "archivedItemRestored": {
+    "message": "归档项目已恢复"
   },
   "restoreItem": {
     "message": "恢复项目"
@@ -3048,11 +3063,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
-    "message": "在接下来的 1 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHours": {
-    "message": "在接下来的 $HOURS$ 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $HOURS$ 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "hours": {
@@ -3062,11 +3077,11 @@
     }
   },
   "sendExpiresInDaysSingle": {
-    "message": "在接下来的 1 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInDays": {
-    "message": "在接下来的 $DAYS$ 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $DAYS$ 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -3152,10 +3167,10 @@
     "message": "更新主密码"
   },
   "updateMasterPasswordWarning": {
-    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
@@ -3364,6 +3379,12 @@
   "error": {
     "message": "错误"
   },
+  "prfUnlockFailed": {
+    "message": "使用通行密钥解锁失败。请重试或使用其他解锁方式。"
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "没有可用于解锁的 PRF 通行密钥。请先使用通行密钥登录。"
+  },
   "decryptionError": {
     "message": "解密错误"
   },
@@ -3378,7 +3399,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "以避免额外的数据丢失。",
+    "message": "以避免进一步的数据丢失。",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -4739,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "更多选项"
+  },
   "moreOptionsTitle": {
     "message": "更多选项 - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "下载附件"
+  },
   "downloadBitwarden": {
     "message": "下载 Bitwarden"
   },
@@ -5125,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "隐藏匹配检测 $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "显示匹配检测"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隐藏匹配检测"
   },
   "autoFillOnPageLoad": {
     "message": "页面加载时自动填充吗？"
@@ -5670,6 +5694,9 @@
   "extraWide": {
     "message": "超宽"
   },
+  "narrow": {
+    "message": "窄"
+  },
   "sshKeyWrongPassword": {
     "message": "您输入的密码不正确。"
   },
@@ -6102,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

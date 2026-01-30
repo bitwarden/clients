@@ -32,8 +32,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { ApproveSshRequestComponent } from "../../platform/components/approve-ssh-request";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 @Injectable({

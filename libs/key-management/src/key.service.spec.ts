@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -259,7 +260,18 @@ describe("keyService", () => {
         });
       });
 
-      it("clears the Auto key if vault timeout is set to anything other than null", async () => {
+      it("sets an Auto key if vault timeout is set to 10 minutes and is Cli", async () => {
+        await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
+        platformUtilService.getClientType.mockReturnValue(ClientType.Cli);
+
+        await keyService.setUserKey(mockUserKey, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
+          userId: mockUserId,
+        });
+      });
+
+      it("clears the Auto key if vault timeout is set to 10 minutes", async () => {
         await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
 
         await keyService.setUserKey(mockUserKey, mockUserId);
