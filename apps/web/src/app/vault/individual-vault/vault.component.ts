@@ -33,7 +33,7 @@ import {
   EmptyTrash,
   FavoritesIcon,
   ItemTypes,
-  Icon,
+  BitSvg,
 } from "@bitwarden/assets/svg";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -160,7 +160,7 @@ type EmptyStateType = "trash" | "favorites" | "archive";
 type EmptyStateItem = {
   title: string;
   description: string;
-  icon: Icon;
+  icon: BitSvg;
 };
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;

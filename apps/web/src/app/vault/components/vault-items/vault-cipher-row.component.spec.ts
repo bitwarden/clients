@@ -47,7 +47,7 @@ describe("VaultCipherRowComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VaultCipherRowComponent, OrganizationNameBadgeComponent],
+      declarations: [VaultCipherRowComponent],
       imports: [
         CommonModule,
         RouterModule.forRoot([]),
@@ -55,6 +55,7 @@ describe("VaultCipherRowComponent", () => {
         IconButtonModule,
         JslibModule,
         CopyCipherFieldDirective,
+        OrganizationNameBadgeComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },

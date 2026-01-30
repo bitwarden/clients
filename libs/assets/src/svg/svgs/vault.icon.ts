@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const VaultIcon = svgIcon`
+export const VaultIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 8.33 80 66.67">
     <path class="tw-fill-illustration-bg-primary" d="M8.333 66.667H20L18.333 75H10l-1.667-8.333Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M8.333 66.667 10 75h8.333L20 66.667H8.333Zm2.033 1.667 1 5h5.601l1-5h-7.6Z" clip-rule="evenodd"/>

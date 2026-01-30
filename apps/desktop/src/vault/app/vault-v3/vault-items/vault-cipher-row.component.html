@@ -5,10 +5,7 @@
       bitLink
       class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
       [disabled]="disabled()"
-      [routerLink]="[]"
-      [queryParams]="{ itemId: cipher().id, action: clickAction() }"
-      queryParamsHandling="merge"
-      [replaceUrl]="true"
+      (click)="viewCipher()"
       title="{{ 'editItemWithName' | i18n: cipher().name }}"
       type="button"
       appStopProp
@@ -71,79 +68,34 @@
     </bit-menu>
   } @else {
     @if (canLaunch()) {
-      <a [href]="launchUri()" target="_blank" rel="noreferrer">
-        <button
-          [disabled]="disabled()"
-          bitIconButton="bwi-external-link"
-          type="button"
-          appStopProp
-          label="{{ 'launch' | i18n }}"
-        ></button>
-      </a>
+      <button
+        [disabled]="disabled()"
+        bitIconButton="bwi-external-link"
+        type="button"
+        appStopProp
+        label="{{ 'launch' | i18n }}"
+        (click)="handleLaunch()"
+      ></button>
     }
-    <button
-      [bitMenuTriggerFor]="copyOptions"
-      [disabled]="disabled()"
-      bitIconButton="bwi-clone"
-      type="button"
-      appStopProp
-      label="{{ 'copyValue' | i18n }}"
-    ></button>
-    <bit-menu #copyOptions>
-      @if (isLoginCipher()) {
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyUsername" | i18n }}
-        </button>
-        @if (cipher().viewPassword) {
-          <button bitMenuItem type="button" appCopyField="password" [cipher]="cipher()">
+    @if (showCopyButton()) {
+      <button
+        [bitMenuTriggerFor]="copyOptions"
+        [disabled]="disabled()"
+        bitIconButton="bwi-clone"
+        type="button"
+        appStopProp
+        label="{{ 'copyValue' | i18n }}"
+      ></button>
+      <bit-menu #copyOptions>
+        @for (copyField of copyFields(); track copyField.field) {
+          <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
             <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ "copyPassword" | i18n }}
+            {{ copyField.title | i18n }}
           </button>
         }
-        <button bitMenuItem type="button" appCopyField="totp" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyVerificationCode" | i18n }}
-        </button>
-      }
+      </bit-menu>
+    }
 
-      @if (isCardCipher()) {
-        <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyNumber" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copySecurityCode" | i18n }}
-        </button>
-      }
-
-      @if (isIdentityCipher()) {
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyUsername" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyEmail" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyPhone" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyAddress" | i18n }}
-        </button>
-      }
-
-      @if (isSecureNoteCipher()) {
-        <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyNote" | i18n }}
-        </button>
-      }
-    </bit-menu>
     <button
       [bitMenuTriggerFor]="cipherOptions"
       [disabled]="disabled()"
@@ -154,62 +106,15 @@
     ></button>
     <bit-menu #cipherOptions>
       @if (canLaunch()) {
-        <a bitMenuItem type="button" [href]="launchUri()" target="_blank" rel="noreferrer">
+        <button type="button" bitMenuItem (click)="handleLaunch()">
           <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
           {{ "launch" | i18n }}
-        </a>
-      }
-      @if (isLoginCipher()) {
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyUsername" | i18n }}
-        </button>
-        @if (cipher().viewPassword) {
-          <button bitMenuItem type="button" appCopyField="password" [cipher]="cipher()">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ "copyPassword" | i18n }}
-          </button>
-        }
-        <button bitMenuItem type="button" appCopyField="totp" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyVerificationCode" | i18n }}
         </button>
       }
-
-      @if (isCardCipher()) {
-        <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher()">
+      @for (copyField of copyFields(); track copyField.field) {
+        <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyNumber" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copySecurityCode" | i18n }}
-        </button>
-      }
-
-      @if (isIdentityCipher()) {
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyUsername" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyEmail" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyPhone" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyAddress" | i18n }}
-        </button>
-      }
-
-      @if (isSecureNoteCipher()) {
-        <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ "copyNote" | i18n }}
+          {{ copyField.title | i18n }}
         </button>
       }
       @if (showMenuDivider()) {
@@ -243,12 +148,6 @@
         <button bitMenuItem type="button" (click)="assignToCollections()">
           <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
           {{ "assignToCollections" | i18n }}
-        </button>
-      }
-      @if (showEventLogs()) {
-        <button bitMenuItem type="button" (click)="events()">
-          <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
-          {{ "eventLogs" | i18n }}
         </button>
       }
       @if (showArchiveButton()) {
