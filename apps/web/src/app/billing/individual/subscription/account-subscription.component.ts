@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -35,9 +34,16 @@ import {
   AdjustAccountSubscriptionStorageDialogParams,
 } from "@bitwarden/web-vault/app/billing/individual/subscription/adjust-account-subscription-storage-dialog.component";
 import {
+  UnifiedUpgradeDialogComponent,
+  UnifiedUpgradeDialogStatus,
+  UnifiedUpgradeDialogStep,
+} from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
+import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
+
+import { ChangePaymentMethodDialogComponent } from "../../payment/components";
 
 @Component({
   templateUrl: "./account-subscription.component.html",
@@ -56,7 +62,6 @@ export class AccountSubscriptionComponent {
   private accountService = inject(AccountService);
   private activatedRoute = inject(ActivatedRoute);
   private accountBillingClient = inject(AccountBillingClient);
-  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private fileDownloadService = inject(FileDownloadService);
@@ -71,17 +76,15 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const account = this.activeAccount();
       if (!account) {
         return await redirectToPremiumPage();
       }
-      const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
-      );
-      if (!hasPremiumPersonally) {
+      const subscription = await this.accountBillingClient.getSubscription();
+      if (!subscription) {
         return await redirectToPremiumPage();
       }
-      return await this.accountBillingClient.getSubscription();
+      return subscription;
     },
   });
 
@@ -91,6 +94,7 @@ export class AccountSubscriptionComponent {
     const subscription = this.subscription.value();
     if (subscription) {
       return (
+        subscription.status === SubscriptionStatuses.Incomplete ||
         subscription.status === SubscriptionStatuses.IncompleteExpired ||
         subscription.status === SubscriptionStatuses.Canceled ||
         subscription.status === SubscriptionStatuses.Unpaid
@@ -177,6 +181,8 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly activeAccount = toSignal(this.accountService.activeAccount$);
+
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
       case SubscriptionCardActions.ContactSupport:
@@ -206,13 +212,59 @@ export class AccountSubscriptionComponent {
         break;
       }
       case SubscriptionCardActions.UpdatePayment:
-        await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
+        await this.onUpdatePayment();
         break;
+      case SubscriptionCardActions.Resubscribe: {
+        const account = this.activeAccount();
+        if (!account) {
+          return;
+        }
+
+        const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+          data: {
+            account,
+            initialStep: UnifiedUpgradeDialogStep.Payment,
+            selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+          },
+        });
+
+        const result = await lastValueFrom(dialogRef.closed);
+
+        if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+          this.subscription.reload();
+        }
+        break;
+      }
       case SubscriptionCardActions.UpgradePlan:
         // TODO: Implement upgrade plan navigation
         break;
     }
   };
+
+  async onUpdatePayment() {
+    const account = this.activeAccount();
+    if (!account) {
+      return;
+    }
+
+    const dialogRef = ChangePaymentMethodDialogComponent.open(this.dialogService, {
+      data: {
+        subscriber: {
+          type: "account",
+          data: account,
+        },
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result?.type === "success") {
+      // Wait for Stripe webhook to process payment and update subscription status on backend
+      setTimeout(() => {
+        this.subscription.reload();
+      }, 7000);
+    }
+  }
 
   onStorageCardAction = async (action: StorageCardAction) => {
     const data = this.getAdjustStorageDialogParams(action);
