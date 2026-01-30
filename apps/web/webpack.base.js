@@ -319,7 +319,7 @@ module.exports.buildConfig = function buildConfig(params) {
                     https://*.paypal.com
                     https://www.paypalobjects.com
                     https://q.stripe.com
-                    https://haveibeenpwned.com
+                    https://logos.haveibeenpwned.com
                     ;media-src
                     'self'
                     https://assets.bitwarden.com

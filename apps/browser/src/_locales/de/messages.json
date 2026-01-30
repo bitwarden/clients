@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
   },
+  "unlockWithPasskey": {
+    "message": "Mit Passkey entsperren"
+  },
   "useSingleSignOn": {
     "message": "Single Sign-On verwenden"
   },
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Standort"
@@ -2044,6 +2053,9 @@
   },
   "email": {
     "message": "E-Mail"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefon"
@@ -3366,6 +3378,12 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "prfUnlockFailed": {
+    "message": "Entsperren mit Passkey fehlgeschlagen. Bitte versuche es erneut oder verwende eine andere Entsperrmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Es sind keine PRF-fähigen Passkeys zum Entsperren verfügbar. Bitte melde dich zuerst mit einem Passkey an."
   },
   "decryptionError": {
     "message": "Entschlüsselungsfehler"
@@ -4992,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Anhang herunterladen"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden herunterladen"
   },
@@ -6108,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
