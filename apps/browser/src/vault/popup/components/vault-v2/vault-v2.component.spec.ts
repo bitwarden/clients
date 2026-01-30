@@ -615,22 +615,18 @@ describe("VaultV2Component", () => {
     expect(spotlights.length).toBe(0);
   }));
 
-  it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", fakeAsync(() => {
+  it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", () => {
     itemsSvc.hasSearchText$.next(true);
 
     const fixture = TestBed.createComponent(VaultV2Component);
     component = fixture.componentInstance;
 
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"];
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
 
     // Unblock loading
     readySubject$.next(true);
     allFilters$.next({});
-    tick();
     fixture.detectChanges();
 
     const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
@@ -638,9 +634,9 @@ describe("VaultV2Component", () => {
 
     const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
     expect(favoritesElement).toBeFalsy();
-  }));
+  });
 
-  it("does render app-autofill-vault-list-items and favorites item container when hasSearchText$ is false", fakeAsync(() => {
+  it("does render app-autofill-vault-list-items and favorites item container when hasSearchText$ is false", () => {
     // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
     itemsSvc.emptyVault$.next(false);
     itemsSvc.noFilteredResults$.next(false);
@@ -651,16 +647,12 @@ describe("VaultV2Component", () => {
     const fixture = TestBed.createComponent(VaultV2Component);
     component = fixture.componentInstance;
 
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"];
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
 
     // Unblock loading
     readySubject$.next(true);
     allFilters$.next({});
-    tick();
     fixture.detectChanges();
 
     const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
@@ -668,9 +660,9 @@ describe("VaultV2Component", () => {
 
     const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
     expect(favoritesElement).toBeTruthy();
-  }));
+  });
 
-  it("does set the title for allItems container to allItems when hasSearchText$ and numberOfAppliedFilters$ are false and 0 respectively", fakeAsync(() => {
+  it("does set the title for allItems container to allItems when hasSearchText$ and numberOfAppliedFilters$ are false and 0 respectively", () => {
     // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
     itemsSvc.emptyVault$.next(false);
     itemsSvc.noFilteredResults$.next(false);
@@ -682,24 +674,20 @@ describe("VaultV2Component", () => {
     const fixture = TestBed.createComponent(VaultV2Component);
     component = fixture.componentInstance;
 
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"];
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
 
     // Unblock loading
     readySubject$.next(true);
     allFilters$.next({});
-    tick();
     fixture.detectChanges();
 
     const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
     const allItemsTitle = allItemsElement.componentInstance.title();
     expect(allItemsTitle).toBe("allItems");
-  }));
+  });
 
-  it("does set the title for allItems container to searchResults when hasSearchText$ is true", fakeAsync(() => {
+  it("does set the title for allItems container to searchResults when hasSearchText$ is true", () => {
     // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
     itemsSvc.emptyVault$.next(false);
     itemsSvc.noFilteredResults$.next(false);
@@ -710,22 +698,18 @@ describe("VaultV2Component", () => {
     const fixture = TestBed.createComponent(VaultV2Component);
     component = fixture.componentInstance;
 
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"];
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
 
     // Unblock loading
     readySubject$.next(true);
     allFilters$.next({});
-    tick();
     fixture.detectChanges();
 
     const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
     const allItemsTitle = allItemsElement.componentInstance.title();
     expect(allItemsTitle).toBe("searchResults");
-  }));
+  });
 
   it("does set the title for allItems container to items when numberOfAppliedFilters$ is > 0", fakeAsync(() => {
     // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
@@ -739,16 +723,12 @@ describe("VaultV2Component", () => {
     const fixture = TestBed.createComponent(VaultV2Component);
     component = fixture.componentInstance;
 
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const readySubject$ = component["readySubject"];
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
 
     // Unblock loading
     readySubject$.next(true);
     allFilters$.next({});
-    tick();
     fixture.detectChanges();
 
     const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
