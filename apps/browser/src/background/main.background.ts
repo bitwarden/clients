@@ -139,8 +139,6 @@ import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
-import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -194,6 +192,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -211,6 +210,7 @@ import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
@@ -367,6 +367,7 @@ export default class MainBackground {
   apiService: ApiServiceAbstraction;
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
+  cipherSdkService: CipherSdkService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -562,36 +563,18 @@ export default class MainBackground {
       this.memoryStorageService = this.memoryStorageForStateProviders;
     }
 
+    this.encryptService = new EncryptServiceImplementation(
+      this.cryptoFunctionService,
+      this.logService,
+      true,
+    );
+
     if (BrowserApi.isManifestVersion(3)) {
-      // Creates a session key for mv3 storage of large memory items
-      const sessionKey = new Lazy(async () => {
-        // Key already in session storage
-        const sessionStorage = new BrowserMemoryStorageService();
-        const existingKey = await sessionStorage.get<SymmetricCryptoKey>("session-key");
-        if (existingKey) {
-          if (sessionStorage.valuesRequireDeserialization) {
-            return SymmetricCryptoKey.fromJSON(existingKey);
-          }
-          return existingKey;
-        }
-
-        // New key
-        const { derivedKey } = await this.keyGenerationService.createKeyWithPurpose(
-          128,
-          "ephemeral",
-          "bitwarden-ephemeral",
-        );
-        await sessionStorage.save("session-key", derivedKey.toJSON());
-        return derivedKey;
-      });
-
       this.largeObjectMemoryStorageForStateProviders = new LocalBackedSessionStorageService(
-        sessionKey,
+        new BrowserMemoryStorageService(),
         this.storageService,
-        // For local backed session storage, we expect that the encrypted data on disk will persist longer than the encryption key in memory
-        // and failures to decrypt because of that are completely expected. For this reason, we pass in `false` to the `EncryptServiceImplementation`
-        // so that MAC failures are not logged.
-        new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+        this.keyGenerationService,
+        this.encryptService,
         this.platformUtilsService,
         this.logService,
       );
@@ -624,12 +607,6 @@ export default class MainBackground {
     this.stateEventRunnerService = new DefaultStateEventRunnerService(
       this.globalStateProvider,
       storageServiceProvider,
-    );
-
-    this.encryptService = new EncryptServiceImplementation(
-      this.cryptoFunctionService,
-      this.logService,
-      true,
     );
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
@@ -973,6 +950,8 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -988,6 +967,7 @@ export default class MainBackground {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.cipherSdkService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1025,6 +1005,8 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
+      this.cryptoFunctionService,
+      this.configService,
     );
     this.sendApiService = new SendApiService(
       this.apiService,
@@ -1510,6 +1492,7 @@ export default class MainBackground {
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
+      this.logService,
       this.organizationService,
       this.platformUtilsService,
       this.stateProvider,
@@ -1564,7 +1547,6 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
-    this.encryptService.init(this.configService);
 
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.

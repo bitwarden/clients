@@ -2,9 +2,10 @@
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";

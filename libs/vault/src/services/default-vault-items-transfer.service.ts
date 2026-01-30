@@ -10,7 +10,7 @@ import {
 } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -23,6 +23,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -53,6 +54,8 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
     private configService: ConfigService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private syncService: SyncService,
   ) {}
 
   private _transferInProgressSubject = new BehaviorSubject(false);
@@ -162,7 +165,11 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
 
     if (!userAcceptedTransfer) {
-      // TODO: Revoke user from organization if they decline migration and show toast PM-29465
+      await this.organizationUserApiService.revokeSelf(migrationInfo.enforcingOrganization.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("leftOrganization"),
+      });
 
       await this.eventCollectionService.collect(
         EventType.Organization_ItemOrganization_Declined,
@@ -170,6 +177,8 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         undefined,
         migrationInfo.enforcingOrganization.id,
       );
+      // Sync to reflect organization removal
+      await this.syncService.fullSync(true);
       return;
     }
 

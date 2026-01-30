@@ -3,13 +3,13 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   Unassigned,
   CollectionView,
-  CollectionAdminService,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -24,16 +24,12 @@ import {
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 import { PipesModule } from "../pipes/pipes.module";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
   selector: "app-vault-header",

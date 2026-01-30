@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Pieteikties ar piekļuves atslēgu"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Arhivēt vienumu"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
+  },
+  "archived": {
+    "message": "Arhivēts"
+  },
+  "unarchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
   },
   "upgradeToUseArchive": {
     "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
@@ -1539,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "archivePremiumRestart": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."
   },
@@ -2458,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Vienums ir neatgriezeniski izdzēsts"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
   "restoreItem": {
     "message": "Atjaunot vienumu"
   },
@@ -3348,6 +3369,12 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
@@ -4724,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Vairāk iespēju"
+  },
   "moreOptionsTitle": {
     "message": "Vairāk iespēju - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Paslēpt atbilstības noteikšanu $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Rādīt atbilstības noteikšanu"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Slēpt atbilstības noteikšanu"
   },
   "autoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī?"
@@ -5654,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "Ievadītā parole ir nepareiza."

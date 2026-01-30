@@ -16,13 +16,15 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { HecConnectDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
-  HecConnectDialogResultStatus: { Edited: "edit", Delete: "delete" },
+  openDatadogConnectDialog: jest.fn(),
+  openHuntressConnectDialog: jest.fn(),
+  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -276,7 +278,7 @@ describe("IntegrationCardComponent", () => {
     it("should call updateHec if isUpdateAvailable is true", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -317,7 +319,7 @@ describe("IntegrationCardComponent", () => {
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -354,7 +356,7 @@ describe("IntegrationCardComponent", () => {
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -382,7 +384,7 @@ describe("IntegrationCardComponent", () => {
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -404,7 +406,7 @@ describe("IntegrationCardComponent", () => {
     it("should show toast on error while saving", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -427,7 +429,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustBeOwner toast on error while inserting data", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -450,7 +452,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustBeOwner toast on error while updating data", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -472,7 +474,7 @@ describe("IntegrationCardComponent", () => {
     it("should show toast on error while deleting", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -495,7 +497,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustbeOwner toast on 404 while deleting", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",

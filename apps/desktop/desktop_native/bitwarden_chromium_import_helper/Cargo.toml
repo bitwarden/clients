@@ -9,19 +9,19 @@ publish.workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
 aes-gcm = { workspace = true }
+anyhow = { workspace = true }
+base64 = { workspace = true }
 chacha20poly1305 = { workspace = true }
 chromium_importer = { path = "../chromium_importer" }
 clap = { version = "=4.5.53", features = ["derive"] }
 scopeguard = { workspace = true }
 sysinfo = { workspace = true }
-windows = { workspace = true, features = [
-    "Win32_System_Pipes",
-] }
-anyhow = { workspace = true }
-base64 = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+windows = { workspace = true, features = [
+    "Win32_System_Pipes",
+] }
 
 [build-dependencies]
 embed-resource = "=3.0.6"

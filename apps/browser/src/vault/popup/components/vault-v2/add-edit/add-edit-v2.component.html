@@ -1,3 +1,5 @@
+@let previouslyCouldArchive = !(userCanArchive$ | async) && config?.originalCipher?.archivedDate;
+
 <popup-page>
   <popup-header
     slot="header"
@@ -5,6 +7,13 @@
     [backAction]="handleBackButton"
     showBackButton
   >
+    @if (config?.originalCipher?.archivedDate) {
+      <ng-container slot="end">
+        <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
+          {{ "archived" | i18n }}
+        </span>
+      </ng-container>
+    }
     <app-pop-out slot="end" />
   </popup-header>
 
@@ -24,7 +33,7 @@
 
   <popup-footer slot="footer">
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-      {{ "save" | i18n }}
+      {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
     </button>
 
     <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">

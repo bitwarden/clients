@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -30,6 +30,7 @@ import {
   IconButtonModule,
   DialogService,
   ToastService,
+  BadgeModule,
 } from "@bitwarden/components";
 import {
   ArchiveCipherUtilitiesService,
@@ -64,6 +65,18 @@ import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
 
 /**
+ * Available routes to navigate to after editing a cipher.
+ * Useful when the user could be coming from a different view other than the main vault (e.g., archive).
+ */
+export const ROUTES_AFTER_EDIT_DELETION = Object.freeze({
+  tabsVault: "/tabs/vault",
+  archive: "/archive",
+} as const);
+
+export type ROUTES_AFTER_EDIT_DELETION =
+  (typeof ROUTES_AFTER_EDIT_DELETION)[keyof typeof ROUTES_AFTER_EDIT_DELETION];
+
+/**
  * Helper class to parse query parameters for the AddEdit route.
  */
 class QueryParams {
@@ -78,6 +91,7 @@ class QueryParams {
     this.username = params.username;
     this.name = params.name;
     this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
+    this.routeAfterDeletion = params.routeAfterDeletion ?? ROUTES_AFTER_EDIT_DELETION.tabsVault;
   }
 
   /**
@@ -130,6 +144,12 @@ class QueryParams {
    * NOTE: This will override the `uri` and `name` query parameters if set to true.
    */
   prefillNameAndURIFromTab?: true;
+
+  /**
+   * The view that will be navigated to after deleting the cipher.
+   * @default "/tabs/vault"
+   */
+  routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -159,6 +179,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     AsyncActionsModule,
     PopOutComponent,
     IconButtonModule,
+    BadgeModule,
   ],
 })
 export class AddEditV2Component implements OnInit, OnDestroy {
@@ -166,6 +187,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
+  routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
 
   get loading() {
     return this.config == null;
@@ -190,6 +212,11 @@ export class AddEditV2Component implements OnInit, OnDestroy {
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
   private fido2PopoutSessionData: Fido2SessionData;
 
+  protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.archiveService.userCanArchive$(userId)),
+  );
+
   private get inFido2PopoutWindow() {
     return BrowserPopupUtils.inPopout(window) && this.fido2PopoutSessionData.isFido2Session;
   }
@@ -199,14 +226,6 @@ export class AddEditV2Component implements OnInit, OnDestroy {
   }
 
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
-  /**
-   * Flag to indicate if the user can archive items.
-   * @protected
-   */
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
-  );
 
   constructor(
     private route: ActivatedRoute,
@@ -222,6 +241,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private location: Location,
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
@@ -377,9 +397,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
           }
           config.initialValues = await this.setInitialValuesFromParams(params);
 
-          const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(getUserId),
-          );
+          const activeUserId = await firstValueFrom(this.userId$);
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
@@ -408,6 +426,13 @@ export class AddEditV2Component implements OnInit, OnDestroy {
               false,
               config.originalCipher.organizationId,
             );
+          }
+
+          if (
+            params.routeAfterDeletion &&
+            Object.values(ROUTES_AFTER_EDIT_DELETION).includes(params.routeAfterDeletion)
+          ) {
+            this.routeAfterDeletion = params.routeAfterDeletion;
           }
 
           return config;
@@ -510,14 +535,28 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     }
 
     try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const activeUserId = await firstValueFrom(this.userId$);
       await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
       return false;
     }
 
-    await this.router.navigate(["/tabs/vault"]);
+    if (this.routeAfterDeletion !== ROUTES_AFTER_EDIT_DELETION.tabsVault) {
+      const history = await firstValueFrom(this.popupRouterCacheService.history$());
+      const targetIndex = history.map((h) => h.url).lastIndexOf(this.routeAfterDeletion);
+
+      if (targetIndex !== -1) {
+        const stepsBack = targetIndex - (history.length - 1);
+        // Use historyGo to navigate back to the target route in history
+        // This allows downstream calls to `back()` to continue working as expected
+        await this.location.historyGo(stepsBack);
+      } else {
+        await this.router.navigate([this.routeAfterDeletion]);
+      }
+    } else {
+      await this.router.navigate([this.routeAfterDeletion]);
+    }
 
     this.toastService.showToast({
       variant: "success",

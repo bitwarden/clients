@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Denna Send kommer att raderas permanent på detta datum.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Fil att dela"
+  },
+  "hideTextByDefault": {
+    "message": "Dölj text som standard"
+  },
+  "hideYourEmail": {
+    "message": "Dölj din e-postadress från tittarna."
+  },
+  "limitSendViews": {
+    "message": "Begränsa antalet visningar"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visningar kvar",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Ingen kan se denna Send efter att gränsen har nåtts.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Privat anteckning"
+  },
+  "sendDetails": {
+    "message": "Send-detaljer",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Lägg till ett valfritt lösenord för att mottagarna ska få åtkomst till denna Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text att dela"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ny Send för text",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ny Send för fil",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Redigera Send för text",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Redigera Send för fil",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Är du säker på att du vill ta bort denna Send permanent?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Ny",
     "description": "for adding new items"
@@ -2027,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Raderade objekt permanent"
+  },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
   },
   "restoredItem": {
     "message": "Återställde objekt"
@@ -4011,6 +4078,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
   },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
+  },
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
@@ -4327,8 +4400,8 @@
   "archiveItem": {
     "message": "Arkivera objekt"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
   },
   "unArchiveAndSave": {
     "message": "Avarkivera och spara"

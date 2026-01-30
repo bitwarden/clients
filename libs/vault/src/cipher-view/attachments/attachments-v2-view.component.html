@@ -9,7 +9,7 @@
         <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
       </bit-item-content>
       <ng-container slot="end">
-        <bit-item-action class="tw-pr-4">
+        <bit-item-action class="tw-pr-4 [@media(min-width:650px)]:tw-pr-6">
           <app-download-attachment
             [admin]="admin"
             [cipher]="cipher"

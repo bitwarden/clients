@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Obnovit vybrané"
   },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
+  },
+  "archivedItemsRestored": {
+    "message": "Archivované položky byly obnoveny"
+  },
   "restoredItem": {
     "message": "Položka byla obnovena"
   },
@@ -5620,13 +5626,13 @@
     "message": "Send byl úspěšně vytvořen!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Zkopírujte a sdílejte tento Send pro odesílání. Můžou jej zobrazit osoby, které jste zadali, a to po dobu $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Zkopírujte a sdílejte tento odkaz Send. Send bude k dispozici komukoli s odkazem na dalších $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizovat vlastnictví organizace"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Všechny položky uživatele budou vlastněny a spravovány organizací. Správci a vlastníci jsou osvobozeni. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Zjistěte více o centralizovaném vlastnictví",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Výhody"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Získejte úplný přehled o stavu přihlašovacích údajů, včetně sdílených a nesdílených položek."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Snadno přenášjte položky při odchodu a nástupu nových uživatelů pro zajištění bezproblémového přístupu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Vyzvěte uživatele, aby převedli své položky"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Pokud mají uživatelé ve svém individuálním trezoru nějaké položky, budou vyzváni, aby je buď převedli do organizace, nebo odešli. Pokud odejdou, jejich přístup bude zrušen, ale může být kdykoli obnoven."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Více informací o převodu"
   },
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Odeslat data o trezoru do Vaší instance Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Odešle data události do Vaší instanci SIEM Huntress"
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL kolektoru HTTP událostí"
+  },
+  "httpEventCollectorToken": {
+    "message": "Token kolektoru HTTP událostí"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -11620,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -11695,8 +11747,8 @@
     "message": "Archivovat položku",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
   },
   "archiveBulkItems": {
     "message": "Archivovat položky",
@@ -12048,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Ověřit nyní"
+  },
+  "unlockWithPasskey": {
+    "message": "Odemknout pomocí přístupového klíče"
+  },
+  "prfUnlockFailed": {
+    "message": "Nepodařilo se odemknout pomocí přístupového klíče. Zkuste to znovu nebo použijte jinou metodu odemknutí."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "K odemknutí nejsou k dispozici žádné přístupové klíče s podporou PRF."
   },
   "additionalStorageGB": {
     "message": "Další úložiště (GB)"
@@ -12614,5 +12675,14 @@
   },
   "storageFullDescription": {
     "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
+  },
+  "youHavePremium": {
+    "message": "Máte Premium"
+  },
+  "emailProtected": {
+    "message": "E-mail je chráněný"
   }
 }

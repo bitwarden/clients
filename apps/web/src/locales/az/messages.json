@@ -1750,7 +1750,7 @@
     "message": "Sadalanacaq heç bir üzv yoxdur."
   },
   "noMembersToExport": {
-    "message": ".dillonvince767@gmail.com"
+    "message": "Xaricə köçürüləcək heç bir üzv yoxdur."
   },
   "noEventsInList": {
     "message": "Sadalanacaq heç bir tədbir yoxdur."
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Seçiləni bərpa et"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "Element bərpa edildi"
   },
@@ -5620,13 +5626,13 @@
     "message": "Send uğurla yaradıldı!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Bu Send keçidini kopyala və paylaş. Qeyd etdiyiniz şəxslər buna növbəti $TIME$ ərzində baxa bilər.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Təşkilata veri üzərində məcburi sahiblik ver"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Seyf event verilərini Datadog serverinizə göndərin"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "İnteqrasiya saxlanılmadı. Lütfən daha sonra yenidən sınayın."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "İndeks"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Bir plan seçin"
@@ -11620,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
+  "vulnerablePassword": {
+    "message": "Zəifliyi olan parol."
+  },
+  "changeNow": {
+    "message": "İndi dəyişdir"
+  },
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
@@ -11695,8 +11747,8 @@
     "message": "Elementi arxivlə",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "archiveBulkItems": {
     "message": "Elementləri arxivlə",
@@ -12048,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "İndi doğrula."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Əlavə anbar sahəsi GB"
@@ -12614,5 +12675,14 @@
   },
   "storageFullDescription": {
     "message": "Bütün $GB$ GB-lıq şifrələnmiş anbar sahənizi istifadə etmisiniz. Faylları saxlaya bilmək üçün daha çox anbar sahəsi əlavə edin."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Anbar sahəsini xaric etdiyiniz zaman, növbəti hesabınıza avtomatik olaraq köçürüləcək mütənasib hesab krediti alacaqsınız."
+  },
+  "youHavePremium": {
+    "message": "\"Premium\"unuz var"
+  },
+  "emailProtected": {
+    "message": "E-poçt qorunur"
   }
 }

@@ -11,6 +11,7 @@ import {
   signal,
   model,
   computed,
+  OnDestroy,
 } from "@angular/core";
 
 import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
@@ -32,7 +33,7 @@ export const TOOLTIP_DELAY_MS = 800;
     "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
 })
-export class TooltipDirective implements OnInit {
+export class TooltipDirective implements OnInit, OnDestroy {
   private static nextId = 0;
   /**
    * The value of this input is forwarded to the tooltip.component to render
@@ -51,6 +52,7 @@ export class TooltipDirective implements OnInit {
 
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
+  private showTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
@@ -81,13 +83,29 @@ export class TooltipDirective implements OnInit {
     }),
   );
 
+  /**
+   * Clear any pending show timeout
+   *
+   * Use cases: prevent tooltip from appearing after hide; clear existing timeout before showing a
+   * new tooltip
+   */
+  private clearTimeout() {
+    if (this.showTimeoutId !== undefined) {
+      clearTimeout(this.showTimeoutId);
+      this.showTimeoutId = undefined;
+    }
+  }
+
   private destroyTooltip = () => {
+    this.clearTimeout();
     this.overlayRef?.dispose();
     this.overlayRef = undefined;
     this.isVisible.set(false);
   };
 
   protected showTooltip = () => {
+    this.clearTimeout();
+
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         ...this.defaultPopoverConfig,
@@ -97,8 +115,9 @@ export class TooltipDirective implements OnInit {
       this.overlayRef.attach(this.tooltipPortal);
     }
 
-    setTimeout(() => {
+    this.showTimeoutId = setTimeout(() => {
       this.isVisible.set(true);
+      this.showTimeoutId = undefined;
     }, TOOLTIP_DELAY_MS);
   };
 
@@ -133,5 +152,9 @@ export class TooltipDirective implements OnInit {
 
   ngOnInit() {
     this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
+  }
+
+  ngOnDestroy(): void {
+    this.destroyTooltip();
   }
 }

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Subject, switchMap, timer } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
@@ -25,7 +23,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormDataForTab = new Map();
   private clearLoginCipherFormDataSubject: Subject<void> = new Subject();
-  private notificationFallbackTimeout: number | NodeJS.Timeout | null;
+  private notificationFallbackTimeout: number | NodeJS.Timeout | null = null;
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     generatedPasswordFilled: ({ message, sender }) =>
@@ -63,7 +61,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     sender: chrome.runtime.MessageSender,
   ) {
     if (await this.shouldInitAddLoginOrChangePasswordNotification(message, sender)) {
-      this.websiteOriginsWithFields.set(sender.tab.id, this.getSenderUrlMatchPatterns(sender));
+      const tabId = sender.tab?.id;
+      if (tabId === undefined) {
+        return;
+      }
+      this.websiteOriginsWithFields.set(tabId, this.getSenderUrlMatchPatterns(sender));
       this.setupWebRequestsListeners();
     }
   }
@@ -80,11 +82,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    const tabId = sender.tab?.id;
+    if (tabId === undefined) {
+      return false;
+    }
+
     return (
       (await this.isAddLoginOrChangePasswordNotificationEnabled()) &&
       !(await this.isSenderFromExcludedDomain(sender)) &&
-      message.details?.fields?.length > 0 &&
-      !this.websiteOriginsWithFields.has(sender.tab.id)
+      (message.details?.fields?.length ?? 0) > 0 &&
+      !this.websiteOriginsWithFields.has(tabId)
     );
   }
 
@@ -107,8 +114,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private getSenderUrlMatchPatterns(sender: chrome.runtime.MessageSender) {
     return new Set([
-      ...generateDomainMatchPatterns(sender.url),
-      ...generateDomainMatchPatterns(sender.tab.url),
+      ...(sender.url ? generateDomainMatchPatterns(sender.url) : []),
+      ...(sender.tab?.url ? generateDomainMatchPatterns(sender.tab.url) : []),
     ]);
   }
 
@@ -123,7 +130,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) => {
-    if (!this.websiteOriginsWithFields.has(sender.tab.id)) {
+    const tabId = sender.tab?.id;
+    if (tabId === undefined || !this.websiteOriginsWithFields.has(tabId)) {
       return;
     }
 
@@ -135,25 +143,24 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearLoginCipherFormDataSubject.next();
     const formData = { uri, username, password, newPassword };
 
-    const existingModifyLoginData = this.modifyLoginCipherFormData.get(sender.tab.id);
+    const existingModifyLoginData = this.modifyLoginCipherFormData.get(tabId);
     if (existingModifyLoginData) {
       formData.username = formData.username || existingModifyLoginData.username;
       formData.password = formData.password || existingModifyLoginData.password;
       formData.newPassword = formData.newPassword || existingModifyLoginData.newPassword;
     }
 
-    this.modifyLoginCipherFormData.set(sender.tab.id, formData);
+    this.modifyLoginCipherFormData.set(tabId, formData);
 
     this.clearNotificationFallbackTimeout();
-    this.notificationFallbackTimeout = setTimeout(
-      () =>
-        this.setupNotificationInitTrigger(
-          sender.tab.id,
-          "",
-          this.modifyLoginCipherFormData.get(sender.tab.id),
-        ).catch((error) => this.logService.error(error)),
-      1500,
-    );
+    this.notificationFallbackTimeout = setTimeout(() => {
+      const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
+      if (modifyLoginData) {
+        this.setupNotificationInitTrigger(tabId, "", modifyLoginData).catch((error) =>
+          this.logService.error(error),
+        );
+      }
+    }, 1500);
   };
 
   /**
@@ -176,6 +183,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
     try {
       const senderOrigin = sender.origin;
+      if (!senderOrigin) {
+        return false;
+      }
+
       const serverConfig = await this.notificationBackground.getActiveUserServerConfig();
       const activeUserVault = serverConfig?.environment?.vault;
       if (activeUserVault === senderOrigin) {
@@ -232,11 +243,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     details: chrome.webRequest.OnBeforeRequestDetails,
   ): undefined => {
     if (this.isPostSubmissionFormRedirection(details)) {
-      this.setupNotificationInitTrigger(
-        details.tabId,
-        details.requestId,
-        this.modifyLoginCipherFormData.get(details.tabId),
-      ).catch((error) => this.logService.error(error));
+      const modifyLoginData = this.modifyLoginCipherFormData.get(details.tabId);
+      if (modifyLoginData) {
+        this.setupNotificationInitTrigger(details.tabId, details.requestId, modifyLoginData).catch(
+          (error) => this.logService.error(error),
+        );
+      }
 
       return;
     }
@@ -385,6 +397,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearNotificationFallbackTimeout();
 
     const tab = await BrowserApi.getTab(tabId);
+    if (!tab) {
+      return;
+    }
+
     if (tab.status !== "complete") {
       await this.delayNotificationInitUntilTabIsComplete(tabId, requestId, modifyLoginData);
       return;
@@ -410,7 +426,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     const handleWebNavigationOnCompleted = async () => {
       chrome.webNavigation.onCompleted.removeListener(handleWebNavigationOnCompleted);
       const tab = await BrowserApi.getTab(tabId);
-      await this.processNotifications(requestId, modifyLoginData, tab);
+      if (tab) {
+        await this.processNotifications(requestId, modifyLoginData, tab);
+      }
     };
     chrome.webNavigation.onCompleted.addListener(handleWebNavigationOnCompleted);
   };

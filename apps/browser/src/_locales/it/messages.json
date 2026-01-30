@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Accedi con passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Usa il Single Sign-On"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Archivia elemento"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e suggerimenti di autoriempimento. Vuoi davvero archiviare questo elemento?"
+  "archiveItemDialogContent": {
+    "message": "Una volta archiviato, questo elemento sarà escluso dai risultati di ricerca e dai suggerimenti del completamento automatico."
+  },
+  "archived": {
+    "message": "Archiviato"
+  },
+  "unarchiveAndSave": {
+    "message": "Togli dall'archivio e salva"
   },
   "upgradeToUseArchive": {
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
@@ -1539,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Il tuo abbonamento Premium è terminato"
+  },
+  "archivePremiumRestart": {
+    "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
+  },
+  "restartPremium": {
+    "message": "Riavvia Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Sicurezza delle password, integrità dell'account, e rapporti su violazioni di dati per mantenere sicura la tua cassaforte."
   },
@@ -2458,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Elemento eliminato definitivamente"
   },
+  "archivedItemRestored": {
+    "message": "Elemento estratto dall'archivio"
+  },
   "restoreItem": {
     "message": "Ripristina elemento"
   },
@@ -3348,6 +3369,12 @@
   },
   "error": {
     "message": "Errore"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Errore di decifrazione"
@@ -4724,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Altre opzioni"
+  },
   "moreOptionsTitle": {
     "message": "Più opzioni - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Nascondi corrispondenza $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostra il criterio di corrispondenza dell'URL"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Nascondi il criterio di corrispondenza dell'URL"
   },
   "autoFillOnPageLoad": {
     "message": "Riempi automaticamente al caricamento della pagina?"
@@ -5654,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Molto larga"
+  },
+  "narrow": {
+    "message": "Stretto"
   },
   "sshKeyWrongPassword": {
     "message": "La parola d'accesso inserita non è corretta."

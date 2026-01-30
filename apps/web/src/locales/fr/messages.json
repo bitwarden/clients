@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restaurer la sélection"
   },
+  "archivedItemRestored": {
+    "message": "Élément archivé restauré"
+  },
+  "archivedItemsRestored": {
+    "message": "Élément archivé restauré"
+  },
   "restoredItem": {
     "message": "Élément restauré"
   },
@@ -5620,13 +5626,13 @@
     "message": "Send créé avec succès !",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copiez et partagez ce lien Send. Il peut être consulté par les personnes que vous avez spécifiées pour $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien pour les prochains $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centraliser la propriété de l'organisation"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Tous les éléments du membre seront détenus et gérés par l'organisation. Les administrateurs et les propriétaires sont exemptés. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "En savoir plus sur la propriété centralisée",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Les bénéfices"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gagnez une pleine visibilité sur la santé des identifiants, y compris les éléments partagés et non partagés."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Transférez facilement les éléments pendant la période de lancement et de succession du membre, en veillant à ce qu'il n'y ait pas de manques d'accès."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Demander aux membres de transférer leurs éléments"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Si les membres ont des éléments dans leur coffre individuel, ils seront invités à les transférer à l'organisation ou à quitter. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "En savoir plus sur le transfert"
   },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement du coffre à votre instance Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Envoyer les données de l'événement à votre instance de Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL HTTP du Collecterur d'Événements"
+  },
+  "httpEventCollectorToken": {
+    "message": "Jeton du Collecteur d'Événements HTTP"
   },
   "selectAPlan": {
     "message": "Sélectionnez un plan"
@@ -11620,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
+  "vulnerablePassword": {
+    "message": "Mot de passe vulnérable."
+  },
+  "changeNow": {
+    "message": "Changer maintenant"
+  },
   "missingWebsite": {
     "message": "Site Web manquant"
   },
@@ -11695,8 +11747,8 @@
     "message": "Archiver l'élément",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  "archiveItemDialogContent": {
+    "message": "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique."
   },
   "archiveBulkItems": {
     "message": "Archiver les éléments",
@@ -12048,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Vérifier maintenant."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Stockage additionnel (Go)"
@@ -12614,5 +12675,14 @@
   },
   "storageFullDescription": {
     "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
+  },
+  "youHavePremium": {
+    "message": "Vous avez Premium"
+  },
+  "emailProtected": {
+    "message": "Protégé par courriel"
   }
 }
