@@ -9,19 +9,16 @@ import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AvatarModule } from "@bitwarden/components";
 
-// import { AvatarComponent } from "../components/avatar.component";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 
 type ActiveAccount = {
@@ -92,14 +89,12 @@ export class AccountSwitcherComponent implements OnInit {
   disabled = false;
 
   constructor(
-    private stateService: StateService,
     private authService: AuthService,
     private avatarService: AvatarService,
     private messagingService: MessagingService,
     private messageListener: MessageListener,
     private router: Router,
     private environmentService: EnvironmentService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
     private biometricsService: DesktopBiometricsService,
   ) {
