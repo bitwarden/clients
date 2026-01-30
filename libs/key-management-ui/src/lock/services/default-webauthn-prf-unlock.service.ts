@@ -54,11 +54,12 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         return false;
       }
 
-      // If we're in the browser extension, check if we're in a Chromium browser
-      if (
-        this.platformUtilsService.getClientType() === ClientType.Browser &&
-        !this.platformUtilsService.isChromium()
-      ) {
+      // PRF unlock is only supported on Web and Chromium-based browser extensions
+      const clientType = this.platformUtilsService.getClientType();
+      if (clientType === ClientType.Browser && !this.platformUtilsService.isChromium()) {
+        return false;
+      }
+      if (clientType !== ClientType.Web && clientType !== ClientType.Browser) {
         return false;
       }
 
