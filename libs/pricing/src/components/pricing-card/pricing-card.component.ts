@@ -1,15 +1,18 @@
 import { CurrencyPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,
   BadgeVariant,
   ButtonModule,
   ButtonType,
   CardComponent,
+  IconModule,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * A reusable UI-only component that displays pricing information in a card format.
@@ -20,13 +23,23 @@ import {
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeModule, ButtonModule, SvgModule, TypographyModule, CurrencyPipe, CardComponent],
+  imports: [
+    BadgeModule,
+    ButtonModule,
+    SvgModule,
+    IconModule,
+    TypographyModule,
+    CurrencyPipe,
+    CardComponent,
+    I18nPipe,
+  ],
 })
 export class PricingCardComponent {
+  private i18nService = inject(I18nService);
   readonly tagline = input.required<string>();
   readonly price = input<{
     amount: number;
-    cadence: "monthly" | "annually";
+    cadence: "month" | "monthly" | "year" | "annually";
     showPerUser?: boolean;
   }>();
   readonly button = input<{
