@@ -23,6 +23,7 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import {
   LoginComponentService,
   SsoComponentService,
@@ -57,6 +58,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -112,6 +114,7 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/s
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -137,6 +140,8 @@ import {
   RoutedVaultFilterService,
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
+  ChangeLoginPasswordService,
+  DefaultChangeLoginPasswordService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -579,6 +584,16 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: ChangeLoginPasswordService,
+    useClass: DefaultChangeLoginPasswordService,
+    deps: [ApiService, EnvironmentService, DomainSettingsService],
+  }),
+  safeProvider({
+    provide: ViewPasswordHistoryService,
+    useClass: VaultViewPasswordHistoryService,
+    deps: [DialogService],
   }),
 ];
 

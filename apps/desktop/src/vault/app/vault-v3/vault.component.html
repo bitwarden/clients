@@ -1,5 +1,5 @@
 <div class="vault tw-flex tw-h-full">
-  <div class="tw-flex tw-flex-col tw-w-6/12">
+  <div class="tw-flex tw-flex-col tw-w-full">
     <div class="tw-pt-6 tw-px-6">
       <app-header>
         <vault-new-cipher-menu
@@ -38,64 +38,4 @@
       (onAddFolder)="addFolder()"
     />
   </div>
-  @if (action()) {
-    <div class="details">
-      <div class="content">
-        <div class="inner-content">
-          <div class="box">
-            <app-cipher-view
-              *ngIf="action() === 'view'"
-              [cipher]="cipher()"
-              [collections]="collections"
-            />
-            <vault-cipher-form
-              #vaultForm
-              *ngIf="action() === 'add' || action() === 'edit' || action() === 'clone'"
-              formId="cipherForm"
-              [config]="config"
-              (cipherSaved)="savedCipher($event)"
-              [submitBtn]="footer?.submitBtn"
-              (formStatusChange$)="formStatusChanged($event)"
-            >
-              <bit-item slot="attachment-button">
-                <button
-                  bit-item-content
-                  type="button"
-                  (click)="openAttachmentsDialog()"
-                  [disabled]="formDisabled"
-                >
-                  <div class="tw-flex tw-items-center tw-gap-2">
-                    {{ "attachments" | i18n }}
-                    <app-premium-badge />
-                  </div>
-                  <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-                </button>
-              </bit-item>
-            </vault-cipher-form>
-          </div>
-        </div>
-      </div>
-      <app-vault-item-footer
-        id="footer"
-        #footer
-        [cipher]="cipher()"
-        [action]="action()"
-        (onEdit)="editCipher($event)"
-        (onRestore)="restoreCipher()"
-        (onClone)="cloneCipher($event)"
-        (onDelete)="deleteCipher()"
-        (onCancel)="cancelCipher()"
-        (onArchiveToggle)="refreshCurrentCipher()"
-        [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
-      />
-    </div>
-  } @else {
-    <div id="logo" class="logo">
-      <div class="content">
-        <div class="inner-content">
-          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
-        </div>
-      </div>
-    </div>
-  }
 </div>
