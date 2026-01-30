@@ -130,6 +130,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
+          storybookBaseDir: ./apps/browser/src/autofill/content/components
           storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
           exitOnceUploaded: true
           onlyChanged: true
