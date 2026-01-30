@@ -32,9 +32,7 @@
           @if (isEmpty()) {
             <tr>
               <td [attr.colspan]="showExtraColumn() ? 3 : 2">
-                <div
-                  class="tw-flex tw-h-full tw-min-h-[60vh] tw-w-full tw-items-center tw-justify-center"
-                >
+                <div class="tw-flex tw-size-full tw-min-h-[60vh] tw-items-center tw-justify-center">
                   <bit-no-items [icon]="emptyStateItem()?.icon">
                     <div slot="title">
                       {{ emptyStateItem()?.title | i18n }}
