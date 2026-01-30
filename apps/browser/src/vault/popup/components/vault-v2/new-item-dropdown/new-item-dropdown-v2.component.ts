@@ -69,7 +69,12 @@ export class NewItemDropdownV2Component implements OnInit {
 
     // When a Login Cipher is created and the extension is not popped out,
     // pass along the uri and name
-    if (!poppedOut && type === CipherType.Login && this.tab) {
+    if (
+      !poppedOut &&
+      type === CipherType.Login &&
+      this.tab?.url &&
+      (this.tab.url.startsWith("http://") || this.tab.url.startsWith("https://"))
+    ) {
       loginDetails.prefillNameAndURIFromTab = "true";
     }
 
