@@ -132,7 +132,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
   removeCriticalApplication = async (hostname: string) => {
     this.dataService
-      .removeCriticalApplication(hostname)
+      .removeCriticalApplication(new Set<string>([hostname]))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

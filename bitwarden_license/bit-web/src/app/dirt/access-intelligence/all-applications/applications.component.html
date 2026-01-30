@@ -29,8 +29,8 @@
             [buttonType]="'primary'"
             bitButton
             class="tw-ml-auto"
-            [loading]="markingAsCritical()"
-            (click)="markAppsAsCritical()"
+            [loading]="updatingCriticalApps()"
+            (click)="unmarkAppsAsCritical()"
           >
             {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
           </button>
@@ -40,7 +40,7 @@
             [buttonType]="'primary'"
             bitButton
             class="tw-ml-auto"
-            [loading]="markingAsCritical()"
+            [loading]="updatingCriticalApps()"
             (click)="markAppsAsCritical()"
           >
             {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}

@@ -80,7 +80,7 @@ export class ApplicationsComponent implements OnInit {
 
   // Template driven properties
   protected readonly selectedUrls = signal(new Set<string>());
-  protected readonly markingAsCritical = signal(false);
+  protected readonly updatingCriticalApps = signal(false);
   protected readonly applicationSummary = signal<OrganizationReportSummary>(createNewSummaryData());
   protected readonly criticalApplicationsCount = signal(0);
   protected readonly totalApplicationsCount = signal(0);
@@ -102,6 +102,16 @@ export class ApplicationsComponent implements OnInit {
       value: ApplicationFilterOption.NonCritical,
     },
   ]);
+
+  readonly allSelectedAppsAreCritical = computed(() => {
+    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
+      return false;
+    }
+
+    return this.dataSource.filteredData
+      .filter((row) => this.selectedUrls().has(row.applicationName))
+      .every((row) => row.isMarkedAsCritical);
+  });
 
   constructor(
     protected i18nService: I18nService,
@@ -178,18 +188,8 @@ export class ApplicationsComponent implements OnInit {
     this.selectedFilter.set(value);
   }
 
-  allSelectedAppsAreCritical() {
-    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
-      return false;
-    }
-
-    return this.dataSource.filteredData
-      .filter((row) => this.selectedUrls().has(row.applicationName))
-      .every((row) => row.isMarkedAsCritical);
-  }
-
   markAppsAsCritical = async () => {
-    this.markingAsCritical.set(true);
+    this.updatingCriticalApps.set(true);
     const count = this.selectedUrls().size;
 
     this.dataService
@@ -200,16 +200,45 @@ export class ApplicationsComponent implements OnInit {
           this.toastService.showToast({
             variant: "success",
             title: "",
-            message: this.i18nService.t("criticalApplicationsMarkedSuccess", count.toString()),
+            message: this.i18nService.t("numCriticalApplicationsMarkedSuccess", count),
           });
           this.selectedUrls.set(new Set<string>());
-          this.markingAsCritical.set(false);
+          this.updatingCriticalApps.set(false);
         },
         error: () => {
           this.toastService.showToast({
             variant: "error",
             title: "",
             message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
+          });
+        },
+      });
+  };
+
+  unmarkAppsAsCritical = async () => {
+    this.updatingCriticalApps.set(true);
+    const appsToUnmark = this.selectedUrls();
+
+    this.dataService
+      .removeCriticalApplication(appsToUnmark)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t(
+              "numApplicationsUnmarkedCriticalSuccess",
+              appsToUnmark.size,
+            ),
+            variant: "success",
+          });
+          this.selectedUrls.set(new Set<string>());
+          this.updatingCriticalApps.set(false);
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
           });
         },
       });
