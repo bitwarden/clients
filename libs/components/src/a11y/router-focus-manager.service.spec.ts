@@ -290,7 +290,7 @@ describe("RouterFocusManagerService", () => {
       expect(mainElement.focus).toHaveBeenCalled();
     });
 
-    it("should wait for zone stability before focusing when zone is not stable", () => {
+    it("should wait for zone stability before focusing when zone is not stable", async () => {
       const mainElement = document.createElement("main");
       mainElement.focus = jest.fn();
       querySelectorSpy.mockReturnValue(mainElement);
@@ -312,6 +312,9 @@ describe("RouterFocusManagerService", () => {
 
       // Emit zone stability
       mockNgZoneRef.onStable.emit(true);
+
+      // flush promises
+      await Promise.resolve();
 
       // Now focus should have happened
       expect(mainElement.focus).toHaveBeenCalled();

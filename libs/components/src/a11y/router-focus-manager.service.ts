@@ -1,7 +1,7 @@
 import { inject, Injectable, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, combineLatestWith, tap, map, take } from "rxjs";
+import { skip, filter, combineLatestWith, tap, map, firstValueFrom } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -37,7 +37,7 @@ export class RouterFocusManagerService {
     filter((focusAfterNav) => {
       return focusAfterNav !== false;
     }),
-    tap((focusAfterNav) => {
+    tap(async (focusAfterNav) => {
       let elSelector: string = "main";
 
       if (typeof focusAfterNav === "string" && focusAfterNav.length > 0) {
@@ -47,9 +47,9 @@ export class RouterFocusManagerService {
       if (this.ngZone.isStable) {
         this.focusTargetEl(elSelector);
       } else {
-        this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-          this.focusTargetEl(elSelector);
-        });
+        await firstValueFrom(this.ngZone.onStable);
+
+        this.focusTargetEl(elSelector);
       }
     }),
   );
