@@ -172,7 +172,7 @@ export class Utils {
    * @returns The byte string representation, or null if the input is null.
    */
   static fromArrayToByteString(arr: Uint8Array | null): string | null {
-    if (arr == null) {  
+    if (arr == null) {
       return null;
     }
 
