@@ -29,7 +29,7 @@
     "message": "Войти с passkey"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Разблокировать при помощи passkey"
   },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Телефон"
@@ -3371,10 +3380,10 @@
     "message": "Ошибка"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF. Пожалуйста, сначала авторизуйтесь, используя passkey."
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Скачать вложение"
+  },
   "downloadBitwarden": {
     "message": "Скачать Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"
+  },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
