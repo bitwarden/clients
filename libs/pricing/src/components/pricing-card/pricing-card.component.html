@@ -49,14 +49,22 @@
         type="button"
       >
         @if (buttonConfig.icon?.position === "before") {
-          <i class="bwi {{ buttonConfig.icon.type }} tw-me-2" aria-hidden="true"></i>
+          <bit-icon
+            name="{{ buttonConfig.icon.type }}"
+            class="tw-me-2"
+            aria-hidden="true"
+          ></bit-icon>
         }
         {{ buttonConfig.text }}
         @if (
           buttonConfig.icon &&
           (buttonConfig.icon.position === "after" || !buttonConfig.icon.position)
         ) {
-          <i class="bwi {{ buttonConfig.icon.type }} tw-ms-2" aria-hidden="true"></i>
+          <bit-icon
+            name="{{ buttonConfig.icon.type }}"
+            class="tw-ms-2"
+            aria-hidden="true"
+          ></bit-icon>
         }
       </button>
     }
@@ -69,10 +77,12 @@
         <ul class="tw-list-none tw-p-0 tw-m-0">
           @for (feature of featureList; track feature) {
             <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
-              <i
-                class="bwi bwi-check tw-text-primary-600 tw-mt-0.5 tw-flex-shrink-0"
+              <bit-icon
+                name="bwi-check"
+                class="tw-text-primary-600 tw-mt-0.5 tw-flex-shrink-0"
                 aria-hidden="true"
-              ></i>
+              >
+              </bit-icon>
               <span bitTypography="helper" class="tw-text-muted tw-leading-relaxed">{{
                 feature
               }}</span>
