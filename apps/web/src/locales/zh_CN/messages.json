@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "没有关键应用程序存在风险"
   },
+  "critical": {
+    "message": "关键 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "非关键 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -248,6 +266,9 @@
     "message": "将应用程序标记为关键失败"
   },
   "application": {
+    "message": "应用程序"
+  },
+  "applications": {
     "message": "应用程序"
   },
   "atRiskPasswords": {
@@ -586,6 +607,9 @@
   "email": {
     "message": "电子邮箱"
   },
+  "emails": {
+    "message": "电子邮箱"
+  },
   "phone": {
     "message": "电话"
   },
@@ -796,7 +820,7 @@
     }
   },
   "passwordSafe": {
-    "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
+    "message": "在任何已知的数据泄露中均未发现此密码。它暂时比较安全。"
   },
   "save": {
     "message": "保存"
@@ -1070,7 +1094,7 @@
     "message": "其他"
   },
   "share": {
-    "message": "分享"
+    "message": "共享"
   },
   "moveToOrganization": {
     "message": "移动到组织"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "否"
+  },
+  "noAuth": {
+    "message": "拥有此链接的任何人"
+  },
+  "anyOneWithPassword": {
+    "message": "拥有您设置的密码的任何人"
   },
   "location": {
     "message": "位置"
@@ -2719,7 +2749,7 @@
     "message": "YubiKey 已更新"
   },
   "disableAllKeys": {
-    "message": "禁用全部密钥"
+    "message": "停用全部密钥"
   },
   "twoFactorDuoDesc": {
     "message": "输入 Duo 管理面板提供的 Bitwarden 应用程序信息。"
@@ -2782,7 +2812,7 @@
     "message": "等待您触摸安全密钥上的按钮"
   },
   "twoFactorU2fClickSave": {
-    "message": "单击下面的「保存」按钮，以启用此安全密钥用于两步登录。"
+    "message": "单击下面的「保存」按钮，以激活此安全密钥用于两步登录。"
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "读取安全密钥时出现问题。请重试。"
@@ -2791,7 +2821,7 @@
     "message": "您的 Bitwarden 两步登录恢复代码"
   },
   "twoFactorRecoveryNoCode": {
-    "message": "您尚未设置任何两步登录提供程序。在设置了一个两步登录提供程序后，请返回这里检查恢复代码。"
+    "message": "您尚未设置任何两步登录提供程序。设置两步登录提供程序后，返回这里查看您的恢复代码。"
   },
   "printCode": {
     "message": "打印代码",
@@ -2979,7 +3009,7 @@
     "message": "检查泄漏情况"
   },
   "breachUsernameNotFound": {
-    "message": "没有在已知的数据泄露中发现 $USERNAME$。",
+    "message": "在任何已知的数据泄露中均未发现 $USERNAME$。",
     "placeholders": {
       "username": {
         "content": "$1",
@@ -2992,7 +3022,7 @@
     "description": "ex. Good News, No Breached Accounts Found!"
   },
   "breachUsernameFound": {
-    "message": "$USERNAME$ 在不同的在线数据泄漏中找到 $COUNT$ 次。",
+    "message": "在 $COUNT$ 个不同的在线数据泄露中发现了 $USERNAME$。",
     "placeholders": {
       "username": {
         "content": "$1",
@@ -3281,6 +3311,9 @@
   "nextChargeHeader": {
     "message": "下一次收费"
   },
+  "nextChargeDate": {
+    "message": "下一次收费日期"
+  },
   "plan": {
     "message": "方案"
   },
@@ -3491,7 +3524,7 @@
     "description": "Free as in 'free beer'."
   },
   "planDescFree": {
-    "message": "适用于测试或与 $COUNT$ 位其他用户共享的个人用户。",
+    "message": "适用于测试或个人用户与 $COUNT$ 位其他用户共享。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5627,7 +5660,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
-    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，任何人都可以通过链接访问此 Send。",
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "一个或多个组织策略阻止您导出个人密码库。"
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "激活自动填充"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时的自动填充设置。"
+  "activateAutofillPolicyDescription": {
+    "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时自动填充设置。"
   },
-  "experimentalFeature": {
-    "message": "被入侵或不受信任的网站可能恶意利用页面加载时的自动填充功能。"
+  "autofillOnPageLoadExploitWarning": {
+    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "进一步了解自动填充"
   },
   "selectType": {
@@ -7286,7 +7319,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
-    "message": "「SSO 登录和 Key Connector 解密」已启用。此策略仅适用于所有者和管理员。"
+    "message": "「SSO 登录和 Key Connector 解密」已激活。此策略仅适用于所有者和管理员。"
   },
   "enabledSso": {
     "message": "SSO 已启用"
@@ -7304,7 +7337,7 @@
     }
   },
   "enabledKeyConnector": {
-    "message": "Key Connector 已启用"
+    "message": "Key Connector 已激活"
   },
   "disabledKeyConnector": {
     "message": "Key Connector 已停用"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden 将在最初的 72 小时内尝试声明域名 3 次。如果此域名无法声明，请检查您主机中的 DNS 记录并手动声明。如果此域名在 7 天内未声明，它将被从您的组织中移除。"
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden 将在 72 小时内尝试声明此域名。如果此域名无法声明，请验证您的 DNS 记录并手动声明。未声明的域名将在 7 天后被移除。"
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "声明后，使用已声明域名的现有成员将收到关于"
+  },
+  "accountOwnershipChange": {
+    "message": "账户所有权变更"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "的电子邮件通知。"
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ 无法声明。请检查您的 DNS 记录。",
     "placeholders": {
@@ -11378,11 +11423,11 @@
   "domainStatusClaimed": {
     "message": "已声明"
   },
-  "domainStatusUnderVerification": {
-    "message": "验证中"
+  "domainStatusPending": {
+    "message": "处理中"
   },
   "claimedDomainsDescription": {
-    "message": "声明域名以拥有成员账户。已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已声明的账户。"
+    "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已声明的账户。"
   },
   "invalidDomainNameClaimMessage": {
     "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行声明。"
@@ -12105,10 +12150,10 @@
     "message": "使用通行密钥解锁"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "使用通行密钥解锁失败。请重试或使用其他解锁方式。"
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "没有可用于解锁的 PRF 通行密钥。"
   },
   "additionalStorageGB": {
     "message": "附加存储 GB"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   },
+  "whoCanView": {
+    "message": "谁可以查看"
+  },
+  "specificPeople": {
+    "message": "指定的人员"
+  },
+  "emailVerificationDesc": {
+    "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "输入多个电子邮箱（使用英文逗号分隔）。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "当您移除存储空间时，您将收到一笔按比例计算的账户信用额度，其将用于自动抵扣您的下一笔费用。"
   },
@@ -12683,6 +12743,9 @@
     "message": "您拥有高级版"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "电子邮箱保护"
+  },
+  "invalidSendPassword": {
+    "message": "无效的 Send 密码"
   }
 }
