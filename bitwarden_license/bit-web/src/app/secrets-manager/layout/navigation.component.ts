@@ -72,6 +72,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     );
 
+    const orgId$ = this.route.params.pipe(
+      map((p) => p.organizationId),
+      distinctUntilChanged(),
+    );
+
     this.isAdmin$ = org$.pipe(
       map((org) => org?.isAdmin),
       takeUntil(this.destroy$),
@@ -82,19 +87,20 @@ export class NavigationComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     );
 
-    combineLatest([
-      org$,
+    const counts$ = combineLatest([
+      orgId$,
       this.projectService.project$.pipe(startWith(null)),
       this.secretService.secret$.pipe(startWith(null)),
       this.serviceAccountService.serviceAccount$.pipe(startWith(null)),
       this.portingApiService.imports$.pipe(startWith(null)),
-    ])
+    ]).pipe(switchMap(([orgId]) => this.countService.getOrganizationCounts(orgId)));
+
+    combineLatest([org$, counts$])
       .pipe(
         filter(([org]) => org?.enabled),
-        switchMap(([org]) => this.countService.getOrganizationCounts(org.id)),
         takeUntil(this.destroy$),
       )
-      .subscribe((organizationCounts) => {
+      .subscribe(([_, organizationCounts]) => {
         this.organizationCounts = {
           projects: organizationCounts.projects,
           secrets: organizationCounts.secrets,
