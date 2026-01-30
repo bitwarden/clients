@@ -29,7 +29,7 @@
     "message": "Logga in med nyckel"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Lås upp med lösennyckel"
   },
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Nej"
+  },
+  "noAuth": {
+    "message": "Vem som helst med länken"
+  },
+  "anyOneWithPassword": {
+    "message": "Alla som har ett lösenord inställt av dig"
   },
   "location": {
     "message": "Plats"
@@ -2046,6 +2052,9 @@
     "message": "Körkortsnummer"
   },
   "email": {
+    "message": "E-post"
+  },
+  "emails": {
     "message": "E-post"
   },
   "phone": {
@@ -3371,10 +3380,10 @@
     "message": "Fel"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Det gick inte att låsa upp med lösennyckel. Försök igen eller använd en annan upplåsningsmetod."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Inga PRF-aktiverade lösennycklar finns tillgängliga för upplåsning. Logga in med en lösennyckel först."
   },
   "decryptionError": {
     "message": "Dekrypteringsfel"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Ladda ned bilaga"
+  },
   "downloadBitwarden": {
     "message": "Ladda ner Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Ändra storlek på sidnavigering"
+  },
+  "whoCanView": {
+    "message": "Vem kan se"
+  },
+  "specificPeople": {
+    "message": "Specifika personer"
+  },
+  "emailVerificationDesc": {
+    "message": "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
+  },
+  "emailPlaceholder": {
+    "message": "användare@bitwarden.com , användare@acme.com"
   }
 }

@@ -29,7 +29,7 @@
     "message": "Увійти з ключем доступу"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Розблокувати з ключем доступу"
   },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "noAuth": {
+    "message": "Будь-хто з посиланням"
+  },
+  "anyOneWithPassword": {
+    "message": "Будь-хто зі встановленим вами паролем"
   },
   "location": {
     "message": "Розташування"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Е-пошта"
+  },
+  "emails": {
+    "message": "Е-пошти"
   },
   "phone": {
     "message": "Телефон"
@@ -3371,10 +3380,10 @@
     "message": "Помилка"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Не вдалося розблокувати за допомогою ключа доступу. Повторіть спробу або скористайтеся іншим способом розблокування."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Немає ключів доступу з підтримкою PRF, доступних для розблокування. Спочатку увійдіть з ключем доступу."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Завантажити вкладення"
+  },
   "downloadBitwarden": {
     "message": "Завантажити Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
+  },
+  "whoCanView": {
+    "message": "Хто може переглядати"
+  },
+  "specificPeople": {
+    "message": "Певні люди"
+  },
+  "emailVerificationDesc": {
+    "message": "Після того, як ви поділитеся цим посиланням на відправлення, особам необхідно буде підтвердити свої е-пошти за допомогою коду, щоб переглянути це відправлення."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

@@ -3,7 +3,7 @@
     "message": "bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "बिटवार्डन लोगो"
   },
   "extName": {
     "message": "बिटवार्डन पासवर्ड मैनेजर",
@@ -26,16 +26,16 @@
     "message": "बिटवार्डन का परिचय"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "पासकी से लॉग इन करें"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "पासकी से अनलॉक करें"
   },
   "useSingleSignOn": {
     "message": "सिंगल साइन-ऑन प्रयोग करें"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "आपके संगठन को सिंगल साइन-ऑन करना आवश्यक है।"
   },
   "welcomeBack": {
     "message": "आपका पुन: स्वागत है!"
@@ -71,7 +71,7 @@
     "message": "मास्टर पासवर्ड संकेत आपको भूल जाने की अवस्था में पासवर्ड को याद करने में सहायता करता है।"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "अगर आप अपना पासवर्ड भूल गए हैं, तो पासवर्ड संकेत आपके ईमेल पर भेजा जा सकता है। $CURRENT$/$MAXIMUM$ अक्षर अधिकतम।",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -90,7 +90,7 @@
     "message": "Master Password Hint (optional)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "पासवर्ड की मज़बूती का स्कोर $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -99,10 +99,10 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "ऑर्गनाइज़ेशन में शामिल हों"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$ से जुड़ें",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -111,7 +111,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "मास्टर पासवर्ड सेट करके इस ऑर्गनाइज़ेशन से जुड़ने की प्रक्रिया पूरी करें।"
   },
   "tab": {
     "message": "टैब"
@@ -138,7 +138,7 @@
     "message": "Copy Password"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "पासफ़्रेज़ कॉपी करें"
   },
   "copyNote": {
     "message": "Copy Note"
@@ -162,22 +162,22 @@
     "message": "कंपनी के नाम को कॉपी करें"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "सामाजिक सुरक्षा संख्या या आधारकार्ड संख्या कॉपी करें"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "पासपोर्ट नंबर कॉपी करें"
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "प्राइवेट की कॉपी करें"
   },
   "copyPublicKey": {
     "message": "Copy public key"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "फिंगरप्रिंट कॉपी करें"
   },
   "copyCustomField": {
     "message": "Copy $FIELD$",
@@ -195,11 +195,11 @@
     "message": "Copy notes"
   },
   "copy": {
-    "message": "Copy",
+    "message": "कॉपी करें",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "भरें",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -215,7 +215,7 @@
     "message": "स्वचालित पहचान विवरण"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "सत्यापन कोड भरें"
   },
   "fillVerificationCodeAria": {
     "message": "Fill Verification Code",
@@ -261,16 +261,16 @@
     "message": "Add Item"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "अकाउंट का ईमेल"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "संकेत का अनुरोध करें"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "पासवर्ड संकेत का अनुरोध करें"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "अपना अकाउंट ईमेल पता डालें और आपको आपका पासवर्ड संकेत भेज दिया जाएगा"
   },
   "getMasterPasswordHint": {
     "message": "मास्टर पासवर्ड संकेत प्राप्त करें"
@@ -297,7 +297,7 @@
     "message": "Change Master Password"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "वेब ऐप पर जारी रखें?"
   },
   "continueToWebAppDesc": {
     "message": "Explore more features of your Bitwarden account on the web app."
@@ -368,7 +368,7 @@
     "message": "Free Bitwarden Families"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "आप फ्री बिटवर्डन फैमिलीज़ के लिए एलिजिबल हैं। इस ऑफर को आज ही वेब ऐप में रिडीम करें।"
   },
   "version": {
     "message": "संस्करण"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "नहीं"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Location"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "ईमेल"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "फोन"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "अटैचमेंट डाउनलोड करें"
+  },
   "downloadBitwarden": {
     "message": "Download Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

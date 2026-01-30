@@ -29,7 +29,7 @@
     "message": "Keçid açarı ilə giriş et"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Kilidi keçid açarı ilə aç"
   },
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "noAuth": {
+    "message": "Keçidə sahib olan hər kəs"
+  },
+  "anyOneWithPassword": {
+    "message": "Sizin təyin etdiyiniz parola sahib hər kəs"
   },
   "location": {
     "message": "Yerləşmə"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "E-poçt"
   },
+  "emails": {
+    "message": "E-poçtlar"
+  },
   "phone": {
     "message": "Telefon"
   },
@@ -2477,7 +2486,7 @@
     "message": "Element birdəfəlik silindi"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arxivlənmiş element bərpa edildi"
   },
   "restoreItem": {
     "message": "Elementi bərpa et"
@@ -3371,10 +3380,10 @@
     "message": "Xəta"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Kilid keçid açarı ilə açılmadı. Lütfən yenidən sınayın, ya da başqa kilid açma üsulunu sınayın."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Kilidi açmaq üçün PRF dəstəkli keçid açarı yoxdur. Lütfən əvvəlcə keçid açarı ilə giriş edin."
   },
   "decryptionError": {
     "message": "Şifrə açma xətası"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Qoşmanı endir"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden-i endir"
   },
@@ -5683,7 +5695,7 @@
     "message": "Ekstra enli"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Dar"
   },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
+  },
+  "whoCanView": {
+    "message": "Kimlər baxa bilər"
+  },
+  "specificPeople": {
+    "message": "Xüsusi insanlar"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send keçidini paylaşdıqdan sonra, bu \"Send\"ə baxması üçün insanlar e-poçtlarını bir kodla doğrulamalıdırlar."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

@@ -990,6 +990,12 @@
   "no": {
     "message": "Nie"
   },
+  "noAuth": {
+    "message": "Ktokoľvek s odkazom"
+  },
+  "anyOneWithPassword": {
+    "message": "Ktokoľvek s heslom od vás"
+  },
   "location": {
     "message": "Poloha"
   },
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "E-maily"
   },
   "phone": {
     "message": "Telefón"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Stiahnuť prílohu"
+  },
   "downloadBitwarden": {
     "message": "Stiahnuť Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
+  },
+  "whoCanView": {
+    "message": "Kto môže zobraziť"
+  },
+  "specificPeople": {
+    "message": "Konkrétne osoby"
+  },
+  "emailVerificationDesc": {
+    "message": "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
+  },
+  "emailPlaceholder": {
+    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   }
 }
