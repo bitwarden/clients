@@ -182,6 +182,58 @@ For coming soon or unavailable plans:
 </billing-pricing-card>
 ```
 
+### With Button Icons
+
+Add icons to buttons for enhanced visual communication:
+
+<Canvas of={PricingCardStories.WithButtonIcon} />
+
+```html
+<!-- Icon after text (default) -->
+<billing-pricing-card
+  title="Premium Plan"
+  tagline="Upgrade for advanced features"
+  [price]="{ amount: 10, cadence: 'monthly' }"
+  [button]="{ 
+    text: 'Upgrade Now', 
+    type: 'primary', 
+    icon: { type: 'bwi-external-link', position: 'after' } 
+  }"
+  [features]="premiumFeatures"
+>
+</billing-pricing-card>
+
+<!-- Icon before text -->
+<billing-pricing-card
+  title="Business Plan"
+  tagline="Add more features to your plan"
+  [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+  [button]="{ 
+    text: 'Add Features', 
+    type: 'secondary', 
+    icon: { type: 'bwi-plus', position: 'before' } 
+  }"
+  [features]="businessFeatures"
+>
+</billing-pricing-card>
+```
+
+### Active Plan Badge
+
+Show which plan is currently active:
+
+<Canvas of={PricingCardStories.ActivePlan} />
+
+```html
+<billing-pricing-card
+  title="Free Plan"
+  tagline="Your current plan with essential features"
+  [features]="freeFeatures"
+  [activeBadge]="{ text: 'Active plan' }"
+>
+</billing-pricing-card>
+```
+
 ### Pricing Grid Layout
 
 Multiple cards displayed together:
