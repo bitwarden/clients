@@ -92,6 +92,18 @@ export class NavItemComponent extends NavBaseComponent {
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
+   * By default, a navigation will put the user's focus on the `main` element.
+   *
+   * If the user's focus should be moved to another element upon navigation end, pass a selector
+   * here (i.e. `#elementId`).
+   *
+   * Pass `false` to opt out of moving the focus entirely. Focus will stay on the nav item.
+   *
+   * See router-focus-manager.service for implementation of focus management
+   */
+  readonly focusAfterNavTarget = input<string | boolean>();
+
+  /**
    * The design spec calls for the an outline to wrap the entire element when the template's
    * anchor/button has :focus-visible. Usually, we would use :focus-within for this. However, that
    * matches when a child element has :focus instead of :focus-visible.

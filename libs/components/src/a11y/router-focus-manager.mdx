@@ -1,0 +1,69 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Router Focus Management" />
+
+# Router Focus Management
+
+On a normal non-SPA (Single Page Application) webpage, a page navigation / route change will cause
+the full page to reload, and a user's focus is placed at the top of the page when the new page
+loads.
+
+Bitwarden's Angular apps are SPAs using the Angular router to manage internal routing and page
+navigation. When the Angular router performs a page navigation / route change to another internal
+SPA route, the full page does not reload, and the user's focus does not move from the trigger
+element unless the trigger element no longer exists. There is no other built-in notification to a
+screenreader user that a navigation has occured, if the focus is not moved.
+
+## Web
+
+We handle router focus management in the web app by moving the user's focus at the end of a SPA
+Angular router navigation.
+
+See `router-focus-manager.service.ts` for the implementation.
+
+### Default behavior
+
+By default, we focus the `main` element.
+
+Consumers can change or opt out of the focus management using the `state` input to the
+[Angular route](https://angular.dev/api/router/RouterLink). Using `state` allows us to access the
+value between browser back/forward arrows.
+
+### Change focus target
+
+In template: `<a [routerLink]="route()" [state]="{ focusAfterNav: '#selector' }"></a>`
+
+In typescript: `this.router.navigate([], { state: { focusAfterNav: '#selector' }})`
+
+Any valid `querySelector` selector can be passed. If the element is not found, no focus management
+occurs as we cannot make the assumption that the default `main` element is the next best option.
+
+Examples of where you might want to change the target:
+
+- A full page navigation occurs where you do want the user to be placed at the top of the page (aka
+  the body element) like a non-SPA app, such as going from Password Manager to Secrets Manager
+- A routed dialog needs to manually specify where the focus should return to once it is closed
+
+### Opt out of focus management
+
+In template: `<a [routerLink]="route()" [state]="{ focusAfterNav: false }"></a>`
+
+In typescript: `this.router.navigate([], { state: { focusAfterNav: false }})`
+
+Example of where you might want to manually opt out:
+
+- Tab component causes a route navigation, and the focus will be handled by the tab component itself
+
+### Autofocus directive
+
+Consumers can use the autofocus directive on an applicable interactive element. The autofocus
+directive will take precedence over the router focus management system. See the
+[Autofocus Directive docs](?path=/docs/component-library-form-autofocus-directive--docs).
+
+## Browser
+
+Not implemented yet.
+
+## Desktop
+
+Not implemented yet.
