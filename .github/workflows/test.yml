@@ -49,6 +49,8 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # We use isolatedModules: true which disables typechecking in tests
       # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/

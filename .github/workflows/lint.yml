@@ -72,6 +72,8 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
