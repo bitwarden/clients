@@ -35,7 +35,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
   ],
 })
 export class PricingCardComponent {
-  private i18nService = inject(I18nService);
   readonly tagline = input.required<string>();
   readonly price = input<{
     amount: number;
