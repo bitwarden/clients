@@ -55,6 +55,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingShadowDomCheck = false;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
+  private readonly shadowDomCheckTimeoutMs = 500;
+  private readonly shadowDomCheckDebounceMs = 300;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -1003,7 +1005,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.shadowDomCheckTimeout = setTimeout(() => {
         this.checkForNewShadowRoots();
         this.pendingShadowDomCheck = false;
-      }, 500);
+      }, this.shadowDomCheckTimeoutMs);
     }
 
     if (!this.mutationsQueue.length) {
@@ -1030,6 +1032,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
+
+    // Reset shadow root tracking on navigation
+    this.domQueryService.resetObservedShadowRoots();
 
     this.updateAutofillElementsAfterMutation();
   }
@@ -1074,7 +1079,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private debouncedRequirePageDetailsUpdate = debounce(() => {
     this.requirePageDetailsUpdate();
-  }, 300);
+  }, this.shadowDomCheckDebounceMs);
 
   /**
    * Checks for new shadow roots that aren't being observed and triggers

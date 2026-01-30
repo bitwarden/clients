@@ -2361,6 +2361,66 @@ describe("CollectAutofillContentService", () => {
       clearTimeout(initialTimeout);
       jest.useRealTimers();
     });
+
+    it("debounces multiple rapid shadow root mutations with real timers", (done) => {
+      jest.useRealTimers();
+
+      // Use real debounce for this test
+      const actualUtils = jest.requireActual("../utils");
+      const realDebounce = actualUtils.debounce;
+
+      const shadowHost = document.createElement("div");
+      const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+      document.body.appendChild(shadowHost);
+
+      const mutationRecord: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nonexistent"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: shadowRoot,
+      };
+
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+
+      // Track actual calls to requirePageDetailsUpdate
+      let callCount = 0;
+      const originalRequirePageDetailsUpdate =
+        collectAutofillContentService["requirePageDetailsUpdate"];
+      collectAutofillContentService["requirePageDetailsUpdate"] = () => {
+        callCount++;
+        originalRequirePageDetailsUpdate.call(collectAutofillContentService);
+      };
+
+      // Temporarily override with real debounce
+      const originalDebounced = collectAutofillContentService["debouncedRequirePageDetailsUpdate"];
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = realDebounce(() => {
+        collectAutofillContentService["requirePageDetailsUpdate"]();
+      }, 300);
+
+      // Trigger 5 rapid mutations
+      for (let i = 0; i < 5; i++) {
+        collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+      }
+
+      // Should only call requirePageDetailsUpdate once after debounce
+      setTimeout(() => {
+        expect(callCount).toBe(1);
+
+        // Restore original
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = originalDebounced;
+        collectAutofillContentService["requirePageDetailsUpdate"] =
+          originalRequirePageDetailsUpdate;
+        document.body.removeChild(shadowHost);
+        done();
+      }, 350);
+    });
   });
 
   describe("setupOverlayListenersOnMutatedElements", () => {

@@ -116,6 +116,14 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
+   * Resets the observed shadow roots tracking. This should be called when the mutation
+   * observer is recreated or on significant lifecycle events (like navigation).
+   */
+  resetObservedShadowRoots = (): void => {
+    this.observedShadowRoots = new WeakSet<ShadowRoot>();
+  };
+
+  /**
    * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.
    */
   private async init() {

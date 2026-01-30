@@ -9,4 +9,5 @@ export interface DomQueryService {
   checkPageContainsShadowDom(): boolean;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
   checkForNewShadowRoots(): boolean;
+  resetObservedShadowRoots(): void;
 }
