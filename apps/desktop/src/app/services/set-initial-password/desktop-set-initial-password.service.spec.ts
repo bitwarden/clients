@@ -87,6 +87,10 @@ describe("DesktopSetInitialPasswordService", () => {
     expect(sut).not.toBeFalsy();
   });
 
+  /**
+   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
+   */
   describe("setInitialPassword(...)", () => {
     // Mock function parameters
     let credentials: SetInitialPasswordCredentials;
@@ -116,6 +120,8 @@ describe("DesktopSetInitialPasswordService", () => {
         orgSsoIdentifier: "orgSsoIdentifier",
         orgId: "orgId",
         resetPasswordAutoEnroll: false,
+        newPassword: "Test@Password123!",
+        salt: "user@example.com" as MasterPasswordSalt,
       };
       userId = "userId" as UserId;
       userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;

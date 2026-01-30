@@ -3,8 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import {
-  emailAndOtpRequiredEmailSent,
-  emailInvalid,
+  emailAndOtpRequired,
   emailRequired,
   otpInvalid,
   passwordHashB64Invalid,
@@ -161,7 +160,7 @@ export class SendAuthComponent implements OnInit {
       this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
-      } else if (emailAndOtpRequiredEmailSent(response.error) || emailInvalid(response.error)) {
+      } else if (emailAndOtpRequired(response.error)) {
         this.enterOtp.set(true);
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({

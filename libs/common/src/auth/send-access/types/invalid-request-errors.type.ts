@@ -39,16 +39,12 @@ export function emailRequired(e: SendAccessTokenApiErrorResponse): e is EmailReq
   return e.error === "invalid_request" && e.send_access_error_type === "email_required";
 }
 
-export type EmailAndOtpRequiredEmailSent = InvalidRequest & {
-  send_access_error_type: "email_and_otp_required_otp_sent";
+export type EmailAndOtpRequired = InvalidRequest & {
+  send_access_error_type: "email_and_otp_required";
 };
 
-export function emailAndOtpRequiredEmailSent(
-  e: SendAccessTokenApiErrorResponse,
-): e is EmailAndOtpRequiredEmailSent {
-  return (
-    e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required_otp_sent"
-  );
+export function emailAndOtpRequired(e: SendAccessTokenApiErrorResponse): e is EmailAndOtpRequired {
+  return e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required";
 }
 
 export type UnknownInvalidRequest = InvalidRequest & {

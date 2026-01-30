@@ -87,6 +87,8 @@ export interface InitializeJitPasswordCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
