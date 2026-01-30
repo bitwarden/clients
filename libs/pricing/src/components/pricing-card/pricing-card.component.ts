@@ -1,10 +1,10 @@
 import { CurrencyPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,
   BadgeVariant,
+  BitwardenIcon,
   ButtonModule,
   ButtonType,
   CardComponent,
@@ -46,7 +46,7 @@ export class PricingCardComponent {
     type: ButtonType;
     text: string;
     disabled?: boolean;
-    icon?: { type: string; position: "before" | "after" };
+    icon?: { type: BitwardenIcon; position: "before" | "after" };
   }>();
   readonly features = input<string[]>();
   readonly activeBadge = input<{ text: string; variant?: BadgeVariant }>();
