@@ -43,7 +43,7 @@
         [buttonType]="buttonConfig.type"
         [block]="true"
         [disabled]="buttonConfig.disabled"
-        (click)="onButtonClick()"
+        (click)="buttonClick.emit()"
         type="button"
       >
         @if (buttonConfig.icon?.position === "before") {

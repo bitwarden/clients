@@ -14,10 +14,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -30,7 +29,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
+import { VNextPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -75,12 +74,22 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
     protected dialogRef: DialogRef<PolicyEditDialogResult>,
     protected toastService: ToastService,
-    private configService: ConfigService,
-    private keyService: KeyService,
+    protected keyService: KeyService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
+  }
+
+  /**
+   * Type guard to check if the policy component has the buildVNextRequest method.
+   */
+  private hasVNextRequest(
+    component: BasePolicyEditComponent,
+  ): component is BasePolicyEditComponent & {
+    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
+  } {
+    return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
 
   /**
@@ -132,10 +141,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (
-        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent &&
-        (await this.isVNextEnabled())
-      ) {
+      if (this.hasVNextRequest(this.policyComponent)) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -154,14 +160,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async isVNextEnabled(): Promise<boolean> {
-    const isVNextFeatureEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
-    );
-
-    return isVNextFeatureEnabled;
-  }
-
   private async handleStandardSubmission(): Promise<void> {
     if (!this.policyComponent) {
       throw new Error("PolicyComponent not initialized.");
@@ -172,7 +170,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   private async handleVNextSubmission(
-    policyComponent: vNextOrganizationDataOwnershipPolicyComponent,
+    policyComponent: BasePolicyEditComponent & {
+      buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
+    },
   ): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
@@ -187,12 +187,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("No encryption key for this organization.");
     }
 
-    const vNextRequest = await policyComponent.buildVNextRequest(orgKey);
+    const request = await policyComponent.buildVNextRequest(orgKey);
 
     await this.policyApiService.putPolicyVNext(
       this.data.organizationId,
       this.data.policy.type,
-      vNextRequest,
+      request,
     );
   }
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {

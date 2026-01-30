@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   InlineMenuElementPosition,
   InlineMenuPosition,
@@ -62,8 +60,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private inlineMenuEnabled = true;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
-  private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
+  private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout | null = null;
   private lastElementOverrides: WeakMap<Element, number> = new WeakMap();
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
@@ -77,7 +75,21 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
-    this.setupMutationObserver();
+    /**
+     * Sets up mutation observers for the inline menu elements, the menu container, and
+     * the document element. The mutation observers are used to remove any styles that
+     * are added to the inline menu elements by the website. They are also used to ensure
+     * that the inline menu elements are always present at the bottom of the menu container.
+     */
+    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.inlineMenuElementsMutationObserver = new MutationObserver(
+      this.handleInlineMenuElementMutationObserverUpdate,
+    );
+    this.containerElementMutationObserver = new MutationObserver(
+      this.handleContainerElementMutationObserverUpdate,
+    );
+    this.observePageAttributes();
   }
 
   /**
@@ -181,12 +193,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu button.
    */
   private async appendButtonElement(): Promise<void> {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (!this.buttonElement) {
-      this.createButtonElement();
+      this.buttonElement = this.createButtonElement();
       this.updateCustomElementDefaultStyles(this.buttonElement);
     }
 
@@ -201,12 +209,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu list.
    */
   private async appendListElement(): Promise<void> {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (!this.listElement) {
-      this.createListElement();
+      this.listElement = this.createListElement();
       this.updateCustomElementDefaultStyles(this.listElement);
     }
 
@@ -257,16 +261,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createButtonElement() {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       this.buttonElement.setAttribute("popover", "manual");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
 
-      return;
+      return this.buttonElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
@@ -282,6 +282,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.buttonElement = globalThis.document.createElement(customElementName);
     this.buttonElement.setAttribute("popover", "manual");
+    return this.buttonElement;
   }
 
   /**
@@ -289,16 +290,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createListElement() {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       this.listElement.setAttribute("popover", "manual");
       new AutofillInlineMenuListIframe(this.listElement);
 
-      return;
+      return this.listElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
@@ -314,6 +311,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.listElement = globalThis.document.createElement(customElementName);
     this.listElement.setAttribute("popover", "manual");
+    return this.listElement;
   }
 
   /**
@@ -329,27 +327,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.observeCustomElements();
   }
-
-  /**
-   * Sets up mutation observers for the inline menu elements, the menu container, and
-   * the document element. The mutation observers are used to remove any styles that
-   * are added to the inline menu elements by the website. They are also used to ensure
-   * that the inline menu elements are always present at the bottom of the menu container.
-   */
-  private setupMutationObserver = () => {
-    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
-    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
-
-    this.inlineMenuElementsMutationObserver = new MutationObserver(
-      this.handleInlineMenuElementMutationObserverUpdate,
-    );
-
-    this.containerElementMutationObserver = new MutationObserver(
-      this.handleContainerElementMutationObserverUpdate,
-    );
-
-    this.observePageAttributes();
-  };
 
   /**
    * Sets up mutation observers to verify that the inline menu
@@ -652,6 +629,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
+    if (!this.buttonElement) {
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
@@ -667,7 +648,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       this.lastElementOverrides.set(lastChild, lastChildEncounterCount + 1);
     }
 
-    if (this.lastElementOverrides.get(lastChild) >= 3) {
+    const lastChildEncounterCountAfterUpdate = this.lastElementOverrides.get(lastChild) || 0;
+    if (lastChildEncounterCountAfterUpdate >= 3) {
       this.handlePersistentLastChildOverride(lastChild);
 
       return;
@@ -686,6 +668,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && isInlineMenuListVisible)
     ) {
+      if (!this.listElement) {
+        return;
+      }
       containerElement.insertBefore(this.buttonElement, this.listElement);
       return;
     }

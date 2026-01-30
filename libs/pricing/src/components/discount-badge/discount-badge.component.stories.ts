@@ -2,8 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule } from "@bitwarden/components";
-
-import { DiscountBadgeComponent, DiscountInfo } from "./discount-badge.component";
+import { Discount, DiscountBadgeComponent, DiscountTypes } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Discount Badge",
@@ -40,9 +39,9 @@ export const PercentDiscount: Story = {
   }),
   args: {
     discount: {
-      active: true,
-      percentOff: 20,
-    } as DiscountInfo,
+      type: DiscountTypes.PercentOff,
+      value: 20,
+    } as Discount,
   },
 };
 
@@ -53,9 +52,9 @@ export const PercentDiscountDecimal: Story = {
   }),
   args: {
     discount: {
-      active: true,
-      percentOff: 0.15, // 15% in decimal format
-    } as DiscountInfo,
+      type: DiscountTypes.PercentOff,
+      value: 0.15, // 15% in decimal format
+    } as Discount,
   },
 };
 
@@ -66,9 +65,9 @@ export const AmountDiscount: Story = {
   }),
   args: {
     discount: {
-      active: true,
-      amountOff: 10.99,
-    } as DiscountInfo,
+      type: DiscountTypes.AmountOff,
+      value: 10.99,
+    } as Discount,
   },
 };
 
@@ -79,22 +78,9 @@ export const LargeAmountDiscount: Story = {
   }),
   args: {
     discount: {
-      active: true,
-      amountOff: 99.99,
-    } as DiscountInfo,
-  },
-};
-
-export const InactiveDiscount: Story = {
-  render: (args) => ({
-    props: args,
-    template: `<billing-discount-badge [discount]="discount"></billing-discount-badge>`,
-  }),
-  args: {
-    discount: {
-      active: false,
-      percentOff: 20,
-    } as DiscountInfo,
+      type: DiscountTypes.AmountOff,
+      value: 99.99,
+    } as Discount,
   },
 };
 
@@ -105,19 +91,5 @@ export const NoDiscount: Story = {
   }),
   args: {
     discount: null,
-  },
-};
-
-export const PercentAndAmountPreferPercent: Story = {
-  render: (args) => ({
-    props: args,
-    template: `<billing-discount-badge [discount]="discount"></billing-discount-badge>`,
-  }),
-  args: {
-    discount: {
-      active: true,
-      percentOff: 25,
-      amountOff: 10.99,
-    } as DiscountInfo,
   },
 };

@@ -18,7 +18,6 @@ import {
   Account,
   AccountInfo,
   InternalAccountService,
-  accountInfoEqual,
 } from "../../auth/abstractions/account.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -37,7 +36,10 @@ export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
   ACCOUNT_DISK,
   "accounts",
   {
-    deserializer: (accountInfo) => accountInfo,
+    deserializer: (accountInfo) => ({
+      ...accountInfo,
+      creationDate: accountInfo.creationDate ? new Date(accountInfo.creationDate) : undefined,
+    }),
   },
 );
 
@@ -111,7 +113,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? ({ id, ...(accounts[id] as AccountInfo) } as Account) : null)),
-      distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
+      distinctUntilChanged((a, b) => a?.id === b?.id && this.accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     this.accountActivity$ = this.globalStateProvider
@@ -168,7 +170,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     await this.setAccountInfo(userId, { emailVerified });
   }
 
-  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+  async setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void> {
     await this.setAccountInfo(userId, { creationDate });
   }
 
@@ -274,6 +276,23 @@ export class AccountServiceImplementation implements InternalAccountService {
     this._showHeader$.next(visible);
   }
 
+  private accountInfoEqual(a: AccountInfo, b: AccountInfo) {
+    if (a == null && b == null) {
+      return true;
+    }
+
+    if (a == null || b == null) {
+      return false;
+    }
+
+    return (
+      a.email === b.email &&
+      a.emailVerified === b.emailVerified &&
+      a.name === b.name &&
+      a.creationDate?.getTime() === b.creationDate?.getTime()
+    );
+  }
+
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
     function newAccountInfo(oldAccountInfo: AccountInfo): AccountInfo {
       return { ...oldAccountInfo, ...update };
@@ -291,7 +310,7 @@ export class AccountServiceImplementation implements InternalAccountService {
             throw new Error("Account does not exist");
           }
 
-          return !accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
+          return !this.accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
         },
       },
     );

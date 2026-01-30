@@ -1,30 +1,34 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   distinctUntilChanged,
   filter,
   firstValueFrom,
-  from,
   map,
   Observable,
   shareReplay,
   switchMap,
   take,
   tap,
-  BehaviorSubject,
+  withLatestFrom,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
+import {
+  AutoConfirmExtensionSetupDialogComponent,
+  AutoConfirmState,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -41,6 +45,8 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  ScrollLayoutService,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import {
@@ -112,11 +118,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
-export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
-
+export class VaultV2Component implements OnInit, OnDestroy {
   NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -154,16 +156,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }),
   );
 
-  protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.VaultLoadingSkeletons,
-  );
-
   protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.BrowserPremiumSpotlight,
-  );
-
-  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
@@ -173,38 +167,39 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected hasPremium$ = this.activeUserId$.pipe(
     switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
   );
-  protected accountAgeInDays$ = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      const creationDate$ = from(this.vaultProfileService.getProfileCreationDate(userId));
-      return creationDate$.pipe(
-        map((creationDate) => {
-          if (!creationDate) {
-            return 0;
-          }
-          const ageInMilliseconds = Date.now() - creationDate.getTime();
-          return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-        }),
-      );
+  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
+    map((account) => {
+      if (!account || !account.creationDate) {
+        return 0;
+      }
+      const creationDate = account.creationDate;
+      const ageInMilliseconds = Date.now() - creationDate.getTime();
+      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
     }),
   );
 
   protected showPremiumSpotlight$ = combineLatest([
     this.premiumSpotlightFeatureFlag$,
-    this.showPremiumNudgeSpotlight$,
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
+      ),
+    ),
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
-    map(
-      ([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
+      return (
         featureFlagEnabled &&
         showPremiumNudge &&
         !showHasItemsNudge &&
         !hasPremium &&
         count >= 5 &&
-        age >= 7,
-    ),
+        age >= 7
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -212,20 +207,14 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     PremiumUpgradeDialogComponent.open(this.dialogService);
   }
 
-  /** When true, show spinner loading state */
-  protected showSpinnerLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
-    map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
-  );
-
   /** When true, show skeleton loading state with debouncing to prevent flicker */
   protected showSkeletonsLoaders$ = combineLatest([
     this.loading$,
     this.searchService.isCipherSearching$,
     this.vaultItemsTransferService.transferInProgress$,
-    this.skeletonFeatureFlag$,
   ]).pipe(
-    map(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
-      return (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
+    map(([loading, cipherSearching, transferInProgress]) => {
+      return loading || cipherSearching || transferInProgress;
     }),
     distinctUntilChanged(),
     skeletonLoadingDelay(),
@@ -267,7 +256,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
-    private vaultProfileService: VaultProfileService,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private toastService: ToastService,
     private billingAccountService: BillingAccountProfileStateService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
@@ -299,16 +289,21 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngAfterViewInit(): void {
-    if (this.virtualScrollElement) {
-      // The filters component can cause the size of the virtual scroll element to change,
-      // which can cause the scroll position to be land in the wrong spot. To fix this,
-      // wait until all filters are populated before restoring the scroll position.
-      this.allFilters$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.vaultScrollPositionService.start(this.virtualScrollElement!);
+  private readonly scrollLayout = inject(ScrollLayoutService);
+
+  private readonly _scrollPositionEffect = effect((onCleanup) => {
+    const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
+      .pipe(
+        filter(([ref, _filters, loading]) => !!ref && !loading),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([ref]) => {
+        this.vaultScrollPositionService.start(ref!.nativeElement);
       });
-    }
-  }
+
+    onCleanup(() => sub.unsubscribe());
+  });
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -329,6 +324,36 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
         });
       });
 
+    const autoConfirmState$ = this.autoConfirmService.configuration$(this.activeUserId);
+
+    combineLatest([
+      this.autoConfirmService.canManageAutoConfirm$(this.activeUserId),
+      autoConfirmState$,
+    ])
+      .pipe(
+        filter(([canManage, state]) => canManage && state.showBrowserNotification === undefined),
+        take(1),
+        switchMap(() => AutoConfirmExtensionSetupDialogComponent.open(this.dialogService).closed),
+        withLatestFrom(autoConfirmState$, this.accountService.activeAccount$.pipe(getUserId)),
+        switchMap(([result, state, userId]) => {
+          const newState: AutoConfirmState = {
+            ...state,
+            enabled: result ?? false,
+            showBrowserNotification: !result,
+          };
+
+          if (result) {
+            this.toastService.showToast({
+              message: this.i18nService.t("autoConfirmEnabled"),
+              variant: "success",
+            });
+          }
+
+          return this.autoConfirmService.upsert(userId, newState);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
     await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     this.readySubject.next(true);

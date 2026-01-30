@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Inloggen met passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Ontgrendelen met passkey"
+  },
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
+  "itemWasUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
   "itemUnarchived": {
     "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
     "message": "Item archiveren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  "archiveItemDialogContent": {
+    "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
+  },
+  "itemRestored": {
+    "message": "Item is hersteld"
   },
   "edit": {
     "message": "Bewerken"
@@ -975,6 +990,12 @@
   "no": {
     "message": "Nee"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "Locatie"
   },
@@ -1322,11 +1343,21 @@
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
-  "export": {
-    "message": "Exporteren"
+  "exportVerb": {
+    "message": "Exporteren",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importeren"
+  "exportNoun": {
+    "message": "Exporteren",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importeren",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importeren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -1522,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Wachtwoordhygiëne, gezondheid van je account en datalekken om je kluis veilig te houden."
@@ -2014,6 +2054,9 @@
   "email": {
     "message": "E-mailadres"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Telefoonnummer"
   },
@@ -2441,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Definitief verwijderd item"
+  },
+  "archivedItemRestored": {
+    "message": "Gearchiveerd item hersteld"
   },
   "restoreItem": {
     "message": "Item herstellen"
@@ -3332,6 +3378,12 @@
   },
   "error": {
     "message": "Fout"
+  },
+  "prfUnlockFailed": {
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Er zijn geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen. Log eerst in met een passkey."
   },
   "decryptionError": {
     "message": "Ontsleutelingsfout"
@@ -4708,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Meer opties"
+  },
   "moreOptionsTitle": {
     "message": "Meer opties - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4797,6 +4852,39 @@
   },
   "adminConsole": {
     "message": "Beheerconsole"
+  },
+  "admin": {
+    "message": "Beheerder"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatisch gebruikers in behandeling bevestigen wanneer dit apparaat is ontgrendeld"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Bespaar tijd met automatische gebruikersbevestiging"
+  },
+  "autoConfirmWarning": {
+    "message": "Dit kan van invloed zijn op de gegevensbeveiliging van je organisatie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Meer informatie over de risico's"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatisch nieuwe gebruikers bevestigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nieuwe gebruikers worden automatisch bevestigd wanneer dit apparaat is ontgrendeld."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Wat zijn de mogelijke veiligheidsrisico's?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische bevestigen ingeschakeld"
+  },
+  "availableNow": {
+    "message": "Nu beschikbaar"
   },
   "accountSecurity": {
     "message": "Accountbeveiliging"
@@ -4921,6 +5009,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Bijlage downloaden"
   },
   "downloadBitwarden": {
     "message": "Bitwarden downloaden"
@@ -5061,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Overeenkomstdetectie verbergen $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
   },
   "autoFillOnPageLoad": {
     "message": "Automatisch invullen bij laden van pagina?"
@@ -5606,6 +5694,9 @@
   "extraWide": {
     "message": "Extra breed"
   },
+  "narrow": {
+    "message": "Smal"
+  },
   "sshKeyWrongPassword": {
     "message": "Het wachtwoord dat je hebt ingevoerd is onjuist."
   },
@@ -5653,6 +5744,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "vulnerablePassword": {
+    "message": "Kwetsbaar wachtwoord."
+  },
+  "changeNow": {
+    "message": "Nu wijzigen"
   },
   "missingWebsite": {
     "message": "Ontbrekende website"
@@ -6029,5 +6126,23 @@
   },
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
+  },
+  "resizeSideNavigation": {
+    "message": "Formaat zijnavigatie wijzigen"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

@@ -51,6 +51,44 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
+  async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
+    if (!models || models.length === 0) {
+      return [];
+    }
+
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+
+          const results: EncryptionContext[] = [];
+
+          // TODO: https://bitwarden.atlassian.net/browse/PM-30580
+          // Replace this loop with a native SDK encryptMany method for better performance.
+          for (const model of models) {
+            const sdkCipherView = this.toSdkCipherView(model, ref.value);
+            const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
+
+            results.push({
+              cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+              encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            });
+          }
+
+          return results;
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
   async moveToOrganization(
     model: CipherView,
     organizationId: OrganizationId,

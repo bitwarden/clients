@@ -478,13 +478,13 @@ describe("UpgradePaymentService", () => {
   describe("upgradeToPremium", () => {
     it("should call accountBillingClient to purchase premium subscription and refresh data", async () => {
       // Arrange
-      mockAccountBillingClient.purchasePremiumSubscription.mockResolvedValue();
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
 
       // Act
       await sut.upgradeToPremium(mockTokenizedPaymentMethod, mockBillingAddress);
 
       // Assert
-      expect(mockAccountBillingClient.purchasePremiumSubscription).toHaveBeenCalledWith(
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         mockTokenizedPaymentMethod,
         mockBillingAddress,
       );
@@ -496,13 +496,13 @@ describe("UpgradePaymentService", () => {
       const accountCreditPaymentMethod: NonTokenizedPaymentMethod = {
         type: NonTokenizablePaymentMethods.accountCredit,
       };
-      mockAccountBillingClient.purchasePremiumSubscription.mockResolvedValue();
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
 
       // Act
       await sut.upgradeToPremium(accountCreditPaymentMethod, mockBillingAddress);
 
       // Assert
-      expect(mockAccountBillingClient.purchasePremiumSubscription).toHaveBeenCalledWith(
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         accountCreditPaymentMethod,
         mockBillingAddress,
       );

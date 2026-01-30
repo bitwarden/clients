@@ -7,12 +7,12 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  CollectionAdminService,
   CollectionAdminView,
   Unassigned,
-} from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -27,14 +27,10 @@ import {
   SearchModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

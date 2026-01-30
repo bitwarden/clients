@@ -2,17 +2,21 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -37,7 +41,10 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
+  let mockEventCollectionService: MockProxy<EventCollectionService>;
   let mockConfigService: MockProxy<ConfigService>;
+  let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let mockSyncService: MockProxy<SyncService>;
 
   const userId = "user-id" as UserId;
   const organizationId = "org-id" as OrganizationId;
@@ -71,7 +78,10 @@ describe("DefaultVaultItemsTransferService", () => {
     mockI18nService = mock<I18nService>();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
+    mockEventCollectionService = mock<EventCollectionService>();
     mockConfigService = mock<ConfigService>();
+    mockOrganizationUserApiService = mock<OrganizationUserApiService>();
+    mockSyncService = mock<SyncService>();
 
     mockI18nService.t.mockImplementation((key) => key);
     transferInProgressValues = [];
@@ -85,7 +95,10 @@ describe("DefaultVaultItemsTransferService", () => {
       mockI18nService,
       mockDialogService,
       mockToastService,
+      mockEventCollectionService,
       mockConfigService,
+      mockOrganizationUserApiService,
+      mockSyncService,
     );
   });
 
@@ -548,6 +561,8 @@ describe("DefaultVaultItemsTransferService", () => {
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
+      mockSyncService.fullSync.mockResolvedValue(true);
+      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
     }
 
     it("does nothing when feature flag is disabled", async () => {
@@ -629,6 +644,12 @@ describe("DefaultVaultItemsTransferService", () => {
 
       await service.enforceOrganizationDataOwnership(userId);
 
+      expect(mockOrganizationUserApiService.revokeSelf).toHaveBeenCalledWith(organizationId);
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "leftOrganization",
+      });
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
     });
 
@@ -773,6 +794,63 @@ describe("DefaultVaultItemsTransferService", () => {
 
       expect(mockDialogService.open).toHaveBeenCalledTimes(4);
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
+    });
+
+    describe("event logs", () => {
+      it("logs accepted event when user accepts transfer", async () => {
+        const personalCiphers = [{ id: "cipher-1" } as CipherView];
+        setupMocksForEnforcementScenario({
+          policies: [policy],
+          organizations: [organization],
+          ciphers: personalCiphers,
+          defaultCollection: {
+            id: collectionId,
+            organizationId: organizationId,
+            isDefaultCollection: true,
+          } as CollectionView,
+        });
+
+        mockDialogService.open.mockReturnValueOnce(
+          createMockDialogRef(TransferItemsDialogResult.Accepted),
+        );
+        mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+        await service.enforceOrganizationDataOwnership(userId);
+
+        expect(mockEventCollectionService.collect).toHaveBeenCalledWith(
+          EventType.Organization_ItemOrganization_Accepted,
+          undefined,
+          undefined,
+          organizationId,
+        );
+      });
+
+      it("logs declined event when user rejects transfer", async () => {
+        const personalCiphers = [{ id: "cipher-1" } as CipherView];
+        setupMocksForEnforcementScenario({
+          policies: [policy],
+          organizations: [organization],
+          ciphers: personalCiphers,
+          defaultCollection: {
+            id: collectionId,
+            organizationId: organizationId,
+            isDefaultCollection: true,
+          } as CollectionView,
+        });
+
+        mockDialogService.open
+          .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
+          .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
+
+        await service.enforceOrganizationDataOwnership(userId);
+
+        expect(mockEventCollectionService.collect).toHaveBeenCalledWith(
+          EventType.Organization_ItemOrganization_Declined,
+          undefined,
+          undefined,
+          organizationId,
+        );
+      });
     });
   });
 

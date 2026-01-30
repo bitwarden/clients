@@ -1,11 +1,10 @@
 import { A11yModule, CdkTrapFocus } from "@angular/cdk/a11y";
 import { PortalModule } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, viewChild } from "@angular/core";
+import { booleanAttribute, Component, ElementRef, inject, input, viewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { DrawerHostDirective } from "../drawer/drawer-host.directive";
-import { DrawerService } from "../drawer/drawer.service";
+import { DrawerService } from "../dialog/drawer.service";
 import { LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
@@ -31,13 +30,18 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
     "(document:keydown.tab)": "handleKeydown($event)",
     class: "tw-block tw-h-screen",
   },
-  hostDirectives: [DrawerHostDirective],
 })
 export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
   protected drawerPortal = inject(DrawerService).portal;
 
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
+
+  /**
+   * Rounded top left corner for the main content area
+   */
+  readonly rounded = input(false, { transform: booleanAttribute });
+
   protected focusMainContent() {
     this.mainContent().nativeElement.focus();
   }

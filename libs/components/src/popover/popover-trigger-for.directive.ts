@@ -1,12 +1,12 @@
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
-  AfterViewInit,
   Directive,
   ElementRef,
   HostListener,
   OnDestroy,
   ViewContainerRef,
+  effect,
   input,
   model,
 } from "@angular/core";
@@ -22,7 +22,7 @@ import { PopoverComponent } from "./popover.component";
     "[attr.aria-expanded]": "this.popoverOpen()",
   },
 })
-export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
+export class PopoverTriggerForDirective implements OnDestroy {
   readonly popoverOpen = model(false);
 
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverTriggerFor" });
@@ -31,6 +31,10 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
 
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
+  private hasInitialized = false;
+  private rafId1: number | null = null;
+  private rafId2: number | null = null;
+  private isDestroyed = false;
 
   get positions() {
     if (!this.position()) {
@@ -65,10 +69,44 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     private elementRef: ElementRef<HTMLElement>,
     private viewContainerRef: ViewContainerRef,
     private overlay: Overlay,
-  ) {}
+  ) {
+    effect(() => {
+      if (this.isDestroyed || !this.popoverOpen() || this.overlayRef) {
+        return;
+      }
+
+      if (this.hasInitialized) {
+        this.openPopover();
+        return;
+      }
+
+      if (this.rafId1 !== null || this.rafId2 !== null) {
+        return;
+      }
+
+      // Initial open - wait for layout to stabilize
+      // First RAF: Waits for Angular's change detection to complete and queues the next paint
+      this.rafId1 = requestAnimationFrame(() => {
+        // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
+        this.rafId2 = requestAnimationFrame(() => {
+          if (this.isDestroyed || !this.popoverOpen() || this.overlayRef) {
+            return;
+          }
+          this.openPopover();
+          this.hasInitialized = true;
+          this.rafId2 = null;
+        });
+        this.rafId1 = null;
+      });
+    });
+  }
 
   @HostListener("click")
   togglePopover() {
+    if (this.isDestroyed) {
+      return;
+    }
+
     if (this.popoverOpen()) {
       this.closePopover();
     } else {
@@ -77,6 +115,10 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private openPopover() {
+    if (this.overlayRef) {
+      return;
+    }
+
     this.popoverOpen.set(true);
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
@@ -104,7 +146,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private destroyPopover() {
-    if (!this.overlayRef || !this.popoverOpen()) {
+    if (!this.popoverOpen()) {
       return;
     }
 
@@ -117,15 +159,19 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     this.closedEventsSub = null;
     this.overlayRef?.dispose();
     this.overlayRef = null;
-  }
 
-  ngAfterViewInit() {
-    if (this.popoverOpen()) {
-      this.openPopover();
+    if (this.rafId1 !== null) {
+      cancelAnimationFrame(this.rafId1);
+      this.rafId1 = null;
+    }
+    if (this.rafId2 !== null) {
+      cancelAnimationFrame(this.rafId2);
+      this.rafId2 = null;
     }
   }
 
   ngOnDestroy() {
+    this.isDestroyed = true;
     this.disposeAll();
   }
 

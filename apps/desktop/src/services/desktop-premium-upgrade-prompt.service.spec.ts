@@ -4,26 +4,24 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
+
+import { PremiumComponent } from "../billing/app/accounts/premium.component";
 
 import { DesktopPremiumUpgradePromptService } from "./desktop-premium-upgrade-prompt.service";
 
 describe("DesktopPremiumUpgradePromptService", () => {
   let service: DesktopPremiumUpgradePromptService;
-  let messager: MockProxy<MessagingService>;
   let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
 
   beforeEach(async () => {
-    messager = mock<MessagingService>();
     configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
 
     await TestBed.configureTestingModule({
       providers: [
         DesktopPremiumUpgradePromptService,
-        { provide: MessagingService, useValue: messager },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
       ],
@@ -52,10 +50,10 @@ describe("DesktopPremiumUpgradePromptService", () => {
         FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog,
       );
       expect(openSpy).toHaveBeenCalledWith(dialogService);
-      expect(messager.send).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
 
-    it("sends openPremium message when feature flag is disabled", async () => {
+    it("opens the PremiumComponent when feature flag is disabled", async () => {
       configService.getFeatureFlag.mockResolvedValue(false);
 
       await service.promptForPremium();
@@ -63,7 +61,7 @@ describe("DesktopPremiumUpgradePromptService", () => {
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog,
       );
-      expect(messager.send).toHaveBeenCalledWith("openPremium");
+      expect(dialogService.open).toHaveBeenCalledWith(PremiumComponent);
       expect(openSpy).not.toHaveBeenCalled();
     });
   });

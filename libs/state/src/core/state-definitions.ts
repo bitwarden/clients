@@ -103,6 +103,7 @@ export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "d
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
   web: "disk-local",
 });
+export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 
 // DIRT
 
@@ -197,9 +198,7 @@ export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
 export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
   browser: "memory-large-object",
 });
-export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerReprompt", "disk", {
-  web: "disk-local",
-});
+
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");

@@ -19,11 +19,9 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -82,9 +80,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
     private dialogService: DialogService,
-    private configService: ConfigService,
     private toastService: ToastService,
-    private billingApiService: BillingApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
@@ -218,6 +214,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   get subscriptionLineItems() {
     return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => ({
       name: lineItem.name,
+      originalAmount: lineItem.amount,
       amount: this.discountPrice(lineItem.amount, lineItem.productId),
       quantity: lineItem.quantity,
       interval: lineItem.interval,
@@ -406,10 +403,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     const isSmStandalone = this.sub?.customerDiscount?.id === "sm-standalone";
     const appliesToProduct =
       this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+        this.discountAppliesToProduct(item.productId),
       ) ?? false;
 
     return isSmStandalone && appliesToProduct;
+  }
+
+  discountAppliesToProduct(productId: string): boolean {
+    return this.sub?.customerDiscount?.appliesTo?.includes(productId) ?? false;
   }
 
   closeChangePlan() {
@@ -436,10 +437,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   async subscriptionAdjusted() {
     await this.load();
-  }
-
-  calculateTotalAppliedDiscount(total: number) {
-    return total / (1 - this.customerDiscount?.percentOff / 100);
   }
 
   adjustStorage = (add: boolean) => {

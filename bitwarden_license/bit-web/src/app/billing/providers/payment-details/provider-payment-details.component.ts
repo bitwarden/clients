@@ -21,8 +21,6 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -119,13 +117,10 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  protected enableTaxIdWarning!: boolean;
-
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private billingClient: SubscriberBillingClient,
-    private configService: ConfigService,
     private messageListener: MessageListener,
     private providerService: ProviderService,
     private providerWarningsService: ProviderWarningsService,
@@ -133,34 +128,28 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.enableTaxIdWarning = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22415_TaxIDWarnings,
-    );
-
-    if (this.enableTaxIdWarning) {
-      this.providerWarningsService.taxIdWarningRefreshed$
-        .pipe(
-          switchMap((warning) =>
-            combineLatest([
-              of(warning),
-              this.provider$.pipe(take(1)).pipe(
-                mapProviderToSubscriber,
-                switchMap((provider) => this.subscriberBillingClient.getBillingAddress(provider)),
-              ),
-            ]),
-          ),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(([taxIdWarning, billingAddress]) => {
-          if (this.viewState$.value) {
-            this.viewState$.next({
-              ...this.viewState$.value,
-              taxIdWarning,
-              billingAddress,
-            });
-          }
-        });
-    }
+    this.providerWarningsService.taxIdWarningRefreshed$
+      .pipe(
+        switchMap((warning) =>
+          combineLatest([
+            of(warning),
+            this.provider$.pipe(take(1)).pipe(
+              mapProviderToSubscriber,
+              switchMap((provider) => this.subscriberBillingClient.getBillingAddress(provider)),
+            ),
+          ]),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([taxIdWarning, billingAddress]) => {
+        if (this.viewState$.value) {
+          this.viewState$.next({
+            ...this.viewState$.value,
+            taxIdWarning,
+            billingAddress,
+          });
+        }
+      });
 
     this.messageListener
       .messages$(BANK_ACCOUNT_VERIFIED_COMMAND)
@@ -197,10 +186,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
 
   setBillingAddress = (billingAddress: BillingAddress) => {
     if (this.viewState$.value) {
-      if (
-        this.enableTaxIdWarning &&
-        this.viewState$.value.billingAddress?.taxId !== billingAddress.taxId
-      ) {
+      if (this.viewState$.value.billingAddress?.taxId !== billingAddress.taxId) {
         this.providerWarningsService.refreshTaxIdWarning();
       }
       this.viewState$.next({

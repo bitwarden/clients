@@ -100,6 +100,74 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "El Send se borrará permanentemente en esta fecha.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Archivo a compartir"
+  },
+  "hideTextByDefault": {
+    "message": "Ocultar texto por defecto"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Limitar visualizaciones"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visualizaciones restantes",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Nadie puede ver este Send tras alcanzar el límite.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Nota privada"
+  },
+  "sendDetails": {
+    "message": "Detalles del Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Añade una contraseña opcional para que los destinatarios accedan a este Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Texto a compartir"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nuevo Send de Texto",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nuevo Send de Archivo",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Editar Send de Texto",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Editar Send de Archivo",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "¿Estás seguro de que quieres eliminar permanentemente este Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "new": {
+    "message": "Nuevo",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nueva URI"
   },
@@ -1775,11 +1843,21 @@
   "exportFrom": {
     "message": "Exportar desde"
   },
-  "export": {
-    "message": "Exportar"
+  "exportNoun": {
+    "message": "Exportación",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importar"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importación",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importar",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato de archivo"
@@ -2013,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elemento eliminado de forma permanente"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoredItem": {
     "message": "Elemento restaurado"
@@ -2399,6 +2480,10 @@
   },
   "deleteSendConfirmation": {
     "message": "¿Está seguro de que quiere eliminar este envío?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Copiar enlace del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2884,7 +2969,7 @@
     "message": "Generar un alias de correo electrónico con un servicio de reenvío externo."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "Dominio de correo electrónico",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
@@ -3993,6 +4078,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Missing website"
   },
@@ -4021,9 +4112,15 @@
     "message": "Envía información sensible de forma segura",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Comparte archivos y datos de forma segura con cualquiera, en cualquier plataforma. Tu información permanecerá encriptada de extremo a extremo, limitando su exposición.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Limpia los filtros o prueba otro término de búsqueda"
   },
   "generatorNudgeTitle": {
     "message": "Crear contraseñas rápidamente"
@@ -4092,7 +4189,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Acerca de este ajuste"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -4243,8 +4340,8 @@
   "typeShortcut": {
     "message": "Type shortcut"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Atajo inválido"
@@ -4282,26 +4379,44 @@
   "unArchive": {
     "message": "Desarchivar"
   },
+  "archived": {
+    "message": "Archivados"
+  },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elementos archivados"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "No hay elementos archivados"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Los elementos archivados aparecerán aquí y se excluirán de los resultados de búsqueda generales y de sugerencias de autocompletado."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "El elemento fue archivado"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "El elemento fue desarchivado"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archivar elemento"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Una vez archivado, este elemento se excluirá de los resultados de búsqueda y de sugerencias de autocompletado."
+  },
+  "unArchiveAndSave": {
+    "message": "Desarchivar y guardar"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Tu suscripción Premium ha terminado"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "El elemento se ha restaurado"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Código postal"
@@ -4377,6 +4492,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."

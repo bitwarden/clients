@@ -14,17 +14,82 @@ permissions: {}
 
 jobs:
 
+  typecheck:
+    name: Run typechecking
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      # We use isolatedModules: true which disables typechecking in tests
+      # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
+      # See https://bitwarden.atlassian.net/browse/EC-497
+      - name: Run typechecking
+        run: npm run test:types
+
   testing:
-    name: Run tests
+    name: Run tests - ${{ matrix.test-group.name }}
     runs-on: ubuntu-22.04
     permissions:
       checks: write
       contents: read
       pull-requests: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        test-group:
+          - name: Browser
+            paths: apps/browser bitwarden_license/bit-browser
+            artifact: jest-coverage-browser
+            junit: junit-browser.xml
+          - name: Web
+            paths: apps/web bitwarden_license/bit-web
+            artifact: jest-coverage-web
+            junit: junit-web.xml
+          - name: Desktop
+            paths: apps/desktop
+            artifact: jest-coverage-desktop
+            junit: junit-desktop.xml
+          - name: CLI
+            paths: apps/cli bitwarden_license/bit-cli
+            artifact: jest-coverage-cli
+            junit: junit-cli.xml
+          - name: Libs
+            paths: libs bitwarden_license/bit-common
+            artifact: jest-coverage-libs
+            junit: junit-libs.xml
+
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -50,33 +115,32 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      # We use isolatedModules: true which disables typechecking in tests
-      # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
-      # See https://bitwarden.atlassian.net/browse/EC-497
-      - name: Run typechecking
-        run: npm run test:types
-
-      - name: Run tests
+      - name: Run tests - ${{ matrix.test-group.name }}
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
         # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
-        run: npm test -- --coverage --maxWorkers=3
+        # Reduced to 2 workers and split tests across parallel jobs to prevent OOM kills
+        run: npm test -- ${{ matrix.test-group.paths }} --coverage --maxWorkers=2
+        env:
+          JEST_JUNIT_OUTPUT_NAME: ${{ matrix.test-group.junit }}
 
       - name: Report test results
-        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
+        uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
         with:
-          name: Test Results
-          path: "junit.xml"
+          name: Test Results - ${{ matrix.test-group.name }}
+          path: ${{ matrix.test-group.junit }}
           reporter: jest-junit
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          report_type: test_results
 
       - name: Upload test coverage
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: jest-coverage
+          name: ${{ matrix.test-group.artifact }}
           path: ./coverage/lcov.info
 
   rust:
@@ -103,7 +167,7 @@ jobs:
           sudo apt-get install -y gnome-keyring dbus-x11
 
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -111,7 +175,7 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
 
-      - name: Test Ubuntu
+      - name: Linux unit tests
         if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
@@ -120,29 +184,33 @@ jobs:
           mkdir -p ~/.local/share/keyrings
           eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test -- --test-threads=1
+          cargo test --lib -- --test-threads=1
 
-      - name: Test macOS
+      - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test -- --test-threads=1
+        run: cargo test --lib -- --test-threads=1
 
-      - name: Test Windows
+      - name: Windows unit tests
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
+        run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
+
+      - name: Doc tests
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test --doc
 
   rust-coverage:
     name: Rust Coverage
     runs-on: macos-14
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Install rust
-        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # stable
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
         with:
           toolchain: stable
           components: llvm-tools
@@ -160,7 +228,7 @@ jobs:
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
 
       - name: Upload test coverage
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: rust-coverage
           path: ./apps/desktop/desktop_native/lcov.info
@@ -173,18 +241,42 @@ jobs:
       - rust-coverage
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Download jest coverage
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+      - name: Download Browser coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          name: jest-coverage
-          path: ./
+          name: jest-coverage-browser
+          path: ./jest-coverage-browser
+
+      - name: Download Web coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: jest-coverage-web
+          path: ./jest-coverage-web
+
+      - name: Download Desktop coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: jest-coverage-desktop
+          path: ./jest-coverage-desktop
+
+      - name: Download CLI coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: jest-coverage-cli
+          path: ./jest-coverage-cli
+
+      - name: Download Libs coverage
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: jest-coverage-libs
+          path: ./jest-coverage-libs
 
       - name: Download rust coverage
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: rust-coverage
           path: ./apps/desktop/desktop_native
@@ -193,5 +285,40 @@ jobs:
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           files: |
-            ./lcov.info
+            ./jest-coverage-browser/lcov.info
+            ./jest-coverage-web/lcov.info
+            ./jest-coverage-desktop/lcov.info
+            ./jest-coverage-cli/lcov.info
+            ./jest-coverage-libs/lcov.info
             ./apps/desktop/desktop_native/lcov.info
+
+  run-tests: # Verifies all required tests complete successfully
+    name: Run tests
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - typecheck
+      - testing
+      - rust
+      - rust-coverage
+      - upload-codecov
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check job results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          # Print status of all jobs
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+
+          # Collect failed jobs
+          failed_jobs=$(echo "$NEEDS" | jq -r 'to_entries[] | select(.value.result != "success") | .key' | tr '\n' ' ')
+
+          if [ -n "$failed_jobs" ]; then
+            echo "::error::The following jobs failed:$failed_jobs"
+            exit 1
+          fi
+
+          echo "All required jobs passed successfully!"

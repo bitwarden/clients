@@ -29,7 +29,7 @@
       <app-display-billing-address
         [subscriber]="view.organization"
         [billingAddress]="view.billingAddress"
-        [taxIdWarning]="enableTaxIdWarning ? view.taxIdWarning : null"
+        [taxIdWarning]="view.taxIdWarning"
         (updated)="setBillingAddress($event)"
       ></app-display-billing-address>
 

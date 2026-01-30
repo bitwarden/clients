@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -43,15 +43,9 @@ import { CipherFormContainer } from "../../cipher-form-container";
   ],
 })
 export class SshKeySectionComponent implements OnInit {
-  /** The original cipher */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() originalCipherView: CipherView;
+  readonly originalCipherView = input<CipherView | null>(null);
 
-  /** True when all fields should be disabled */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() disabled: boolean;
+  readonly disabled = input(false);
 
   /**
    * All form fields associated with the ssh key
@@ -65,7 +59,14 @@ export class SshKeySectionComponent implements OnInit {
     keyFingerprint: [""],
   });
 
-  showImport = false;
+  readonly showImport = computed(() => {
+    return (
+      // Web does not support clipboard access
+      this.platformUtilsService.getClientType() !== ClientType.Web &&
+      this.originalCipherView()?.edit
+    );
+  });
+
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -90,7 +91,7 @@ export class SshKeySectionComponent implements OnInit {
 
   async ngOnInit() {
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
-    const sshKeyView = prefillCipher?.sshKey ?? this.originalCipherView?.sshKey;
+    const sshKeyView = prefillCipher?.sshKey ?? this.originalCipherView()?.sshKey;
 
     if (sshKeyView) {
       this.setInitialValues(sshKeyView);
@@ -99,11 +100,6 @@ export class SshKeySectionComponent implements OnInit {
     }
 
     this.sshKeyForm.disable();
-
-    // Web does not support clipboard access
-    if (this.platformUtilsService.getClientType() !== ClientType.Web) {
-      this.showImport = true;
-    }
 
     // Disable the form if the cipher form container is enabled
     // to prevent user interaction

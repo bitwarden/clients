@@ -114,6 +114,8 @@ const routes: Routes = [
       authGuard,
       canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone1, false, "new-vault", false),
     ],
+    // Needed to ensure feature flag changes are picked up on account switching
+    runGuardsAndResolvers: "always",
   },
   {
     path: "send",
@@ -361,6 +363,7 @@ const routes: Routes = [
       {
         path: "new-sends",
         component: SendV2Component,
+        data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
       },
     ],
   },

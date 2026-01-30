@@ -82,7 +82,7 @@ function updateTsConfigPath(tree: Tree, name: string, srcRoot: string) {
   updateJson(tree, "tsconfig.base.json", (json) => {
     const paths = json.compilerOptions.paths || {};
 
-    paths[`@bitwarden/${name}`] = [`${srcRoot}/index.ts`];
+    paths[`@bitwarden/${name}`] = [`./${srcRoot}/index.ts`];
 
     json.compilerOptions.paths = paths;
     return json;

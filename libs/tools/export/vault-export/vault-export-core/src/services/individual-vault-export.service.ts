@@ -317,6 +317,7 @@ export class IndividualVaultExportService
       const cipher = new CipherWithIdExport();
       cipher.build(c);
       cipher.collectionIds = null;
+      delete cipher.key;
       jsonDoc.items.push(cipher);
     });
 

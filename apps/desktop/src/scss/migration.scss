@@ -13,3 +13,17 @@ bit-layout {
     padding: 0 0 0 0;
   }
 }
+/**
+ * Send list panel styling for send-v2 component
+ * Temporary during migration - width handled by tw-w-2/5
+ **/
+.vault > .send-items-panel {
+  order: 2;
+  min-width: 200px;
+  border-right: 1px solid;
+
+  @include themify($themes) {
+    background-color: themed("backgroundColor");
+    border-right-color: themed("borderColor");
+  }
+}

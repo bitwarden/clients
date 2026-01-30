@@ -4,7 +4,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, map, startWith } from "rxjs";
 
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";

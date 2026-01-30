@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
+import { TypographyDirective } from "../typography/typography.directive";
+
 @Component({
   selector: "bit-header",
   templateUrl: "./header.component.html",
+  imports: [TypographyDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })

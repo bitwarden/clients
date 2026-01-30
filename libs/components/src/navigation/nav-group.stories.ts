@@ -1,21 +1,22 @@
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class DummyContentComponent {}
 
@@ -42,6 +43,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
         },
@@ -58,6 +60,10 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
@@ -156,6 +162,26 @@ export const Tree: StoryObj<NavGroupComponent> = {
               </bit-nav-group>
             </bit-nav-group>
           </bit-nav-group>
+        </bit-nav-group>
+      </bit-side-nav>
+    `,
+  }),
+};
+
+export const ForcedActive: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter" [hideIfEmpty]="hideIfEmpty">
+          <bit-nav-item text="Child A" route="a" icon="bwi-filter" *ngIf="renderChildren"></bit-nav-item>
+          <bit-nav-item text="Child B" route="b" *ngIf="renderChildren"></bit-nav-item>
+          <bit-nav-item text="Child C" route="c" icon="bwi-filter" *ngIf="renderChildren"></bit-nav-item>
+        </bit-nav-group>
+        <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter" forceActiveStyles disableToggleOnClick>
+          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B"></bit-nav-item>
+          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
         </bit-nav-group>
       </bit-side-nav>
     `,

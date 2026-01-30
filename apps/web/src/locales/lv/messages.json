@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nav riskam pakļautu būtisku lietotņu"
   },
+  "critical": {
+    "message": "Būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nav būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Lietotne"
+  },
+  "applications": {
+    "message": "Lietotnes"
   },
   "atRiskPasswords": {
     "message": "Riskam pakļautās paroles"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-pasts"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Tālrunis"
@@ -1365,6 +1389,12 @@
   "no": {
     "message": "Nē"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "Atrašanās vieta"
   },
@@ -1749,6 +1779,9 @@
   "noMembersInList": {
     "message": "Nav dalībnieku, ko uzskaitīt."
   },
+  "noMembersToExport": {
+    "message": "Nav dalībnieku, ko izgūt."
+  },
   "noEventsInList": {
     "message": "Nav notikumu, ko parādīt."
   },
@@ -1969,8 +2002,13 @@
   "encExportAccountWarningDesc": {
     "message": "Katram Bitwarden kontam ir neatkārtojamas šifrēšanas atslēgas, tādēļ nav iespējams ievietot šifrētu izguvi citā kontā."
   },
-  "export": {
-    "message": "Izgūšana"
+  "exportNoun": {
+    "message": "Izgūšana",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Izgūt",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Izgūt no"
@@ -2297,8 +2335,13 @@
   "tools": {
     "message": "Rīki"
   },
-  "import": {
-    "message": "Ievietot"
+  "importNoun": {
+    "message": "Ievietošana",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Ievietot",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Ievietot datus"
@@ -2527,6 +2570,9 @@
   "enabled": {
     "message": "Iespējots"
   },
+  "optionEnabled": {
+    "message": "Iespējots"
+  },
   "restoreAccess": {
     "message": "Atjaunot piekļuvi"
   },
@@ -2623,6 +2669,9 @@
   },
   "key": {
     "message": "Atslēga"
+  },
+  "unnamedKey": {
+    "message": "Nenodēvēta atslēga"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Apliecinājuma kods"
@@ -3133,6 +3182,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
   },
+  "itemRestored": {
+    "message": "Vienums tika atjaunots"
+  },
   "restartPremium": {
     "message": "Atsākt Premium"
   },
@@ -3259,6 +3311,9 @@
   "nextChargeHeader": {
     "message": "Nākamais maksājums"
   },
+  "nextChargeDate": {
+    "message": "Nākamās apmaksas datums"
+  },
   "plan": {
     "message": "Plāns"
   },
@@ -3281,6 +3336,9 @@
     "message": "Pārvaldīt abonementus"
   },
   "launchCloudSubscription": {
+    "message": "Uzsākt mākoņa abonēšanu"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Uzsākt mākoņa abonēšanu"
   },
   "storage": {
@@ -4197,6 +4255,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Pieņemta īpašumtiesību nodošana apvienībai."
+  },
+  "userDeclinedTransfer": {
+    "message": "Atsaukts īpašumtiesību nodošanas apvienībai noraidīšanas dēļ."
   },
   "invitedUserId": {
     "message": "Uzaicināts lietotājs $ID$.",
@@ -5387,6 +5451,12 @@
   "restoreSelected": {
     "message": "Atjaunot atlasīto"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
+  "archivedItemsRestored": {
+    "message": "Arhīva vienumi atjaunoti"
+  },
   "restoredItem": {
     "message": "Vienums atjaunots"
   },
@@ -5585,6 +5655,37 @@
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send tika veiksmīgi izveidots.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ stundas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Jauns teksta Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Jauns datnes Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5623,6 +5724,9 @@
   },
   "revoked": {
     "message": "Atsauktie"
+  },
+  "accepted": {
+    "message": "Pieņemts"
   },
   "sendLink": {
     "message": "Send saite",
@@ -5843,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizēt apvienības īpašumtiesības"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Visi dalībnieku vienumi piederēs un tos pārvaldīs apvienība. Pārvaldītāji un īpašnieki ir izņēmums. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Uzzināt vairāk par centralizētām īpašumtiesībām",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Ieguvumi"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Tiek iegūta pilna pārredzamība par pieteikšanās vienumu stāvokli, tajā skaitā kopīgotajiem un nekopīgotajiem vienumiem."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Vienkārša vienumu pārcelšana dalībnieku aiziešanas un aizstāšanas gadījumos, nodrošinot, ka nav piekļuvju spraugu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
@@ -6281,6 +6416,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Pieteicies konta atkopei"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Atsaukt konta atkopi"
@@ -6817,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Viens vai vairāki apvienības nosacījumi neļauj izgūt privātās glabātavas saturu."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Iespējot automātisko aizpildi"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Pārlūka paplašinājumā iespējot automātisko aizpildi lapas ielādes brīdī visiem esošajiem un jaunajiem dalībniekiem."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Uzzināt vairāk par automātisko aizpildi"
   },
   "selectType": {
@@ -10324,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Nosūtīt glabātavas notikumu datus uz savu Datadog serveri"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
@@ -10434,6 +10578,12 @@
   },
   "index": {
     "message": "Indekss"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -11249,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden mēģinās pārbaudīt domēnu 3 reizes pirmajās 72 stundās. Ja domēnu nevarēs pieteikt, būs jāpārbauda DNS ieraksts saimniekdatorā un tas pašrocīgi jāpiesaka. Domēns tiks noņemts no apvienības pēc 7 dienām, ja tas nebūs pieteikts."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nav pieteikts. Jāpārbauda DNS ieraksts.",
     "placeholders": {
@@ -11261,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Pieteikts"
   },
-  "domainStatusUnderVerification": {
-    "message": "Apliecināšanā"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Iegūsti domēna piederību, lai iegūtu dalībnieku kontu īpašumtiesības. SSO identificētāja lapa tiks izlaista, kad pieteiksies dalībnieki, kuru kontu piederība ir atkarīga no domēna, un pārvaldītāji varēs izdzēst šāda veida kontus."
@@ -11549,6 +11711,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
   },
+  "vulnerablePassword": {
+    "message": "Ievainojama parole."
+  },
+  "changeNow": {
+    "message": "Mainīt tagad"
+  },
   "missingWebsite": {
     "message": "Nav norādīta tīmekļvietne"
   },
@@ -11587,6 +11755,9 @@
   "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
+  "archived": {
+    "message": "Arhivēts"
+  },
   "unArchiveAndSave": {
     "message": "Atcelt arhivēšanu un saglabāt"
   },
@@ -11605,6 +11776,9 @@
   "itemsWereSentToArchive": {
     "message": "Vienumi tika ievietoti arhīvā"
   },
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
   "itemUnarchived": {
     "message": "Vienums tika izņemts no arhīva"
   },
@@ -11618,8 +11792,8 @@
     "message": "Arhivēt vienumu",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "archiveBulkItems": {
     "message": "Arhivēt vienumus",
@@ -11972,6 +12146,15 @@
   "verifyNow": {
     "message": "Apliecini tagad!"
   },
+  "unlockWithPasskey": {
+    "message": "Atslēgt ar piekļuves atslēgu"
+  },
+  "prfUnlockFailed": {
+    "message": "Neizdevās atslēgt ar piekļuves atslēgu. Lūgums mēģināt vēlreiz vai izmantot citu atslēgšanas veidu."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Atslēgšanai nav pieejama neviena PRF iespējota piekļuves atslēga."
+  },
   "additionalStorageGB": {
     "message": "Papildu krātuve GB"
   },
@@ -12279,6 +12462,9 @@
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
   },
+  "resizeSideNavigation": {
+    "message": "Mainīt sānu pārvietošanās joslas izmēru"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Izdzēst neatkopjamos glabātavas vienumus"
   },
@@ -12412,5 +12598,154 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Tev ir Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Apskatīt un pārvaldīt savu Premium abonementu"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Būs nepieciešams atjaunināt savu licences datni"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Augšupielādēt licences datni"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Jāaugšupielādē sava licences datne"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Jāaugšupielādē sava Premium licences datne"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Licences datnes nosaukums būs līdzīgs šim: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Jau ir abonements?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Jāatver abonementu lapa Bitwarden mākoņa kontā un jālejupielādē licences datne. Tad jāatgriežas šajā skatā un zemāk jāaugšupielādē."
+  },
+  "viewAllPlans": {
+    "message": "Apskatīt visus plānus"
+  },
+  "planDescPremium": {
+    "message": "Pilnīga drošība tiešsaistē"
+  },
+  "updatePayment": {
+    "message": "Atjaunināt maksājumu"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Mēs nevarējām apstrādāt maksājumu. Lūgums atjaunināt savu maksājumu veidu vai sazināties ar atbalsta komandu, lai iegūtu palīdzību."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Abonements ir beidzies. Lūgums sazināties ar atbalsta komandu, lai iegūtu palīdzību."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Abonements ir ierindots atcelšanai $DATE$. Līdz tam jebkurā brīdī to var atjaunot.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Manage invoices"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Storage full"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "Kad noņemsi krātuvi, saņemsi konta kredītu noteiktā apjomā, kas tiks automātiski izmantots nākamajā rēķinā."
+  },
+  "youHavePremium": {
+    "message": "Tev ir Premium"
+  },
+  "emailProtected": {
+    "message": "E-pasts aizsargāts"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

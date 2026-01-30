@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map } from "rxjs";
+import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -21,13 +21,14 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -70,6 +71,7 @@ export class PoliciesComponent {
     switchMap(() => this.organizationId$),
     switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
     map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(

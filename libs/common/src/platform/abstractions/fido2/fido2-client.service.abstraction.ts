@@ -136,11 +136,11 @@ export interface CreateCredentialResult {
  */
 export interface AssertCredentialParams {
   allowedCredentialIds: string[];
-  rpId: string;
+  rpId?: string;
   origin: string;
   challenge: string;
   userVerification?: UserVerification;
-  timeout: number;
+  timeout?: number;
   sameOriginWithAncestors: boolean;
   mediation?: "silent" | "optional" | "required" | "conditional";
   fallbackSupported: boolean;

@@ -1,3 +1,5 @@
+import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
@@ -6,7 +8,6 @@ import {
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
@@ -16,6 +17,7 @@ import { SendFileDownloadDataResponse } from "../models/response/send-file-downl
 import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendType } from "../types/send-type";
 
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
 import { InternalSendService } from "./send.service.abstraction";
@@ -52,6 +54,25 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendAccessResponse(r);
   }
 
+  async postSendAccessV2(
+    accessToken: SendAccessToken,
+    apiUrl?: string,
+  ): Promise<SendAccessResponse> {
+    const setAuthTokenHeader = (headers: Headers) => {
+      headers.set("Authorization", "Bearer " + accessToken.token);
+    };
+    const r = await this.apiService.send(
+      "POST",
+      "/sends/access",
+      null,
+      false,
+      true,
+      apiUrl,
+      setAuthTokenHeader,
+    );
+    return new SendAccessResponse(r);
+  }
+
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
@@ -68,6 +89,26 @@ export class SendApiService implements SendApiServiceAbstraction {
       true,
       apiUrl,
       addSendIdHeader,
+    );
+    return new SendFileDownloadDataResponse(r);
+  }
+
+  async getSendFileDownloadDataV2(
+    send: SendAccessView,
+    accessToken: SendAccessToken,
+    apiUrl?: string,
+  ): Promise<SendFileDownloadDataResponse> {
+    const setAuthTokenHeader = (headers: Headers) => {
+      headers.set("Authorization", "Bearer " + accessToken.token);
+    };
+    const r = await this.apiService.send(
+      "POST",
+      "/sends/access/file/" + send.file.id,
+      null,
+      true,
+      true,
+      apiUrl,
+      setAuthTokenHeader,
     );
     return new SendFileDownloadDataResponse(r);
   }
@@ -148,6 +189,7 @@ export class SendApiService implements SendApiServiceAbstraction {
 
   private async upload(sendData: [Send, EncArrayBuffer]): Promise<SendResponse> {
     const request = new SendRequest(sendData[0], sendData[1]?.buffer.byteLength);
+
     let response: SendResponse;
     if (sendData[0].id == null) {
       if (sendData[0].type === SendType.Text) {

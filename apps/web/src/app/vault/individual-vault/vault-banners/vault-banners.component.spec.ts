@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
@@ -8,15 +7,13 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BannerComponent, BannerModule } from "@bitwarden/components";
+import { BannerModule } from "@bitwarden/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
@@ -30,11 +27,9 @@ describe("VaultBannersComponent", () => {
   let messageSubject: Subject<{ command: string }>;
   const premiumBanner$ = new BehaviorSubject<boolean>(false);
   const pendingAuthRequest$ = new BehaviorSubject<boolean>(false);
-  const PM24996_ImplementUpgradeFromFreeDialogFlag$ = new BehaviorSubject<boolean>(false);
   const mockUserId = Utils.newGuid() as UserId;
 
   const bannerService = mock<VaultBannersService>({
-    shouldShowPremiumBanner$: jest.fn((userId: UserId) => premiumBanner$),
     shouldShowUpdateBrowserBanner: jest.fn(),
     shouldShowVerifyEmailBanner: jest.fn(),
     shouldShowPendingAuthRequestBanner: jest.fn((userId: UserId) =>
@@ -88,17 +83,6 @@ describe("VaultBannersComponent", () => {
             allMessages$: messageSubject.asObservable(),
           }),
         },
-        {
-          provide: ConfigService,
-          useValue: mock<ConfigService>({
-            getFeatureFlag$: jest.fn((flag: FeatureFlag) => {
-              if (flag === FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog) {
-                return PM24996_ImplementUpgradeFromFreeDialogFlag$;
-              }
-              return new BehaviorSubject(false);
-            }),
-          }),
-        },
       ],
     })
       .overrideProvider(VaultBannersService, { useValue: bannerService })
@@ -110,53 +94,6 @@ describe("VaultBannersComponent", () => {
     component = fixture.componentInstance;
 
     fixture.detectChanges();
-  });
-
-  describe("premiumBannerVisible$", () => {
-    beforeEach(() => {
-      // Reset feature flag to default (false) before each test
-      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
-    });
-
-    it("shows premium banner when shouldShowPremiumBanner is true and feature flag is off", async () => {
-      premiumBanner$.next(true);
-      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
-
-      fixture.detectChanges();
-
-      const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner.componentInstance.bannerType()).toBe("premium");
-    });
-
-    it("hides premium banner when feature flag is enabled", async () => {
-      premiumBanner$.next(true);
-      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
-
-      fixture.detectChanges();
-
-      const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner).toBeNull();
-    });
-
-    it("dismisses premium banner when shouldShowPremiumBanner is false", async () => {
-      premiumBanner$.next(false);
-      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(false);
-
-      fixture.detectChanges();
-
-      const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner).toBeNull();
-    });
-
-    it("hides premium banner when both shouldShowPremiumBanner is false and feature flag is enabled", async () => {
-      premiumBanner$.next(false);
-      PM24996_ImplementUpgradeFromFreeDialogFlag$.next(true);
-
-      fixture.detectChanges();
-
-      const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner).toBeNull();
-    });
   });
 
   describe("determineVisibleBanner", () => {

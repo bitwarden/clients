@@ -40,13 +40,13 @@
       </div>
       <div class="tw-flex tw-flex-col">
         <div class="tw-font-semibold tw-mb-2">{{ "status" | i18n }}</div>
-        <div>
+        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
           <span class="tw-capitalize">{{ (subscription && subscriptionStatus) || "-" }}</span>
           <span
             bitBadge
             variant="warning"
             *ngIf="subscriptionMarkedForCancel"
-            class="tw-mt-2 tw-block"
+            class="tw-inline-flex"
             >{{ "pendingCancellation" | i18n }}</span
           >
         </div>
@@ -57,26 +57,18 @@
           <ng-container *ngIf="subscription">
             <ng-container *ngIf="enableDiscountDisplay$ | async as enableDiscount; else noDiscount">
               <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDateAndAmount' | i18n">
-                  {{
-                    (sub.subscription.periodEndDate | date: "MMM d, y") +
-                      ", " +
-                      (discountedSubscriptionAmount | currency: "$")
-                  }}
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
                 </span>
                 <billing-discount-badge
-                  [discount]="getDiscountInfo(sub?.customerDiscount)"
+                  [discount]="getDiscount(sub?.customerDiscount)"
                 ></billing-discount-badge>
               </div>
             </ng-container>
             <ng-template #noDiscount>
               <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDateAndAmount' | i18n">
-                  {{
-                    (sub.subscription.periodEndDate | date: "MMM d, y") +
-                      ", " +
-                      (subscriptionAmount | currency: "$")
-                  }}
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
                 </span>
               </div>
             </ng-template>

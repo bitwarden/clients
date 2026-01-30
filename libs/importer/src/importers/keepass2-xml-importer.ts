@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { FieldType } from "@bitwarden/common/vault/enums";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { ImportResult } from "../models/import-result";
@@ -92,16 +93,26 @@ export class KeePass2XmlImporter extends BaseImporter implements Importer {
         } else if (key === "Notes") {
           cipher.notes += value + "\n";
         } else {
-          let type = FieldType.Text;
           const attrs = valueEl.attributes as any;
-          if (
+          const isProtected =
             attrs.length > 0 &&
             attrs.ProtectInMemory != null &&
-            attrs.ProtectInMemory.value === "True"
-          ) {
-            type = FieldType.Hidden;
+            attrs.ProtectInMemory.value === "True";
+
+          if (isProtected) {
+            // Protected fields should always be imported as hidden fields,
+            // regardless of length or newlines (fixes #16897)
+            if (cipher.fields == null) {
+              cipher.fields = [];
+            }
+            const field = new FieldView();
+            field.type = FieldType.Hidden;
+            field.name = key;
+            field.value = value;
+            cipher.fields.push(field);
+          } else {
+            this.processKvp(cipher, key, value, FieldType.Text);
           }
-          this.processKvp(cipher, key, value, type);
         }
       });
 
