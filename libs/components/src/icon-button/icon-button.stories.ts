@@ -4,6 +4,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonType, ButtonTypes } from "../shared/button-like.abstraction";
+import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils";
 
 import { BitIconButtonComponent, IconButtonSize } from "./icon-button.component";
@@ -13,6 +14,7 @@ export default {
   component: BitIconButtonComponent,
   decorators: [
     moduleMetadata({
+      imports: [TypographyModule],
       providers: [
         {
           provide: I18nService,
@@ -106,39 +108,150 @@ export const Default: Story = {
   }),
 };
 
+export const AllVariants: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-8">
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primary" bitIconButton="bwi-plus" label="Primary" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">primary</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryOutline" bitIconButton="bwi-plus" label="Primary outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">primaryOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryGhost" bitIconButton="bwi-plus" label="Primary ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">primaryGhost</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="secondary" bitIconButton="bwi-plus" label="Secondary" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">secondary</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtle" bitIconButton="bwi-plus" label="Subtle" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">subtle</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleOutline" bitIconButton="bwi-plus" label="Subtle outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">subtleOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleGhost" bitIconButton="bwi-plus" label="Subtle ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">subtleGhost</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="danger" bitIconButton="bwi-plus" label="Danger" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">danger</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerOutline" bitIconButton="bwi-plus" label="Danger outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">dangerOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerGhost" bitIconButton="bwi-plus" label="Danger ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">dangerGhost</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warning" bitIconButton="bwi-plus" label="Warning" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">warning</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningOutline" bitIconButton="bwi-plus" label="Warning outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">warningOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningGhost" bitIconButton="bwi-plus" label="Warning ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">warningGhost</p>
+          </div>
+        </div>
+        <div class="tw-flex tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="success" bitIconButton="bwi-plus" label="Success" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">success</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successOutline" bitIconButton="bwi-plus" label="Success outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">successOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successGhost" bitIconButton="bwi-plus" label="Success ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">successGhost</p>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
+  },
+};
+
+const sizeTemplate = /*html*/ `
+  <div class="tw-flex tw-flex-col tw-gap-8">
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Primary" [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Primary outline" [disabled]="disabled" [loading]="loading" buttonType="primaryOutline" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Primary ghost" [disabled]="disabled" [loading]="loading" buttonType="primaryGhost" [size]="size"></button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Secondary" [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size"></button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Subtle" [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Subtle outline" [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Subtle ghost" [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size"></button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Danger" [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Danger outline" [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Danger ghost" [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size"></button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Warning" [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Warning outline" [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Warning ghost" [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size"></button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitIconButton="bwi-plus" label="Success" [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Success outline" [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Success ghost" [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size"></button>
+      </div>
+    </div>
+`;
+
 export const Small: Story = {
-  ...Default,
+  render: (args) => ({
+    props: args,
+    template: sizeTemplate,
+  }),
   args: {
     size: "small",
-    buttonType: "primary",
   },
 };
 
-export const Primary: Story = {
-  ...Default,
+export const Large: Story = {
+  render: (args) => ({
+    props: args,
+    template: sizeTemplate,
+  }),
   args: {
-    buttonType: "primary",
-  },
-};
-
-export const Danger: Story = {
-  ...Default,
-  args: {
-    buttonType: "danger",
-  },
-};
-
-export const Secondary: Story = {
-  ...Default,
-  args: {
-    buttonType: "secondary",
-  },
-};
-
-export const Subtle: Story = {
-  ...Default,
-  args: {
-    buttonType: "subtle",
+    size: "large",
   },
 };
 
@@ -150,7 +263,7 @@ export const Loading: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   ...Default,
   args: {
     disabled: true,

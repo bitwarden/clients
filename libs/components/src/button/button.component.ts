@@ -2,11 +2,7 @@ import { NgClass } from "@angular/common";
 import { Component, inject, ElementRef, computed } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
-import {
-  BaseButtonDirective,
-  getButtonColorStyles,
-  getButtonSizeStyles,
-} from "../shared/base-button.directive";
+import { BaseButtonDirective, getButtonSizeStyles } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction, ButtonSize } from "../shared/button-like.abstraction";
 import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
@@ -51,23 +47,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       classes.push("tw-inline-block");
     }
 
-    // Add disabled styles
-    if (this.baseButton.showLoadingStyle() || this.baseButton.disabled()) {
-      classes.push(
-        "aria-disabled:!tw-bg-bg-disabled",
-        "hover:tw-bg-bg-hover",
-        "aria-disabled:tw-border-border-base",
-        "aria-disabled:hover:tw-border-border-base",
-        "hover:tw-border-border-disabled",
-        "aria-disabled:!tw-text-fg-disabled",
-        "hover:!tw-text-fg-disabled",
-        "aria-disabled:tw-cursor-not-allowed",
-        "hover:tw-no-underline",
-      );
-    }
-
-    // Add color and size styles
-    classes.push(...getButtonColorStyles(this.baseButton.buttonType() || "secondary"));
+    // Add size styles (color and disabled styles are applied by BaseButtonDirective)
     classes.push(...getButtonSizeStyles(this.baseButton.size() as ButtonSize));
 
     return classes.join(" ");

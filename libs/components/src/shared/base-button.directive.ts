@@ -152,6 +152,9 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
  */
 @Directive({
   standalone: true,
+  host: {
+    "[class]": "colorClassList()",
+  },
 })
 export class BaseButtonDirective {
   readonly buttonType = input<ButtonType>("secondary");
@@ -184,4 +187,30 @@ export class BaseButtonDirective {
   readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
+
+  /**
+   * Computed signal that applies shared color/type styles to the host element.
+   * These styles are automatically applied via the host binding and merged with
+   * component-specific layout styles.
+   */
+  protected readonly colorClassList = computed(() => {
+    const classes = getButtonColorStyles(this.buttonType() || "secondary");
+
+    // Add disabled styles when button is disabled or loading
+    if (this.showLoadingStyle() || this.disabled()) {
+      classes.push(
+        "aria-disabled:!tw-bg-bg-disabled",
+        "hover:tw-bg-bg-hover",
+        "aria-disabled:tw-border-border-base",
+        "aria-disabled:hover:tw-border-border-base",
+        "hover:tw-border-border-disabled",
+        "aria-disabled:!tw-text-fg-disabled",
+        "hover:!tw-text-fg-disabled",
+        "aria-disabled:tw-cursor-not-allowed",
+        "hover:tw-no-underline",
+      );
+    }
+
+    return classes.join(" ");
+  });
 }
