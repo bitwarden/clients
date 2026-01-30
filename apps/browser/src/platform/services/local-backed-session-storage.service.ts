@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Subject } from "rxjs";
 
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,32 +13,93 @@ import {
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
-import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { StorageService } from "@bitwarden/storage-core";
 
 import { BrowserApi } from "../browser/browser-api";
 import { MemoryStoragePortMessage } from "../storage/port-messages";
 import { portName } from "../storage/port-name";
 
+import BrowserLocalStorageService from "./browser-local-storage.service";
+
+const SESSION_KEY_PREFIX = "session_";
+
+/**
+ * Manages an ephemeral session key for encrypting session storage items persisted in local storage.
+ *
+ * The session key is stored in session storage and automatically cleared when the browser session ends
+ * (e.g., browser restart, extension reload). When the session key is unavailable, any encrypted items
+ * in local storage cannot be decrypted and must be cleared to maintain data consistency.
+ *
+ * This provides session-scoped security for sensitive data while using persistent local storage as the backing store.
+ *
+ * @internal Internal implementation detail. Exported only for testing purposes.
+ * Do not use this class directly outside of tests. Use LocalBackedSessionStorageService instead.
+ */
+export class SessionKeyResolveService {
+  constructor(
+    private readonly storageService: StorageService,
+    private readonly keyGenerationService: KeyGenerationService,
+  ) {}
+
+  /**
+   * Retrieves the session key from storage.
+   *
+   * @return session key or null when not in storage
+   */
+  async get(): Promise<SymmetricCryptoKey | null> {
+    const key = await this.storageService.get<SymmetricCryptoKey>("session-key");
+    if (key) {
+      if (this.storageService.valuesRequireDeserialization) {
+        return SymmetricCryptoKey.fromJSON(key);
+      }
+      return key;
+    }
+    return null;
+  }
+
+  /**
+   * Creates new session key and adds it to underlying storage.
+   *
+   * @return newly created session key
+   */
+  async create(): Promise<SymmetricCryptoKey> {
+    const { derivedKey } = await this.keyGenerationService.createKeyWithPurpose(
+      128,
+      "ephemeral",
+      "bitwarden-ephemeral",
+    );
+    await this.storageService.save("session-key", derivedKey.toJSON());
+    return derivedKey;
+  }
+}
+
 export class LocalBackedSessionStorageService
   extends AbstractStorageService
   implements ObservableStorageService
 {
+  readonly valuesRequireDeserialization = true;
   private ports: Set<chrome.runtime.Port> = new Set([]);
   private cache: Record<string, unknown> = {};
   private updatesSubject = new Subject<StorageUpdate>();
-  readonly valuesRequireDeserialization = true;
   updates$ = this.updatesSubject.asObservable();
+  private readonly sessionKeyResolveService: SessionKeyResolveService;
 
   constructor(
-    private readonly sessionKey: Lazy<Promise<SymmetricCryptoKey>>,
-    private readonly localStorage: AbstractStorageService,
+    private readonly memoryStorage: StorageService,
+    private readonly localStorage: BrowserLocalStorageService,
+    private readonly keyGenerationService: KeyGenerationService,
     private readonly encryptService: EncryptService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly logService: LogService,
   ) {
     super();
+
+    this.sessionKeyResolveService = new SessionKeyResolveService(
+      this.memoryStorage,
+      this.keyGenerationService,
+    );
 
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name !== portName(chrome.storage.session)) {
@@ -70,20 +132,20 @@ export class LocalBackedSessionStorageService
   }
 
   async get<T>(key: string, options?: StorageOptions): Promise<T> {
-    if (this.cache[key] !== undefined) {
+    if (this.cache[key] != null) {
       return this.cache[key] as T;
     }
 
-    const value = await this.getLocalSessionValue(await this.sessionKey.get(), key);
+    const value = await this.getLocalSessionValue(await this.getSessionKey(), key);
 
-    if (this.cache[key] === undefined && value !== undefined) {
+    if (this.cache[key] == null && value != null) {
       // Cache is still empty and we just got a value from local/session storage, cache it.
       this.cache[key] = value;
       return value as T;
-    } else if (this.cache[key] === undefined && value === undefined) {
+    } else if (this.cache[key] == null && value == null) {
       // Cache is still empty and we got nothing from local/session storage, no need to modify cache.
       return value as T;
-    } else if (this.cache[key] !== undefined && value !== undefined) {
+    } else if (this.cache[key] != null && value != null) {
       // Conflict, somebody wrote to the cache while we were reading from storage
       // but we also got a value from storage. We assume the cache is more up to date
       // and use that value.
@@ -91,7 +153,7 @@ export class LocalBackedSessionStorageService
         `Conflict while reading from local session storage, both cache and storage have values. Key: ${key}. Using cached value.`,
       );
       return this.cache[key] as T;
-    } else if (this.cache[key] !== undefined && value === undefined) {
+    } else if (this.cache[key] != null && value == null) {
       // Cache was filled after the local/session storage read completed. We got null
       // from the storage read, but we have a value from the cache, use that.
       this.logService.warning(
@@ -136,6 +198,44 @@ export class LocalBackedSessionStorageService
     this.updatesSubject.next({ key, updateType: "remove" });
   }
 
+  protected broadcastMessage(data: Omit<MemoryStoragePortMessage, "originator">) {
+    this.ports.forEach((port) => {
+      this.sendMessageTo(port, data);
+    });
+  }
+
+  private async getSessionKey(): Promise<SymmetricCryptoKey> {
+    const sessionKey = await this.sessionKeyResolveService.get();
+    if (sessionKey != null) {
+      return sessionKey;
+    }
+
+    // Session key is missing (browser restart/extension reload), so all stored session data
+    // cannot be decrypted. Clear all items before creating a new session key.
+    await this.clear();
+
+    return await this.sessionKeyResolveService.create();
+  }
+
+  /**
+   * Removes all stored session data.
+   *
+   * Called when the session key is unavailable (typically after browser restart or extension reload),
+   * making all encrypted session data unrecoverable. Prevents orphaned encrypted data from accumulating.
+   */
+  private async clear() {
+    const keys = (await this.localStorage.getKeys()).filter((key) =>
+      key.startsWith(SESSION_KEY_PREFIX),
+    );
+    this.logService.debug(
+      `[LocalBackedSessionStorageService] Clearing local session storage. Found ${keys}`,
+    );
+    for (const key of keys) {
+      const keyWithoutPrefix = key.substring(SESSION_KEY_PREFIX.length);
+      await this.remove(keyWithoutPrefix);
+    }
+  }
+
   private async getLocalSessionValue(encKey: SymmetricCryptoKey, key: string): Promise<unknown> {
     const local = await this.localStorage.get<string>(this.sessionStorageKey(key));
     if (local == null) {
@@ -159,10 +259,7 @@ export class LocalBackedSessionStorageService
     }
 
     const valueJson = JSON.stringify(value);
-    const encValue = await this.encryptService.encryptString(
-      valueJson,
-      await this.sessionKey.get(),
-    );
+    const encValue = await this.encryptService.encryptString(valueJson, await this.getSessionKey());
     await this.localStorage.save(this.sessionStorageKey(key), encValue.encryptedString);
   }
 
@@ -197,12 +294,6 @@ export class LocalBackedSessionStorageService
     });
   }
 
-  protected broadcastMessage(data: Omit<MemoryStoragePortMessage, "originator">) {
-    this.ports.forEach((port) => {
-      this.sendMessageTo(port, data);
-    });
-  }
-
   private sendMessageTo(
     port: chrome.runtime.Port,
     data: Omit<MemoryStoragePortMessage, "originator">,
@@ -214,7 +305,7 @@ export class LocalBackedSessionStorageService
   }
 
   private sessionStorageKey(key: string) {
-    return `session_${key}`;
+    return `${SESSION_KEY_PREFIX}${key}`;
   }
 
   private compareValues<T>(value1: T, value2: T): boolean {

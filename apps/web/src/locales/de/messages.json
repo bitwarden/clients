@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Keine kritischen Anwendungen gefährdet"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Anwendung"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Gefährdete Passwörter"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-Mail"
+  },
+  "emails": {
+    "message": "E-Mails"
   },
   "phone": {
     "message": "Telefon"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Standort"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Nächste Abbuchung"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Tarif"
@@ -5418,6 +5451,12 @@
   "restoreSelected": {
     "message": "Auswahl wiederherstellen"
   },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
+  },
+  "archivedItemsRestored": {
+    "message": "Archivierte Einträge wiederhergestellt"
+  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -5620,13 +5659,13 @@
     "message": "Send erfolgreich erstellt!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Kopiere und teile diesen Send-Link. Er kann von den von dir angegebenen Personen für die nächsten $TIME$ angesehen werden.",
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link für die nächsten $TIME$ verfügbar sein.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Zentralisierung der Eigentumsrechte an Organisationen"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alle Mitgliedereinträge gehen in den Besitz der Organisation über und werden von dieser verwaltet. Administratoren und Eigentümer sind davon ausgenommen. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Erfahre mehr über zentralisierte Eigentumsrechte",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Vorteile"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Verschaffe dir einen vollständigen Überblick über den Zustand deiner Zugangsdaten, einschließlich geteilter und nicht geteilter Einträge."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Übertrage Einträge bei Austritt und Ablösung von Mitgliedern ganz einfach und sorge dafür, dass keine Zugriffslücken entstehen."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Stelle allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Mitglieder auffordern, ihre Einträge zu übertragen"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Wenn Mitglieder Einträge in ihrem eigenen Tresor haben, werden sie aufgefordert, diese entweder an die Organisation zu übertragen oder zu die Organisation verlassen. Wenn sie gehen, wird ihr Zugriff widerrufen, kann aber jederzeit wiederhergestellt werden."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Erfahre mehr über die Übertragung"
   },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
@@ -6888,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Eine oder mehrere Unternehmensrichtlinien verhindern es, dass du deinen persönlichen Tresor exportieren kannst."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Auto-Ausfüllen aktivieren"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Aktiviere die Einstellung \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden der Seite ausnutzen."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Erfahre mehr über Auto-Ausfüllen"
   },
   "selectType": {
@@ -10395,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Tresor-Ereignisdaten an deine Datadog-Instanz senden"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Sende Ereignisdaten an deine Huntress SIEM-Instanz"
+  },
   "failedToSaveIntegration": {
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
@@ -10505,6 +10578,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Ereignissammler-URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Ereignissammler-Token"
   },
   "selectAPlan": {
     "message": "Einen Tarif auswählen"
@@ -11320,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden wird in den ersten 72 Stunden 3 Mal versuchen, die Domain zu beanspruchen. Wenn die Domain nicht beansprucht werden kann, überprüfe den DNS-Eintrag auf deinem Host und beanspruche sie manuell. Die Domain wird in 7 Tagen aus deiner Organisation entfernt, wenn sie nicht beansprucht ist."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nicht beansprucht. Überprüfe deine DNS-Einträge.",
     "placeholders": {
@@ -11332,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Beansprucht"
   },
-  "domainStatusUnderVerification": {
-    "message": "In Verifizierung"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Beanspruche eine Domain für eigene Mitgliederkonten. Die SSO-Kennungsseite wird beim Anmelden für Mitglieder mit beanspruchten Domains übersprungen und Administratoren werden in der Lage sein, beanspruchte Konten zu löschen."
@@ -11701,8 +11792,8 @@
     "message": "Eintrag archivieren",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "archiveBulkItems": {
     "message": "Einträge archivieren",
@@ -12054,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Jetzt verifizieren."
+  },
+  "unlockWithPasskey": {
+    "message": "Mit Passkey entsperren"
+  },
+  "prfUnlockFailed": {
+    "message": "Entsperren mit Passkey fehlgeschlagen. Bitte versuche es erneut oder verwende eine andere Entsperrmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Es sind keine PRF-fähigen Passkeys zum Entsperren verfügbar."
   },
   "additionalStorageGB": {
     "message": "Zusätzlicher Speicher GB"
@@ -12621,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
   },
@@ -12629,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-Mail-Adresse geschützt"
+  },
+  "invalidSendPassword": {
+    "message": "Ungültiges Send-Passwort"
   }
 }

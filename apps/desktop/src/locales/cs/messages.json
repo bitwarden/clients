@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Položka byla trvale smazána"
   },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
+  },
   "restoredItem": {
     "message": "Položka byla obnovena"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Archivovat položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
   },
   "unArchiveAndSave": {
     "message": "Odebrat z archivu a uložit"

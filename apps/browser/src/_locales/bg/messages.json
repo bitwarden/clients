@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Вписване със секретен ключ"
   },
+  "unlockWithPasskey": {
+    "message": "Отключване със секретен ключ"
+  },
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Архивиране на елемента"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
   },
   "archived": {
     "message": "Архивирано"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Не"
+  },
+  "noAuth": {
+    "message": "Всеки с връзката"
+  },
+  "anyOneWithPassword": {
+    "message": "Всеки с парола, зададена от Вас"
   },
   "location": {
     "message": "Местоположение"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "Електронна поща"
   },
+  "emails": {
+    "message": "Е-пощи"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2472,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Записът е изтрит окончателно"
+  },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
   },
   "restoreItem": {
     "message": "Възстановяване на запис"
@@ -3363,6 +3378,12 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "prfUnlockFailed": {
+    "message": "Отключването със секретен ключ не беше успешно. Опитайте отново или използвайте друг начин за отключване."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Няма секретни ключове с включено PRF, налични за отключване. Първо се впишете със секретен ключ."
   },
   "decryptionError": {
     "message": "Грешка при дешифриране"
@@ -4739,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Още настройки"
+  },
   "moreOptionsTitle": {
     "message": "Още опции – $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Сваляне на прикачения файл"
+  },
   "downloadBitwarden": {
     "message": "Сваляне на Битуорден"
   },
@@ -5125,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скриване на откритото съвпадение $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично попълване при зареждане на страницата?"
@@ -5670,6 +5694,9 @@
   "extraWide": {
     "message": "Много широко"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Въведената парола е неправилна."
   },
@@ -6102,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Преоразмеряване на страничната навигация"
+  },
+  "whoCanView": {
+    "message": "Кой може да преглежда"
+  },
+  "specificPeople": {
+    "message": "Определени хора"
+  },
+  "emailVerificationDesc": {
+    "message": "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
+  },
+  "emailPlaceholder": {
+    "message": "потребител@bitwarden.com , потребител@acme.com"
   }
 }
