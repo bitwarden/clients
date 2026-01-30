@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nincsenek veszélyben levő kritikus alkalmazások."
   },
+  "critical": {
+    "message": "Kritikus ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nem-kritikus ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Elérés intelligencia"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Alkalmazás"
+  },
+  "applications": {
+    "message": "Alkalmazások"
   },
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email cím"
+  },
+  "emails": {
+    "message": "Email címek"
   },
   "phone": {
     "message": "Telefonszám"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nem"
+  },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
   },
   "location": {
     "message": "Hely"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Következő terhelés"
+  },
+  "nextChargeDate": {
+    "message": "Következő terhelés dátum"
   },
   "plan": {
     "message": "Csomag"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Egy vagy több szervezeti házirend tiltja a személyes széf exportálását."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Automatikus kitöltés bekapcsolása"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Bekapcsolja az automatikus kitöltést az oldalbetöltési beállításokkal a böngésző bővítményben minden meglévő és új tag esetében."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "A veszélyeztetett vagy nem megbízható webhelyek kihasználhatják az oldal betöltéskor végrehajtott automatikus kitöltést."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "További információ az automatikus kitöltésről"
   },
   "selectType": {
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "A Bitwarden az első 72 óra során 3 alkalommal kísérli meg a tartomány ellenőrzését. Ha a tartomány nem ellenőrizhető, ellenőrizésre kerül a DNS rekordt a kiszolgálón és az ellenőrzés manuálisan történik. A tartomány 7 napon belül eltávolításra kerül, ha nem kerül igénylésre."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "A Bitwarden 72 órán belül megkísérli igényelni a tartományt. Ha a tartomány nem igényelhető, ellenőrizzük DNS-rekordot és igényeljünk manuálisan. A nem igényelt tartományok 7 nap múlva eltávolításra kerülnek."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Az igénylést követően az igényelt tartományokkal rendelkező meglévő tagok emailt kapnak: "
+  },
+  "accountOwnershipChange": {
+    "message": "fiók tulajdonos váltás"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nincs igényelve. Ellenőrizzük a DNS rekordot.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Igényelve"
   },
-  "domainStatusUnderVerification": {
-    "message": "Ellenőrzés alatt"
+  "domainStatusPending": {
+    "message": "Függő"
   },
   "claimedDomainsDescription": {
     "message": "Tartomány igénylése tagfiókok birtoklására. Az igényelt tartományokkal  rendelkező tagok bejelentkezése során az SSO azonosító oldal kihagyásra kerül és az adminisztrátorok törölhetik az igényelt fiókokat."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
   },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "A tárhely eltávolításakor arányos számlajóváírást kapunk, amely automatikusan a következő számlára kerül."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Védett email cím"
+  },
+  "invalidSendPassword": {
+    "message": "Érvénytelen a Send jelszó."
   }
 }
