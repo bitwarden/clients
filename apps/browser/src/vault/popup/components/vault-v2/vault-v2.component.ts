@@ -160,10 +160,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
     FeatureFlag.BrowserPremiumSpotlight,
   );
 
-  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
-  );
-
   protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
   protected readonly numberOfAppliedFilters$ =
     this.vaultPopupListFiltersService.numberOfAppliedFilters$;
