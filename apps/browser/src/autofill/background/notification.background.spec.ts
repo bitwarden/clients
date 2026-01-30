@@ -393,7 +393,7 @@ describe("NotificationBackground", () => {
             password: data.password,
           },
           sender.tab,
-          true,
+          true, // will yield an unlock followed by a new password notification
         );
       });
 
@@ -593,7 +593,7 @@ describe("NotificationBackground", () => {
           "example.com",
           data?.newPassword,
           sender.tab,
-          true,
+          true, // will yield an unlock followed by an update password notification
         );
       });
 
@@ -702,8 +702,8 @@ describe("NotificationBackground", () => {
       const mockFormURI = "https://www.archive.org";
       const expectSkippedCheckingNotification = () => {
         expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       };
 
       beforeEach(() => {
@@ -863,7 +863,7 @@ describe("NotificationBackground", () => {
 
       it("skips checking if a notification should trigger if the vault is locked and there is no value for the `newPassword` field", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
-          newPassword: "Beeblebrox4Prez",
+          newPassword: "",
           password: "Beeblebrox4Prez",
           uri: mockFormURI,
           username: "ADent",
@@ -878,9 +878,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       describe("when `username` and `password` and `newPassword` fields are filled, ", () => {
@@ -920,7 +918,7 @@ describe("NotificationBackground", () => {
             mockFormattedURI,
             formEntryData.newPassword,
             tab,
-            true,
+            true, // will yield an unlock prompt followed by an update password prompt
           );
         });
 
@@ -1407,7 +1405,7 @@ describe("NotificationBackground", () => {
             mockFormattedURI,
             formEntryData.newPassword,
             tab,
-            true,
+            true, // will yield an unlock followed by an update password notification
           );
         });
 
@@ -1551,9 +1549,7 @@ describe("NotificationBackground", () => {
 
           await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-          expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-          expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
-          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+          expectSkippedCheckingNotification();
         });
 
         it("and at least one cipher update candidate matches `username`, do not trigger a notification (nothing to change)", async () => {
@@ -1650,7 +1646,7 @@ describe("NotificationBackground", () => {
             mockFormattedURI,
             formEntryData.newPassword,
             tab,
-            true,
+            true, // will yield an unlock followed by an update password notification
           );
         });
 
@@ -1760,6 +1756,14 @@ describe("NotificationBackground", () => {
           uri: mockFormURI,
           username: "",
         };
+
+        it("and the user vault is locked, do not trigger an unlock notification", async () => {
+          activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+          await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expectSkippedCheckingNotification();
+        });
 
         it("and cipher update candidates only match `password`, do not trigger a notification (nothing to change)", async () => {
           const storedCiphersForURL = [
@@ -1984,7 +1988,7 @@ describe("NotificationBackground", () => {
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
 
-        it("and cipher update candidates match `username` AND `password` as well as `username` OR `password`, do not trigger a notification (nothing to change)", async () => {
+        it("and cipher update candidates match `username` AND `password` and additionally `username` OR `password`, do not trigger a notification (nothing to change)", async () => {
           const storedCiphersForURL = [
             mock<CipherView>({
               id: "cipher-id-1",
@@ -2086,7 +2090,7 @@ describe("NotificationBackground", () => {
             mockFormattedURI,
             formEntryData.newPassword,
             tab,
-            true,
+            true, // will yield an unlock followed by an update password notification
           );
         });
 
