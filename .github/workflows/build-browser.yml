@@ -448,9 +448,6 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
             jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
-
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
@@ -476,9 +473,6 @@ jobs:
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
