@@ -34,19 +34,30 @@ export class AppTableRowScrollableM11Component {
   readonly checkboxChange = input<(applicationName: string, $event: Event) => void>();
 
   allAppsSelected(): boolean {
-    return (
-      this.dataSource().filteredData?.length > 0 &&
-      this.dataSource().filteredData?.every((row) => this.selectedUrls().has(row.applicationName))
-    );
+    const tableData = this.dataSource()?.filteredData;
+    const selectedUrls = this.selectedUrls();
+
+    if (!tableData || !selectedUrls) {
+      return false;
+    }
+
+    return tableData.length > 0 && tableData.every((row) => selectedUrls.has(row.applicationName));
   }
 
   selectAllChanged(target: HTMLInputElement) {
     const checked = target.checked;
 
+    const tableData = this.dataSource()?.filteredData;
+    const selectedUrls = this.selectedUrls();
+
+    if (!tableData || !selectedUrls) {
+      return false;
+    }
+
     if (checked) {
-      this.dataSource().filteredData.forEach((row) => this.selectedUrls().add(row.applicationName));
+      tableData.forEach((row) => selectedUrls.add(row.applicationName));
     } else {
-      this.selectedUrls().clear();
+      selectedUrls.clear();
     }
   }
 }
