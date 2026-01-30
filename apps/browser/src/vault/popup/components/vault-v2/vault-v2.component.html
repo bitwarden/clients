@@ -125,23 +125,13 @@
               collapsibleKey="favorites"
             ></app-vault-list-items-container>
             <!--Change the title header when a filter is applied-->
-            @if ((numberOfAppliedFilters$ | async) === 0) {
-              <app-vault-list-items-container
-                [title]="'allItems' | i18n"
-                [ciphers]="(remainingCiphers$ | async) || []"
-                id="allItems"
-                disableSectionMargin
-                collapsibleKey="allItems"
-              ></app-vault-list-items-container>
-            } @else {
-              <app-vault-list-items-container
-                [title]="'items' | i18n"
-                [ciphers]="(remainingCiphers$ | async) || []"
-                id="allItems"
-                disableSectionMargin
-                collapsibleKey="allItems"
-              ></app-vault-list-items-container>
-            }
+            <app-vault-list-items-container
+              [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
+              [ciphers]="(remainingCiphers$ | async) || []"
+              id="allItems"
+              disableSectionMargin
+              collapsibleKey="allItems"
+            ></app-vault-list-items-container>
           }
         }
       </vault-fade-in-out>
