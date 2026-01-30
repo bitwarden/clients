@@ -228,7 +228,7 @@
     "message": "Salin Nama Kolom Pilihan"
   },
   "noMatchingLogins": {
-    "message": "Tidak ada info masuk yang cocok."
+    "message": "Tidak ada log masuk yang cocok"
   },
   "noCards": {
     "message": "Tanpa kartu"
@@ -440,7 +440,7 @@
     "message": "Sinkronisasi"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Selaraskan sekarang"
   },
   "lastSync": {
     "message": "Sinkronisasi Terakhir:"
@@ -554,27 +554,27 @@
     "message": "Atur ulang pencarian"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Butir dalam arsip"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Tidak ada butir dalam arsip"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Butir yang diarsipkan akan muncul di sini dan akan dikecualikan dari hasil pencarian umum dan saran isi otomatis."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Butir dikirim ke arsip"
   },
   "itemWasUnarchived": {
     "message": "Item was unarchived"
@@ -583,7 +583,7 @@
     "message": "Item was unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arsipkan butir"
   },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
@@ -1486,7 +1486,7 @@
     "message": "Tidak ada lampiran."
   },
   "attachmentSaved": {
-    "message": "Lampiran telah disimpan."
+    "message": "Lampiran disimpan"
   },
   "fixEncryption": {
     "message": "Fix encryption"
@@ -1504,7 +1504,7 @@
     "message": "Berkas untuk dibagikan"
   },
   "selectFile": {
-    "message": "Pilih berkas."
+    "message": "Pilih berkas"
   },
   "itemsTransferred": {
     "message": "Items transferred"
@@ -1652,7 +1652,7 @@
     "message": "Buka dalam tab baru"
   },
   "webAuthnAuthenticate": {
-    "message": "Autentikasi dengan WebAuthn."
+    "message": "Autentikasikan WebAuthn"
   },
   "readSecurityKey": {
     "message": "Baca kunci keamanan"
@@ -1761,7 +1761,7 @@
     "message": "URL Server Ikon"
   },
   "environmentSaved": {
-    "message": "URL dari semua lingkungan telah disimpan."
+    "message": "URL lingkungan disimpan"
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Tampilkan menu isi otomatis pada kolom formulir",
@@ -1861,7 +1861,7 @@
     "message": "Pelajari lebih lanjut tentang isi otomatis"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Konfigurasi autofill standard untuk item login."
+    "message": "Pengaturan isian otomatis baku bagi butir log masuk"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Setelah mengaktifkan Auto-Fill waktu website terbuka, kamu dapat mengaktifkan atau meng-nonaktifkan feature ini untuk setiap item. Ini adalah konfigurasi standard untuk item yang tidak dikonfigurasi terpisah."
@@ -1891,7 +1891,7 @@
     "message": "Isi otomatis identitas yang terakhir digunakan untuk situs web saat ini"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Buat dan salin kata sandi acak baru ke papan klip."
+    "message": "Buat dan salin kata sandi acak baru ke papan klip"
   },
   "commandLockVaultDesc": {
     "message": "Kunci brankas"
@@ -2513,10 +2513,10 @@
     "message": "Item yang Diisi Otomatis dan URI Tersimpan"
   },
   "autoFillSuccess": {
-    "message": "Item Terisi Otomatis"
+    "message": "Butir terisi otomatis "
   },
   "insecurePageWarning": {
-    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Login ini awalnya disimpan di halaman aman (HTTPS) "
+    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Log masuk ini awalnya disimpan di halaman aman (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Anda masih ingin mengisi login ini?"
@@ -3219,7 +3219,7 @@
     "message": "Persyaratan kebijakan perusahaan telah diterapkan ke pilihan batas waktu Anda"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Kebijakan organisasi Anda memengaruhi waktu tunggu brankas Anda. Batas maksimal Waktu Tunggu Brankas yang diizinkan adalah $HOURS$ jam dan $MINUTES$ menit",
+    "message": "Kebijakan organisasi Anda telah menata waktu tunggu brankas maksimum yang diizinkan milik Anda ke $HOURS$ jam $MINUTES$ menit.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3311,7 +3311,7 @@
     "message": "Hapus Kata Sandi Utama"
   },
   "removedMasterPassword": {
-    "message": "Sandi utama dihapus."
+    "message": "Sandi utama dihapus"
   },
   "leaveOrganizationConfirmation": {
     "message": "Apakah Anda yakin ingin meninggalkan organisasi ini?"

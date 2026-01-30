@@ -148,6 +148,17 @@ export class DialogComponent implements AfterViewInit {
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
+  handleEsc(event: Event) {
+    if (!this.dialogRef?.disableClose) {
+      this.dialogRef?.close();
+      event.stopPropagation();
+    }
+  }
+
+  onAnimationEnd() {
+    this.animationCompleted.set(true);
+  }
+
   async ngAfterViewInit() {
     /**
      * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
@@ -197,16 +208,5 @@ export class DialogComponent implements AfterViewInit {
 
       this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
     }
-  }
-
-  handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
-      event.stopPropagation();
-    }
-  }
-
-  onAnimationEnd() {
-    this.animationCompleted.set(true);
   }
 }
