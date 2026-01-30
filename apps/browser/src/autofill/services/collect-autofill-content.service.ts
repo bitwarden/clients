@@ -101,6 +101,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // eslint-disable-next-line no-console
+    console.group(
+      "%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "color: #007aff; font-weight: bold",
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      "%c[PageDetails] %c🚀 Starting autofill page details collection",
+      "color: #007aff; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
@@ -115,12 +127,28 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.domRecentlyMutated && this.noFieldsFound) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[PageDetails] %c⏭️  No fields found and no recent mutations → early return",
+        "color: #007aff; font-weight: bold",
+        "color: #a0a0a0",
+      );
+      // eslint-disable-next-line no-console
+      console.groupEnd();
       return this.getFormattedPageDetails({}, []);
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[PageDetails] %c📦 Using cached data (${this.autofillFieldElements.size} field(s))`,
+        "color: #007aff; font-weight: bold",
+        "color: #a0a0a0",
+      );
       this.updateCachedAutofillFieldVisibility();
 
+      // eslint-disable-next-line no-console
+      console.groupEnd();
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
         this.getFormattedAutofillFieldsData(),
@@ -128,6 +156,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[PageDetails] %c📝 Queried DOM: ${formElements.length} form(s), ${formFieldElements.length} field(s)`,
+      "color: #007aff; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
     const autofillFieldsData: AutofillField[] = (
@@ -143,6 +179,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
     this.setupOverlayListeners(pageDetails);
 
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[PageDetails] %c✅ Collection complete: ${Object.keys(autofillFormsData).length} form(s), ${autofillFieldsData.length} field(s) built`,
+      "color: #007aff; font-weight: bold",
+      "color: #a0a0a0",
+    );
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+
     return pageDetails;
   }
 
@@ -154,6 +199,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {FormFieldElement | null}
    */
   getAutofillFieldElementByOpid(opid: string): FormFieldElement | null {
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[OpidLookup] %c🔎 Looking up element with opid="${opid}"`,
+      "color: #ff9500; font-weight: bold",
+      "color: #a0a0a0",
+    );
+
     const cachedFormFieldElements = Array.from(this.autofillFieldElements.keys());
     const formFieldElements = cachedFormFieldElements?.length
       ? cachedFormFieldElements
@@ -171,9 +223,53 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (fieldElementsWithOpid.length > 1) {
       // eslint-disable-next-line no-console
       console.warn(`More than one element found with opid ${opid}`);
+
+      // Log details about the duplicate elements
+      // eslint-disable-next-line no-console
+      console.group(
+        `%c[OpidConflict] %c⚠️  ${fieldElementsWithOpid.length} elements with opid="${opid}"`,
+        "color: #ff9500; font-weight: bold",
+        "color: #a0a0a0",
+      );
+      fieldElementsWithOpid.forEach((element, index) => {
+        const isInShadowDOM = element.getRootNode() instanceof ShadowRoot;
+        const fieldType = (element as HTMLInputElement).type || "unknown";
+        const fieldName = (element as HTMLInputElement).name || "(no name)";
+        const shadowRootHost = isInShadowDOM ? (element.getRootNode() as ShadowRoot).host : null;
+
+        // eslint-disable-next-line no-console
+        console.log(
+          `  ${index + 1}. type="${fieldType}", name="${fieldName}", location="${isInShadowDOM ? "shadow DOM" : "light DOM"}"${shadowRootHost ? ` (host: ${shadowRootHost.tagName.toLowerCase()})` : ""}`,
+          element,
+        );
+      });
+      // eslint-disable-next-line no-console
+      console.groupEnd();
     }
 
-    return fieldElementsWithOpid[0];
+    const foundElement = fieldElementsWithOpid[0];
+    if (foundElement) {
+      const isInDOM = document.contains(foundElement);
+      const fieldType = (foundElement as HTMLInputElement).type || "unknown";
+      const fieldName = (foundElement as HTMLInputElement).name || "(no name)";
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[OpidLookup] %c${isInDOM ? "✅" : "❌"} Returning element: type="${fieldType}", name="${fieldName}", ${isInDOM ? "IN DOM" : "REMOVED FROM DOM (STALE!)"}`,
+        "color: #ff9500; font-weight: bold",
+        `color: ${isInDOM ? "#34c759" : "#ff3b30"}`,
+        foundElement,
+      );
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[OpidLookup] %c❌ No element found with opid="${opid}"`,
+        "color: #ff9500; font-weight: bold",
+        "color: #ff3b30",
+      );
+    }
+
+    return foundElement;
   }
 
   /**
@@ -324,12 +420,51 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   ): FormFieldElement[] {
     let formFieldElements = previouslyFoundFormFieldElements;
     if (!formFieldElements) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[FieldDiscovery] %c🔍 Querying DOM for form fields...",
+        "color: #af52de; font-weight: bold",
+        "color: #a0a0a0",
+      );
+
       formFieldElements = this.domQueryService.query<FormFieldElement>(
         globalThis.document.documentElement,
         this.formFieldQueryString,
         (node: Node) => this.isNodeFormFieldElement(node),
         this.mutationObserver,
       );
+
+      // Group fields by their root (light DOM vs shadow DOM)
+      const fieldsInLightDOM = formFieldElements.filter(
+        (el) => !(el.getRootNode() instanceof ShadowRoot),
+      );
+      const fieldsInShadowDOM = formFieldElements.filter(
+        (el) => el.getRootNode() instanceof ShadowRoot,
+      );
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[FieldDiscovery] %c📊 Found ${formFieldElements.length} total field(s): ${fieldsInLightDOM.length} in light DOM, ${fieldsInShadowDOM.length} in shadow DOM`,
+        "color: #af52de; font-weight: bold",
+        "color: #a0a0a0",
+      );
+
+      if (fieldsInShadowDOM.length > 0) {
+        // Log details about shadow DOM fields
+        fieldsInShadowDOM.forEach((field, index) => {
+          const fieldType = (field as HTMLInputElement).type || "unknown";
+          const fieldName = (field as HTMLInputElement).name || "(no name)";
+          const fieldId = (field as HTMLInputElement).id || "(no id)";
+
+          // eslint-disable-next-line no-console
+          console.log(
+            `%c[FieldDiscovery] %c  ↳ Shadow field ${index + 1}: type="${fieldType}", name="${fieldName}", id="${fieldId}"`,
+            "color: #af52de; font-weight: bold",
+            "color: #a0a0a0",
+            field,
+          );
+        });
+      }
     }
 
     if (!fieldsLimit || formFieldElements.length <= fieldsLimit) {
@@ -382,8 +517,30 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     element.opid = `__${index}`;
 
+    const isInShadowDOM = element.getRootNode() instanceof ShadowRoot;
+    const fieldType = (element as HTMLInputElement).type || "unknown";
+    const fieldName = (element as HTMLInputElement).name || "(no name)";
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[FieldBuild] %c🔨 Building field #${index}: type="${fieldType}", name="${fieldName}", ${isInShadowDOM ? "in SHADOW DOM" : "in light DOM"}`,
+      "color: #ff2d55; font-weight: bold",
+      "color: #a0a0a0",
+      element,
+    );
+
     const existingAutofillField = this.autofillFieldElements.get(element);
     if (index >= 0 && existingAutofillField) {
+      // Check if the cached element is still in the DOM
+      const isStillInDOM = document.contains(element);
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[FieldBuild] %c  ↳ Using cached field data ${isStillInDOM ? "✅ (element still in DOM)" : "⚠️  (element removed from DOM!)"}`,
+        "color: #ff2d55; font-weight: bold",
+        `color: ${isStillInDOM ? "#34c759" : "#ff9500"}`,
+      );
+
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
       this.autofillFieldElements.set(element, existingAutofillField);
@@ -468,6 +625,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   ) {
     // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
+
+    const isInShadowDOM = element.getRootNode() instanceof ShadowRoot;
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[FieldCache] %c✅ Cached field #${index} with opid="${autofillFieldData.opid}" (${isInShadowDOM ? "shadow DOM" : "light DOM"})`,
+      "color: #32d74b; font-weight: bold",
+      "color: #a0a0a0",
+    );
   }
 
   /**
@@ -1069,8 +1234,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.noFieldsFound = false;
 
+    const formCount = this._autofillFormElements.size;
+    const fieldCount = this.autofillFieldElements.size;
+
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `%c[CacheClear] %c🗑️  Cleared cache on navigation: ${formCount} form(s), ${fieldCount} field(s)`,
+      "color: #ff3b30; font-weight: bold",
+      "color: #a0a0a0",
+    );
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
@@ -1099,6 +1274,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     this.mutationsQueue = [];
+
+    // eslint-disable-next-line no-console
+    console.log(
+      "%c[MutationQueue] %c✅ Mutation queue processed and cleared → DOM stable",
+      "color: #34c759; font-weight: bold",
+      "color: #a0a0a0",
+    );
   };
 
   /**
@@ -1350,11 +1532,30 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>,
   ) {
     if (elementIsFormElement(element) && this._autofillFormElements.has(element)) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[CacheDelete] %c🗑️  Deleted cached FORM element (removed from DOM)`,
+        "color: #ff9500; font-weight: bold",
+        "color: #a0a0a0",
+        element,
+      );
       this._autofillFormElements.delete(element);
       return;
     }
 
     if (this.autofillFieldElements.has(element)) {
+      const fieldData = this.autofillFieldElements.get(element);
+      const fieldType = (element as HTMLInputElement).type || "unknown";
+      const fieldName = (element as HTMLInputElement).name || "(no name)";
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[CacheDelete] %c🗑️  Deleted cached FIELD element: type="${fieldType}", name="${fieldName}", opid="${fieldData?.opid}"`,
+        "color: #ff9500; font-weight: bold",
+        "color: #a0a0a0",
+        element,
+      );
+
       this.autofillFieldElements.delete(element);
     }
   }
@@ -1594,9 +1795,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private setupOverlayListeners(pageDetails: AutofillPageDetails) {
     if (this.autofillOverlayContentService) {
+      const fieldCount = this.autofillFieldElements.size;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[OverlaySetup] %c🎯 Setting up overlay listeners on ${fieldCount} field(s) → ready for user interaction`,
+        "color: #5ac8fa; font-weight: bold",
+        "color: #a0a0a0",
+      );
+
       this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
         this.setupOverlayOnField(formFieldElement, autofillField, pageDetails);
       });
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[OverlaySetup] %c✅ Overlay listeners active → fields ready to receive focus/autofill`,
+        "color: #5ac8fa; font-weight: bold",
+        "color: #a0a0a0",
+      );
     }
   }
 
@@ -1613,6 +1830,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     pageDetails?: AutofillPageDetails,
   ) {
     if (this.autofillOverlayContentService) {
+      const fieldType = (formFieldElement as HTMLInputElement).type || "unknown";
+      const fieldName = (formFieldElement as HTMLInputElement).name || "(no name)";
+      const isInDOM = document.contains(formFieldElement);
+      const isInShadowDOM = formFieldElement.getRootNode() instanceof ShadowRoot;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `%c[OverlaySetup] %c  ↳ Field: type="${fieldType}", name="${fieldName}", opid="${autofillField.opid}", ${isInShadowDOM ? "shadow DOM" : "light DOM"}, ${isInDOM ? "IN DOM ✅" : "REMOVED ❌"}`,
+        "color: #5ac8fa; font-weight: bold",
+        `color: ${isInDOM ? "#a0a0a0" : "#ff3b30"}`,
+        formFieldElement,
+      );
+
       const autofillPageDetails =
         pageDetails ||
         this.getFormattedPageDetails(
