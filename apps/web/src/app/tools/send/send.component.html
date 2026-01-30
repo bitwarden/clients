@@ -23,7 +23,7 @@
     <bit-search
       [(ngModel)]="searchText"
       [placeholder]="'searchSends' | i18n"
-      (input)="searchTextChanged()"
+      (ngModelChange)="searchTextChanged()"
       appAutofocus
     />
   </div>

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
+  "unlockWithPasskey": {
+    "message": "Desbloquear com chave de acesso"
+  },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
@@ -1552,7 +1555,7 @@
     "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
   },
   "restartPremium": {
-    "message": "Reiniciar Premium"
+    "message": "Reiniciar o Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "prfUnlockFailed": {
+    "message": "Não foi possível desbloquear com a chave de acesso. Por favor, tente novamente ou utilize outro método de desbloqueio."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Não estão disponíveis chaves de acesso com PRF ativado para o desbloqueio. Por favor, inicie sessão primeiro com uma chave de acesso."
   },
   "decryptionError": {
     "message": "Erro de desencriptação"

@@ -7,17 +7,13 @@ import {
   Subscription,
   combineLatest,
   debounce,
-  debounceTime,
   distinctUntilChanged,
   filter,
   map,
-  switchMap,
   timer,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { SearchModule } from "@bitwarden/components";
 
@@ -40,7 +36,6 @@ export class VaultV2SearchComponent {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupLoadingService: VaultPopupLoadingService,
-    private configService: ConfigService,
     private ngZone: NgZone,
   ) {
     this.subscribeToLatestSearchText();
@@ -63,31 +58,19 @@ export class VaultV2SearchComponent {
   }
 
   subscribeToApplyFilter(): void {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.VaultLoadingSkeletons)
+    combineLatest([this.searchText$, this.loading$])
       .pipe(
-        switchMap((enabled) => {
-          if (!enabled) {
-            return this.searchText$.pipe(
-              debounceTime(SearchTextDebounceInterval),
-              distinctUntilChanged(),
-            );
-          }
-
-          return combineLatest([this.searchText$, this.loading$]).pipe(
-            debounce(([_, isLoading]) => {
-              // If loading apply immediately to avoid stale searches.
-              // After loading completes, debounce to avoid excessive searches.
-              const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
-              return timer(delayTime);
-            }),
-            distinctUntilChanged(
-              ([prevText, prevLoading], [newText, newLoading]) =>
-                prevText === newText && prevLoading === newLoading,
-            ),
-            map(([text, _]) => text),
-          );
+        debounce(([_, isLoading]) => {
+          // If loading apply immediately to avoid stale searches.
+          // After loading completes, debounce to avoid excessive searches.
+          const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
+          return timer(delayTime);
         }),
+        distinctUntilChanged(
+          ([prevText, prevLoading], [newText, newLoading]) =>
+            prevText === newText && prevLoading === newLoading,
+        ),
+        map(([text, _]) => text),
         takeUntilDestroyed(),
       )
       .subscribe((text) => {

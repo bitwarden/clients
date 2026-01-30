@@ -5626,13 +5626,13 @@
     "message": "Send créé avec succès !",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copiez et partagez ce lien Send. Il peut être consulté par les personnes que vous avez spécifiées pour $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien pour les prochains $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement du coffre à votre instance Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Envoyer les données de l'événement à votre instance de Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL HTTP du Collecterur d'Événements"
+  },
+  "httpEventCollectorToken": {
+    "message": "Jeton du Collecteur d'Événements HTTP"
   },
   "selectAPlan": {
     "message": "Sélectionnez un plan"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Vérifier maintenant."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Stockage additionnel (Go)"

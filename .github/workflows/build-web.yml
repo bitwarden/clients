@@ -204,7 +204,7 @@ jobs:
 
       ########## Set up Docker ##########
       - name: Set up Docker
-        uses: docker/setup-docker-action@efe9e3891a4f7307e689f2100b33a155b900a608 # v4.5.0
+        uses: docker/setup-docker-action@e43656e248c0bd0647d3f5c195d116aacf6fcaf4 # v4.7.0
         with:
           daemon-config: |
             {
@@ -218,7 +218,7 @@ jobs:
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       ########## ACRs ##########
       - name: Log in to Azure
@@ -334,7 +334,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 # v7.1.0
+        uses: anchore/scan-action@62b74fb7bb810d2c45b1865f47a77655621862a5 # v7.2.3
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
@@ -390,7 +390,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
+        uses: crowdin/github-action@60debf382ee245b21794321190ad0501db89d8c1 # v2.13.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
