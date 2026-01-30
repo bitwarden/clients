@@ -249,7 +249,9 @@ describe("SessionTimeoutInputComponent", () => {
         component["policyTimeoutMessage$"].subscribe((msg) => (message = msg));
         flush();
 
-        expect(message).toBe("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart-used-i18n");
+        expect(message).toBe(
+          "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart-used-i18n",
+        );
       }));
 
       it("should emit null when policy has never type and promoted value is Never", fakeAsync(() => {
@@ -315,7 +317,9 @@ describe("SessionTimeoutInputComponent", () => {
         component["policyTimeoutMessage$"].subscribe((msg) => (message = msg));
         flush();
 
-        expect(message).toBe("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart-used-i18n");
+        expect(message).toBe(
+          "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart-used-i18n",
+        );
       }));
 
       it("should emit onRestart message when never is promoted to OnRestart", fakeAsync(() => {
@@ -337,7 +341,9 @@ describe("SessionTimeoutInputComponent", () => {
         component["policyTimeoutMessage$"].subscribe((msg) => (message = msg));
         flush();
 
-        expect(message).toBe("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart-used-i18n");
+        expect(message).toBe(
+          "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart-used-i18n",
+        );
       }));
     });
 
