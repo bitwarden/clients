@@ -4,6 +4,7 @@ import { firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -25,7 +26,6 @@ import { OrganizationBadgeModule } from "../../../../vault/individual-vault/orga
 import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../inactive-two-factor-report.component";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
