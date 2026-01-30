@@ -51,6 +51,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
+  private pendingShadowDomCheck = false;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
@@ -985,6 +987,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
+    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
+
+    if (hasMutationsInShadowRoot) {
+      this.debouncedRequirePageDetailsUpdate();
+    }
+
+    if (!this.pendingShadowDomCheck) {
+      this.pendingShadowDomCheck = true;
+
+      if (this.shadowDomCheckTimeout) {
+        clearTimeout(this.shadowDomCheckTimeout);
+      }
+
+      this.shadowDomCheckTimeout = setTimeout(() => {
+        this.checkForNewShadowRoots();
+        this.pendingShadowDomCheck = false;
+      }, 500);
+    }
+
     if (!this.mutationsQueue.length) {
       requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
     }
@@ -1040,13 +1061,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private flagPageDetailsUpdateIsRequired() {
+  private requirePageDetailsUpdate = () => {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
-  }
+  };
+
+  /**
+   * Debounced version of requirePageDetailsUpdate to prevent excessive updates
+   */
+  private debouncedRequirePageDetailsUpdate = debounce(() => {
+    this.requirePageDetailsUpdate();
+  }, 300);
+
+  /**
+   * Checks for new shadow roots that aren't being observed and triggers
+   * a page details update if any are found
+   */
+  private checkForNewShadowRoots = () => {
+    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
+    if (hasNewShadowRoots) {
+      this.debouncedRequirePageDetailsUpdate();
+    }
+  };
 
   /**
    * Processes all mutation records encountered by the mutation observer.
@@ -1074,7 +1113,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.flagPageDetailsUpdateIsRequired();
+      this.requirePageDetailsUpdate();
       return;
     }
 
@@ -1545,6 +1584,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   destroy() {
     if (this.updateAfterMutationIdleCallback) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+    }
+    if (this.shadowDomCheckTimeout) {
+      clearTimeout(this.shadowDomCheckTimeout);
     }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
