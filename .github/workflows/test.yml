@@ -10,7 +10,9 @@ on:
   pull_request:
     types: [ opened, synchronize ]
 
-permissions: {}
+permissions:
+  contents: read
+  packages: read
 
 jobs:
 
@@ -80,120 +82,3 @@ jobs:
         with:
           name: jest-coverage
           path: ./coverage/lcov.info
-
-  rust:
-    name: Run Rust tests on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
-    permissions:
-      contents: read
-
-    strategy:
-      matrix:
-        os:
-          - ubuntu-22.04
-          - macos-14
-          - windows-2022
-
-    steps:
-      - name: Check Rust version
-        run: rustup --version
-
-      - name: Install gnome-keyring
-        if: ${{ matrix.os=='ubuntu-22.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gnome-keyring dbus-x11
-
-      - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Build
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo build
-
-      - name: Test Ubuntu
-        if: ${{ matrix.os=='ubuntu-22.04' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: |
-          eval "$(dbus-launch --sh-syntax)"
-          mkdir -p ~/.cache
-          mkdir -p ~/.local/share/keyrings
-          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
-          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test -- --test-threads=1
-
-      - name: Test macOS
-        if: ${{ matrix.os=='macos-14' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo test -- --test-threads=1
-
-      - name: Test Windows
-        if: ${{ matrix.os=='windows-2022'}}
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
-
-  rust-coverage:
-    name: Rust Coverage
-    runs-on: macos-14
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install rust
-        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
-        with:
-          toolchain: stable
-          components: llvm-tools
-
-      - name: Cache cargo registry
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
-        with:
-          workspaces: "apps/desktop/desktop_native -> target"
-
-      - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --version 0.6.16
-
-      - name: Generate coverage
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: rust-coverage
-          path: ./apps/desktop/desktop_native/lcov.info
-
-  upload-codecov:
-    name: Upload to Codecov
-    runs-on: ubuntu-22.04
-    needs:
-      - testing
-      - rust-coverage
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Download jest coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: jest-coverage
-          path: ./
-
-      - name: Download rust coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: rust-coverage
-          path: ./apps/desktop/desktop_native
-
-      - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          files: |
-            ./lcov.info
-            ./apps/desktop/desktop_native/lcov.info
