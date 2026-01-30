@@ -57,6 +57,8 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
+                case "accountCredit":
+                  return "Account credit";
                 default:
                   return key;
               }
@@ -376,6 +378,57 @@ export const WithHiddenBreakdown: Story = {
       },
       cadence: "monthly",
       estimatedTax: 19.2,
+    } satisfies Cart,
+  },
+};
+
+export const WithCredit: Story = {
+  name: "With Account Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      credit: {
+        translationKey: "accountCredit",
+        value: 25.0,
+      },
+      estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithDiscountAndCredit: Story = {
+  name: "With Both Discount and Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      discount: {
+        type: DiscountTypes.PercentOff,
+        value: 15,
+      },
+      credit: {
+        translationKey: "accountCredit",
+        value: 50.0,
+      },
+      estimatedTax: 15.0,
     } satisfies Cart,
   },
 };

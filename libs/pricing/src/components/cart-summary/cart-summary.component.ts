@@ -143,10 +143,21 @@ export class CartSummaryComponent {
   });
 
   /**
+   * Calculates the credit amount from the cart credit
+   */
+  readonly creditAmount = computed<number>(() => {
+    const { credit } = this.cart();
+    if (!credit) {
+      return 0;
+    }
+    return credit.value;
+  });
+
+  /**
    * Calculates the total of all line items including discount and tax
    */
   readonly total = computed<number>(
-    () => this.subtotal() - this.discountAmount() + this.estimatedTax(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**

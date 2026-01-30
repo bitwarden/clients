@@ -89,6 +89,8 @@ describe("CartSummaryComponent", () => {
                   return "Premium membership";
                 case "discount":
                   return "discount";
+                case "accountCredit":
+                  return "accountCredit";
                 default:
                   return key;
               }
@@ -456,6 +458,94 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
   });
+
+  describe("Credit Display", () => {
+    it("should not display credit section when no credit is present", () => {
+      // Arrange / Act
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+
+      // Assert
+      expect(creditSection).toBeFalsy();
+    });
+
+    it("should display credit correctly", () => {
+      // Arrange
+      const cartWithCredit: Cart = {
+        ...mockCart,
+        credit: {
+          translationKey: "accountCredit",
+          value: 25.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithCredit);
+      fixture.detectChanges();
+
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+      const creditLabel = creditSection.query(By.css("h3"));
+      const creditAmount = creditSection.query(By.css('[data-testid="credit-amount"]'));
+
+      // Act / Assert
+      expect(creditSection).toBeTruthy();
+      expect(creditLabel.nativeElement.textContent.trim()).toBe("accountCredit");
+      expect(creditAmount.nativeElement.textContent).toContain("-$25.00");
+    });
+
+    it("should apply credit to total calculation", () => {
+      // Arrange
+      const cartWithCredit: Cart = {
+        ...mockCart,
+        credit: {
+          translationKey: "accountCredit",
+          value: 50.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithCredit);
+      fixture.detectChanges();
+
+      // Subtotal = 372, credit = 50, tax = 9.6
+      // Total = 372 - 50 + 9.6 = 331.6
+      const expectedTotal = "$331.60";
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should display and apply both discount and credit correctly", () => {
+      // Arrange
+      const cartWithBoth: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+        credit: {
+          translationKey: "accountCredit",
+          value: 30.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithBoth);
+      fixture.detectChanges();
+
+      // Subtotal = 372, discount = 37.2 (10%), credit = 30, tax = 9.6
+      // Total = 372 - 37.2 - 30 + 9.6 = 314.4
+      const expectedTotal = "$314.40";
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(discountSection).toBeTruthy();
+      expect(creditSection).toBeTruthy();
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+  });
 });
 
 describe("CartSummaryComponent - Custom Header Template", () => {
@@ -544,6 +634,8 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Collapse purchase details";
                 case "discount":
                   return "discount";
+                case "accountCredit":
+                  return "accountCredit";
                 default:
                   return key;
               }
