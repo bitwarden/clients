@@ -6,7 +6,6 @@ import { Component, HostListener, ViewChild, computed, inject, input, output } f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -23,12 +22,19 @@ import {
   TableModule,
 } from "@bitwarden/components";
 import {
+  CopyAction,
   CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "./vault-item-event";
+
+/** Configuration for a copyable field */
+interface CopyFieldConfig {
+  field: CopyAction;
+  title: string;
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -89,7 +95,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected CipherType = CipherType;
 
-  private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
 
   protected readonly showArchiveButton = computed(() => {
@@ -110,22 +115,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     }
 
     return CipherViewLikeUtils.isArchived(this.cipher());
-  });
-
-  protected readonly clickAction = computed(() => {
-    if (this.decryptionFailure()) {
-      return "showFailedToDecrypt";
-    }
-
-    return "view";
-  });
-
-  protected readonly showTotpCopyButton = computed(() => {
-    const login = CipherViewLikeUtils.getLogin(this.cipher());
-
-    const hasTotp = login?.totp ?? false;
-
-    return hasTotp && (this.cipher().organizationUseTotp || this.showPremiumFeatures());
   });
 
   protected readonly showFixOldAttachments = computed(() => {
@@ -198,79 +187,60 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showEventLogs = computed(() => {
-    return this.useEvents() && this.cipher().organizationId;
-  });
+  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
 
-  protected readonly isLoginCipher = computed(() => {
-    return (
-      CipherViewLikeUtils.getType(this.cipher()) === this.CipherType.Login &&
-      !CipherViewLikeUtils.isDeleted(this.cipher()) &&
-      !CipherViewLikeUtils.isArchived(this.cipher())
-    );
-  });
+  /**
+   * Returns the list of copyable fields based on cipher type.
+   * Used to render copy menu items dynamically.
+   */
+  protected readonly copyFields = computed((): CopyFieldConfig[] => {
+    const cipher = this.cipher();
 
-  protected readonly hasVisibleLoginOptions = computed(() => {
-    return (
-      this.isLoginCipher() &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher(), "username") ||
-        (this.cipher().viewPassword &&
-          CipherViewLikeUtils.hasCopyableValue(this.cipher(), "password")) ||
-        this.showTotpCopyButton() ||
-        this.canLaunch())
-    );
-  });
-
-  protected readonly isCardCipher = computed(() => {
-    return CipherViewLikeUtils.getType(this.cipher()) === this.CipherType.Card && !this.isDeleted();
-  });
-
-  protected readonly hasVisibleCardOptions = computed(() => {
-    return (
-      this.isCardCipher() &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher(), "cardNumber") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher(), "securityCode"))
-    );
-  });
-
-  protected readonly isIdentityCipher = computed(() => {
-    if (CipherViewLikeUtils.isArchived(this.cipher()) && !this.userCanArchive()) {
-      return false;
+    // No copy options for deleted or archived items
+    if (this.isDeleted() || CipherViewLikeUtils.isArchived(cipher)) {
+      return [];
     }
-    return (
-      CipherViewLikeUtils.getType(this.cipher()) === this.CipherType.Identity && !this.isDeleted()
-    );
+
+    const cipherType = CipherViewLikeUtils.getType(cipher);
+
+    switch (cipherType) {
+      case CipherType.Login: {
+        const fields: CopyFieldConfig[] = [{ field: "username", title: "copyUsername" }];
+        if (cipher.viewPassword) {
+          fields.push({ field: "password", title: "copyPassword" });
+        }
+        if (cipher.organizationUseTotp || this.showPremiumFeatures()) {
+          fields.push({ field: "totp", title: "copyVerificationCode" });
+        }
+        return fields;
+      }
+      case CipherType.Card:
+        return [
+          { field: "cardNumber", title: "copyNumber" },
+          { field: "securityCode", title: "copySecurityCode" },
+        ];
+      case CipherType.Identity:
+        return [
+          { field: "username", title: "copyUsername" },
+          { field: "email", title: "copyEmail" },
+          { field: "phone", title: "copyPhone" },
+          { field: "address", title: "copyAddress" },
+        ];
+      case CipherType.SecureNote:
+        return [{ field: "secureNote", title: "copyNote" }];
+      default:
+        return [];
+    }
   });
 
-  protected readonly hasVisibleIdentityOptions = computed(() => {
-    return (
-      this.isIdentityCipher() &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher(), "address") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher(), "email") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher(), "username") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher(), "phone"))
-    );
-  });
-
-  protected readonly isSecureNoteCipher = computed(() => {
-    return (
-      CipherViewLikeUtils.getType(this.cipher()) === this.CipherType.SecureNote &&
-      !(this.isDeleted() && this.canRestoreCipher())
-    );
-  });
-
-  protected readonly hasVisibleSecureNoteOptions = computed(() => {
-    return (
-      this.isSecureNoteCipher() && CipherViewLikeUtils.hasCopyableValue(this.cipher(), "secureNote")
-    );
-  });
-
-  protected readonly showMenuDivider = computed(() => {
-    return (
-      this.hasVisibleLoginOptions() ||
-      this.hasVisibleCardOptions() ||
-      this.hasVisibleIdentityOptions() ||
-      this.hasVisibleSecureNoteOptions()
+  /**
+   * Determines if the copy button should be shown.
+   * Returns true only if at least one field has a copyable value.
+   */
+  protected readonly showCopyButton = computed(() => {
+    const cipher = this.cipher();
+    return this.copyFields().some(({ field }) =>
+      CipherViewLikeUtils.hasCopyableValue(cipher, field),
     );
   });
 
