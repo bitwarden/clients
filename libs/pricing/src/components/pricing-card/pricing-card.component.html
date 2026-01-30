@@ -48,7 +48,7 @@
         (click)="buttonClick.emit()"
         type="button"
       >
-        @if (buttonConfig.icon?.position === "before") {
+        @if (buttonConfig.icon && buttonConfig.icon.position === "before") {
           <bit-icon [name]="buttonConfig.icon.type" class="tw-me-2" aria-hidden="true"></bit-icon>
         }
         {{ buttonConfig.text }}
