@@ -21,7 +21,7 @@ import {
   AccountBillingClient,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -35,7 +35,7 @@ import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 describe("UpgradePaymentService", () => {
   const mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
   const mockAccountBillingClient = mock<AccountBillingClient>();
-  const mockTaxClient = mock<TaxClient>();
+  const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
   const mockSyncService = mock<SyncService>();
   const mockOrganizationService = mock<OrganizationService>();
@@ -112,7 +112,7 @@ describe("UpgradePaymentService", () => {
   beforeEach(() => {
     mockReset(mockOrganizationBillingService);
     mockReset(mockAccountBillingClient);
-    mockReset(mockTaxClient);
+    mockReset(mockPreviewInvoiceClient);
     mockReset(mockLogService);
     mockReset(mockOrganizationService);
     mockReset(mockAccountService);
@@ -133,7 +133,7 @@ describe("UpgradePaymentService", () => {
           useValue: mockOrganizationBillingService,
         },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
-        { provide: TaxClient, useValue: mockTaxClient },
+        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: LogService, useValue: mockLogService },
         { provide: SyncService, useValue: mockSyncService },
         { provide: OrganizationService, useValue: mockOrganizationService },
@@ -183,7 +183,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -236,7 +236,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -271,7 +271,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -307,7 +307,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -333,7 +333,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -389,7 +389,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -412,17 +412,18 @@ describe("UpgradePaymentService", () => {
       const mockResponse = mock<TaxAmounts>();
       mockResponse.tax = 2.5;
 
-      mockTaxClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(mockResponse);
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
 
       // Act
       const result = await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress);
 
       // Assert
       expect(result).toEqual(2.5);
-      expect(mockTaxClient.previewTaxForPremiumSubscriptionPurchase).toHaveBeenCalledWith(
-        0,
-        mockBillingAddress,
-      );
+      expect(
+        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
+      ).toHaveBeenCalledWith(0, mockBillingAddress);
     });
 
     it("should calculate tax for families plan", async () => {
@@ -430,14 +431,18 @@ describe("UpgradePaymentService", () => {
       const mockResponse = mock<TaxAmounts>();
       mockResponse.tax = 5.0;
 
-      mockTaxClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(mockResponse);
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
 
       // Act
       const result = await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress);
 
       // Assert
       expect(result).toEqual(5.0);
-      expect(mockTaxClient.previewTaxForOrganizationSubscriptionPurchase).toHaveBeenCalledWith(
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledWith(
         {
           cadence: "annually",
           tier: "families",
@@ -454,7 +459,7 @@ describe("UpgradePaymentService", () => {
     it("should throw and log error if personal tax calculation fails", async () => {
       // Arrange
       const error = new Error("Tax service error");
-      mockTaxClient.previewTaxForPremiumSubscriptionPurchase.mockRejectedValue(error);
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockRejectedValue(error);
 
       // Act & Assert
       await expect(
@@ -466,7 +471,9 @@ describe("UpgradePaymentService", () => {
     it("should throw and log error if organization tax calculation fails", async () => {
       // Arrange
       const error = new Error("Tax service error");
-      mockTaxClient.previewTaxForOrganizationSubscriptionPurchase.mockRejectedValue(error);
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockRejectedValue(
+        error,
+      );
       // Act & Assert
       await expect(
         sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress),

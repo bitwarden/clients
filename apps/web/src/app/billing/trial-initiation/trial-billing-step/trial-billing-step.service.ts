@@ -12,7 +12,7 @@ import {
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { TaxClient } from "@bitwarden/web-vault/app/billing/clients";
+import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   getBillingAddressFromControls,
@@ -63,7 +63,7 @@ export class TrialBillingStepService {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
   ) {}
 
@@ -129,7 +129,7 @@ export class TrialBillingStepService {
     total: number;
   }> => {
     const billingAddress = getBillingAddressFromControls(billingAddressControls);
-    return await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+    return await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
       {
         tier,
         cadence,
