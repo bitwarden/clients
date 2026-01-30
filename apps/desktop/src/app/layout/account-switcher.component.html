@@ -47,13 +47,17 @@
           (click)="switch(account.key)"
         >
           @if (account.value.email != null) {
-            <bit-avatar
+            <app-avatar
               [text]="account.value.name ?? account.value.email"
               [id]="account.value.id"
+              [size]="25"
+              [circle]="true"
+              [fontSize]="14"
+              [dynamic]="true"
               [color]="account.value.avatarColor"
+              *ngIf="account.value.email != null"
               aria-hidden="true"
-            >
-            </bit-avatar>
+            ></app-avatar>
           }
           <div class="accountInfo">
             <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>

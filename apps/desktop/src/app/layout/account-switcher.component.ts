@@ -20,6 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { AvatarModule } from "@bitwarden/components";
 
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { AvatarComponent } from "../components/avatar.component";
 
 type ActiveAccount = {
   id: string;
@@ -39,7 +40,7 @@ type InactiveAccount = ActiveAccount & {
   selector: "app-account-switcher",
   templateUrl: "account-switcher.component.html",
   standalone: true,
-  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule],
+  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule, AvatarComponent],
   animations: [
     trigger("transformPanel", [
       state(
