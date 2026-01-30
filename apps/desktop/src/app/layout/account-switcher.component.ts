@@ -1,23 +1,26 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { ConnectedPosition } from "@angular/cdk/overlay";
+import { A11yModule } from "@angular/cdk/a11y";
+import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
+import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
+import { AvatarModule } from "@bitwarden/components";
 
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { AvatarComponent } from "../components/avatar.component";
 
 type ActiveAccount = {
   id: string;
@@ -36,6 +39,8 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher",
   templateUrl: "account-switcher.component.html",
+  standalone: true,
+  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule, AvatarComponent],
   animations: [
     trigger("transformPanel", [
       state(
@@ -56,7 +61,6 @@ type InactiveAccount = ActiveAccount & {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
-  standalone: false,
 })
 export class AccountSwitcherComponent implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;
@@ -86,14 +90,12 @@ export class AccountSwitcherComponent implements OnInit {
   disabled = false;
 
   constructor(
-    private stateService: StateService,
     private authService: AuthService,
     private avatarService: AvatarService,
     private messagingService: MessagingService,
     private messageListener: MessageListener,
     private router: Router,
     private environmentService: EnvironmentService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
     private biometricsService: DesktopBiometricsService,
   ) {

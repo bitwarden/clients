@@ -23,7 +23,6 @@ import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
-import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
@@ -45,7 +44,6 @@ import { SharedModule } from "./shared/shared.module";
     VaultV2Component,
   ],
   declarations: [
-    AccountSwitcherComponent,
     AppComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,

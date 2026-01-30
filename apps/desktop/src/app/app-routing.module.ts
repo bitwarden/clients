@@ -56,6 +56,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
+import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendV2Component } from "./tools/send-v2/send-v2.component";
@@ -160,6 +161,11 @@ const routes: Routes = [
               loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
           },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -172,6 +178,11 @@ const routes: Routes = [
           {
             path: "",
             component: RegistrationFinishComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
           },
         ],
       },
@@ -192,6 +203,11 @@ const routes: Routes = [
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
           },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -200,7 +216,14 @@ const routes: Routes = [
         data: {
           pageIcon: DevicesIcon,
         },
-        children: [{ path: "", component: LoginDecryptionOptionsComponent }],
+        children: [
+          { path: "", component: LoginDecryptionOptionsComponent },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
+          },
+        ],
       },
       {
         path: AuthRoute.Sso,
@@ -219,6 +242,11 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
           },
         ],
       },
@@ -239,6 +267,11 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherComponent,
+            outlet: "header-actions",
           },
         ],
       },
