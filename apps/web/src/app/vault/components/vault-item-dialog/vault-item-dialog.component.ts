@@ -88,11 +88,6 @@ export interface VaultItemDialogParams {
   formConfig: CipherFormConfig;
 
   /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
-
-  /**
    * The ID of the active collection. This is know the collection filter selected by the user.
    */
   activeCollectionId?: CollectionId;
@@ -273,7 +268,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return this.params.disableForm;
+    return !this.canEdit;
   }
 
   protected get showEdit() {
@@ -313,6 +308,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected filter: RoutedVaultFilterModel;
 
   protected canDelete = false;
+
+  protected canEdit = false;
 
   protected attachmentsButtonDisabled = false;
 
@@ -371,6 +368,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           this.params.isAdminConsoleAction,
         ),
       );
+
+      this.canEdit = await firstValueFrom(
+        this.cipherAuthorizationService.canEditCipher$(
+          this.cipher,
+          this.params.isAdminConsoleAction,
+        ),
+      );
+
+      // If user cannot edit and dialog opened in form mode, force to view mode
+      if (!this.canEdit && this.params.mode === "form") {
+        this.params.mode = "view";
+        this.loadForm = false;
+        this.updateTitle();
+      }
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
