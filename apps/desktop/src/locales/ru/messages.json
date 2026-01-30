@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "С этой даты Send будет удалена навсегда.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Файл для отправки"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Скрыть текст по умолчанию"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Скрыть ваш email от просматривающих."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Лимит просмотров"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Осталось просмотров: $ACCESSCOUNT$",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,41 +127,41 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Никто не сможет просмотреть эту Send после лимита просмотров.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Личная заметка"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Информация о Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Добавьте необязательный пароль для доступа получателей к этой Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Текст для отправки"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Новая текстовая Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Новая файловая Send",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Изменить файловую Send",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Вы действительно хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
