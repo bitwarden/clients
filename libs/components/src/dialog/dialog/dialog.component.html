@@ -6,7 +6,6 @@
     isDrawer ? 'tw-h-full tw-border-t-0' : 'tw-rounded-t-xl md:tw-rounded-xl tw-shadow-lg',
   ]"
   cdkTrapFocus
-  cdkTrapFocusAutoCapture
 >
   @let showHeaderBorder = bodyHasScrolledFrom().top;
   <header
@@ -23,8 +22,8 @@
       bitTypography="h3"
       noMargin
       class="tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
-      cdkFocusInitial
       tabindex="-1"
+      #dialogHeader
     >
       {{ title() }}
       @if (subtitle(); as subtitleText) {

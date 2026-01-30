@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
+  "unlockWithPasskey": {
+    "message": "Kilidi geçiş anahtarıyla aç"
+  },
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Kaydı arşivle"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Arşivlendi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
   },
   "upgradeToUseArchive": {
     "message": "Arşivi kullanmak için premium üyelik gereklidir."
@@ -980,6 +989,12 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
   },
   "location": {
     "message": "Konum"
@@ -1539,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Premium aboneliğiniz sona erdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır."
+  },
+  "restartPremium": {
+    "message": "Premium’u yeniden başlat"
+  },
   "ppremiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
   },
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "E-posta"
   },
+  "emails": {
+    "message": "E-postalar"
+  },
   "phone": {
     "message": "Telefon"
   },
@@ -2457,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
+  },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
   },
   "restoreItem": {
     "message": "Kaydı geri yükle"
@@ -3348,6 +3378,12 @@
   },
   "error": {
     "message": "Hata"
+  },
+  "prfUnlockFailed": {
+    "message": "Kilit geçiş anahtarıyla açılamadı. Lütfen yeniden deneyin veya başka bir kilit açma yöntemi kullanın."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Kilit açma için PRF uyumlu bir geçiş anahtarı bulunamadı. Lütfen önce bir geçiş anahtarıyla giriş yapın."
   },
   "decryptionError": {
     "message": "Şifre çözme sorunu"
@@ -4724,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Diğer seçenekler"
+  },
   "moreOptionsTitle": {
     "message": "Diğer seçenekler - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4818,7 +4857,7 @@
     "message": "Yönetici"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Otomatik kullanıcı onayı"
   },
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
@@ -4971,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Ek dosyayı indir"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden’ı indirin"
   },
@@ -5110,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ eşleşme tespitini gizle",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini göster"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini gizle"
   },
   "autoFillOnPageLoad": {
     "message": "Sayfa yüklenince otomatik doldur"
@@ -5255,7 +5294,7 @@
     "message": "Web sitesi URI'sini yeniden sıralayın. Kayıtı yukarı veya aşağı taşımak için ok tuşunu kullanın."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ yukarı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ yukarı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5655,6 +5694,9 @@
   "extraWide": {
     "message": "Ekstra geniş"
   },
+  "narrow": {
+    "message": "Dar"
+  },
   "sshKeyWrongPassword": {
     "message": "Girdiğiniz parola yanlış."
   },
@@ -5707,7 +5749,7 @@
     "message": "Vulnerable password."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Şimdi değiştir"
   },
   "missingWebsite": {
     "message": "Web sitesi eksik"
@@ -5784,7 +5826,7 @@
     "message": "Oltalama tespiti hakkında daha fazla bilgi edinin"
   },
   "protectedBy": {
-    "message": "$PRODUCT$ tarafından korunuyor",
+    "message": "$PRODUCT$ ile korunuyor",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -6087,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
   }
 }

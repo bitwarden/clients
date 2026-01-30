@@ -5,6 +5,7 @@ import { Jsonify } from "type-fest";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { KeyConnectorUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/key-connector-user-decryption-option.response";
 import { TrustedDeviceUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
+import { WebAuthnPrfDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/webauthn-prf-decryption-option.response";
 
 /**
  * Key Connector decryption options. Intended to be sent to the client for use after authentication.
@@ -42,6 +43,61 @@ export class KeyConnectorUserDecryptionOption {
       return undefined;
     }
     return Object.assign(new KeyConnectorUserDecryptionOption(), obj);
+  }
+}
+
+/**
+ * Trusted device decryption options. Intended to be sent to the client for use after authentication.
+ * @see {@link UserDecryptionOptions}
+ */
+/**
+ * WebAuthn PRF decryption options. Intended to be sent to the client for use after authentication.
+ * @see {@link UserDecryptionOptions}
+ */
+export class WebAuthnPrfUserDecryptionOption {
+  /** The encrypted private key that can be decrypted with the PRF key. */
+  encryptedPrivateKey: string;
+  /** The encrypted user key that can be decrypted with the private key. */
+  encryptedUserKey: string;
+  /** The credential ID for this WebAuthn PRF credential. */
+  credentialId: string;
+  /** The transports supported by this credential. */
+  transports: string[];
+
+  /**
+   * Initializes a new instance of the WebAuthnPrfUserDecryptionOption from a response object.
+   * @param response The WebAuthn PRF user decryption option response object.
+   * @returns A new instance of the WebAuthnPrfUserDecryptionOption or undefined if `response` is nullish.
+   */
+  static fromResponse(
+    response: WebAuthnPrfDecryptionOptionResponse,
+  ): WebAuthnPrfUserDecryptionOption | undefined {
+    if (response == null) {
+      return undefined;
+    }
+    if (!response.encryptedPrivateKey || !response.encryptedUserKey) {
+      return undefined;
+    }
+    const options = new WebAuthnPrfUserDecryptionOption();
+    options.encryptedPrivateKey = response.encryptedPrivateKey.encryptedString;
+    options.encryptedUserKey = response.encryptedUserKey.encryptedString;
+    options.credentialId = response.credentialId;
+    options.transports = response.transports || [];
+    return options;
+  }
+
+  /**
+   * Initializes a new instance of a WebAuthnPrfUserDecryptionOption from a JSON object.
+   * @param obj JSON object to deserialize.
+   * @returns A new instance of the WebAuthnPrfUserDecryptionOption or undefined if `obj` is nullish.
+   */
+  static fromJSON(
+    obj: Jsonify<WebAuthnPrfUserDecryptionOption>,
+  ): WebAuthnPrfUserDecryptionOption | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+    return Object.assign(new WebAuthnPrfUserDecryptionOption(), obj);
   }
 }
 
@@ -104,6 +160,8 @@ export class UserDecryptionOptions {
   trustedDeviceOption?: TrustedDeviceUserDecryptionOption;
   /** {@link KeyConnectorUserDecryptionOption} */
   keyConnectorOption?: KeyConnectorUserDecryptionOption;
+  /** Array of {@link WebAuthnPrfUserDecryptionOption} */
+  webAuthnPrfOptions?: WebAuthnPrfUserDecryptionOption[];
 
   /**
    * Initializes a new instance of the UserDecryptionOptions from a response object.
@@ -134,6 +192,18 @@ export class UserDecryptionOptions {
       decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromResponse(
         responseOptions.keyConnectorOption,
       );
+
+      // The IdTokenResponse only returns a single WebAuthn PRF option to support immediate unlock after logging in
+      // with the same PRF passkey.
+      // Since our domain model supports multiple WebAuthn PRF options, we convert the single option into an array.
+      if (responseOptions.webAuthnPrfOption) {
+        const option = WebAuthnPrfUserDecryptionOption.fromResponse(
+          responseOptions.webAuthnPrfOption,
+        );
+        if (option) {
+          decryptionOptions.webAuthnPrfOptions = [option];
+        }
+      }
     } else {
       throw new Error(
         "User Decryption Options are required for client initialization. userDecryptionOptions is missing in response.",
@@ -157,6 +227,12 @@ export class UserDecryptionOptions {
     decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromJSON(
       obj?.keyConnectorOption,
     );
+
+    if (obj?.webAuthnPrfOptions && Array.isArray(obj.webAuthnPrfOptions)) {
+      decryptionOptions.webAuthnPrfOptions = obj.webAuthnPrfOptions
+        .map((option) => WebAuthnPrfUserDecryptionOption.fromJSON(option))
+        .filter((option) => option !== undefined);
+    }
 
     return decryptionOptions;
   }

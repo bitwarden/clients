@@ -1,7 +1,13 @@
+@let providerId = providerId$ | async;
+@let bulkMenuOptions = bulkMenuOptions$ | async;
+@let showConfirmBanner = showConfirmBanner$ | async;
+@let dataSource = this.dataSource();
+@let isProcessing = this.isProcessing();
+
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
   </bit-search>
-  <button type="button" bitButton buttonType="primary" (click)="invite()">
+  <button type="button" bitButton buttonType="primary" (click)="edit(providerId)">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "inviteMember" | i18n }}
   </button>
@@ -13,28 +19,28 @@
     (selectedChange)="statusToggle.next($event)"
     [attr.aria-label]="'memberStatusFilter' | i18n"
   >
-    <bit-toggle [value]="null">
+    <bit-toggle [value]="undefined">
       {{ "all" | i18n }}
-      <span bitBadge variant="info" *ngIf="dataSource.activeUserCount as allCount">
-        {{ allCount }}
-      </span>
+      @if (dataSource.activeUserCount; as allCount) {
+        <span bitBadge variant="info">{{ allCount }}</span>
+      }
     </bit-toggle>
     <bit-toggle [value]="userStatusType.Invited">
       {{ "invited" | i18n }}
-      <span bitBadge variant="info" *ngIf="dataSource.invitedUserCount as invitedCount">
-        {{ invitedCount }}
-      </span>
+      @if (dataSource.invitedUserCount; as invitedCount) {
+        <span bitBadge variant="info">{{ invitedCount }}</span>
+      }
     </bit-toggle>
     <bit-toggle [value]="userStatusType.Accepted">
       {{ "needsConfirmation" | i18n }}
-      <span bitBadge variant="info" *ngIf="dataSource.acceptedUserCount as acceptedCount">
-        {{ acceptedCount }}
-      </span>
+      @if (dataSource.acceptedUserCount; as acceptedCount) {
+        <span bitBadge variant="info">{{ acceptedCount }}</span>
+      }
     </bit-toggle>
   </bit-toggle-group>
 </div>
 
-<ng-container *ngIf="!firstLoaded">
+@if (!firstLoaded()) {
   <i
     class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
@@ -42,19 +48,16 @@
   >
   </i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-</ng-container>
-
-<ng-container *ngIf="firstLoaded">
-  <p *ngIf="!dataSource.filteredData.length">{{ "noMembersInList" | i18n }}</p>
-  <ng-container *ngIf="dataSource.filteredData.length">
-    <bit-callout
-      type="info"
-      title="{{ 'confirmUsers' | i18n }}"
-      icon="bwi-check-circle"
-      *ngIf="showConfirmUsers"
-    >
-      {{ "providerUsersNeedConfirmed" | i18n }}
-    </bit-callout>
+} @else {
+  @if (!dataSource.filteredData?.length) {
+    <p>{{ "noMembersInList" | i18n }}</p>
+  }
+  @if (dataSource.filteredData?.length) {
+    @if (showConfirmBanner) {
+      <bit-callout type="info" title="{{ 'confirmUsers' | i18n }}" icon="bwi-check-circle">
+        {{ "providerUsersNeedConfirmed" | i18n }}
+      </bit-callout>
+    }
     <cdk-virtual-scroll-viewport bitScrollLayout [itemSize]="rowHeight" class="tw-pb-8">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
@@ -82,27 +85,33 @@
                 label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #headerMenu>
+                @if (bulkMenuOptions.showBulkReinviteUsers) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : bulkReinvite(providerId)"
+                  >
+                    <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                    {{ "reinviteSelected" | i18n }}
+                  </button>
+                }
+                @if (bulkMenuOptions.showBulkConfirmUsers) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : bulkConfirm(providerId)"
+                  >
+                    <span class="tw-text-success">
+                      <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                      {{ "confirmSelected" | i18n }}
+                    </span>
+                  </button>
+                }
                 <button
                   type="button"
                   bitMenuItem
-                  (click)="bulkReinvite()"
-                  *ngIf="showBulkReinviteUsers"
+                  (click)="isProcessing ? null : bulkRemove(providerId)"
                 >
-                  <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                  {{ "reinviteSelected" | i18n }}
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  (click)="bulkConfirm()"
-                  *ngIf="showBulkConfirmUsers"
-                >
-                  <span class="tw-text-success">
-                    <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                    {{ "confirmSelected" | i18n }}
-                  </span>
-                </button>
-                <button type="button" bitMenuItem (click)="bulkRemove()">
                   <span class="tw-text-danger">
                     <i aria-hidden="true" class="bwi bwi-close"></i>
                     {{ "remove" | i18n }}
@@ -122,7 +131,7 @@
             <td bitCell (click)="dataSource.checkUser(user)">
               <input type="checkbox" bitCheckbox [(ngModel)]="$any(user).checked" />
             </td>
-            <td bitCell (click)="edit(user)" class="tw-cursor-pointer">
+            <td bitCell (click)="edit(providerId, user)" class="tw-cursor-pointer">
               <div class="tw-flex tw-items-center">
                 <bit-avatar
                   size="small"
@@ -132,44 +141,41 @@
                   class="tw-mr-3"
                 ></bit-avatar>
                 <div class="tw-flex tw-flex-col">
-                  <div>
+                  <div class="tw-flex tw-flex-row tw-gap-2">
                     <button type="button" bitLink>
                       {{ user.name ?? user.email }}
                     </button>
-                    <span
-                      bitBadge
-                      class="tw-text-xs"
-                      variant="secondary"
-                      *ngIf="user.status === userStatusType.Invited"
-                    >
-                      {{ "invited" | i18n }}
-                    </span>
-                    <span
-                      bitBadge
-                      class="tw-text-xs"
-                      variant="warning"
-                      *ngIf="user.status === userStatusType.Accepted"
-                    >
-                      {{ "needsConfirmation" | i18n }}
-                    </span>
-                    <span
-                      bitBadge
-                      class="tw-text-xs"
-                      variant="secondary"
-                      *ngIf="user.status === userStatusType.Revoked"
-                    >
-                      {{ "revoked" | i18n }}
-                    </span>
+                    @if (user.status === userStatusType.Invited) {
+                      <span bitBadge class="tw-text-xs" variant="secondary">
+                        {{ "invited" | i18n }}
+                      </span>
+                    }
+                    @if (user.status === userStatusType.Accepted) {
+                      <span bitBadge class="tw-text-xs" variant="warning">
+                        {{ "needsConfirmation" | i18n }}
+                      </span>
+                    }
+                    @if (user.status === userStatusType.Revoked) {
+                      <span bitBadge class="tw-text-xs" variant="secondary">
+                        {{ "revoked" | i18n }}
+                      </span>
+                    }
                   </div>
-                  <div class="tw-text-sm tw-text-muted" *ngIf="user.name">
-                    {{ user.email }}
-                  </div>
+                  @if (user.name) {
+                    <div class="tw-text-sm tw-text-muted">
+                      {{ user.email }}
+                    </div>
+                  }
                 </div>
               </div>
             </td>
             <td bitCell class="tw-text-muted">
-              <span *ngIf="user.type === userType.ProviderAdmin">{{ "providerAdmin" | i18n }}</span>
-              <span *ngIf="user.type === userType.ServiceUser">{{ "serviceUser" | i18n }}</span>
+              @if (user.type === userType.ProviderAdmin) {
+                <span>{{ "providerAdmin" | i18n }}</span>
+              }
+              @if (user.type === userType.ServiceUser) {
+                <span>{{ "serviceUser" | i18n }}</span>
+              }
             </td>
             <td bitCell>
               <button
@@ -180,36 +186,43 @@
                 label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #rowMenu>
+                @if (user.status === userStatusType.Invited) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : reinvite(user, providerId)"
+                  >
+                    <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                    {{ "resendInvitation" | i18n }}
+                  </button>
+                }
+                @if (user.status === userStatusType.Accepted) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : confirm(user, providerId)"
+                  >
+                    <span class="tw-text-success">
+                      <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                      {{ "confirm" | i18n }}
+                    </span>
+                  </button>
+                }
+                @if (accessEvents && user.status === userStatusType.Confirmed) {
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : openEventsDialog(user, providerId)"
+                  >
+                    <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
+                    {{ "eventLogs" | i18n }}
+                  </button>
+                }
                 <button
                   type="button"
                   bitMenuItem
-                  (click)="reinvite(user)"
-                  *ngIf="user.status === userStatusType.Invited"
+                  (click)="isProcessing ? null : remove(user, providerId)"
                 >
-                  <i aria-hidden="true" class="bwi bwi-envelope"></i>
-                  {{ "resendInvitation" | i18n }}
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  (click)="confirm(user)"
-                  *ngIf="user.status === userStatusType.Accepted"
-                >
-                  <span class="tw-text-success">
-                    <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                    {{ "confirm" | i18n }}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  (click)="openEventsDialog(user)"
-                  *ngIf="user.status === userStatusType.Confirmed"
-                >
-                  <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
-                  {{ "eventLogs" | i18n }}
-                </button>
-                <button type="button" bitMenuItem (click)="remove(user)">
                   <span class="tw-text-danger">
                     <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
                     {{ "remove" | i18n }}
@@ -221,5 +234,5 @@
         </ng-template>
       </bit-table>
     </cdk-virtual-scroll-viewport>
-  </ng-container>
-</ng-container>
+  }
+}

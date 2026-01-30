@@ -42,9 +42,23 @@
                   <app-vault-icon [cipher]="cipher"></app-vault-icon>
                 </div>
                 <span data-testid="item-name">{{ cipher.name }}</span>
-                @if (CipherViewLikeUtils.hasAttachments(cipher)) {
-                  <i class="bwi bwi-paperclip bwi-sm" [appA11yTitle]="'attachments' | i18n"></i>
-                }
+                <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+                  @if (cipher.organizationId) {
+                    <i
+                      appOrgIcon
+                      [tierType]="orgTierType(cipher)"
+                      [size]="'small'"
+                      [appA11yTitle]="orgIconTooltip(cipher)"
+                    ></i>
+                  }
+                  @if (CipherViewLikeUtils.hasAttachments(cipher)) {
+                    <i
+                      slot="default-trailing"
+                      class="bwi bwi-paperclip bwi-sm"
+                      [appA11yTitle]="'attachments' | i18n"
+                    ></i>
+                  }
+                </div>
                 <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
               </button>
               <bit-item-action slot="end">

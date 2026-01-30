@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Seçilenleri geri yükle"
   },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
+  },
+  "archivedItemsRestored": {
+    "message": "Arşivlenmiş kayıtlar geri getirildi"
+  },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
   },
@@ -5620,13 +5626,13 @@
     "message": "Send başarıyla oluşturuldu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Belirlediğiniz kişiler bağlantıyı önümüzdeki $TIME$ boyunca kullanabilir.",
+  "sendCreatedDescriptionV2": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya sahip herkes ulaşabilecektir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Kuruluş veri sahipliğini zorunlu kılın"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Kasa olay verilerini Datadog örneğinize gönderin"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "İndeks"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Bir plan seçin"
@@ -11701,8 +11747,8 @@
     "message": "Kaydı arşivle",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Kayıtları arşivle",
@@ -12054,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Şimdi doğrulayın."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Ek depolama alanı GB"
@@ -12626,5 +12681,8 @@
   },
   "youHavePremium": {
     "message": "Premium abonesiniz"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }

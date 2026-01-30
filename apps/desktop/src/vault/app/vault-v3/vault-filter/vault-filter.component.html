@@ -6,11 +6,11 @@
   <bit-nav-group icon="bwi-vault" [text]="'vault' | i18n" route="new-vault">
     <app-organization-filter
       [activeFilter]="activeFilter()"
-      [organizations]="organizations$ | async"
+      [organizations]="organizations()"
       [activeOrganizationDataOwnership]="activeOrganizationDataOwnershipPolicy"
       [activeSingleOrganizationPolicy]="activeSingleOrganizationPolicy"
     />
-    <app-type-filter [activeFilter]="activeFilter()" [cipherTypes]="cipherTypes$ | async" />
+    <app-type-filter [activeFilter]="activeFilter()" [cipherTypes]="cipherTypes()" />
     <app-status-filter [hideArchive]="!showArchiveVaultFilter" [activeFilter]="activeFilter()" />
     @if (showCollectionsFilter()) {
       <bit-nav-group
@@ -20,7 +20,7 @@
         [appA11yTitle]="'collections' | i18n"
         [disableToggleOnClick]="true"
       >
-        @for (collection of (collections$ | async)?.children ?? []; track collection.node.id) {
+        @for (collection of collections()?.children ?? []; track collection.node.id) {
           <app-collection-filter [activeFilter]="activeFilter()" [collection]="collection" />
         }
       </bit-nav-group>
@@ -32,7 +32,7 @@
       [appA11yTitle]="'folders' | i18n"
       [disableToggleOnClick]="true"
     >
-      @for (folder of (folders$ | async)?.children ?? []; track folder.node.id) {
+      @for (folder of folders()?.children ?? []; track folder.node.id) {
         <app-folder-filter
           [activeFilter]="activeFilter()"
           [folder]="folder"

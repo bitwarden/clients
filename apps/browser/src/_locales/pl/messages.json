@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Logowanie kluczem dostępu"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Użyj logowania jednokrotnego"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Archiwizuj element"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -980,6 +989,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Lokalizacja"
@@ -1539,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
   },
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "Adres e-mail"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Numer telefonu"
   },
@@ -2457,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Element został trwale usunięty"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Przywróć element"
@@ -3348,6 +3378,12 @@
   },
   "error": {
     "message": "Błąd"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Błąd odszyfrowywania"
@@ -4724,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Więcej opcji"
+  },
   "moreOptionsTitle": {
     "message": "Więcej opcji - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4815,7 +4854,7 @@
     "message": "Konsola administratora"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Administrator"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4971,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Pobierz załącznik"
+  },
   "downloadBitwarden": {
     "message": "Pobierz Bitwarden"
   },
@@ -5110,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ukryj wykrywanie dopasowania $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Pokaż wykrywanie dopasowania"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ukryj wykrywanie dopasowania"
   },
   "autoFillOnPageLoad": {
     "message": "Włączyć autouzupełnianie po załadowaniu strony?"
@@ -5655,6 +5694,9 @@
   "extraWide": {
     "message": "Bardzo szeroka"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Hasło jest nieprawidłowe."
   },
@@ -6087,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
