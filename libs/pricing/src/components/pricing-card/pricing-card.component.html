@@ -28,9 +28,9 @@
             | currency: "$" : true : (priceValue.amount % 1 === 0 ? "1.0-0" : "1.2-2")
         }}</span>
         <span bitTypography="helper" class="tw-text-muted">
-          / {{ priceValue.cadence }}
+          / {{ priceValue.cadence | i18n }}
           @if (priceValue.showPerUser) {
-            per user
+            {{ "perUser" | i18n }}
           }
         </span>
       </div>
