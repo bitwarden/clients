@@ -10752,6 +10752,12 @@
   "memberAccessReportDesc": {
     "message": "Ensure members have access to the right credentials and their accounts are secure. Use this report to obtain a CSV of member access and account configurations."
   },
+  "accessIntelligencePrototype": {
+    "message": "Access Intelligence (Prototype)"
+  },
+  "accessIntelligencePrototypeDesc": {
+    "message": "Analyze password health and member access across your organization's vault items."
+  },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
