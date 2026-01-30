@@ -321,7 +321,7 @@ export default class NotificationBackground {
       type: CipherType.Login,
       reprompt,
       favorite,
-      ...(organizationCategories.length ? { organizationCategories } : {}),
+      ...(organizationCategories.length > 0 ? { organizationCategories } : {}),
       icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
       login: login && { username: login.username },
     };
@@ -338,7 +338,7 @@ export default class NotificationBackground {
     activeUserId: UserId,
   ): Promise<LoginSecurityTaskInfo | null> {
     const tasks: SecurityTask[] = await this.getSecurityTasks(activeUserId);
-    if (!tasks?.length) {
+    if (!(tasks?.length > 0)) {
       return null;
     }
 
@@ -346,7 +346,7 @@ export default class NotificationBackground {
       modifyLoginData.uri,
       activeUserId,
     );
-    if (!urlCiphers?.length) {
+    if (!(urlCiphers?.length > 0)) {
       return null;
     }
 
@@ -907,13 +907,14 @@ export default class NotificationBackground {
 
     if (
       ciphers.length > 0 &&
-      currentPasswordFieldValue?.length &&
+      (currentPasswordFieldValue?.length || 0) > 0 &&
       // Only use current password for change if no new password present.
       !newPasswordFieldValue
     ) {
       const currentPasswordMatchesAnExistingValue = ciphers.some(
         (cipher) =>
-          cipher.login?.password?.length && cipher.login.password === currentPasswordFieldValue,
+          (cipher.login?.password?.length || 0) > 0 &&
+          cipher.login.password === currentPasswordFieldValue,
       );
 
       // The password entered matched a stored cipher value with
@@ -1027,7 +1028,7 @@ export default class NotificationBackground {
     }
 
     // If ciphers match entered username and new password values
-    if (usernameNewPasswordMatches.length) {
+    if (usernameNewPasswordMatches.length > 0) {
       // Early exit in these scenarios as they represent "no change"
       if (
         (
@@ -1042,7 +1043,7 @@ export default class NotificationBackground {
     }
 
     // If ciphers match entered username and password values
-    if (usernamePasswordMatches.length) {
+    if (usernamePasswordMatches.length > 0) {
       // and username, password, and new password values were entered
       if (
         inputScenario === inputScenarios.usernamePasswordNewPassword &&
@@ -1065,7 +1066,7 @@ export default class NotificationBackground {
     }
 
     // If ciphers match entered username value (only)
-    if (usernameOnlyMatches.length) {
+    if (usernameOnlyMatches.length > 0) {
       if (
         (
           [
@@ -1094,7 +1095,7 @@ export default class NotificationBackground {
     }
 
     // If ciphers match entered new password value (only)
-    if (newPasswordOnlyMatches.length) {
+    if (newPasswordOnlyMatches.length > 0) {
       // Early exit in these scenarios
       if (
         (
@@ -1124,7 +1125,7 @@ export default class NotificationBackground {
     }
 
     // If ciphers match entered password value (only)
-    if (passwordOnlyMatches.length) {
+    if (passwordOnlyMatches.length > 0) {
       if (
         (
           [
