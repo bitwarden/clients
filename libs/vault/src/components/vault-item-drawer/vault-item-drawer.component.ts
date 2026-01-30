@@ -684,16 +684,6 @@ export class VaultItemDrawerComponent implements OnInit, OnDestroy {
     this.updateTitle();
     // Scroll to the top of the dialog content when switching modes.
     this.dialogContent.nativeElement.parentElement.scrollTop = 0;
-
-    // Update the URL query params to reflect the new mode.
-    await this.router.navigate([], {
-      queryParams: {
-        action: mode === "form" ? "edit" : "view",
-        itemId: this.cipher?.id,
-      },
-      queryParamsHandling: "merge",
-      replaceUrl: true,
-    });
   }
 
   /**

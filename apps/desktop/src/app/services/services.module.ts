@@ -596,6 +596,7 @@ const safeProviders: SafeProvider[] = [
     deps: [DialogService],
   }),
 ];
+
 @NgModule({
   imports: [JslibServicesModule, GeneratorServicesModule],
   declarations: [],
