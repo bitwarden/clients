@@ -15,6 +15,10 @@ apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-managemen
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
+# Web connectors
+apps/web/src/connectors @bitwarden/team-auth-dev
+apps/web/src/connectors/platform @bitwarden/team-platform-dev
+
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev
 apps/cli/src/auth @bitwarden/team-auth-dev
@@ -22,8 +26,6 @@ apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/app/auth @bitwarden/team-auth-dev
 libs/auth @bitwarden/team-auth-dev
 libs/user-core @bitwarden/team-auth-dev
-# web connectors used for auth
-apps/web/src/connectors @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
 libs/angular/src/auth @bitwarden/team-auth-dev
 libs/common/src/auth @bitwarden/team-auth-dev
