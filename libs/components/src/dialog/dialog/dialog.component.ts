@@ -14,8 +14,8 @@ import {
   AfterViewInit,
   NgZone,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap, take } from "rxjs";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -67,6 +67,8 @@ const drawerSizeToWidth = {
 export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly el = inject(ElementRef);
+
   private readonly dialogHeader =
     viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
   private readonly scrollableBody = viewChild.required(CdkScrollable);
@@ -146,7 +148,7 @@ export class DialogComponent implements AfterViewInit {
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     /**
      * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
      * child elements are rendered and stable.
@@ -154,9 +156,8 @@ export class DialogComponent implements AfterViewInit {
     if (this.ngZone.isStable) {
       this.handleAutofocus();
     } else {
-      this.ngZone.onStable
-        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-        .subscribe(this.handleAutofocus.bind(this));
+      await firstValueFrom(this.ngZone.onStable);
+      this.handleAutofocus();
     }
   }
 
@@ -168,17 +169,15 @@ export class DialogComponent implements AfterViewInit {
    * choose the dialog header as the default fallback for dialog focus because it is always present,
    * unlike possible interactive elements.
    */
-  private handleAutofocus() {
+  handleAutofocus() {
     /**
      * Angular's contentChildren query cannot see into the internal templates of child components.
      * We need to use a regular DOM query instead to see if there are descendants using the
      * AutofocusDirective.
      */
-    const scrollableContentEl = this.scrollableBody().getElementRef().nativeElement;
+    const dialogRef = this.el.nativeElement;
     // Must match selectors of AutofocusDirective
-    const autofocusDescendants = scrollableContentEl.querySelectorAll(
-      "[appAutofocus], [bitAutofocus]",
-    );
+    const autofocusDescendants = dialogRef.querySelectorAll("[appAutofocus], [bitAutofocus]");
     const hasAutofocusDescendants = autofocusDescendants.length > 0;
 
     if (!hasAutofocusDescendants) {
