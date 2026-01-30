@@ -1,6 +1,6 @@
 <ng-container *ngIf="view$ | async as view">
   <button
-    class="account-switcher"
+    type="button"
     (click)="toggle()"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
@@ -41,6 +41,7 @@
     >
       <div class="accounts" *ngIf="view.numberOfAccounts > 0">
         <button
+          type="button"
           *ngFor="let account of view.inactiveAccounts | keyvalue"
           class="account"
           (click)="switch(account.key)"
