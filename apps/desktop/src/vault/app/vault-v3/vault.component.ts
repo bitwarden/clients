@@ -183,13 +183,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => !!account),
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ),
-  );
-
   protected hasArchivedCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
