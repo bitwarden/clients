@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Žádné ohrožené kritické aplikace"
   },
+  "critical": {
+    "message": "Kritické ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nekritické ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Přístup k inteligenci"
   },
@@ -248,6 +266,9 @@
     "message": "Nepodařilo se označit aplikace jako kritické"
   },
   "application": {
+    "message": "Aplikace"
+  },
+  "applications": {
     "message": "Aplikace"
   },
   "atRiskPasswords": {
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-mail"
+  },
+  "emails": {
+    "message": "E-maily"
   },
   "phone": {
     "message": "Telefon"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "noAuth": {
+    "message": "Kdokoli s odkazem"
+  },
+  "anyOneWithPassword": {
+    "message": "Kdokoli s heslem od Vás"
   },
   "location": {
     "message": "Umístění"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Další platba"
+  },
+  "nextChargeDate": {
+    "message": "Datum další platby"
   },
   "plan": {
     "message": "Plán"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace Vám brání v exportu Vašeho osobního trezoru."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Aktivovat automatické vyplnění"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Aktivuje automatické vyplnění při načítání stránky pro rozšíření prohlížeče pro všechny existující i nové členy."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Kompromitované nebo nedůvěryhodné webové stránky mohou zneužívat automatické vyplňování při načítání stránky."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Více informací o automatickém vyplňování"
   },
   "selectType": {
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden se pokusí uplatnit doménu třikrát během prvních 72 hodin. Pokud doménu nelze uplatnit, zkontrolujte záznam DNS v hostitelském počítači a uplatněte ji ručně. Pokud se doménu nepodaří uplatnit, bude z Vaší organizace odebrána do 7 dnů."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden se pokusí nárokovat doménu do 72 hodin. Pokud doménu nelze nárokovat, ověřte svůj DNS záznam a nárokujte ručně. Nenárokované domény jsou odebrány po 7 dnech."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Po nárokování budou stávající členové s nárokovanými doménami obeznámeni e-mailem o "
+  },
+  "accountOwnershipChange": {
+    "message": "změně vlastnictví účtu"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nebyla uplatněna. Zkontrolujte DNS záznamy.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Uplatněno"
   },
-  "domainStatusUnderVerification": {
-    "message": "V ověřování"
+  "domainStatusPending": {
+    "message": "Čekající"
   },
   "claimedDomainsDescription": {
     "message": "Požádejte o doménu, abyste mohli vlastnit členské účty. Stránka s identifikátorem SSO bude při přihlašování členů s deklarovanými doménami přeskočena a správci budou moci deklarované účty smazat."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
   },
+  "whoCanView": {
+    "message": "Kdo může zobrazit"
+  },
+  "specificPeople": {
+    "message": "Vybraní lidé"
+  },
+  "emailVerificationDesc": {
+    "message": "Po sdílení tohoto odkazu Send budou muset jednotlivci ověřit svůj e-mail pomocí kódu pro zobrazení tohoto Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadejte více e-mailů oddělených čárkou."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-mail je chráněný"
+  },
+  "invalidSendPassword": {
+    "message": "Neplatné heslo k Send"
   }
 }

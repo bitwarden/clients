@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Não há aplicações críticas em risco"
   },
+  "critical": {
+    "message": "Críticas ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Não críticas ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Inteligência de Acesso"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Aplicação"
+  },
+  "applications": {
+    "message": "Aplicações"
   },
   "atRiskPasswords": {
     "message": "Palavras-passe em risco"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-mail"
+  },
+  "emails": {
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefone"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Não"
+  },
+  "noAuth": {
+    "message": "Qualquer pessoa com o link"
+  },
+  "anyOneWithPassword": {
+    "message": "Qualquer pessoa com uma palavra-passe definida por si"
   },
   "location": {
     "message": "Localização"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Próxima cobrança"
+  },
+  "nextChargeDate": {
+    "message": "Próxima data de cobrança"
   },
   "plan": {
     "message": "Plano"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Uma ou mais políticas da organização impedem-no de exportar o seu cofre pessoal."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Ativar o preenchimento automático"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Ative a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros existentes e novos."
+  "activateAutofillPolicyDescription": {
+    "message": "Ative a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros atuais e novos."
   },
-  "experimentalFeature": {
-    "message": "Os sites comprometidos ou não fiáveis podem explorar o preenchimento automático ao carregar a página."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Saber mais sobre o preenchimento automático"
   },
   "selectType": {
@@ -8035,7 +8068,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor introduzido deve ser, no mínimo, $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "O Bitwarden tentará reivindicar o domínio 3 vezes durante as primeiras 72 horas. Se o domínio não puder ser reivindicado, verifique o registo DNS no seu anfitrião e reivindique manualmente. O domínio será removido da sua organização em 7 dias se não for reivindicado."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "O Bitwarden tentará reclamar o domínio no prazo de 72 horas. Caso não seja possível reclamar o domínio, verifique o registo DNS e faça a reclamação manualmente. Os domínios não reclamados são removidos após 7 dias."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Após a reclamação, os membros existentes com domínios reclamados serão notificados por e-mail sobre a "
+  },
+  "accountOwnershipChange": {
+    "message": "alteração da titularidade da conta"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ não reivindicado. Verifique o seu registo DNS.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Reivindicado"
   },
-  "domainStatusUnderVerification": {
-    "message": "Sob verificação"
+  "domainStatusPending": {
+    "message": "Pendente"
   },
   "claimedDomainsDescription": {
     "message": "Reivindique um domínio para possuir contas de membros. A página do identificador SSO será ignorada durante o início de sessão para membros com domínios reivindicados e os administradores poderão eliminar contas reivindicadas."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Utilizou os $GB$ GB do seu armazenamento encriptado. Para continuar a guardar ficheiros, adicione mais espaço de armazenamento."
   },
+  "whoCanView": {
+    "message": "Quem pode ver"
+  },
+  "specificPeople": {
+    "message": "Pessoas específicas"
+  },
+  "emailVerificationDesc": {
+    "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Introduza vários e-mails, separados por vírgula."
+  },
+  "emailPlaceholder": {
+    "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Ao remover espaço de armazenamento, receberá um crédito proporcional na conta, que será automaticamente aplicado na sua próxima fatura."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-mail protegido"
+  },
+  "invalidSendPassword": {
+    "message": "Palavra-passe do Send inválida"
   }
 }

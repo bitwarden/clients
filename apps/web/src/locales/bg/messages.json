@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Няма важни приложения в риск"
   },
+  "critical": {
+    "message": "Критични ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Некритични ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Анализ на достъпа"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Приложение"
+  },
+  "applications": {
+    "message": "Приложения"
   },
   "atRiskPasswords": {
     "message": "Пароли в риск"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Електронна поща"
+  },
+  "emails": {
+    "message": "Е-пощи"
   },
   "phone": {
     "message": "Телефон"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Не"
+  },
+  "noAuth": {
+    "message": "Всеки с връзката"
+  },
+  "anyOneWithPassword": {
+    "message": "Всеки с парола, зададена от Вас"
   },
   "location": {
     "message": "Местоположение"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Следващо плащане"
+  },
+  "nextChargeDate": {
+    "message": "Следваща дата за таксуване"
   },
   "plan": {
     "message": "План"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Една или повече от настройките на организацията Ви не позволяват да изнасяте личния си трезор."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Включване на автоматичното попълване"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Включване на автоматичното попълване при зареждане на страница в браузърното разширение на всички текущи и бъдещи членове."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Компроментирани и измамни уеб сайтове могат да се възползват от автоматичното попълване при зареждане на страницата."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Научете повече относно автоматичното попълване"
   },
   "selectType": {
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Битуорден ще се опита да присвои домейна 3 пъти през първите 72 часа. Ако той не може да бъде присвоен, проверете записа за DNS в сървъра си и направете присвояването ръчно. Домейнът ще бъде премахнат от организацията Ви след 7 дни, ако не бъде присвоен."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Битуорден ще се опита да присвои домейна в рамките на 72 часа. Ако той не може да бъде присвоен, проверете записа си в DNS и направете присвояването ръчно. Неприсвоените домейни се премахват след 7 дни."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "След присвояването, текущите членове с присвоени домейни ще получат е-писмо относно "
+  },
+  "accountOwnershipChange": {
+    "message": "промяната на собствеността на акаунта"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "Домейнът $DOMAIN$ не е присвоен. Проверете записите в DNS.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Присвоен"
   },
-  "domainStatusUnderVerification": {
-    "message": "В процес на проверка"
+  "domainStatusPending": {
+    "message": "На изчакване"
   },
   "claimedDomainsDescription": {
     "message": "Присвойте домейн, за да притежавате акаунтите на членовете. Страницата за еднократно удостоверяване ще бъде пропускана при вписването на членове с присвоени домейни, а администраторите ще могат да изтриват присвоените акаунти."
@@ -12102,13 +12147,13 @@
     "message": "Потвърдете сега."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Отключване със секретен ключ"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Отключването със секретен ключ не беше успешно. Опитайте отново или използвайте друг начин за отключване."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Няма секретни ключове с включено PRF, налични за отключване."
   },
   "additionalStorageGB": {
     "message": "Допълнително място в ГБ"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Използвали сте всичките си $GB$ GB от наличното си място за съхранение на шифровани данни. Ако искате да продължите да добавяте файлове, добавете повече място за съхранение."
   },
+  "whoCanView": {
+    "message": "Кой може да преглежда"
+  },
+  "specificPeople": {
+    "message": "Определени хора"
+  },
+  "emailVerificationDesc": {
+    "message": "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
+  },
+  "emailPlaceholder": {
+    "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Когато премахнете съхранението, ще получите пропорционално задължение към акаунта си, което ще бъде включено автоматично в следващата Ви сметка."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Е-пощата е защитена"
+  },
+  "invalidSendPassword": {
+    "message": "Неправилна парола за Изпращане"
   }
 }

@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Никакие критичные приложения не подвергаются риску"
   },
+  "critical": {
+    "message": "Критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Не критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Приложение"
+  },
+  "applications": {
+    "message": "Приложения"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Телефон"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Следующий платеж"
+  },
+  "nextChargeDate": {
+    "message": "Дата следующего платежа"
   },
   "plan": {
     "message": "План"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Одна или несколько политик организации запрещают вам экспортировать личное хранилище."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Активировать автозаполнение"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Включить автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых участников."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Взломанные или недоверенные сайты могут внедрить вредоносный код во время автозаполнения при загрузке страницы."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Узнать больше об автозаполнении"
   },
   "selectType": {
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden попытается зарегистрировать домен 3 раза в течение первых 72 часов. Если домен не удастся зарегистрировать, проверьте запись DNS на вашем хосте и зарегистрируйте вручную. Домен будет удален из вашей организации через 7 дней, если он не будет зарегистрирован."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden попытается заявить права на домен в течение 72 часов. Если домен не может быть заявлен, проверьте свою запись в DNS и подайте заявку вручную. Невостребованные домены удаляются через 7 дней."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "После подачи заявки существующим участникам с заявленными доменами будет отправлено электронное письмо с информацией об "
+  },
+  "accountOwnershipChange": {
+    "message": "изменении владельца аккаунта"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ не зарегистрирован. Проверьте записи DNS.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Зарегистрирован"
   },
-  "domainStatusUnderVerification": {
-    "message": "Проверяется"
+  "domainStatusPending": {
+    "message": "Ожидание"
   },
   "claimedDomainsDescription": {
     "message": "Заявите права на домен, чтобы владеть аккаунтами членов. Страница идентификатора SSO будет пропущена при пользователей с заявленными доменами, а администраторы смогут удалять заявленные аккаунты."
@@ -12102,13 +12147,13 @@
     "message": "Подтвердить сейчас."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Разблокировать при помощи passkey"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF."
   },
   "additionalStorageGB": {
     "message": "Дополнительные ГБ хранилища"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
   },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Email защищен"
+  },
+  "invalidSendPassword": {
+    "message": "Неверный пароль Send"
   }
 }

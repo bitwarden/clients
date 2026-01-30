@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nie sú ohrozené žiadne kritické aplikácie"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Prehľad o prístupe"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Aplikácia"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Ohrozených hesiel"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefón"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Poloha"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Ďalšia platba"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Plán"
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna alebo viacero zásad organizácie vám bráni exportovať váš osobný trezor."
   },
-  "activateAutofill": {
-    "message": "Activate auto-fill"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Aktivujte nastavenie automatického vypĺňania pri načítaní stránky v rozšírení pre prehliadač pre všetkých súčasných a nových členov."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit auto-fill on page load."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Learn more about auto-fill"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Vyberte typ SSO"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden sa pokúsi privlastniť doménu 3 krát počas prvých 72 hodín. Ak sa doménu nepodarilo privlastniť, skontrolujte DNS záznam u svojho hostiteľa a privlastnite manuálne. Doména bude z organizácie odstránená po 7 dňoch ak nie je privlastnená."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nie je privlastnená. Overte si DNS záznam.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Privlastnená"
   },
-  "domainStatusUnderVerification": {
-    "message": "Overuje sa"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Privlastnite si doménu, aby ste mohli vlastniť členské účty. Stránka s identifikátorom SSO bude pri prihlásení členov s privlastnenými doménami preskočená a správcovia budú môcť členské účty odstrániť."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Použili ste všetkých $GB$ GB vášho šifrovaného úložiska. Ak chcete uložiť ďalšie súbory, pridajte viac úložiska."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Ak odstránite úložisko, dostanete na váš účet proporcionálny kredit ktorý sa automaticky použije pri najbližšej faktúre."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Email chránený"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

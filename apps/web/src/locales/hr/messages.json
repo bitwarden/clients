@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nema kritičnih aplikacija u opasnosti"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Pristup inteligenciji"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Aplikacija"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Rizične lozinke"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-pošta"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefon"
@@ -1365,6 +1389,12 @@
   "no": {
     "message": "Ne"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "Lokacija"
   },
@@ -1750,7 +1780,7 @@
     "message": "Nema članova za prikaz."
   },
   "noMembersToExport": {
-    "message": "There are no members to export."
+    "message": "Nema članova za izvoz."
   },
   "noEventsInList": {
     "message": "Nema događaja za prikaz."
@@ -2541,7 +2571,7 @@
     "message": "Omogućeno"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Uključeno"
   },
   "restoreAccess": {
     "message": "Vrati pristup"
@@ -2641,7 +2671,7 @@
     "message": "Ključ"
   },
   "unnamedKey": {
-    "message": "Unnamed key"
+    "message": "Neimenovani ključ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Kôd za provjeru"
@@ -3153,7 +3183,7 @@
     "message": "Za ponovni pristup svojoj arhivi, ponovno pokreni Premium pretplatu. Ako urediš detalje arhivirane stavke prije ponovnog pokretanja, ona će biti vraćena u tvoj trezor."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Stavka je vraćena"
   },
   "restartPremium": {
     "message": "Ponovno Pokreni Premium"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Sljedeća naplata"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Paket"
@@ -5195,10 +5228,10 @@
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Popravi šifriranje"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Ova datoteka koristi zastarjelu metodu šifriranja."
   },
   "attachmentUpdated": {
     "message": "Privitak ažuriran"
@@ -5207,7 +5240,7 @@
     "message": "Postoje stari privitci u tvom trezoru koje je potrebno popraviti prije rotacije ključa za šifriranje."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Stavke prenesene"
   },
   "yourAccountsFingerprint": {
     "message": "Jedinstvena fraza tvog računa",
@@ -5419,10 +5452,10 @@
     "message": "Vrati odabrano"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arhivirana stavka vraćena"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Arhivirane stavke vraćene"
   },
   "restoredItem": {
     "message": "Stavka vraćena"
@@ -6385,10 +6418,10 @@
     "message": "Oporavak računa uključen"
   },
   "enrolled": {
-    "message": "Enrolled"
+    "message": "Učlanjen"
   },
   "notEnrolled": {
-    "message": "Not enrolled"
+    "message": "Neučlanjen"
   },
   "withdrawAccountRecovery": {
     "message": "Isključi oporavak računa"
@@ -6568,7 +6601,7 @@
     "message": "Uspješno ponovno pozvano"
   },
   "bulkReinviteSuccessToast": {
-    "message": "$COUNT$ users re-invited",
+    "message": "Korisnika ponovno pozvano: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6577,7 +6610,7 @@
     }
   },
   "bulkReinviteLimitedSuccessToast": {
-    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "message": "$LIMIT$ od $SELECTEDCOUNT$ korisnika ponovno pozvano. $EXCLUDEDCOUNT$ nije pozvatno zbog ograničenja poziva ($LIMIT$).",
     "placeholders": {
       "limit": {
         "content": "$1",
@@ -6914,7 +6947,7 @@
     "message": "Istek trezora nije unutar zadanog vremena."
   },
   "disableExport": {
-    "message": "Remove export"
+    "message": "Ukloni izvoz"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Onemogućuje korisnicima izvoz osobnog trezora."
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Jedno ili više pravila organizacija onemogućuje izvoz osobnog trezora."
   },
-  "activateAutofill": {
-    "message": "Aktiviraj auto-ispunu"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Aktivira auto-ispunu kod učitavanja stranice u dodatku za preglednik za sve postojeće i nove korisnike."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Ugrožene ili nepouzdane web stranice mogu iskoristiti auto-ispunu prilikom učitavanja stranice."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Saznaj više o auto-ispuni"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Odaberi vrstu SSO"
@@ -9583,7 +9616,7 @@
     "message": "Potrebna je SSO prijava"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "Za SSO je potrebna e-pošta"
   },
   "selectedRegionFlag": {
     "message": "Zastava odabrane regije"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden će pokušati potvrditi domenu 3 puta tijekom prva 72 sata. Ako se domena ne može potvrditi, provjeri DNS zapis na svom poslužitelju i ručno potvrdi. Domena će, ako se ne potvrdi, biti uklonjena iz vaše organizacije nakon 7 dana."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nije potvrđena. Provjeri DNS zapise.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Potvrđena"
   },
-  "domainStatusUnderVerification": {
-    "message": "Provjera u tijeku"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Potvrdi domenu za vlasništvo nad članskim računima. Stranica za SSO identifikator bit će preskočena tijekom prijave za članove sa potvrđenim domenama, a administratori će moći izbrisati zatražene račune."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Geen kritische applicaties in gevaar"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Applicatie"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-mailadres"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefoonnummer"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Locatie"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Volgende betaling"
+  },
+  "nextChargeDate": {
+    "message": "Volgende datum van betaling"
   },
   "plan": {
     "message": "Pakket"
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert."
   },
-  "activateAutofill": {
-    "message": "Automatisch invullen activeren"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activeer de automatisch invullen wanneer de pagina geladen is instelling in de browser extensie voor bestaande en nieuwe gebruikers."
+  "activateAutofillPolicyDescription": {
+    "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
   },
-  "experimentalFeature": {
-    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen bij laden van pagina misbruiken."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Meer info over automatisch invullen"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Selecteer Type"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden probeert het domein gedurende de eerste 72 uur driemaal te verifiëren. Als het domein niet geverifieerd kan worden, controleer dan het DNS-record bij je host en verifieer handmatig. Het domein wordt binnen 7 dagen verwijderd uit je organisatie als het niet geverifieerd is."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden probeert het domein binnen 72 uur te claimen. Als het domein niet kan worden geclaimd, controleer dan je DNS-record en claim handmatig. Niet-geclaimde domeinen worden na 7 dagen verwijderd."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Eenmaal geclaimd, zullen bestaande leden met geclaimde domeinen gemaild worden over de "
+  },
+  "accountOwnershipChange": {
+    "message": "accounteigendom wijziging"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ niet geverifieerd. Controleer je DNS-records.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Geverifieerd"
   },
-  "domainStatusUnderVerification": {
-    "message": "Gebruikersverificatie"
+  "domainStatusPending": {
+    "message": "In behandeling"
   },
   "claimedDomainsDescription": {
     "message": "Claim een domein voor eigendom van ledenaccounts. De SSO-identificatiepagina wordt overgeslagen tijdens het inloggen voor leden met geclaimde domeinen en beheerders kunnen geclaimde accounts verwijderen."
@@ -12102,13 +12147,13 @@
     "message": "Nu verifiëren."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Ontgrendelen met passkey"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen."
   },
   "additionalStorageGB": {
     "message": "Extra opslagruimte (GB)"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-mail beveiligd"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

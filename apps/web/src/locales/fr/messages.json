@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Aucune application critique à risques"
   },
+  "critical": {
+    "message": "Critique ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Non critique ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Application"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Mots de passes à risque"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Courriel"
+  },
+  "emails": {
+    "message": "Courriels"
   },
   "phone": {
     "message": "Téléphone"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Non"
+  },
+  "noAuth": {
+    "message": "Toute personne disposant du lien"
+  },
+  "anyOneWithPassword": {
+    "message": "N'importe qui avec un mot de passe défini par vous"
   },
   "location": {
     "message": "Localisation"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Prochain paiement"
+  },
+  "nextChargeDate": {
+    "message": "Prochaine date de facturation"
   },
   "plan": {
     "message": "Forfait"
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Une ou plusieurs politiques de sécurité de l'organisation vous empêchent d'exporter votre coffre individuel."
   },
-  "activateAutofill": {
-    "message": "Activer la saisie automatique"
+  "activateAutofillPolicy": {
+    "message": "Activer le remplissage automatique"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activer le paramètre de saisie automatique au chargement de la page sur l'extension du navigateur pour tous les membres existants et nouveaux."
+  "activateAutofillPolicyDescription": {
+    "message": "Activer le remplissage automatique au chargement de la page dans les paramètres de l'extension du navigateur pour tous les membres existants et nouveaux."
   },
-  "experimentalFeature": {
-    "message": "Les sites web compromis ou non fiables peuvent exploiter la saisie automatique au chargement de la page."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Les sites web compromis ou non fiables peuvent exploiter le remplissage automatique au chargement de la page."
   },
-  "learnMoreAboutAutofill": {
-    "message": "En savoir plus sur la saisie automatique"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "En savoir plus sur le remplissage automatique"
   },
   "selectType": {
     "message": "Sélectionnez le type de SSO"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden tentera de récupérer le domaine 3 fois pendant les 72 premières heures. Si le domaine ne peut pas être réclamé, vérifiez l'enregistrement DNS dans votre hôte et réclamez manuellement. Le domaine sera supprimé de votre organisation dans 7 jours s'il n'est pas réclamé."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden tentera de réclamer le domaine dans les 72 heures. Si le domaine ne peut pas être réclamé, vérifiez votre enregistrement DNS et réclamez-le manuellement. Les domaines non réclamés sont supprimés après 7 jours."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Une fois réclamé, les membres existants ayant des domaines réclamés recevrontdes courriels à propos de la "
+  },
+  "accountOwnershipChange": {
+    "message": "changement de propriétaire du compte"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ non réclamé. Vérifiez vos enregistrements DNS.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Réclamé"
   },
-  "domainStatusUnderVerification": {
-    "message": "En cours de vérification"
+  "domainStatusPending": {
+    "message": "En attente"
   },
   "claimedDomainsDescription": {
     "message": "Réclamer un domaine pour réclamer les comptes des membres. La page d'identification SSO sera ignorée lors de la connexion pour les membres ayant des domaines réclamés et les administrateurs pourront supprimer les comptes réclamés."
@@ -12102,13 +12147,13 @@
     "message": "Vérifier maintenant."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Déverrouiller avec une clé d'accès"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Le déverrouillage par clé d'accès a échoué. Veuillez réessayer ou utiliser une autre méthode pour déverrouiller."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Aucune clé d’accès avec PRF activé n’est disponible pour le déverrouillage."
   },
   "additionalStorageGB": {
     "message": "Stockage additionnel (Go)"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
   },
+  "whoCanView": {
+    "message": "Qui peut afficher"
+  },
+  "specificPeople": {
+    "message": "Personnes spécifiques"
+  },
+  "emailVerificationDesc": {
+    "message": "Après avoir partagé ce lien Send, les personnes devront vérifier leur courriel avec un code pour afficher ce Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Entrez plusieurs courriels en les séparant avec une virgule."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Protégé par courriel"
+  },
+  "invalidSendPassword": {
+    "message": "Mot de passe Send invalide"
   }
 }
