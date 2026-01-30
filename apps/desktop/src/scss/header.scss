@@ -100,42 +100,12 @@
 }
 
 .account-switcher {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  justify-items: center;
-  padding: 0 10px;
-  height: 100%;
-  user-select: none;
 
-  border: none;
-  background: transparent;
-  width: auto;
-
-  @include themify($themes) {
-    color: themed("accountSwitcherTextColor");
-  }
-
-  img {
-    display: block;
-  }
-
-  .active-account {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: left;
-
-    div {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    span {
-      font-size: $font-size-small;
-    }
+  span {
+    display: flex;
+    align-items: center;
   }
 }
 
