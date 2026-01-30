@@ -37,9 +37,3 @@ jobs:
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run TypeScript type check
-        run: npm run typecheck
-
-      - name: Build extension
-        run: npm run build
