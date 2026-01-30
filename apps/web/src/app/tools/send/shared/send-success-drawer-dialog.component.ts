@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Inject, signal, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Inject, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
@@ -21,10 +21,9 @@ export class SendSuccessDrawerDialogComponent {
   readonly sendLink = signal<string>("");
   activeSendIcon = ActiveSendIcon;
 
-  // Computed property to get the dialog title based on send type
-  readonly dialogTitle = computed(() => {
+  get dialogTitle(): string {
     return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
-  });
+  }
 
   constructor(
     @Inject(DIALOG_DATA) public send: SendView,

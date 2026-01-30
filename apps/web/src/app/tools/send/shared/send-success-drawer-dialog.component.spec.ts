@@ -104,13 +104,13 @@ describe("SendSuccessDrawerDialogComponent", () => {
   it("should have the correct title for text Sends", () => {
     sendView.type = SendType.Text;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent.includes(newTextSend));
+    expect(component.dialogTitle).toBe("newTextSend");
   });
 
   it("should have the correct title for file Sends", () => {
-    sendView.type = SendType.File;
+    fixture.componentInstance.send.type = SendType.File;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent.includes(newFileSend));
+    expect(component.dialogTitle).toBe("newFileSend");
   });
 
   it("should show the correct message for Sends with an expiration time of one hour from now", () => {
@@ -142,21 +142,21 @@ describe("SendSuccessDrawerDialogComponent", () => {
   it("should show the correct message for successfully-created Sends with no authentication", () => {
     sendView.authType = AuthType.None;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent.includes(sendCreatedSuccessfully));
-    expect(fixture.nativeElement.textContent.includes(sendCreatedDescriptionV2));
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedSuccessfully);
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedDescriptionV2);
   });
 
   it("should show the correct message for successfully-created Sends with password authentication", () => {
     sendView.authType = AuthType.Password;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent.includes(sendCreatedSuccessfully));
-    expect(fixture.nativeElement.textContent.includes(sendCreatedDescriptionPassword));
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedSuccessfully);
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedDescriptionPassword);
   });
 
   it("should show the correct message for successfully-created Sends with email authentication", () => {
     sendView.authType = AuthType.Email;
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent.includes(sendCreatedSuccessfully));
-    expect(fixture.nativeElement.textContent.includes(sendCreatedDescriptionEmail));
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedSuccessfully);
+    expect(fixture.nativeElement.textContent).toContain(sendCreatedDescriptionEmail);
   });
 });
