@@ -57,7 +57,6 @@ import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broa
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -66,7 +65,6 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -200,11 +198,9 @@ export class VaultComponent<C extends CipherViewLike>
   private changeDetectorRef = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private messagingService = inject(MessagingService);
-  private platformUtilsService = inject(PlatformUtilsService);
   private eventCollectionService = inject(EventCollectionService);
   private searchService = inject(SearchService);
   private searchPipe = inject(SearchPipe);
-  private totpService = inject(TotpService);
   private passwordRepromptService = inject(PasswordRepromptService);
   private dialogService = inject(DialogService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
@@ -571,9 +567,6 @@ export class VaultComponent<C extends CipherViewLike>
           await this.handleDeleteEvent(cipher);
           break;
         }
-        case "copyField":
-          await this.copy(event.item, event.field);
-          break;
         case "assignToCollections":
           if (event.items.length === 1) {
             const cipher = await this.cipherService.getFullCipherView(event.items[0]);
@@ -1054,74 +1047,6 @@ export class VaultComponent<C extends CipherViewLike>
         replaceUrl: true,
       })
       .catch(() => {});
-  }
-
-  async copy(cipher: C, field: "username" | "password" | "totp") {
-    let aType;
-    let value;
-    let typeI18nKey;
-
-    const login = CipherViewLikeUtils.getLogin(cipher);
-
-    if (!login) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("unexpectedError"),
-      });
-    }
-
-    if (field === "username") {
-      aType = "Username";
-      value = login.username;
-      typeI18nKey = "username";
-    } else if (field === "password") {
-      aType = "Password";
-      value = await this.getPasswordFromCipherViewLike(cipher);
-      typeI18nKey = "password";
-    } else if (field === "totp") {
-      aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
-      value = totpResponse.code;
-      typeI18nKey = "verificationCodeTotp";
-    } else {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("unexpectedError"),
-      });
-      return;
-    }
-
-    if (
-      this.passwordRepromptService.protectedFields().includes(aType) &&
-      !(await this.repromptCipher([cipher]))
-    ) {
-      return;
-    }
-
-    if (!cipher.viewPassword) {
-      return;
-    }
-
-    this.platformUtilsService.copyToClipboard(value, { window: window });
-    this.toastService.showToast({
-      variant: "info",
-      title: null,
-      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    });
-
-    if (field === "password") {
-      await this.eventCollectionService.collect(
-        EventType.Cipher_ClientCopiedPassword,
-        uuidAsString(cipher.id),
-      );
-    } else if (field === "totp") {
-      await this.eventCollectionService.collect(
-        EventType.Cipher_ClientCopiedHiddenField,
-        uuidAsString(cipher.id),
-      );
-    }
   }
 
   private prefillCipherFromFilter() {
