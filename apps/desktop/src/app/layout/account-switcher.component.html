@@ -1,6 +1,6 @@
 <ng-container *ngIf="view$ | async as view">
   <button
-    class="account-switcher tw-flex"
+    class="account-switcher"
     (click)="toggle()"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
@@ -8,15 +8,13 @@
     [disabled]="disabled"
     aria-haspopup="dialog"
   >
-    @if (view.activeAccount) {
-      @if (view.activeAccount.email != null) {
-        <bit-avatar
-          [text]="view.activeAccount.name ?? view.activeAccount.email"
-          [id]="view.activeAccount.id"
-          [color]="view.activeAccount.avatarColor"
-          aria-hidden="true"
-        ></bit-avatar>
-      }
+    @if (view.activeAccount?.email != null) {
+      <bit-avatar
+        [text]="view.activeAccount.name ?? view.activeAccount.email"
+        [id]="view.activeAccount.id"
+        [color]="view.activeAccount.avatarColor"
+        aria-hidden="true"
+      ></bit-avatar>
     } @else {
       <bit-avatar [text]="'&hellip;'" [color]="'#6795E8'" aria-hidden="true"></bit-avatar>
     }
