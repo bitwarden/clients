@@ -62,7 +62,6 @@ import {
   CipherFormModule,
   CipherViewComponent,
   DecryptionFailureDialogComponent,
-  // RoutedVaultFilterService,
   RoutedVaultFilterModel,
 } from "@bitwarden/vault";
 
