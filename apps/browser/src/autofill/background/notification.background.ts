@@ -800,36 +800,24 @@ export default class NotificationBackground {
       },
     );
 
-    let inputScenario = null;
+    // Handle different field fill combinations and determine the input scenario
+    const inputScenariosByKey = {
+      upn: inputScenarios.usernamePasswordNewPassword,
+      un: inputScenarios.usernameNewPassword,
+      up: inputScenarios.usernamePassword,
+      u: inputScenarios.username,
+      pn: inputScenarios.passwordNewPassword,
+      n: inputScenarios.newPassword,
+      p: inputScenarios.password,
+    } as const;
 
-    // Handle different field fill combinations
-    if (currentPasswordFieldHasValue && newPasswordFieldHasValue && usernameFieldHasValue) {
-      inputScenario = inputScenarios.usernamePasswordNewPassword;
-    } else if (newPasswordFieldHasValue && usernameFieldHasValue && !currentPasswordFieldHasValue) {
-      inputScenario = inputScenarios.usernameNewPassword;
-    } else if (
-      usernameFieldHasValue &&
-      !currentPasswordFieldHasValue &&
-      !newPasswordFieldHasValue
-    ) {
-      inputScenario = inputScenarios.username;
-    } else if (currentPasswordFieldHasValue && newPasswordFieldHasValue && !usernameFieldHasValue) {
-      inputScenario = inputScenarios.passwordNewPassword;
-    } else if (
-      currentPasswordFieldHasValue &&
-      !newPasswordFieldHasValue &&
-      !usernameFieldHasValue
-    ) {
-      inputScenario = inputScenarios.password;
-    } else if (currentPasswordFieldHasValue && usernameFieldHasValue && !newPasswordFieldHasValue) {
-      inputScenario = inputScenarios.usernamePassword;
-    } else if (
-      newPasswordFieldHasValue &&
-      !currentPasswordFieldHasValue &&
-      !usernameFieldHasValue
-    ) {
-      inputScenario = inputScenarios.newPassword;
-    }
+    type InputScenarioKeys = keyof typeof inputScenariosByKey;
+
+    const key = ((usernameFieldHasValue ? "u" : "") +
+      (currentPasswordFieldHasValue ? "p" : "") +
+      (newPasswordFieldHasValue ? "n" : "")) as InputScenarioKeys;
+
+    const inputScenario = key in inputScenariosByKey ? inputScenariosByKey[key] : null;
 
     if (inputScenario) {
       return await this.handleInputMatchScenario({

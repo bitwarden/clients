@@ -700,6 +700,11 @@ describe("NotificationBackground", () => {
       let getAllDecryptedForUrlSpy: jest.SpyInstance;
       const mockFormattedURI = "archive.org";
       const mockFormURI = "https://www.archive.org";
+      const expectSkippedCheckingNotification = () => {
+        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+      };
 
       beforeEach(() => {
         tab = createChromeTabMock();
@@ -749,9 +754,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if the passed url is not valid", async () => {
@@ -774,9 +777,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if the user has disabled both the new login and update password notification", async () => {
@@ -798,9 +799,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if the user is logged out", async () => {
@@ -820,9 +819,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if there is no active account", async () => {
@@ -842,9 +839,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if the values for the `password` and `newPassword` fields match (no change)", async () => {
@@ -863,9 +858,7 @@ describe("NotificationBackground", () => {
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
-        expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
-        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-        expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
+        expectSkippedCheckingNotification();
       });
 
       it("skips checking if a notification should trigger if the vault is locked and there is no value for the `newPassword` field", async () => {
