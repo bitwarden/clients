@@ -69,4 +69,12 @@ describe("AttachmentsV2Component", () => {
 
     expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.Removed });
   });
+
+  it("closes the dialog with 'closed' result on closedButtonPressed", () => {
+    const dialogRefCloseSpy = jest.spyOn(component["dialogRef"], "close");
+
+    component.closeButtonPressed();
+
+    expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.Closed });
+  });
 });
