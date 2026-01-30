@@ -49,22 +49,14 @@
         type="button"
       >
         @if (buttonConfig.icon?.position === "before") {
-          <bit-icon
-            name="{{ buttonConfig.icon.type }}"
-            class="tw-me-2"
-            aria-hidden="true"
-          ></bit-icon>
+          <bit-icon [name]="buttonConfig.icon.type" class="tw-me-2" aria-hidden="true"></bit-icon>
         }
         {{ buttonConfig.text }}
         @if (
           buttonConfig.icon &&
           (buttonConfig.icon.position === "after" || !buttonConfig.icon.position)
         ) {
-          <bit-icon
-            name="{{ buttonConfig.icon.type }}"
-            class="tw-ms-2"
-            aria-hidden="true"
-          ></bit-icon>
+          <bit-icon [name]="buttonConfig.icon.type" class="tw-ms-2" aria-hidden="true"></bit-icon>
         }
       </button>
     }
