@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "El Send se borrará permanentemente en esta fecha.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Archivo a compartir"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Ocultar texto por defecto"
   },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Limitar visualizaciones"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visualizaciones restantes",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,45 +127,45 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nadie puede ver este Send tras alcanzar el límite.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nota privada"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalles del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Añade una contraseña opcional para que los destinatarios accedan a este Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Texto a compartir"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Nuevo Send de Texto",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Nuevo Send de Archivo",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Editar Send de Texto",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Editar Send de Archivo",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "¿Estás seguro de que quieres eliminar permanentemente este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
-    "message": "New",
+    "message": "Nuevo",
     "description": "for adding new items"
   },
   "newUri": {
@@ -1844,19 +1844,19 @@
     "message": "Exportar desde"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Exportación",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Exportar",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importación",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importar",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2483,7 +2483,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Copiar enlace del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2969,7 +2969,7 @@
     "message": "Generar un alias de correo electrónico con un servicio de reenvío externo."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "Dominio de correo electrónico",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
@@ -4120,7 +4120,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Limpia los filtros o prueba otro término de búsqueda"
   },
   "generatorNudgeTitle": {
     "message": "Crear contraseñas rápidamente"
@@ -4189,7 +4189,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Acerca de este ajuste"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -4380,43 +4380,43 @@
     "message": "Desarchivar"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archivados"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elementos archivados"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "No hay elementos archivados"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Los elementos archivados aparecerán aquí y se excluirán de los resultados de búsqueda generales y de sugerencias de autocompletado."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "El elemento fue archivado"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "El elemento fue desarchivado"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archivar elemento"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Una vez archivado, este elemento se excluirá de los resultados de búsqueda y de sugerencias de autocompletado."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Desarchivar y guardar"
   },
   "restartPremium": {
     "message": "Restart Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Tu suscripción Premium ha terminado"
   },
   "premiumSubscriptionEndedDesc": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "El elemento se ha restaurado"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Código postal"

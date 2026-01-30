@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nessuna applicazione critica a rischio"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Intelligence sugli accessi"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Applicazione"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Password a rischio"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefono"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "No"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Luogo"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Prossimo addebito"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Piano"
@@ -5627,7 +5660,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "Copia e condividi questo link di invio. Sarà disponibile a chiunque ne sia a disposizione la prossima $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Una o più politiche dell'organizzazione ti impediscono di esportare la tua cassaforte personale."
   },
-  "activateAutofill": {
-    "message": "Attiva riempimento automatico"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Attiva l'impostazione di riempimento automatico al caricamento della pagina nella estensione per il browser per tutti i membri esistenti e nuovi."
+  "activateAutofillPolicyDescription": {
+    "message": "Attiva il completamento automatico sulla pagina di caricamento delle impostazioni dell'estensione browser per tutti i membri nuovi ed esistenti."
   },
-  "experimentalFeature": {
-    "message": "Siti compromessi potrebbero sfruttare il riempimento automatico al caricamento della pagina."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Ulteriori informazioni"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Seleziona tipo di SSO"
@@ -10547,10 +10580,10 @@
     "message": "Indice"
   },
   "httpEventCollectorUrl": {
-    "message": "HTTP Event Collector URL"
+    "message": "URL del collettore di eventi HTTP"
   },
   "httpEventCollectorToken": {
-    "message": "HTTP Event Collector Token"
+    "message": "Token del collettore eventi HTTP"
   },
   "selectAPlan": {
     "message": "Seleziona un piano"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden tenterà di verificare il dominio 3 volte durante le prossime 72 ore. Se il dominio non può essere acquisito, controlla il record DNS del tuo servizio di hosting e procedi manualmente. Il dominio sarà rimosso dall'organizzazione dopo 7 giorni se la procedura non andrà a buon fine."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden proverà ad ottenere il dominio nelle prossime 72 ore. Se il dominio non può essere ottenuto, verifica il tuo record DNS ed ottienilo manualmente. I domini non ottenuti vengono rimossi dopo 7 giorni."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Una volta ottenuto, i membri con domini riservati verranno contattati via e-mail per "
+  },
+  "accountOwnershipChange": {
+    "message": "modifica della proprietà dell'account"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ non verificato. Controlla il record DNS.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Verificato"
   },
-  "domainStatusUnderVerification": {
-    "message": "In attesa di verifica"
+  "domainStatusPending": {
+    "message": "In attesa"
   },
   "claimedDomainsDescription": {
     "message": "Richiedi un dominio per avere a disposizione account membri. La pagina SSO sarà saltata durante il login per i membri con domini rivendicati e gli amministratori saranno in grado di eliminare gli account rivendicati."
@@ -12102,10 +12147,10 @@
     "message": "Verifica adesso."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Sblocca con passkey"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Impossibile sbloccare con passkey. Riprova o utilizza un altro metodo."
   },
   "noPrfCredentialsAvailable": {
     "message": "No PRF-enabled passkeys are available for unlock."
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Email protetta"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }
