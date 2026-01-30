@@ -241,12 +241,6 @@
           {{ "assignToCollections" | i18n }}
         </button>
       }
-      @if (showEventLogs()) {
-        <button bitMenuItem type="button" (click)="events()">
-          <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
-          {{ "eventLogs" | i18n }}
-        </button>
-      }
       @if (showArchiveButton()) {
         @if (userCanArchive()) {
           <button bitMenuItem (click)="archive()" type="button">

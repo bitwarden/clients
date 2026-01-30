@@ -67,7 +67,6 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly disabled = input<boolean>();
   protected readonly showOwner = input<boolean>();
-  protected readonly useEvents = input<boolean>();
   protected readonly showPremiumFeatures = input<boolean>();
   protected readonly allOrganizations = input<Organization[]>([]);
   protected readonly allCollections = input<CollectionView[]>([]);
