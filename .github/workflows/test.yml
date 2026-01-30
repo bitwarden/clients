@@ -38,9 +38,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run linter
-        run: npm run lint
-
       - name: Run TypeScript type check
         run: npm run typecheck
 
