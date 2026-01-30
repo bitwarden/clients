@@ -31,13 +31,6 @@ export function passwordHashB64Invalid(
   return e.error === "invalid_grant" && e.send_access_error_type === "password_hash_b64_invalid";
 }
 
-export type EmailInvalid = InvalidGrant & {
-  send_access_error_type: "email_invalid";
-};
-export function emailInvalid(e: SendAccessTokenApiErrorResponse): e is EmailInvalid {
-  return e.error === "invalid_grant" && e.send_access_error_type === "email_invalid";
-}
-
 export type OtpInvalid = InvalidGrant & {
   send_access_error_type: "otp_invalid";
 };

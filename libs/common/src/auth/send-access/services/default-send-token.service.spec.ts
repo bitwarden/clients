@@ -64,14 +64,13 @@ describe("SendTokenService", () => {
       "send_id_required",
       "password_hash_b64_required",
       "email_required",
-      "email_and_otp_required_otp_sent",
+      "email_and_otp_required",
       "unknown",
     ];
 
     const INVALID_GRANT_CODES: SendAccessTokenInvalidGrantError[] = [
       "send_id_invalid",
       "password_hash_b64_invalid",
-      "email_invalid",
       "otp_invalid",
       "otp_generation_failed",
       "unknown",
