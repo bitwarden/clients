@@ -11,15 +11,11 @@ export type Discount = {
   type: DiscountType;
   value: number;
   translationKey?: string;
-  hideFormattedAmount?: boolean;
 };
 
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {
-      if (discount.hideFormattedAmount) {
-        return i18nService.t(discount.translationKey ?? "discount");
-      }
       const formattedAmount = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
