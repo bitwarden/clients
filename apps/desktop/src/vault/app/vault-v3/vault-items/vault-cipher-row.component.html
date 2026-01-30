@@ -114,7 +114,7 @@
       @for (copyField of copyFields(); track copyField.field) {
         <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ copyField.i18nKey | i18n }}
+          {{ copyField.title | i18n }}
         </button>
       }
       @if (showMenuDivider()) {
