@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
+#[cfg(feature = "napi")]
+use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
-use crate::{BitwardenError, Callback, Position, UserVerification};
+use crate::{BitwardenError, Callback, Position, TimedCallback, UserVerification};
 
 /// Request to create a credential.
-#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyRegistrationRequest {
@@ -50,7 +53,8 @@ pub struct PasskeyRegistrationRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
-    #[cfg(not(target_os = "macos"))]
+    // TODO: See if we can drop this for macOS, or convert to Option
+    // #[cfg(not(target_os = "macos"))]
     pub client_window_handle: Vec<u8>,
 
     /// Native context required for callbacks to the OS. Format differs by OS.
@@ -62,12 +66,14 @@ pub struct PasskeyRegistrationRequest {
     /// ## Windows
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
-    #[cfg(not(target_os = "macos"))]
+    // TODO: See if we can drop this for macOS, or convert to Option
+    // #[cfg(not(target_os = "macos"))]
     pub context: String,
 }
 
 /// Response for a passkey registration request.
-#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyRegistrationResponse {
@@ -85,7 +91,7 @@ pub struct PasskeyRegistrationResponse {
 }
 
 /// Callback to process a response to passkey registration request.
-#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
+#[cfg_attr(feature = "uniffi", uniffi::export(with_foreign))]
 pub trait PreparePasskeyRegistrationCallback: Send + Sync {
     /// Function to call if a successful response is returned.
     fn on_complete(&self, credential: PasskeyRegistrationResponse);
@@ -103,5 +109,15 @@ impl Callback for Arc<dyn PreparePasskeyRegistrationCallback> {
 
     fn error(&self, error: BitwardenError) {
         PreparePasskeyRegistrationCallback::on_error(self.as_ref(), error);
+    }
+}
+
+impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationResponse> {
+    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
+        self.send(Ok(credential));
+    }
+
+    fn on_error(&self, error: BitwardenError) {
+        self.send(Err(error));
     }
 }
