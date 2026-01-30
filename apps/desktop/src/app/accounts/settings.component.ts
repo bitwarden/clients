@@ -244,7 +244,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
-    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
+    // Only show the auto-start setting if it's supported on this platform.
+    this.showOpenAtLoginOption = this.desktopSettingsService.shouldDisplayAutoStartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
