@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
@@ -164,10 +164,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
 
-  protected readonly hasFilterApplied = toSignal(this.vaultPopupItemsService.hasFilterApplied$, {
-    initialValue: false,
-  });
+  protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
+  protected readonly numberOfAppliedFilters$ =
+    this.vaultPopupListFiltersService.numberOfAppliedFilters$;
 
+  protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
@@ -369,14 +370,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.vaultScrollPositionService.stop();
-  }
-
-  getAllItemsTitleText(): string {
-    if (!this.hasFilterApplied()) {
-      return this.i18nService.t("allItems");
-    } else {
-      return this.i18nService.t("items");
-    }
   }
 
   async navigateToImport() {
