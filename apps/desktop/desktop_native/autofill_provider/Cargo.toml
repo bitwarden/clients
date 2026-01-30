@@ -13,23 +13,30 @@ bench = false
 name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
+[features]
+napi = ["dep:napi", "dep:napi-derive", "dep:napi-build"]
+uniffi = ["dep:uniffi"]
+
 [dependencies]
 base64 = { workspace = true }
 desktop_core = { path = "../core" }
 futures = { workspace = true }
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_with = { workspace = true, features = ["base64"] }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
+uniffi = { workspace = true, features = ["cli"], optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tracing-oslog = "=0.3.0"
 tracing-subscriber = { workspace = true }
-uniffi = { workspace = true, features = ["cli"] }
 
 [build-dependencies]
-uniffi = { workspace = true, features = ["build"] }
+napi-build = { workspace = true, optional = true }
+uniffi = { workspace = true, features = ["build"], optional = true }
 
 [lints]
 workspace = true

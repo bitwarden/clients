@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+// Compiler cannot recognize that these imports are required when serde_as is
+// used below with serde feature.
+#[expect(unused_imports)]
 use serde_with::{
     base64::{Base64, Standard},
     formats::Padded,
@@ -12,7 +15,7 @@ use crate::{BitwardenError, Callback, TimedCallback};
 /// Request to get the window handle of the desktop client.
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct WindowHandleQueryRequest {
+pub struct WindowHandleQueryRequest {
     /// Marker field for parsing; data is never read.
     ///
     /// TODO: this is used to disambiguate parsing the type in desktop_napi.
@@ -21,9 +24,9 @@ pub(super) struct WindowHandleQueryRequest {
 }
 
 /// Response to window handle request.
-#[serde_as]
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde_as]
 pub struct WindowHandleQueryResponse {
     /// Whether the desktop client is currently visible.
     pub is_visible: bool,
