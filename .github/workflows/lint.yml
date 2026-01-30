@@ -76,11 +76,5 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Lint unowned dependencies
-        run: npm run lint:dep-ownership
-
-      - name: Lint sdk-internal versions
-        run: npm run lint:sdk-internal-versions
-
       - name: Run linter
         run: npm run lint

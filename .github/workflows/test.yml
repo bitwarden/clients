@@ -23,6 +23,7 @@ jobs:
       checks: write
       contents: read
       pull-requests: write
+      packages: read
 
     steps:
       - name: Check out repo
