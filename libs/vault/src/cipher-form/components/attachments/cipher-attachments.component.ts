@@ -105,6 +105,8 @@ export class CipherAttachmentsComponent {
   /** Emits after a file has been successfully removed */
   readonly onRemoveSuccess = output<void>();
 
+  readonly onCloseButtonPress = output<void>();
+
   protected readonly organization = signal<Organization | null>(null);
   protected readonly cipher = signal<CipherView | null>(null);
 
@@ -154,7 +156,7 @@ export class CipherAttachmentsComponent {
       // Update the initial state of the submit button
       const btn = this.submitBtn();
       if (btn) {
-        btn.disabled.set(!this.attachmentForm.valid);
+        btn.disabled.set(!this.attachmentForm.valid && (this.cipher()?.edit ?? true));
       }
     });
 
@@ -192,6 +194,12 @@ export class CipherAttachmentsComponent {
 
   /** Save the attachments to the cipher */
   submit = async () => {
+    //user can't edit cipher and will close the bit-dialog
+    if (!(this.cipher()?.edit ?? false)) {
+      this.onCloseButtonPress.emit();
+      return;
+    }
+
     this.onUploadStarted.emit();
 
     const file = this.attachmentForm.value.file;
