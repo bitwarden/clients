@@ -3,9 +3,10 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { ButtonType, ButtonTypes } from "../shared/button-like.abstraction";
 import { I18nMockService } from "../utils";
 
-import { BitIconButtonComponent, IconButtonTypes } from "./icon-button.component";
+import { BitIconButtonComponent, IconButtonSize } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
@@ -29,8 +30,53 @@ export default {
     label: "Your button label here",
   },
   argTypes: {
+    bitIconButton: {
+      control: { type: "text" },
+      description: "The icon class to display",
+      table: {
+        type: { summary: "string" },
+      },
+    },
+    label: {
+      control: { type: "text" },
+      description: "Accessible label for screen readers and tooltip content",
+      table: {
+        type: { summary: "string" },
+      },
+    },
     buttonType: {
-      options: IconButtonTypes,
+      options: Object.values(ButtonTypes),
+      control: { type: "select" },
+      description: "The visual style variant of the icon button",
+      table: {
+        type: { summary: "ButtonType" },
+        defaultValue: { summary: "secondary" },
+      },
+    },
+    size: {
+      options: ["small", "default"],
+      control: { type: "radio" },
+      description: "The size of the icon button",
+      table: {
+        type: { summary: '"small" | "default"' },
+        defaultValue: { summary: "default" },
+      },
+    },
+    loading: {
+      control: { type: "boolean" },
+      description: "Whether the icon button is in a loading state",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
+    },
+    disabled: {
+      control: { type: "boolean" },
+      description: "Whether the icon button is disabled",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
     },
   },
   parameters: {
@@ -41,7 +87,15 @@ export default {
   },
 } as Meta<BitIconButtonComponent>;
 
-type Story = StoryObj<BitIconButtonComponent>;
+// Extend BitIconButtonComponent type to include host directive inputs for Storybook
+type BitIconButtonComponentWithHostDirectiveInputs = BitIconButtonComponent & {
+  buttonType: ButtonType;
+  size: IconButtonSize;
+  loading: boolean;
+  disabled: boolean;
+};
+
+type Story = StoryObj<BitIconButtonComponentWithHostDirectiveInputs>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -74,47 +128,17 @@ export const Danger: Story = {
   },
 };
 
-export const Main: Story = {
+export const Secondary: Story = {
   ...Default,
   args: {
-    buttonType: "main",
+    buttonType: "secondary",
   },
 };
 
-export const Muted: Story = {
+export const Subtle: Story = {
   ...Default,
   args: {
-    buttonType: "muted",
-  },
-};
-
-export const NavContrast: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-    <div class="tw-bg-background-alt3 tw-p-6 tw-w-full tw-inline-block">
-      <!-- <div> used only to provide dark background color -->
-      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
-    </div>
-      `,
-  }),
-  args: {
-    buttonType: "nav-contrast",
-  },
-};
-
-export const Contrast: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-    <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
-      <!-- <div> used only to provide dark background color -->
-      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
-    </div>
-      `,
-  }),
-  args: {
-    buttonType: "contrast",
+    buttonType: "subtle",
   },
 };
 

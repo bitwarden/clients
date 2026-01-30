@@ -3,7 +3,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
-import { ButtonTypes } from "../shared/button-like.abstraction";
+import { ButtonSize, ButtonType, ButtonTypes } from "../shared/button-like.abstraction";
 import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -31,13 +31,47 @@ export default {
     loading: false,
   },
   argTypes: {
-    size: {
-      options: ["small", "default", "large"],
-      control: { type: "radio" },
-    },
     buttonType: {
       options: Object.values(ButtonTypes),
       control: { type: "select" },
+      description: "The visual style variant of the button",
+      table: {
+        type: { summary: "ButtonType" },
+        defaultValue: { summary: "secondary" },
+      },
+    },
+    size: {
+      options: ["small", "default", "large"],
+      control: { type: "radio" },
+      description: "The size of the button",
+      table: {
+        type: { summary: '"small" | "default" | "large"' },
+        defaultValue: { summary: "default" },
+      },
+    },
+    block: {
+      control: { type: "boolean" },
+      description: "Whether the button should be full width",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
+    },
+    loading: {
+      control: { type: "boolean" },
+      description: "Whether the button is in a loading state",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
+    },
+    disabled: {
+      control: { type: "boolean" },
+      description: "Whether the button is disabled",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
     },
   },
   parameters: {
@@ -48,7 +82,16 @@ export default {
   },
 } as Meta<ButtonComponent>;
 
-type Story = StoryObj<ButtonComponent>;
+// Extend ButtonComponent type to include host directive inputs for Storybook
+type ButtonComponentWithHostDirectiveInputs = ButtonComponent & {
+  buttonType: ButtonType;
+  size: ButtonSize;
+  block: boolean;
+  loading: boolean;
+  disabled: boolean;
+};
+
+type Story = StoryObj<ButtonComponentWithHostDirectiveInputs>;
 
 export const Default: Story = {
   render: (args) => ({

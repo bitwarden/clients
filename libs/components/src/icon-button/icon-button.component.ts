@@ -1,89 +1,16 @@
 import { NgClass } from "@angular/common";
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  HostBinding,
-  inject,
-  input,
-  model,
-} from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { debounce, interval } from "rxjs";
+import { Component, computed, effect, ElementRef, inject, input, model } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
-import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
+import { BaseButtonDirective, focusRing } from "../shared/base-button.directive";
+import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
 import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
-export const IconButtonTypes = [
-  "primary",
-  "danger",
-  "contrast",
-  "main",
-  "muted",
-  "nav-contrast",
-] as const;
-
-export type IconButtonType = (typeof IconButtonTypes)[number];
-
-const focusRing = [
-  // Workaround for box-shadow with transparent offset issue:
-  // https://github.com/tailwindlabs/tailwindcss/issues/3595
-  // Remove `before:` and use regular `tw-ring` when browser no longer has bug, or better:
-  // switch to `outline` with `outline-offset` when Safari supports border radius on outline.
-  // Using `box-shadow` to create outlines is a hack and as such `outline` should be preferred.
-  "tw-relative",
-  "before:tw-content-['']",
-  "before:tw-block",
-  "before:tw-absolute",
-  "before:-tw-inset-[1px]",
-  "before:tw-rounded-lg",
-  "before:tw-transition",
-  "before:tw-ring-2",
-  "before:tw-ring-transparent",
-  "focus-visible:tw-z-10",
-];
-
-const styles: Record<IconButtonType, string[]> = {
-  contrast: [
-    "!tw-text-contrast",
-    "tw-border-transparent",
-    "hover:!tw-bg-hover-contrast",
-    "focus-visible:before:tw-ring-text-contrast",
-    ...focusRing,
-  ],
-  main: ["!tw-text-main", "focus-visible:before:tw-ring-primary-600", ...focusRing],
-  muted: [
-    "!tw-text-muted",
-    "tw-border-transparent",
-    "aria-expanded:tw-bg-text-muted",
-    "aria-expanded:!tw-text-contrast",
-    "focus-visible:before:tw-ring-primary-600",
-    "aria-expanded:hover:tw-bg-secondary-700",
-    "aria-expanded:hover:tw-border-secondary-700",
-    ...focusRing,
-  ],
-  primary: ["!tw-text-primary-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
-  danger: ["!tw-text-danger-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
-  "nav-contrast": [
-    "!tw-text-fg-sidenav-text",
-    "hover:!tw-bg-hover-contrast",
-    "focus-visible:before:tw-ring-border-focus",
-    ...focusRing,
-  ],
-};
-
 export type IconButtonSize = "default" | "small";
-
-const sizes: Record<IconButtonSize, string[]> = {
-  default: ["tw-text-xl", "tw-p-2.5", "tw-rounded-md"],
-  small: ["tw-text-base", "tw-p-2", "tw-rounded"],
-};
 /**
   * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
@@ -109,21 +36,25 @@ const sizes: Record<IconButtonSize, string[]> = {
      * works when the input is dynamic.
      */
     "[attr.bitIconButton]": "icon()",
+    "[class]": "classList()",
   },
   hostDirectives: [
     AriaDisableDirective,
     { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+    {
+      directive: BaseButtonDirective,
+      inputs: ["loading", "disabled", "buttonType", "size"],
+    },
   ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  readonly icon = model.required<string>({ alias: "bitIconButton" });
-
-  readonly buttonType = input<IconButtonType>("main");
-
-  readonly size = model<IconButtonSize>("default");
-
+  private baseButton = inject(BaseButtonDirective);
   private elementRef = inject(ElementRef);
   private tooltip = inject(TooltipDirective, { host: true, optional: true });
+
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
+
+  readonly size = model<IconButtonSize>("default");
 
   /**
    * label input will be used to set the `aria-label` attributes on the button.
@@ -133,8 +64,21 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    */
   readonly label = input<string>();
 
-  @HostBinding("class") get classList() {
-    return [
+  // Expose loading and disabled from base directive for ButtonLikeAbstraction
+  readonly loading = this.baseButton.loading;
+  readonly disabled = this.baseButton.disabled;
+
+  readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
+
+  protected get showLoadingStyle() {
+    return this.baseButton.showLoadingStyle;
+  }
+
+  protected readonly classList = computed(() => {
+    const classes: string[] = [];
+
+    // Icon-button base layout styles
+    classes.push(
       "tw-font-medium",
       "tw-leading-[0px]",
       "tw-border-none",
@@ -143,58 +87,94 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       "hover:tw-no-underline",
       "hover:tw-bg-hover-default",
       "focus:tw-outline-none",
-    ]
-      .concat(styles[this.buttonType()])
-      .concat(sizes[this.size()])
-      .concat(
-        this.showDisabledStyles() || this.disabled()
-          ? [
-              "aria-disabled:tw-opacity-60",
-              "aria-disabled:hover:!tw-bg-transparent",
-              "tw-cursor-default",
-            ]
-          : [],
+    );
+
+    // Add disabled styles
+    if (this.baseButton.showLoadingStyle() || this.baseButton.disabled()) {
+      classes.push(
+        "aria-disabled:tw-opacity-60",
+        "aria-disabled:hover:!tw-bg-transparent",
+        "tw-cursor-default",
       );
+    }
+
+    // Add color styles based on buttonType
+    classes.push(...this.getIconButtonColorStyles());
+
+    // Add size styles
+    classes.push(...this.getIconButtonSizeStyles());
+
+    return classes.join(" ");
+  });
+
+  private getIconButtonSizeStyles(): string[] {
+    const size = this.size();
+    const iconButtonSizes: Record<string, string[]> = {
+      small: ["tw-text-base", "tw-p-2", "tw-rounded"],
+      default: ["tw-text-xl", "tw-p-2.5", "tw-rounded-md"],
+    };
+    return iconButtonSizes[size] || iconButtonSizes.default;
   }
 
-  readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
+  private getIconButtonColorStyles(): string[] {
+    const buttonType = this.baseButton.buttonType() || "secondary";
 
-  protected readonly disabledAttr = computed(() => {
-    const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading();
-  });
+    const typeStyles: Record<ButtonType, string[]> = {
+      primary: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong", ...focusRing],
+      primaryOutline: [
+        "tw-border",
+        "tw-border-border-brand",
+        "tw-text-fg-brand",
+        "hover:tw-border-bg-brand-strong",
+        "hover:tw-text-fg-brand-strong",
+        ...focusRing,
+      ],
+      primaryGhost: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong", ...focusRing],
+      secondary: ["tw-text-fg-heading", "hover:tw-text-fg-brand", ...focusRing],
+      subtle: ["tw-text-fg-heading", "hover:tw-text-fg-heading", ...focusRing],
+      subtleOutline: [
+        "tw-border",
+        "tw-border-border-contrast",
+        "tw-text-fg-heading",
+        "hover:tw-border-border-contrast-strong",
+        ...focusRing,
+      ],
+      subtleGhost: ["tw-text-fg-heading", "hover:tw-text-fg-heading", ...focusRing],
+      danger: ["tw-text-fg-danger", "hover:tw-text-fg-danger-strong", ...focusRing],
+      dangerOutline: [
+        "tw-border",
+        "tw-border-border-danger",
+        "tw-text-fg-danger",
+        "hover:tw-border-bg-danger-strong",
+        "hover:!tw-text-fg-danger-strong",
+        ...focusRing,
+      ],
+      dangerGhost: ["tw-text-fg-danger", "hover:tw-text-fg-danger-strong", ...focusRing],
+      warning: ["tw-text-fg-warning", "hover:tw-text-fg-warning-strong", ...focusRing],
+      warningOutline: [
+        "tw-border",
+        "tw-border-border-warning",
+        "tw-text-fg-warning",
+        "hover:tw-border-border-warning-strong",
+        "hover:!tw-text-fg-warning-strong",
+        ...focusRing,
+      ],
+      warningGhost: ["tw-text-fg-warning", "hover:tw-text-fg-warning-strong", ...focusRing],
+      success: ["tw-text-fg-success", "hover:tw-text-fg-success-strong", ...focusRing],
+      successOutline: [
+        "tw-border",
+        "tw-border-border-success",
+        "tw-text-fg-success",
+        "hover:tw-border-border-success-strong",
+        "hover:tw-text-fg-success-strong",
+        ...focusRing,
+      ],
+      successGhost: ["tw-text-fg-success", "hover:tw-text-fg-success-strong", ...focusRing],
+      unstyled: [],
+    };
 
-  /**
-   * Determine whether it is appropriate to display the disabled styles. We only want to show
-   * the disabled styles if the button is truly disabled, or if the loading styles are also
-   * visible.
-   *
-   * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
-   * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
-   */
-  protected readonly showDisabledStyles = computed(() => {
-    return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
-  });
-
-  readonly loading = model(false);
-
-  /**
-   * Determine whether it is appropriate to display a loading spinner. We only want to show
-   * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
-   * a spinner "flash" for actions that are synchronous/nearly synchronous.
-   *
-   * We can't use `loading` for this, because we still need to disable the button during
-   * the full `loading` state. I.e. we only want the spinner to be debounced, not the
-   * loading state.
-   *
-   * This pattern of converting a signal to an observable and back to a signal is not
-   * recommended. TODO -- find better way to use debounce with signals (CL-596)
-   */
-  protected readonly showLoadingStyle = toSignal(
-    toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
-  );
-
-  readonly disabled = model<boolean>(false);
+    return typeStyles[buttonType] || [];
+  }
 
   getFocusTarget() {
     return this.elementRef.nativeElement;
@@ -203,7 +183,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   constructor() {
     const element = this.elementRef.nativeElement;
 
-    ariaDisableElement(element, this.disabledAttr);
+    ariaDisableElement(element, this.baseButton.disabledAttr);
 
     const originalTitle = element.getAttribute("title");
 
