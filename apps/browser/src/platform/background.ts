@@ -11,7 +11,7 @@ const logService = new ConsoleLogService(false);
     offscreenPath: "offscreen-document/index.html",
   });
 
-  initLogging("chrome");
+  initLogging("chrome", { offscreenIdentifier: "offscreen-document/index.html" });
   console.log("[PQP] Background Initialized");
 
   // [NEW] Setup WebRTC listeners
