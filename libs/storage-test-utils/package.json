@@ -1,11 +1,11 @@
 {
   "name": "@bitwarden/storage-test-utils",
   "version": "0.0.1",
-  "description": "Test tools for the storage library",
   "private": true,
+  "description": "Test tools for the storage library",
+  "license": "GPL-3.0",
+  "author": "platform",
   "type": "commonjs",
   "main": "index.js",
-  "types": "index.d.ts",
-  "license": "GPL-3.0",
-  "author": "platform"
+  "types": "index.d.ts"
 }

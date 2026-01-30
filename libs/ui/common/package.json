@@ -5,17 +5,12 @@
   "keywords": [
     "bitwarden"
   ],
-  "author": "Bitwarden Inc.",
   "homepage": "https://bitwarden.com",
+  "license": "GPL-3.0",
+  "author": "Bitwarden Inc.",
   "repository": {
     "type": "git",
     "url": "https://github.com/bitwarden/clients"
-  },
-  "license": "GPL-3.0",
-  "scripts": {
-    "clean": "rimraf dist",
-    "build": "npm run clean && tsc",
-    "build:watch": "npm run clean && tsc -watch"
   },
   "exports": {
     ".": {
@@ -24,5 +19,10 @@
     "./setup-jest": {
       "import": "./src/setup-jest.ts"
     }
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
   }
 }

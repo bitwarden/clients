@@ -43,9 +43,11 @@ export function OptionSelectionButton({
     >
       ${buttonIcon ?? nothing}
       ${text ? html`<span class=${dropdownButtonTextStyles}>${text}</span>` : nothing}
-      ${toggledOn
-        ? AngleUp({ color: themes[theme].text.muted, theme })
-        : AngleDown({ color: themes[theme].text.muted, theme })}
+      ${
+        toggledOn
+          ? AngleUp({ color: themes[theme].text.muted, theme })
+          : AngleDown({ color: themes[theme].text.muted, theme })
+      }
     </button>
   `;
 }
@@ -79,14 +81,15 @@ const selectionButtonStyles = ({
   text-overflow: ellipsis;
   font-weight: 400;
 
-  ${disabled
-    ? `
+  ${
+    disabled
+      ? `
       border: 1px solid ${themes[theme].secondary["300"]};
       background-color: ${themes[theme].secondary["300"]};
       cursor: not-allowed;
       color: ${themes[theme].text.muted};
     `
-    : `
+      : `
       border: 1px solid ${themes[theme].text.muted};
       background-color: ${toggledOn ? themes[theme].secondary["100"] : "transparent"};
       cursor: pointer;
@@ -96,7 +99,8 @@ const selectionButtonStyles = ({
         border-color: ${themes[theme].secondary["700"]};
         background-color: ${themes[theme].secondary["100"]};
       }
-    `}
+    `
+  }
 
   > svg {
     max-width: ${iconSize};

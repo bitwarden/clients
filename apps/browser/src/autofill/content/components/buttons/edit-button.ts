@@ -43,15 +43,17 @@ const editButtonStyles = ({ disabled, theme }: { disabled?: boolean; theme: Them
   max-height: fit-content;
   overflow: hidden;
 
-  ${!disabled
-    ? `
+  ${
+    !disabled
+      ? `
     cursor: pointer;
 
     :hover {
       border-color: ${themes[theme].primary["600"]};
     }
   `
-    : ""}
+      : ""
+  }
 
   > svg {
     width: 16px;

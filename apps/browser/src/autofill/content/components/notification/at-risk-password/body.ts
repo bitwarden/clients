@@ -23,12 +23,14 @@ export function AtRiskNotificationBody({ riskMessage, theme }: AtRiskNotificatio
   return html`
     <div class=${atRiskNotificationBodyStyles({ theme })}>
       <div class=${iconContainerStyles}>${Warning()}</div>
-      ${riskMessage
-        ? AtRiskNotificationMessage({
-            message: riskMessage,
-            theme,
-          })
-        : nothing}
+      ${
+        riskMessage
+          ? AtRiskNotificationMessage({
+              message: riskMessage,
+              theme,
+            })
+          : nothing
+      }
     </div>
   `;
 }

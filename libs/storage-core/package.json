@@ -1,11 +1,11 @@
 {
   "name": "@bitwarden/storage-core",
   "version": "0.0.1",
-  "description": "Abstractions over storage APIs",
   "private": true,
+  "description": "Abstractions over storage APIs",
+  "license": "GPL-3.0",
+  "author": "platform",
   "type": "commonjs",
   "main": "index.js",
-  "types": "index.d.ts",
-  "license": "GPL-3.0",
-  "author": "platform"
+  "types": "index.d.ts"
 }

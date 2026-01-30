@@ -16,7 +16,7 @@ const brandIconContainerStyles = css`
   justify-content: center;
   width: 24px;
   height: 24px;
-
+  
   > svg {
     width: auto;
     height: 100%;
