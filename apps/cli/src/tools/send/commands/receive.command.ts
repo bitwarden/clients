@@ -186,7 +186,7 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
     let email: string | null = null;
-    const expiredAuthAttempts = 0;
+    let expiredAuthAttempts = 0;
 
     // Try without credentials first
     const initialResponse = await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(id));
@@ -210,6 +210,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
     // Interactive authentication loop
     while (expiredAuthAttempts < 3) {
+      expiredAuthAttempts++;
       if (authType === AuthType.Email) {
         const result = await this.handleEmailOtpAuth(id, email);
         if (result instanceof Response) {
