@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, takeUntil } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,6 +25,7 @@ import { OrganizationBadgeModule } from "../../../../vault/individual-vault/orga
 import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../inactive-two-factor-report.component";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,26 +82,26 @@ export class InactiveTwoFactorReportComponent
     this.isAdminConsoleActive = true;
 
     this.route.parent?.parent?.params
-      ?.pipe(takeUntil(this.destroyed$))
-      // eslint-disable-next-line rxjs/no-async-subscribe
-      .subscribe(async (params) => {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
-
-        if (userId) {
+      .pipe(
+        tap(async (params) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
           this.organization = await firstValueFrom(
             this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
           );
           this.manageableCiphers = await this.cipherService.getAll(userId);
           await super.ngOnInit();
-        }
-        this.changeDetectorRef.markForCheck();
-      });
+          this.changeDetectorRef.markForCheck();
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
-  getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+  async getAllCiphers(): Promise<CipherView[]> {
+    if (this.organization) {
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+    }
+    return [];
   }
 
   protected canManageCipher(c: CipherView): boolean {
