@@ -75,10 +75,14 @@
         {{ emptyStateItem()?.description | i18n }}
       </p>
       @if (showAddCipherBtn()) {
-        <button type="button" buttonType="primary" bitButton (click)="addCipher()" slot="button">
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-          {{ "addNewItem" | i18n }}
-        </button>
+        <vault-new-cipher-menu
+          [canCreateCipher]="true"
+          [canCreateFolder]="true"
+          [canCreateSshKey]="true"
+          (cipherAdded)="addCipher($event)"
+          (folderAdded)="addFolder()"
+          slot="button"
+        />
       }
     </bit-no-items>
   }

@@ -10,6 +10,7 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -29,7 +30,7 @@ import {
   NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { VaultItem } from "@bitwarden/vault";
+import { NewCipherMenuComponent, VaultItem } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
@@ -60,6 +61,7 @@ type EmptyStateItem = {
     VaultCollectionRowComponent,
     VaultCipherRowComponent,
     NoItemsModule,
+    NewCipherMenuComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -80,7 +82,8 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly emptyStateItem = input<EmptyStateItem>();
 
   protected onEvent = output<VaultItemEvent<C>>();
-  protected onAddCipher = output<void>();
+  protected onAddCipher = output<CipherType>();
+  protected onAddFolder = output<void>();
 
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
@@ -111,8 +114,12 @@ export class VaultListComponent<C extends CipherViewLike> {
     this.onEvent.emit(event);
   }
 
-  protected addCipher() {
-    this.onAddCipher.emit();
+  protected addCipher(type: CipherType) {
+    this.onAddCipher.emit(type);
+  }
+
+  protected addFolder() {
+    this.onAddFolder.emit();
   }
 
   protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {

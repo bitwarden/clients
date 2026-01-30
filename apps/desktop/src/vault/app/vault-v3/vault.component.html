@@ -34,7 +34,8 @@
       [showAddCipherBtn]="showAddCipherBtn"
       [emptyStateItem]="emptyState$ | async"
       (onEvent)="onVaultItemsEvent($event)"
-      (onAddCipher)="addCipher()"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
     />
   </div>
   @if (action()) {
