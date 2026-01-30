@@ -1,197 +1,45 @@
-name: Testing
+name: Client Test
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc-*"
-  pull_request:
-    types: [ opened, synchronize ]
+      - main
 
-permissions: {}
+permissions:
+  contents: read
+  packages: read
 
 jobs:
-
-  testing:
-    name: Run tests
-    runs-on: ubuntu-22.04
+  ci:
+    name: CI (Lint, Typecheck, Test, Build)
+    runs-on: ubuntu-latest
     permissions:
-      checks: write
       contents: read
+      packages: read
       pull-requests: write
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Get Node Version
-        id: retrieve-node-version
-        run: |
-          NODE_NVMRC=$(cat .nvmrc)
-          NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
+          node-version: '20'
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+          registry-url: https://npm.pkg.github.com
+          scope: '@ovrlab'
 
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # We use isolatedModules: true which disables typechecking in tests
-      # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
-      # See https://bitwarden.atlassian.net/browse/EC-497
-      - name: Run typechecking
-        run: npm run test:types
+      - name: Run TypeScript type check
+        run: npm run typecheck
 
-      - name: Run tests
-        # maxWorkers is a workaround for a memory leak that crashes tests in CI:
-        # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
-        run: npm test -- --coverage --maxWorkers=3
-
-      - name: Report test results
-        uses: dorny/test-reporter@7b7927aa7da8b82e81e755810cb51f39941a2cc7 # v2.2.0
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
-        with:
-          name: Test Results
-          path: "junit.xml"
-          reporter: jest-junit
-          fail-on-error: true
-
-      - name: Upload results to codecov.io
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: jest-coverage
-          path: ./coverage/lcov.info
-
-  rust:
-    name: Run Rust tests on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
-    permissions:
-      contents: read
-
-    strategy:
-      matrix:
-        os:
-          - ubuntu-22.04
-          - macos-14
-          - windows-2022
-
-    steps:
-      - name: Check Rust version
-        run: rustup --version
-
-      - name: Install gnome-keyring
-        if: ${{ matrix.os=='ubuntu-22.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gnome-keyring dbus-x11
-
-      - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Build
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo build
-
-      - name: Test Ubuntu
-        if: ${{ matrix.os=='ubuntu-22.04' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: |
-          eval "$(dbus-launch --sh-syntax)"
-          mkdir -p ~/.cache
-          mkdir -p ~/.local/share/keyrings
-          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
-          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test -- --test-threads=1
-
-      - name: Test macOS
-        if: ${{ matrix.os=='macos-14' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo test -- --test-threads=1
-
-      - name: Test Windows
-        if: ${{ matrix.os=='windows-2022'}}
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
-
-  rust-coverage:
-    name: Rust Coverage
-    runs-on: macos-14
-    steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install rust
-        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
-        with:
-          toolchain: stable
-          components: llvm-tools
-
-      - name: Cache cargo registry
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
-        with:
-          workspaces: "apps/desktop/desktop_native -> target"
-
-      - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --version 0.6.16
-
-      - name: Generate coverage
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: rust-coverage
-          path: ./apps/desktop/desktop_native/lcov.info
-
-  upload-codecov:
-    name: Upload to Codecov
-    runs-on: ubuntu-22.04
-    needs:
-      - testing
-      - rust-coverage
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Download jest coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: jest-coverage
-          path: ./
-
-      - name: Download rust coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: rust-coverage
-          path: ./apps/desktop/desktop_native
-
-      - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          files: |
-            ./lcov.info
-            ./apps/desktop/desktop_native/lcov.info
+      - name: Build extension
+        run: npm run build

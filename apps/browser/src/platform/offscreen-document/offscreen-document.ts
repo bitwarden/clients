@@ -10,8 +10,7 @@ import {
   OffscreenDocumentExtensionMessageHandlers,
   OffscreenDocument as OffscreenDocumentInterface,
 } from "./abstractions/offscreen-document";
-import { initPqpOffscreen } from "./pqp-offscreen";
-
+import { init } from '@ovrlab/pqp-network';
 class OffscreenDocument implements OffscreenDocumentInterface {
   private consoleLogService: ConsoleLogService = new ConsoleLogService(false);
   private readonly extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
@@ -98,5 +97,10 @@ class OffscreenDocument implements OffscreenDocumentInterface {
 (() => {
   const offscreenDocument = new OffscreenDocument();
   offscreenDocument.init();
-  initPqpOffscreen();
+  init('chrome', {
+    context: 'offscreen',
+    enableWebRtc: true,
+  });
+
+  console.log('[Offscreen] PQP Network Initialized (Auto-Adapter)');
 })();
