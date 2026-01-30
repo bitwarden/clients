@@ -1,0 +1,106 @@
+.TH BW-RECEIVE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-receive \- access a Bitwarden Send from a URL
+
+.SH SYNOPSIS
+.B bw receive
+\fIurl\fP [\fIoptions\fP]
+
+.SH DESCRIPTION
+Access a Bitwarden Send using its URL. This allows receiving shared content
+without a Bitwarden account. For file Sends, the file can be downloaded to
+a specified location.
+
+.SH ARGUMENTS
+.TP
+.I url
+The full Send URL (e.g., https://send.bitwarden.com/#...).
+
+.SH OPTIONS
+.TP
+.BI \-\-password\  password
+Password for password-protected Sends.
+.TP
+.BI \-\-passwordenv\  env
+Environment variable containing the Send password.
+.TP
+.BI \-\-passwordfile\  file
+Path to a file containing the Send password.
+.TP
+.BR \-\-obj
+Return the full Send object as JSON instead of just the content.
+.TP
+.BI \-\-output\  path
+Output location for file Sends. Required for file type Sends.
+
+.SH EXAMPLES
+.TP
+Receive a text Send:
+.nf
+$ bw receive "https://send.bitwarden.com/#abcdefg/xyz123"
+Secret message content here
+.fi
+.TP
+Receive a password-protected Send:
+.nf
+$ bw receive "https://send.bitwarden.com/#abcdefg/xyz123" --password "sharepass"
+.fi
+.TP
+Receive with password from environment:
+.nf
+$ export SEND_PASSWORD="sharepass"
+$ bw receive "https://send.bitwarden.com/#..." --passwordenv SEND_PASSWORD
+.fi
+.TP
+Receive with password from file:
+.nf
+$ bw receive "https://send.bitwarden.com/#..." --passwordfile ~/.send_password
+.fi
+.TP
+Download a file Send:
+.nf
+$ bw receive "https://send.bitwarden.com/#..." --output ~/Downloads/
+.fi
+.TP
+Download file Send to specific filename:
+.nf
+$ bw receive "https://send.bitwarden.com/#..." --output ~/Downloads/document.pdf
+.fi
+.TP
+Get full Send object (metadata):
+.nf
+$ bw receive "https://send.bitwarden.com/#..." --obj
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Does not require authentication for receiving.
+.TP
+\(bu
+The URL contains the decryption key; keep it secure.
+.TP
+\(bu
+Sends may have access limits or expiration dates.
+.TP
+\(bu
+File Sends require \fB--output\fP to specify download location.
+.TP
+\(bu
+Password-protected Sends require the correct password to access.
+.TP
+\(bu
+Each access may count against the Send's max access limit.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Send received successfully.
+.TP
+.B 1
+Error occurred (invalid URL, wrong password, expired, etc.).
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-send (1)

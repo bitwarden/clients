@@ -1,0 +1,137 @@
+.TH BW-GENERATE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-generate \- generate a password or passphrase
+
+.SH SYNOPSIS
+.B bw generate
+[\fIoptions\fP]
+
+.SH DESCRIPTION
+Generate a random password or passphrase based on specified criteria.
+Useful for creating strong, unique passwords for new accounts.
+
+This command does not require authentication and can be used without
+logging in.
+
+.SH OPTIONS
+.SS Character Options
+.TP
+.BR \-u ", " \-\-uppercase
+Include uppercase characters (A-Z).
+.TP
+.BR \-l ", " \-\-lowercase
+Include lowercase characters (a-z).
+.TP
+.BR \-n ", " \-\-number
+Include numbers (0-9).
+.TP
+.BR \-s ", " \-\-special
+Include special characters (!@#$%^&*).
+.TP
+.BR \-\-ambiguous
+Include ambiguous characters (0O1lI).
+
+.SS Length Options
+.TP
+.BI \-\-length\  length
+Length of the password. Default is 14.
+.TP
+.BI \-\-minNumber\  count
+Minimum number of numeric characters.
+.TP
+.BI \-\-minSpecial\  count
+Minimum number of special characters.
+
+.SS Passphrase Options
+.TP
+.BR \-p ", " \-\-passphrase
+Generate a passphrase instead of a password.
+.TP
+.BI \-\-words\  count
+Number of words in the passphrase. Default is 3.
+.TP
+.BI \-\-separator\  char
+Word separator character. Default is a space.
+.TP
+.BR \-c ", " \-\-capitalize
+Capitalize the first letter of each passphrase word.
+.TP
+.BR \-\-includeNumber
+Include a number in the passphrase.
+
+.SH EXAMPLES
+.TP
+Generate a default password (14 chars, lowercase + uppercase):
+.nf
+$ bw generate
+xKpH4mNqR2sT5w
+.fi
+.TP
+Generate a 20-character password with all character types:
+.nf
+$ bw generate -ulns --length 20
+xK#pH4$mNq!R2sT5w@Yb
+.fi
+.TP
+Generate password with minimum requirements:
+.nf
+$ bw generate -ulns --length 16 --minNumber 2 --minSpecial 2
+.fi
+.TP
+Generate a passphrase:
+.nf
+$ bw generate --passphrase
+correct horse battery
+.fi
+.TP
+Generate a 5-word capitalized passphrase with dashes:
+.nf
+$ bw generate --passphrase --words 5 --separator "-" --capitalize
+Correct-Horse-Battery-Staple-Fish
+.fi
+.TP
+Generate passphrase with number:
+.nf
+$ bw generate --passphrase --words 4 --includeNumber
+correct 7 horse battery
+.fi
+.TP
+Generate and copy to clipboard (macOS):
+.nf
+$ bw generate -ulns --length 20 | pbcopy
+.fi
+.TP
+Generate and copy to clipboard (Linux with xclip):
+.nf
+$ bw generate -ulns --length 20 | xclip -selection clipboard
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Does not require authentication. Can be used offline.
+.TP
+\(bu
+For passwords, at least one character type option must be specified or defaults are used.
+.TP
+\(bu
+Passphrases use the EFF word list for memorable, secure phrases.
+.TP
+\(bu
+Longer passwords/passphrases are generally more secure.
+.TP
+\(bu
+Use \fB--raw\fP to get just the password without any extra output.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Password generated successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-create (1)

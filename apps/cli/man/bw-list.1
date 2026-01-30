@@ -1,0 +1,146 @@
+.TH BW-LIST 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-list \- list objects from the vault
+
+.SH SYNOPSIS
+.B bw list
+\fIobject\fP [\fIoptions\fP]
+
+.SH DESCRIPTION
+List and filter objects from the vault. Returns a JSON array of matching objects.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to list. Valid values:
+.RS
+.IP \(bu 2
+.B items
+\- Vault items (logins, cards, identities, notes)
+.IP \(bu 2
+.B folders
+\- Folders
+.IP \(bu 2
+.B collections
+\- Collections (for organization members)
+.IP \(bu 2
+.B org-collections
+\- Organization collections (for organization admins)
+.IP \(bu 2
+.B org-members
+\- Organization members
+.IP \(bu 2
+.B organizations
+\- Organizations the user belongs to
+.RE
+
+.SH OPTIONS
+.TP
+.BI \-\-search\  search
+Search items for the given string. Searches names, URIs, and other fields.
+.TP
+.BI \-\-url\  url
+Filter login items by URL. Useful for browser integration.
+.TP
+.BI \-\-folderid\  id
+Filter items by folder ID. Use \fBnull\fP for items without a folder.
+.TP
+.BI \-\-collectionid\  id
+Filter items by collection ID. Use \fBnull\fP for items not in a collection.
+.TP
+.BI \-\-organizationid\  id
+Filter items by organization ID. Use \fBnull\fP for personal items only.
+.TP
+.BR \-\-trash
+List only items in the trash.
+
+.SH FILTER LOGIC
+.TP
+\(bu
+Combining \fB--search\fP with any filter uses AND logic.
+.TP
+\(bu
+Combining multiple filters (e.g., \fB--folderid\fP and \fB--collectionid\fP) uses OR logic.
+
+.SH EXAMPLES
+.TP
+List all items:
+.nf
+$ bw list items
+.fi
+.TP
+Search for items:
+.nf
+$ bw list items --search "github"
+.fi
+.TP
+List items matching a URL:
+.nf
+$ bw list items --url "https://github.com"
+.fi
+.TP
+List items in a specific folder:
+.nf
+$ bw list items --folderid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+List items without a folder:
+.nf
+$ bw list items --folderid null
+.fi
+.TP
+List items in trash:
+.nf
+$ bw list items --trash
+.fi
+.TP
+List all folders:
+.nf
+$ bw list folders
+.fi
+.TP
+List organization members:
+.nf
+$ bw list org-members --organizationid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Combine search with folder filter (AND logic):
+.nf
+$ bw list items --search "login" --folderid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Pretty print results:
+.nf
+$ bw list items --pretty
+.fi
+.TP
+Use with jq for filtering:
+.nf
+$ bw list items | jq '.[] | select(.type == 1)'
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+Output is JSON by default. Use \fB--pretty\fP for formatted output.
+.TP
+\(bu
+Use \fBjq\fP or similar tools for complex filtering and formatting.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Command completed successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-get (1),
+.BR bw-create (1),
+.BR bw-sync (1)

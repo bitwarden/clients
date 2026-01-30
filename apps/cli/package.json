@@ -57,6 +57,29 @@
   "bin": {
     "bw": "build/bw.js"
   },
+  "man": [
+    "./man/bw.1",
+    "./man/bw-config.1",
+    "./man/bw-create.1",
+    "./man/bw-delete.1",
+    "./man/bw-edit.1",
+    "./man/bw-encode.1",
+    "./man/bw-export.1",
+    "./man/bw-generate.1",
+    "./man/bw-get.1",
+    "./man/bw-import.1",
+    "./man/bw-list.1",
+    "./man/bw-lock.1",
+    "./man/bw-login.1",
+    "./man/bw-logout.1",
+    "./man/bw-receive.1",
+    "./man/bw-restore.1",
+    "./man/bw-send.1",
+    "./man/bw-serve.1",
+    "./man/bw-status.1",
+    "./man/bw-sync.1",
+    "./man/bw-unlock.1"
+  ],
   "pkg": {
     "assets": [
       "./build/**/*"

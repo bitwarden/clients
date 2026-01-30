@@ -1,0 +1,53 @@
+.TH BW-LOCK 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-lock \- lock the vault and destroy active session keys
+
+.SH SYNOPSIS
+.B bw lock
+
+.SH DESCRIPTION
+Lock the vault and destroy all active session keys. This provides security by
+removing decrypted vault data from memory without fully logging out.
+
+After locking, use \fBbw unlock\fP to unlock the vault again. You do not need
+to re-enter your email or re-authenticate with two-factor authentication.
+
+.SH OPTIONS
+This command has no specific options. See \fBbw\fP(1) for global options.
+
+.SH EXAMPLES
+.TP
+Lock the vault:
+.nf
+$ bw lock
+Your vault is locked.
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Locking is faster than logging out when you need temporary security.
+.TP
+\(bu
+The \fBBW_SESSION\fP environment variable becomes invalid after locking.
+.TP
+\(bu
+You must be logged in to lock the vault.
+.TP
+\(bu
+Locking clears the master key and vault data from memory.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Vault successfully locked.
+.TP
+.B 1
+Error occurred (e.g., not logged in).
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-unlock (1),
+.BR bw-login (1),
+.BR bw-logout (1)

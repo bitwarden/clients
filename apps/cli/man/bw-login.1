@@ -1,0 +1,145 @@
+.TH BW-LOGIN 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-login \- log into a Bitwarden user account
+
+.SH SYNOPSIS
+.B bw login
+[\fIemail\fP] [\fIpassword\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Log into a Bitwarden user account. After successful login, you must unlock the
+vault with \fBbw unlock\fP to access vault data.
+
+Multiple authentication methods are supported including master password,
+two-factor authentication, SSO, and API keys.
+
+.SH ARGUMENTS
+.TP
+.I email
+Email address for the Bitwarden account. If not provided, you will be prompted.
+.TP
+.I password
+Master password. If not provided, you will be prompted interactively.
+
+.SH OPTIONS
+.TP
+.BI \-\-method\  method
+Two-step login method. Valid values:
+.RS
+.IP \(bu 2
+.B 0
+\- Authenticator app (TOTP)
+.IP \(bu 2
+.B 1
+\- Email
+.IP \(bu 2
+.B 3
+\- YubiKey OTP
+.RE
+.TP
+.BI \-\-code\  code
+Two-step login code from your authenticator app, email, or hardware key.
+.TP
+.BR \-\-sso
+Log in with Single Sign-On (SSO). Optionally provide organization identifier.
+.TP
+.BR \-\-apikey
+Log in with an API key. Reads from \fBBW_CLIENTID\fP and \fBBW_CLIENTSECRET\fP
+environment variables, or prompts interactively.
+.TP
+.BI \-\-passwordenv\  env
+Environment variable name storing the master password.
+.TP
+.BI \-\-passwordfile\  file
+Path to a file containing the master password.
+.TP
+.BR \-\-check
+Check login status without attempting to log in.
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.B BW_CLIENTID
+API client ID for API key authentication.
+.TP
+.B BW_CLIENTSECRET
+API client secret for API key authentication.
+
+.SH EXAMPLES
+.TP
+Interactive login:
+.nf
+$ bw login
+? Email address: user@example.com
+? Master password: [hidden]
+You are logged in!
+.fi
+.TP
+Login with email and password:
+.nf
+$ bw login user@example.com mypassword
+.fi
+.TP
+Login with two-factor authentication:
+.nf
+$ bw login user@example.com mypassword --method 0 --code 123456
+.fi
+.TP
+Login with SSO:
+.nf
+$ bw login --sso my-org-identifier
+.fi
+.TP
+Login with API key:
+.nf
+$ export BW_CLIENTID="client_id_here"
+$ export BW_CLIENTSECRET="client_secret_here"
+$ bw login --apikey
+.fi
+.TP
+Login with password from environment variable:
+.nf
+$ export MY_BW_PASSWORD="mypassword"
+$ bw login user@example.com --passwordenv MY_BW_PASSWORD
+.fi
+.TP
+Login with password from file:
+.nf
+$ echo "mypassword" > ~/.bw_password
+$ chmod 600 ~/.bw_password
+$ bw login user@example.com --passwordfile ~/.bw_password
+.fi
+.TP
+Check login status:
+.nf
+$ bw login --check
+You are logged in!
+.fi
+
+.SH NOTES
+.TP
+\(bu
+After logging in, use \fBbw unlock\fP to unlock the vault and obtain a session key.
+.TP
+\(bu
+For automation, consider using API keys instead of master password.
+.TP
+\(bu
+SSO login requires the organization to have SSO configured.
+.TP
+\(bu
+When using \fB--passwordfile\fP, ensure the file has restricted permissions (600).
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful login or check.
+.TP
+.B 1
+Login failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-logout (1),
+.BR bw-unlock (1),
+.BR bw-status (1)

@@ -1,0 +1,132 @@
+.TH BW-CREATE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-create \- create an object in the vault
+
+.SH SYNOPSIS
+.B bw create
+\fIobject\fP [\fIencodedJson\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Create a new object in the vault. The object data should be provided as
+base64-encoded JSON. Use \fBbw get template\fP to get the JSON structure
+and \fBbw encode\fP to encode it.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to create. Valid values:
+.RS
+.IP \(bu 2
+.B item
+\- A vault item
+.IP \(bu 2
+.B attachment
+\- An attachment to an existing item
+.IP \(bu 2
+.B folder
+\- A folder
+.IP \(bu 2
+.B org-collection
+\- An organization collection
+.RE
+.TP
+.I encodedJson
+Base64-encoded JSON object data. Can also be piped via stdin.
+
+.SH OPTIONS
+.TP
+.BI \-\-file\  path
+Path to file for attachment creation.
+.TP
+.BI \-\-itemid\  id
+Item ID for attachment creation.
+.TP
+.BI \-\-organizationid\  id
+Organization ID for org-collection creation.
+
+.SH ITEM TYPES
+When creating items, set the \fBtype\fP field to:
+.RS
+.IP \(bu 2
+.B 1
+\- Login
+.IP \(bu 2
+.B 2
+\- Secure Note
+.IP \(bu 2
+.B 3
+\- Card
+.IP \(bu 2
+.B 4
+\- Identity
+.RE
+
+.SH EXAMPLES
+.TP
+Create a login item:
+.nf
+$ bw get template item.login | jq '.name="My Login" | .login.username="user" | .login.password="pass"' | bw encode | bw create item
+.fi
+.TP
+Create a secure note:
+.nf
+$ bw get template item | jq '.type=2 | .name="My Note" | .notes="Secret content"' | bw encode | bw create item
+.fi
+.TP
+Create a folder:
+.nf
+$ bw get template folder | jq '.name="Work"' | bw encode | bw create folder
+.fi
+.TP
+Create an attachment:
+.nf
+$ bw create attachment --file ./document.pdf --itemid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Create with inline encoded JSON:
+.nf
+$ echo '{"name":"Test Folder"}' | bw encode | bw create folder
+.fi
+.TP
+Create from a file:
+.nf
+$ cat item.json | bw encode | bw create item
+.fi
+.TP
+Create an organization collection:
+.nf
+$ bw get template org-collection | jq '.name="Team Passwords"' | bw encode | bw create org-collection --organizationid 12345678-1234-1234-1234-123456789012
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+All JSON must be base64-encoded. Use \fBbw encode\fP for this.
+.TP
+\(bu
+Use \fBbw get template\fP to get the required JSON structure.
+.TP
+\(bu
+Items are synced to the server immediately after creation.
+.TP
+\(bu
+For complex items with custom fields or multiple URIs, edit the template JSON accordingly.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Object created successfully.
+.TP
+.B 1
+Creation failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-get (1),
+.BR bw-edit (1),
+.BR bw-delete (1),
+.BR bw-encode (1)

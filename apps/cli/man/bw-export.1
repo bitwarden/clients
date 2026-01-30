@@ -1,0 +1,130 @@
+.TH BW-EXPORT 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-export \- export vault data to CSV, JSON, or encrypted JSON
+
+.SH SYNOPSIS
+.B bw export
+[\fIoptions\fP]
+
+.SH DESCRIPTION
+Export vault data to a file in various formats. Supports unencrypted CSV
+and JSON for importing into other tools, and encrypted JSON for secure
+Bitwarden backups.
+
+.SH OPTIONS
+.TP
+.BI \-\-output\  path
+Output file path. If not specified, writes to stdout.
+.TP
+.BI \-\-format\  format
+Export format. Valid values:
+.RS
+.IP \(bu 2
+.B csv
+\- Comma-separated values (default)
+.IP \(bu 2
+.B json
+\- Unencrypted JSON
+.IP \(bu 2
+.B encrypted_json
+\- Encrypted JSON (password-protected)
+.RE
+.TP
+.BI \-\-password\  password
+Password for encrypted_json format. If not provided, you will be prompted.
+.TP
+.BI \-\-organizationid\  id
+Export an organization vault instead of personal vault.
+
+.SH EXAMPLES
+.TP
+Export to CSV (default):
+.nf
+$ bw export --output ~/backup.csv
+.fi
+.TP
+Export to JSON:
+.nf
+$ bw export --format json --output ~/backup.json
+.fi
+.TP
+Export encrypted backup:
+.nf
+$ bw export --format encrypted_json --output ~/backup.json
+? Export file password: [hidden]
+? Confirm password: [hidden]
+.fi
+.TP
+Export encrypted with inline password:
+.nf
+$ bw export --format encrypted_json --password "mybackuppassword" --output ~/backup.json
+.fi
+.TP
+Export to stdout:
+.nf
+$ bw export --format json
+.fi
+.TP
+Export organization vault:
+.nf
+$ bw export --organizationid 12345678-1234-1234-1234-123456789012 --output ~/org_backup.csv
+.fi
+.TP
+Export and encrypt with GPG:
+.nf
+$ bw export --format json | gpg --encrypt -r user@example.com > backup.json.gpg
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+\fBWARNING:\fP Unencrypted exports (CSV, JSON) contain sensitive data in plaintext.
+.TP
+\(bu
+Store unencrypted exports securely and delete them when no longer needed.
+.TP
+\(bu
+Encrypted JSON exports can be imported back into Bitwarden.
+.TP
+\(bu
+Organization exports require appropriate permissions.
+.TP
+\(bu
+File attachments are not included in exports.
+.TP
+\(bu
+TOTP seeds are included in unencrypted exports.
+
+.SH SECURITY CONSIDERATIONS
+.TP
+\(bu
+Unencrypted exports expose all passwords, notes, and TOTP seeds.
+.TP
+\(bu
+Use encrypted_json format for backups when possible.
+.TP
+\(bu
+Set restrictive file permissions on export files (chmod 600).
+.TP
+\(bu
+Consider additional encryption (GPG) for sensitive backups.
+.TP
+\(bu
+Securely delete export files after use (shred, srm).
+
+.SH EXIT STATUS
+.TP
+.B 0
+Export completed successfully.
+.TP
+.B 1
+Export failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-import (1),
+.BR bw-sync (1)

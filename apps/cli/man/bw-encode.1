@@ -1,0 +1,73 @@
+.TH BW-ENCODE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-encode \- base64 encode stdin for use with create and edit commands
+
+.SH SYNOPSIS
+.B bw encode
+
+.SH DESCRIPTION
+Encode input from stdin to base64 format. This is required when creating
+or editing objects in the vault, as the CLI expects JSON data to be
+base64-encoded.
+
+This command is typically used in a pipeline with \fBbw create\fP or
+\fBbw edit\fP commands.
+
+.SH OPTIONS
+This command has no specific options. It reads from stdin and writes
+base64-encoded output to stdout.
+
+.SH EXAMPLES
+.TP
+Encode JSON for creating an item:
+.nf
+$ echo '{"name":"Test","type":2}' | bw encode
+eyJuYW1lIjoiVGVzdCIsInR5cGUiOjJ9
+.fi
+.TP
+Typical workflow for creating items:
+.nf
+$ bw get template item.login | jq '.name="My Login"' | bw encode | bw create item
+.fi
+.TP
+Encode a file:
+.nf
+$ cat item.json | bw encode
+.fi
+.TP
+Encode with manual input:
+.nf
+$ bw encode << EOF
+{"name": "Test Folder"}
+EOF
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Does not require authentication.
+.TP
+\(bu
+Input should be valid JSON for create/edit operations.
+.TP
+\(bu
+Output is standard base64 encoding.
+.TP
+\(bu
+Use \fBjq\fP or similar tools to construct JSON before encoding.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Encoding completed successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-create (1),
+.BR bw-edit (1),
+.BR bw-get (1),
+.BR base64 (1)
