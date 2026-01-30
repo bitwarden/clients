@@ -160,6 +160,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     FeatureFlag.BrowserPremiumSpotlight,
   );
 
+  protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
+  protected readonly numberOfAppliedFilters$ =
+    this.vaultPopupListFiltersService.numberOfAppliedFilters$;
+
+  protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
