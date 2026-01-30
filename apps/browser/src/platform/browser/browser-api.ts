@@ -183,6 +183,12 @@ export class BrowserApi {
     await BrowserApi.updateWindowProperties(windowId, { focused: true });
   }
 
+  /**
+   * @deprecated Use {@link getTabFromCurrentWindow} instead for better cross-browser compatibility.
+   *
+   * Uses `windowId: chrome.windows.WINDOW_ID_CURRENT` which is not supported by all browsers
+   * (e.g., Orion). The preferred approach uses `currentWindow: true` for better compatibility.
+   */
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
     return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
@@ -232,6 +238,13 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Gets the currently active tab in the current window.
+   *
+   * Preferred method for getting the active tab in Manifest V3. Uses `currentWindow: true`
+   * instead of `windowId: chrome.windows.WINDOW_ID_CURRENT` for better cross-browser
+   * compatibility (e.g., Orion).
+   */
   static async getTabFromCurrentWindow(): Promise<chrome.tabs.Tab> | null {
     return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,

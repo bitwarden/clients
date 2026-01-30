@@ -355,7 +355,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAllCipherTypes,
     refocusField,
   }: UpdateOverlayCiphersParams) {
-    const currentTab = await BrowserApi.getTabFromCurrentWindowId();
+    const currentTab = await BrowserApi.getTabFromCurrentWindow();
 
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
