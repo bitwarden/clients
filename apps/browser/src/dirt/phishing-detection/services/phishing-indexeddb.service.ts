@@ -196,6 +196,60 @@ export class PhishingIndexedDbService {
   }
 
   /**
+   * Checks if any URL in the database matches the given matcher function.
+   * Uses a cursor to iterate through records without loading all into memory.
+   * Returns immediately on first match for optimal performance.
+   *
+   * @param matcher - Function that tests each URL and returns true if it matches
+   * @returns `true` if any URL matches, `false` if none match or on error
+   */
+  async findMatchingUrl(matcher: (url: string) => boolean): Promise<boolean> {
+    this.logService.debug("[PhishingIndexedDbService] Searching for matching URL with cursor...");
+
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      return await this.cursorSearch(db, matcher);
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Cursor search failed", error);
+      return false;
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
+   * Performs cursor-based search through all URLs.
+   * Tests each URL with the matcher without accumulating records in memory.
+   */
+  private cursorSearch(db: IDBDatabase, matcher: (url: string) => boolean): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const req = db
+        .transaction(this.STORE_NAME, "readonly")
+        .objectStore(this.STORE_NAME)
+        .openCursor();
+      req.onerror = () => reject(req.error);
+      req.onsuccess = (e) => {
+        const cursor = (e.target as IDBRequest<IDBCursorWithValue | null>).result;
+        if (cursor) {
+          const url = (cursor.value as PhishingUrlRecord).url;
+          // Test the URL immediately without accumulating in memory
+          if (matcher(url)) {
+            // Found a match
+            resolve(true);
+            return;
+          }
+          // No match, continue to next record
+          cursor.continue();
+        } else {
+          // Reached end of records without finding a match
+          resolve(false);
+        }
+      };
+    });
+  }
+
+  /**
    * Saves phishing URLs directly from a stream.
    * Processes data incrementally to minimize memory usage.
    *

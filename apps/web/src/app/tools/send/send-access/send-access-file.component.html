@@ -1,5 +1,5 @@
-<p class="tw-text-wrap tw-break-all">{{ send.file.fileName }}</p>
+<p class="tw-text-wrap tw-break-all">{{ send().file.fileName }}</p>
 <button bitButton type="button" buttonType="primary" [bitAction]="download" [block]="true">
   <i class="bwi bwi-download" aria-hidden="true"></i>
-  {{ "downloadAttachments" | i18n }} ({{ send.file.sizeName }})
+  {{ "downloadAttachments" | i18n }} ({{ send().file.sizeName }})
 </button>
