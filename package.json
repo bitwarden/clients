@@ -205,7 +205,7 @@
     "tldts": "7.0.19",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
-    "vite-tsconfig-paths": "5.1.4",
+    "vite-tsconfig-paths": "6.0.5",
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
