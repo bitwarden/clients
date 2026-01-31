@@ -5,9 +5,24 @@ import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import {
+  SendTokenService,
+  SendAccessToken,
+  emailRequired,
+  emailAndOtpRequiredEmailSent,
+  emailInvalid,
+  otpInvalid,
+  passwordHashB64Required,
+  passwordHashB64Invalid,
+  sendIdInvalid,
+  SendHashedPasswordB64,
+  SendOtp,
+} from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -17,6 +32,7 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
@@ -38,6 +54,8 @@ export class SendReceiveCommand extends DownloadCommand {
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
     apiService: ApiService,
+    private sendTokenService: SendTokenService,
+    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -62,58 +80,13 @@ export class SendReceiveCommand extends DownloadCommand {
     }
 
     const keyArray = Utils.fromUrlB64ToArray(key);
-    this.sendAccessRequest = new SendAccessRequest();
 
-    let password = options.password;
-    if (password == null || password === "") {
-      if (options.passwordfile) {
-        password = await NodeUtils.readFirstLine(options.passwordfile);
-      } else if (options.passwordenv && process.env[options.passwordenv]) {
-        password = process.env[options.passwordenv];
-      }
-    }
+    const sendEmailOtpEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
 
-    if (password != null && password !== "") {
-      this.sendAccessRequest.password = await this.getUnlockedPassword(password, keyArray);
-    }
-
-    const response = await this.sendRequest(apiUrl, id, keyArray);
-
-    if (response instanceof Response) {
-      // Error scenario
-      return response;
-    }
-
-    if (options.obj != null) {
-      return Response.success(new SendAccessResponse(response));
-    }
-
-    switch (response.type) {
-      case SendType.Text:
-        // Write to stdout and response success so we get the text string only to stdout
-        process.stdout.write(response?.text?.text);
-        return Response.success();
-      case SendType.File: {
-        const downloadData = await this.sendApiService.getSendFileDownloadData(
-          response,
-          this.sendAccessRequest,
-          apiUrl,
-        );
-
-        const decryptBufferFn = async (resp: globalThis.Response) => {
-          const encBuf = await EncArrayBuffer.fromResponse(resp);
-          return this.encryptService.decryptFileData(encBuf, this.decKey);
-        };
-
-        return await this.saveAttachmentToFile(
-          downloadData.url,
-          response?.file?.fileName,
-          decryptBufferFn,
-          options.output,
-        );
-      }
-      default:
-        return Response.success(new SendAccessResponse(response));
+    if (sendEmailOtpEnabled) {
+      return await this.attemptV2Access(apiUrl, id, keyArray, options);
+    } else {
+      return await this.attemptV1Access(apiUrl, id, keyArray, options);
     }
   }
 
@@ -144,6 +117,308 @@ export class SendReceiveCommand extends DownloadCommand {
       100000,
     );
     return Utils.fromBufferToB64(passwordHash);
+  }
+
+  private async attemptV1Access(
+    apiUrl: string,
+    id: string,
+    keyArray: Uint8Array,
+    options: OptionValues,
+  ): Promise<Response> {
+    this.sendAccessRequest = new SendAccessRequest();
+
+    let password = options.password;
+    if (password == null || password === "") {
+      if (options.passwordfile) {
+        password = await NodeUtils.readFirstLine(options.passwordfile);
+      } else if (options.passwordenv && process.env[options.passwordenv]) {
+        password = process.env[options.passwordenv];
+      }
+    }
+
+    if (password != null && password !== "") {
+      this.sendAccessRequest.password = await this.getUnlockedPassword(password, keyArray);
+    }
+
+    const response = await this.sendRequest(apiUrl, id, keyArray);
+
+    if (response instanceof Response) {
+      return response;
+    }
+
+    if (options.obj != null) {
+      return Response.success(new SendAccessResponse(response));
+    }
+
+    switch (response.type) {
+      case SendType.Text:
+        process.stdout.write(response?.text?.text);
+        return Response.success();
+      case SendType.File: {
+        const downloadData = await this.sendApiService.getSendFileDownloadData(
+          response,
+          this.sendAccessRequest,
+          apiUrl,
+        );
+
+        const decryptBufferFn = async (resp: globalThis.Response) => {
+          const encBuf = await EncArrayBuffer.fromResponse(resp);
+          return this.encryptService.decryptFileData(encBuf, this.decKey);
+        };
+
+        return await this.saveAttachmentToFile(
+          downloadData.url,
+          response?.file?.fileName,
+          decryptBufferFn,
+          options.output,
+        );
+      }
+      default:
+        return Response.success(new SendAccessResponse(response));
+    }
+  }
+
+  private async attemptV2Access(
+    apiUrl: string,
+    id: string,
+    keyArray: Uint8Array,
+    options: OptionValues,
+  ): Promise<Response> {
+    let authType: AuthType = AuthType.None;
+    let email: string | null = null;
+    let expiredAuthAttempts = 0;
+
+    // Try without credentials first
+    const initialResponse = await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(id));
+
+    if (initialResponse instanceof SendAccessToken) {
+      return await this.accessSendWithToken(initialResponse, keyArray, apiUrl, options);
+    }
+
+    // Handle error response to determine auth requirements
+    if (initialResponse.kind === "expected_server") {
+      const error = initialResponse.error;
+
+      if (emailRequired(error)) {
+        authType = AuthType.Email;
+      } else if (passwordHashB64Required(error)) {
+        authType = AuthType.Password;
+      } else if (sendIdInvalid(error)) {
+        return Response.notFound();
+      }
+    }
+
+    // Interactive authentication loop
+    while (expiredAuthAttempts < 3) {
+      expiredAuthAttempts++;
+      if (authType === AuthType.Email) {
+        const result = await this.handleEmailOtpAuth(id, email);
+        if (result instanceof Response) {
+          return result;
+        }
+        if (result instanceof SendAccessToken) {
+          return await this.accessSendWithToken(result, keyArray, apiUrl, options);
+        }
+        if (typeof result === "string") {
+          email = result;
+        }
+      } else if (authType === AuthType.Password) {
+        return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
+      }
+    }
+
+    return Response.error("Maximum authentication attempts exceeded");
+  }
+
+  private async handleEmailOtpAuth(
+    sendId: string,
+    existingEmail: string | null,
+  ): Promise<SendAccessToken | Response | string> {
+    if (!this.canInteract) {
+      return Response.badRequest("Email verification required. Run in interactive mode.");
+    }
+
+    let email = existingEmail;
+    if (!email) {
+      const emailAnswer = await inquirer.createPromptModule({ output: process.stderr })({
+        type: "input",
+        name: "email",
+        message: "Enter your email address:",
+        validate: (input: string) => {
+          if (!input || !input.includes("@")) {
+            return "Please enter a valid email address";
+          }
+          return true;
+        },
+      });
+      email = emailAnswer.email;
+    }
+
+    const emailResponse = await firstValueFrom(
+      this.sendTokenService.getSendAccessToken$(sendId, {
+        kind: "email",
+        email: email,
+      }),
+    );
+
+    if (emailResponse instanceof SendAccessToken) {
+      return emailResponse;
+    }
+
+    if (emailResponse.kind === "expected_server") {
+      const error = emailResponse.error;
+
+      if (emailAndOtpRequiredEmailSent(error)) {
+        return await this.promptForOtp(sendId, email);
+      } else if (emailInvalid(error)) {
+        process.stderr.write("Email address not authorized for this Send.\n");
+        return email;
+      }
+    }
+
+    return Response.error("Failed to verify email");
+  }
+
+  private async promptForOtp(sendId: string, email: string): Promise<SendAccessToken | Response> {
+    if (!this.canInteract) {
+      return Response.badRequest("Email verification required. Run in interactive mode");
+    }
+
+    const otpAnswer = await inquirer.createPromptModule({ output: process.stderr })({
+      type: "input",
+      name: "otp",
+      message: "Enter the verification code sent to your email:",
+    });
+
+    const otpResponse = await firstValueFrom(
+      this.sendTokenService.getSendAccessToken$(sendId, {
+        kind: "email_otp",
+        email: email,
+        otp: otpAnswer.otp as SendOtp,
+      }),
+    );
+
+    if (otpResponse instanceof SendAccessToken) {
+      return otpResponse;
+    }
+
+    if (otpResponse.kind === "expected_server") {
+      const error = otpResponse.error;
+
+      if (otpInvalid(error)) {
+        return Response.badRequest("Invalid verification code");
+      }
+    }
+
+    return Response.error("Failed to verify OTP");
+  }
+
+  private async handlePasswordAuth(
+    sendId: string,
+    keyArray: Uint8Array,
+    apiUrl: string,
+    options: OptionValues,
+  ): Promise<Response> {
+    let password = options.password;
+
+    if (password == null || password === "") {
+      if (options.passwordfile) {
+        password = await NodeUtils.readFirstLine(options.passwordfile);
+      } else if (options.passwordenv && process.env[options.passwordenv]) {
+        password = process.env[options.passwordenv];
+      }
+    }
+
+    if ((password == null || password === "") && this.canInteract) {
+      const answer = await inquirer.createPromptModule({ output: process.stderr })({
+        type: "password",
+        name: "password",
+        message: "Send password:",
+      });
+      password = answer.password;
+    }
+
+    if (!password) {
+      return Response.badRequest("Password required");
+    }
+
+    const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
+
+    const response = await firstValueFrom(
+      this.sendTokenService.getSendAccessToken$(sendId, {
+        kind: "password",
+        passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
+      }),
+    );
+
+    if (response instanceof SendAccessToken) {
+      return await this.accessSendWithToken(response, keyArray, apiUrl, options);
+    }
+
+    if (response.kind === "expected_server") {
+      const error = response.error;
+
+      if (passwordHashB64Invalid(error)) {
+        return Response.badRequest("Invalid password");
+      }
+    }
+
+    return Response.error("Authentication failed");
+  }
+
+  private async accessSendWithToken(
+    accessToken: SendAccessToken,
+    keyArray: Uint8Array,
+    apiUrl: string,
+    options: OptionValues,
+  ): Promise<Response> {
+    try {
+      const sendResponse = await this.sendApiService.postSendAccessV2(accessToken, apiUrl);
+
+      const sendAccess = new SendAccess(sendResponse);
+      this.decKey = await this.keyService.makeSendKey(keyArray);
+      const decryptedView = await sendAccess.decrypt(this.decKey);
+
+      if (options.obj != null) {
+        return Response.success(new SendAccessResponse(decryptedView));
+      }
+
+      switch (decryptedView.type) {
+        case SendType.Text:
+          process.stdout.write(decryptedView?.text?.text);
+          return Response.success();
+
+        case SendType.File: {
+          const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+            decryptedView,
+            accessToken,
+            apiUrl,
+          );
+
+          const decryptBufferFn = async (resp: globalThis.Response) => {
+            const encBuf = await EncArrayBuffer.fromResponse(resp);
+            return this.encryptService.decryptFileData(encBuf, this.decKey);
+          };
+
+          return await this.saveAttachmentToFile(
+            downloadData.url,
+            decryptedView?.file?.fileName,
+            decryptBufferFn,
+            options.output,
+          );
+        }
+
+        default:
+          return Response.success(new SendAccessResponse(decryptedView));
+      }
+    } catch (e) {
+      if (e instanceof ErrorResponse) {
+        if (e.statusCode === 404) {
+          return Response.notFound();
+        }
+      }
+      return Response.error(e);
+    }
   }
 
   private async sendRequest(
