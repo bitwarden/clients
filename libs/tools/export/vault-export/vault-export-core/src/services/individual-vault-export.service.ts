@@ -240,7 +240,7 @@ export class IndividualVaultExportService
     };
 
     folders.forEach((f) => {
-      if (f.id == null) {
+      if (!f.id) {
         return;
       }
       const folder = new FolderWithIdExport();
@@ -268,7 +268,7 @@ export class IndividualVaultExportService
   private buildCsvExport(decFolders: FolderView[], decCiphers: CipherView[]): string {
     const foldersMap = new Map<string, FolderView>();
     decFolders.forEach((f) => {
-      if (f.id != null) {
+      if (f.id) {
         foldersMap.set(f.id, f);
       }
     });
@@ -302,7 +302,7 @@ export class IndividualVaultExportService
     };
 
     decFolders.forEach((f) => {
-      if (f.id == null) {
+      if (!f.id) {
         return;
       }
       const folder = new FolderWithIdExport();

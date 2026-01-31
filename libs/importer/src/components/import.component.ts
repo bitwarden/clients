@@ -354,7 +354,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       switchMap((userId) => {
         return this.folderService.folderViews$(userId);
       }),
-      map((folders) => folders.filter((f) => f.id != null)),
+      map((folders) => folders.filter((f) => !!f.id)),
     );
 
     this.formGroup.controls.targetSelector.disable();
