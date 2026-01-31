@@ -1,5 +1,7 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
+import { map } from "rxjs/operators";
+
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -39,6 +41,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -83,7 +86,11 @@ import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
   const generatedPassword = "generated-password";
-  const generatedPasswordCallbackMock = jest.fn().mockResolvedValue(generatedPassword);
+  const generatedPasswordCallbackMock = jest
+    .fn()
+    .mockImplementation(($on: Observable<any>) =>
+      $on.pipe(map(() => new GeneratedCredential(generatedPassword, "password", new Date()))),
+    );
   const addPasswordCallbackMock = jest.fn();
   const mockUserId = Utils.newGuid() as UserId;
   const sendResponse = jest.fn();
@@ -3595,7 +3602,7 @@ describe("OverlayBackground", () => {
 
     describe("refreshGeneratedPassword", () => {
       it("refreshes the generated password", async () => {
-        overlayBackground["generatedPassword"] = "populated";
+        overlayBackground["credential$"].next("populated");
 
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
         await flushPromises();
@@ -3604,12 +3611,15 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to the list port indicating that the generated password should be updated", async () => {
+        overlayBackground["credential$"].next("refresh");
+
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
+
         await flushPromises();
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuGeneratedPassword",
-          generatedPassword,
+          generatedPassword: "refresh",
           refreshPassword: true,
         });
       });
@@ -3629,7 +3639,7 @@ describe("OverlayBackground", () => {
           },
           sender,
         );
-        overlayBackground["generatedPassword"] = generatedPassword;
+        overlayBackground["credential$"].next(generatedPassword);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, createPageDetailMock()],
         ]);
@@ -3637,7 +3647,7 @@ describe("OverlayBackground", () => {
 
       describe("skipping filling the generated password", () => {
         it("skips filling when the password has not been created", () => {
-          overlayBackground["generatedPassword"] = "";
+          overlayBackground["credential$"].next(null);
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
