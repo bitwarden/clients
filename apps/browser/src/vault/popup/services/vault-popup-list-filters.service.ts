@@ -100,6 +100,9 @@ export class VaultPopupListFiltersService {
    */
   filters$ = this.filterForm.valueChanges.pipe(
     startWith(this.filterForm.value),
+    distinctUntilChanged(
+      (previous, current) => JSON.stringify(previous) === JSON.stringify(current),
+    ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
