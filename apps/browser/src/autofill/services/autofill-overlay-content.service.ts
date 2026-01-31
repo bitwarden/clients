@@ -56,6 +56,31 @@ import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 
+export type QualificationCriteria = {
+  formFieldElement: ElementWithOpId<FormFieldElement>;
+  autofillFieldData: AutofillField;
+  pageDetails: AutofillPageDetails;
+};
+
+type Qualifier = (criteria?: QualificationCriteria) => boolean;
+type QualificationMeta = {
+  qualifier: Qualifier;
+  alias: string;
+};
+type QualificationMessageOptions = {
+  message: {
+    success: string;
+    failure: string;
+  };
+};
+type QualificationConfig = {
+  blocking?: false; // assume qualifiers are blocking unless otherwise indicated
+  effect?: (criteria?: QualificationCriteria) => void; // success side effect
+} & QualificationMessageOptions;
+
+type QualificationDefinition = QualificationMeta & QualificationConfig;
+type QualificationResponse = QualificationMeta & { result: boolean; message: string };
+
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
   private showInlineMenuIdentities: boolean;
@@ -199,19 +224,109 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
-    if (
-      currentlyInSandboxedIframe() ||
-      this.formFieldElements.has(formFieldElement) ||
-      this.isIgnoredField(autofillFieldData, pageDetails)
-    ) {
-      return;
-    }
-
-    if (this.isHiddenField(formFieldElement, autofillFieldData)) {
+    const qualification = this.isQualifiedField({
+      formFieldElement,
+      autofillFieldData,
+      pageDetails,
+    });
+    if (!qualification) {
       return;
     }
 
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
+  }
+
+  private qualifiers: QualificationDefinition[] = [
+    {
+      qualifier: () => !currentlyInSandboxedIframe(),
+      alias: "notCurrentlyInSandboxedIframe",
+      message: {
+        success: "field not in sandboxed iframe",
+        failure: "field in sandboxed iframe",
+      },
+    },
+    {
+      qualifier: ({ formFieldElement }: QualificationCriteria) =>
+        !this.formFieldElements.has(formFieldElement),
+      alias: "notPreviouslyQualified",
+      message: {
+        success: "field not previously qualified",
+        failure: "field previously qualified",
+      },
+    },
+    // Function should be entirely deconstructed first.
+    // {
+    //   qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+    //     !this.isIgnoredField(autofillFieldData, pageDetails),
+    //   alias: "isNotIgnoredField",
+    //   message: {
+    //     success: "field is not ignored",
+    //     failure: "field is ignored",
+    //   },
+    // },
+    {
+      qualifier: ({ autofillFieldData }: QualificationCriteria) =>
+        !this.ignoredFieldTypes.has(autofillFieldData.type),
+      alias: "fieldNotIgnoredType",
+      message: {
+        success: "field is not in ignored types",
+        failure: "field is in ignored types",
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.inlineMenuFieldQualificationService.isFieldForLoginForm(
+          autofillFieldData,
+          pageDetails,
+        ),
+      alias: "fieldIsForLoginForm",
+      message: {
+        success: "field is for login form",
+        failure: "field is not for login form",
+      },
+      blocking: false,
+      effect: ({ autofillFieldData }: QualificationCriteria) =>
+        this.setQualifiedLoginFillType(autofillFieldData),
+    },
+    {
+      qualifier: ({ formFieldElement, autofillFieldData }: QualificationCriteria) =>
+        !this.isHiddenField(formFieldElement, autofillFieldData),
+      alias: "isNotHiddenField",
+      message: {
+        success: "field is not hidden",
+        failure: "field is hidden",
+      },
+    },
+  ];
+
+  qualify(
+    definition: QualificationDefinition,
+    criteria: QualificationCriteria,
+  ): QualificationResponse {
+    const {
+      qualifier,
+      alias,
+      message: { success, failure },
+    } = definition;
+    const result = qualifier(criteria);
+    return { alias, result, message: result ? success : failure, qualifier };
+  }
+
+  isQualifiedField(criteria: QualificationCriteria) {
+    const responses: QualificationResponse[] = [];
+    for (const definition of this.qualifiers) {
+      const response = this.qualify(definition, criteria);
+      responses.push(response);
+      if (response.result === false && definition?.blocking !== false) {
+        console.log({ element: criteria.formFieldElement, responses });
+        return false;
+      }
+      if (response.result === true && definition.effect) {
+        void definition.effect(criteria);
+      }
+    }
+    console.log({ element: criteria.formFieldElement, responses });
+    return true;
   }
 
   /**
@@ -1058,17 +1173,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
-    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
-      return true;
-    }
-
-    if (
-      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
-    ) {
-      void this.setQualifiedLoginFillType(autofillFieldData);
-      return false;
-    }
-
     if (
       this.showInlineMenuCards &&
       this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
