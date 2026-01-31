@@ -19,6 +19,7 @@
         [ngModel]="selectedFilter()"
         (ngModelChange)="setFilterApplicationsByStatus($event)"
         fullWidth="false"
+        class="tw-min-w-48"
       ></bit-chip-select>
 
       <button
@@ -37,7 +38,6 @@
 
     <app-table-row-scrollable-m11
       [dataSource]="dataSource"
-      [showRowCheckBox]="true"
       [showRowMenuForCriticalApps]="false"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
