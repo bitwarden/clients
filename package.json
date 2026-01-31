@@ -64,7 +64,7 @@
     "@storybook/test-runner": "0.22.0",
     "@storybook/web-components-vite": "9.1.16",
     "@tailwindcss/container-queries": "0.1.1",
-    "@types/chrome": "0.1.28",
+    "@types/chrome": "0.1.34",
     "@types/firefox-webext-browser": "143.0.0",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.14",
