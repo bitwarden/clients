@@ -492,6 +492,11 @@ export class CipherService implements CipherServiceAbstraction {
    * @deprecated Use `cipherViews$` observable instead
    */
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    if (useSdk) {
+      return this.getAllDecryptedUsingSdk(userId);
+    }
+
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
       await this.reindexCiphers(userId);
@@ -511,6 +516,20 @@ export class CipherService implements CipherServiceAbstraction {
     await this.setFailedDecryptedCiphers(failedCiphers, userId);
 
     return newDecCiphers;
+  }
+
+  private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
+    try {
+      const result = await this.cipherSdkService.getAllDecrypted(userId);
+
+      await this.setDecryptedCipherCache(result.successes, userId);
+      await this.setFailedDecryptedCiphers(result.failures, userId);
+
+      return result.successes;
+    } catch {
+      // Return empty array on error to maintain existing behavior
+      return [];
+    }
   }
 
   private async getDecryptedCiphers(userId: UserId) {
@@ -747,11 +766,42 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     includeMemberItems?: boolean,
   ): Promise<CipherView[]> {
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    if (useSdk) {
+      return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
+    }
+
     const response = await this.apiService.getCiphersOrganization(
       organizationId,
       includeMemberItems,
     );
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
+  }
+
+  private async getAllFromApiForOrganizationUsingSdk(
+    organizationId: string,
+    includeMemberItems: boolean,
+  ): Promise<CipherView[]> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const cipherViews = await this.cipherSdkService.getAllFromApiForOrganization(
+        organizationId,
+        userId,
+        includeMemberItems,
+      );
+
+      // Sort by locale (matching existing behavior)
+      cipherViews.sort(this.getLocaleSortingFunction());
+
+      return cipherViews;
+    } catch {
+      // Return empty array on error to maintain existing behavior
+      return [];
+    }
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
