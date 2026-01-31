@@ -43,20 +43,22 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "## 📋 Workflow Inputs" >> $GITHUB_STEP_SUMMARY
-          echo "- Run Mode: ${{ inputs.run-mode }}" >> $GITHUB_STEP_SUMMARY
-          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Base Branch: ${{ inputs.base-branch }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📋 Workflow Inputs"
+            echo "- Run Mode: ${{ inputs.run-mode }}"
+            echo "- SDK Version: ${{ inputs.sdk-version }}"
+            echo "- Base Branch: ${{ inputs.base-branch }}"
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
           persist-credentials: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
           cache: 'npm'
@@ -219,16 +221,18 @@ jobs:
 
       - name: Generate validation summary
         run: |
-          echo "## 📊 Validation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '⚠️ Failed' }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Changed Files" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          git diff --stat package.json package-lock.json >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📊 Validation Summary"
+            echo ""
+            echo "- SDK Version: ${{ inputs.sdk-version }}"
+            echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+            echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '⚠️ Failed' }}"
+            echo ""
+            echo "### Changed Files"
+            echo '```'
+            git diff --stat package.json package-lock.json
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Commit changes
         env:
@@ -362,26 +366,30 @@ jobs:
     name: Test SDK Update
     if: ${{ inputs.run-mode == 'Test' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "## 📋 Workflow Inputs (Test Mode)" >> $GITHUB_STEP_SUMMARY
-          echo "- Run Mode: ${{ inputs.run-mode }}" >> $GITHUB_STEP_SUMMARY
-          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Base Branch: ${{ inputs.base-branch }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📋 Workflow Inputs (Test Mode)"
+            echo "- Run Mode: ${{ inputs.run-mode }}"
+            echo "- SDK Version: ${{ inputs.sdk-version }}"
+            echo "- Base Branch: ${{ inputs.base-branch }}"
+          } >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ inputs.pr-id }}" ]; then
             echo "- PR ID: ${{ inputs.pr-id }}" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
           cache: 'npm'
@@ -427,13 +435,17 @@ jobs:
 
       - name: Test summary
         run: |
-          echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📊 Test Results"
+            echo ""
+            echo "- SDK Version: ${{ inputs.sdk-version }}"
+            echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+            echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          } >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.lint.outcome }}" = "success" ] && [ "${{ steps.tests.outcome }}" = "success" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### ✅ All checks passed - SDK version ${{ inputs.sdk-version }} is ready for release" >> $GITHUB_STEP_SUMMARY
+            {
+              echo ""
+              echo "### ✅ All checks passed - SDK version ${{ inputs.sdk-version }} is ready for release"
+            } >> $GITHUB_STEP_SUMMARY
           fi
