@@ -51,6 +51,7 @@
       "@bitwarden/nx-plugin": ["./libs/nx-plugin/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
+      "@bitwarden/playwright-helpers": ["libs/playwright-helpers/src/index.ts"],
       "@bitwarden/pricing": ["./libs/pricing/src/index.ts"],
       "@bitwarden/send-ui": ["./libs/tools/send/send-ui/src"],
       "@bitwarden/serialization": ["./libs/serialization/src/index.ts"],
@@ -66,7 +67,10 @@
       "@bitwarden/vault": ["./libs/vault/src"],
       "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
+      "@playwright-config": ["./playwright.config.ts"],
+      "@playwright-data": ["./playwright-data"],
+      "@bitwarden-playwright-test": ["libs/playwright-helpers/src/test.ts"]
     },
     "plugins": [
       {

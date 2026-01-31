@@ -7,7 +7,7 @@
     "types": ["jest", "node"]
   },
   "include": [
-    "jest.config.ts",
+    "jest.config",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts",
