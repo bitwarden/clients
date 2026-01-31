@@ -1,0 +1,439 @@
+name: SDLC / SDK Update
+run-name: "SDK ${{inputs.run-mode == 'Update' && format('Update - {0}', inputs.sdk-version) || format('Test - {0}', inputs.sdk-version)}}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-mode:
+        description: "Run Mode"
+        type: choice
+        options:
+          - Update  # opens a PR in this repo updating the SDK
+          - Test    # validates SDK update without creating PR
+        default: Update
+      sdk-version:
+        description: "SDK Version"
+        type: string
+        required: true
+      base-branch:
+        description: "Base branch for PR (branch to merge into)"
+        type: string
+        default: "main"
+      pr-id:
+        description: "Pull Request ID (Test mode only)"
+        type: string
+
+env:
+  _BOT_NAME: "github-actions[bot]"
+  _BOT_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  update:
+    name: Update and PR
+    if: ${{ inputs.run-mode == 'Update' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "## 📋 Workflow Inputs" >> $GITHUB_STEP_SUMMARY
+          echo "- Run Mode: ${{ inputs.run-mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Base Branch: ${{ inputs.base-branch }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.base-branch }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Get current SDK version from base branch
+        id: get-current-sdk
+        run: |
+          CURRENT_SDK_VERSION=$(git show origin/${{ inputs.base-branch }}:package.json | jq -r '.dependencies."@bitwarden/sdk-internal" // empty')
+          CURRENT_COMMERCIAL_VERSION=$(git show origin/${{ inputs.base-branch }}:package.json | jq -r '.dependencies."@bitwarden/commercial-sdk-internal" // empty')
+
+          if [ -z "$CURRENT_SDK_VERSION" ]; then
+            echo "::warning::Could not find current @bitwarden/sdk-internal version"
+            CURRENT_SDK_VERSION="unknown"
+          fi
+
+          if [ -z "$CURRENT_COMMERCIAL_VERSION" ]; then
+            echo "::warning::Could not find current @bitwarden/commercial-sdk-internal version"
+            CURRENT_COMMERCIAL_VERSION="unknown"
+          fi
+
+          echo "current-sdk-version=$CURRENT_SDK_VERSION" >> "$GITHUB_OUTPUT"
+          echo "current-commercial-version=$CURRENT_COMMERCIAL_VERSION" >> "$GITHUB_OUTPUT"
+          echo "📋 Current SDK version: $CURRENT_SDK_VERSION"
+          echo "📋 Current Commercial SDK version: $CURRENT_COMMERCIAL_VERSION"
+
+      - name: Validate SDK version and detect downgrade
+        id: validate-version
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          CURRENT_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
+        run: |
+          # Check if version exists
+          echo "🔍 Validating SDK version: $SDK_VERSION"
+          if ! npm view @bitwarden/sdk-internal@$SDK_VERSION version 2>/dev/null; then
+            echo "::error::SDK version $SDK_VERSION not found in npm registry"
+            exit 1
+          fi
+
+          if ! npm view @bitwarden/commercial-sdk-internal@$SDK_VERSION version 2>/dev/null; then
+            echo "::error::Commercial SDK version $SDK_VERSION not found in npm registry"
+            exit 1
+          fi
+
+          echo "✅ SDK versions exist in npm registry"
+
+          # Check if same version
+          if [ "$SDK_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "::error::Provided SDK version is the same as current version ($CURRENT_VERSION)"
+            exit 1
+          fi
+
+          # Simple version comparison (works for semantic versions)
+          if [ "$CURRENT_VERSION" != "unknown" ]; then
+            if [ "$(printf '%s\n' "$SDK_VERSION" "$CURRENT_VERSION" | sort -V | head -n1)" = "$SDK_VERSION" ] && [ "$SDK_VERSION" != "$CURRENT_VERSION" ]; then
+              echo "::warning::⚠️ Downgrading SDK from $CURRENT_VERSION to $SDK_VERSION"
+              echo "downgrading=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "✅ Upgrading SDK from $CURRENT_VERSION to $SDK_VERSION"
+              echo "downgrading=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "downgrading=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Switch to branch
+        id: switch-branch
+        run: |
+          BRANCH_NAME="sdlc/sdk-update"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+          if git switch "$BRANCH_NAME" 2>/dev/null; then
+            echo "✅ Switched to existing branch: $BRANCH_NAME"
+            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "📝 Creating new branch: $BRANCH_NAME"
+            git switch -c "$BRANCH_NAME"
+            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prevent updating branch with manual changes
+        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+        run: |
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
+
+          echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
+          echo "Expected bot email: $_BOT_EMAIL"
+
+          if [ "$LATEST_COMMIT_AUTHOR" != "$_BOT_EMAIL" ]; then
+            echo "::error::Branch $_BRANCH_NAME has a commit not made by the bot." \
+              "This indicates manual changes have been made to the branch," \
+              "PR has to be merged or closed before running this workflow again."
+
+            echo "👀 Fetching existing PR..."
+            EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base ${{ inputs.base-branch }} --state open --json number --jq '.[0].number // empty')
+            if [ -z "$EXISTING_PR" ]; then
+              echo "::error::Couldn't find an existing PR for branch $_BRANCH_NAME."
+              exit 1
+            fi
+
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ❌ Merge or close: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "✅ Branch tip commit was made by the bot. Safe to proceed."
+
+      - name: Update SDK versions
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+        run: |
+          echo "📦 Installing SDK version: $SDK_VERSION"
+          npm install @bitwarden/sdk-internal@$SDK_VERSION
+          npm install @bitwarden/commercial-sdk-internal@$SDK_VERSION
+          echo "✅ SDK packages updated in package.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        id: lint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Run tests
+        id: tests
+        run: npm test
+        continue-on-error: true
+
+      - name: Generate changelog
+        id: changelog
+        if: steps.validate-version.outputs.downgrading != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
+          NEW_VERSION: ${{ inputs.sdk-version }}
+        run: |
+          # Extract git refs from version strings (format: x.y.z-build-gitref)
+          OLD_REF=$(echo "$OLD_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
+          NEW_REF=$(echo "$NEW_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
+
+          if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
+            echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
+            CHANGELOG=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" \
+              --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
+
+            if [ -n "$CHANGELOG" ]; then
+              echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+              echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
+              echo "EOF" >> "$GITHUB_OUTPUT"
+              echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
+            else
+              echo "⚠️ Could not generate changelog"
+            fi
+          else
+            echo "⚠️ Could not extract git refs from versions for changelog"
+          fi
+
+      - name: Generate validation summary
+        run: |
+          echo "## 📊 Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '⚠️ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changed Files" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat package.json package-lock.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit changes
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+        run: |
+          echo "👀 Committing SDK version update..."
+          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
+
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
+          git add package.json package-lock.json
+          git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+          git push origin "$BRANCH_NAME"
+
+      - name: Create or Update Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
+          OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}
+          DOWNGRADING: ${{ steps.validate-version.outputs.downgrading }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+          LINT_STATUS: ${{ steps.lint.outcome }}
+          TEST_STATUS: ${{ steps.tests.outcome }}
+        run: |
+          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
+
+          # Determine validation status
+          if [ "$LINT_STATUS" = "success" ]; then
+            LINT_RESULT="✅ Passed"
+          else
+            LINT_RESULT="❌ Failed"
+          fi
+
+          if [ "$TEST_STATUS" = "success" ]; then
+            TEST_RESULT="✅ Passed"
+          elif [ "$TEST_STATUS" = "skipped" ]; then
+            TEST_RESULT="⏭️ Skipped"
+          else
+            TEST_RESULT="⚠️ Failed"
+          fi
+
+          # Build PR body
+          if [ "$DOWNGRADING" = "true" ]; then
+            PR_TITLE="⚠️ Downgrade SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+            cat > /tmp/pr-body.md <<EOF
+          ## ⚠️ Downgrading SDK to older version ⚠️
+
+          This PR downgrades the SDK packages from \`$OLD_SDK_VERSION\` to \`$SDK_VERSION\`.
+
+          ### Changes
+          - \`@bitwarden/sdk-internal\`: \`$OLD_SDK_VERSION\` → \`$SDK_VERSION\`
+          - \`@bitwarden/commercial-sdk-internal\`: \`$OLD_COMMERCIAL_VERSION\` → \`$SDK_VERSION\`
+
+          ### Validation Results
+          - Lint: $LINT_RESULT
+          - Tests: $TEST_RESULT
+
+          ### Links
+          - [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)
+
+          ---
+          *Auto-generated by [sdk-internal publish workflow](https://github.com/bitwarden/sdk-internal/blob/main/.github/workflows/publish-wasm-internal.yml)*
+          EOF
+          else
+            PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+            cat > /tmp/pr-body.md <<EOF
+          ## 🤖 Automated SDK Update
+
+          This PR updates the SDK packages to version \`$SDK_VERSION\`.
+
+          ### Changes
+          - \`@bitwarden/sdk-internal\`: \`$OLD_SDK_VERSION\` → \`$SDK_VERSION\`
+          - \`@bitwarden/commercial-sdk-internal\`: \`$OLD_COMMERCIAL_VERSION\` → \`$SDK_VERSION\`
+          EOF
+
+            if [ -n "$CHANGELOG" ]; then
+              cat >> /tmp/pr-body.md <<EOF
+
+          ### What's Changed in SDK
+          $CHANGELOG
+          EOF
+            fi
+
+            cat >> /tmp/pr-body.md <<EOF
+
+          ### Validation Results
+          - Lint: $LINT_RESULT
+          - Tests: $TEST_RESULT
+
+          ### Links
+          - [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)
+
+          ---
+          *Auto-generated by [sdk-internal publish workflow](https://github.com/bitwarden/sdk-internal/blob/main/.github/workflows/publish-wasm-internal.yml)*
+          EOF
+          fi
+
+          # Check for existing PR
+          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --base ${{ inputs.base-branch }} --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "🔄 Updating existing PR #$EXISTING_PR..."
+            gh pr edit "$EXISTING_PR" \
+              --title "$PR_TITLE" \
+              --body-file /tmp/pr-body.md
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "📝 Creating new PR..."
+            LABELS="dependencies,automated"
+            if [ "$TEST_STATUS" != "success" ]; then
+              LABELS="$LABELS,tests-failing"
+            fi
+
+            PR_URL=$(gh pr create \
+              --title "$PR_TITLE" \
+              --body-file /tmp/pr-body.md \
+              --base ${{ inputs.base-branch }} \
+              --head "$BRANCH_NAME" \
+              --label "$LABELS")
+            echo "## 🚀 Created PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  test:
+    name: Test SDK Update
+    if: ${{ inputs.run-mode == 'Test' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "## 📋 Workflow Inputs (Test Mode)" >> $GITHUB_STEP_SUMMARY
+          echo "- Run Mode: ${{ inputs.run-mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Base Branch: ${{ inputs.base-branch }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ inputs.pr-id }}" ]; then
+            echo "- PR ID: ${{ inputs.pr-id }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.base-branch }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Validate SDK version exists
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+        run: |
+          echo "🔍 Validating SDK version: $SDK_VERSION"
+          if ! npm view @bitwarden/sdk-internal@$SDK_VERSION version 2>/dev/null; then
+            echo "::error::SDK version $SDK_VERSION not found in npm registry"
+            exit 1
+          fi
+
+          if ! npm view @bitwarden/commercial-sdk-internal@$SDK_VERSION version 2>/dev/null; then
+            echo "::error::Commercial SDK version $SDK_VERSION not found in npm registry"
+            exit 1
+          fi
+
+          echo "✅ SDK versions exist in npm registry"
+
+      - name: Update SDK versions
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+        run: |
+          echo "📦 Installing SDK version: $SDK_VERSION"
+          npm install @bitwarden/sdk-internal@$SDK_VERSION
+          npm install @bitwarden/commercial-sdk-internal@$SDK_VERSION
+          echo "✅ SDK packages updated in package.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        id: lint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Run tests
+        id: tests
+        run: npm test
+        continue-on-error: true
+
+      - name: Test summary
+        run: |
+          echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- SDK Version: ${{ inputs.sdk-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.lint.outcome }}" = "success" ] && [ "${{ steps.tests.outcome }}" = "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ All checks passed - SDK version ${{ inputs.sdk-version }} is ready for release" >> $GITHUB_STEP_SUMMARY
+          fi
