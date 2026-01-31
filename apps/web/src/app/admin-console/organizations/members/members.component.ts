@@ -125,6 +125,14 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map(
+        (members) => members.filter((m) => m.status === OrganizationUserStatusType.Invited).length,
+      ),
+    );
+
   protected isProcessing = this.memberActionsService.isProcessing;
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
