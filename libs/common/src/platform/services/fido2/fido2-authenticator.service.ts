@@ -632,7 +632,7 @@ function authDataFlags(options: Flags): number {
   let flags = 0;
 
   if (options.extensionData) {
-    flags |= 0b1000000;
+    flags |= 0b10000000;
   }
 
   if (options.attestationData) {
