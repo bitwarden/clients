@@ -4,7 +4,10 @@ import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap }
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LogoutReason,
+} from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -93,6 +96,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private registerSdkService: RegisterSdkService,
     private securityStateService: SecurityStateService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
       filter((account) => account != null),
@@ -143,6 +147,22 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.apiService.postConvertToKeyConnector();
 
     await this.setUsesKeyConnector(true, userId);
+
+    // Clear master password unlock from state
+    await this.masterPasswordService.clearMasterKeyHash(userId);
+    await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
+
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+    userDecryptionOptions.hasMasterPassword = false;
+    userDecryptionOptions.keyConnectorOption = {
+      keyConnectorUrl,
+    };
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOptions,
+    );
   }
 
   // TODO: UserKey should be renamed to MasterKey and typed accordingly
