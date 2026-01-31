@@ -42,12 +42,16 @@ jobs:
 
     steps:
       - name: Log inputs to job summary
+        env:
+          RUN_MODE: ${{ inputs.run-mode }}
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           {
             echo "## 📋 Workflow Inputs"
-            echo "- Run Mode: ${{ inputs.run-mode }}"
-            echo "- SDK Version: ${{ inputs.sdk-version }}"
-            echo "- Base Branch: ${{ inputs.base-branch }}"
+            echo "- Run Mode: $RUN_MODE"
+            echo "- SDK Version: $SDK_VERSION"
+            echo "- Base Branch: $BASE_BRANCH"
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
@@ -65,9 +69,11 @@ jobs:
 
       - name: Get current SDK version from base branch
         id: get-current-sdk
+        env:
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          CURRENT_SDK_VERSION=$(git show origin/${{ inputs.base-branch }}:package.json | jq -r '.dependencies."@bitwarden/sdk-internal" // empty')
-          CURRENT_COMMERCIAL_VERSION=$(git show origin/${{ inputs.base-branch }}:package.json | jq -r '.dependencies."@bitwarden/commercial-sdk-internal" // empty')
+          CURRENT_SDK_VERSION=$(git show origin/$BASE_BRANCH:package.json | jq -r '.dependencies."@bitwarden/sdk-internal" // empty')
+          CURRENT_COMMERCIAL_VERSION=$(git show origin/$BASE_BRANCH:package.json | jq -r '.dependencies."@bitwarden/commercial-sdk-internal" // empty')
 
           if [ -z "$CURRENT_SDK_VERSION" ]; then
             echo "::warning::Could not find current @bitwarden/sdk-internal version"
@@ -143,6 +149,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
 
@@ -155,7 +162,7 @@ jobs:
               "PR has to be merged or closed before running this workflow again."
 
             echo "👀 Fetching existing PR..."
-            EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base ${{ inputs.base-branch }} --state open --json number --jq '.[0].number // empty')
+            EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number // empty')
             if [ -z "$EXISTING_PR" ]; then
               echo "::error::Couldn't find an existing PR for branch $_BRANCH_NAME."
               exit 1
@@ -220,13 +227,31 @@ jobs:
           fi
 
       - name: Generate validation summary
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
+          if [ "$LINT_OUTCOME" = "success" ]; then
+            LINT_STATUS="✅ Passed"
+          else
+            LINT_STATUS="❌ Failed"
+          fi
+
+          if [ "$TEST_OUTCOME" = "success" ]; then
+            TEST_STATUS="✅ Passed"
+          elif [ "$TEST_OUTCOME" = "skipped" ]; then
+            TEST_STATUS="⏭️ Skipped"
+          else
+            TEST_STATUS="⚠️ Failed"
+          fi
+
           {
             echo "## 📊 Validation Summary"
             echo ""
-            echo "- SDK Version: ${{ inputs.sdk-version }}"
-            echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
-            echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '⚠️ Failed' }}"
+            echo "- SDK Version: $SDK_VERSION"
+            echo "- Lint: $LINT_STATUS"
+            echo "- Tests: $TEST_STATUS"
             echo ""
             echo "### Changed Files"
             echo '```'
@@ -260,6 +285,10 @@ jobs:
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
           LINT_STATUS: ${{ steps.lint.outcome }}
           TEST_STATUS: ${{ steps.tests.outcome }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
 
@@ -295,7 +324,7 @@ jobs:
           - Tests: $TEST_RESULT
 
           ### Links
-          - [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)
           - [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)
 
           ---
@@ -328,7 +357,7 @@ jobs:
           - Tests: $TEST_RESULT
 
           ### Links
-          - [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)
           - [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)
 
           ---
@@ -337,14 +366,14 @@ jobs:
           fi
 
           # Check for existing PR
-          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --base ${{ inputs.base-branch }} --state open --json number --jq '.[0].number // empty')
+          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number // empty')
 
           if [ -n "$EXISTING_PR" ]; then
             echo "🔄 Updating existing PR #$EXISTING_PR..."
             gh pr edit "$EXISTING_PR" \
               --title "$PR_TITLE" \
               --body-file /tmp/pr-body.md
-            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            PR_URL="https://github.com/$GITHUB_REPOSITORY/pull/$EXISTING_PR"
             echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
@@ -356,7 +385,7 @@ jobs:
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
               --body-file /tmp/pr-body.md \
-              --base ${{ inputs.base-branch }} \
+              --base "$BASE_BRANCH" \
               --head "$BRANCH_NAME" \
               --label "$LABELS")
             echo "## 🚀 Created PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
@@ -371,15 +400,20 @@ jobs:
 
     steps:
       - name: Log inputs to job summary
+        env:
+          RUN_MODE: ${{ inputs.run-mode }}
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
+          PR_ID: ${{ inputs.pr-id }}
         run: |
           {
             echo "## 📋 Workflow Inputs (Test Mode)"
-            echo "- Run Mode: ${{ inputs.run-mode }}"
-            echo "- SDK Version: ${{ inputs.sdk-version }}"
-            echo "- Base Branch: ${{ inputs.base-branch }}"
+            echo "- Run Mode: $RUN_MODE"
+            echo "- SDK Version: $SDK_VERSION"
+            echo "- Base Branch: $BASE_BRANCH"
           } >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ inputs.pr-id }}" ]; then
-            echo "- PR ID: ${{ inputs.pr-id }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$PR_ID" ]; then
+            echo "- PR ID: $PR_ID" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Checkout repository
@@ -387,6 +421,7 @@ jobs:
         with:
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -434,18 +469,36 @@ jobs:
         continue-on-error: true
 
       - name: Test summary
+        env:
+          SDK_VERSION: ${{ inputs.sdk-version }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
+          if [ "$LINT_OUTCOME" = "success" ]; then
+            LINT_STATUS="✅ Passed"
+          else
+            LINT_STATUS="❌ Failed"
+          fi
+
+          if [ "$TEST_OUTCOME" = "success" ]; then
+            TEST_STATUS="✅ Passed"
+          elif [ "$TEST_OUTCOME" = "skipped" ]; then
+            TEST_STATUS="⏭️ Skipped"
+          else
+            TEST_STATUS="❌ Failed"
+          fi
+
           {
             echo "## 📊 Test Results"
             echo ""
-            echo "- SDK Version: ${{ inputs.sdk-version }}"
-            echo "- Lint: ${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
-            echo "- Tests: ${{ steps.tests.outcome == 'success' && '✅ Passed' || steps.tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+            echo "- SDK Version: $SDK_VERSION"
+            echo "- Lint: $LINT_STATUS"
+            echo "- Tests: $TEST_STATUS"
           } >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ steps.lint.outcome }}" = "success" ] && [ "${{ steps.tests.outcome }}" = "success" ]; then
+          if [ "$LINT_OUTCOME" = "success" ] && [ "$TEST_OUTCOME" = "success" ]; then
             {
               echo ""
-              echo "### ✅ All checks passed - SDK version ${{ inputs.sdk-version }} is ready for release"
+              echo "### ✅ All checks passed - SDK version $SDK_VERSION is ready for release"
             } >> $GITHUB_STEP_SUMMARY
           fi
