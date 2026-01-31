@@ -4,12 +4,13 @@
       bitButton
       buttonType="primary"
       type="button"
-      [bitMenuTriggerFor]="addOptions"
+      [bitMenuTriggerFor]="isOnlyCollectionCreation() ? null : addOptions"
+      (click)="handleButtonClick()"
       id="newItemDropdown"
-      [appA11yTitle]="'new' | i18n"
+      [appA11yTitle]="getButtonLabel() | i18n"
     >
       <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
-      {{ "new" | i18n }}
+      {{ getButtonLabel() | i18n }}
     </button>
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
       @for (item of cipherMenuItems$ | async; track item.type) {
