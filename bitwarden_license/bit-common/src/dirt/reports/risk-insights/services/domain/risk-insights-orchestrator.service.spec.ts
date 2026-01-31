@@ -10,7 +10,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
-import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import {
+  ReportStatus,
+  RiskInsightsData,
+  RiskInsightsEnrichedData,
+  SaveRiskInsightsReportResponse,
+} from "../../models";
 import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -26,6 +31,42 @@ import { PasswordHealthService } from "./password-health.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
+
+/**
+ * Test harness to encapsulate private member access.
+ * Provides a maintainable, type-safe way to set up test scenarios
+ * without directly accessing private members throughout tests.
+ */
+class TestHarness {
+  constructor(private service: RiskInsightsOrchestratorService) {}
+
+  setOrganizationContext(organizationId: OrganizationId, organizationName: string) {
+    this.service["_organizationDetailsSubject"].next({ organizationId, organizationName });
+    return this;
+  }
+
+  setUserId(userId: UserId) {
+    this.service["_userIdSubject"].next(userId);
+    return this;
+  }
+
+  setEnrichedReportData(data: RiskInsightsEnrichedData) {
+    this.service["_enrichedReportDataSubject"].next(data);
+    return this;
+  }
+
+  setupCompleteContext(organizationId: OrganizationId, userId: UserId, orgName = "Test Org") {
+    return this.setOrganizationContext(organizationId, orgName).setUserId(userId);
+  }
+
+  getDestroySubject() {
+    return this.service["_destroy$"];
+  }
+
+  getReportStateSubscription() {
+    return this.service["_reportStateSubscription"];
+  }
+}
 
 describe("RiskInsightsOrchestratorService", () => {
   let service: RiskInsightsOrchestratorService;
@@ -123,12 +164,8 @@ describe("RiskInsightsOrchestratorService", () => {
         mockRiskInsightsEncryptionService,
       );
 
-      const { _organizationDetailsSubject, _userIdSubject } = testService as any;
-      _organizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      _userIdSubject.next(mockUserId);
+      const harness = new TestHarness(testService);
+      harness.setupCompleteContext(mockOrgId, mockUserId, mockOrgName);
       testService.rawReportData$.subscribe((state) => {
         if (state.status != ReportStatus.Loading) {
           expect(state.error).toBe("Failed to fetch report");
@@ -141,15 +178,9 @@ describe("RiskInsightsOrchestratorService", () => {
 
   describe("generateReport", () => {
     it("should generate report using member ciphers and password health, then save and emit ReportState", (done) => {
-      const privateOrganizationDetailsSubject = service["_organizationDetailsSubject"];
-      const privateUserIdSubject = service["_userIdSubject"];
-
       // Set up ciphers in orchestrator
-      privateOrganizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      privateUserIdSubject.next(mockUserId);
+      const harness = new TestHarness(service);
+      harness.setupCompleteContext(mockOrgId, mockUserId, mockOrgName);
 
       // Act
       service.generateReport();
@@ -192,12 +223,14 @@ describe("RiskInsightsOrchestratorService", () => {
 
     describe("destroy", () => {
       it("should complete destroy$ subject and unsubscribe reportStateSubscription", () => {
-        const privateDestroy = (service as any)._destroy$;
-        const privateReportStateSubscription = (service as any)._reportStateSubscription;
+        const harness = new TestHarness(service);
 
-        // Spy on the methods you expect to be called.
-        const destroyCompleteSpy = jest.spyOn(privateDestroy, "complete");
-        const unsubscribeSpy = jest.spyOn(privateReportStateSubscription, "unsubscribe");
+        const destroySubject = harness.getDestroySubject();
+        const destroyCompleteSpy = jest.spyOn(destroySubject, "complete");
+
+        const reportStateSubscription = harness.getReportStateSubscription();
+        expect(reportStateSubscription).not.toBeNull();
+        const unsubscribeSpy = jest.spyOn(reportStateSubscription!, "unsubscribe");
 
         // Execute the destroy method.
         service.destroy();
@@ -205,6 +238,114 @@ describe("RiskInsightsOrchestratorService", () => {
         // Assert that the methods were called as expected.
         expect(destroyCompleteSpy).toHaveBeenCalled();
         expect(unsubscribeSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("criticalReportResults$", () => {
+    it("should filter reportData and applicationData to only include critical applications", (done) => {
+      // Arrange: Create test data with both critical and non-critical applications
+      const testEnrichedReportData: RiskInsightsEnrichedData = {
+        reportData: [
+          { ...mockEnrichedReportData[0], isMarkedAsCritical: true }, // Critical app
+          { ...mockEnrichedReportData[1], isMarkedAsCritical: false }, // Non-critical app
+        ],
+        summaryData: {
+          ...mockSummaryData,
+          totalApplicationCount: 3,
+          totalCriticalApplicationCount: 1,
+        },
+        applicationData: [
+          { applicationName: "application1.com", isCritical: true, reviewedDate: new Date() },
+          {
+            applicationName: "site2.application1.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+          {
+            applicationName: "application2.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+        ],
+        creationDate: new Date(),
+      };
+
+      // Act: Emit the enriched report data to trigger the critical filtering pipeline
+      const harness = new TestHarness(service);
+      harness.setEnrichedReportData(testEnrichedReportData);
+
+      // Assert: Verify that criticalReportResults$ only contains critical applications
+      service.criticalReportResults$.subscribe((criticalResults) => {
+        if (criticalResults) {
+          // reportData should only have critical applications
+          expect(criticalResults.reportData).toHaveLength(1);
+          expect(criticalResults.reportData[0].isMarkedAsCritical).toBe(true);
+          expect(criticalResults.reportData[0].applicationName).toBe("application1.com");
+
+          // applicationData should only have critical applications
+          expect(criticalResults.applicationData).toHaveLength(1);
+          expect(criticalResults.applicationData[0].isCritical).toBe(true);
+          expect(criticalResults.applicationData[0].applicationName).toBe("application1.com");
+
+          // summaryData should be recalculated for critical applications only
+          expect(criticalResults.summaryData).toBeDefined();
+          expect(mockReportService.getApplicationsSummary).toHaveBeenCalledWith(
+            expect.arrayContaining([
+              expect.objectContaining({
+                applicationName: "application1.com",
+                isMarkedAsCritical: true,
+              }),
+            ]),
+            expect.arrayContaining([
+              expect.objectContaining({ applicationName: "application1.com", isCritical: true }),
+            ]),
+            testEnrichedReportData.summaryData.totalMemberCount,
+          );
+
+          done();
+        }
+      });
+    });
+
+    it("should return empty arrays when no critical applications exist", (done) => {
+      // Arrange: Create test data with only non-critical applications
+      const testEnrichedReportData: RiskInsightsEnrichedData = {
+        reportData: [
+          { ...mockEnrichedReportData[0], isMarkedAsCritical: false },
+          { ...mockEnrichedReportData[1], isMarkedAsCritical: false },
+        ],
+        summaryData: {
+          ...mockSummaryData,
+          totalApplicationCount: 2,
+          totalCriticalApplicationCount: 0,
+        },
+        applicationData: [
+          {
+            applicationName: "application1.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+          {
+            applicationName: "application2.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+        ],
+        creationDate: new Date(),
+      };
+
+      // Act: Emit the enriched report data
+      const harness = new TestHarness(service);
+      harness.setEnrichedReportData(testEnrichedReportData);
+
+      // Assert: Verify that criticalReportResults$ contains empty arrays
+      service.criticalReportResults$.subscribe((criticalResults) => {
+        if (criticalResults) {
+          expect(criticalResults.reportData).toHaveLength(0);
+          expect(criticalResults.applicationData).toHaveLength(0);
+          done();
+        }
       });
     });
   });

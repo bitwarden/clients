@@ -994,19 +994,24 @@ export class RiskInsightsOrchestratorService {
     const criticalReportResultsPipeline$ = this.enrichedReportData$.pipe(
       filter((state) => !!state && !!state.summaryData),
       map((enrichedReports) => {
-        const criticalApplications = enrichedReports!.reportData.filter(
+        const criticalReportData = enrichedReports!.reportData.filter(
           (app) => app.isMarkedAsCritical,
+        );
+        // Filter applicationData to only critical applications
+        const criticalApplicationData = enrichedReports!.applicationData.filter(
+          (app) => app.isCritical,
         );
         // Generate a new summary based on just the critical applications
         const summary = this.reportService.getApplicationsSummary(
-          criticalApplications,
-          enrichedReports!.applicationData,
+          criticalReportData,
+          criticalApplicationData,
           enrichedReports!.summaryData.totalMemberCount,
         );
         return {
-          ...enrichedReports!,
+          reportData: criticalReportData,
           summaryData: summary,
-          reportData: criticalApplications,
+          applicationData: criticalApplicationData,
+          creationDate: enrichedReports!.creationDate,
         };
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
