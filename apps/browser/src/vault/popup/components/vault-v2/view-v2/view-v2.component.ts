@@ -266,6 +266,7 @@ export class ViewV2Component {
     }
 
     this.popupScrollPositionService.stop(true);
+    this.popupScrollPositionService.forceTopOnNextVaultStart();
     await this.popupRouterCacheService.back();
 
     this.toastService.showToast({

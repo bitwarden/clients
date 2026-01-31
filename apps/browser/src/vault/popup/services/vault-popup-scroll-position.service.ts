@@ -18,6 +18,9 @@ export class VaultPopupScrollPositionService {
   /** Subscription associated with the virtual scroll element. */
   private scrollSubscription: Subscription | null = null;
 
+  /** When true, the next call to `start()` will force scroll position back to the top. */
+  private forceTopOnNextStart = false;
+
   constructor() {
     this.router.events
       .pipe(
@@ -31,8 +34,22 @@ export class VaultPopupScrollPositionService {
 
   /** Scrolls the user to the stored scroll position and starts tracking scroll of the page. */
   start(scrollElement: HTMLElement) {
-    if (this.hasScrollPosition()) {
-      // Use `setTimeout` to scroll after rendering is complete
+    // Use `setTimeout` to scroll after rendering is complete.
+    // Firefox can sometimes restore scroll position on history navigation (back/forward)
+    // after our initial scroll call. When we explicitly want to reset to the top (e.g. after
+    // deleting an item), we schedule an extra follow-up scroll to ensure the final position is 0.
+    if (this.forceTopOnNextStart) {
+      this.forceTopOnNextStart = false;
+      this.scrollPosition = 0;
+      // try to set scroll to top immediately
+      setTimeout(() => {
+        scrollElement.scrollTo({ top: 0, behavior: "instant" });
+      }, 0);
+      // wait for FF to possibly restore scroll position after UI settles, then enforce top=0
+      setTimeout(() => {
+        scrollElement.scrollTo({ top: 0, behavior: "instant" });
+      }, 250);
+    } else if (this.hasScrollPosition()) {
       setTimeout(() => {
         scrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
       });
@@ -64,6 +81,14 @@ export class VaultPopupScrollPositionService {
   /** Returns true when a scroll position has been stored. */
   hasScrollPosition() {
     return this.scrollPosition !== null;
+  }
+
+  /**
+   * Forces the next vault list render to start at scroll position 0.
+   * Useful for flows where we don't want browser back/forward scroll restoration (e.g. after delete).
+   */
+  forceTopOnNextVaultStart() {
+    this.forceTopOnNextStart = true;
   }
 
   /** Conditionally resets the scroll listeners based on the ending path of the navigation */
