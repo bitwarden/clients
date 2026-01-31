@@ -54,7 +54,7 @@ import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
-import { VaultComponent } from "../vault/app/vault-v3/vault.component";
+import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
@@ -358,7 +358,8 @@ const routes: Routes = [
     children: [
       {
         path: "new-vault",
-        component: VaultComponent,
+        component: VaultWrapperComponent,
+        data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
         path: "new-sends",

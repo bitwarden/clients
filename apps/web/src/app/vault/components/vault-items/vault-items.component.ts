@@ -31,7 +31,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -39,7 +39,6 @@ import {
   CollectionPermission,
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
