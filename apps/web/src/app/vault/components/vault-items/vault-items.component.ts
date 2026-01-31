@@ -153,7 +153,17 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  protected selection = new SelectionModel<VaultItem<C>>(
+    true, // allow multiple selection
+    [], // initial selection
+    true, // emit changes
+    // Custom compare function
+    (a, b) => {
+      const aId = a?.cipher?.id ?? a?.collection?.id;
+      const bId = b?.cipher?.id ?? b?.collection?.id;
+      return aId === bId;
+    },
+  );
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
@@ -250,7 +260,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         this.clearSelection();
       });
   }
-
   clearSelection() {
     this.selection.clear();
   }
