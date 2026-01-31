@@ -3,7 +3,7 @@ contact_links:
   - name: Report failure of prompt to save credentials in browser
     url: https://docs.google.com/forms/d/e/1FAIpQLSeG-Dtpn2xnr9N7oF04NyY6ETUM-JF8pagFfAv8mW7bgcMVxA/viewform
     about: We are aware of many sites' login forms where the Bitwarden browser extension either on a single platform/browser or multiple will not prompt the user to save a new password or update an existing password. This is something the Bitwarden team is actively working on but need your help as a community and active Bitwarden users!
-  - name: Report autofill failure in browser
+  - name: Report AUTOFILL failure in browser
     url: https://docs.google.com/forms/d/e/1FAIpQLSfkxh1w6vK8fLYwAbAAEVhvhMAJwfFNDtYtPUVk1y5WTHvJmQ/viewform
     about: We are aware of many sites' login forms, payment gateways, identity forms, etc. where the Bitwarden browser extension either on a single platform/browser or multiple will not autofill information. This is something the Bitwarden team is actively working on but need your help as a community and active Bitwarden users!
   - name: Feature Requests
