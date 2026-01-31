@@ -125,7 +125,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
-  [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
+  [FeatureFlag.Milestone11AppPageImprovements]: true,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
