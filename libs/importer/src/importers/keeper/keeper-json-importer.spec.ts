@@ -1,110 +1,957 @@
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { newGuid } from "@bitwarden/guid";
 
-import { testData as TestData } from "../spec-data/keeper-json/testdata.json";
+import { ImportResult } from "../../models";
+import {
+  CliTestData,
+  WebTestData,
+  LegacyTestData,
+  EnterpriseTestData,
+} from "../spec-data/keeper-json/testdata.json";
 
 import { KeeperJsonImporter } from "./keeper-json-importer";
 
 describe("Keeper Json Importer", () => {
-  const testDataJson = JSON.stringify(TestData);
+  let cliResult: ImportResult;
+  let webResult: ImportResult;
+  let orgResult: ImportResult;
+  let legacyResult: ImportResult;
+  let enterpriseResult: ImportResult;
 
-  let importer: KeeperJsonImporter;
-  beforeEach(() => {
-    importer = new KeeperJsonImporter();
+  beforeAll(async () => {
+    // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
+    jest.spyOn(console, "warn").mockImplementation();
+
+    // The CLI and Web exports should have the same content and their formats are very similar but do not appear
+    // to be the same. That's why they are tests here both.
+    cliResult = await expectParse(makeImporter(), CliTestData, 24);
+    webResult = await expectParse(makeImporter(), WebTestData, 24);
+    orgResult = await expectParse(makeImporter(newGuid()), CliTestData, 24);
+    legacyResult = await expectParse(makeImporter(), LegacyTestData, 78);
+    enterpriseResult = await expectParse(makeImporter(), EnterpriseTestData, 19);
   });
 
-  it("should parse login data", async () => {
-    const result = await importer.parse(testDataJson);
-    expect(result != null).toBe(true);
+  // All possible record types
+  // (use `keeper rti` command to list them)
+  //
+  //  1  address
+  //  2  bankAccount
+  //  3  bankCard
+  //  4  birthCertificate
+  //  5  contact
+  //  6  databaseCredentials
+  //  7  driverLicense
+  //  8  encryptedNotes
+  //  9  file
+  // 10  general
+  // 11  healthInsurance
+  // 12  login
+  // 13  membership
+  // 14  passport
+  // 15  photo
+  // 16  serverCredentials
+  // 17  softwareLicense
+  // 18  sshKeys
+  // 19  ssnCard
+  // 96  wifiCredentials
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.name).toEqual("Bank Account 1");
-    expect(cipher.login.username).toEqual("customer1234");
-    expect(cipher.login.password).toEqual("4813fJDHF4239fdk");
-    expect(cipher.login.uris.length).toEqual(1);
-    const uriView = cipher.login.uris.shift();
-    expect(uriView.uri).toEqual("https://chase.com");
-    expect(cipher.notes).toEqual("These are some notes.");
+  //
+  // CLI format tests (exported from keeper CLI)
+  //
 
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.name).toEqual("Bank Account 2");
-    expect(cipher2.login.username).toEqual("mybankusername");
-    expect(cipher2.login.password).toEqual("w4k4k193f$^&@#*%2");
-    expect(cipher2.login.uris.length).toEqual(1);
-    const uriView2 = cipher2.login.uris.shift();
-    expect(uriView2.uri).toEqual("https://amex.com");
-    expect(cipher2.notes).toEqual("Some great information here.");
+  it("should parse address", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const address = getCipher(result, "Home Address");
+      expect(address).toBeDefined();
+      expect(address.type).toEqual(CipherType.SecureNote);
 
-    const cipher3 = result.ciphers.shift();
-    expect(cipher3.name).toEqual("Some Account");
-    expect(cipher3.login.username).toEqual("someUserName");
-    expect(cipher3.login.password).toEqual("w4k4k1wergf$^&@#*%2");
-    expect(cipher3.notes).toBeNull();
-    expect(cipher3.fields.length).toBe(0);
-    expect(cipher3.login.uris.length).toEqual(1);
-    const uriView3 = cipher3.login.uris.shift();
-    expect(uriView3.uri).toEqual("https://example.com");
+      // Properties
+      expect(address.notes).toEqual("Primary residence - mailing and billing address");
+
+      // Fields
+      expect(address.fields.length).toEqual(1);
+      expect(getField(address, "address")?.value).toEqual(
+        "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+      );
+    });
   });
 
-  it("should import TOTP when present", async () => {
-    const result = await importer.parse(testDataJson);
-    expect(result != null).toBe(true);
+  it("should parse bankAccount", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankAccount = getCipher(result, "Wells Fargo Checking");
+      expect(bankAccount).toBeDefined();
+      expect(bankAccount.type).toEqual(CipherType.Login);
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.login.totp).toBeUndefined();
+      // Properties
+      expect(bankAccount.notes).toEqual(
+        "Primary checking account for direct deposit and bill payments",
+      );
+      expect(bankAccount.login.username).toEqual("m.thompson@email.com");
+      expect(bankAccount.login.password).toEqual("BankS3cur3!Pass");
+      expect(bankAccount.login.totp).toContain("otpauth://totp/");
 
-    // 2nd Cipher
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.login.totp).toEqual(
-      "otpauth://totp/Amazon:me@company.com?secret=JBSWY3DPEHPK3PXP&issuer=Amazon&algorithm=SHA1&digits=6&period=30",
-    );
+      // Fields
+      expect(bankAccount.fields.length).toEqual(2);
+      expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+        "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
+      );
+      expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+    });
   });
 
-  it("should parse custom fields", async () => {
-    const result = await importer.parse(testDataJson);
-    expect(result != null).toBe(true);
+  it("should parse bankAccount with other type", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankAccount = getCipher(result, "Other bank");
+      expect(bankAccount).toBeDefined();
+      expect(bankAccount.type).toEqual(CipherType.SecureNote);
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.fields.length).toBe(1);
-    expect(cipher.fields[0].name).toEqual("Account Number");
-    expect(cipher.fields[0].value).toEqual("123-456-789");
+      // Fields
+      expect(bankAccount.fields.length).toEqual(2);
+      expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+        "Type: Crypto, Account Number: 12345678",
+      );
+      expect(getField(bankAccount, "name")?.value).toEqual("Mark Zwei");
+    });
+  });
 
-    // 2nd Cipher
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.fields.length).toBe(2);
-    expect(cipher2.fields[0].name).toEqual("Security Group");
-    expect(cipher2.fields[0].value).toEqual("Public");
+  it("should parse bankCard", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const bankCard = getCipher(result, "Chase Visa");
+      expect(bankCard).toBeDefined();
+      expect(bankCard.type).toEqual(CipherType.Card);
 
-    expect(cipher2.fields[1].name).toEqual("IP Address");
-    expect(cipher2.fields[1].value).toEqual("12.45.67.8");
+      // Properties
+      expect(bankCard.notes).toEqual("Primary credit card for everyday purchases and rewards");
+      expect(bankCard.card.number).toEqual("4532123456789010");
+      expect(bankCard.card.cardholderName).toEqual("Sarah Johnson");
+      expect(bankCard.card.brand).toEqual("Visa");
+      expect(bankCard.card.expMonth).toEqual("06");
+      expect(bankCard.card.expYear).toEqual("2030");
+
+      // Fields
+      expect(bankCard.fields.length).toEqual(3);
+      expect(getField(bankCard, "PIN")?.value).toEqual("8426");
+      expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+      expect(
+        getFields(bankCard, "URL")
+          .map((x) => x.value)
+          .sort(),
+      ).toEqual(["https://bank.card/test", "https://bank.card/test/with/label"]);
+    });
+  });
+
+  it("should parse birthCertificate", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const birthCertificate = getCipher(result, "John Doe Birth Certificate");
+      expect(birthCertificate).toBeDefined();
+      expect(birthCertificate.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(birthCertificate.notes).toEqual(
+        "Official birth certificate for identification purposes",
+      );
+
+      // Fields
+      expect(birthCertificate.fields.length).toEqual(2);
+      expect(getField(birthCertificate, "name")?.value).toEqual("John Michael Doe");
+      expect(getField(birthCertificate, "birthDate")?.value).toEqual("5/15/1990, 12:00:00 AM");
+    });
+  });
+
+  it("should parse contact", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const contact = getCipher(result, "Dr. Emily Chen");
+      expect(contact).toBeDefined();
+      expect(contact.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(contact.notes).toEqual("Primary care physician - office visits and consultations");
+
+      // Fields
+      expect(contact.fields.length).toEqual(5);
+      expect(getField(contact, "name")?.value).toEqual("Emily Marie Chen");
+      expect(getField(contact, "company")?.value).toEqual("Springfield Medical Center");
+      expect(getField(contact, "email")?.value).toEqual("emily.chen@smc.org");
+      expect(getField(contact, "phone")?.value).toEqual("(AF) 5415558723 ext. 5577 (Work)");
+
+      // Resolved reference field
+      expect(getField(contact, "address")?.value).toEqual(
+        "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+      );
+    });
+  });
+
+  it("should parse databaseCredentials", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const databaseCredentials = getCipher(result, "Production MySQL Database");
+      expect(databaseCredentials).toBeDefined();
+      expect(databaseCredentials.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(databaseCredentials.notes).toEqual(
+        "Production database server for main application - handle with care",
+      );
+      expect(databaseCredentials.login.username).toEqual("db_admin");
+      expect(databaseCredentials.login.password).toEqual("SecureDb#2024$Pass");
+
+      // Fields
+      expect(databaseCredentials.fields.length).toEqual(3);
+      expect(getField(databaseCredentials, "type")?.value).toEqual("MySQL");
+      expect(getField(databaseCredentials, "Hostname")?.value).toEqual("db.production.company.com");
+      expect(getField(databaseCredentials, "Port")?.value).toEqual("3306");
+    });
+  });
+
+  it("should parse driverLicense", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const driverLicense = getCipher(result, "Oregon Driver's License");
+      expect(driverLicense).toBeDefined();
+      expect(driverLicense.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
+
+      // Fields
+      expect(driverLicense.fields.length).toEqual(4);
+      expect(getField(driverLicense, "dlNumber")?.value).toEqual("DL-7482693");
+      expect(getField(driverLicense, "name")?.value).toEqual("Robert William Anderson");
+      expect(getField(driverLicense, "birthDate")?.value).toEqual("3/15/1985, 12:00:00 AM");
+      expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/15/2028, 12:00:00 AM");
+    });
+  });
+
+  it("should parse encryptedNotes", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const encryptedNotes = getCipher(result, "Important Meeting Notes");
+      expect(encryptedNotes).toBeDefined();
+      expect(encryptedNotes.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(encryptedNotes.notes).toEqual(
+        "Confidential meeting with executive team - requires follow-up by end of month",
+      );
+
+      // Fields
+      expect(encryptedNotes.fields.length).toEqual(2);
+      expect(getField(encryptedNotes, "note")?.value).toEqual(
+        "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
+      );
+      expect(getField(encryptedNotes, "date")?.value).toEqual("10/15/2024, 12:00:00 AM");
+    });
+  });
+
+  it("should parse file", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const file = getCipher(result, "Project Proposal Document");
+      expect(file).toBeDefined();
+      expect(file.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(file.notes).toEqual(
+        "Annual project proposal for Q1 2025 business development initiatives",
+      );
+
+      // Fields
+      expect(file.fields.length).toEqual(0);
+    });
+  });
+
+  it("should parse general", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const general = getCipher(result, "General Information Record");
+      expect(general).toBeDefined();
+      expect(general.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(general.notes).toEqual(
+        "General purpose record for miscellaneous information and credentials",
+      );
+      expect(general.login.username).toEqual("general_user@example.com");
+      expect(general.login.password).toEqual("GeneralPass#2024!Secure");
+      expect(general.login.uri).toEqual("https://general.example.com");
+      expect(general.login.totp).toContain("otpauth://totp/");
+
+      // Fields
+      expect(general.fields.length).toEqual(0);
+    });
+  });
+
+  it("should parse healthInsurance", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const healthInsurance = getCipher(result, "Blue Cross Blue Shield");
+      expect(healthInsurance).toBeDefined();
+      expect(healthInsurance.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(healthInsurance.notes).toEqual(
+        "PPO plan with nationwide coverage - family deductible $2500",
+      );
+      expect(healthInsurance.login.username).toEqual("david.martinez@email.com");
+      expect(healthInsurance.login.password).toEqual("Health$ecure789");
+      expect(healthInsurance.login.uri).toEqual("https://www.bcbs.com");
+
+      // Fields
+      expect(healthInsurance.fields.length).toEqual(2);
+      expect(getField(healthInsurance, "accountNumber")?.value).toEqual("BCBS-12345678");
+      expect(getField(healthInsurance, "insuredsName")?.value).toEqual("David Alan Martinez");
+    });
+  });
+
+  it("should parse login", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const login = getCipher(result, "Amazon Account");
+      expect(login).toBeDefined();
+      expect(login.type).toEqual(CipherType.Login);
+      expect(login.login.totp).toContain("otpauth://totp/");
+
+      // Properties
+      expect(login.notes).toEqual(
+        "Primary Amazon account for online shopping and Prime membership",
+      );
+      expect(login.login.username).toEqual("john.martinez@email.com");
+      expect(login.login.password).toEqual("Sp@rkl3Sun!2024");
+      expect(login.login.uri).toEqual("https://www.amazon.com");
+      expect(login.login.uris.map((x) => x.uri)).toEqual([
+        "https://www.amazon.com",
+        "https://login.amazon.com",
+        "https://logout.amazon.com",
+        "https://account.amazon.com",
+        "https://profile.amazon.com",
+      ]);
+
+      // Fields
+      expect(login.fields.length).toEqual(17);
+
+      // 1
+      expect(getField(login, "some label")?.value).toEqual("some text");
+
+      // 2
+      expect(getField(login, "some more text")?.value).toEqual(
+        "some lines\nsome more lines\nblah blah blah",
+      );
+
+      // 3
+      expect(getField(login, "pin-pin-pin")?.value).toEqual("1234");
+      expect(getField(login, "pin-pin-pin")?.type).toEqual(FieldType.Hidden);
+
+      // 4-9
+      const questions = getFields(login, "Security question");
+      expect(questions.map((x) => x.value)).toEqual([
+        "how old were you when you were born?",
+        "how are you?",
+        "how old are you?",
+      ]);
+      const answers = getFields(login, "Security question answer");
+      expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
+      expect(answers.map((x) => x.type)).toEqual([
+        FieldType.Hidden,
+        FieldType.Hidden,
+        FieldType.Hidden,
+      ]);
+
+      // 10-11
+      const phones = getFields(login, "phone");
+      expect(phones.map((x) => x.value)).toEqual([
+        "(AZ) 123123123 (Home)",
+        "(CZ) 555555555 ext. 444",
+      ]);
+
+      // 12
+      expect(getField(login, "some date")?.value).toEqual("11/30/2025, 9:50:48 PM");
+
+      // 13
+      expect(getField(login, "email")?.value).toEqual("blah@blah.com");
+
+      // 14
+      expect(getField(login, "someone")?.value).toEqual("Maria Smith");
+
+      // 15
+      expect(getField(login, "special secret")?.value).toEqual("big secret");
+      expect(getField(login, "special secret")?.type).toEqual(FieldType.Hidden);
+
+      // 16-17
+      const addresses = getFields(login, "address");
+      expect(addresses.map((x) => x.value).sort()).toEqual([
+        "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+        "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+      ]);
+    });
+  });
+
+  it("should parse membership", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const membership = getCipher(result, "LA Fitness Gym");
+      expect(membership).toBeDefined();
+      expect(membership.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(membership.notes).toEqual(
+        "Annual membership - full gym access including pool and classes",
+      );
+
+      // Fields
+      expect(membership.fields.length).toEqual(2);
+      expect(getField(membership, "accountNumber")?.value).toEqual("LAF-987654321");
+      expect(getField(membership, "name")?.value).toEqual("Lisa Marie Rodriguez");
+    });
+  });
+
+  it("should parse passport", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const passport = getCipher(result, "US Passport");
+      expect(passport).toBeDefined();
+      expect(passport.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(passport.notes).toEqual("Valid US passport for international travel");
+
+      // Fields
+      expect(passport.fields.length).toEqual(5);
+      expect(getField(passport, "passportNumber")?.value).toEqual("543826194");
+      expect(getField(passport, "name")?.value).toEqual("Jennifer Lynn Williams");
+      expect(getField(passport, "birthDate")?.value).toEqual("7/22/1990, 12:00:00 AM");
+      expect(getField(passport, "expirationDate")?.value).toEqual("7/22/2033, 12:00:00 AM");
+      expect(getField(passport, "dateIssued")?.value).toEqual("8/15/2023, 12:00:00 AM");
+    });
+  });
+
+  it("should parse photo", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const photo = getCipher(result, "Family Vacation 2024");
+      expect(photo).toBeDefined();
+      expect(photo.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(photo.notes).toEqual("Summer vacation photos from Hawaii trip - scenic beach views");
+
+      // Fields
+      expect(photo.fields.length).toEqual(0);
+    });
+  });
+
+  it("should parse serverCredentials", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const serverCredentials = getCipher(result, "Web Server - Production");
+      expect(serverCredentials).toBeDefined();
+      expect(serverCredentials.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(serverCredentials.notes).toEqual(
+        "Primary production web server - Apache 2.4.52 - Ubuntu 22.04",
+      );
+      expect(serverCredentials.login.username).toEqual("sysadmin");
+      expect(serverCredentials.login.password).toEqual("Srv#Prod2024!Sec");
+
+      // Fields
+      expect(serverCredentials.fields.length).toEqual(2);
+      expect(getField(serverCredentials, "Hostname")?.value).toEqual("web01.company.com");
+      expect(getField(serverCredentials, "Port")?.value).toEqual("22");
+    });
+  });
+
+  it("should parse softwareLicense", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const softwareLicense = getCipher(result, "Adobe Creative Cloud");
+      expect(softwareLicense).toBeDefined();
+      expect(softwareLicense.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(softwareLicense.notes).toEqual(
+        "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
+      );
+
+      // Fields
+      expect(softwareLicense.fields.length).toEqual(3);
+      expect(getField(softwareLicense, "licenseNumber")?.value).toEqual("ACDB-7849-2635-1947-8520");
+      expect(getField(softwareLicense, "expirationDate")?.value).toEqual("12/31/2025, 12:00:00 AM");
+      expect(getField(softwareLicense, "dateActive")?.value).toEqual("1/15/2024, 12:00:00 AM");
+    });
+  });
+
+  it("should parse sshKeys", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const sshKey = getCipher(result, "Production Server SSH Key");
+      expect(sshKey).toBeDefined();
+      expect(sshKey.type).toEqual(CipherType.SshKey);
+
+      // Properties
+      expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
+
+      // Fields
+      expect(sshKey.fields.length).toEqual(3);
+      expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
+      expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(sshKey, "Port")?.value).toEqual("22");
+    });
+  });
+
+  it("should parse sshKeys with a passphrase", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const sshKey = getCipher(result, "Production Server SSH Key with a passphrase");
+      expect(sshKey).toBeDefined();
+      expect(sshKey.type).toEqual(CipherType.SshKey);
+
+      // Properties
+      expect(sshKey.notes).toEqual("SSH key for production server deployment - RSA 2048 bit");
+
+      // Fields
+      expect(sshKey.fields.length).toEqual(4);
+      expect(getField(sshKey, "Username")?.value).toEqual("deploy_user");
+      expect(getField(sshKey, "Password")?.value).toEqual("blah-blah-blah");
+      expect(getField(sshKey, "Password")?.type).toEqual(FieldType.Hidden);
+      expect(getField(sshKey, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(sshKey, "Port")?.value).toEqual("22");
+    });
+  });
+
+  it("should parse an invalid ssh key as secure note", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const secNote = getCipher(result, "Invalid SSH key");
+      expect(secNote).toBeDefined();
+      expect(secNote.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(secNote.notes).toEqual("Broken ssh key");
+
+      // Fields
+      expect(secNote.fields.length).toEqual(5);
+      expect(getField(secNote, "Public key")?.value).toEqual("blah blah public key");
+      expect(getField(secNote, "Private key")?.value).toEqual("blah blah blah private key");
+      expect(getField(secNote, "Passphrase")?.value).toEqual("blah-blah-blah");
+      expect(getField(secNote, "Hostname")?.value).toEqual("prod-server.company.com");
+      expect(getField(secNote, "Port")?.value).toEqual("22");
+    });
+  });
+
+  it("should parse ssnCard", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const ssnCard = getCipher(result, "National Identity Card");
+      expect(ssnCard).toBeDefined();
+      expect(ssnCard.type).toEqual(CipherType.SecureNote);
+
+      // Properties
+      expect(ssnCard.notes).toEqual("National identification card - Valid through 2028");
+
+      // Fields
+      expect(ssnCard.fields.length).toEqual(2);
+      expect(getField(ssnCard, "identityNumber")?.value).toEqual("ID-7849521");
+      expect(getField(ssnCard, "name")?.value).toEqual("Sarah Elizabeth Johnson");
+    });
+  });
+
+  it("should parse wifiCredentials", async () => {
+    [cliResult, webResult].forEach((result) => {
+      // Cipher
+      const wifiCredentials = getCipher(result, "Home Wi-Fi");
+      expect(wifiCredentials).toBeDefined();
+      expect(wifiCredentials.type).toEqual(CipherType.Login);
+
+      // Properties
+      expect(wifiCredentials.notes).toEqual("My cozy home wi-fi");
+      expect(wifiCredentials.login.password).toEqual("secure-password-123");
+
+      // Fields
+      expect(wifiCredentials.fields.length).toEqual(1);
+      expect(getField(wifiCredentials, "SSID")?.value).toEqual("cozy-home-netz");
+    });
   });
 
   it("should create folders and assigned ciphers to them", async () => {
-    const result = await importer.parse(testDataJson);
-    expect(result != null).toBe(true);
+    [cliResult, webResult].forEach((result) => {
+      const folders = result.folders;
+      expect(folders.length).toEqual(29);
 
-    const folders = result.folders;
-    expect(folders.length).toBe(2);
-    expect(folders[0].name).toBe("Optional Private Folder 1");
-    expect(folders[1].name).toBe("My Customer 1");
+      // Sort names and compare in bulk so we don't depend on specific ordering
+      const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+      expect(folderNames).toEqual(allFolderNames);
 
-    expect(result.folderRelationships[0]).toEqual([0, 0]);
-    expect(result.folderRelationships[1]).toEqual([1, 0]);
-    expect(result.folderRelationships[2]).toEqual([1, 1]);
+      // No collections should be created outside of org context
+      expect(result.collections.length).toEqual(0);
+
+      // Folder relationships
+      assertInFolder(result, "Home Address", "Personal/Finance/Banking");
+      assertInFolder(
+        result,
+        "Production Server SSH Key",
+        "Development/Name-with-both-slashes/Android",
+      );
+      assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
+      assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
+
+      // In two folders at the same time
+      assertInFolder(
+        result,
+        "Production MySQL Database",
+        "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+      );
+      assertInFolder(
+        result,
+        "Production MySQL Database",
+        "Development/Name-with-both-slashes/Name-with-forward-slashes",
+      );
+    });
   });
+
+  //
+  // Org parser tests
+  //
 
   it("should create collections if part of an organization", async () => {
-    importer.organizationId = Utils.newGuid() as OrganizationId;
-    const result = await importer.parse(testDataJson);
-    expect(result != null).toBe(true);
+    const folders = orgResult.collections;
+    expect(folders.length).toEqual(29);
 
-    const collections = result.collections;
-    expect(collections.length).toBe(2);
-    expect(collections[0].name).toBe("Optional Private Folder 1");
-    expect(collections[1].name).toBe("My Customer 1");
+    // Sort names and compare in bulk so we don't depend on specific ordering
+    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+    expect(folderNames).toEqual(allFolderNames);
 
-    expect(result.collectionRelationships[0]).toEqual([0, 0]);
-    expect(result.collectionRelationships[1]).toEqual([1, 0]);
-    expect(result.collectionRelationships[2]).toEqual([1, 1]);
+    // All folders should have been moved to collections
+    expect(orgResult.folders.length).toEqual(0);
   });
+
+  //
+  // Legacy format tests
+  //
+
+  it("should parse legacy login", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "AARP");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.login.uri).toEqual("https://aarp.org");
+
+    // Folder relationships
+    assertInFolder(legacyResult, "AARP", "Inheritance");
+    assertInFolder(legacyResult, "AARP", "Sub-inheritance");
+  });
+
+  it("should parse login with custom fields", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "cipher item");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.notes).toEqual("the quick brown fox jumps over the lazy dog.");
+    expect(login.login.username).toEqual("username123");
+    expect(login.login.password).toEqual("password123");
+
+    // Fields
+    expect(login.fields.length).toEqual(1);
+    expect(getField(login, "kasjdfiauefaikjsjdf8as7878")?.value).toEqual("custom");
+  });
+
+  it("should parse login with multiple TOTP codes", async () => {
+    // Cipher
+    const login = getCipher(legacyResult, "Comp Test with OTP");
+    expect(login).toBeDefined();
+    expect(login.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(login.login.username).toEqual("test");
+    expect(login.login.password).toEqual("l3}9%aI6Hh33k2CJcsXB");
+    expect(login.login.totp).toEqual(
+      "otpauth://totp/Iterable:justin.tulk@iterable.com?secret=YW6CMSUJOHCE3H33&issuer=Iterable",
+    );
+
+    // TOTP fields
+    expect(login.fields.length).toEqual(1);
+    expect(getField(login, "TOTP")?.value).toEqual(
+      "otpauth://totp/Google%3Asbolina%40bitwarden.com?secret=6whhjvsb3taxmlf4e7fk4v7lsusuv2m5&issuer=Google",
+    );
+  });
+
+  it("should parse legacy bankCard", async () => {
+    // Cipher
+    const bankCard = getCipher(legacyResult, "VISA");
+    expect(bankCard).toBeDefined();
+    expect(bankCard.type).toEqual(CipherType.Card);
+
+    // Properties
+    expect(bankCard.card.number).toEqual("5555555555555555");
+    expect(bankCard.card.cardholderName).toEqual("Ted Lasso");
+    expect(bankCard.card.expMonth).toEqual("02");
+    expect(bankCard.card.expYear).toEqual("2028");
+
+    // Fields
+    expect(bankCard.fields.length).toEqual(1);
+    expect(getField(bankCard, "PIN")?.value).toEqual("1235");
+    expect(getField(bankCard, "PIN")?.type).toEqual(FieldType.Hidden);
+
+    // Folder relationships
+    assertInFolder(legacyResult, "VISA", "Social Media/Cards");
+  });
+
+  it("should create legacy folders and assigned ciphers to them", async () => {
+    const folders = legacyResult.folders;
+    expect(folders.length).toEqual(22);
+
+    // Sort names and compare in bulk so we don't depend on specific ordering
+    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+    expect(folderNames).toEqual(legacyFolderNames);
+  });
+
+  //
+  // Enterprise entries tests
+  //
+
+  it("should parse pamRemoteBrowser", async () => {
+    // Cipher
+    const pamRemoteBrowser = getCipher(enterpriseResult, "Admin Dashboard Connection");
+    expect(pamRemoteBrowser).toBeDefined();
+    expect(pamRemoteBrowser.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamRemoteBrowser.fields.length).toEqual(1);
+    expect(getField(pamRemoteBrowser, "rbiUrl")?.value).toEqual(
+      "https://admin.company.internal/dashboard",
+    );
+  });
+
+  it("should parse pamDatabase", async () => {
+    // Cipher
+    const pamDatabase = getCipher(enterpriseResult, "Database Tunnel to Production MySQL");
+    expect(pamDatabase).toBeDefined();
+    expect(pamDatabase.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamDatabase.fields.length).toEqual(7);
+
+    // 1
+    expect(getField(pamDatabase, "pamHostname")?.value).toEqual(
+      `{"hostName":"mysql-prod.company.internal","port":"3306"}`,
+    );
+
+    // 2
+    expect(getField(pamDatabase, "useSSL")?.value).toEqual("true");
+
+    // 3
+    expect(getField(pamDatabase, "pamSettings")?.value).toEqual(
+      `{"connection":{"port":"3307"},"portForward":{"port":"8306"}}`,
+    );
+
+    // 4
+    expect(getField(pamDatabase, "databaseId")?.value).toEqual("db-prod-mysql-01");
+
+    // 5
+    expect(getField(pamDatabase, "databaseType")?.value).toEqual("mysql");
+
+    // 6
+    expect(getField(pamDatabase, "providerGroup")?.value).toEqual("Production-Databases");
+
+    // 7
+    expect(getField(pamDatabase, "providerRegion")?.value).toEqual("us-east-1");
+  });
+
+  it("should parse pamUser", async () => {
+    // Cipher
+    const pamUser = getCipher(enterpriseResult, "Production Gateway Server - MySQL Admin User");
+    expect(pamUser).toBeDefined();
+    expect(pamUser.type).toEqual(CipherType.Login);
+
+    // Properties
+    expect(pamUser.login.username).toEqual("root");
+    expect(pamUser.login.password).toEqual("r7gJ6Zl5BXktS4IPGh4D");
+  });
+
+  it("should parse pamMachine", async () => {
+    // Cipher
+    const pamMachine = getCipher(enterpriseResult, "Production Gateway Server - RDP Machine");
+    expect(pamMachine).toBeDefined();
+    expect(pamMachine.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamMachine.fields.length).toEqual(3);
+
+    // 1
+    expect(getField(pamMachine, "pamHostname")?.value).toEqual(
+      `{"hostName":"server-rdp","port":"22"}`,
+    );
+
+    // 2
+    expect(getField(pamMachine, "trafficEncryptionSeed")?.value).toEqual(
+      "yJsgoM7cuMAqkf5u8VTTVGNCKOirobWXOjthBRlb2bw=",
+    );
+
+    // 3
+    expect(getField(pamMachine, "pamSettings")?.value).toEqual(
+      `{"connection":{"protocol":"rdp","port":"3389","recordingIncludeKeys":true,"security":"any","ignoreCert":true,"resizeMethod":"display-update","enableFullWindowDrag":false,"enableWallpaper":false},"portForward":{"port":"3389","reusePort":true}}`,
+    );
+  });
+
+  it("should parse pamHardware", async () => {
+    // Cipher
+    const pamHardware = getCipher(enterpriseResult, "Dell PowerEdge R740 Server");
+    expect(pamHardware).toBeDefined();
+    expect(pamHardware.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(pamHardware.fields.length).toEqual(3);
+    expect(getField(pamHardware, "Serial Number")?.value).toEqual("SN-R740-2024-001");
+    expect(getField(pamHardware, "Purchase Date")?.value).toEqual("3/15/2024, 12:00:00 AM");
+    expect(getField(pamHardware, "Warranty Expiration")?.value).toEqual("3/15/2027, 12:00:00 AM");
+  });
+
+  it("should parse SaaS Subscription", async () => {
+    // Cipher
+    const saasSubscription = getCipher(enterpriseResult, "GitHub Enterprise Plan");
+    expect(saasSubscription).toBeDefined();
+    expect(saasSubscription.type).toEqual(CipherType.SecureNote);
+
+    // Fields
+    expect(saasSubscription.fields.length).toEqual(3);
+    expect(getField(saasSubscription, "Service Name")?.value).toEqual("GitHub");
+    expect(getField(saasSubscription, "Renewal Date")?.value).toEqual("6/30/2026, 12:00:00 AM");
+    expect(getField(saasSubscription, "Plan Type")?.value).toEqual("Enterprise");
+  });
+
+  it("should parse custom field keys", () => {
+    const importer = new KeeperJsonImporter() as any; // Accessing private method for testing
+
+    [
+      [undefined, "", ""],
+      [null, "", ""],
+      ["", "", ""],
+      ["$", "", ""],
+      ["$text", "text", ""],
+      ["$text:cardholderName", "text", "cardholderName"],
+      ["$text:cardholderName:1", "text", "cardholderName"], // Suffix is stripped
+      ["nameOnly", "", "nameOnly"],
+      ["nameOnly:1", "", "nameOnly"], // Suffix is stripped
+      ["nameOnly:123", "", "nameOnly:123"], // Suffix is only one digit as it is in the original code
+    ].forEach((item) => {
+      const [key, expectedType, expectedName] = item;
+      const [type, name] = importer.parseFieldKey(key);
+      expect(type).toEqual(expectedType);
+      expect(name).toEqual(expectedName);
+    });
+
+    importer.parseFieldKey("$text:cardholderName:1");
+  });
+
+  //
+  // Helpers
+  //
+
+  function makeImporter(orgId?: string): KeeperJsonImporter {
+    const importer = new KeeperJsonImporter();
+    if (orgId) {
+      importer.organizationId = orgId as OrganizationId;
+    }
+    return importer;
+  }
+
+  async function expectParse(
+    importer: KeeperJsonImporter,
+    testData: any,
+    recordCount: number,
+  ): Promise<ImportResult> {
+    const result = await importer.parse(JSON.stringify(testData));
+    expect(result).toBeDefined();
+    expect(result.ciphers).toBeDefined();
+    expect(result.ciphers.length).toEqual(recordCount);
+    return result;
+  }
+
+  function getCipher(result: ImportResult, name: string): CipherView | undefined {
+    return result.ciphers.find((c) => c.name === name);
+  }
+
+  function getField(cipher: CipherView, name: string): FieldView | undefined {
+    return cipher.fields.find((f) => f.name === name);
+  }
+
+  function getFields(cipher: CipherView, name: string): FieldView[] {
+    return cipher.fields.filter((f) => f.name === name);
+  }
+
+  function assertInFolder(result: ImportResult, cipherName: string, folderName: string) {
+    const cipherIndex = result.ciphers.findIndex((c) => c.name === cipherName);
+    const folderIndex = result.folders.findIndex((f) => f.name === folderName);
+    expect(result.folderRelationships).toContainEqual([cipherIndex, folderIndex]);
+  }
+
+  const allFolderNames = [
+    "CanManageRecords-CanEdit",
+    "CanManageUsers-ViewOnly",
+    "Clients",
+    "Clients/Enterprise",
+    "Clients/Enterprise/North America",
+    "Clients/Enterprise/North America/TechCorp",
+    "Clients/Enterprise/North America/TechCorp/Shared-Needsted-Deep-Inside-Normal-Folder",
+    "Development",
+    "Development/Name-with-both-slashes",
+    "Development/Name-with-both-slashes/Android",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+    "Development/Web",
+    "Education",
+    "Empty Folder",
+    "Empty Folder/Empty Nested Folder Level 2",
+    "Empty Folder/Empty Nested Folder Level 2/Empty Nested Folder Level 3",
+    "Empty Folder/Empty Nested Folder Level 2/Empty Nested Folder Level 3/Shared Folder Inside Empty Nested Folder",
+    "FullAccess-CanShare",
+    "NoUserPerms-EditAndShare",
+    "Personal",
+    "Personal/Finance",
+    "Personal/Finance/Banking",
+    "Personal/Finance/Banking/Accounts",
+    "Work",
+    "Work/Documents",
+    "Work/Projects",
+    "Work/Projects/2025",
+    "Work/Projects/2025/Q4",
+  ];
+
+  const legacyFolderNames = [
+    "abc",
+    "Dev build ",
+    "dfdfgh",
+    "Inheritance",
+    "IT Project",
+    "IT Project/Folder 1",
+    "IT Project/Folder 1/PersonalNested-1-1",
+    "IT Project/Folder 1/PersonalNested-1-2",
+    "IT Project/Folder 2",
+    "Marketing",
+    "name change-folder",
+    "New Marketing Folder",
+    "Personal",
+    "Personal/Shared with Family",
+    "Shared Project Folder",
+    "Social Media",
+    "Social Media/Cards",
+    "Sub-inheritance",
+    "Transferred: Account",
+    "Transferred: Account/Test Item",
+    "Transferred: garrisonconsultinguser@gmail.com",
+    "Transferred: garrisonconsultinguser@gmail.com/Marketing",
+  ];
 });
