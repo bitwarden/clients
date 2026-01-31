@@ -8,4 +8,5 @@ export type MemberAccessReportView = {
   itemsCount: number;
   userGuid: Guid;
   usesKeyConnector: boolean;
+  avatarColor: string | null;
 };

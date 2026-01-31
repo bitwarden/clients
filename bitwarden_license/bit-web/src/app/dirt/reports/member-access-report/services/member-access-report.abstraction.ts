@@ -1,15 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
+import { MemberAccessProgressState } from "../model/member-access-progress";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
 import { MemberAccessReportView } from "../view/member-access-report.view";
 
 export abstract class MemberAccessReportServiceAbstraction {
-  generateMemberAccessReportView: (
+  /** Observable for progress state updates during report generation */
+  abstract readonly progress$: Observable<MemberAccessProgressState | null>;
+  abstract generateMemberAccessReportView(
     organizationId: OrganizationId,
-  ) => Promise<MemberAccessReportView[]>;
-  generateUserReportExportItems: (
+  ): Promise<MemberAccessReportView[]>;
+  abstract generateUserReportExportItems(
     organizationId: OrganizationId,
-  ) => Promise<MemberAccessExportItem[]>;
+  ): Promise<MemberAccessExportItem[]>;
 }
