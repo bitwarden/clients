@@ -76,6 +76,9 @@ export class DefaultCipherFormService implements CipherFormService {
         .then((res) => res.cipher);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
+      // Save the new collectionIds before overwriting
+      const newCollectionIdsToSave = cipher.collectionIds;
+
       // First update the cipher with the original collectionIds
       cipher.collectionIds = config.originalCipher.collectionIds;
       const newCipher = await this.cipherService.updateWithServer(
@@ -86,7 +89,7 @@ export class DefaultCipherFormService implements CipherFormService {
       );
 
       // Then save the new collection changes separately
-      newCipher.collectionIds = cipher.collectionIds;
+      newCipher.collectionIds = newCollectionIdsToSave;
 
       // TODO: Remove after migrating all SDK ops
       const { cipher: encryptedCipher } = await this.cipherService.encrypt(newCipher, activeUserId);
