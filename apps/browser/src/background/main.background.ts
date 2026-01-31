@@ -638,6 +638,10 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
@@ -662,7 +666,9 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+    this.securityStateService = new DefaultSecurityStateService(
+      this.accountCryptographicStateService,
+    );
 
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
@@ -709,6 +715,7 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     const pinStateService = new PinStateService(this.stateProvider);
@@ -822,10 +829,6 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
-    );
-
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
     );
 
     this.keyConnectorService = new KeyConnectorService(

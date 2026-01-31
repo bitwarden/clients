@@ -199,7 +199,10 @@ describe("DefaultSyncService", () => {
         new EncString("encryptedUserKey"),
         user1,
       );
-      expect(keyService.setPrivateKey).toHaveBeenCalledWith("privateKey", user1);
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        { V1: { private_key: "privateKey" } },
+        user1,
+      );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -242,7 +245,10 @@ describe("DefaultSyncService", () => {
         new EncString("encryptedUserKey"),
         user1,
       );
-      expect(keyService.setPrivateKey).toHaveBeenCalledWith("wrappedPrivateKey", user1);
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        { V1: { private_key: "wrappedPrivateKey" } },
+        user1,
+      );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -293,12 +299,7 @@ describe("DefaultSyncService", () => {
         new EncString("encryptedUserKey"),
         user1,
       );
-      expect(keyService.setPrivateKey).toHaveBeenCalledWith("wrappedPrivateKey", user1);
-      expect(keyService.setUserSigningKey).toHaveBeenCalledWith("wrappedSigningKey", user1);
-      expect(securityStateService.setAccountSecurityState).toHaveBeenCalledWith(
-        "securityState",
-        user1,
-      );
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
