@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
+import { catchError, debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -14,6 +12,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -53,7 +52,7 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected enableRequestPasswordChange = false;
-  protected organizationId: OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
   noItemsIcon = Security;
 
   protected dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -151,35 +150,43 @@ export class CriticalApplicationsComponent implements OnInit {
       });
   };
 
-  async requestPasswordChange() {
+  requestPasswordChange(): void {
     this.dataService.criticalApplicationAtRiskCipherIds$
       .pipe(
         takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
         take(1), // Handle unsubscribe for one off operation
-        switchMap((cipherIds) => {
-          return from(
+        switchMap((cipherIds) =>
+          from(
             this.securityTasksService.requestPasswordChangeForCriticalApplications(
               this.organizationId,
               cipherIds,
             ),
-          );
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("notifiedMembers"),
-            variant: "success",
-            title: this.i18nService.t("success"),
-          });
-        },
-        error: () => {
+          ),
+        ),
+        catchError((error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+            return EMPTY;
+          }
+
           this.toastService.showToast({
             message: this.i18nService.t("unexpectedError"),
             variant: "error",
             title: this.i18nService.t("error"),
           });
-        },
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          message: this.i18nService.t("notifiedMembers"),
+          variant: "success",
+          title: this.i18nService.t("success"),
+        });
       });
   }
 
