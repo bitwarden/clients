@@ -57,6 +57,10 @@ export function OptionItems({
 }
 
 function handleMenuKeyUp(event: KeyboardEvent) {
+  if (!event.isTrusted) {
+    return;
+  }
+
   const items = [
     ...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[tabindex="0"]'),
   ];

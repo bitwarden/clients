@@ -23,7 +23,7 @@ export function BadgeButton({
   username,
 }: BadgeButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled) {
+    if (event.isTrusted && !disabled) {
       buttonAction(event);
     }
   };

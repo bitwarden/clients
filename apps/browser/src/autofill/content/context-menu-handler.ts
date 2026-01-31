@@ -1,3 +1,5 @@
+import { isEventTrusted } from "../utils/security-utils";
+
 const inputTags = ["input", "textarea", "select"];
 const labelTags = ["label", "span"];
 const attributeKeys = ["id", "name", "label-aria", "placeholder"];
@@ -52,6 +54,13 @@ function isNullOrEmpty(s: string | null) {
 // We only have access to the element that's been clicked when the context menu is first opened.
 // Remember it for use later.
 document.addEventListener("contextmenu", (event) => {
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   * except in test environments where Jest creates synthetic events
+   */
+  if (!isEventTrusted(event)) {
+    return;
+  }
   clickedElement = event.target as HTMLElement;
 });
 

@@ -28,6 +28,10 @@ export function CipherAction({
   username,
 }: CipherActionProps) {
   const selectCipherHandleAction = (e: Event) => {
+    if (!e.isTrusted) {
+      return;
+    }
+
     selectedCipherSignal.set(cipherId);
     try {
       handleAction(e);

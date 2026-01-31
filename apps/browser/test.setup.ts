@@ -3,6 +3,13 @@ import { addCustomMatchers } from "@bitwarden/common/spec";
 
 addCustomMatchers();
 
+// Declare global type for test configuration
+declare global {
+  const AUTOFILL_TEST_CONFIG: {
+    disableEventTrustedValidation: boolean;
+  };
+}
+
 // Add chrome storage api
 const QUOTA_BYTES = 10;
 const storage = {
@@ -200,3 +207,8 @@ global.chrome = {
   webRequest,
   alarms,
 } as any;
+
+// Configure autofill security to allow synthetic events in test environments
+(globalThis as any).AUTOFILL_TEST_CONFIG = {
+  disableEventTrustedValidation: true,
+};
