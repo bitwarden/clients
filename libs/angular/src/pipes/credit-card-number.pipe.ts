@@ -42,9 +42,9 @@ export class CreditCardNumberPipe implements PipeTransform {
 
     const cardLength = creditCardNumber.length;
 
-    let matchingRule = rules.find((r) => r.cardLength == cardLength);
+    const matchingRule = rules.find((r) => r.cardLength == cardLength);
     if (matchingRule == null) {
-      matchingRule = rules[0];
+      return creditCardNumber;
     }
 
     const blocks = matchingRule.blocks;
