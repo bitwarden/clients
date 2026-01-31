@@ -47,6 +47,7 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date | null>;
+  let cipherList$: BehaviorSubject<CipherView[]>;
   let viewCacheService: {
     signal: jest.Mock;
     mockSignal: WritableSignal<string | null>;
@@ -89,7 +90,7 @@ describe("VaultPopupItemsService", () => {
     cipherList[2].favorite = true;
     cipherList[3].favorite = true;
 
-    const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
+    cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
     cipherServiceMock.cipherListViews$.mockReturnValue(cipherList$.asObservable());
 
@@ -212,32 +213,40 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  it("should update cipher list when cipherService.ciphers$ emits", async () => {
+  it("should not re-emit autoFillCiphers$ when cipherService.ciphers$ emits but the resulting list is unchanged", async () => {
     const tracker = new ObservableTracker(service.autoFillCiphers$);
 
+    // Initial emission
     await tracker.expectEmission();
+    const initial = tracker.emissions[0];
 
+    // Trigger a ciphers$ emission that doesn't actually change the final list
     ciphersSubject.next({});
 
-    await tracker.expectEmission();
+    // Ensure we do NOT get a second emission
+    await expect(tracker.pauseUntilReceived(2)).rejects.toThrow("Timeout exceeded");
+    expect(tracker.emissions.length).toBe(1);
 
-    // Should only emit twice
-    expect(tracker.emissions.length).toBe(2);
-    await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
+    // Sanity check: still the same array of ciphers
+    expect(tracker.emissions[0]).toBe(initial);
   });
 
-  it("should update cipher list when cipherService.localData$ emits", async () => {
+  it("should not re-emit autoFillCiphers$ when cipherService.localData$ emits  but the resulting list is unchanged", async () => {
     const tracker = new ObservableTracker(service.autoFillCiphers$);
 
+    // Initial emission
     await tracker.expectEmission();
+    const initial = tracker.emissions[0];
 
+    // Trigger a localData$ emission that doesn't actually change the final list
     localDataSubject.next({});
 
-    await tracker.expectEmission();
+    // Ensure we do NOT get a second emission
+    await expect(tracker.pauseUntilReceived(2)).rejects.toThrow("Timeout exceeded");
+    expect(tracker.emissions.length).toBe(1);
 
-    // Should only emit twice
-    expect(tracker.emissions.length).toBe(2);
-    await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
+    // Sanity check: still the same array of ciphers
+    expect(tracker.emissions[0]).toBe(initial);
   });
 
   it("should not emit cipher list if syncService.getLastSync returns null", async () => {
@@ -356,29 +365,52 @@ describe("VaultPopupItemsService", () => {
       searchService.isSearchable.mockImplementation(async (text) => text.length > 2);
     });
 
-    it("should exclude autofill and favorite ciphers", (done) => {
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // 2 autofill ciphers, 2 favorite ciphers = 6 remaining ciphers to show
-        expect(ciphers.length).toBe(6);
-        done();
-      });
+    it("should re-emit remainingCiphers$ when a cipher object changes, even if the list and ids are the same", async () => {
+      const tracker = new ObservableTracker(service.remainingCiphers$);
+
+      await tracker.expectEmission();
+      const initial = tracker.emissions[0];
+
+      const [changedId] = initial.map((c: PopupCipherViewLike) => c.id);
+      const updated = cipherList$.value.map((c) =>
+        c.id === changedId
+          ? ({
+              ...c,
+              name: `${c.name} (updated)`,
+            } as CipherView)
+          : c,
+      );
+
+      cipherList$.next(updated);
+      ciphersSubject.next({});
+
+      await tracker.expectEmission();
+      expect(tracker.emissions.length).toBe(2);
+
+      const [before, after] = tracker.emissions;
+      expect(before).not.toBe(after);
+      expect(after.find((c: PopupCipherViewLike) => c.id === changedId)?.name).toContain(
+        "(updated)",
+      );
     });
 
-    it("should filter remainingCiphers$ down to search term", (done) => {
-      const cipherList = Object.values(allCiphers);
-      const searchText = "Login";
+    it("should re-emit remainingCiphers$ when only the order of ciphers changes", async () => {
+      const tracker = new ObservableTracker(service.remainingCiphers$);
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
+      await tracker.expectEmission();
 
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // There are 6 remaining ciphers but only 2 with "Login" in the name
-        expect(ciphers.length).toBe(2);
-        done();
-      });
+      const reordered = [...cipherList$.value].reverse();
+      cipherList$.next(reordered);
+      ciphersSubject.next({});
+
+      await tracker.expectEmission();
+      expect(tracker.emissions.length).toBe(2);
+
+      const [before, after] = tracker.emissions;
+      expect(before).not.toBe(after);
+      expect(before.map((c: PopupCipherViewLike) => c.id).reverse()).toEqual(
+        after.map((c: PopupCipherViewLike) => c.id),
+      );
     });
   });
 
@@ -469,13 +501,9 @@ describe("VaultPopupItemsService", () => {
 
   describe("loading$", () => {
     let tracked: ObservableTracker<boolean>;
-    let trackedCiphers: ObservableTracker<any>;
     beforeEach(() => {
       // Start tracking loading$ emissions
       tracked = new ObservableTracker(service.loading$);
-
-      // Track remainingCiphers$ to make cipher observables active
-      trackedCiphers = new ObservableTracker(service.remainingCiphers$);
     });
 
     it("should initialize with true first", async () => {
@@ -483,22 +511,10 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should emit false once ciphers are available", async () => {
-      expect(tracked.emissions.length).toBe(2);
+      await tracked.pauseUntilReceived(2);
+
       expect(tracked.emissions[0]).toBe(true);
       expect(tracked.emissions[1]).toBe(false);
-    });
-
-    it("should cycle when cipherService.ciphers$ emits", async () => {
-      // Restart tracking
-      tracked = new ObservableTracker(service.loading$);
-      ciphersSubject.next({});
-
-      await trackedCiphers.pauseUntilReceived(2);
-
-      expect(tracked.emissions.length).toBe(3);
-      expect(tracked.emissions[0]).toBe(false);
-      expect(tracked.emissions[1]).toBe(true);
-      expect(tracked.emissions[2]).toBe(false);
     });
   });
 

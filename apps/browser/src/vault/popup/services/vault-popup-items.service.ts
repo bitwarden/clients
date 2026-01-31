@@ -2,7 +2,6 @@ import { inject, Injectable, NgZone } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
-  concatMap,
   distinctUntilChanged,
   distinctUntilKeyChanged,
   filter,
@@ -219,6 +218,7 @@ export class VaultPopupItemsService {
       return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -231,6 +231,7 @@ export class VaultPopupItemsService {
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
     ),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -238,18 +239,17 @@ export class VaultPopupItemsService {
    * List of all remaining ciphers that are not currently suggested for autofill or marked as favorite.
    * Ciphers are sorted by name.
    */
-  remainingCiphers$: Observable<PopupCipherViewLike[]> = this.favoriteCiphers$.pipe(
-    concatMap(
-      (
-        favoriteCiphers, // concatMap->of is used to make withLatestFrom lazy to avoid race conditions with autoFillCiphers$
-      ) =>
-        of(favoriteCiphers).pipe(withLatestFrom(this._filteredCipherList$, this.autoFillCiphers$)),
-    ),
-    map(([favoriteCiphers, ciphers, autoFillCiphers]) =>
+  remainingCiphers$ = combineLatest([
+    this._filteredCipherList$,
+    this.autoFillCiphers$,
+    this.favoriteCiphers$,
+  ]).pipe(
+    map(([ciphers, autoFillCiphers, favoriteCiphers]) =>
       ciphers.filter(
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
     ),
+    distinctUntilChanged(ciphersEqualByIdAndOrder),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -257,7 +257,9 @@ export class VaultPopupItemsService {
    * Observable that indicates whether the service is currently loading ciphers.
    */
   loading$: Observable<boolean> = merge(
+    // Turn loading on whenever we start processing ciphers
     this._ciphersLoading$.pipe(map(() => true)),
+    // Turn loading off whenever the decrypted cipher list finishes updating
     this.remainingCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
@@ -397,4 +399,35 @@ export class VaultPopupItemsService {
  */
 const waitUntilSync = <T>(syncService: SyncService): MonoTypeOperatorFunction<T> => {
   return waitUntil(syncService.activeUserLastSync$().pipe(filter((lastSync) => lastSync != null)));
+};
+
+const ciphersEqualByIdAndOrder = (a: PopupCipherViewLike[], b: PopupCipherViewLike[]): boolean => {
+  if (a === b) {
+    return true;
+  }
+
+  if (!a || !b) {
+    return false;
+  }
+
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i++) {
+    const ac = a[i];
+    const bc = b[i];
+
+    // Different ID → changed
+    if (ac?.id !== bc?.id) {
+      return false;
+    }
+
+    // Same ID but different object reference → changed cipher → re-emit
+    if (ac !== bc) {
+      return false;
+    }
+  }
+
+  return true;
 };
