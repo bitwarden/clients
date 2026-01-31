@@ -260,9 +260,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get isAllSelected() {
-    return this.editableItems
-      .slice(0, MaxSelectionCount)
-      .every((item) => this.selection.isSelected(item));
+    // Check selection against sorted items to match toggleAll() behavior
+    const sortedItems = this.getSortedEditableItems();
+    return sortedItems.slice(0, MaxSelectionCount).every((item) => this.selection.isSelected(item));
   }
 
   get isEmpty() {
@@ -376,9 +376,30 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected toggleAll() {
-    this.isAllSelected
-      ? this.selection.clear()
-      : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));
+    if (this.isAllSelected) {
+      this.selection.clear();
+    } else {
+      const sortedItems = this.getSortedEditableItems();
+      this.selection.select(...sortedItems.slice(0, MaxSelectionCount));
+    }
+  }
+
+  /**
+   * Returns editableItems sorted according to the current table sort configuration.
+   * This ensures bulk selection matches the visual order displayed to the user.
+   */
+  private getSortedEditableItems(): VaultItem<C>[] {
+    const currentSort = this.dataSource.sort;
+    const items = [...this.editableItems];
+
+    // If no sort column is set, return items in their original order (as displayed in table)
+    if (!currentSort || !currentSort.column || !currentSort.fn) {
+      return items;
+    }
+
+    // Apply sort function with direction modifier (matches TableDataSource.sortData behavior)
+    const directionModifier = currentSort.direction === "asc" ? 1 : -1;
+    return items.sort((a, b) => currentSort.fn(a, b, currentSort.direction) * directionModifier);
   }
 
   protected event(event: VaultItemEvent<C>) {
