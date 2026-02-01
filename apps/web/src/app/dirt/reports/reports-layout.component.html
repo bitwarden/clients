@@ -1,11 +1,9 @@
 <router-outlet></router-outlet>
 
-<div class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-4">
-  <div class="tw-w-full">
-    @if (!homepage) {
-      <a bitButton routerLink="./">
-        {{ "backToReports" | i18n }}
-      </a>
-    }
+<ng-template #backButtonTemplate>
+  <div class="tw-p-3 tw-rounded-lg tw-opacity-90">
+    <a bitButton buttonType="primary" routerLink="./">
+      {{ "backToReports" | i18n }}
+    </a>
   </div>
-</div>
+</ng-template>
