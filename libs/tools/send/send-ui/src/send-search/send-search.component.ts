@@ -1,50 +1,55 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, model } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime, filter } from "rxjs";
+import { debounceTime, filter } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendItemsService } from "../services/send-items.service";
 
 const SearchTextDebounceInterval = 200;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+/**
+ * Search component for filtering Send items.
+ *
+ * Provides a search input that filters the Send list with debounced updates.
+ * Syncs with the service's latest search text to maintain state across navigation.
+ */
 @Component({
-  imports: [CommonModule, SearchModule, JslibModule, FormsModule],
   selector: "tools-send-search",
   templateUrl: "send-search.component.html",
+  imports: [FormsModule, I18nPipe, SearchModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSearchComponent {
-  searchText: string = "";
+  private sendListItemService = inject(SendItemsService);
 
-  private searchText$ = new Subject<string>();
+  /** The current search text entered by the user. */
+  protected readonly searchText = model("");
 
-  constructor(private sendListItemService: SendItemsService) {
+  constructor() {
     this.subscribeToLatestSearchText();
     this.subscribeToApplyFilter();
   }
 
-  onSearchTextChanged() {
-    this.searchText$.next(this.searchText);
-  }
-
-  subscribeToLatestSearchText(): Subscription {
-    return this.sendListItemService.latestSearchText$
+  private subscribeToLatestSearchText(): void {
+    this.sendListItemService.latestSearchText$
       .pipe(
         takeUntilDestroyed(),
         filter((data) => !!data),
       )
       .subscribe((text) => {
-        this.searchText = text;
+        this.searchText.set(text);
       });
   }
 
-  subscribeToApplyFilter(): Subscription {
-    return this.searchText$
+  /**
+   * Applies the search filter to the Send list with a debounce delay.
+   * This prevents excessive filtering while the user is still typing.
+   */
+  private subscribeToApplyFilter(): void {
+    toObservable(this.searchText)
       .pipe(debounceTime(SearchTextDebounceInterval), takeUntilDestroyed())
       .subscribe((data) => {
         this.sendListItemService.applyFilter(data);
