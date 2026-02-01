@@ -88,7 +88,7 @@ export class CopyCipherFieldDirective implements OnChanges {
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
     if (this.menuItemComponent) {
-      this.menuItemComponent.disabled = this.disabled ?? false;
+      this.menuItemComponent.disabled.set(this.disabled ?? false);
     }
   }
 
