@@ -57,7 +57,12 @@ export abstract class BaseProgram {
         } else if (response.data.object === "list") {
           out = this.getJson((response.data as ListResponse).data);
         } else if (response.data.object === "message") {
+          const messageData = response.data as MessageResponse;
           out = this.getMessage(response);
+          if (out != null && process.env.BW_QUIET !== "true") {
+            writeLn(out, true, messageData.toStderr);
+          }
+          return;
         } else {
           out = this.getJson(response.data);
         }
