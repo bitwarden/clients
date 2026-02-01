@@ -239,23 +239,11 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     if (adminAuthReqResponse?.requestApproved) {
-      // if masterPasswordHash has a value, we will always receive authReqResponse.key
-      // as authRequestPublicKey(masterKey) + authRequestPublicKey(masterPasswordHash)
-      if (adminAuthReqResponse.masterPasswordHash) {
-        await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
-          adminAuthReqResponse,
-          adminAuthReqStorable.privateKey,
-          userId,
-        );
-      } else {
-        // if masterPasswordHash is null, we will always receive authReqResponse.key
-        // as authRequestPublicKey(userKey)
-        await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
-          adminAuthReqResponse,
-          adminAuthReqStorable.privateKey,
-          userId,
-        );
-      }
+      await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
+        adminAuthReqResponse,
+        adminAuthReqStorable.privateKey,
+        userId,
+      );
 
       if (await this.keyService.hasUserKey(userId)) {
         // Now that we have a decrypted user key in memory, we can check if we

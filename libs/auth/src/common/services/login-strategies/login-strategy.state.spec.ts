@@ -93,8 +93,6 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       "ACCESS_CODE",
       "AUTH_REQUEST_ID",
       new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-      new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey,
-      "MASTER_KEY_HASH",
     );
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));

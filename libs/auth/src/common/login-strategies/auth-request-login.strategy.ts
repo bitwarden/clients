@@ -72,20 +72,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const authRequestCredentials = this.cache.value.authRequestCredentials;
-    if (
-      authRequestCredentials.decryptedMasterKey &&
-      authRequestCredentials.decryptedMasterKeyHash
-    ) {
-      await this.masterPasswordService.setMasterKey(
-        authRequestCredentials.decryptedMasterKey,
-        userId,
-      );
-      await this.masterPasswordService.setMasterKeyHash(
-        authRequestCredentials.decryptedMasterKeyHash,
-        userId,
-      );
-    }
+    // This login strategy does not use a master key
   }
 
   protected override async setUserKey(
