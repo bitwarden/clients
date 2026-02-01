@@ -2,6 +2,11 @@
 // @ts-strict-ignore
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import {
+  PasswordLoginRequest,
+  PasswordPreloginResponse,
+  LoginResponse,
+} from "@bitwarden/sdk-internal";
 
 export interface PasswordPolicies {
   policies: Policy[];
@@ -47,4 +52,17 @@ export abstract class LoginComponentService {
    * Shows the back button.
    */
   showBackButton: (showBackButton: boolean) => void;
+
+  /**
+   * Retrieves the password prelogin data required for authentication.
+   * This includes the user's KDF configuration needed to properly derive the master key.
+   * - Demo method for testing SDK login functionality
+   */
+  sdkPasswordPrelogin?: (email: string) => Promise<PasswordPreloginResponse>;
+
+  /**
+   * Authenticates a user via email and master password using the SDK.
+   * - Demo method for testing SDK login functionality
+   */
+  sdkLoginWithPassword?: (request: PasswordLoginRequest) => Promise<LoginResponse>;
 }
