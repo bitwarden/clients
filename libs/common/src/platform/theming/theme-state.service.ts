@@ -44,5 +44,6 @@ export class DefaultThemeStateService implements ThemeStateService {
     await this.selectedThemeState.update(() => theme, {
       shouldUpdate: (currentTheme) => currentTheme !== theme,
     });
+    // globalThis?.localStorage?.setItem("theme", theme);
   }
 }
