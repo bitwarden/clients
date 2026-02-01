@@ -92,7 +92,7 @@ const CLEAR_CLIPBOARD_DELAY = new UserKeyDefinition(
   AUTOFILL_SETTINGS_DISK_LOCAL,
   "clearClipboardDelay",
   {
-    deserializer: (value: ClearClipboardDelaySetting) => value ?? ClearClipboardDelay.Never,
+    deserializer: (value: ClearClipboardDelaySetting) => value ?? ClearClipboardDelay.FiveMinutes,
     clearOn: [],
   },
 );
@@ -219,7 +219,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
     this.clearClipboardDelayState = this.stateProvider.getActive(CLEAR_CLIPBOARD_DELAY);
     this.clearClipboardDelay$ = this.clearClipboardDelayState.state$.pipe(
-      map((x) => x ?? ClearClipboardDelay.Never),
+      map((x) => x ?? ClearClipboardDelay.FiveMinutes),
     );
   }
 
