@@ -4,13 +4,6 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  googleDriveLogin,
-  isGoogleDriveLoggedIn,
-  getGoogleUserInfo,
-  login as pqpLogin,
-  isLoggedIn as isPqpLoggedIn,
-} from "@ovrlab/pqp-network";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -31,7 +24,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { LoginEmailService } from "../../../common";
+import { LoginEmailService, PqpAuthService } from "../../../common";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -97,14 +90,21 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   showErrorSummary = false;
 
-  // PqP Pre-Login State
-  pqpGoogleDriveLoggedIn = false;
-  pqpNetworkLoggedIn = false;
-  pqpUserEmail: string | null = null;
-  pqpUserName: string | null = null;
-
+  // PqP Pre-Login State (via service)
+  get pqpGoogleDriveLoggedIn(): boolean {
+    return this.pqpAuthService.googleDriveLoggedIn;
+  }
+  get pqpNetworkLoggedIn(): boolean {
+    return this.pqpAuthService.networkLoggedIn;
+  }
+  get pqpUserEmail(): string | null {
+    return this.pqpAuthService.userEmail;
+  }
+  get pqpUserName(): string | null {
+    return this.pqpAuthService.userName;
+  }
   get pqpReady(): boolean {
-    return this.pqpGoogleDriveLoggedIn && this.pqpNetworkLoggedIn;
+    return this.pqpAuthService.isReady;
   }
 
   private destroy$ = new Subject<void>();
@@ -117,6 +117,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private pqpAuthService: PqpAuthService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -228,66 +229,34 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.registrationStartStateChange.emit(this.state);
   }
 
-  // PqP Pre-Login Methods
+  // PqP Pre-Login Methods (using PqpAuthService)
   private async checkPqpStatus(): Promise<void> {
-    try {
-      this.pqpGoogleDriveLoggedIn = await isGoogleDriveLoggedIn();
-      this.pqpNetworkLoggedIn = await isPqpLoggedIn();
-
-      if (this.pqpGoogleDriveLoggedIn) {
-        const userInfo = await getGoogleUserInfo();
-        if (userInfo) {
-          this.pqpUserEmail = userInfo.email;
-          this.pqpUserName = userInfo.name || null;
-          // Auto-fill email and name
-          if (!this.formGroup.controls.email.value) {
-            this.formGroup.controls.email.setValue(userInfo.email);
-          }
-          if (!this.formGroup.controls.name.value && userInfo.name) {
-            this.formGroup.controls.name.setValue(userInfo.name);
-          }
-        }
-      }
-    } catch {
-      // Silent catch - PqP check errors are non-critical
+    const state = await this.pqpAuthService.checkStatus();
+    // Auto-fill email and name if available
+    if (state.userEmail && !this.formGroup.controls.email.value) {
+      this.formGroup.controls.email.setValue(state.userEmail);
+    }
+    if (state.userName && !this.formGroup.controls.name.value) {
+      this.formGroup.controls.name.setValue(state.userName);
     }
   }
 
   async handleGoogleDriveLogin(): Promise<void> {
-    try {
-      const success = await googleDriveLogin();
-      if (success) {
-        this.pqpGoogleDriveLoggedIn = true;
-        const userInfo = await getGoogleUserInfo();
-        if (userInfo) {
-          this.pqpUserEmail = userInfo.email;
-          this.pqpUserName = userInfo.name || null;
-          this.formGroup.controls.email.setValue(userInfo.email);
-          if (userInfo.name) {
-            this.formGroup.controls.name.setValue(userInfo.name);
-          }
-        }
+    const success = await this.pqpAuthService.loginToGoogleDrive();
+    if (success) {
+      const email = this.pqpAuthService.userEmail;
+      const name = this.pqpAuthService.userName;
+      if (email) {
+        this.formGroup.controls.email.setValue(email);
       }
-    } catch {
-      // Silent catch - Google Drive errors shown via UI state
+      if (name) {
+        this.formGroup.controls.name.setValue(name);
+      }
     }
   }
 
   async handlePqpNetworkLogin(): Promise<void> {
-    try {
-      pqpLogin();
-      // Set up a listener for when the window regains focus
-      const checkLoginStatus = async () => {
-        const isLoggedIn = await isPqpLoggedIn();
-        if (isLoggedIn) {
-          this.pqpNetworkLoggedIn = true;
-          window.removeEventListener("focus", checkLoginStatus);
-        }
-      };
-      window.addEventListener("focus", checkLoginStatus);
-    } catch {
-      // Silent catch - PqP Network errors shown via UI state
-    }
+    await this.pqpAuthService.loginToPqpNetwork();
   }
 
   ngOnDestroy(): void {

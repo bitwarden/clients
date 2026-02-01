@@ -7,3 +7,4 @@ export * from "./accounts/lock.service";
 export * from "./login-success-handler/default-login-success-handler.service";
 export * from "./sso-redirect/sso-url.service";
 export * from "./logout/default-logout.service";
+export * from "./pqp-auth";

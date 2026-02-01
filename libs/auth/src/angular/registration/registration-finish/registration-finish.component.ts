@@ -3,14 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
-import {
-  isGoogleDriveLoggedIn,
-  isLoggedIn as isPqpLoggedIn,
-  localStateRepository,
-  sha256,
-} from "@ovrlab/pqp-network";
 import { Subject, firstValueFrom } from "rxjs";
-
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -30,6 +23,7 @@ import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
+  PqpAuthService,
 } from "../../../common";
 import {
   InputPasswordComponent,
@@ -87,9 +81,13 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
-  // PqP Integration
-  pqpReady = false;
-  pqpDerivedPassword: string | null = null;
+  // PqP Integration (via service)
+  get pqpReady(): boolean {
+    return this.pqpAuthService.isReady;
+  }
+  get pqpDerivedPassword(): string | null {
+    return this.pqpAuthService.derivedPassword;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -104,6 +102,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private premiumInterestStateService: PremiumInterestStateService,
+    private pqpAuthService: PqpAuthService,
   ) {}
 
   async ngOnInit() {
@@ -133,20 +132,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
 
   private async checkPqpStatus(): Promise<void> {
-    try {
-      const driveLoggedIn = await isGoogleDriveLoggedIn();
-      const networkLoggedIn = await isPqpLoggedIn();
-      this.pqpReady = driveLoggedIn && networkLoggedIn;
-
-      if (this.pqpReady) {
-        const privateKey = await localStateRepository.getPrivateKey();
-        if (privateKey) {
-          this.pqpDerivedPassword = await sha256(privateKey);
-        }
-      }
-    } catch {
-      // Silent catch - PqP check errors are non-critical
-    }
+    await this.pqpAuthService.checkStatus();
   }
 
   private handleQueryParams(qParams: Params) {
