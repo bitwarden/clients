@@ -21,7 +21,8 @@ import { filter } from "rxjs/operators";
   standalone: false,
 })
 export class ReportsLayoutComponent implements AfterViewInit, OnDestroy {
-  private readonly backButtonTemplate = viewChild<TemplateRef<unknown>>("backButtonTemplate");
+  private readonly backButtonTemplate =
+    viewChild.required<TemplateRef<unknown>>("backButtonTemplate");
 
   private overlayRef: OverlayRef | null = null;
   private overlay = inject(Overlay);
@@ -49,7 +50,7 @@ export class ReportsLayoutComponent implements AfterViewInit, OnDestroy {
     if (this.router.url === "/reports") {
       this.overlayRef?.dispose();
       this.overlayRef = null;
-    } else if (!this.overlayRef && this.backButtonTemplate()) {
+    } else if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         positionStrategy: this.overlay.position().global().bottom("20px").right("32px"),
       });
