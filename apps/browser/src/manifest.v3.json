@@ -1,5 +1,6 @@
 {
   "manifest_version": 3,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsr5vi5tHHqHPfp983/yzvFfV5DNXS/0FuEX0+QduhFBoREAjqEuthIz4UI4ohQ1TSI26woP1tRPMcZKXUg2n5N7C5A+xkCjZwfS9oVMczQPCqwWTXWC+Ixkt5g6HGJUjJkU4AeBEuz2Jkae9swmJl+dH23nGw/l4uyNKxGO47PWWsUaz1PUOLD1A438WkjaL1n8XnTNuafBVUa0WmipW9nTXmwU6sDjEH8oLUgUGK2ol7pmIFac4zd/pZscUhwlnSkK/GytoxpQdcoL53FicUTdLi69IzIW6gY8uEsVwNvf1LAuzVxajT2OYwgJhTaZnK0qusLmCy0XX8AtL2TSDwwIDAQAB",
   "minimum_chrome_version": "102.0",
   "name": "__MSG_extName__",
   "short_name": "Bitwarden",
@@ -18,17 +19,35 @@
   "content_scripts": [
     {
       "all_frames": false,
-      "js": ["content/content-message-handler.js"],
-      "matches": ["*://*/*", "file:///*"],
-      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
+      "js": [
+        "content/content-message-handler.js"
+      ],
+      "matches": [
+        "*://*/*",
+        "file:///*"
+      ],
+      "exclude_matches": [
+        "*://*/*.xml*",
+        "file:///*.xml*"
+      ],
       "run_at": "document_start"
     },
     {
       "all_frames": true,
-      "css": ["content/autofill.css"],
-      "js": ["content/trigger-autofill-script-injection.js"],
-      "matches": ["*://*/*", "file:///*"],
-      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
+      "css": [
+        "content/autofill.css"
+      ],
+      "js": [
+        "content/trigger-autofill-script-injection.js"
+      ],
+      "matches": [
+        "*://*/*",
+        "file:///*"
+      ],
+      "exclude_matches": [
+        "*://*/*.xml*",
+        "file:///*.xml*"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -36,7 +55,9 @@
     "service_worker": "background.js"
   },
   "__firefox__background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "background.js"
+    ]
   },
   "action": {
     "default_icon": {
@@ -67,7 +88,7 @@
   ],
   "oauth2": {
     "client_id": "277645520335-odap29difgpeu0h8nc7alflb8dl7413u.apps.googleusercontent.com",
-    "scopes":[
+    "scopes": [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/drive.appdata"
     ]
@@ -105,16 +126,27 @@
     "webRequest",
     "webRequestAuthProvider"
   ],
-  "optional_permissions": ["nativeMessaging", "privacy"],
-  "__firefox__optional_permissions": ["nativeMessaging"],
+  "optional_permissions": [
+    "nativeMessaging",
+    "privacy"
+  ],
+  "__firefox__optional_permissions": [
+    "nativeMessaging"
+  ],
   "__safari__optional_permissions": null,
-  "host_permissions": ["https://*/*", "http://*/*"],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
     "__chrome__sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
-    "pages": ["overlay/menu-button.html", "overlay/menu-list.html"]
+    "pages": [
+      "overlay/menu-button.html",
+      "overlay/menu-list.html"
+    ]
   },
   "__firefox__sandbox": null,
   "commands": {
@@ -173,7 +205,9 @@
         "overlay/menu.html",
         "popup/fonts/*"
       ],
-      "matches": ["<all_urls>"],
+      "matches": [
+        "<all_urls>"
+      ],
       "use_dynamic_url": true
     }
   ],

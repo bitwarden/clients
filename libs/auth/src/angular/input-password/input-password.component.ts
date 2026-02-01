@@ -165,6 +165,10 @@ export class InputPasswordComponent implements OnInit {
   @Input() secondaryButtonText?: Translation;
   protected secondaryButtonTextStr: string = "";
 
+  // PqP Integration: Pre-fill password from derived key
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() initialPassword?: string;
+
   protected InputPasswordFlow = InputPasswordFlow;
   private kdfConfig: KdfConfig | null = null;
   private minHintLength = 0;
@@ -225,6 +229,14 @@ export class InputPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.addFormFieldsIfNecessary();
     this.setButtonText();
+
+    // Pre-fill password if provided (PqP flow)
+    if (this.initialPassword) {
+      this.formGroup.patchValue({
+        newPassword: this.initialPassword,
+        newPasswordConfirm: this.initialPassword,
+      });
+    }
   }
 
   private addFormFieldsIfNecessary() {

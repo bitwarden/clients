@@ -3,7 +3,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
+import {
+  isGoogleDriveLoggedIn,
+  isLoggedIn as isPqpLoggedIn,
+  localStateRepository,
+  sha256,
+} from "@ovrlab/pqp-network";
 import { Subject, firstValueFrom } from "rxjs";
+
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -80,6 +87,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
+  // PqP Integration
+  pqpReady = false;
+  pqpDerivedPassword: string | null = null;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -115,7 +126,27 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
     }
 
+    // Check PqP status and derive password
+    await this.checkPqpStatus();
+
     this.loading = false;
+  }
+
+  private async checkPqpStatus(): Promise<void> {
+    try {
+      const driveLoggedIn = await isGoogleDriveLoggedIn();
+      const networkLoggedIn = await isPqpLoggedIn();
+      this.pqpReady = driveLoggedIn && networkLoggedIn;
+
+      if (this.pqpReady) {
+        const privateKey = await localStateRepository.getPrivateKey();
+        if (privateKey) {
+          this.pqpDerivedPassword = await sha256(privateKey);
+        }
+      }
+    } catch {
+      // Silent catch - PqP check errors are non-critical
+    }
   }
 
   private handleQueryParams(qParams: Params) {

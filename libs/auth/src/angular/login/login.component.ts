@@ -11,7 +11,17 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import {
+  googleDriveLogin,
+  isGoogleDriveLoggedIn,
+  getGoogleUserInfo,
+  login as pqpLogin,
+  isLoggedIn as isPqpLoggedIn,
+  localStateRepository,
+  sha256,
+} from "@ovrlab/pqp-network";
 import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
+
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -102,6 +112,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
   ssoRequired = false;
 
+  // PqP Pre-Login State
+  pqpGoogleDriveLoggedIn = false;
+  pqpNetworkLoggedIn = false;
+  pqpUserEmail: string | null = null;
+  pqpDerivedPassword: string | null = null;
+
+  get pqpReady(): boolean {
+    return this.pqpGoogleDriveLoggedIn && this.pqpNetworkLoggedIn;
+  }
+
   formGroup = this.formBuilder.group(
     {
       email: ["", [Validators.required, Validators.email]],
@@ -153,6 +173,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Add popstate listener to listen for browser back button clicks
     window.addEventListener("popstate", this.handlePopState);
+
+    // Check PqP login status
+    await this.checkPqpStatus();
 
     await this.defaultOnInit();
 
@@ -541,6 +564,110 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.loginComponentService.isLoginWithPasskeySupported();
   }
 
+  // PqP Pre-Login Methods
+  private async checkPqpStatus(): Promise<void> {
+    try {
+      this.pqpGoogleDriveLoggedIn = await isGoogleDriveLoggedIn();
+      this.pqpNetworkLoggedIn = await isPqpLoggedIn();
+
+      if (this.pqpGoogleDriveLoggedIn) {
+        const userInfo = await getGoogleUserInfo();
+        if (userInfo?.email) {
+          this.pqpUserEmail = userInfo.email;
+          // Auto-fill email if not already set
+          if (!this.formGroup.controls.email.value) {
+            this.formGroup.controls.email.setValue(userInfo.email);
+          }
+        }
+      }
+
+      if (this.pqpReady) {
+        await this.derivePqpPassword();
+      }
+    } catch (error) {
+      this.logService.error("Error checking PqP status:", error);
+    }
+  }
+
+  async handleGoogleDriveLogin(): Promise<void> {
+    try {
+      const success = await googleDriveLogin();
+      if (success) {
+        this.pqpGoogleDriveLoggedIn = true;
+        const userInfo = await getGoogleUserInfo();
+        if (userInfo?.email) {
+          this.pqpUserEmail = userInfo.email;
+          this.formGroup.controls.email.setValue(userInfo.email);
+          await this.loginEmailService.setLoginEmail(userInfo.email);
+        }
+        if (this.pqpReady) {
+          await this.derivePqpPassword();
+        }
+        this.toastService.showToast({
+          variant: "success",
+          title: "Connected",
+          message: "Google Drive connected successfully",
+        });
+      }
+    } catch (error) {
+      this.logService.error("Google Drive login error:", error);
+      this.toastService.showToast({
+        variant: "error",
+        title: "Error",
+        message: "Failed to connect to Google Drive",
+      });
+    }
+  }
+
+  async handlePqpNetworkLogin(): Promise<void> {
+    try {
+      pqpLogin();
+      // The login opens a new tab, so we need to check status periodically
+      // For now, we'll recheck on focus or provide a manual refresh
+      this.toastService.showToast({
+        variant: "info",
+        title: "PqP Network",
+        message: "Complete login in the new tab, then return here",
+      });
+
+      // Set up a listener for when the window regains focus
+      const checkLoginStatus = async () => {
+        const isLoggedIn = await isPqpLoggedIn();
+        if (isLoggedIn) {
+          this.pqpNetworkLoggedIn = true;
+          window.removeEventListener("focus", checkLoginStatus);
+          if (this.pqpReady) {
+            await this.derivePqpPassword();
+          }
+          this.toastService.showToast({
+            variant: "success",
+            title: "Connected",
+            message: "PqP Network connected successfully",
+          });
+        }
+      };
+      window.addEventListener("focus", checkLoginStatus);
+    } catch (error) {
+      this.logService.error("PqP Network login error:", error);
+      this.toastService.showToast({
+        variant: "error",
+        title: "Error",
+        message: "Failed to connect to PqP Network",
+      });
+    }
+  }
+
+  private async derivePqpPassword(): Promise<void> {
+    try {
+      const privateKey = await localStateRepository.getPrivateKey();
+      if (privateKey) {
+        this.pqpDerivedPassword = await sha256(privateKey);
+      }
+    } catch (error) {
+      this.logService.error("Error deriving PqP password:", error);
+    }
+  }
+
   protected async goToHint(): Promise<void> {
     await this.router.navigateByUrl("/hint");
   }
@@ -564,6 +691,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     if (isEmailValid) {
       await this.makePasswordPreloginCall();
+
+      // Auto-fill derived password if PqP is ready
+      if (this.pqpDerivedPassword) {
+        this.formGroup.controls.masterPassword.setValue(this.pqpDerivedPassword);
+      }
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
