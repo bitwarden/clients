@@ -113,6 +113,10 @@ export class CipherService implements CipherServiceAbstraction {
     FeatureFlag.PM27632_SdkCipherCrudOperations,
   );
 
+  private readonly sdkCipherShareEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.PM28190_SdkCipherShareOperations,
+  );
+
   constructor(
     private keyService: KeyService,
     private domainSettingsService: DomainSettingsService,
@@ -1082,12 +1086,31 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
-    originalCipher?: Cipher,
+    originalCipherView?: CipherView,
   ): Promise<Cipher> {
+    const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
+    if (useSdkShare) {
+      return this.shareWithServerUsingSdk(
+        cipher,
+        organizationId,
+        collectionIds,
+        userId,
+        originalCipherView,
+      );
+    }
+
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM22136_SdkCipherEncryption,
     );
 
+    // Get original cipher for adjustCipherHistory
+    let originalCipher: Cipher | undefined;
+    if (originalCipherView) {
+      // Encrypt the provided originalCipherView
+      const encryptResult = await this.cipherEncryptionService.encrypt(originalCipherView, userId);
+      originalCipher = encryptResult?.cipher;
+    }
+    // If originalCipher is undefined, adjustCipherHistory will fetch from cache
     await this.adjustCipherHistory(cipher, userId, originalCipher);
 
     let encCipher: EncryptionContext;
@@ -1142,6 +1165,11 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: string[],
     userId: UserId,
   ) {
+    const useSdkShare = await firstValueFrom(this.sdkCipherShareEnabled$);
+    if (useSdkShare) {
+      return this.shareManyWithServerUsingSdk(ciphers, organizationId, collectionIds, userId);
+    }
+
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM22136_SdkCipherEncryption,
     );
@@ -1193,6 +1221,51 @@ export class CipherService implements CipherServiceAbstraction {
       }
       throw e;
     }
+  }
+
+  private async shareWithServerUsingSdk(
+    cipher: CipherView,
+    organizationId: string,
+    collectionIds: string[],
+    userId: UserId,
+    originalCipherView?: CipherView,
+  ): Promise<Cipher> {
+    if (cipher.organizationId != null) {
+      throw new Error("Cipher is already associated with an organization.");
+    }
+
+    const result = await this.cipherSdkService.shareWithServer(
+      cipher,
+      organizationId as OrganizationId,
+      collectionIds as CollectionId[],
+      userId,
+      originalCipherView,
+    );
+
+    await this.clearCache(userId);
+    return result;
+  }
+
+  private async shareManyWithServerUsingSdk(
+    ciphers: CipherView[],
+    organizationId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<void> {
+    for (const cipher of ciphers) {
+      if (cipher.organizationId != null) {
+        throw new Error("Cipher is already associated with an organization.");
+      }
+    }
+
+    await this.cipherSdkService.shareManyWithServer(
+      ciphers,
+      organizationId as OrganizationId,
+      collectionIds as CollectionId[],
+      userId,
+    );
+
+    await this.clearCache(userId);
   }
 
   saveAttachmentWithServer(
