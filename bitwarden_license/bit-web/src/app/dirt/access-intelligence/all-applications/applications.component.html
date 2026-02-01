@@ -1,0 +1,48 @@
+@if ((dataService.reportStatus$ | async) == ReportStatusEnum.Loading) {
+  <dirt-report-loading></dirt-report-loading>
+} @else {
+  @let drawerDetails = dataService.drawerDetails$ | async;
+  <div class="tw-mt-4 tw-flex tw-flex-col">
+    <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
+
+    <div class="tw-flex tw-mb-4 tw-gap-4 tw-items-center">
+      <bit-search
+        [placeholder]="'searchApps' | i18n"
+        class="tw-w-1/2"
+        [formControl]="searchControl"
+      ></bit-search>
+
+      <bit-chip-select
+        [placeholderText]="'filter' | i18n"
+        placeholderIcon="bwi-sliders"
+        [options]="filterOptions()"
+        [ngModel]="selectedFilter()"
+        (ngModelChange)="setFilterApplicationsByStatus($event)"
+        fullWidth="false"
+      ></bit-chip-select>
+
+      <button
+        type="button"
+        [buttonType]="'primary'"
+        bitButton
+        class="tw-ml-auto"
+        [disabled]="!selectedUrls().size"
+        [loading]="markingAsCritical()"
+        (click)="markAppsAsCritical()"
+      >
+        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
+        {{ "markAppAsCritical" | i18n }}
+      </button>
+    </div>
+
+    <app-table-row-scrollable-m11
+      [dataSource]="dataSource"
+      [showRowCheckBox]="true"
+      [showRowMenuForCriticalApps]="false"
+      [selectedUrls]="selectedUrls()"
+      [openApplication]="drawerDetails.invokerId || ''"
+      [checkboxChange]="onCheckboxChange"
+      [showAppAtRiskMembers]="showAppAtRiskMembers"
+    ></app-table-row-scrollable-m11>
+  </div>
+}
