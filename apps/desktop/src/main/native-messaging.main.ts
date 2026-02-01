@@ -315,6 +315,7 @@ export class NativeMessagingMain {
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Waterfox: `${this.homedir()}/Library/Application\ Support/Waterfox/`,
     };
     /* eslint-enable no-useless-escape */
   }
