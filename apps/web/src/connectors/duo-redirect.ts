@@ -1,4 +1,4 @@
-import { getQsParam } from "./common";
+import { buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
@@ -38,10 +38,16 @@ window.addEventListener("load", async () => {
   } else if (client === "browser") {
     window.postMessage({ command: "duoResult", code, state }, window.location.origin);
     displayHandoffMessage(client);
-  } else if (client === "mobile" || client === "desktop") {
-    if (client === "desktop") {
-      displayHandoffMessage(client);
-    }
+  } else if (client === "mobile") {
+    document.location.replace(
+      buildMobileDeeplinkUriFromParam("duo") +
+        "?code=" +
+        encodeURIComponent(code) +
+        "&state=" +
+        encodeURIComponent(state),
+    );
+  } else if (client === "desktop") {
+    displayHandoffMessage(client);
     document.location.replace(
       mobileDesktopCallback +
         "?code=" +

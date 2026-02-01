@@ -28,3 +28,23 @@ export function b64Decode(str: string, spaceAsPlus = false) {
       .join(""),
   );
 }
+
+function appLinkHost(): string {
+  const hostName = window.location.hostname || "";
+  if (hostName.endsWith("bitwarden.eu")) {
+    return "bitwarden.eu";
+  }
+  if (hostName.endsWith("bitwarden.pw")) {
+    return "bitwarden.pw";
+  }
+  return "bitwarden.com";
+}
+
+export function buildMobileDeeplinkUriFromParam(kind: "duo" | "webauthn"): string {
+  const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
+  const path = `${kind}-callback`;
+  if (scheme === "https") {
+    return `https://${appLinkHost()}/${path}`;
+  }
+  return `bitwarden://${path}`;
+}
