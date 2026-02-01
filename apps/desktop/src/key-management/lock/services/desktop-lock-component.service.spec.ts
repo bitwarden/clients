@@ -177,6 +177,9 @@ describe("DesktopLockComponentService", () => {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -196,6 +199,9 @@ describe("DesktopLockComponentService", () => {
           biometrics: {
             enabled: true,
             biometricsStatus: BiometricsStatus.Available,
+          },
+          prf: {
+            enabled: false,
           },
         },
       ],
@@ -218,6 +224,9 @@ describe("DesktopLockComponentService", () => {
             enabled: false,
             biometricsStatus: BiometricsStatus.NotEnabledLocally,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -238,6 +247,9 @@ describe("DesktopLockComponentService", () => {
             enabled: false,
             biometricsStatus: BiometricsStatus.HardwareUnavailable,
           },
+          prf: {
+            enabled: false,
+          },
         },
       ],
       [
@@ -257,6 +269,9 @@ describe("DesktopLockComponentService", () => {
           biometrics: {
             enabled: false,
             biometricsStatus: BiometricsStatus.PlatformUnsupported,
+          },
+          prf: {
+            enabled: false,
           },
         },
       ],
