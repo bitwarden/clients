@@ -4,6 +4,7 @@ import { PolicyService } from "../admin-console/abstractions/policy/policy.servi
 import { ConfigService } from "../platform/abstractions/config/config.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { SdkService } from "../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../platform/state";
 
 import { LegacyEncryptorProvider } from "./cryptography/legacy-encryptor-provider";
@@ -20,6 +21,7 @@ describe("SystemServiceProvider", () => {
   let mockLogger: LogService;
   let mockEnvironment: MockProxy<PlatformUtilsService>;
   let mockConfigService: ConfigService;
+  let mockSdkService: SdkService;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -31,6 +33,7 @@ describe("SystemServiceProvider", () => {
     mockLogger = mock<LogService>();
     mockEnvironment = mock<PlatformUtilsService>();
     mockConfigService = mock<ConfigService>();
+    mockSdkService = mock<SdkService>();
   });
 
   describe("createSystemServiceProvider", () => {
@@ -45,6 +48,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result).toHaveProperty("policy", mockPolicy);
@@ -66,6 +70,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result.extension).toBeInstanceOf(ExtensionService);
@@ -83,6 +88,7 @@ describe("SystemServiceProvider", () => {
           mockLogger,
           mockEnvironment,
           mockConfigService,
+          mockSdkService,
         );
 
         expect(mockEnvironment.isDev).toHaveBeenCalledTimes(1);
@@ -102,6 +108,7 @@ describe("SystemServiceProvider", () => {
           mockLogger,
           mockEnvironment,
           mockConfigService,
+          mockSdkService,
         );
 
         expect(mockEnvironment.isDev).toHaveBeenCalledTimes(1);
@@ -121,6 +128,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result.extension).toBeInstanceOf(ExtensionService);
@@ -138,6 +146,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result.policy).toBe(mockPolicy);
@@ -154,6 +163,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result.configService).toBe(mockConfigService);
@@ -170,6 +180,7 @@ describe("SystemServiceProvider", () => {
         mockLogger,
         mockEnvironment,
         mockConfigService,
+        mockSdkService,
       );
 
       expect(result.environment).toBe(mockEnvironment);
