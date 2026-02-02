@@ -171,15 +171,20 @@ export class PqpAuthService {
 
   /**
    * Derive the master password from the PqP private key using SHA-256.
+   * Clears any stale password if the private key is unavailable or on error.
    */
   async derivePassword(): Promise<string | null> {
     try {
       const privateKey = await localStateRepository.getPrivateKey();
       if (privateKey) {
         this._derivedPassword = await sha256(privateKey);
+      } else {
+        // Clear stale password when private key is no longer available
+        this._derivedPassword = null;
       }
     } catch {
-      // Silent catch
+      // Clear stale password on error to prevent using outdated credentials
+      this._derivedPassword = null;
     }
     return this._derivedPassword;
   }
