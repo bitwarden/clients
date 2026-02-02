@@ -63,6 +63,11 @@ jobs:
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -180,6 +185,19 @@ jobs:
           repository: bitwarden/server
           ref: ${{ steps.set-server-ref.outputs.server_ref }}
           persist-credentials: false
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: sdk-internal
+          if_no_artifact_found: fail
 
       - name: Check Branch to Publish
         env:

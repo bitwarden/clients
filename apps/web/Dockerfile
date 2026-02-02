@@ -15,6 +15,12 @@ RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
       rm -rf node_modules/@bitwarden/commercial-sdk-internal ; \
     fi
 
+# Override SDK if custom artifacts are present
+RUN if [ -d "sdk-internal" ]; then \
+      echo "Overriding SDK with custom artifacts from sdk-internal" ; \
+      npm link ./sdk-internal ; \
+    fi
+
 WORKDIR /source/apps/web
 ARG NPM_COMMAND=dist:bit:selfhost
 RUN npm run ${NPM_COMMAND}
