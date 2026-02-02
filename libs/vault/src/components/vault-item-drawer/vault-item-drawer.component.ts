@@ -50,7 +50,6 @@ import {
   CenterPositionStrategy,
   IconButtonModule,
   BadgeModule,
-  DrawerModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -139,7 +138,6 @@ export type VaultItemDrawerResult = UnionOfValues<typeof VaultItemDrawerResult>;
     ButtonModule,
     IconButtonModule,
     CipherViewComponent,
-    DrawerModule,
     BadgeModule,
     CommonModule,
     I18nPipe,

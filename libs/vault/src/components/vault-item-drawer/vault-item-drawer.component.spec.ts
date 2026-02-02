@@ -32,8 +32,9 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../../abstractions/change-login-password.service";
+import { CipherFormConfig } from "../../cipher-form";
 
-import { VaultItemDrawerComponent } from "./vault-item-drawer.component";
+import { VaultItemDrawerComponent, VaultItemDrawerParams } from "./vault-item-drawer.component";
 
 // Create a test subclass to more easily access protected members
 class TestVaultItemDrawerComponent extends VaultItemDrawerComponent {
@@ -62,7 +63,7 @@ describe("VaultItemDrawerComponent", () => {
   let fixture: ComponentFixture<TestVaultItemDrawerComponent>;
   let component: TestVaultItemDrawerComponent;
 
-  const baseFormConfig = {
+  const baseFormConfig: Partial<CipherFormConfig> = {
     mode: "edit",
     cipherType: CipherType.Login,
     collections: [],
@@ -72,9 +73,9 @@ describe("VaultItemDrawerComponent", () => {
     folders: [],
   };
 
-  const baseParams = {
+  const baseParams: VaultItemDrawerParams = {
     mode: "view",
-    formConfig: { ...baseFormConfig },
+    formConfig: { ...baseFormConfig } as CipherFormConfig,
     disableForm: false,
     activeCollectionId: undefined,
     isAdminConsoleAction: false,
