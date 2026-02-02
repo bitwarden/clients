@@ -22,6 +22,7 @@ export enum FeatureFlag {
   SafariAccountSwitching = "pm-5594-safari-account-switching",
 
   /* Autofill */
+  UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
@@ -110,6 +111,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
+  [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
