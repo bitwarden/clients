@@ -187,7 +187,13 @@ export class SetInitialPasswordComponent implements OnInit {
         await this.setInitialPassword(passwordInputResult);
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+          await this.setInitialPasswordTdeOffboarding(passwordInputResult);
+          return;
+        }
+
         await this.setInitialPasswordTdeOffboardingOld(passwordInputResult);
+
         break;
       default:
         this.logService.error(
