@@ -53,14 +53,14 @@ impl SSHKeyData {
 
     /// # Returns
     ///
-    /// A reference to the [`PublicKey`] containing.
+    /// A reference to the [`PublicKey`].
     pub(crate) fn public_key(&self) -> &PublicKey {
         &self.public_key
     }
 
     /// # Returns
     ///
-    /// A reference to the [`PrivateKey`] enum variant.
+    /// A reference to the [`PrivateKey`].
     pub(crate) fn private_key(&self) -> &PrivateKey {
         &self.private_key
     }
