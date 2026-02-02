@@ -57,8 +57,8 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
-                case "accountCredit":
-                  return "Account credit";
+                case "premiumSubscriptionCredit":
+                  return "Premium subscription credit";
                 default:
                   return key;
               }
@@ -395,7 +395,7 @@ export const WithCredit: Story = {
       },
       cadence: "monthly",
       credit: {
-        translationKey: "accountCredit",
+        translationKey: "premiumSubscriptionCredit",
         value: 25.0,
       },
       estimatedTax: 10.0,
@@ -425,7 +425,7 @@ export const WithDiscountAndCredit: Story = {
         value: 15,
       },
       credit: {
-        translationKey: "accountCredit",
+        translationKey: "premiumSubscriptionCredit",
         value: 50.0,
       },
       estimatedTax: 15.0,
