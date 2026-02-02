@@ -121,6 +121,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.pqpAuthService.isReady;
   }
 
+  get shouldAutoFillPqpPassword(): boolean {
+    const formEmail = this.formGroup.controls.email.value?.toLowerCase();
+    const pqpEmail = this.pqpUserEmail?.toLowerCase();
+    return !!(this.pqpDerivedPassword && formEmail && pqpEmail && formEmail === pqpEmail);
+  }
+
   formGroup = this.formBuilder.group(
     {
       email: ["", [Validators.required, Validators.email]],
@@ -642,9 +648,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.makePasswordPreloginCall();
 
       // Auto-fill derived password if PqP is ready and email matches the PqP account
-      const formEmail = this.formGroup.controls.email.value?.toLowerCase();
-      const pqpEmail = this.pqpUserEmail?.toLowerCase();
-      if (this.pqpDerivedPassword && formEmail && pqpEmail && formEmail === pqpEmail) {
+      if (this.shouldAutoFillPqpPassword) {
         this.formGroup.controls.masterPassword.setValue(this.pqpDerivedPassword);
       }
 

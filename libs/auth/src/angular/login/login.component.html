@@ -138,7 +138,7 @@
         formControlName="masterPassword"
         bitInput
         #masterPasswordInputRef
-        [class.tw-pointer-events-none]="pqpDerivedPassword"
+        [class.tw-pointer-events-none]="shouldAutoFillPqpPassword"
       />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>

@@ -86,7 +86,11 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     return this.pqpAuthService.isReady;
   }
   get pqpDerivedPassword(): string | null {
-    return this.pqpAuthService.derivedPassword;
+    const pqpEmail = this.pqpAuthService.userEmail;
+    if (this.email && pqpEmail && this.email.toLowerCase() === pqpEmail.toLowerCase()) {
+      return this.pqpAuthService.derivedPassword;
+    }
+    return null;
   }
 
   constructor(
