@@ -7,7 +7,7 @@ import {
   ButtonModule,
   ButtonType,
   CardComponent,
-  IconModule,
+  SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -20,7 +20,7 @@ import {
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule, CurrencyPipe, CardComponent],
+  imports: [BadgeModule, ButtonModule, SvgModule, TypographyModule, CurrencyPipe, CardComponent],
 })
 export class PricingCardComponent {
   readonly tagline = input.required<string>();

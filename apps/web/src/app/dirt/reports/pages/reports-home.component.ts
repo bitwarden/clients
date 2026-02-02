@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,7 +16,7 @@ import { ReportEntry, ReportVariant } from "../shared";
   standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
-  reports: ReportEntry[];
+  readonly reports = signal<ReportEntry[]>([]);
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -32,7 +32,7 @@ export class ReportsHomeComponent implements OnInit {
       ? ReportVariant.Enabled
       : ReportVariant.RequiresPremium;
 
-    this.reports = [
+    this.reports.set([
       {
         ...reports[ReportType.ExposedPasswords],
         variant: reportRequiresPremium,
@@ -57,6 +57,6 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.DataBreach],
         variant: ReportVariant.Enabled,
       },
-    ];
+    ]);
   }
 }

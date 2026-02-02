@@ -15,7 +15,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { IconModule } from "@bitwarden/components";
+import { SvgModule } from "@bitwarden/components";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
@@ -31,7 +31,7 @@ import { WebLayoutModule } from "./web-layout.module";
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
 })

@@ -6,7 +6,7 @@ import { Constructor } from "type-fest";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
@@ -80,7 +80,7 @@ export abstract class BasePolicyEditDefinition {
 export abstract class BasePolicyEditComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policyResponse: PolicyResponse | undefined;
+  @Input() policyResponse: PolicyStatusResponse | undefined;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: BasePolicyEditDefinition | undefined;

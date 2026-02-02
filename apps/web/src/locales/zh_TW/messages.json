@@ -6,13 +6,31 @@
     "message": "活動"
   },
   "appLogoLabel": {
-    "message": "Bitwarden 圖示"
+    "message": "Bitwarden logo"
   },
   "criticalApplications": {
-    "message": "重要應用程式"
+    "message": "關鍵應用程式"
   },
   "noCriticalAppsAtRisk": {
-    "message": "目前沒有任何關鍵應用程式存在風險"
+    "message": "目前沒有關鍵應用程式存在風險"
+  },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -122,7 +140,7 @@
     }
   },
   "criticalApplicationsWithCount": {
-    "message": "重要應用程式($COUNT$)",
+    "message": "關鍵應用程式 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -131,7 +149,7 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "已標記為關鍵的應用程式"
+    "message": "已標記為關鍵應用程式"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 個關鍵應用程式",
@@ -188,7 +206,7 @@
     "message": "將應用程式標記為關鍵"
   },
   "feature1Description": {
-    "message": "這將協助您優先消除最重要應用程式的風險。"
+    "message": "這將協助您優先消除關鍵應用程式的風險。"
   },
   "feature2Title": {
     "message": "協助成員提升其安全性"
@@ -215,13 +233,13 @@
     "message": "選擇您最關鍵的應用程式，以優先處理安全行動，讓使用者解決有風險的密碼。"
   },
   "markCriticalApplications": {
-    "message": "選擇重要應用程式"
+    "message": "選擇關鍵應用程式"
   },
   "markAppAsCritical": {
-    "message": "標註應用程式為重要"
+    "message": "將應用程式標記為關鍵"
   },
   "markAsCritical": {
-    "message": "標註應用程式為重要"
+    "message": "標記為關鍵"
   },
   "applicationsSelected": {
     "message": "已選擇的應用程式"
@@ -233,7 +251,7 @@
     "message": "取消選擇應用程式"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "被標註重要的應用程式"
+    "message": "已標記為關鍵的應用程式"
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "已將 $COUNT$ 個應用程式標記為關鍵",
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "應用程式"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "具有風險的密碼"
@@ -302,7 +323,7 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "這些成員正以薄弱、已外洩或重複使用的密碼登入關鍵應用程式。"
+    "message": "這些成員正以強度不足、已外洩或重複使用的密碼登入關鍵應用程式。"
   },
   "atRiskMembersDescriptionNone": {
     "message": "目前沒有成員使用弱密碼、外洩密碼或重複密碼登入應用程式。"
@@ -377,7 +398,7 @@
     }
   },
   "reviewApplicationsToSecureItems": {
-    "message": "審查應用程式以保護對組織安全最重要的項目"
+    "message": "檢視應用程式，以確保對組織安全最關鍵的項目受到保護"
   },
   "reviewApplications": {
     "message": "審核認領"
@@ -477,7 +498,7 @@
     "message": "身分"
   },
   "contactInfo": {
-    "message": "聯繫資訊"
+    "message": "聯絡資訊"
   },
   "cardDetails": {
     "message": "支付卡詳細資料"
@@ -575,7 +596,7 @@
     "message": "公司"
   },
   "ssn": {
-    "message": "社會保險號碼"
+    "message": "社會安全號碼"
   },
   "passportNumber": {
     "message": "護照號碼"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "電子郵件"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "電話號碼"
@@ -766,11 +790,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "比對偵測",
+    "message": "相符偵測",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "預設比對偵測",
+    "message": "預設相符偵測",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -1365,6 +1389,12 @@
   "no": {
     "message": "否"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "位置"
   },
@@ -1384,7 +1414,7 @@
     "message": "使用主密碼登入"
   },
   "readingPasskeyLoading": {
-    "message": "正在讀取通行金鑰..."
+    "message": "正在讀取密碼金鑰…"
   },
   "readingPasskeyLoadingInfo": {
     "message": "保持此視窗打開，然後按照瀏覽器的提示進行操作。"
@@ -1925,7 +1955,7 @@
     }
   },
   "deleteSelectedConfirmation": {
-    "message": "您確定要繼續嗎?"
+    "message": "您確定要繼續嗎？"
   },
   "moveSelectedItemsDesc": {
     "message": "選擇要將這 $COUNT$ 個項目移動至哪個資料夾。",
@@ -3153,7 +3183,7 @@
     "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
   },
   "itemRestored": {
-    "message": "已還原項目"
+    "message": "項目已還原"
   },
   "restartPremium": {
     "message": "重新啟用進階版"
@@ -3165,7 +3195,7 @@
     "message": "# GB 額外儲存空間"
   },
   "additionalStorageIntervalDesc": {
-    "message": "您的方案擁有 $SIZE$ 的加密儲存空間。您也可以用每 GB $PRICE$ / $INTERVAL$ 購買額外的儲存空間。",
+    "message": "您的方案提供 $SIZE$ 的加密儲存空間。如需額外儲存空間，可依每 GB 每 $INTERVAL$ $PRICE$ 加購。",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3252,19 +3282,19 @@
     "message": "待取消"
   },
   "subscriptionPendingCanceled": {
-    "message": "此訂閱在目前計費周期结束前已標記為取消。"
+    "message": "此訂閱已標記為將於目前計費週期結束時取消。"
   },
   "reinstateSubscription": {
     "message": "恢復訂閱"
   },
   "reinstateConfirmation": {
-    "message": "您是否要移除待處理的取消要求，重新開始您的訂閱？"
+    "message": "確定要撤回取消申請並恢復訂閱嗎？"
   },
   "reinstated": {
     "message": "已重新開始訂閱。"
   },
   "cancelConfirmation": {
-    "message": "您確定要取消訂閱嗎？在目前計費周期結束之後，您將無法使用所有訂閲功能。"
+    "message": "您確定要取消訂閱嗎？在本次計費週期結束後，您將無法再使用此訂閱的所有功能。"
   },
   "canceledSubscription": {
     "message": "訂閱已取消"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "下一次收費"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "方案"
@@ -6095,13 +6128,13 @@
     "message": "預設 URI 相符偵測"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "決定何時建議登入項目進行自動填入。管理員與擁有者不受此原則限制。"
+    "message": "用於決定何時提供登入項目的自動填入建議。系統管理員與擁有者不受此原則限制。"
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "預設 URI 相符偵測"
   },
   "invalidUriMatchDefaultPolicySetting": {
-    "message": "請選擇有效的 URI 比對偵測選項。",
+    "message": "請選擇有效的 URI 相符偵測選項。",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "一個或多個組織原則禁止您匯出個人密碼庫。"
   },
-  "activateAutofill": {
-    "message": "啓用自動填入"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "為所有現有的和新的成員，啓用瀏覽器擴充套件上的頁面載入自動填入設定。"
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "被入侵或不被信任的網站，可能會濫用頁面載入的自動填入功能。"
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "進一步瞭解「自動填入」功能"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "選擇 SSO 類型"
@@ -9912,7 +9945,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI 匹配偵測是 Bitwarden 用來識別自動填入建議的方式。",
+    "message": "URI 相符偵測是 Bitwarden 用來判定自動填入建議的方式。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -9924,7 +9957,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "深入了解匹配偵測",
+    "message": "深入了解相符偵測",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -10935,7 +10968,7 @@
     "message": "深入瞭解緊急存取"
   },
   "learnMoreAboutMatchDetection": {
-    "message": "深入瞭解符合項目偵測"
+    "message": "瞭解更多關於相符偵測的資訊"
   },
   "learnMoreAboutMasterPasswordReprompt": {
     "message": "深入瞭解主密碼再次提示"
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden 會在前 72 小時內嘗試宣告該網域 3 次。若無法宣告，請檢查主機上的 DNS 紀錄並手動宣告。若 7 天內仍未宣告，該網域將自你的組織移除。"
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "尚未宣告 $DOMAIN$。請檢查你的 DNS 紀錄。",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "已宣告"
   },
-  "domainStatusUnderVerification": {
-    "message": "驗證中"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "宣告網域以取得其成員帳號的管理權。擁有已宣告網域的成員在登入時會略過 SSO 識別頁面，且管理員將可刪除已宣告的帳號。"
@@ -11882,11 +11927,11 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "openExtensionFromToolbarPart1": {
-    "message": "如果擴充套件沒有開啟，您可能需要從圖示開啟 Bitwarden ",
+    "message": "若擴充套件沒有開啟，您可能需要透過工具列上的圖示 ",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "openExtensionFromToolbarPart2": {
-    "message": " 在工具列上。",
+    "message": "來開啟 Bitwarden。",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
@@ -12336,7 +12381,7 @@
     "message": "在啟用此原則前，必須先宣告網域。"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+    "message": "設定解鎖方式以變更您的密碼庫逾時行為。"
   },
   "vaultTimeoutPolicyAffectingOptions": {
     "message": "企業政策已套用至您的逾時選項中"
@@ -12504,7 +12549,7 @@
     "message": "於瀏覽器重新整理時"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+    "message": "設定解鎖方式，以變更逾時後的行為"
   },
   "leaveConfirmationDialogTitle": {
     "message": "確定要離開嗎？"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "您已用完全部 $GB$ GB 的加密儲存空間。如需繼續儲存檔案，請增加儲存空間。"
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "當您移除儲存空間時，將會獲得按比例計算的帳戶抵扣金額，並自動套用至下一期帳單。"
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "電子郵件已受保護"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }
