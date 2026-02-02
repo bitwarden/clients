@@ -59,12 +59,14 @@ describe("AppearanceV2Component", () => {
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
   const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
   const setShowFavicons = jest.fn().mockResolvedValue(undefined);
   const setEnableBadgeCounter = jest.fn().mockResolvedValue(undefined);
   const setEnableRoutingAnimation = jest.fn().mockResolvedValue(undefined);
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
   const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
+  const setClickItemsToAutofillVaultView = jest.fn().mockResolvedValue(undefined);
 
   const mockWidthService: Partial<PopupSizeService> = {
     width$: new BehaviorSubject("default"),
@@ -111,7 +113,10 @@ describe("AppearanceV2Component", () => {
         },
         {
           provide: VaultSettingsService,
-          useValue: mock<VaultSettingsService>(),
+          useValue: {
+            clickItemsToAutofillVaultView$,
+            setClickItemsToAutofillVaultView,
+          },
         },
       ],
     })
@@ -142,6 +147,7 @@ describe("AppearanceV2Component", () => {
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",
+      clickItemsToAutofillVaultView: false,
     });
   });
 
@@ -186,6 +192,12 @@ describe("AppearanceV2Component", () => {
       component.appearanceForm.controls.width.setValue("wide");
 
       expect(mockWidthService.setWidth).toHaveBeenCalledWith("wide");
+    });
+
+    it("updates the click items to autofill vault view setting", () => {
+      component.appearanceForm.controls.clickItemsToAutofillVaultView.setValue(true);
+
+      expect(setClickItemsToAutofillVaultView).toHaveBeenCalledWith(true);
     });
   });
 });
