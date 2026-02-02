@@ -385,7 +385,7 @@ describe("VaultComponent", () => {
   });
 
   it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     const component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
@@ -622,7 +622,7 @@ describe("VaultComponent", () => {
         }),
       );
 
-      const fixture = TestBed.createComponent(VaultV2Component);
+      const fixture = TestBed.createComponent(VaultComponent);
       const component = fixture.componentInstance;
 
       void component.ngOnInit();
@@ -641,7 +641,7 @@ describe("VaultComponent", () => {
         }),
       );
 
-      const fixture = TestBed.createComponent(VaultV2Component);
+      const fixture = TestBed.createComponent(VaultComponent);
       const component = fixture.componentInstance;
 
       void component.ngOnInit();
@@ -660,7 +660,7 @@ describe("VaultComponent", () => {
         }),
       );
 
-      const fixture = TestBed.createComponent(VaultV2Component);
+      const fixture = TestBed.createComponent(VaultComponent);
       const component = fixture.componentInstance;
 
       void component.ngOnInit();
@@ -679,7 +679,7 @@ describe("VaultComponent", () => {
         }),
       );
 
-      const fixture = TestBed.createComponent(VaultV2Component);
+      const fixture = TestBed.createComponent(VaultComponent);
       const component = fixture.componentInstance;
 
       void component.ngOnInit();
