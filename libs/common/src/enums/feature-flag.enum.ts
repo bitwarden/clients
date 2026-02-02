@@ -18,6 +18,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
+  PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
 
   /* Autofill */
@@ -137,6 +138,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
+  [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
 
   /* Billing */

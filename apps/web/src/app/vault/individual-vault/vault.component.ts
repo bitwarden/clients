@@ -925,6 +925,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
       organizationId: cipher.organizationId as OrganizationId,
+      canEditCipher: cipher.edit,
     });
 
     const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
