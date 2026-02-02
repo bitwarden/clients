@@ -120,29 +120,50 @@ export class PqpAuthService {
   /**
    * Login to PqP Network.
    * Opens login in new tab. Returns a promise that resolves when login is detected via focus event.
+   * If the user returns without completing login, resolves false after the second focus check.
    */
   async loginToPqpNetwork(): Promise<boolean> {
     return new Promise((resolve) => {
+      let resolved = false;
+      let focusCount = 0;
+
+      const cleanup = () => {
+        window.removeEventListener("focus", checkLoginStatus);
+      };
+
+      const checkLoginStatus = async () => {
+        if (resolved) {
+          return;
+        }
+
+        focusCount++;
+        const isLoggedIn = await isPqpLoggedIn();
+
+        if (isLoggedIn) {
+          resolved = true;
+          cleanup();
+          this._networkLoggedIn = true;
+          if (this.isReady) {
+            await this.derivePassword();
+          }
+          resolve(true);
+        } else if (focusCount >= 2) {
+          // User has returned focus without completing login - treat as cancelled
+          resolved = true;
+          cleanup();
+          resolve(false);
+        }
+      };
+
       try {
         pqpLogin();
-
-        // Set up a listener for when the window regains focus
-        const checkLoginStatus = async () => {
-          const isLoggedIn = await isPqpLoggedIn();
-          if (isLoggedIn) {
-            this._networkLoggedIn = true;
-            window.removeEventListener("focus", checkLoginStatus);
-            if (this.isReady) {
-              await this.derivePassword();
-            }
-            resolve(true);
-          }
-        };
         window.addEventListener("focus", checkLoginStatus);
 
         // Also check immediately after a short delay (in case already logged in)
         setTimeout(() => void checkLoginStatus(), 500);
       } catch {
+        resolved = true;
+        cleanup();
         resolve(false);
       }
     });
