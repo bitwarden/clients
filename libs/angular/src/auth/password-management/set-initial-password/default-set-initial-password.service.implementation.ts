@@ -223,8 +223,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) {
-    const { newPassword, salt, kdfConfig, newPasswordHint } = credentials;
-
     for (const [key, value] of Object.entries(credentials)) {
       if (value == null) {
         throw new Error(`${key} not found. Could not set password.`);
@@ -234,6 +232,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userId == null) {
       throw new Error("userId not found. Could not set password.");
     }
+
+    const { newPassword, salt, kdfConfig, newPasswordHint } = credentials;
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
