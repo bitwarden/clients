@@ -280,7 +280,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
    * Intended for grantee.
    * @param id emergency access id
    * @param masterPassword new master password
-   * @param email email address of grantee (must be consistent or login will fail)
+   * @param email email address of grantor (must be consistent or login will fail)
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
