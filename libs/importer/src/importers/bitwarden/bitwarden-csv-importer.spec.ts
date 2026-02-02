@@ -91,4 +91,33 @@ describe("BitwardenCsvImporter", () => {
     expect(result.collections[0].name).toBe("collection1/collection2");
     expect(result.collections[1].name).toBe("collection1");
   });
+
+  it("should parse archived items correctly", async () => {
+    const archivedDate = "2025-01-15T10:30:00.000Z";
+    const data =
+      `name,type,archivedDate,login_uri,login_username,login_password` +
+      `\nArchived Login,login,${archivedDate},https://example.com,user,pass`;
+
+    importer.organizationId = null;
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.name).toBe("Archived Login");
+    expect(cipher.archivedDate).toBeDefined();
+    expect(cipher.archivedDate.toISOString()).toBe(archivedDate);
+  });
+
+  it("should handle missing archivedDate gracefully", async () => {
+    const data = `name,type,login_uri` + `\nTest Login,login,https://example.com`;
+
+    importer.organizationId = null;
+    const result = await importer.parse(data);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].archivedDate).toBeUndefined();
+  });
 });
