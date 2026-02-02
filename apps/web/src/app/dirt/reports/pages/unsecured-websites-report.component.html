@@ -45,12 +45,12 @@
             ></bit-chip-select>
           }
         }
-        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75">
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
           @if (!isAdminConsoleActive) {
             <ng-container header>
-              <th bitCell></th>
-              <th bitCell>{{ "name" | i18n }}</th>
-              <th bitCell>{{ "owner" | i18n }}</th>
+              <th bitCell class="tw-w-12"></th>
+              <th bitCell class="tw-w-1/2">{{ "name" | i18n }}</th>
+              <th bitCell class="tw-w-1/3">{{ "owner" | i18n }}</th>
             </ng-container>
           }
           <ng-template bitRowDef let-row>
