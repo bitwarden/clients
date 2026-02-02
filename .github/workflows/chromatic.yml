@@ -58,14 +58,14 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
         if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
 
       - name: Cache NPM
         id: npm-cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}

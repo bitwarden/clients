@@ -28,10 +28,22 @@ describe("DefaultCipherSdkService", () => {
     mockAdminSdk = {
       create: jest.fn(),
       edit: jest.fn(),
+      delete: jest.fn().mockResolvedValue(undefined),
+      delete_many: jest.fn().mockResolvedValue(undefined),
+      soft_delete: jest.fn().mockResolvedValue(undefined),
+      soft_delete_many: jest.fn().mockResolvedValue(undefined),
+      restore: jest.fn().mockResolvedValue(undefined),
+      restore_many: jest.fn().mockResolvedValue(undefined),
     };
     mockCiphersSdk = {
       create: jest.fn(),
       edit: jest.fn(),
+      delete: jest.fn().mockResolvedValue(undefined),
+      delete_many: jest.fn().mockResolvedValue(undefined),
+      soft_delete: jest.fn().mockResolvedValue(undefined),
+      soft_delete_many: jest.fn().mockResolvedValue(undefined),
+      restore: jest.fn().mockResolvedValue(undefined),
+      restore_many: jest.fn().mockResolvedValue(undefined),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -240,6 +252,282 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to update cipher"),
+      );
+    });
+  });
+
+  describe("deleteWithServer()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+
+    it("should delete cipher using SDK when asAdmin is false", async () => {
+      await cipherSdkService.deleteWithServer(testCipherId, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.delete).toHaveBeenCalledWith(testCipherId);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should delete cipher using SDK admin API when asAdmin is true", async () => {
+      await cipherSdkService.deleteWithServer(testCipherId, userId, true);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.delete).toHaveBeenCalledWith(testCipherId);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.deleteWithServer(testCipherId, userId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.delete.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.deleteWithServer(testCipherId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete cipher"),
+      );
+    });
+  });
+
+  describe("deleteManyWithServer()", () => {
+    const testCipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId,
+      "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CipherId,
+    ];
+
+    it("should delete multiple ciphers using SDK when asAdmin is false", async () => {
+      await cipherSdkService.deleteManyWithServer(testCipherIds, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.delete_many).toHaveBeenCalledWith(testCipherIds);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should delete multiple ciphers using SDK admin API when asAdmin is true", async () => {
+      await cipherSdkService.deleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.delete_many).toHaveBeenCalledWith(testCipherIds, orgId);
+    });
+
+    it("should throw error when asAdmin is true but orgId is missing", async () => {
+      await expect(
+        cipherSdkService.deleteManyWithServer(testCipherIds, userId, true, undefined),
+      ).rejects.toThrow("Organization ID is required for admin delete.");
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.deleteManyWithServer(testCipherIds, userId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete multiple ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.delete_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.deleteManyWithServer(testCipherIds, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete multiple ciphers"),
+      );
+    });
+  });
+
+  describe("softDeleteWithServer()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+
+    it("should soft delete cipher using SDK when asAdmin is false", async () => {
+      await cipherSdkService.softDeleteWithServer(testCipherId, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.soft_delete).toHaveBeenCalledWith(testCipherId);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should soft delete cipher using SDK admin API when asAdmin is true", async () => {
+      await cipherSdkService.softDeleteWithServer(testCipherId, userId, true);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.soft_delete).toHaveBeenCalledWith(testCipherId);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.softDeleteWithServer(testCipherId, userId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to soft delete cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.soft_delete.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.softDeleteWithServer(testCipherId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to soft delete cipher"),
+      );
+    });
+  });
+
+  describe("softDeleteManyWithServer()", () => {
+    const testCipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId,
+      "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CipherId,
+    ];
+
+    it("should soft delete multiple ciphers using SDK when asAdmin is false", async () => {
+      await cipherSdkService.softDeleteManyWithServer(testCipherIds, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.soft_delete_many).toHaveBeenCalledWith(testCipherIds);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should soft delete multiple ciphers using SDK admin API when asAdmin is true", async () => {
+      await cipherSdkService.softDeleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.soft_delete_many).toHaveBeenCalledWith(testCipherIds, orgId);
+    });
+
+    it("should throw error when asAdmin is true but orgId is missing", async () => {
+      await expect(
+        cipherSdkService.softDeleteManyWithServer(testCipherIds, userId, true, undefined),
+      ).rejects.toThrow("Organization ID is required for admin soft delete.");
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.softDeleteManyWithServer(testCipherIds, userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to soft delete multiple ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.soft_delete_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.softDeleteManyWithServer(testCipherIds, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to soft delete multiple ciphers"),
+      );
+    });
+  });
+
+  describe("restoreWithServer()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+
+    it("should restore cipher using SDK when asAdmin is false", async () => {
+      await cipherSdkService.restoreWithServer(testCipherId, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.restore).toHaveBeenCalledWith(testCipherId);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should restore cipher using SDK admin API when asAdmin is true", async () => {
+      await cipherSdkService.restoreWithServer(testCipherId, userId, true);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.restore).toHaveBeenCalledWith(testCipherId);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.restoreWithServer(testCipherId, userId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to restore cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.restore.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.restoreWithServer(testCipherId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to restore cipher"),
+      );
+    });
+  });
+
+  describe("restoreManyWithServer()", () => {
+    const testCipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId,
+      "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CipherId,
+    ];
+
+    it("should restore multiple ciphers using SDK when orgId is not provided", async () => {
+      await cipherSdkService.restoreManyWithServer(testCipherIds, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.restore_many).toHaveBeenCalledWith(testCipherIds);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should restore multiple ciphers using SDK admin API when orgId is provided", async () => {
+      const orgIdString = orgId as string;
+      await cipherSdkService.restoreManyWithServer(testCipherIds, userId, orgIdString);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.restore_many).toHaveBeenCalledWith(testCipherIds, orgIdString);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.restoreManyWithServer(testCipherIds, userId)).rejects.toThrow(
+        "SDK not available",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to restore multiple ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.restore_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.restoreManyWithServer(testCipherIds, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to restore multiple ciphers"),
       );
     });
   });

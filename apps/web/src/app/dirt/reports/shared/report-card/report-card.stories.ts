@@ -14,7 +14,7 @@ import {
   BaseCardComponent,
   CardContentComponent,
   I18nMockService,
-  IconModule,
+  SvgModule,
 } from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
@@ -31,7 +31,7 @@ export default {
         JslibModule,
         BadgeModule,
         CardContentComponent,
-        IconModule,
+        SvgModule,
         RouterTestingModule,
         PremiumBadgeComponent,
         BaseCardComponent,
