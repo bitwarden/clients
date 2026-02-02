@@ -32,6 +32,9 @@
       }
     }
   },
+  "criticalBadge":{
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },

@@ -12,32 +12,18 @@
       <th bitSortable="memberCount" bitCell tabindex="0">{{ "totalMembers" | i18n }}</th>
     </ng-container>
     <ng-template bitRowDef let-row>
-      @if (showRowCheckBox) {
-        <td
-          bitCell
-          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-          appStopProp
-        >
-          @if (!row.isMarkedAsCritical) {
-            <input
-              bitCheckbox
-              type="checkbox"
-              [checked]="selectedUrls.has(row.applicationName)"
-              (change)="checkboxChange(row.applicationName, $event)"
-            />
-          }
-          @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
-          }
-        </td>
-      }
-      @if (!showRowCheckBox) {
-        <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
-          @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
-          }
-        </td>
-      }
+      <td
+        bitCell
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+        appStopProp
+      >
+        <input
+          bitCheckbox
+          type="checkbox"
+          [checked]="selectedUrls.has(row.applicationName)"
+          (change)="checkboxChange(row.applicationName, $event)"
+        />
+      </td>
       <td
         bitCell
         class="tw-cursor-pointer"
@@ -54,7 +40,7 @@
         }
       </td>
       <td
-        class="tw-cursor-pointer"
+        class="tw-cursor-pointer tw-align-middle"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
@@ -63,7 +49,14 @@
         tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
       >
-        <span>{{ row.applicationName }}</span>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
+            {{ row.applicationName }}
+          </div>
+          @if (row.isMarkedAsCritical) {
+            <span bitBadge>{{ "criticalBadge" | i18n }}</span>
+          }
+        </div>
       </td>
       <td
         bitCell
