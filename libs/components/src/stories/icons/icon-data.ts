@@ -2,416 +2,437 @@ const statusIndicators = [
   {
     id: "bwi-check",
     usage:
-      "confirmation action (Example: 'confirm member'), successful confirmation (toast or callout), or shows currently selected option in a menu. Use with success color variable if applicable.",
+      'Indicates a user action has been successful. Can also indicate a "selected" state in menus and other patterns where a user can select from multiple elements. Often used with success color variables.',
   },
   {
     id: "bwi-error",
     usage:
-      "error; used in form field error states and error toasts, banners, and callouts. Do not use as a close or clear icon. Use with danger color variable.",
+      "Indicates a user action has been unsuccessful. Differently from the warning icon, error indicates that the user cannot proceed with their intended action due to a violated rule or system issue until that state has been resolved. Often used with error color variables.",
   },
   {
     id: "bwi-exclamation-triangle",
     usage:
-      "warning; used in warning callouts, banners, and toasts. Use with warning color variable.",
+      "Indicates that a user action might lead to a problem or that there's elevated risk if the user proceeds. Does not necessarily block the user from continuing. Often used with warning color variables.",
   },
   {
     id: "bwi-info-circle",
-    usage: "information; used in info callouts, banners, and toasts. Use with info color variable.",
+    usage:
+      "Indicates that the associated content is informational, rather than actionable. Can be used as an interactive affordance, displaying a tooltip.",
   },
   {
     id: "bwi-question-circle",
-    usage: "link to help documentation or hover tooltip",
+    usage:
+      "Indicates a piece of data or content that is a question. Can be used as an interactive affordance, linking to help documentation.",
   },
   {
     id: "bwi-spinner",
-    usage: "loading",
+    usage:
+      "Indicates that the action is loading. Should only be used in nested components that require their own component-level loading state such as buttons.",
   },
 ];
 
 const bitwardenObjects = [
   {
     id: "bwi-business",
-    usage: "organization or vault for Free, Teams or Enterprise",
+    usage:
+      "Indicates actions or elements that are related to organizations, Teams plan, Enterprise plan.",
   },
   {
     id: "bwi-collection",
-    usage: "collection",
+    usage: "Indicates a collection.",
   },
   {
     id: "bwi-collection-shared",
-    usage: "collection",
+    usage: "Indicates a collection.",
   },
   {
     id: "bwi-credit-card",
-    usage: "card item type",
+    usage: "Indicates a credit card item type.",
   },
   {
     id: "bwi-dashboard",
-    usage: "access-intelligence dashboard view",
+    usage: "Indicates access intelligence or reports.",
   },
   {
     id: "bwi-family",
-    usage: "family vault or organization",
+    usage:
+      "Indicates actions or elements that are related to a family vault, organization, or family plans.",
   },
   {
     id: "bwi-folder",
-    usage: "folder",
+    usage: "Indicates a folder.",
   },
   {
     id: "bwi-globe",
-    usage: "login item type",
+    usage: "Indicates a login item type.",
   },
   {
     id: "bwi-id-card",
-    usage: "identity item type",
+    usage: "Indicates an identity item type.",
   },
   {
     id: "bwi-premium",
-    usage: "upgrade to premium",
+    usage: "Relates to premium plans or actions.",
   },
   {
     id: "bwi-send",
-    usage: "send action or feature",
+    usage:
+      'Indicates the Send feature. Can also be used to indicate a "send" action. Do not use this variation in navigation on mobile or extension. Prefer specific navigation icons.',
   },
   {
     id: "bwi-sticky-note",
-    usage: "secure note item type",
+    usage: "Indicates a secure note item type.",
   },
   {
     id: "bwi-users",
-    usage: "user group",
+    usage:
+      "Indicates a group in the context of organizations. Can also indicate multiple users in a more general context.",
   },
   {
     id: "bwi-vault",
-    usage: "general vault",
+    usage:
+      "Indicates the vault. Do not use this variation in bottom navigation on mobile or extension. Prefer specific navigation icons.",
   },
 ];
 
 const actions = [
   {
     id: "bwi-archive",
-    usage: "-",
+    usage:
+      "Moves selected items to the Archive. Can also be used to indicate the Archive page or feature in navigation.",
   },
   {
     id: "bwi-check-circle",
-    usage: "check if password has been exposed",
+    usage:
+      'As an action, indicates the "check if password has been exposed" action. Can also be used as an alternative to the "check" icon to indicate a success status.',
   },
   {
     id: "bwi-clone",
-    usage: "copy to clipboard action",
+    usage: "Copies data to the clipboard.",
   },
   {
     id: "bwi-close",
-    usage: "close action",
+    usage:
+      'Close or dismiss action. Can be used as an affordance to close windows, modals, and drawers. Should not be confused with the "clear" icon which is used to clear content or selections from an input.',
   },
   {
     id: "bwi-cog",
-    usage: "settings",
+    usage:
+      'Opens settings or options for a related field or page. In a toggle application like an icon button, use the default state to indicate "off" or "closed".',
   },
   {
     id: "bwi-cog-f",
-    usage: "settings",
+    usage:
+      'Closes settings or options for a related field or page. In a toggle application like an icon button, use the filled state to indicate "on" or "open".',
   },
   {
     id: "bwi-download",
-    usage: "download or ",
+    usage: "Downloads the associated file or data.",
   },
   {
     id: "bwi-envelope",
-    usage: "action related to emailing a user",
+    usage: "Related to email or sending a message.",
   },
   {
     id: "bwi-external-link",
-    usage: "open in new window or popout",
+    usage: "Opens a link in a new window or popout.",
   },
   {
     id: "bwi-eye",
-    usage: "show icon for password fields",
+    usage:
+      'Turns visibility on. In a toggle affordance the default state should be displayed when the data visibility is currently "off" or "not visible".',
   },
   {
     id: "bwi-eye-slash",
-    usage: "hide icon for password fields",
+    usage:
+      'Turns visibility off. In a toggle affordance, the "off" state should be displayed when the data is currently visible.',
   },
   {
     id: "bwi-files",
-    usage: "clone action / duplicate an item",
+    usage: "Clone action/duplicate an item",
   },
   {
     id: "bwi-generate",
-    usage: "generate action in edit item forms",
+    usage: "Opens the password or username generator.",
   },
   {
     id: "bwi-import",
-    usage: "import a file",
+    usage: "Import or upload a file.",
   },
   {
     id: "bwi-lock",
-    usage: "lock vault action",
+    usage: 'Unlock action. Use the lock icon to indicate a "locked" state.',
   },
   {
     id: "bwi-lock-encrypted",
-    usage: "-",
+    usage: "",
   },
   {
     id: "bwi-lock-f",
-    usage: "-",
+    usage:
+      'Lock vault action. Can also be used to indicate that the status of an element or content is in a "locked" state. Prefer the outline lock icon for most cases.',
   },
   {
     id: "bwi-minus-circle",
-    usage: "remove action",
+    usage:
+      "Remove, subtract, or delete action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard subtract button.",
   },
   {
     id: "bwi-pencil-square",
-    usage: "edit action",
+    usage: "Edit action.",
   },
   {
     id: "bwi-popout",
-    usage: "popout action",
+    usage: "Opens a page in a new window—similar to a pop out action.",
   },
   {
     id: "bwi-plus",
-    usage: "new or add option in contained buttons/links",
+    usage:
+      "New, add, or increase action. This version with no outline should be used in most cases.",
   },
   {
     id: "bwi-plus-circle",
-    usage: "new or add option in text buttons/links",
+    usage:
+      "New, add, or increase action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard add button.",
   },
   {
     id: "bwi-refresh",
-    usage: '"re"-action; such as refresh or regenerate',
+    usage: "Refresh action. Reloads selected screen or element.",
   },
   {
     id: "bwi-search",
-    usage: "search action",
+    usage: "Search action",
   },
   {
     id: "bwi-share",
-    usage: "-",
+    usage: "Share action. Typically opens a share sheet or menu with share options.",
   },
   {
     id: "bwi-sign-in",
-    usage: "sign-in action",
+    usage: "Login or sign-in action.",
   },
   {
     id: "bwi-sign-out",
-    usage: "sign-out action",
+    usage: "Logout or sign-out action.",
   },
   {
     id: "bwi-star",
-    usage: "favorite action",
+    usage:
+      'Favorite action. Use the outline version of this icon to indicate the unselected or "not favorited" state.',
   },
   {
     id: "bwi-star-f",
-    usage: "favorited / unfavorite action",
+    usage:
+      'Unfavorite action. Use the filled version of this icon to indicate the selected or "favorited" state.',
   },
   {
     id: "bwi-trash",
-    usage: "delete action or trash area",
+    usage: "Delete action. Can also be used to indicate a trash folder or area.",
   },
   {
     id: "bwi-unarchive",
-    usage: "remove item from archive",
+    usage: "Unarchive action. Removes an item from the archive.",
   },
   {
     id: "bwi-undo",
-    usage: "restore action",
+    usage: "Undo or restore action.",
   },
   {
     id: "bwi-unlock",
-    usage: "unlocked",
+    usage: 'Lock action. Use the unlock icon to indicate an "unlocked" state.',
   },
 ];
 
 const directionalMenuIndicators = [
   {
     id: "bwi-angle-down",
-    usage: "closed dropdown or open expandable section",
+    usage: "If used in collapse/expand section, indicates collapsed state.",
   },
   {
     id: "bwi-angle-left",
-    usage: "-",
+    usage: "In iOS, indicates the back action.",
   },
   {
     id: "bwi-angle-right",
-    usage: "closed expandable section",
+    usage:
+      'In mobile, indicates a "push" or that selecting an item will open push the view to a new screen.',
   },
   {
     id: "bwi-angle-up",
-    usage: "open dropdown",
+    usage: "If used in collapse/expand section, indicates expanded state.",
   },
   {
     id: "bwi-down-solid",
-    usage: "table sort order",
+    usage: "Expanded selection. Click to collapse the associated section.",
   },
   {
     id: "bwi-drag-and-drop",
-    usage: "drag and drop handle",
+    usage: "Drag and drop handle",
   },
   {
     id: "bwi-ellipsis-h",
-    usage: "more options menu horizontal; used in mobile list items",
+    usage:
+      "More options. Use the horizontal version for menus that effect individual items, content, or data.",
   },
   {
     id: "bwi-ellipsis-v",
-    usage: "more options menu vertical; used primarily in tables",
+    usage:
+      "More options. Use the vertical version for menus that effect groups of items, content, or data, or full pages.",
   },
   {
     id: "bwi-filter",
-    usage: "Product switcher",
+    usage: "Switch to grid view.",
   },
   {
     id: "bwi-list",
-    usage: "toggle list/grid view",
+    usage: "Switch to list view.",
   },
   {
     id: "bwi-list-alt",
-    usage: "view item action in extension",
+    usage: "",
   },
   {
     id: "bwi-numbered-list",
-    usage: "toggle numbered list view",
+    usage: "Switch to numbered list view.",
   },
   {
     id: "bwi-up-down-btn",
-    usage: "table sort order",
+    usage:
+      "In tables, indicates a sortable column. When this icon is present, the associated column is not the sorting column. When clicked, replace the up-down icon with an arrow-down or arrow-up depending on whether the column is sorted in ascending or descending order.",
   },
   {
     id: "bwi-up-solid",
-    usage: "table sort order",
+    usage: "",
   },
 ];
 
 const miscObjects = [
   {
     id: "bwi-bell",
-    usage: "-",
+    usage: "Indicates a notification or message.",
   },
   {
     id: "bwi-billing",
-    usage: "billing options",
+    usage: "Relates to payment and billing.",
   },
   {
     id: "bwi-browser",
-    usage: "web browser",
-  },
-  {
-    id: "bwi-browser-alt",
-    usage: "web browser",
+    usage: "Indicates a web browser or browser window.",
   },
   {
     id: "bwi-brush",
-    usage: "-",
+    usage: "Indicates appearance settings.",
   },
   {
     id: "bwi-bug",
-    usage: "test or debug action",
+    usage: "Indicates a test or debug action.",
   },
   {
     id: "bwi-camera",
-    usage: "actions related to camera use",
+    usage: "Used for actions related to camera use, like scanning a QR code.",
   },
   {
     id: "bwi-cli",
-    usage: "cli client or code",
+    usage: "Relates to cli client or code.",
   },
   {
     id: "bwi-clock",
-    usage: "use for time based actions or views",
+    usage: "Used for time-based actions or views.",
   },
   {
     id: "bwi-desktop",
-    usage: "desktop client",
+    usage: "Indicates the desktop client.",
   },
   {
     id: "bwi-dollar",
-    usage: "account credit",
+    usage: "Used for account credit.",
   },
   {
     id: "bwi-file",
-    usage: "file related objects or actions",
+    usage: "File-related objects or actions. Can also indicate a file send.",
   },
   {
     id: "bwi-file-text",
-    usage: "text related objects or actions",
+    usage: "Text related objects or actions. Can also indicate a text send.",
   },
   {
     id: "bwi-hashtag",
-    usage: "link to specific id",
+    usage: "Link to specific ID.",
   },
   {
     id: "bwi-key",
-    usage: "key or password related objects or actions",
+    usage: "Key or password related objects or actions.",
   },
   {
     id: "bwi-mobile",
-    usage: "mobile client",
+    usage: "Indicates the mobile clients.",
   },
   {
     id: "bwi-msp",
-    usage: "-",
+    usage: "Indicates an MSP.",
   },
   {
     id: "bwi-paperclip",
-    usage: "attachments",
+    usage: "Indicates an attachment or an attach action.",
   },
   {
     id: "bwi-passkey",
-    usage: "passkey",
+    usage: "Indicates a passkey.",
   },
   {
     id: "bwi-pencil",
-    usage: "editing",
+    usage: "Edit action.",
   },
   {
     id: "bwi-provider",
-    usage: "relates to provider or provider portal",
+    usage: "Can be used to indicate an item or action related to a provider.",
   },
   {
     id: "bwi-puzzle",
-    usage: "-",
+    usage: "Indicates the browser extension client.",
   },
   {
     id: "bwi-shield",
-    usage: "-",
+    usage: "Indicates the Bitwarden brand or Bitwarden-branded elements.",
   },
   {
     id: "bwi-sliders",
-    usage: "reporting or filtering",
+    usage: "Adjust or refine options.",
   },
   {
     id: "bwi-tag",
-    usage: "labels",
+    usage: "Indicates a label or a tag affordance.",
   },
   {
     id: "bwi-universal-access",
-    usage: "use for accessibility related actions",
+    usage: "Indicates accessbility-related settings and actions.",
   },
   {
     id: "bwi-user",
-    usage: "relates to current user or organization member",
+    usage: "Relates to current user or organization member.",
   },
   {
     id: "bwi-user-monitor",
-    usage: "-",
+    usage: "Indicates a user of the desktop client or web app.",
   },
   {
     id: "bwi-wireless",
-    usage: "-",
+    usage: "Used to indicate wifi or wireless status.",
   },
   {
     id: "bwi-wrench",
-    usage: "tools or additional configuration options",
+    usage: "Used to indicate tools.",
   },
 ];
 
 const platformsAndLogos = [
   {
     id: "bwi-bitcoin",
-    usage: "crypto",
+    usage: "Indicates Bitcoin and cryptocurrency.",
   },
   {
     id: "bwi-paypal",
-    usage: "PayPal",
+    usage: "Indicates PayPal.",
   },
 ];
 
