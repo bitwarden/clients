@@ -226,10 +226,6 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
-  get formCipherArchivedDate(): Date | null {
-    return this.cipherFormComponent()?.currentCipher?.archivedDate ?? null;
-  }
-
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
 
   constructor(
