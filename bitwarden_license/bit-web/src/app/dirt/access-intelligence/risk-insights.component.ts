@@ -40,6 +40,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllActivityComponent } from "./activity/all-activity.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { ApplicationsComponent } from "./all-applications/applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
@@ -55,6 +56,7 @@ type ProgressStep = ReportProgress | null;
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
+    ApplicationsComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -79,9 +81,9 @@ type ProgressStep = ReportProgress | null;
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
+  protected milestone11Enabled: boolean = false;
 
-  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
-  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
+  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
   appsCount: number = 0;
 
@@ -112,27 +114,23 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
     protected dialogService: DialogService,
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
+      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
     });
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isEnabled) => {
-        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
-        this.tabIndex = 0; // default to first tab
-      });
   }
 
   async ngOnInit() {
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
+
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),

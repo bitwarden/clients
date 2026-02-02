@@ -100,8 +100,72 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Il Send sarà eliminato definitivamente in questa data.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File da condividere"
+  },
+  "hideTextByDefault": {
+    "message": "Nascondi il testo per impostazione predefinita"
+  },
+  "hideYourEmail": {
+    "message": "Nascondi il tuo indirizzo email ai visualizzatori."
+  },
+  "limitSendViews": {
+    "message": "Limita le visualizzazioni"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visualizzazioni rimaste",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Nessuno potrà visualizzare il Send dopo il raggiungimento del limite.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Nota privata"
+  },
+  "sendDetails": {
+    "message": "Dettagli del Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Richiedi ai destinatari una password per aprire questo Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Testo da condividere"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nuovo Send (testo)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nuovo Send (file)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Modifica Send testuale",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Modifica Send con file",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Vuoi davvero eliminare questo Send? L'azione è irreversibile.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
-    "message": "New",
+    "message": "Nuovo",
     "description": "for adding new items"
   },
   "newUri": {
@@ -2028,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Elemento eliminato definitivamente"
   },
+  "archivedItemRestored": {
+    "message": "Elemento estratto dall'archivio"
+  },
   "restoredItem": {
     "message": "Elemento ripristinato"
   },
@@ -2416,7 +2483,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Copia link del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4011,6 +4078,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
+  "vulnerablePassword": {
+    "message": "Password vulnerabile."
+  },
+  "changeNow": {
+    "message": "Cambiala subito"
+  },
   "missingWebsite": {
     "message": "Sito Web mancante"
   },
@@ -4040,14 +4113,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Nessun risultato"
   },
   "sendsBodyNoItems": {
     "message": "Condividi facilmente file e dati con chiunque, su qualsiasi piattaforma. Le tue informazioni saranno crittografate end-to-end per la massima sicurezza.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Elimina i filtri di ricerca o prova con altri termini"
   },
   "generatorNudgeTitle": {
     "message": "Crea rapidamente password sicure"
@@ -4267,8 +4340,8 @@
   "typeShortcut": {
     "message": "Premi i tasti da impostare per la scorciatoia"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Includi uno o due dei seguenti modificatori: Ctrl, Alt, Win, o Shift, più una lettera."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Includi uno o due tasti modificatori a scelta tra Ctrl, Alt e Win."
   },
   "invalidShortcut": {
     "message": "Scorciatoia non valida"
@@ -4304,10 +4377,10 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Rimuovi dall'Archivio"
+    "message": "Togli dall'archivio"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archiviato"
   },
   "itemsInArchive": {
     "message": "Elementi archiviati"
@@ -4316,34 +4389,34 @@
     "message": "Nessun elemento nell'archivio"
   },
   "noItemsInArchiveDesc": {
-    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
+    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dal riempimento automatico."
   },
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
   "itemWasUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+    "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
+  "archiveItemDialogContent": {
+    "message": "Una volta archiviato, questo elemento sarà escluso dai risultati di ricerca e dai suggerimenti del completamento automatico."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Togli dall'archivio e salva"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Riavvia Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Il tuo abbonamento Premium è terminato"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'elemento è stato ripristinato"
   },
   "zipPostalCodeLabel": {
     "message": "CAP / codice postale"
@@ -4421,7 +4494,7 @@
     "message": "Timeout della sessione"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Ridimensiona la navigazione laterale"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Questa impostazione è gestita dalla tua organizzazione."

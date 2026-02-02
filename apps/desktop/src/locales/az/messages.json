@@ -100,8 +100,72 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Paylaşılacaq fayl"
+  },
+  "hideTextByDefault": {
+    "message": "Mətni ilkin olaraq gizlət"
+  },
+  "hideYourEmail": {
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
+  },
+  "limitSendViews": {
+    "message": "Baxışları limitlə"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ baxış qaldı",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Özəl not"
+  },
+  "sendDetails": {
+    "message": "Send detalları",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu \"Send\"ə erişməsi üçün ixtiyari bir parol əlavə edin.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Paylaşılacaq mətn"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send mətninə düzəliş et",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send faylına düzəliş et",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
-    "message": "New",
+    "message": "Yeni",
     "description": "for adding new items"
   },
   "newUri": {
@@ -2028,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
   },
+  "archivedItemRestored": {
+    "message": "Arxivlənmiş element bərpa edildi"
+  },
   "restoredItem": {
     "message": "Element bərpa edildi"
   },
@@ -2416,7 +2483,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "\"Send\" keçidini kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4011,6 +4078,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
+  "vulnerablePassword": {
+    "message": "Zəifliyi olan parol."
+  },
+  "changeNow": {
+    "message": "İndi dəyişdir"
+  },
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
@@ -4040,14 +4113,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
   },
   "sendsBodyNoItems": {
     "message": "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrələnmiş qalacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "generatorNudgeTitle": {
     "message": "Cəld parol yaradın"
@@ -4267,8 +4340,8 @@
   "typeShortcut": {
     "message": "Yazma qısayolu"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və ya Shift və bir hərf."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və bir hərf."
   },
   "invalidShortcut": {
     "message": "Yararsız qısayol"
@@ -4307,7 +4380,7 @@
     "message": "Arxivdən çıxart"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arxivləndi"
   },
   "itemsInArchive": {
     "message": "Arxivdəki elementlər"
@@ -4327,23 +4400,23 @@
   "archiveItem": {
     "message": "Elementi arxivlə"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Arxivdən çıxart və saxla"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "\"Premium\"u yenidən başlat"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Premium abunəliyiniz bitdi"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element bərpa edildi"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Poçt kodu"

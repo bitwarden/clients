@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -177,6 +178,32 @@ describe("keyService", () => {
     });
   });
 
+  describe("makeUserKey", () => {
+    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
+      "throws when the provided masterKey is %s",
+      async (masterKey) => {
+        await expect(keyService.makeUserKey(masterKey)).rejects.toThrow("MasterKey is required");
+      },
+    );
+
+    it("encrypts the user key with the master key", async () => {
+      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
+
+      keyGenerationService.createKey.mockResolvedValue(mockUserKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
+      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
+      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
+
+      const result = await keyService.makeUserKey(makeSymmetricCryptoKey<MasterKey>(32));
+
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(result[0]).toBe(mockUserKey);
+      expect(result[1]).toBe(mockEncryptedUserKey);
+    });
+  });
+
   describe("everHadUserKey$", () => {
     let everHadUserKeyState: FakeSingleUserState<boolean>;
 
@@ -233,7 +260,18 @@ describe("keyService", () => {
         });
       });
 
-      it("clears the Auto key if vault timeout is set to anything other than null", async () => {
+      it("sets an Auto key if vault timeout is set to 10 minutes and is Cli", async () => {
+        await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
+        platformUtilService.getClientType.mockReturnValue(ClientType.Cli);
+
+        await keyService.setUserKey(mockUserKey, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
+          userId: mockUserId,
+        });
+      });
+
+      it("clears the Auto key if vault timeout is set to 10 minutes", async () => {
         await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
 
         await keyService.setUserKey(mockUserKey, mockUserId);
@@ -411,14 +449,13 @@ describe("keyService", () => {
       );
     });
 
-    it("throws an error if unwrapping encrypted private key fails", async () => {
+    it("emits null if unwrapping encrypted private key fails", async () => {
       encryptService.unwrapDecapsulationKey.mockImplementationOnce(() => {
         throw new Error("Unwrapping failed");
       });
 
-      await expect(firstValueFrom(keyService.userPrivateKey$(mockUserId))).rejects.toThrow(
-        "Unwrapping failed",
-      );
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+      expect(result).toBeNull();
     });
 
     it("returns null if user key is not set", async () => {

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input } from "@angular/core";
+import { booleanAttribute, Component, input, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
@@ -76,22 +76,10 @@ export class ItemMoreOptionsComponent {
   }
 
   /**
-   * Flag to show view item menu option. Used when something else is
-   * assigned as the primary action for the item, such as autofill.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  showViewOption = false;
-
-  /**
-   * Flag to hide the autofill menu options. Used for items that are
+   * Flag to show the autofill menu options. Used for items that are
    * already in the autofill list suggestion.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  hideAutofillOptions = false;
+  readonly showAutofill = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
@@ -204,12 +192,15 @@ export class ItemMoreOptionsComponent {
     }
 
     const uris = cipher.login?.uris ?? [];
-    const cipherHasAllExactMatchLoginUris =
-      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
-
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
-    if (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact) {
+    const showExactMatchDialog =
+      uris.length === 0
+        ? uriMatchStrategy === UriMatchStrategy.Exact
+        : // all saved URIs are exact match
+          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
+
+    if (showExactMatchDialog) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
@@ -274,8 +265,7 @@ export class ItemMoreOptionsComponent {
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     )) as UserId;
 
-    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
-    await this.cipherService.updateWithServer(encryptedCipher);
+    await this.cipherService.updateWithServer(cipher, activeUserId);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
@@ -373,7 +363,8 @@ export class ItemMoreOptionsComponent {
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 

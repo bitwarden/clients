@@ -1,4 +1,7 @@
 {
-  "extends": "./tsconfig.json",
-  "exclude": ["src/entry.ts", "src/main.ts", "src/main", "src/proxy"]
+  "extends": "./tsconfig",
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": ["src/app/main.ts", "src/global.d.ts"]
 }

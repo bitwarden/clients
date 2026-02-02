@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nincsenek veszélyben levő kritikus alkalmazások."
   },
+  "critical": {
+    "message": "Kritikus ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nem-kritikus ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Elérés intelligencia"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Alkalmazás"
+  },
+  "applications": {
+    "message": "Alkalmazások"
   },
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email cím"
+  },
+  "emails": {
+    "message": "Email címek"
   },
   "phone": {
     "message": "Telefonszám"
@@ -1365,6 +1389,12 @@
   "no": {
     "message": "Nem"
   },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
+  },
   "location": {
     "message": "Hely"
   },
@@ -1748,6 +1778,9 @@
   },
   "noMembersInList": {
     "message": "Nincsenek megjeleníthető tagok."
+  },
+  "noMembersToExport": {
+    "message": "Nincsenek exportálható tagok."
   },
   "noEventsInList": {
     "message": "Nincsenek megjeleníthető események."
@@ -2537,6 +2570,9 @@
   "enabled": {
     "message": "Engedélyezve"
   },
+  "optionEnabled": {
+    "message": "Engedélyezve"
+  },
   "restoreAccess": {
     "message": "Hozzáférés helyreállítás"
   },
@@ -3274,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Következő terhelés"
+  },
+  "nextChargeDate": {
+    "message": "Következő terhelés dátum"
   },
   "plan": {
     "message": "Csomag"
@@ -5412,6 +5451,12 @@
   "restoreSelected": {
     "message": "Kiválasztottak visszaállítása"
   },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
+  },
+  "archivedItemsRestored": {
+    "message": "Az archivált elemek visszaállításra kerültek."
+  },
   "restoredItem": {
     "message": "Az elem visszaállításra került."
   },
@@ -5610,6 +5655,37 @@
     "message": "A Send mentésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "A Send sikeresen létrejött!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "A Send szerkesztésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5648,6 +5724,9 @@
   },
   "revoked": {
     "message": "A visszavonás megtörtént."
+  },
+  "accepted": {
+    "message": "Elfogadva"
   },
   "sendLink": {
     "message": "Send hivatkozás",
@@ -5868,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "A szervezet tulajdonjog központosítása"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Az összes tagi elem a szervezet tulajdonában és kezelésében lesz. Az adminisztrátorok és a tulajdonosok mentesülnek. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "További információ a központosított tulajdonról",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Előnyök"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Szerezzünk teljes láthatóságot a hitelesítő egészséghez, beleértve a megosztott és nem megosztott elemeket is."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Könnyen átvihetjük az elemeket a tagok kilépése és utódlása során, biztosítva, hogy ne legyenek hozzáférési hiányosságok."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Adjunk minden felhasználónak egy dedikált \"Saját elemek\" helyet saját a bejelentkezései kezelésére."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Kérjük meg a tagokat, hogy vigyék át az elemeiket."
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Ha a tagok vannak elemei az egyedi széfükben, a rendszer felkéri őket, hogy vigyék át azokat a szervezethez vagy távozzanak. Ha távoznak, a hozzáféréseik visszavonásra kerülnek, de bármikor visszaállíthatók."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "További információ az átvitelről"
   },
   "organizationDataOwnership": {
     "message": "A szervezet adat tulajdonjogának érvényesítése"
@@ -6306,6 +6416,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Megtörtént a regisztráció fiók helyreállításra."
+  },
+  "enrolled": {
+    "message": "Feliratkozott"
+  },
+  "notEnrolled": {
+    "message": "Nem feliratkozott"
   },
   "withdrawAccountRecovery": {
     "message": "Kilépés a fiók helyreállításból"
@@ -6842,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Egy vagy több szervezeti házirend tiltja a személyes széf exportálását."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Automatikus kitöltés bekapcsolása"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Bekapcsolja az automatikus kitöltést az oldalbetöltési beállításokkal a böngésző bővítményben minden meglévő és új tag esetében."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "A veszélyeztetett vagy nem megbízható webhelyek kihasználhatják az oldal betöltéskor végrehajtott automatikus kitöltést."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "További információ az automatikus kitöltésről"
   },
   "selectType": {
@@ -10349,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Széf eseményadatok küldése a Datadog példánynak"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Eseményadatok küldése a Huntress SIEM éldánynak"
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -10459,6 +10578,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP eseménygyűjtő webcím"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP eseménygyűjtő vezérjel"
   },
   "selectAPlan": {
     "message": "Előfizetés kiválasztása"
@@ -11274,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "A Bitwarden az első 72 óra során 3 alkalommal kísérli meg a tartomány ellenőrzését. Ha a tartomány nem ellenőrizhető, ellenőrizésre kerül a DNS rekordt a kiszolgálón és az ellenőrzés manuálisan történik. A tartomány 7 napon belül eltávolításra kerül, ha nem kerül igénylésre."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "A Bitwarden 72 órán belül megkísérli igényelni a tartományt. Ha a tartomány nem igényelhető, ellenőrizzük DNS-rekordot és igényeljünk manuálisan. A nem igényelt tartományok 7 nap múlva eltávolításra kerülnek."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Az igénylést követően az igényelt tartományokkal rendelkező meglévő tagok emailt kapnak: "
+  },
+  "accountOwnershipChange": {
+    "message": "fiók tulajdonos váltás"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nincs igényelve. Ellenőrizzük a DNS rekordot.",
     "placeholders": {
@@ -11286,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Igényelve"
   },
-  "domainStatusUnderVerification": {
-    "message": "Ellenőrzés alatt"
+  "domainStatusPending": {
+    "message": "Függő"
   },
   "claimedDomainsDescription": {
     "message": "Tartomány igénylése tagfiókok birtoklására. Az igényelt tartományokkal  rendelkező tagok bejelentkezése során az SSO azonosító oldal kihagyásra kerül és az adminisztrátorok törölhetik az igényelt fiókokat."
@@ -11574,6 +11711,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
@@ -11633,6 +11776,9 @@
   "itemsWereSentToArchive": {
     "message": "Az elemek az archivumba kerültek."
   },
+  "itemWasUnarchived": {
+    "message": "Az elem visszavételre került az archivumból."
+  },
   "itemUnarchived": {
     "message": "Az elemek visszavéelre kerültek az archivumból."
   },
@@ -11646,8 +11792,8 @@
     "message": "Elem archiválása",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "archiveBulkItems": {
     "message": "Elemek archiválása",
@@ -11999,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Ellenőrzés most"
+  },
+  "unlockWithPasskey": {
+    "message": "Hozzáférési kulcs"
+  },
+  "prfUnlockFailed": {
+    "message": "Nem sikerült a feloldás a hozzéférési kulccsal. Próbáljuk újra vagy használjunk más feloldási metódust."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "A feloldáshoz nem állnak rendelkezésre PRF kompatibilis hozzáférési kucsok."
   },
   "additionalStorageGB": {
     "message": "Kiegészítő tárhely (GB)"
@@ -12491,5 +12646,106 @@
   },
   "planDescPremium": {
     "message": "Teljes körű online biztonság"
+  },
+  "updatePayment": {
+    "message": "Fizetés frissítése"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nem lehetett feldolgozni a fizetést. Frissítsük a fizetési módot vagy forduljunk segítségért az ügyfélszolgálathoz."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Az előfizetés lejárt. Forduljunk a támogató csapathoz segítségért."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Az előfizetés az időzítés szerint lejár: $DATE$. Ezt megelőzően bármikor visszaállíthatjuk.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Osszunk meg még többet a Családi csomaggal vagy kapjunk hatékony, megbízható jelszóbiztonságot a Teams vagy az Enterprise segítségével."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Az előfizetés lejárati dátumától számítva $DAYS$ nap türelmi időszak áll rendelkezésére az előfizetés fenntartásához. Rendezzük a lejárt számlákat a következő időpontig: $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Számlák kezelése"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Következő terhelés"
+  },
+  "dueOn": {
+    "message": "esedékes"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre kerül:"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre került:"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Az előfizetés törlésre kerül:"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Az előfizetés törlésre került:"
+  },
+  "storageFull": {
+    "message": "A tárhely megtelt."
+  },
+  "storageUsedDescription": {
+    "message": "$USED$ / $AVAILABLE$ GB lett felhasználva a titkosított fájl tárolóból.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
+  },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "A tárhely eltávolításakor arányos számlajóváírást kapunk, amely automatikusan a következő számlára kerül."
+  },
+  "youHavePremium": {
+    "message": "Prémium felhasználó vagyunk"
+  },
+  "emailProtected": {
+    "message": "Védett email cím"
+  },
+  "invalidSendPassword": {
+    "message": "Érvénytelen a Send jelszó."
   }
 }
