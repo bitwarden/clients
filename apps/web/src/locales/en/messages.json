@@ -5639,10 +5639,6 @@
   "sendTypeText": {
     "message": "Text"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "New Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

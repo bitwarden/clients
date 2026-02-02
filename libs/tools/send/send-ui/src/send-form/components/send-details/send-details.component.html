@@ -111,9 +111,6 @@
             ></button>
           }
         </div>
-        @if (!(emailVerificationFeatureFlag$ | async)) {
-          <bit-hint>{{ "sendPasswordDescV3" | i18n }}</bit-hint>
-        }
       </bit-form-field>
     }
 
