@@ -88,7 +88,11 @@ export class PqpAuthService {
         this._derivedPassword = null;
       }
     } catch {
-      // Silent catch - PqP check errors are non-critical
+      // Reset all state on error to prevent stale data from being reused
+      this._googleDriveLoggedIn = false;
+      this._networkLoggedIn = false;
+      this._userEmail = null;
+      this._derivedPassword = null;
     }
 
     return this.getState();
