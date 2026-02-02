@@ -136,18 +136,24 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   private viewCipherTimeout?: number;
 
-  readonly ciphers = input<PopupCipherViewLike[]>([]);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  ciphers = input<PopupCipherViewLike[]>([]);
 
   /**
    * If true, we will group ciphers by type (Login, Card, Identity)
    * within subheadings in a single container, converted to a WritableSignal.
    */
-  readonly groupByType = input<boolean | undefined>(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  groupByType = input<boolean | undefined>(false);
 
   /**
    * Computed signal for a grouped list of ciphers with an optional header
    */
-  readonly cipherGroups = computed<
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  cipherGroups = computed<
     {
       subHeaderKey?: string;
       ciphers: PopupCipherViewLike[];
@@ -189,7 +195,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Title for the vault list item section.
    */
-  readonly title = input<string | undefined>(undefined);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  title = input<string | undefined>(undefined);
 
   /**
    * Optionally allow the items to be collapsed.
@@ -197,20 +205,24 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * The key must be added to the state definition in `vault-popup-section.service.ts` since the
    * collapsed state is stored locally.
    */
-  readonly collapsibleKey = input<keyof PopupSectionOpen | undefined>(undefined);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  collapsibleKey = input<keyof PopupSectionOpen | undefined>(undefined);
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
    * no ciphers are available.
    */
-
-  readonly description = input<string | undefined>(undefined);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  description = input<string | undefined>(undefined);
 
   /**
    * Option to show a refresh button in the section header.
    */
-
-  readonly showRefresh = input(false, { transform: booleanAttribute });
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  showRefresh = input(false, { transform: booleanAttribute });
 
   /**
    * Event emitted when the refresh button is clicked.
@@ -223,16 +235,23 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Flag indicating that the current tab location is blocked
    */
-  readonly currentUriIsBlocked = toSignal(this.vaultPopupAutofillService.currentTabIsOnBlocklist$);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  currentURIIsBlocked = toSignal(this.vaultPopupAutofillService.currentTabIsOnBlocklist$);
 
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  readonly cipherItemTitleKey = computed(() => {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  cipherItemTitleKey = computed(() => {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      const key = !this.currentUriIsBlocked() ? "autofillTitle" : "viewItemTitle";
+      const key =
+        this.primaryActionAutofill() && !this.currentURIIsBlocked()
+          ? "autofillTitle"
+          : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -240,25 +259,47 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Option to show the autofill button for each item.
    */
-  readonly isAutofillList = input(false, { transform: booleanAttribute });
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  showAutofillButton = input(false, { transform: booleanAttribute });
 
   /**
-   * Computed property whether the cipher select action should perform autofill
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not
    */
-  readonly shouldAutofillOnSelect = computed(
-    () => this.isAutofillList() && !this.currentUriIsBlocked(),
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  hideAutofillButton = computed(
+    () => !this.showAutofillButton() || this.currentURIIsBlocked() || this.primaryActionAutofill(),
   );
+
+  /**
+   * Flag indicating whether the cipher item autofill menu options should be shown or not
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  hideAutofillMenuOptions = computed(() => this.currentURIIsBlocked() || this.showAutofillButton());
+
+  /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  primaryActionAutofill = input(false, { transform: booleanAttribute });
 
   /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
-  readonly disableSectionMargin = input(false, { transform: booleanAttribute });
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  disableSectionMargin = input(false, { transform: booleanAttribute });
 
   /**
    * Remove the description margin
    */
-  readonly disableDescriptionMargin = input(false, { transform: booleanAttribute });
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  disableDescriptionMargin = input(false, { transform: booleanAttribute });
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
@@ -272,7 +313,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return collections[0]?.name;
   }
 
-  protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  protected autofillShortcutTooltip = signal<string | undefined>(undefined);
 
   constructor(
     private i18nService: I18nService,
@@ -297,8 +340,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     }
   }
 
-  onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.shouldAutofillOnSelect() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+  primaryActionOnSelect(cipher: PopupCipherViewLike) {
+    return this.primaryActionAutofill() && !this.currentURIIsBlocked()
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**
