@@ -20,6 +20,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
@@ -492,15 +493,15 @@ export class AddEditV2Component implements OnInit, OnDestroy {
   }
 
   /**
-   * Update the cipher in the form after archiving/unarchiving.
-   * @param revisionDate The new revision date.
-   * @param archivedDate The new archived date (null if unarchived).
+   * Refresh form after archiving/unarchiving a cipher
+   * @param cipher The updated cipher response
    **/
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipherFormComponent().patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
+  refreshFormAfterArchiveToggle = async (cipher: CipherData) => {
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { cipherId: cipher.id },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
     });
   };
 
@@ -510,10 +511,8 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     if (!cipherResponse) {
       return;
     }
-    this.updateCipherFromArchive(
-      new Date(cipherResponse.revisionDate),
-      new Date(cipherResponse.archivedDate),
-    );
+
+    await this.refreshFormAfterArchiveToggle(cipherResponse);
   };
 
   unarchive = async () => {
@@ -522,7 +521,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     if (!cipherResponse) {
       return;
     }
-    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+    await this.refreshFormAfterArchiveToggle(cipherResponse);
   };
 
   delete = async () => {
