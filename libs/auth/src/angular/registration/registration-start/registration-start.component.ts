@@ -133,6 +133,10 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
      * If the user has a login email, set the email field to the login email.
      */
     this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
+      // If we already have a PqP email, don't overwrite it
+      if (this.pqpUserEmail) {
+        return;
+      }
       if (email) {
         this.formGroup.patchValue({ email });
       }
