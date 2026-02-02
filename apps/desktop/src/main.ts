@@ -4,7 +4,8 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { app } from "electron";
+import { init as initPqp, initLogging, sendMessage } from "@ovrlab/pqp-network";
+import { app, BrowserWindow, ipcMain, session } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
@@ -328,6 +329,15 @@ export class Main {
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
+
+        // Setup PQP IPC handlers (uses separate channels, no conflict with package)
+        this.setupAuthHandlers();
+        this.setupWebRtcHandlers();
+
+        // Initialize PQP Network (OVR Lab)
+        void initLogging("electron");
+        await initPqp("electron", { context: "background" });
+
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
@@ -409,6 +419,102 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+  }
+
+  private async openLoginWindow(): Promise<{ success: boolean; error?: string }> {
+    const loginUrl = "https://pqp.ovrlab.io/login";
+
+    const authWindow = new BrowserWindow({
+      width: 1024,
+      height: 768,
+      autoHideMenuBar: true,
+      parent: this.windowMain.win ?? undefined,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: false,
+      },
+    });
+
+    try {
+      await authWindow.loadURL(loginUrl);
+    } catch (error: any) {
+      // Cloudflare Access 302-redirects surface as ERR_ABORTED in Electron
+      const isRedirectAbort = error?.code === "ERR_ABORTED" || error?.errno === -3;
+      if (!isRedirectAbort) {
+        if (!authWindow.isDestroyed()) {
+          authWindow.close();
+        }
+        return { success: false, error: String(error) };
+      }
+    }
+
+    return await new Promise((resolve) => {
+      let finished = false;
+      const complete = (result: { success: boolean; error?: string }): void => {
+        if (finished) {
+          return;
+        }
+        finished = true;
+        resolve(result);
+        if (!authWindow.isDestroyed()) {
+          authWindow.close();
+        }
+      };
+
+      const pollIntervalMs = 750;
+      const timeoutMs = 2 * 60 * 1000;
+      const start = Date.now();
+
+      const poll = setInterval(async () => {
+        if (Date.now() - start > timeoutMs) {
+          clearInterval(poll);
+          complete({ success: false, error: "Login timed out" });
+          return;
+        }
+        try {
+          const cookie = await session.defaultSession.cookies.get({
+            url: loginUrl,
+            name: "CF_Authorization",
+          });
+          if (cookie.length > 0) {
+            clearInterval(poll);
+            complete({ success: true });
+          }
+        } catch (error) {
+          clearInterval(poll);
+          complete({ success: false, error: String(error) });
+        }
+      }, pollIntervalMs);
+
+      authWindow.on("closed", () => {
+        clearInterval(poll);
+        complete({ success: false, error: "Login window closed before authentication" });
+      });
+    });
+  }
+
+  private setupAuthHandlers(): void {
+    ipcMain.handle("OPEN_INTERNAL_LOGIN", async () => {
+      try {
+        return await this.openLoginWindow();
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+  }
+
+  private setupWebRtcHandlers(): void {
+    ipcMain.on("RTC_SIGNAL_OUT", async (_event, payload) => {
+      try {
+        if (payload?.targetQueueId) {
+          await sendMessage(JSON.stringify(payload), payload.targetQueueId);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("[Desktop] Failed to send RTC signal:", err);
+      }
+    });
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

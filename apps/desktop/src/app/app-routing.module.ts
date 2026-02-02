@@ -57,6 +57,7 @@ import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { PqpComponent } from "./pqp/pqp.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendV2Component } from "./tools/send-v2/send-v2.component";
 
@@ -362,6 +363,10 @@ const routes: Routes = [
         path: "new-sends",
         component: SendV2Component,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
+      },
+      {
+        path: "pqp",
+        component: PqpComponent,
       },
     ],
   },

@@ -1,4 +1,4 @@
-import { contextBridge } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 
 import tools from "./app/tools/preload";
 import auth from "./auth/preload";
@@ -25,4 +25,11 @@ export const ipc = {
   tools,
 };
 
-contextBridge.exposeInMainWorld("ipc", ipc);
+try {
+  contextBridge.exposeInMainWorld("ipc", ipc);
+} catch {
+  // Fallback for when Context Isolation is disabled (PQP requirement)
+  (window as any).ipc = ipc;
+  (window as any).ipcRenderer = ipcRenderer;
+  (window as any).electron = { ipcRenderer };
+}
