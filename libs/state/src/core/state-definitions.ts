@@ -40,6 +40,9 @@ export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "d
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_DISK_LOCAL = new StateDefinition("billingLocal", "disk", {
+  web: "disk-local",
+});
 export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
@@ -212,6 +215,9 @@ export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_WELCOME_DIALOG_DISK = new StateDefinition("vaultWelcomeDialog", "disk", {
+  web: "disk-local",
+});
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",

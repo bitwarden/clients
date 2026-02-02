@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, timeout, from, Observable, of } from "rxjs";
-import { filter, switchMap, take, map } from "rxjs/operators";
+import { firstValueFrom, timeout, Observable } from "rxjs";
+import { filter, map, take } from "rxjs/operators";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -11,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
-import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { BILLING_DISK_LOCAL, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
@@ -21,13 +20,25 @@ import {
 
 // State key for tracking premium modal dismissal
 export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
-  BILLING_DISK,
+  BILLING_DISK_LOCAL,
   "premiumModalDismissed",
   {
     deserializer: (value: boolean) => value,
     clearOn: [],
   },
 );
+
+export const PREMIUM_MODAL_SESSION_COUNT_KEY = new UserKeyDefinition<number>(
+  BILLING_DISK_LOCAL,
+  "premiumModalSessionCount",
+  {
+    deserializer: (value: number) => value,
+    clearOn: [],
+  },
+);
+
+const PREMIUM_MODAL_SESSION_MARKER_PREFIX = "premiumModalSessionTracked";
+const REQUIRED_SESSION_COUNT = 5;
 
 @Injectable({
   providedIn: "root",
@@ -37,7 +48,6 @@ export class UnifiedUpgradePromptService {
   constructor(
     private accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private vaultProfileService: VaultProfileService,
     private syncService: SyncService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
@@ -46,72 +56,102 @@ export class UnifiedUpgradePromptService {
     private logService: LogService,
   ) {}
 
-  private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    switchMap((account) => {
-      // Check self-hosted first before any other operations
-      if (this.platformUtilsService.isSelfHost()) {
-        return of(false);
-      }
-
-      if (!account) {
-        return of(false);
-      }
-
-      const isProfileLessThanFiveMinutesOld$ = from(
-        this.isProfileLessThanFiveMinutesOld(account.id),
-      );
-      const hasOrganizations$ = from(this.hasOrganizations(account.id));
-      const hasDismissedModal$ = this.hasDismissedModal$(account.id);
-
-      return combineLatest([
-        isProfileLessThanFiveMinutesOld$,
-        hasOrganizations$,
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        hasDismissedModal$,
-      ]).pipe(
-        map(([isProfileLessThanFiveMinutesOld, hasOrganizations, hasPremium, hasDismissed]) => {
-          return (
-            isProfileLessThanFiveMinutesOld && !hasOrganizations && !hasPremium && !hasDismissed
-          );
-        }),
-      );
-    }),
-    take(1),
-  );
-
   /**
    * Conditionally prompt the user based on predefined criteria.
    *
    * @returns A promise that resolves to the dialog result if shown, or null if not shown
    */
   async displayUpgradePromptConditionally(): Promise<UnifiedUpgradeDialogResult | null> {
-    const shouldShow = await firstValueFrom(this.shouldShowPrompt$);
-
-    if (shouldShow) {
-      return this.launchUpgradeDialog();
+    // Check self-hosted first before any other operations
+    if (this.platformUtilsService.isSelfHost()) {
+      return null;
     }
 
-    return null;
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      return null;
+    }
+
+    // await this.migrateLegacyStateIfNeeded(account.id);
+
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    );
+    if (hasPremium) {
+      return null;
+    }
+
+    const hasDismissed = await firstValueFrom(this.hasDismissedModal$(account.id).pipe(take(1)));
+    if (hasDismissed) {
+      return null;
+    }
+
+    const sessionCount = await this.incrementSessionCountIfNeeded(account.id);
+    if (sessionCount < REQUIRED_SESSION_COUNT) {
+      return null;
+    }
+
+    const hasOrganizations = await this.hasOrganizations(account.id);
+    if (hasOrganizations) {
+      return null;
+    }
+
+    return this.launchUpgradeDialog();
+  }
+
+  private getSessionCount$(userId: UserId): Observable<number> {
+    return this.stateProvider
+      .getUserState$(PREMIUM_MODAL_SESSION_COUNT_KEY, userId)
+      .pipe(map((count) => count ?? 0));
+  }
+
+  private sessionMarkerKey(userId: UserId): string {
+    return `${PREMIUM_MODAL_SESSION_MARKER_PREFIX}:${userId}`;
+  }
+
+  private hasIncrementedThisSession(userId: UserId): boolean {
+    try {
+      return (
+        typeof window !== "undefined" &&
+        !!window.sessionStorage?.getItem(this.sessionMarkerKey(userId))
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private markIncrementedThisSession(userId: UserId): void {
+    try {
+      if (typeof window === "undefined") {
+        return;
+      }
+      window.sessionStorage?.setItem(this.sessionMarkerKey(userId), "1");
+    } catch {
+      // ignore
+    }
   }
 
   /**
-   * Checks if a user's profile was created less than five minutes ago
-   * @param userId User ID to check
-   * @returns Promise that resolves to true if profile was created less than five minutes ago
+   * Increments the stored session count at most once per browser session.
+   * Returns the effective session count after any increment.
    */
-  private async isProfileLessThanFiveMinutesOld(userId: string): Promise<boolean> {
-    const createdAtDate = await this.vaultProfileService.getProfileCreationDate(userId);
-    if (!createdAtDate) {
-      return false;
+  private async incrementSessionCountIfNeeded(userId: UserId): Promise<number> {
+    const currentCount = await firstValueFrom(this.getSessionCount$(userId).pipe(take(1)));
+    if (this.hasIncrementedThisSession(userId)) {
+      return currentCount;
     }
-    const createdAtInMs = createdAtDate.getTime();
-    const nowInMs = new Date().getTime();
 
-    const differenceInMs = nowInMs - createdAtInMs;
-    const msInAMinute = 1000 * 60; // 60 seconds * 1000ms
-    const differenceInMinutes = Math.round(differenceInMs / msInAMinute);
+    const nextCount = currentCount + 1;
+    try {
+      await this.stateProvider.setUserState(PREMIUM_MODAL_SESSION_COUNT_KEY, nextCount, userId);
+      this.markIncrementedThisSession(userId);
+    } catch (error) {
+      this.logService.error("Failed to save premium modal session count:", error);
+      // If persistence fails, don't block the prompt logic; return the pre-increment count.
+      return currentCount;
+    }
 
-    return differenceInMinutes <= 5;
+    return nextCount;
   }
 
   private async launchUpgradeDialog(): Promise<UnifiedUpgradeDialogResult | null> {
