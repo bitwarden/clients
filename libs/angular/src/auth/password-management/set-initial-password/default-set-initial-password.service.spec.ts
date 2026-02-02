@@ -757,18 +757,23 @@ describe("DefaultSetInitialPasswordService", () => {
   });
 
   describe("setInitialPasswordTdeOffboarding()", () => {
-    let userKey: UserKey;
+    // Mock method parameters
     let credentials: SetInitialPasswordTdeOffboardingCredentials;
+
+    // Mock method data
+    let userKey: UserKey;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
 
     beforeEach(() => {
       credentials = {
-        newPassword: "newPassword",
+        newPassword: "new-Password",
         salt: "salt" as MasterPasswordSalt,
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
       };
+
+      userKey = makeSymmetricCryptoKey(64) as UserKey;
 
       authenticationData = {
         salt: credentials.salt,
@@ -783,7 +788,6 @@ describe("DefaultSetInitialPasswordService", () => {
         masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
 
-      userKey = makeSymmetricCryptoKey(64) as UserKey;
       keyService.userKey$.mockReturnValue(of(userKey));
       masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
         authenticationData,
@@ -831,7 +835,37 @@ describe("DefaultSetInitialPasswordService", () => {
       });
     });
 
-    it("should call putUpdateTdeOffboardingPassword() with the request object", async () => {
+    it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
+      // Arrange
+      const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+        authenticationData,
+        unlockData,
+        credentials.newPasswordHint,
+      );
+
+      // Act
+      await sut.setInitialPasswordTdeOffboarding(credentials, userId);
+
+      // Assert
+      expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+        credentials.newPassword,
+        credentials.kdfConfig,
+        credentials.salt,
+      );
+
+      expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+        credentials.newPassword,
+        credentials.kdfConfig,
+        credentials.salt,
+        userKey,
+      );
+
+      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledWith(
+        request,
+      );
+    });
+
+    it("should call the API method to set a master password", async () => {
       // Arrange
       const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
         authenticationData,
@@ -850,21 +884,10 @@ describe("DefaultSetInitialPasswordService", () => {
     });
 
     it("should set the ForceSetPasswordReason to None", async () => {
-      // Arrange
-      const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
-        authenticationData,
-        unlockData,
-        credentials.newPasswordHint,
-      );
-
       // Act
       await sut.setInitialPasswordTdeOffboarding(credentials, userId);
 
       // Assert
-      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledTimes(1);
-      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledWith(
-        request,
-      );
       expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.None,
         userId,
