@@ -235,8 +235,8 @@ export class DeviceManagementComponent implements OnInit {
       webApp: "bwi bwi-browser",
       desktop: "bwi bwi-desktop",
       mobile: "bwi bwi-mobile",
-      cli: "bwi bwi-cli",
-      extension: "bwi bwi-puzzle",
+      cli: "bwi bwi-terminal",
+      extension: "bwi bwi-extension",
       sdk: "bwi bwi-desktop",
     };
 

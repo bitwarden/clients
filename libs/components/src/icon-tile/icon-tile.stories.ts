@@ -59,7 +59,7 @@ export const AllVariants: Story = {
           <span class="tw-text-sm tw-text-muted">Success</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-warning" variant="warning"></bit-icon-tile>
           <span class="tw-text-sm tw-text-muted">Warning</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
@@ -67,7 +67,7 @@ export const AllVariants: Story = {
           <span class="tw-text-sm tw-text-muted">Danger</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-question-circle" variant="muted"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-help" variant="muted"></bit-icon-tile>
           <span class="tw-text-sm tw-text-muted">Muted</span>
         </div>
       </div>

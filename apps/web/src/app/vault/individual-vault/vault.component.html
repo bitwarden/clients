@@ -76,7 +76,7 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        class="bwi bwi-loading bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -101,7 +101,7 @@
           slot="button"
           *ngIf="showAddCipherBtn"
         >
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+          <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
           {{ "newItem" | i18n }}
         </button>
       </bit-no-items>

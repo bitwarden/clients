@@ -3,7 +3,7 @@
 <bit-container>
   <ng-container *ngIf="isInitializing">
     <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      class="bwi bwi-loading bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -63,7 +63,7 @@
               slot="end"
               bitLink
             >
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+              <i class="bwi bwi-help" aria-hidden="true"></i>
             </a>
           </bit-label>
           <bit-hint>
@@ -130,7 +130,7 @@
             (click)="validateKeyConnectorUrl()"
           >
             <i
-              class="bwi bwi-spinner bwi-spin"
+              class="bwi bwi-loading bwi-spin"
               title="{{ 'loading' | i18n }}"
               aria-hidden="true"
               *ngIf="keyConnectorUrlFormCtrl.pending"
@@ -177,7 +177,7 @@
           <bit-label>{{ "callbackPath" | i18n }}</bit-label>
           <input bitInput disabled [value]="callbackPath" />
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="callbackPath"
@@ -189,7 +189,7 @@
           <bit-label>{{ "signedOutCallbackPath" | i18n }}</bit-label>
           <input bitInput disabled [value]="signedOutCallbackPath" />
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="signedOutCallbackPath"
@@ -339,7 +339,7 @@
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
           <input bitInput disabled [value]="spEntityId" />
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="spEntityId"
@@ -351,7 +351,7 @@
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
           <input bitInput disabled [value]="spEntityIdStatic" />
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="spEntityIdStatic"
@@ -370,7 +370,7 @@
             [label]="'launch' | i18n"
           ></button>
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="spMetadataUrl"
@@ -382,7 +382,7 @@
           <bit-label>{{ "spAcsUrl" | i18n }}</bit-label>
           <input bitInput disabled [value]="spAcsUrl" />
           <button
-            bitIconButton="bwi-clone"
+            bitIconButton="bwi-copy"
             bitSuffix
             type="button"
             [appCopyClick]="spAcsUrl"

@@ -5,12 +5,12 @@
     class="filter-options-icon"
     [attr.aria-label]="'organizationOptionsMenu' | i18n"
   >
-    <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
+    <i class="bwi bwi-more-vertical" aria-hidden="true"></i>
   </button>
   <bit-menu class="filter-organization-options" #optionsMenu>
     <ng-container *ngIf="!loaded">
       <i
-        class="bwi bwi-spinner bwi-spin tw-m-2 tw-text-muted"
+        class="bwi bwi-loading bwi-spin tw-m-2 tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>

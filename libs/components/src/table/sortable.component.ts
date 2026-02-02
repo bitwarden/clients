@@ -98,9 +98,9 @@ export class SortableComponent implements OnInit {
 
   get icon() {
     if (!this.isActive) {
-      return "bwi-up-down-btn";
+      return "bwi-angle-up-down";
     }
-    return this.direction === "asc" ? "bwi-up-solid" : "bwi-down-solid";
+    return this.direction === "asc" ? "bwi-arrow-filled-up" : "bwi-arrow-filled-down";
   }
 
   get classList() {

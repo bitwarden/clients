@@ -53,7 +53,7 @@
             [disabled]="disabled || isEmpty || menuDisabled"
             [bitMenuTriggerFor]="headerMenu"
             [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
-            bitIconButton="bwi-ellipsis-v"
+            bitIconButton="bwi-more-vertical"
             size="small"
             type="button"
             label="{{ 'options' | i18n }}"
@@ -69,7 +69,7 @@
               bitMenuItem
               (click)="bulkEditCollectionAccess()"
             >
-              <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-groups" aria-hidden="true"></i>
               {{ "editAccess" | i18n }}
             </button>
             <button
@@ -80,7 +80,7 @@
               bitMenuItem
               (click)="assignToCollections()"
             >
-              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
 
@@ -114,7 +114,7 @@
               (click)="bulkDelete()"
             >
               <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
                 {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
               </span>
             </button>

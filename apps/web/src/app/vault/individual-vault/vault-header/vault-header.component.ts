@@ -174,7 +174,7 @@ export class VaultHeaderComponent {
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"
-      : "bwi-collection-shared";
+      : "bwi-collection";
   }
 
   /**

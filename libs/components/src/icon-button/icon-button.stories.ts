@@ -25,7 +25,7 @@ export default {
     }),
   ],
   args: {
-    bitIconButton: "bwi-plus",
+    bitIconButton: "bwi-add",
     label: "Your button label here",
   },
   argTypes: {

@@ -51,6 +51,9 @@ documentation.json
 .eslintcache
 storybook-static
 
+# Icon migration
+scripts/material-icons/migration-report.json
+
 # Local app configuration
 apps/**/config/local.json
 

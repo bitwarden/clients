@@ -3,13 +3,13 @@
 <p bitTypography="body1">
   {{ "scimIntegrationDescription" | i18n }}
   <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/"
-    ><i class="bwi bwi-question-circle"></i
+    ><i class="bwi bwi-help"></i
   ></a>
 </p>
 
 <div *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    class="bwi bwi-loading bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -27,7 +27,7 @@
     <button
       type="button"
       bitSuffix
-      bitIconButton="bwi-clone"
+      bitIconButton="bwi-copy"
       [bitAction]="copyScimUrl"
       [label]="'copyScimUrl' | i18n"
     ></button>
@@ -44,7 +44,7 @@
     <button
       type="button"
       bitSuffix
-      [bitIconButton]="showScimKey ? 'bwi-eye-slash' : 'bwi-eye'"
+      [bitIconButton]="showScimKey ? 'bwi-visibility-slash' : 'bwi-visibility'"
       [bitAction]="toggleScimKey"
       [label]="'toggleVisibility' | i18n"
     ></button>
@@ -59,7 +59,7 @@
     <button
       type="button"
       bitSuffix
-      bitIconButton="bwi-clone"
+      bitIconButton="bwi-copy"
       [bitAction]="copyScimKey"
       [label]="'copyScimKey' | i18n"
     ></button>

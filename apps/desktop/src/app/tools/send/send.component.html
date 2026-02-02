@@ -12,9 +12,7 @@
                 (click)="selectAll()"
                 [attr.aria-pressed]="selectedAll === true"
               >
-                <i class="bwi bwi-fw bwi-filter" aria-hidden="true"></i>&nbsp;{{
-                  "allSends" | i18n
-                }}
+                <i class="bwi bwi-fw bwi-grid" aria-hidden="true"></i>&nbsp;{{ "allSends" | i18n }}
               </button>
             </span>
           </li>
@@ -84,7 +82,7 @@
               <span class="title-badges">
                 <ng-container *ngIf="s.disabled">
                   <i
-                    class="bwi bwi-exclamation-triangle"
+                    class="bwi bwi-warning"
                     appStopProp
                     title="{{ 'disabled' | i18n }}"
                     aria-hidden="true"
@@ -104,7 +102,7 @@
                 }
                 <ng-container *ngIf="s.maxAccessCountReached">
                   <i
-                    class="bwi bwi-exclamation-triangle"
+                    class="bwi bwi-warning"
                     appStopProp
                     title="{{ 'maxAccessCountReached' | i18n }}"
                     aria-hidden="true"
@@ -122,7 +120,7 @@
                 </ng-container>
                 <ng-container *ngIf="s.pendingDelete">
                   <i
-                    class="bwi bwi-trash"
+                    class="bwi bwi-delete"
                     appStopProp
                     title="{{ 'pendingDeletion' | i18n }}"
                     aria-hidden="true"
@@ -136,7 +134,7 @@
         </button>
       </div>
       <div class="no-items" *ngIf="!filteredSends.length">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" *ngIf="!loaded" aria-hidden="true"></i>
+        <i class="bwi bwi-loading bwi-spin bwi-3x" *ngIf="!loaded" aria-hidden="true"></i>
         <ng-container *ngIf="loaded">
           <img class="no-items-image" aria-hidden="true" />
           <p>{{ "noItemsInList" | i18n }}</p>
@@ -149,7 +147,7 @@
           class="block primary"
           appA11yTitle="{{ 'addItem' | i18n }}"
         >
-          <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
+          <i class="bwi bwi-add bwi-lg" aria-hidden="true"></i>
         </button>
       </div>
     </div>

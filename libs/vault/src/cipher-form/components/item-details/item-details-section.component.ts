@@ -179,7 +179,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get favoriteIcon() {
-    return this.itemDetailsForm.controls.favorite.value ? "bwi-star-f" : "bwi-star";
+    return this.itemDetailsForm.controls.favorite.value ? "bwi-star-filled" : "bwi-star";
   }
 
   toggleFavorite() {

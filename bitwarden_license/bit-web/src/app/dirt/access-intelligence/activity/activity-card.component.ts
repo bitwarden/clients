@@ -50,7 +50,7 @@ export class ActivityCardComponent {
   @Input() showActionLink: boolean = false;
 
   /**
-   * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
+   * Icon class to display next to metrics (e.g., "bwi-warning").
    * If null, no icon is displayed.
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

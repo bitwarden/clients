@@ -26,7 +26,7 @@
         (click)="invite(organization)"
         [disabled]="!firstLoaded()"
       >
-        <i class="bwi bwi-plus bwi-fw tw-me-2" aria-hidden="true"></i>
+        <i class="bwi bwi-add bwi-fw tw-me-2" aria-hidden="true"></i>
         {{ "inviteMember" | i18n }}
       </button>
     }
@@ -71,7 +71,7 @@
   </div>
   @if (!firstLoaded() || !organization || !dataSource) {
     <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      class="bwi bwi-loading bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -126,7 +126,7 @@
                       <button
                         [bitMenuTriggerFor]="headerMenu"
                         type="button"
-                        bitIconButton="bwi-ellipsis-v"
+                        bitIconButton="bwi-more-vertical"
                         size="small"
                         label="{{ 'options' | i18n }}"
                       ></button>
@@ -173,7 +173,7 @@
                       bitMenuItem
                       (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
                     >
-                      <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+                      <i class="bwi bwi-fw bwi-add-circle" aria-hidden="true"></i>
                       {{ "restoreAccess" | i18n }}
                     </button>
                   }
@@ -183,7 +183,7 @@
                       bitMenuItem
                       (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
                     >
-                      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+                      <i class="bwi bwi-fw bwi-subtract-circle" aria-hidden="true"></i>
                       {{ "revokeAccess" | i18n }}
                     </button>
                   }
@@ -206,7 +206,7 @@
                       (click)="isProcessing ? null : bulkDelete(organization)"
                     >
                       <span class="tw-text-danger">
-                        <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
+                        <i aria-hidden="true" class="bwi bwi-fw bwi-delete"></i>
                         {{ "delete" | i18n }}
                       </span>
                     </button>
@@ -370,7 +370,7 @@
                   <button
                     [bitMenuTriggerFor]="rowMenu"
                     type="button"
-                    bitIconButton="bwi-ellipsis-v"
+                    bitIconButton="bwi-more-vertical"
                     size="small"
                     label="{{ 'options' | i18n }}"
                   ></button>
@@ -384,7 +384,7 @@
                         bitMenuItem
                         (click)="isProcessing ? null : reinvite(u, organization)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                        <i aria-hidden="true" class="bwi bwi-mail"></i>
                         {{ "resendInvitation" | i18n }}
                       </button>
                     }
@@ -417,7 +417,7 @@
                         bitMenuItem
                         (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
+                        <i aria-hidden="true" class="bwi bwi-groups"></i> {{ "groups" | i18n }}
                       </button>
                     }
                     <button
@@ -425,7 +425,7 @@
                       bitMenuItem
                       (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
                     >
-                      <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
+                      <i aria-hidden="true" class="bwi bwi-collection"></i>
                       {{ "collections" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
@@ -459,7 +459,7 @@
                         bitMenuItem
                         (click)="isProcessing ? null : restore(u, organization)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-plus-circle"></i>
+                        <i aria-hidden="true" class="bwi bwi-add-circle"></i>
                         {{ "restoreAccess" | i18n }}
                       </button>
                     }
@@ -469,7 +469,7 @@
                         bitMenuItem
                         (click)="isProcessing ? null : revoke(u, organization)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-minus-circle"></i>
+                        <i aria-hidden="true" class="bwi bwi-subtract-circle"></i>
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
@@ -490,7 +490,7 @@
                         (click)="isProcessing ? null : deleteUser(u, organization)"
                       >
                         <span class="tw-text-danger">
-                          <i class="bwi bwi-trash" aria-hidden="true"></i>
+                          <i class="bwi bwi-delete" aria-hidden="true"></i>
                           {{ "delete" | i18n }}
                         </span>
                       </button>

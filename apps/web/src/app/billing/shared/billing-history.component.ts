@@ -40,7 +40,7 @@ export class BillingHistoryComponent {
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
       case PaymentMethodType.WireTransfer:
-        return ["bwi-billing"];
+        return ["bwi-receipt"];
       case PaymentMethodType.BitPay:
         return ["bwi-bitcoin text-warning"];
       case PaymentMethodType.PayPal:

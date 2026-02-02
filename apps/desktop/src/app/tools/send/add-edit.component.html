@@ -220,7 +220,10 @@
                   <i
                     class="bwi bwi-lg"
                     aria-hidden="true"
-                    [ngClass]="{ 'bwi-eye': !showPassword, 'bwi-eye-slash': showPassword }"
+                    [ngClass]="{
+                      'bwi-visibility': !showPassword,
+                      'bwi-visibility-slash': showPassword,
+                    }"
                   ></i>
                 </button>
               </div>
@@ -285,7 +288,7 @@
   </div>
   <div class="footer">
     <button type="submit" class="primary btn-submit" *ngIf="!disableSend">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <i class="bwi bwi-loading bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
       {{ "save" | i18n }}
     </button>
     <button type="button" (click)="cancel()">
@@ -298,7 +301,7 @@
         appA11yTitle="{{ 'copySendLinkToClipboard' | i18n }}"
         *ngIf="editMode"
       >
-        <i class="bwi bwi-clone bwi-lg bwi-fw" aria-hidden="true"></i>
+        <i class="bwi bwi-copy bwi-lg bwi-fw" aria-hidden="true"></i>
       </button>
       <button
         #deleteBtn
@@ -309,12 +312,12 @@
         *ngIf="editMode"
       >
         <i
-          class="bwi bwi-trash bwi-lg bwi-fw"
+          class="bwi bwi-delete bwi-lg bwi-fw"
           [hidden]="$any(deleteBtn).loading"
           aria-hidden="true"
         ></i>
         <i
-          class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
+          class="bwi bwi-loading bwi-spin bwi-lg bwi-fw"
           [hidden]="!$any(deleteBtn).loading"
           aria-hidden="true"
         ></i>

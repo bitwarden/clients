@@ -213,7 +213,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.itemDetailsForm.controls.favorite.setValue(false);
       expect(component.favoriteIcon).toBe("bwi-star");
       component.itemDetailsForm.controls.favorite.setValue(true);
-      expect(component.favoriteIcon).toBe("bwi-star-f");
+      expect(component.favoriteIcon).toBe("bwi-star-filled");
     });
   });
 

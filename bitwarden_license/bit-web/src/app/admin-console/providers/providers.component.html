@@ -3,7 +3,7 @@
 
 <bit-container>
   <p *ngIf="!loaded" class="tw-text-muted">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    <i class="bwi bwi-loading bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </p>
   <ng-container *ngIf="loaded && providers && providers.length">
@@ -17,7 +17,7 @@
             <a href="#" [routerLink]="['/providers', p.id]">{{ p.name }}</a>
             <ng-container *ngIf="!p.enabled">
               <i
-                class="bwi bwi-exclamation-triangle tw-text-danger"
+                class="bwi bwi-warning tw-text-danger"
                 title="{{ 'providerIsDisabled' | i18n }}"
                 aria-hidden="true"
               ></i>

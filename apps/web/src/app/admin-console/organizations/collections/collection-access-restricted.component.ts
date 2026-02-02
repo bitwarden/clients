@@ -21,7 +21,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
       buttonType="secondary"
       type="button"
     >
-      <i aria-hidden="true" class="bwi bwi-pencil-square"></i> {{ "editCollection" | i18n }}
+      <i aria-hidden="true" class="bwi bwi-edit"></i> {{ "editCollection" | i18n }}
     </button>
     <button
       *ngIf="!canEditCollection && canViewCollectionInfo"
@@ -31,7 +31,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
       buttonType="secondary"
       type="button"
     >
-      <i aria-hidden="true" class="bwi bwi-users"></i> {{ "viewAccess" | i18n }}
+      <i aria-hidden="true" class="bwi bwi-groups"></i> {{ "viewAccess" | i18n }}
     </button>
   </bit-no-items>`,
 })

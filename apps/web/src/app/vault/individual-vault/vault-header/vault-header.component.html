@@ -11,7 +11,7 @@
     <ng-container>
       <bit-breadcrumb
         *ngFor="let collection of collections"
-        icon="bwi-collection-shared"
+        icon="bwi-collection"
         [route]="[]"
         [queryParams]="{ collectionId: collection.id }"
         queryParamsHandling="merge"
@@ -38,7 +38,7 @@
             bitMenuItem
             (click)="editCollection(CollectionDialogTabType.Info)"
           >
-            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-edit" aria-hidden="true"></i>
             {{ "editInfo" | i18n }}
           </button>
           <button
@@ -47,7 +47,7 @@
             bitMenuItem
             (click)="editCollection(CollectionDialogTabType.Access)"
           >
-            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-groups" aria-hidden="true"></i>
             {{ "access" | i18n }}
           </button>
           <button
@@ -57,7 +57,7 @@
             (click)="deleteCollection()"
           >
             <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
               {{ "delete" | i18n }}
             </span>
           </button>
@@ -66,7 +66,7 @@
     }
     <small *ngIf="loading">
       <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        class="bwi bwi-loading bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>

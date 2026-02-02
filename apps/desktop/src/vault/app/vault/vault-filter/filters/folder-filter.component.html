@@ -25,7 +25,7 @@
       (click)="addFolder()"
       appA11yTitle="{{ 'addFolder' | i18n }}"
     >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+      <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
     </button>
   </div>
   <ul id="folder-filters" class="filter-options" *ngIf="!isCollapsed(foldersGrouping)">
@@ -74,7 +74,7 @@
             (click)="editFolder(f.node)"
             appA11yTitle="{{ 'editFolder' | i18n }}: {{ f.node.name }}"
           >
-            <i class="bwi bwi-pencil bwi-fw" aria-hidden="true"></i>
+            <i class="bwi bwi-edit-alt bwi-fw" aria-hidden="true"></i>
           </button>
         </span>
         <ul

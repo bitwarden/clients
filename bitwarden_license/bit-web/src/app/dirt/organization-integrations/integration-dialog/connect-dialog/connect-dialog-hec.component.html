@@ -6,7 +6,7 @@
     <div bitDialogContent class="tw-flex tw-flex-col tw-gap-4">
       @if (loading) {
         <ng-container #spinner>
-          <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+          <i class="bwi bwi-loading bwi-lg bwi-spin" aria-hidden="true"></i>
         </ng-container>
       }
       @if (!loading) {
@@ -50,7 +50,7 @@
       @if (canDelete) {
         <div class="tw-ml-auto">
           <button
-            bitIconButton="bwi-trash"
+            bitIconButton="bwi-delete"
             type="button"
             buttonType="danger"
             label="{{ 'delete' | i18n }}"

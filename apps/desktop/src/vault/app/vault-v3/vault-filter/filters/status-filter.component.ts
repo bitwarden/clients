@@ -39,7 +39,7 @@ export class StatusFilterComponent {
     id: "trash",
     name: "trash",
     type: "trash",
-    icon: "bwi-trash",
+    icon: "bwi-delete",
   };
 
   protected applyFilter(filterType: CipherStatus) {

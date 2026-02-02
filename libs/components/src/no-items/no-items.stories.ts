@@ -76,7 +76,7 @@ export const Default: Story = {
           bitButton
           buttonType="secondary"
       >
-          <i class="bwi bwi-plus" aria-hidden="true"></i>
+          <i class="bwi bwi-add" aria-hidden="true"></i>
           New item
       </button>
     </bit-no-items>

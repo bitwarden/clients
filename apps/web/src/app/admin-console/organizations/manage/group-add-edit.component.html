@@ -9,7 +9,7 @@
     <div bitDialogContent>
       <div *ngIf="loading">
         <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          class="bwi bwi-loading bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -77,7 +77,7 @@
         class="tw-ml-auto"
         type="button"
         buttonType="danger"
-        bitIconButton="bwi-trash"
+        bitIconButton="bwi-delete"
         bitFormButton
         [bitAction]="delete"
         [label]="'delete' | i18n"

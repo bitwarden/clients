@@ -3,7 +3,7 @@
     <small #actionSpinner [appApiAction]="actionPromise">
       <ng-container *ngIf="$any(actionSpinner).loading">
         <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          class="bwi bwi-loading bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -51,7 +51,7 @@
       <div *ngIf="filteredSends && !filteredSends.length">
         <ng-container *ngIf="!loaded">
           <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
+            class="bwi bwi-loading bwi-spin tw-text-muted"
             title="{{ 'loading' | i18n }}"
             aria-hidden="true"
           ></i>
@@ -98,7 +98,7 @@
               <li class="filter-option" [ngClass]="{ active: selectedAll }">
                 <span class="filter-buttons">
                   <button type="button" class="filter-button" appStopClick (click)="selectAll()">
-                    <i class="bwi bwi-fw bwi-filter"></i>{{ "allSends" | i18n }}
+                    <i class="bwi bwi-fw bwi-grid"></i>{{ "allSends" | i18n }}
                   </button>
                 </span>
               </li>
@@ -152,7 +152,7 @@
       <div *ngIf="filteredSends && !filteredSends.length">
         <ng-container *ngIf="!loaded">
           <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
+            class="bwi bwi-loading bwi-spin tw-text-muted"
             title="{{ 'loading' | i18n }}"
             aria-hidden="true"
           ></i>

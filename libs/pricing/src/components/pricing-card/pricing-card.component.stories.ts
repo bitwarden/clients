@@ -381,7 +381,7 @@ export const WithButtonIcon: Story = {
         <billing-pricing-card
           tagline="Add more features to your plan"
           [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
-          [button]="{ text: 'Add Features', type: 'secondary', icon: { type: 'bwi-plus', position: 'before' } }"
+          [button]="{ text: 'Add Features', type: 'secondary', icon: { type: 'bwi-add', position: 'before' } }"
           [features]="['Team management', 'Enhanced reporting', 'Custom branding']">
           <h3 slot="title" class="tw-m-0" bitTypography="h3">Business</h3>
         </billing-pricing-card>

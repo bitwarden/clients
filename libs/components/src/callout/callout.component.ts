@@ -9,8 +9,8 @@ export type CalloutTypes = "success" | "info" | "warning" | "danger" | "default"
 
 const defaultIcon: Record<CalloutTypes, string> = {
   success: "bwi-check-circle",
-  info: "bwi-info-circle",
-  warning: "bwi-exclamation-triangle",
+  info: "bwi-info",
+  warning: "bwi-warning",
   danger: "bwi-error",
   default: "bwi-star",
 };

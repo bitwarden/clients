@@ -18,7 +18,7 @@
             >
               <i
                 class="bwi tw-text-muted"
-                [ngClass]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
+                [ngClass]="isAllSelected() ? 'bwi-star-filled' : 'bwi-star'"
                 aria-hidden="true"
               ></i>
             </button>
@@ -54,7 +54,7 @@
                 <i
                   class="bwi tw-text-muted"
                   [ngClass]="
-                    selectedApplications().has(app.applicationName) ? 'bwi-star-f' : 'bwi-star'
+                    selectedApplications().has(app.applicationName) ? 'bwi-star-filled' : 'bwi-star'
                   "
                   aria-hidden="true"
                 ></i>
@@ -65,7 +65,7 @@
                 @if (app.iconCipher) {
                   <app-vault-icon [cipher]="app.iconCipher"></app-vault-icon>
                 } @else {
-                  <i class="bwi bwi-globe tw-text-muted" aria-hidden="true"></i>
+                  <i class="bwi bwi-login tw-text-muted" aria-hidden="true"></i>
                 }
                 <span>{{ app.applicationName }}</span>
               </div>

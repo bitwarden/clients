@@ -21,7 +21,7 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
         (click)="addNewOrganization()"
         slot="button"
       >
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+        <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
         {{ "addNewOrganization" | i18n }}
       </a>
     </bit-no-items>

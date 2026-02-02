@@ -14,13 +14,13 @@
     <i
       class="bwi bwi-lg"
       aria-hidden="true"
-      [ngClass]="{ 'bwi-eye': !showText, 'bwi-eye-slash': showText }"
+      [ngClass]="{ 'bwi-visibility': !showText, 'bwi-visibility-slash': showText }"
     ></i>
     {{ "toggleVisibility" | i18n }}
   </button>
 </div>
 <div class="tw-mb-3">
   <button bitButton type="button" buttonType="primary" [block]="true" (click)="copyText()">
-    <i class="bwi bwi-clone" aria-hidden="true"></i> {{ "copyValue" | i18n }}
+    <i class="bwi bwi-copy" aria-hidden="true"></i> {{ "copyValue" | i18n }}
   </button>
 </div>

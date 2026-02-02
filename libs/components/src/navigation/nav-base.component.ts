@@ -20,7 +20,7 @@ export abstract class NavBaseComponent {
   readonly ariaLabel = input<string>();
 
   /**
-   * Optional icon, e.g. `"bwi-collection-shared"`
+   * Optional icon, e.g. `"bwi-collection"`
    */
   readonly icon = input<string>();
 

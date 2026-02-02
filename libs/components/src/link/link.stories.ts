@@ -219,11 +219,9 @@ export const Anchors: StoryObj<LinkComponent> = {
       </div>
       <div class="tw-block tw-p-2">
         <a bitLink [linkType]="linkType" href="#" startIcon="bwi-plus-circle">
+        <a bitLink [linkType]="linkType" href="#">
+          <i class="bwi bwi-fw bwi-add-circle" aria-hidden="true"></i>
           Add Icon Anchor
-        </a>
-      </div>
-      <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#" endIcon="bwi-angle-right">
           Chevron Icon Anchor
         </a>
       </div>
