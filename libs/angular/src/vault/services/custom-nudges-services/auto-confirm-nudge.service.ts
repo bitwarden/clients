@@ -1,15 +1,24 @@
-import { inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeType, NudgeStatus } from "../nudges.service";
 
-@Injectable({ providedIn: "root" })
+/**
+ * Browser specific nudge service for auto-confirm nudge.
+ */
+@Injectable()
 export class AutoConfirmNudgeService extends DefaultSingleNudgeService {
-  autoConfirmService = inject(AutomaticUserConfirmationService);
+  constructor(
+    stateProvider: StateProvider,
+    private autoConfirmService: AutomaticUserConfirmationService,
+  ) {
+    super(stateProvider);
+  }
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([

@@ -1,7 +1,7 @@
-import { CdkVirtualScrollableElement } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
@@ -9,7 +9,6 @@ import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
@@ -185,7 +184,7 @@ describe("VaultV2Component", () => {
     filterVisibilityState$: new BehaviorSubject<any>({}),
   } as Partial<VaultPopupListFiltersService>;
 
-  const accountActive$ = new BehaviorSubject<FakeAccount | null>({ id: "user-1" });
+  const activeAccount$ = new BehaviorSubject<FakeAccount | null>({ id: "user-1" });
 
   const cipherSvc = {
     failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
@@ -222,12 +221,6 @@ describe("VaultV2Component", () => {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
 
-  const vaultProfileSvc = {
-    getProfileCreationDate: jest
-      .fn()
-      .mockResolvedValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)), // 8 days ago
-  };
-
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
@@ -244,21 +237,18 @@ describe("VaultV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [VaultV2Component, RouterTestingModule],
       providers: [
+        provideNoopAnimations(),
         { provide: VaultPopupItemsService, useValue: itemsSvc },
         { provide: VaultPopupListFiltersService, useValue: filtersSvc },
         { provide: VaultPopupScrollPositionService, useValue: scrollSvc },
         {
           provide: AccountService,
-          useValue: { activeAccount$: accountActive$ },
+          useValue: { activeAccount$ },
         },
         { provide: CipherService, useValue: cipherSvc },
         { provide: DialogService, useValue: dialogSvc },
         { provide: IntroCarouselService, useValue: introSvc },
         { provide: NudgesService, useValue: nudgesSvc },
-        {
-          provide: VaultProfileService,
-          useValue: vaultProfileSvc,
-        },
         {
           provide: VaultPopupCopyButtonsService,
           useValue: { showQuickCopyActions$: new BehaviorSubject<boolean>(false) },
@@ -394,21 +384,28 @@ describe("VaultV2Component", () => {
     expect(values[values.length - 1]).toBe(false);
   });
 
-  it("ngAfterViewInit waits for allFilters$ then starts scroll position service", fakeAsync(() => {
+  it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
+    const fixture = TestBed.createComponent(VaultV2Component);
+    const component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const itemsLoading$ = itemsSvc.loading$ as unknown as BehaviorSubject<boolean>;
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
 
-    (component as any).virtualScrollElement = {} as CdkVirtualScrollableElement;
-
-    component.ngAfterViewInit();
-    expect(scrollSvc.start).not.toHaveBeenCalled();
-
-    allFilters$.next({ any: true });
+    fixture.detectChanges();
     tick();
 
-    expect(scrollSvc.start).toHaveBeenCalledTimes(1);
-    expect(scrollSvc.start).toHaveBeenCalledWith((component as any).virtualScrollElement);
+    const scrollRegion = fixture.nativeElement.querySelector(
+      '[data-testid="popup-layout-scroll-region"]',
+    ) as HTMLElement;
 
-    flush();
+    // Unblock loading
+    itemsLoading$.next(false);
+    readySubject$.next(true);
+    allFilters$.next({});
+    tick();
+
+    expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
   }));
 
   it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
@@ -465,7 +462,7 @@ describe("VaultV2Component", () => {
   it("dismissVaultNudgeSpotlight forwards to NudgesService with active user id", fakeAsync(() => {
     const spy = jest.spyOn(nudgesSvc, "dismissNudge").mockResolvedValue(undefined);
 
-    accountActive$.next({ id: "user-xyz" });
+    activeAccount$.next({ id: "user-xyz" });
 
     void component.ngOnInit();
     tick();
@@ -477,6 +474,10 @@ describe("VaultV2Component", () => {
   }));
 
   it("accountAgeInDays$ computes integer days since creation", (done) => {
+    activeAccount$.next({
+      id: "user-123",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+    } as any);
     getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
       if (days !== null) {
         expect(days).toBeGreaterThanOrEqual(7);
@@ -561,10 +562,6 @@ describe("VaultV2Component", () => {
   it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
-
-    vaultProfileSvc.getProfileCreationDate = jest
-      .fn()
-      .mockResolvedValue(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)); // 3 days ago
 
     (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
       return of(type === NudgeType.PremiumUpgrade);

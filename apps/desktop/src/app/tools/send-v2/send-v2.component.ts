@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
@@ -11,13 +10,15 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,6 +26,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -32,6 +34,8 @@ import {
   SendItemsService,
   SendListComponent,
   SendListState,
+  SendAddEditDialogComponent,
+  DefaultSendFormConfigService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -49,6 +53,8 @@ const Action = Object.freeze({
 
 type Action = (typeof Action)[keyof typeof Action];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-v2",
   imports: [
@@ -60,32 +66,38 @@ type Action = (typeof Action)[keyof typeof Action];
     DesktopHeaderComponent,
   ],
   providers: [
+    DefaultSendFormConfigService,
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
     },
   ],
   templateUrl: "./send-v2.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
   protected readonly addEditComponent = viewChild(AddEditComponent);
 
   protected readonly sendId = signal<string | null>(null);
   protected readonly action = signal<Action>(Action.None);
-  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
 
+  private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private configService = inject(ConfigService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
-  private logService = inject(LogService);
   private sendApiService = inject(SendApiService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
+  private logService = inject(LogService);
   private cdr = inject(ChangeDetectorRef);
+
+  protected readonly useDrawerEditMode = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
+    { initialValue: false },
+  );
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
@@ -136,21 +148,43 @@ export class SendV2Component {
     });
   }
 
-  protected async addSend(type: SendType): Promise<void> {
-    this.action.set(Action.Add);
-    this.sendId.set(null);
-    this.selectedSendTypeOverride.set(type);
+  protected readonly selectedSendType = computed(() => {
+    const action = this.action();
 
-    const component = this.addEditComponent();
-    if (component) {
-      await component.resetAndLoad();
+    if (action === Action.Add) {
+      return undefined;
     }
+
+    const sendId = this.sendId();
+    return this.filteredSends().find((s) => s.id === sendId)?.type;
+  });
+
+  protected async addSend(type: SendType): Promise<void> {
+    if (this.useDrawerEditMode()) {
+      const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
+
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(dialogRef.closed);
+    } else {
+      this.action.set(Action.Add);
+      this.sendId.set(null);
+
+      this.cdr.detectChanges();
+      void this.addEditComponent()?.resetAndLoad();
+    }
+  }
+
+  /** Used by old UI to add a send without specifying type (defaults to File) */
+  protected async addSendWithoutType(): Promise<void> {
+    await this.addSend(SendType.File);
   }
 
   protected closeEditPanel(): void {
     this.action.set(Action.None);
     this.sendId.set(null);
-    this.selectedSendTypeOverride.set(undefined);
   }
 
   protected async savedSend(send: SendView): Promise<void> {
@@ -158,29 +192,27 @@ export class SendV2Component {
   }
 
   protected async selectSend(sendId: string): Promise<void> {
-    if (sendId === this.sendId() && this.action() === Action.Edit) {
-      return;
-    }
-    this.action.set(Action.Edit);
-    this.sendId.set(sendId);
-    const component = this.addEditComponent();
-    if (component) {
-      component.sendId = sendId;
-      await component.refresh();
+    if (this.useDrawerEditMode()) {
+      const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
+
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(dialogRef.closed);
+    } else {
+      if (sendId === this.sendId() && this.action() === Action.Edit) {
+        return;
+      }
+      this.action.set(Action.Edit);
+      this.sendId.set(sendId);
+      const component = this.addEditComponent();
+      if (component) {
+        component.sendId = sendId;
+        await component.refresh();
+      }
     }
   }
-
-  protected readonly selectedSendType = computed(() => {
-    const action = this.action();
-    const typeOverride = this.selectedSendTypeOverride();
-
-    if (action === Action.Add && typeOverride !== undefined) {
-      return typeOverride;
-    }
-
-    const sendId = this.sendId();
-    return this.filteredSends().find((s) => s.id === sendId)?.type;
-  });
 
   protected async onEditSend(send: SendView): Promise<void> {
     await this.selectSend(send.id);
@@ -220,7 +252,7 @@ export class SendV2Component {
         message: this.i18nService.t("removedPassword"),
       });
 
-      if (this.sendId() === send.id) {
+      if (!this.useDrawerEditMode() && this.sendId() === send.id) {
         this.sendId.set(null);
         await this.selectSend(send.id);
       }
@@ -248,6 +280,8 @@ export class SendV2Component {
       message: this.i18nService.t("deletedSend"),
     });
 
-    this.closeEditPanel();
+    if (!this.useDrawerEditMode()) {
+      this.closeEditPanel();
+    }
   }
 }
