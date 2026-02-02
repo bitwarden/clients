@@ -17,6 +17,8 @@ import {
   sendIdInvalid,
   SendHashedPasswordB64,
   SendOtp,
+  GetSendAccessTokenError,
+  SendAccessDomainCredentials,
 } from "@bitwarden/common/auth/send-access";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -178,6 +180,37 @@ export class SendReceiveCommand extends DownloadCommand {
     }
   }
 
+  private async getTokenWithRetry(
+    sendId: string,
+    credentials?: SendAccessDomainCredentials,
+  ): Promise<SendAccessToken | GetSendAccessTokenError> {
+    let expiredAttempts = 0;
+
+    while (expiredAttempts < 3) {
+      const response = credentials
+        ? await firstValueFrom(this.sendTokenService.getSendAccessToken$(sendId, credentials))
+        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId));
+
+      if (response instanceof SendAccessToken) {
+        return response;
+      }
+
+      if (response.kind === "expired") {
+        expiredAttempts++;
+        continue;
+      }
+
+      // Not expired, return the response for caller to handle
+      return response;
+    }
+
+    // After 3 expired attempts, return an error response
+    return {
+      kind: "unknown",
+      error: "Send access token has expired and could not be refreshed",
+    };
+  }
+
   private async attemptV2Access(
     apiUrl: string,
     id: string,
@@ -186,18 +219,15 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
     let email: string | null = null;
-    let expiredAuthAttempts = 0;
 
-    // Try without credentials first
-    const initialResponse = await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(id));
+    const currentResponse = await this.getTokenWithRetry(id);
 
-    if (initialResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(initialResponse, keyArray, apiUrl, options);
+    if (currentResponse instanceof SendAccessToken) {
+      return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
     }
 
-    // Handle error response to determine auth requirements
-    if (initialResponse.kind === "expected_server") {
-      const error = initialResponse.error;
+    if (currentResponse.kind === "expected_server") {
+      const error = currentResponse.error;
 
       if (emailRequired(error)) {
         authType = AuthType.Email;
@@ -206,11 +236,19 @@ export class SendReceiveCommand extends DownloadCommand {
       } else if (sendIdInvalid(error)) {
         return Response.notFound();
       }
+    } else if (currentResponse.kind === "unexpected_server") {
+      return Response.error("Server error: " + JSON.stringify(currentResponse.error));
+    } else if (currentResponse.kind === "unknown") {
+      return Response.error("Unknown error: " + currentResponse.error);
     }
 
-    // Interactive authentication loop
-    while (expiredAuthAttempts < 3) {
-      expiredAuthAttempts++;
+    // The auth layer will immediately return a token for Sends with AuthType.None
+    // If this code is reached, something has gone wrong
+    if (authType === AuthType.None) {
+      return Response.error("Could not determine authentication requirements");
+    }
+
+    while (true) {
       if (authType === AuthType.Email) {
         const result = await this.handleEmailOtpAuth(id, email);
         if (result instanceof Response) {
@@ -224,10 +262,12 @@ export class SendReceiveCommand extends DownloadCommand {
         }
       } else if (authType === AuthType.Password) {
         return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
+      } else {
+        break;
       }
     }
 
-    return Response.error("Maximum authentication attempts exceeded");
+    return Response.error("Authentication failed");
   }
 
   private async handleEmailOtpAuth(
@@ -254,12 +294,11 @@ export class SendReceiveCommand extends DownloadCommand {
       email = emailAnswer.email;
     }
 
-    const emailResponse = await firstValueFrom(
-      this.sendTokenService.getSendAccessToken$(sendId, {
-        kind: "email",
-        email: email,
-      }),
-    );
+    // Use retry helper for expired token handling
+    const emailResponse = await this.getTokenWithRetry(sendId, {
+      kind: "email",
+      email: email,
+    });
 
     if (emailResponse instanceof SendAccessToken) {
       return emailResponse;
@@ -271,9 +310,13 @@ export class SendReceiveCommand extends DownloadCommand {
       if (emailAndOtpRequiredEmailSent(error)) {
         return await this.promptForOtp(sendId, email);
       } else if (emailInvalid(error)) {
-        process.stderr.write("Email address not authorized for this Send.\n");
-        return email;
+        // Match web client behavior: transition to OTP prompt even with invalid email
+        return await this.promptForOtp(sendId, email);
       }
+    } else if (emailResponse.kind === "unexpected_server") {
+      return Response.error("Server error: " + JSON.stringify(emailResponse.error));
+    } else if (emailResponse.kind === "unknown") {
+      return Response.error("Unknown error: " + emailResponse.error);
     }
 
     return Response.error("Failed to verify email");
@@ -290,13 +333,12 @@ export class SendReceiveCommand extends DownloadCommand {
       message: "Enter the verification code sent to your email:",
     });
 
-    const otpResponse = await firstValueFrom(
-      this.sendTokenService.getSendAccessToken$(sendId, {
-        kind: "email_otp",
-        email: email,
-        otp: otpAnswer.otp as SendOtp,
-      }),
-    );
+    // Use retry helper for expired token handling
+    const otpResponse = await this.getTokenWithRetry(sendId, {
+      kind: "email_otp",
+      email: email,
+      otp: otpAnswer.otp as SendOtp,
+    });
 
     if (otpResponse instanceof SendAccessToken) {
       return otpResponse;
@@ -308,6 +350,10 @@ export class SendReceiveCommand extends DownloadCommand {
       if (otpInvalid(error)) {
         return Response.badRequest("Invalid verification code");
       }
+    } else if (otpResponse.kind === "unexpected_server") {
+      return Response.error("Server error: " + JSON.stringify(otpResponse.error));
+    } else if (otpResponse.kind === "unknown") {
+      return Response.error("Unknown error: " + otpResponse.error);
     }
 
     return Response.error("Failed to verify OTP");
@@ -344,12 +390,11 @@ export class SendReceiveCommand extends DownloadCommand {
 
     const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
 
-    const response = await firstValueFrom(
-      this.sendTokenService.getSendAccessToken$(sendId, {
-        kind: "password",
-        passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
-      }),
-    );
+    // Use retry helper for expired token handling
+    const response = await this.getTokenWithRetry(sendId, {
+      kind: "password",
+      passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
+    });
 
     if (response instanceof SendAccessToken) {
       return await this.accessSendWithToken(response, keyArray, apiUrl, options);
@@ -361,6 +406,10 @@ export class SendReceiveCommand extends DownloadCommand {
       if (passwordHashB64Invalid(error)) {
         return Response.badRequest("Invalid password");
       }
+    } else if (response.kind === "unexpected_server") {
+      return Response.error("Server error: " + JSON.stringify(response.error));
+    } else if (response.kind === "unknown") {
+      return Response.error("Unknown error: " + response.error);
     }
 
     return Response.error("Authentication failed");
