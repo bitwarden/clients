@@ -13,7 +13,6 @@ export interface PqpAuthState {
   googleDriveLoggedIn: boolean;
   networkLoggedIn: boolean;
   userEmail: string | null;
-  userName: string | null;
   derivedPassword: string | null;
   isReady: boolean;
 }
@@ -28,7 +27,6 @@ export class PqpAuthService {
   private _googleDriveLoggedIn = false;
   private _networkLoggedIn = false;
   private _userEmail: string | null = null;
-  private _userName: string | null = null;
   private _derivedPassword: string | null = null;
 
   get googleDriveLoggedIn(): boolean {
@@ -41,10 +39,6 @@ export class PqpAuthService {
 
   get userEmail(): string | null {
     return this._userEmail;
-  }
-
-  get userName(): string | null {
-    return this._userName;
   }
 
   get derivedPassword(): string | null {
@@ -60,7 +54,6 @@ export class PqpAuthService {
       googleDriveLoggedIn: this._googleDriveLoggedIn,
       networkLoggedIn: this._networkLoggedIn,
       userEmail: this._userEmail,
-      userName: this._userName,
       derivedPassword: this._derivedPassword,
       isReady: this.isReady,
     };
@@ -69,22 +62,30 @@ export class PqpAuthService {
   /**
    * Check the current PqP authentication status.
    * Fetches Google Drive and PqP Network login states, user info, and derives password if ready.
+   * Clears stale data when login state becomes invalid.
    */
   async checkStatus(): Promise<PqpAuthState> {
     try {
       this._googleDriveLoggedIn = await isGoogleDriveLoggedIn();
       this._networkLoggedIn = await isPqpLoggedIn();
 
+      // Fetch or clear user info based on Google Drive login state
       if (this._googleDriveLoggedIn) {
         const userInfo = await getGoogleUserInfo();
         if (userInfo) {
           this._userEmail = userInfo.email || null;
-          this._userName = userInfo.name || null;
         }
+      } else {
+        // Clear stale user info when Google Drive is logged out
+        this._userEmail = null;
       }
 
+      // Derive or clear password based on ready state
       if (this.isReady) {
         await this.derivePassword();
+      } else {
+        // Clear stale password when either service is logged out
+        this._derivedPassword = null;
       }
     } catch {
       // Silent catch - PqP check errors are non-critical
@@ -105,7 +106,6 @@ export class PqpAuthService {
         const userInfo = await getGoogleUserInfo();
         if (userInfo) {
           this._userEmail = userInfo.email || null;
-          this._userName = userInfo.name || null;
         }
         if (this.isReady) {
           await this.derivePassword();
@@ -170,7 +170,6 @@ export class PqpAuthService {
     this._googleDriveLoggedIn = false;
     this._networkLoggedIn = false;
     this._userEmail = null;
-    this._userName = null;
     this._derivedPassword = null;
   }
 }

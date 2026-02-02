@@ -20,7 +20,6 @@ import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
-  PqpAuthService,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
@@ -57,6 +56,8 @@ import {
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
+
+import { PqpAuthService } from "../../common/services/pqp-auth";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 

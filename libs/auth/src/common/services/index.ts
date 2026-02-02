@@ -7,4 +7,5 @@ export * from "./accounts/lock.service";
 export * from "./login-success-handler/default-login-success-handler.service";
 export * from "./sso-redirect/sso-url.service";
 export * from "./logout/default-logout.service";
-export * from "./pqp-auth";
+// Note: pqp-auth is intentionally NOT exported here to avoid Angular imports in background scripts.
+// Import directly from "@bitwarden/auth/common/services/pqp-auth" where needed.

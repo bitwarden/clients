@@ -24,7 +24,8 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { LoginEmailService, PqpAuthService } from "../../../common";
+import { LoginEmailService } from "../../../common";
+import { PqpAuthService } from "../../../common/services/pqp-auth";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -99,9 +100,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   }
   get pqpUserEmail(): string | null {
     return this.pqpAuthService.userEmail;
-  }
-  get pqpUserName(): string | null {
-    return this.pqpAuthService.userName;
   }
   get pqpReady(): boolean {
     return this.pqpAuthService.isReady;
@@ -232,12 +230,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   // PqP Pre-Login Methods (using PqpAuthService)
   private async checkPqpStatus(): Promise<void> {
     const state = await this.pqpAuthService.checkStatus();
-    // Auto-fill email and name if available
+    // Auto-fill email if available
     if (state.userEmail && !this.formGroup.controls.email.value) {
       this.formGroup.controls.email.setValue(state.userEmail);
-    }
-    if (state.userName && !this.formGroup.controls.name.value) {
-      this.formGroup.controls.name.setValue(state.userName);
     }
   }
 
@@ -245,12 +240,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     const success = await this.pqpAuthService.loginToGoogleDrive();
     if (success) {
       const email = this.pqpAuthService.userEmail;
-      const name = this.pqpAuthService.userName;
       if (email) {
         this.formGroup.controls.email.setValue(email);
-      }
-      if (name) {
-        this.formGroup.controls.name.setValue(name);
       }
     }
   }

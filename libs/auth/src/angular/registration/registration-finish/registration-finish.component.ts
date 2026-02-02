@@ -23,8 +23,8 @@ import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
-  PqpAuthService,
 } from "../../../common";
+import { PqpAuthService } from "../../../common/services/pqp-auth";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
