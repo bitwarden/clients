@@ -137,13 +137,13 @@
      "message": "Send details",
      "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
    },
-   "sendTypeTextToShare": {
-     "message": "Text to share"
-   },
   "sendPasswordDescV3": {
     "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+   "sendTypeTextToShare": {
+     "message": "Text to share"
+   },
   "newItemHeaderTextSend": {
     "message": "New Text Send",
     "description": "Header for new text send"
