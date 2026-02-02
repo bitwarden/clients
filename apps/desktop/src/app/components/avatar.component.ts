@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
@@ -11,7 +10,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-avatar",
   template: `<img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" />`,
-  imports: [CommonModule],
+  standalone: false,
 })
 export class AvatarComponent implements OnChanges, OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

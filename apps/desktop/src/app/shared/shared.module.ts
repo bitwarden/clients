@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
+import { AvatarComponent } from "../components/avatar.component";
 import { ServicesModule } from "../services/services.module";
 
 @NgModule({
@@ -22,7 +23,7 @@ import { ServicesModule } from "../services/services.module";
     ScrollingModule,
     ServicesModule,
   ],
-  declarations: [],
+  declarations: [AvatarComponent],
   exports: [
     CommonModule,
     A11yModule,
@@ -34,6 +35,7 @@ import { ServicesModule } from "../services/services.module";
     ReactiveFormsModule,
     ScrollingModule,
     ServicesModule,
+    AvatarComponent,
   ],
   providers: [DatePipe],
 })
