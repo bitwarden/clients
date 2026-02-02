@@ -1,0 +1,15 @@
+/**
+ * Compiles once to CSS custom properties.
+ */
+
+@import "variables";
+
+@each $theme, $map in $themes {
+  .theme_#{$theme} {
+    @each $key, $value in $map {
+      --#{$key}: #{$value};
+    }
+    $bg: map-get($map, backgroundColor);
+    --scrollbarTrackColor: #{darken($bg, 1%)};
+  }
+}
