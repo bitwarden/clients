@@ -974,11 +974,34 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isCurrentPasswordField = (field: AutofillField): boolean => {
-    if (
-      this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue) ||
-      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-    ) {
+    // Reject if this field has account creation keywords in its data
+    if (this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)) {
       return false;
+    }
+
+    // For fields with autocomplete="new-password" but NO account creation keywords,
+    // check if the field's own attributes (name/id/placeholder, not labels) suggest account creation.
+    // This prevents false positives from sites that misuse autocomplete="new-password" on login forms.
+    const hasNewPasswordAutocomplete = this.fieldContainsAutocompleteValues(
+      field,
+      this.newPasswordAutoCompleteValue,
+    );
+    if (hasNewPasswordAutocomplete) {
+      // Check field's own attributes (name, id, placeholder) for creation-related keywords
+      const fieldAttributes = [
+        field.htmlName?.toLowerCase() || "",
+        field.htmlID?.toLowerCase() || "",
+        field.placeholder?.toLowerCase() || "",
+      ].join(" ");
+
+      const hasCreationInAttributes = this.accountCreationFieldKeywords.some((keyword) =>
+        fieldAttributes.includes(keyword.toLowerCase().replace(/-/g, "")),
+      );
+
+      if (hasCreationInAttributes) {
+        return false; // Real new password field with supporting attributes
+      }
+      // else: has new-password autocomplete but field name is just "password" → treat as login field (HBO Max case)
     }
 
     return this.isPasswordField(field);

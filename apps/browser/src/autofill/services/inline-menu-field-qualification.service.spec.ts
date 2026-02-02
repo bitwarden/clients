@@ -52,13 +52,13 @@ describe("InlineMenuFieldQualificationService", () => {
 
     describe("qualifying a password field for a login form", () => {
       describe("an invalid password field", () => {
-        it("has a `new-password` autoCompleteType", () => {
+        it("has a `new-password` autoCompleteType with creation keywords", () => {
           const field = mock<AutofillField>({
             type: "password",
             autoCompleteType: "new-password",
-            htmlName: "input-password",
-            htmlID: "input-password",
-            placeholder: "input-password",
+            htmlName: "signup-password",
+            htmlID: "register-password",
+            placeholder: "Create password",
           });
 
           expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
