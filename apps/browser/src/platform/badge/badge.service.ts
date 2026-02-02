@@ -83,7 +83,7 @@ export class BadgeService {
                 functions.map(([name, f]) =>
                   f(tab).pipe(
                     startWith(undefined),
-                    catchError((error) => {
+                    catchError((error: unknown) => {
                       this.logService.error(
                         `BadgeService: State function "${name}" threw an error`,
                         error,
