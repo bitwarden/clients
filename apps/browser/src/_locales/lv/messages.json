@@ -29,7 +29,7 @@
     "message": "Pieteikties ar piekļuves atslēgu"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Atslēgt ar piekļuves atslēgu"
   },
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Atrašanās vieta"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "E-pasts"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Tālrunis"
@@ -3371,10 +3380,10 @@
     "message": "Kļūda"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Neizdevās atslēgt ar piekļuves atslēgu. Lūgums mēģināt vēlreiz vai izmantot citu atslēgšanas veidu."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Atslēgšanai nav pieejama neviena PRF iespējota piekļuves atslēga. Lūgums vispirms pieteikties ar piekļuves atslēgu."
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Lejupielādēt pielikumu"
+  },
   "downloadBitwarden": {
     "message": "Lejupielādē Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Mainīt sānu pārvietošanās joslas izmēru"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
