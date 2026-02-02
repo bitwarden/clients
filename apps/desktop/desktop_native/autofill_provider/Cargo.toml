@@ -1,12 +1,12 @@
 [package]
-name = "macos_provider"
+name = "autofill_provider"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
 [lib]
-crate-type = ["staticlib", "cdylib"]
+crate-type = ["lib", "staticlib", "cdylib"]
 bench = false
 
 [[bin]]
@@ -14,17 +14,19 @@ name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
 [dependencies]
-uniffi = { workspace = true, features = ["cli"] }
-
-[target.'cfg(target_os = "macos")'.dependencies]
+base64 = { workspace = true }
 desktop_core = { path = "../core" }
 futures = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+serde_with = { workspace = true, features = ["base64"] }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
 tracing-oslog = "=0.3.0"
 tracing-subscriber = { workspace = true }
+uniffi = { workspace = true, features = ["cli"] }
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
