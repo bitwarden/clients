@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
+  combineLatest,
   firstValueFrom,
   Subject,
   takeUntil,
@@ -68,6 +71,7 @@ import {
   CipherFormModule,
   CipherViewComponent,
   CollectionAssignmentResult,
+  createFilterFunction,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
@@ -77,6 +81,9 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -128,6 +135,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultComponent,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
@@ -211,7 +219,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
     private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
+    private routedVaultFilterService: RoutedVaultFilterService,
     private vaultFilterService: VaultFilterService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -228,9 +238,16 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
 
     // Subscribe to filter changes from router params via the bridge service
-    this.routedVaultFilterBridgeService.activeFilter$
+    // Use combineLatest to react to changes in both the filter and archive flag
+    combineLatest([
+      this.routedVaultFilterBridgeService.activeFilter$,
+      this.routedVaultFilterService.filter$,
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
+    ])
       .pipe(
-        switchMap((vaultFilter: VaultFilter) => from(this.applyVaultFilter(vaultFilter))),
+        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
+          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
+        ),
         takeUntil(this.componentIsDestroyed$),
       )
       .subscribe();
@@ -263,6 +280,11 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
               case "syncCompleted":
                 if (this.vaultItemsComponent) {
                   await this.vaultItemsComponent.refresh().catch(() => {});
+                }
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
                 }
                 break;
               case "modalShown":
@@ -370,6 +392,8 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       .subscribe((collections) => {
         this.filteredCollections = collections;
       });
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
@@ -540,7 +564,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (!cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
@@ -555,7 +579,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
     }
 
-    if (cipher.isArchived) {
+    if (cipher.isArchived && !cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("unArchive"),
         click: async () => {
@@ -776,45 +800,19 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     await this.go().catch(() => {});
   }
 
-  /**
-   * Wraps a filter function to handle CipherListView objects.
-   * CipherListView has a different type structure where type can be a string or object.
-   * This wrapper converts it to CipherView-compatible structure before filtering.
-   */
-  private wrapFilterForCipherListView(
-    filterFn: (cipher: CipherView) => boolean,
-  ): (cipher: CipherViewLike) => boolean {
-    return (cipher: CipherViewLike) => {
-      // For CipherListView, create a proxy object with the correct type property
-      if (CipherViewLikeUtils.isCipherListView(cipher)) {
-        const proxyCipher = {
-          ...cipher,
-          type: CipherViewLikeUtils.getType(cipher),
-          // Normalize undefined organizationId to null for filter compatibility
-          organizationId: cipher.organizationId ?? null,
-          // Explicitly include isDeleted and isArchived since they might be getters
-          isDeleted: CipherViewLikeUtils.isDeleted(cipher),
-          isArchived: CipherViewLikeUtils.isArchived(cipher),
-        };
-        return filterFn(proxyCipher as any);
-      }
-    };
-  }
-
-  async applyVaultFilter(vaultFilter: VaultFilter) {
+  async applyVaultFilter(
+    vaultFilter: VaultFilter,
+    routedFilter: Parameters<typeof createFilterFunction>[0],
+    archiveEnabled: boolean,
+  ) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
 
-    const originalFilterFn = this.activeFilter.buildFilter();
-    const wrappedFilterFn = this.wrapFilterForCipherListView(originalFilterFn);
+    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
 
-    await this.vaultItemsComponent?.reload(
-      wrappedFilterFn,
-      vaultFilter.isDeleted,
-      vaultFilter.isArchived,
-    );
+    await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
   }
 
   private getAvailableCollections(cipher: CipherView): CollectionView[] {
@@ -955,7 +953,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         this.addOrganizationId = collections[0].organizationId;
         this.addCollectionIds = [this.activeFilter.collectionId];
       }
-    } else if (this.activeFilter.organizationId) {
+    } else if (this.activeFilter.organizationId && this.activeFilter.organizationId !== "MyVault") {
       this.addOrganizationId = this.activeFilter.organizationId;
     } else {
       // clear out organizationId when the user switches to a personal vault filter

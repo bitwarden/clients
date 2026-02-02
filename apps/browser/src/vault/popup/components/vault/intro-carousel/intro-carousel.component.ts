@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ItemTypes, LoginCards, NoCredentialsIcon, DevicesIcon } from "@bitwarden/assets/svg";
-import { ButtonModule, DialogModule, IconModule, TypographyModule } from "@bitwarden/components";
+import { ButtonModule, DialogModule, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultCarouselModule } from "@bitwarden/vault";
 
@@ -17,7 +17,7 @@ import { IntroCarouselService } from "../../../services/intro-carousel.service";
   imports: [
     VaultCarouselModule,
     ButtonModule,
-    IconModule,
+    SvgModule,
     DialogModule,
     TypographyModule,
     JslibModule,

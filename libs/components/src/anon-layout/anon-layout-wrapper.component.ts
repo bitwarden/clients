@@ -3,14 +3,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, of, switchMap, tap } from "rxjs";
 
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
+import { LandingContentMaxWidthType } from "../landing-layout";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent, AnonLayoutMaxWidth } from "./anon-layout.component";
-
+import { AnonLayoutComponent } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -27,7 +27,7 @@ export interface AnonLayoutWrapperData {
   /**
    * The icon to display on the page. Pass null to hide the icon.
    */
-  pageIcon: Icon | null;
+  pageIcon: BitSvg | null;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -35,7 +35,7 @@ export interface AnonLayoutWrapperData {
   /**
    * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
    */
-  maxWidth?: AnonLayoutMaxWidth;
+  maxWidth?: LandingContentMaxWidthType;
   /**
    * Hide the card that wraps the default content. Defaults to false.
    */
@@ -57,9 +57,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
 
   protected pageTitle?: string | null;
   protected pageSubtitle?: string | null;
-  protected pageIcon: Icon | null = null;
+  protected pageIcon: BitSvg | null = null;
   protected showReadonlyHostname?: boolean | null;
-  protected maxWidth?: AnonLayoutMaxWidth | null;
+  protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
 

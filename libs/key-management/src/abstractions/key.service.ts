@@ -280,8 +280,7 @@ export abstract class KeyService {
    * encrypted private key at all.
    *
    * @param userId The user id of the user to get the data for.
-   * @returns An observable stream of the decrypted private key or null.
-   * @throws Error when decryption of the encrypted private key fails.
+   * @returns An observable stream of the decrypted private key or null if the private key is not present or fails to decrypt
    */
   abstract userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null>;
 

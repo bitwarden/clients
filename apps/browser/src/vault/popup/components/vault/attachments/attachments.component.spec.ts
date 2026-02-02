@@ -109,7 +109,7 @@ describe("AttachmentsComponent", () => {
   });
 
   it("passes the submit button to the cipher attachments component", () => {
-    const submitBtn = fixture.debugElement.queryAll(By.directive(ButtonComponent))[1]
+    const submitBtn = fixture.debugElement.queryAll(By.directive(ButtonComponent))[0]
       .componentInstance;
 
     expect(cipherAttachment.submitBtn()).toEqual(submitBtn);
