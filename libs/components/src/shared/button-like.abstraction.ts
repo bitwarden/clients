@@ -17,6 +17,9 @@ export const ButtonTypes = {
   Success: "success",
   SuccessOutline: "successOutline",
   SuccessGhost: "successGhost",
+  Contrast: "contrast",
+  ContrastOutline: "contrastOutline",
+  ContrastGhost: "contrastGhost",
   Unstyled: "unstyled",
 } as const;
 
