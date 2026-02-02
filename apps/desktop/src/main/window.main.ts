@@ -287,12 +287,30 @@ export class WindowMain {
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
-        nodeIntegration: false,
+        nodeIntegration: true, // Required for PQP direct access
         backgroundThrottling: false,
-        contextIsolation: true,
+        contextIsolation: false, // Required for PQP direct access
         session: this.session,
-        devTools: isDev(),
+        devTools: true, // Force enabled for debugging
       },
+    });
+
+    // PQP login flow: use defaultSession so the package's MainCookieService can find the cookie
+    this.win.webContents.setWindowOpenHandler((details) => {
+      if (details.url.includes("pqp.ovrlab.io")) {
+        return {
+          action: "allow",
+          overrideBrowserWindowOptions: {
+            webPreferences: {
+              nodeIntegration: false,
+              contextIsolation: true,
+              session: session.defaultSession,
+            },
+          },
+        };
+      }
+
+      return { action: "allow" };
     });
 
     if (template === "modal-app") {
@@ -354,9 +372,7 @@ export class WindowMain {
     }
 
     // Open the DevTools.
-    if (isDev()) {
-      this.win.webContents.openDevTools();
-    }
+    this.win.webContents.openDevTools({ mode: "detach" });
 
     // Emitted when the window is closed.
     this.win.on("closed", async () => {

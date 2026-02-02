@@ -14,6 +14,10 @@
     "type": "git",
     "url": "git+https://github.com/bitwarden/clients.git"
   },
+  "dependencies": {
+    "zxcvbn": "4.4.2",
+    "@ovrlab/pqp-network": "0.1.65"
+  },
   "license": "GPL-3.0",
   "scripts": {
     "postinstall": "electron-rebuild",

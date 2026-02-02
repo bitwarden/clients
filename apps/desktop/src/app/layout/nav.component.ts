@@ -23,6 +23,11 @@ export class NavComponent {
       icon: "bwi-send",
       label: "Send",
     },
+    {
+      link: "/pqp",
+      icon: "bwi-settings", // Using settings icon temporarily
+      label: "PqP Network",
+    },
   ];
 
   constructor(private i18nService: I18nService) {}

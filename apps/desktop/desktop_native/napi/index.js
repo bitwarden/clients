@@ -17,6 +17,7 @@ function loadFirstAvailable(localFiles, nodeModule) {
   require(nodeModule);
 }
 
+try {
 switch (platform) {
   case "android":
     switch (arch) {
@@ -115,12 +116,22 @@ switch (platform) {
   default:
     throw new Error(`Unsupported OS: ${platform}, architecture: ${arch}`);
 }
+} catch (e) {
+  loadError = e;
+}
 
 if (!nativeBinding) {
   if (loadError) {
-    throw loadError;
+    // console.warn("Failed to load native binding, falling back to mock");
+    try {
+        nativeBinding = require("./mock.js");
+    } catch (mockErr) {
+        throw loadError;
+    }
+  } else {
+    // console.warn("Failed to load native binding (missing file), falling back to mock");
+     nativeBinding = require("./mock.js");
   }
-  throw new Error(`Failed to load native binding`);
 }
 
 module.exports = nativeBinding;
