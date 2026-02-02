@@ -38,7 +38,11 @@ export class LoginExport {
     domain.username = conditionalEncString(req.username);
     domain.password = conditionalEncString(req.password);
     domain.totp = conditionalEncString(req.totp);
-    // Fido2credentials are currently not supported for exports.
+    if (req.fido2Credentials != null) {
+      domain.fido2Credentials = req.fido2Credentials.map((f2) =>
+        Fido2CredentialExport.toDomain(f2),
+      );
+    }
 
     return domain;
   }
