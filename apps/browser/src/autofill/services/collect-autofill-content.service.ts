@@ -45,6 +45,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private domRecentlyMutated = true;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
+  private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
   private currentLocationHref = "";
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
@@ -154,6 +155,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {FormFieldElement | null}
    */
   getAutofillFieldElementByOpid(opid: string): FormFieldElement | null {
+    // O(1): Try dual-index lookup first
+    const cachedElement = this.autofillFieldsByOpid.get(opid);
+    if (cachedElement) {
+      // Validate element is still in DOM (not stale)
+      if (cachedElement.isConnected) {
+        return cachedElement;
+      }
+      // Stale entry - clean it up
+      this.autofillFieldElements.delete(cachedElement);
+      this.autofillFieldsByOpid.delete(opid);
+    }
+
+    // Fallback: No cached element or it was stale, query DOM
     const cachedFormFieldElements = Array.from(this.autofillFieldElements.keys());
     const formFieldElements = cachedFormFieldElements?.length
       ? cachedFormFieldElements
@@ -466,8 +480,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
+    const opid = autofillFieldData.opid;
+
+    // Remove old element with same opid if it exists
+    const oldElement = this.autofillFieldsByOpid.get(opid);
+    if (oldElement && oldElement !== element) {
+      this.autofillFieldElements.delete(oldElement);
+    }
+
     // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
+    this.autofillFieldsByOpid.set(opid, element);
   }
 
   /**
@@ -1032,6 +1055,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
@@ -1296,7 +1320,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (this.autofillFieldElements.has(element)) {
+      const autofillFieldData = this.autofillFieldElements.get(element);
       this.autofillFieldElements.delete(element);
+      // Also remove from opid reverse index
+      if (autofillFieldData?.opid) {
+        this.autofillFieldsByOpid.delete(autofillFieldData.opid);
+      }
     }
   }
 
