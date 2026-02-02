@@ -641,8 +641,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (isEmailValid) {
       await this.makePasswordPreloginCall();
 
-      // Auto-fill derived password if PqP is ready
-      if (this.pqpDerivedPassword) {
+      // Auto-fill derived password if PqP is ready and email matches the PqP account
+      const formEmail = this.formGroup.controls.email.value?.toLowerCase();
+      const pqpEmail = this.pqpUserEmail?.toLowerCase();
+      if (this.pqpDerivedPassword && formEmail && pqpEmail && formEmail === pqpEmail) {
         this.formGroup.controls.masterPassword.setValue(this.pqpDerivedPassword);
       }
 
