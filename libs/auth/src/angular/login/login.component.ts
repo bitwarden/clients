@@ -204,34 +204,38 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    // If PqP email is already set, don't overwrite it with remembered email or query params
-    if (this.pqpUserEmail) {
-      // PqP email takes priority - skip loading other emails
-    } else {
-      let paramEmailIsSet = false;
+    let paramEmailIsSet = false;
 
-      const params = await firstValueFrom(this.activatedRoute.queryParams);
+    const params = await firstValueFrom(this.activatedRoute.queryParams);
 
-      if (params) {
-        const qParamsEmail = params.email;
+    if (params) {
+      const qParamsEmail = params.email;
 
-        // If there is an email in the query params, set that email as the form field value
-        if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
-          this.formGroup.controls.email.setValue(qParamsEmail);
-          paramEmailIsSet = true;
-        }
+      // If there is an email in the query params, set that email as the form field value
+      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
+        this.formGroup.controls.email.setValue(qParamsEmail);
+        paramEmailIsSet = true;
       }
+    }
 
-      // If there are no params or no email in the query params, loadEmailSettings from state
-      if (!paramEmailIsSet) {
-        await this.loadRememberedEmail();
+    // If PqP email is set and no query param was provided, let PqP take priority over remembered email
+    if (!paramEmailIsSet && this.pqpUserEmail) {
+      // Check to see if the device is known so that we can show the Login with Device option
+      if (this.emailFormControl.value) {
+        await this.getKnownDevice(this.emailFormControl.value);
       }
+      return;
+    }
 
-      // Backup check to handle unknown case where activatedRoute is not available
-      // This shouldn't happen under normal circumstances
-      if (!this.activatedRoute) {
-        await this.loadRememberedEmail();
-      }
+    // If there are no params or no email in the query params, loadEmailSettings from state
+    if (!paramEmailIsSet) {
+      await this.loadRememberedEmail();
+    }
+
+    // Backup check to handle unknown case where activatedRoute is not available
+    // This shouldn't happen under normal circumstances
+    if (!this.activatedRoute) {
+      await this.loadRememberedEmail();
     }
 
     // Check to see if the device is known so that we can show the Login with Device option
