@@ -39,7 +39,7 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       of(Date.now() - THIRTY_DAYS_MS),
       from(this.pinService.isPinSet(userId)),
-      this.biometricStateService.biometricUnlockEnabled$,
+      this.biometricStateService.biometricUnlockEnabled$(userId),
       this.organizationService.organizations$(userId),
       this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
     ]).pipe(
