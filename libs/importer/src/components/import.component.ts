@@ -84,6 +84,7 @@ import {
   ImportSuccessDialogComponent,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
+import { ImportKeeperComponent } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -103,6 +104,7 @@ import { ImportLastPassComponent } from "./lastpass";
     ReactiveFormsModule,
     ImportChromeComponent,
     ImportLastPassComponent,
+    ImportKeeperComponent,
     RadioButtonModule,
     CardComponent,
     SectionHeaderComponent,
@@ -195,6 +197,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileContents: [],
     file: [],
     lastPassType: ["direct" as "csv" | "direct"],
+    keeperType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
   });
@@ -284,6 +287,18 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   protected get showLastPassOptions(): boolean {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
+  }
+
+  protected get showKeeperToggle(): boolean {
+    return (
+      this.format === "keepercsv" &&
+      (this.platformUtilsService.getClientType() === ClientType.Desktop ||
+        this.platformUtilsService.getClientType() === ClientType.Browser)
+    );
+  }
+
+  protected get showKeeperOptions(): boolean {
+    return this.showKeeperToggle && this.formGroup.controls.keeperType.value === "direct";
   }
 
   async ngOnInit() {
@@ -473,14 +488,35 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    try {
-      const result = await this.importService.import(
+    await this.doImport(async () =>
+      this.importService.import(
         importer,
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
         this.organization?.canAccessImport && this.isFromAC,
-      );
+      ),
+    );
+  }
+
+  protected async performDirectImport(result: ImportResult) {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    await this.doImport(async () =>
+      this.importService.importImportResult(
+        result,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      ),
+    );
+  }
+
+  private async doImport(importFunc: () => Promise<ImportResult>): Promise<void> {
+    try {
+      const result = await importFunc();
 
       //No errors, display success message
       this.dialogService.open<unknown, ImportResult>(ImportSuccessDialogComponent, {

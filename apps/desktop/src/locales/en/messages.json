@@ -3782,6 +3782,39 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
+  "importDirectlyFromKeeper": {
+    "message": "Import directly from Keeper"
+  },
+  "keeperEmail": {
+    "message": "Keeper Email"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "keeperDeviceApprovalEmailDesc": {
+    "message": "Check your email and click the link to approve this device, then click Continue."
+  },
+  "keeperDeviceApprovalPushDesc": {
+    "message": "Approve the device request on your other Keeper device, then click Continue."
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "keeperMFADesc": {
+    "message": "Enter your one-time passcode from your authentication app"
+  },
+  "keeperMFAPushDesc": {
+    "message": "Approve the login request in your authentication app, then click Continue."
+  },
+  "noKeeperDataFound": {
+    "message": "No Keeper data found"
+  },
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"

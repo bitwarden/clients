@@ -1,0 +1,133 @@
+import { CommonModule } from "@angular/common";
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  AsyncValidatorFn,
+  ControlContainer,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { map } from "rxjs";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  CalloutModule,
+  CheckboxModule,
+  FormFieldModule,
+  IconButtonModule,
+  TypographyModule,
+} from "@bitwarden/components";
+
+import { ImportResult } from "../../models";
+
+import { KeeperDirectImportService } from "./keeper-direct-import.service";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "import-keeper",
+  templateUrl: "import-keeper.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    CalloutModule,
+    TypographyModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    IconButtonModule,
+    CheckboxModule,
+  ],
+})
+export class ImportKeeperComponent implements OnInit, OnDestroy {
+  private _parentFormGroup: FormGroup;
+  protected formGroup = this.formBuilder.group({
+    email: [
+      "",
+      {
+        validators: [Validators.required, Validators.email],
+        asyncValidators: [this.validateAndEmitData()],
+        updateOn: "submit",
+      },
+    ],
+    includeSharedFolders: [false],
+  });
+  protected emailHint$ = this.formGroup.controls.email.statusChanges.pipe(
+    map((status) => {
+      if (status === "PENDING") {
+        return this.i18nService.t("importingYourAccount");
+      }
+    }),
+  );
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() importCompleted = new EventEmitter<ImportResult>();
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private controlContainer: ControlContainer,
+    private logService: LogService,
+    private keeperDirectImportService: KeeperDirectImportService,
+    private i18nService: I18nService,
+  ) {}
+
+  ngOnInit(): void {
+    this._parentFormGroup = this.controlContainer.control as FormGroup;
+    this._parentFormGroup.addControl("keeperOptions", this.formGroup);
+  }
+
+  ngOnDestroy(): void {
+    this._parentFormGroup.removeControl("keeperOptions");
+  }
+
+  /**
+   * Attempts to login to the provided Keeper email and retrieve account contents.
+   * Will return a validation error if unable to login or fetch.
+   * Emits account contents to `importCompleted`
+   */
+  validateAndEmitData(): AsyncValidatorFn {
+    return async () => {
+      try {
+        const importResult = await this.keeperDirectImportService.handleImport(
+          this.formGroup.controls.email.value,
+          this.formGroup.controls.includeSharedFolders.value,
+        );
+        this.importCompleted.emit(importResult);
+        return null;
+      } catch (error) {
+        this.logService.error(`Keeper importer error: ${error}`);
+        return {
+          errors: {
+            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+          },
+        };
+      }
+    };
+  }
+
+  // TODO: Review these error messages!
+  private getValidationErrorI18nKey(error: unknown): string {
+    const message = typeof error === "string" ? error : (error as Error)?.message;
+    switch (message) {
+      case "Authentication cancelled":
+      case "Device approval cancelled":
+      case "MFA cancelled":
+        return "multifactorAuthenticationCancelled";
+      case "No data found":
+      case "Vault has not opened any accounts.":
+        return "noKeeperDataFound";
+      case "Invalid username":
+      case "Invalid password":
+      case "Invalid credentials":
+        return "incorrectUsernameOrPassword";
+      case "MFA failed":
+      case "Device approval failed":
+        return "multifactorAuthenticationFailed";
+      default:
+        return "errorOccurred";
+    }
+  }
+}
