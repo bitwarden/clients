@@ -1,41 +1,13 @@
-<bit-callout *ngIf="hideEmail" type="warning" title="{{ 'warning' | i18n }}">
-  {{ "viewSendHiddenEmailWarning" | i18n }}
-  <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
-    "learnMore" | i18n
-  }}</a
-  >.
-</bit-callout>
+@if (hideEmail()) {
+  <bit-callout type="warning" title="{{ 'warning' | i18n }}">
+    {{ "viewSendHiddenEmailWarning" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
+      "learnMore" | i18n
+    }}</a>
+  </bit-callout>
+}
 
-<ng-container *ngIf="!loading; else spinner">
-  <div class="tw-text-main tw-text-center" *ngIf="unavailable">
-    <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
-  </div>
-  <div class="tw-text-main tw-text-center" *ngIf="error">
-    <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
-  </div>
-  <div *ngIf="send && !error && !unavailable">
-    <p class="tw-text-center">
-      <b>{{ send.name }}</b>
-    </p>
-    <hr />
-    <!-- Text -->
-    <ng-container *ngIf="send.type === sendType.Text">
-      <app-send-access-text [send]="send"></app-send-access-text>
-    </ng-container>
-    <!-- File -->
-    <ng-container *ngIf="send.type === sendType.File">
-      <app-send-access-file
-        [send]="send"
-        [decKey]="decKey"
-        [accessRequest]="accessRequest()"
-      ></app-send-access-file>
-    </ng-container>
-    <p *ngIf="expirationDate" class="tw-text-center tw-text-muted">
-      Expires: {{ expirationDate | date: "medium" }}
-    </p>
-  </div>
-</ng-container>
-<ng-template #spinner>
+@if (loading()) {
   <div class="tw-text-center">
     <i
       class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
@@ -44,4 +16,39 @@
     ></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
-</ng-template>
+} @else {
+  @if (unavailable()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+    </div>
+  }
+  @if (error()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
+    </div>
+  }
+  @if (send()) {
+    <div>
+      <p class="tw-text-center">
+        <b>{{ send().name }}</b>
+      </p>
+      <hr />
+      @switch (send().type) {
+        @case (sendType.Text) {
+          <app-send-access-text [send]="send()"></app-send-access-text>
+        }
+        @case (sendType.File) {
+          <app-send-access-file
+            [send]="send()"
+            [decKey]="decKey"
+            [accessRequest]="accessRequest()"
+            [accessToken]="accessToken()"
+          ></app-send-access-file>
+        }
+      }
+      @if (expirationDate()) {
+        <p class="tw-text-center tw-text-muted">Expires: {{ expirationDate() | date: "medium" }}</p>
+      }
+    </div>
+  }
+}

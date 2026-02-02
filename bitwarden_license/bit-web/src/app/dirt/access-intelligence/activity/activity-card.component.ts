@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 
@@ -10,7 +9,7 @@ import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitward
 @Component({
   selector: "dirt-activity-card",
   templateUrl: "./activity-card.component.html",
-  imports: [CommonModule, TypographyModule, JslibModule, LinkModule, ButtonModule],
+  imports: [TypographyModule, JslibModule, LinkModule, ButtonModule],
   host: {
     class:
       "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-min-h-56 tw-overflow-hidden",
