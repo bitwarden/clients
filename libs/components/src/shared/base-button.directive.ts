@@ -219,7 +219,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     baseStyles.push("tw-text-current");
   }
 
-  return [...baseStyles, ...buttonStyles[buttonType]];
+  return [...baseStyles, ...(buttonStyles[buttonType] || buttonStyles.secondary)];
 };
 
 /**
