@@ -161,6 +161,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
   }
 
+  get currentCipher(): CipherView | null {
+    return this.updatedCipherView;
+  }
+
   protected loading: boolean = true;
 
   CipherType = CipherType;
