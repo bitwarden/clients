@@ -565,21 +565,41 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipher.archivedDate = archivedDate;
-    this.cipher.revisionDate = revisionDate;
-
-    // If we're in View mode, we don't need to update the form.
-    if (this.params.mode === "view") {
+  /**
+   * Refreshes the cipher data from the server after an archive/unarchive operation.
+   * This completely reinitializes the dialog with fresh data to ensure all fields are in sync.
+   * @param cipherData - Optional CipherData from the archive/unarchive response. If provided, avoids an extra API call.
+   * @private
+   */
+  private async refreshCipherData(cipherData: CipherData): Promise<void> {
+    if (!this.cipher?.id) {
       return;
     }
 
-    this.cipherFormComponent.patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
-    });
-  };
+    const activeUserId = await firstValueFrom(this.userId$);
+    const cipher: Cipher = new Cipher(cipherData);
+
+    const updatedCipherView = await this.cipherService.decrypt(cipher, activeUserId);
+
+    this.cipher = updatedCipherView;
+
+    this.formConfig.originalCipher = cipher;
+
+    this.collections = this.formConfig.collections.filter((c) =>
+      updatedCipherView.collectionIds?.includes(c.id),
+    );
+
+    // If the form is currently displayed, reinitialize with newest data
+    if (this.loadForm && this.params.mode === "form") {
+      this.loadForm = false;
+      this.formReady = false;
+
+      setTimeout(async () => {
+        this.loadForm = true;
+        await firstValueFrom(this._formReadySubject);
+      }, 0);
+    }
+  }
 
   archive = async () => {
     const activeUserId = await firstValueFrom(this.userId$);
@@ -588,10 +608,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(
-        new Date(cipherResponse.revisionDate),
-        cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
-      );
+
+      if (!cipherResponse) {
+        return;
+      }
+
+      await this.refreshCipherData(cipherResponse);
 
       this.toastService.showToast({
         variant: "success",
@@ -612,7 +634,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+
+      if (!cipherResponse) {
+        return;
+      }
+
+      await this.refreshCipherData(cipherResponse);
+
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemWasUnarchived"),
