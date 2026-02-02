@@ -50,7 +50,7 @@
         }
       </td>
       <td
-        class="tw-cursor-pointer"
+        class="tw-cursor-pointer tw-align-middle"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers()(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
@@ -59,7 +59,14 @@
         tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
       >
-        <span>{{ row.applicationName }}</span>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
+            {{ row.applicationName }}
+          </div>
+          @if (row.isMarkedAsCritical) {
+            <span bitBadge>{{ "criticalBadge" | i18n }}</span>
+          }
+        </div>
       </td>
       <td
         bitCell
