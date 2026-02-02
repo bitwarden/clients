@@ -16,6 +16,11 @@ export abstract class VaultSettingsService {
    * An observable monitoring the state of the show identities on the current tab.
    */
   abstract showIdentitiesCurrentTab$: Observable<boolean>;
+  /**
+   * An observable monitoring the state of the click items on the Vault view
+   * for Autofill suggestions.
+   */
+  abstract clickItemsToAutofillVaultView$: Observable<boolean>;
 
   /**
    * Saves the enable passkeys setting to disk.
@@ -32,4 +37,10 @@ export abstract class VaultSettingsService {
    * @param value The new value for the show identities on tab page setting.
    */
   abstract setShowIdentitiesCurrentTab(value: boolean): Promise<void>;
+  /**
+   * Saves the click items on vault View for Autofill suggestions to disk.
+   * @param value The new value for the click items on vault View for
+   * Autofill suggestions setting.
+   */
+  abstract setClickItemsToAutofillVaultView(value: boolean): Promise<void>;
 }
