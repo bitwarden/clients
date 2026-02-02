@@ -128,6 +128,7 @@ import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
+import { WebVaultOnboardingService } from "../services/web-vault-onboarding.service";
 
 import {
   BulkDeleteDialogResult,
@@ -335,6 +336,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private organizationWarningsService: OrganizationWarningsService,
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private webVaultOnboardingService: WebVaultOnboardingService,
   ) {}
 
   async ngOnInit() {
@@ -630,6 +632,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+
+    void this.webVaultOnboardingService.conditionallyInitiateOnboarding();
   }
 
   ngOnDestroy() {

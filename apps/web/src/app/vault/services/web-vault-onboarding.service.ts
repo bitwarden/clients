@@ -49,11 +49,11 @@ export class WebVaultOnboardingService {
   async conditionallyInitiateOnboarding() {
     const userId = await firstValueFrom(this.userId$);
 
-    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
     this.setupAutoConfirm();
-
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
