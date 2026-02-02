@@ -155,9 +155,23 @@
           click "Show me my data" to save the CSV file.
         </ng-container>
         <ng-container *ngIf="format === 'keepercsv'">
-          Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and find the "Export to .csv File"
-          option. Click "Export" to save the CSV file.
+          <p bitTypography="body1">
+            Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
+            (top right) and select "Settings". Go to "Export" and find the "Export to .csv File"
+            option. Click "Export" to save the CSV file.
+          </p>
+          <bit-radio-group *ngIf="showKeeperToggle" formControlName="keeperType">
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_keeper-direct"
+              value="direct"
+            >
+              <bit-label>{{ "importDirectlyFromKeeper" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button class="tw-block" id="import_bit-radio-button_keeper-csv" value="csv">
+              <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </ng-container>
         <!--
     <ng-container *ngIf="format === 'keeperjson'">
@@ -456,6 +470,11 @@
           [formGroup]="formGroup"
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
         ></import-lastpass>
+      } @else if (showKeeperOptions) {
+        <import-keeper
+          [formGroup]="formGroup"
+          (importCompleted)="performDirectImport($event)"
+        ></import-keeper>
       } @else if (showChromiumOptions$ | async) {
         <import-chrome
           [formGroup]="formGroup"
