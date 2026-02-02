@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { b64Decode, getQsParam } from "./common";
+import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
+
+const mobileCallbackUri = "bitwarden://webauthn-callback";
 
 let parsed = false;
 let webauthnJson: any;
@@ -124,7 +126,7 @@ function parseParametersV2() {
     headerText: string;
     btnText: string;
     btnReturnText: string;
-    callbackUri?: string;
+    mobile?: boolean;
   } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
@@ -135,8 +137,15 @@ function parseParametersV2() {
     return;
   }
 
-  // Use optional callbackUri to indicate deep-link return; otherwise we will use postMessage to parent
-  callbackUri = dataObj.callbackUri ?? null;
+  // Determine callback URI for mobile deep-link return
+  // Priority: 1) deeplinkScheme query param, 2) mobile flag with hardcoded URI
+  const deeplinkScheme = getQsParam("deeplinkScheme");
+  if (deeplinkScheme) {
+    callbackUri = buildMobileDeeplinkUriFromParam("webauthn");
+  } else if (dataObj.mobile === true) {
+    callbackUri = mobileCallbackUri;
+  }
+
   webauthnJson = dataObj.data;
   headerText = dataObj.headerText;
   btnText = dataObj.btnText;
