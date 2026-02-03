@@ -4,7 +4,6 @@ import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
-type Root = Document | ShadowRoot | Element;
 export class DomQueryService implements DomQueryServiceInterface {
   /** Non-null asserted. */
   private pageContainsShadowDom!: boolean;
@@ -47,7 +46,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param ignoredTreeWalkerNodesOverride - An optional set of node names to ignore when using the treeWalker strategy
    */
   query<T>(
-    root: Root,
+    root: Document | ShadowRoot | Element,
     queryString: string,
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
@@ -78,9 +77,12 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Checks if the page contains any shadow DOM elements.
+   * Queries the page for shadow DOM elements and updates the cached state.
+   * Use this when you need to refresh the shadow DOM detection state.
+   *
+   * @returns True if the page contains any shadow DOM elements
    */
-  checkPageContainsShadowDom = (): boolean => {
+  updatePageContainsShadowDom = (): boolean => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
     return this.pageContainsShadowDom;
   };

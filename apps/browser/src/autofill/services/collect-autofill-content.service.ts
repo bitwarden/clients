@@ -59,7 +59,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly shadowDomCheckTimeoutMs = 500;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
-  private consecutiveMutationCount = 0;
+  private mutationBurstCount = 0;
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
@@ -1030,7 +1030,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
 
       this.shadowDomCheckTimeout = setTimeout(() => {
-        this.checkForNewShadowRoots();
+        this.handleNewShadowRoots();
         this.pendingShadowDomCheck = false;
       }, this.shadowDomCheckTimeoutMs);
     }
@@ -1094,14 +1094,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private requirePageDetailsUpdate = () => {
+  private requirePageDetailsUpdate() {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
     this.updateAutofillElementsAfterMutation();
-  };
+  }
 
   /**
    * Debounced version of requirePageDetailsUpdate to prevent excessive updates
@@ -1111,16 +1111,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }, this.shadowDomCheckDebounceMs);
 
   /**
-   * Checks for new shadow roots that aren't being observed and triggers
-   * a page details update if any are found
+   * Detects new shadow roots and schedules a page details update if any are found.
+   * This is called periodically to catch shadow roots added after initial page load.
+   * The update is debounced to prevent excessive collection triggers.
+   * @private
    */
-  private checkForNewShadowRoots = () => {
+  private handleNewShadowRoots = () => {
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
     if (hasNewShadowRoots) {
       this.debouncedRequirePageDetailsUpdate();
     }
   };
-
   /**
    * Processes all mutation records encountered by the mutation observer.
    *
@@ -1350,20 +1351,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.lastMutationTimestamp = now;
 
     // Check if mutations are occurring rapidly (DOM is still "hot")
-    const isDomHot = timeSinceLastMutation < this.mutationCooldownMs;
-    if (isDomHot) {
-      this.consecutiveMutationCount++;
+    if (timeSinceLastMutation < this.mutationCooldownMs) {
+      this.mutationBurstCount++;
     } else {
-      this.consecutiveMutationCount = 0;
+      this.mutationBurstCount = 0;
     }
 
     // Calculate adaptive timeout based on mutation frequency
     // If DOM is "hot" (mutations occurring rapidly), extend the wait time
     let adaptiveTimeout = this.updateAfterMutationTimeout;
-    if (this.consecutiveMutationCount > 0) {
+    if (this.mutationBurstCount > 0) {
       // Extend timeout proportionally to mutation frequency, up to max wait time
       const extensionMs = Math.min(
-        this.consecutiveMutationCount * this.mutationCooldownMs,
+        this.mutationBurstCount * this.mutationCooldownMs,
         this.maxMutationWaitMs - this.updateAfterMutationTimeout,
       );
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
