@@ -12,6 +12,7 @@ import {
   Ui,
 } from "../../importers/keeper/access";
 
+import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
 import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
 
@@ -19,7 +20,7 @@ import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-pr
   providedIn: "root",
 })
 export class KeeperDirectImportUIService implements Ui {
-  private dialogRef: DialogRef<string>;
+  private dialogRef: DialogRef<DeviceApprovalChannel | string>;
 
   constructor(private dialogService: DialogService) {}
 
@@ -34,12 +35,25 @@ export class KeeperDirectImportUIService implements Ui {
   async selectApprovalMethod(
     methods: DeviceApprovalChannel[],
   ): Promise<DeviceApprovalChannel | typeof Cancel> {
-    // For now, auto-select the first available method
-    // TODO: Show a selection dialog if multiple methods are available
     if (methods.length === 0) {
       return Cancel;
     }
-    return methods[0];
+
+    if (methods.length === 1) {
+      return methods[0];
+    }
+
+    this.dialogRef = KeeperApprovalMethodSelectComponent.open(this.dialogService, {
+      methods,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+
+    if (result === undefined || result === "cancel") {
+      return Cancel;
+    }
+
+    return result as DeviceApprovalChannel;
   }
 
   async provideApprovalCode(

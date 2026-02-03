@@ -4587,6 +4587,18 @@
   "keeperDeviceApprovalRequired": {
     "message": "Keeper device approval required"
   },
+  "keeperSelectApprovalMethod": {
+    "message": "Select approval method"
+  },
+  "keeperSelectApprovalMethodDesc": {
+    "message": "Choose how you want to approve this device."
+  },
+  "keeperApprovalMethodEmail": {
+    "message": "Email"
+  },
+  "keeperApprovalMethodPush": {
+    "message": "Keeper Push"
+  },
   "keeperDeviceApprovalEmailDesc": {
     "message": "Check your email and click the link to approve this device. This dialog will close automatically."
   },
@@ -4600,7 +4612,7 @@
     "message": "Enter your one-time passcode from your authentication app"
   },
   "keeperMFAPushDesc": {
-    "message": "Approve the login request in your authentication app, then click Continue."
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
   },
   "noKeeperDataFound": {
     "message": "No Keeper data found"

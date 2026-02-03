@@ -13016,5 +13016,38 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "keeperSelectApprovalMethod": {
+    "message": "Select approval method"
+  },
+  "keeperSelectApprovalMethodDesc": {
+    "message": "Choose how you want to approve this device."
+  },
+  "keeperApprovalMethodEmail": {
+    "message": "Email"
+  },
+  "keeperApprovalMethodPush": {
+    "message": "Keeper Push"
+  },
+  "keeperDeviceApprovalEmailDesc": {
+    "message": "Check your email and click the link to approve this device. This dialog will close automatically."
+  },
+  "keeperDeviceApprovalPushDesc": {
+    "message": "Approve the device request on your other Keeper device. This dialog will close automatically."
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "keeperMFADesc": {
+    "message": "Enter your one-time passcode from your authentication app"
+  },
+  "keeperMFAPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
   }
 }
