@@ -6,6 +6,7 @@
     (onCipherClicked)="viewCipher($event)"
     (onCipherRightClicked)="viewCipherMenu($event)"
     (onAddCipher)="addCipher($event)"
+    [showPremiumCallout]="showPremiumCallout$ | async"
   >
   </app-vault-items-v2>
   <div class="details" *ngIf="!!action">

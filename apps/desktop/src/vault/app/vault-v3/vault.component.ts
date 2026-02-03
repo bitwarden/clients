@@ -154,7 +154,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   type: CipherType | null = null;
   folderId: string | null | undefined = null;
   collectionId: string | null = null;
-  organizationId: string | null = null;
+  organizationId: OrganizationId | null = null;
   myVaultOnly = false;
   addType: CipherType | undefined = undefined;
   addOrganizationId: string | null = null;
@@ -168,6 +168,15 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   cipher: CipherView | null = new CipherView();
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
