@@ -88,6 +88,7 @@ import {
   COPY_CLICK_LISTENER,
   IconButtonModule,
   SearchModule,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -162,6 +163,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
+    NoItemsModule,
   ],
   providers: [
     {
@@ -241,6 +243,16 @@ export class VaultComponent<C extends CipherViewLike>
   private addCollectionIds: string[] | null = null;
   private activeUserId: UserId | null = null;
   private passwordReprompted: boolean = false;
+  organizationId: OrganizationId | null = null;
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
@@ -251,10 +263,9 @@ export class VaultComponent<C extends CipherViewLike>
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => !!account),
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+  protected hasArchivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
     ),
   );
 
@@ -272,7 +283,6 @@ export class VaultComponent<C extends CipherViewLike>
   protected allCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
   protected searchPlaceholderText: string;
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected ciphers: C[] = [];
   protected isEmpty: boolean;
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(

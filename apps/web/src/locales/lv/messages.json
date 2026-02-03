@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nav riskam pakļautu būtisku lietotņu"
   },
+  "critical": {
+    "message": "Būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nav būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Lietotne"
+  },
+  "applications": {
+    "message": "Lietotnes"
   },
   "atRiskPasswords": {
     "message": "Riskam pakļautās paroles"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-pasts"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Tālrunis"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Atrašanās vieta"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Nākamais maksājums"
+  },
+  "nextChargeDate": {
+    "message": "Nākamās apmaksas datums"
   },
   "plan": {
     "message": "Plāns"
@@ -6925,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Viens vai vairāki apvienības nosacījumi neļauj izgūt privātās glabātavas saturu."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Iespējot automātisko aizpildi"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Pārlūka paplašinājumā iespējot automātisko aizpildi lapas ielādes brīdī visiem esošajiem un jaunajiem dalībniekiem."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Uzzināt vairāk par automātisko aizpildi"
   },
   "selectType": {
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden mēģinās pārbaudīt domēnu 3 reizes pirmajās 72 stundās. Ja domēnu nevarēs pieteikt, būs jāpārbauda DNS ieraksts saimniekdatorā un tas pašrocīgi jāpiesaka. Domēns tiks noņemts no apvienības pēc 7 dienām, ja tas nebūs pieteikts."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nav pieteikts. Jāpārbauda DNS ieraksts.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Pieteikts"
   },
-  "domainStatusUnderVerification": {
-    "message": "Apliecināšanā"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Iegūsti domēna piederību, lai iegūtu dalībnieku kontu īpašumtiesības. SSO identificētāja lapa tiks izlaista, kad pieteiksies dalībnieki, kuru kontu piederība ir atkarīga no domēna, un pārvaldītāji varēs izdzēst šāda veida kontus."
@@ -12102,13 +12147,13 @@
     "message": "Apliecini tagad!"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Atslēgt ar piekļuves atslēgu"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Neizdevās atslēgt ar piekļuves atslēgu. Lūgums mēģināt vēlreiz vai izmantot citu atslēgšanas veidu."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Atslēgšanai nav pieejama neviena PRF iespējota piekļuves atslēga."
   },
   "additionalStorageGB": {
     "message": "Papildu krātuve GB"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Kad noņemsi krātuvi, saņemsi konta kredītu noteiktā apjomā, kas tiks automātiski izmantots nākamajā rēķinā."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-pasts aizsargāts"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

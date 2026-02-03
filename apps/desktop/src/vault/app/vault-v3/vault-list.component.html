@@ -1,3 +1,17 @@
+@if (showPremiumCallout()) {
+  <div class="tw-m-4">
+    <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+      <ng-container>
+        <div>
+          {{ "premiumSubscriptionEndedDesc" | i18n }}
+        </div>
+        <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+          {{ "restartPremium" | i18n }}
+        </a>
+      </ng-container>
+    </bit-callout>
+  </div>
+}
 <cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout>
   <div class="tw-mb-4 tw-px-6 tw-@container">
     <bit-table [dataSource]="dataSource" layout="fixed">

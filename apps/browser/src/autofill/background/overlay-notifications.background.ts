@@ -1,10 +1,9 @@
-import { Subject, switchMap, timer } from "rxjs";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { NotificationType, NotificationTypes } from "../notification/abstractions/notification-bar";
 import { generateDomainMatchPatterns, isInvalidResponseStatusCode } from "../utils";
 
 import {
@@ -14,6 +13,8 @@ import {
   OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface,
   OverlayNotificationsExtensionMessage,
   OverlayNotificationsExtensionMessageHandlers,
+  NotificationScenarios,
+  NotificationScenario,
   WebsiteOriginsWithFields,
 } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
@@ -32,7 +33,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
-
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
@@ -281,7 +281,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
     const shouldAttemptAddNotification = this.shouldAttemptNotification(
       modifyLoginData,
-      NotificationTypes.Add,
+      NotificationScenarios.Add,
     );
 
     if (shouldAttemptAddNotification) {
@@ -290,7 +290,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
     const shouldAttemptChangeNotification = this.shouldAttemptNotification(
       modifyLoginData,
-      NotificationTypes.Change,
+      NotificationScenarios.Change,
     );
 
     if (shouldAttemptChangeNotification) {
@@ -445,29 +445,45 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     requestId: chrome.webRequest.WebRequestDetails["requestId"],
     modifyLoginData: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
-    config: { skippable: NotificationType[] } = { skippable: [] },
+    config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
-    const notificationCandidates = [
-      {
-        type: NotificationTypes.Change,
-        trigger: this.notificationBackground.triggerChangedPasswordNotification,
-      },
-      {
-        type: NotificationTypes.Add,
-        trigger: this.notificationBackground.triggerAddLoginNotification,
-      },
-      {
-        type: NotificationTypes.AtRiskPassword,
-        trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
-      },
-    ].filter(
+    const useUndeterminedCipherScenarioTriggeringLogic = await firstValueFrom(
+      this.notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$,
+    );
+
+    const notificationCandidates = useUndeterminedCipherScenarioTriggeringLogic
+      ? [
+          {
+            type: NotificationScenarios.Cipher,
+            trigger: this.notificationBackground.triggerCipherNotification,
+          },
+          {
+            type: NotificationScenarios.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ]
+      : [
+          {
+            type: NotificationScenarios.Change,
+            trigger: this.notificationBackground.triggerChangedPasswordNotification,
+          },
+          {
+            type: NotificationScenarios.Add,
+            trigger: this.notificationBackground.triggerAddLoginNotification,
+          },
+          {
+            type: NotificationScenarios.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ];
+    const filteredNotificationCandidates = notificationCandidates.filter(
       (candidate) =>
         this.shouldAttemptNotification(modifyLoginData, candidate.type) ||
         config.skippable.includes(candidate.type),
     );
 
     const results: string[] = [];
-    for (const { trigger, type } of notificationCandidates) {
+    for (const { trigger, type } of filteredNotificationCandidates) {
       const success = await trigger.bind(this.notificationBackground)(modifyLoginData, tab);
       if (success) {
         results.push(`Success: ${type}`);
@@ -489,8 +505,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private shouldAttemptNotification = (
     modifyLoginData: ModifyLoginCipherFormData,
-    notificationType: NotificationType,
+    notificationType: NotificationScenario,
   ): boolean => {
+    if (notificationType === NotificationScenarios.Cipher) {
+      // The logic after this block pre-qualifies some cipher add/update scenarios
+      // prematurely (where matching against vault contents is required) and should be
+      // skipped for this case (these same checks are performed early in the
+      // notification triggering logic).
+      return true;
+    }
+
     // Intentionally not stripping whitespace characters here as they
     // represent user entry.
     const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
@@ -504,15 +528,15 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       // `Add` case included because all forms with cached usernames (from previous
       // visits) will appear to be "password only" and otherwise trigger the new login
       // save notification.
-      case NotificationTypes.Add:
+      case NotificationScenarios.Add:
         // Can be values for nonstored login or account creation
         return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
-      case NotificationTypes.Change:
+      case NotificationScenarios.Change:
         // Can be login with nonstored login changes or account password update
         return canBeUserLogin || canBePasswordUpdate;
-      case NotificationTypes.AtRiskPassword:
+      case NotificationScenarios.AtRiskPassword:
         return !newPasswordFieldHasValue;
-      case NotificationTypes.Unlock:
+      case NotificationScenarios.Unlock:
         // Unlock notifications are handled separately and do not require form data
         return false;
       default:

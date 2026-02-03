@@ -10,6 +10,7 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
@@ -28,6 +29,7 @@ import {
   ButtonModule,
   IconButtonModule,
   NoItemsModule,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { NewCipherMenuComponent, VaultItem } from "@bitwarden/vault";
@@ -62,6 +64,7 @@ type EmptyStateItem = {
     VaultCipherRowComponent,
     NoItemsModule,
     NewCipherMenuComponent,
+    CalloutComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -80,6 +83,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly isEmpty = input<boolean>();
   protected readonly showAddCipherBtn = input<boolean>();
   protected readonly emptyStateItem = input<EmptyStateItem>();
+  readonly showPremiumCallout = input<boolean>(false);
 
   protected onEvent = output<VaultItemEvent<C>>();
   protected onAddCipher = output<CipherType>();
@@ -88,6 +92,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   protected cipherArchiveService = inject(CipherArchiveService);
+  private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
@@ -204,5 +209,9 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected trackByFn(index: number, item: VaultItem<C>) {
     return item.cipher?.id || item.collection?.id || index;
+  }
+
+  async navigateToGetPremium() {
+    await this.premiumUpgradePromptService.promptForPremium();
   }
 }
