@@ -110,7 +110,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         }
     }
 
-    async fn unenroll(&self, user_id: &str) -> Result<()> {
+    async fn unenroll(&self, user_id: &String) -> Result<()> {
         self.secure_memory.lock().await.remove(user_id);
         delete_keychain_entry(user_id).await
     }
@@ -148,7 +148,7 @@ impl super::BiometricTrait for BiometricLockSystem {
             .put(user_id.to_string(), key);
     }
 
-    async fn unlock(&self, user_id: &str, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
+    async fn unlock(&self, user_id: &String, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
         // Allow restoring focus to the previous window (browser)
         let previous_active_window = super::windows_focus::get_active_window();
         let _focus_scopeguard = scopeguard::guard((), |_| {
@@ -164,8 +164,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         if secure_memory.has(user_id) {
             if windows_hello_authenticate("Unlock your vault".to_string()).await? {
                 secure_memory
-                    .get(user_id)
-                    .clone()
+                    .get(user_id)?
                     .ok_or_else(|| anyhow!("No key found for user"))
             } else {
                 Err(anyhow!("Authentication failed"))
@@ -186,7 +185,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         }
     }
 
-    async fn unlock_available(&self, user_id: &str) -> Result<bool> {
+    async fn unlock_available(&self, user_id: &String) -> Result<bool> {
         let secure_memory = self.secure_memory.lock().await;
         let has_key =
             secure_memory.has(user_id) || has_keychain_entry(user_id).await.unwrap_or(false);
@@ -435,7 +434,7 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn test_double_unenroll() {
-        let user_id = "test_user";
+        let user_id = String::from("test_user");
         let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
         rand::fill(&mut key);
 
@@ -443,34 +442,34 @@ mod tests {
 
         println!("Enrolling user");
         windows_hello_lock_system
-            .enroll_persistent(user_id, &key)
+            .enroll_persistent(&user_id, &key)
             .await
             .unwrap();
         assert!(windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unlocking user");
         let key_after_unlock = windows_hello_lock_system
-            .unlock(user_id, Vec::new())
+            .unlock(&user_id, Vec::new())
             .await
             .unwrap();
         assert_eq!(key_after_unlock, key);
 
         println!("Unenrolling user");
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unenrolling user again");
 
         // This throws PASSWORD_NOT_FOUND but our code should handle that and not throw.
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
     }
@@ -478,7 +477,7 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn test_enroll_unlock_unenroll() {
-        let user_id = "test_user";
+        let user_id = String::from("test_user");
         let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
         rand::fill(&mut key);
 
@@ -486,25 +485,25 @@ mod tests {
 
         println!("Enrolling user");
         windows_hello_lock_system
-            .enroll_persistent(user_id, &key)
+            .enroll_persistent(&user_id, &key)
             .await
             .unwrap();
         assert!(windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
 
         println!("Unlocking user");
         let key_after_unlock = windows_hello_lock_system
-            .unlock(user_id, Vec::new())
+            .unlock(&user_id, Vec::new())
             .await
             .unwrap();
         assert_eq!(key_after_unlock, key);
 
         println!("Unenrolling user");
-        windows_hello_lock_system.unenroll(user_id).await.unwrap();
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
         assert!(!windows_hello_lock_system
-            .has_persistent(user_id)
+            .has_persistent(&user_id)
             .await
             .unwrap());
     }
