@@ -796,8 +796,24 @@ describe("DefaultSetInitialPasswordService", () => {
     });
 
     describe("general error handling", () => {
-      ["newPassword", "salt", "kdfConfig", "newPasswordHint"].forEach((key) => {
-        it(`should throw if ${key} is not provided on the SetInitialPasswordTdeOffboardingCredentials object`, async () => {
+      ["newPassword", "salt"].forEach((key) => {
+        it(`should throw if ${key} is an empty string (falsy) on the SetInitialPasswordTdeOffboardingCredentials object`, async () => {
+          // Arrange
+          const invalidCredentials: SetInitialPasswordTdeOffboardingCredentials = {
+            ...credentials,
+            [key]: "",
+          };
+
+          // Act
+          const promise = sut.setInitialPasswordTdeOffboarding(invalidCredentials, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(`${key} is falsy. Could not set initial password.`);
+        });
+      });
+
+      ["kdfConfig", "newPasswordHint"].forEach((key) => {
+        it(`should throw if ${key} is null/undefined on the SetInitialPasswordTdeOffboardingCredentials object`, async () => {
           // Arrange
           const invalidCredentials: SetInitialPasswordTdeOffboardingCredentials = {
             ...credentials,
@@ -808,7 +824,9 @@ describe("DefaultSetInitialPasswordService", () => {
           const promise = sut.setInitialPasswordTdeOffboarding(invalidCredentials, userId);
 
           // Assert
-          await expect(promise).rejects.toThrow(`${key} not found. Could not set password.`);
+          await expect(promise).rejects.toThrow(
+            `${key} is null or undefined. Could not set initial password.`,
+          );
         });
       });
 
