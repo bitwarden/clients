@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent } from "@bitwarden/components";
 
@@ -13,6 +14,7 @@ describe("DesktopHeaderComponent", () => {
   let fixture: ComponentFixture<DesktopHeaderComponent>;
   let mockI18nService: ReturnType<typeof mock<I18nService>>;
   let mockActivatedRoute: { data: any };
+  let mockConfigService: ReturnType<typeof mock<ConfigService>>;
 
   beforeEach(async () => {
     mockI18nService = mock<I18nService>();
@@ -21,6 +23,9 @@ describe("DesktopHeaderComponent", () => {
     mockActivatedRoute = {
       data: of({}),
     };
+
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [DesktopHeaderComponent, HeaderComponent],
@@ -32,6 +37,10 @@ describe("DesktopHeaderComponent", () => {
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compileComponents();
