@@ -46,14 +46,14 @@
           }
         }
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
-          @if (!isAdminConsoleActive) {
-            <ng-container header>
-              <th bitCell class="tw-w-12"></th>
-              <th bitCell>{{ "name" | i18n }}</th>
+          <ng-container header>
+            <th bitCell class="tw-w-12"></th>
+            <th bitCell>{{ "name" | i18n }}</th>
+            @if (!isAdminConsoleActive) {
               <th bitCell class="tw-w-1/4">{{ "owner" | i18n }}</th>
-              <th bitCell class="tw-w-1/4"></th>
-            </ng-container>
-          }
+            }
+            <th bitCell class="tw-w-1/4"></th>
+          </ng-container>
           <ng-template bitRowDef let-row>
             <td bitCell>
               <app-vault-icon [cipher]="row"></app-vault-icon>
@@ -100,16 +100,20 @@
               <br />
               <small>{{ row.subTitle }}</small>
             </td>
-            <td bitCell>
-              @if (!organization) {
-                <app-org-badge
-                  [disabled]="disabled"
-                  [organizationId]="row.organizationId"
-                  [organizationName]="row.organizationId | orgNameFromId: (organizations$ | async)"
-                  appStopProp
-                />
-              }
-            </td>
+            @if (!isAdminConsoleActive) {
+              <td bitCell>
+                @if (!organization) {
+                  <app-org-badge
+                    [disabled]="disabled"
+                    [organizationId]="row.organizationId"
+                    [organizationName]="
+                      row.organizationId | orgNameFromId: (organizations$ | async)
+                    "
+                    appStopProp
+                  />
+                }
+              </td>
+            }
             <td bitCell class="tw-text-right">
               @if (cipherDocs.has(row.id)) {
                 <a bitBadge href="{{ cipherDocs.get(row.id) }}" target="_blank" rel="noreferrer">
