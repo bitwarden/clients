@@ -30,7 +30,6 @@ import {
   Fido2ClientService as Fido2ClientServiceAbstraction,
   PublicKeyCredentialParam,
   UserRequestedFallbackAbortReason,
-  UserVerification,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
@@ -47,9 +46,9 @@ import { guidToRawFormat } from "./guid-utils";
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2ClientService<ParentWindowReference>
-  implements Fido2ClientServiceAbstraction<ParentWindowReference>
-{
+export class Fido2ClientService<
+  ParentWindowReference,
+> implements Fido2ClientServiceAbstraction<ParentWindowReference> {
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
@@ -195,7 +194,7 @@ export class Fido2ClientService<ParentWindowReference>
     }
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.authenticatorSelection?.userVerification,
+      makeCredentialParams.requireUserVerification,
       params.timeout,
     );
 
@@ -318,7 +317,7 @@ export class Fido2ClientService<ParentWindowReference>
 
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.userVerification,
+      getAssertionParams.requireUserVerification,
       params.timeout,
     );
 
@@ -441,13 +440,13 @@ export class Fido2ClientService<ParentWindowReference>
 
   private setAbortTimeout = (
     abortController: AbortController,
-    userVerification?: UserVerification,
+    requireUserVerification: boolean,
     timeout?: number,
   ): Subscription => {
     let clampedTimeout: number;
 
     const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
-    if (userVerification === "required") {
+    if (requireUserVerification) {
       timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
       clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
     } else {

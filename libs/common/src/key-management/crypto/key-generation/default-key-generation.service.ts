@@ -30,7 +30,7 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
   ): Promise<{ salt: string; material: CsprngArray; derivedKey: SymmetricCryptoKey }> {
     if (salt == null) {
       const bytes = await this.cryptoFunctionService.randomBytes(32);
-      salt = Utils.fromBufferToUtf8(bytes);
+      salt = Utils.fromBufferToUtf8(bytes.buffer as ArrayBuffer);
     }
     const material = await this.cryptoFunctionService.aesGenerateKey(bitLength);
     const key = await this.cryptoFunctionService.hkdf(material, salt, purpose, 64, "sha256");
@@ -90,5 +90,13 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
     newKey.set(new Uint8Array(macKey), 32);
 
     return new SymmetricCryptoKey(newKey);
+  }
+
+  async deriveVaultExportKey(
+    password: string,
+    salt: string,
+    kdfConfig: KdfConfig,
+  ): Promise<SymmetricCryptoKey> {
+    return await this.stretchKey(await this.deriveKeyFromPassword(password, salt, kdfConfig));
   }
 }

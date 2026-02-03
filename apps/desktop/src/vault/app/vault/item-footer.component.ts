@@ -8,6 +8,7 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
+  input,
 } from "@angular/core";
 import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
@@ -67,11 +68,14 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
+  readonly submitButtonText = input<string>(this.i18nService.t("save"));
+
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
+  protected userCanArchive = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -93,7 +97,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes.cipher) {
+    if (changes.cipher || changes.action) {
       await this.checkArchiveState();
     }
   }
@@ -128,6 +132,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       this.showArchiveButton ||
       this.showUnarchiveButton ||
       (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
+    );
+  }
+
+  protected get showCloneOption() {
+    return (
+      this.cipher.id &&
+      !this.cipher?.organizationId &&
+      !this.cipher.isDeleted &&
+      this.action === "view" &&
+      (!this.cipher.isArchived || this.userCanArchive)
     );
   }
 
@@ -170,8 +184,15 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async restore(): Promise<boolean> {
+    let toastMessage;
     if (!this.cipher.isDeleted) {
       return false;
+    }
+
+    if (this.cipher.isArchived) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
     }
 
     try {
@@ -179,7 +200,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.onRestore.emit(this.cipher);
     } catch (e) {
@@ -218,7 +239,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   private async checkArchiveState() {
-    const cipherCanBeArchived = !this.cipher.isDeleted && this.cipher.organizationId == null;
+    const cipherCanBeArchived = !this.cipher.isDeleted;
     const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -231,11 +252,19 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       ),
     );
 
+    this.userCanArchive = userCanArchive;
+
     this.showArchiveButton =
-      cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
+      cipherCanBeArchived &&
+      userCanArchive &&
+      (this.action === "view" || this.action === "edit") &&
+      !this.cipher.isArchived;
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
+      hasArchiveFlagEnabled &&
+      (this.action === "view" || this.action === "edit") &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }

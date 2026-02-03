@@ -1,11 +1,10 @@
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -21,6 +20,7 @@ describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
   let fixture: ComponentFixture<ItemDetailsV2Component>;
   let componentRef: ComponentRef<ItemDetailsV2Component>;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
 
   const cipher = {
     id: "cipher1",
@@ -51,6 +51,8 @@ describe("ItemDetailsV2Component", () => {
   } as FolderView;
 
   beforeEach(async () => {
+    mockPlatformUtilsService = mock<PlatformUtilsService>();
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
@@ -61,6 +63,7 @@ describe("ItemDetailsV2Component", () => {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     }).compileComponents();
   });
@@ -97,5 +100,32 @@ describe("ItemDetailsV2Component", () => {
 
     const owner = fixture.debugElement.query(By.css('[data-testid="owner"]'));
     expect(owner).toBeNull();
+  });
+
+  it("should show archive badge when cipher is archived and client is Desktop", () => {
+    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Desktop);
+
+    const archivedCipher = { ...cipher, isArchived: true };
+    componentRef.setInput("cipher", archivedCipher);
+
+    expect((component as any).showArchiveBadge()).toBe(true);
+  });
+
+  it("should not show archive badge when cipher is not archived", () => {
+    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Desktop);
+
+    const unarchivedCipher = { ...cipher, isArchived: false };
+    componentRef.setInput("cipher", unarchivedCipher);
+
+    expect((component as any).showArchiveBadge()).toBe(false);
+  });
+
+  it("should not show archive badge when client is not Desktop", () => {
+    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Web);
+
+    const archivedCipher = { ...cipher, isArchived: true };
+    componentRef.setInput("cipher", archivedCipher);
+
+    expect((component as any).showArchiveBadge()).toBe(false);
   });
 });

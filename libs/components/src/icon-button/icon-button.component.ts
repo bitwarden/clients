@@ -20,7 +20,16 @@ import { SpinnerComponent } from "../spinner";
 import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
-export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
+export const IconButtonTypes = [
+  "primary",
+  "danger",
+  "contrast",
+  "main",
+  "muted",
+  "nav-contrast",
+] as const;
+
+export type IconButtonType = (typeof IconButtonTypes)[number];
 
 const focusRing = [
   // Workaround for box-shadow with transparent offset issue:
@@ -62,9 +71,9 @@ const styles: Record<IconButtonType, string[]> = {
   primary: ["!tw-text-primary-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
   danger: ["!tw-text-danger-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
   "nav-contrast": [
-    "!tw-text-alt2",
+    "!tw-text-fg-sidenav-text",
     "hover:!tw-bg-hover-contrast",
-    "focus-visible:before:tw-ring-text-alt2",
+    "focus-visible:before:tw-ring-border-focus",
     ...focusRing,
   ],
 };
@@ -148,9 +157,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       );
   }
 
-  get iconClass() {
-    return [this.icon(), "!tw-m-0"];
-  }
+  readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
   protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;

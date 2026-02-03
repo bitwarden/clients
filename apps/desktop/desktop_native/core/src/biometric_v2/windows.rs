@@ -285,8 +285,8 @@ async fn windows_hello_authenticate_with_crypto(
         return Err(anyhow!("Failed to sign data"));
     }
 
-    let signature_buffer = signature.Result()?;
-    let signature_value = unsafe { as_mut_bytes(&signature_buffer)? };
+    let mut signature_buffer = signature.Result()?;
+    let signature_value = unsafe { as_mut_bytes(&mut signature_buffer)? };
 
     // The signature is deterministic based on the challenge and keychain key. Thus, it can be
     // hashed to a key. It is unclear what entropy this key provides.
@@ -368,7 +368,7 @@ fn decrypt_data(
     Ok(plaintext)
 }
 
-unsafe fn as_mut_bytes(buffer: &IBuffer) -> Result<&mut [u8]> {
+unsafe fn as_mut_bytes(buffer: &mut IBuffer) -> Result<&mut [u8]> {
     let interop = buffer.cast::<IBufferByteAccess>()?;
 
     unsafe {

@@ -197,7 +197,7 @@ export default tseslint.config(
         {
           // uses negative lookahead to whitelist any class that doesn't start with "tw-"
           // in other words: classnames that start with tw- must be valid TailwindCSS classes
-          whitelist: ["(?!(tw)\\-).*"],
+          whitelist: ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"],
         },
       ],
       "tailwindcss/enforces-negative-arbitrary-values": "error",
@@ -207,6 +207,7 @@ export default tseslint.config(
         "error",
         { ignoreIfHas: ["bitPasswordInputToggle"] },
       ],
+      "@bitwarden/components/no-bwi-class-usage": "warn",
     },
   },
 
@@ -349,6 +350,7 @@ export default tseslint.config(
             "file-selector",
             "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
           ],
         },

@@ -87,4 +87,19 @@ export abstract class KeyGenerationService {
    * @returns 64 byte derived key.
    */
   abstract stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey>;
+
+  /**
+   * Derives a 64 byte key for encrypting and decrypting vault exports.
+   *
+   * @deprecated Do not use this for new use-cases.
+   * @param password Password to derive the key from.
+   * @param salt Salt for the key derivation function.
+   * @param kdfConfig Configuration for the key derivation function.
+   * @returns 64 byte derived key.
+   */
+  abstract deriveVaultExportKey(
+    password: string,
+    salt: string,
+    kdfConfig: KdfConfig,
+  ): Promise<SymmetricCryptoKey>;
 }

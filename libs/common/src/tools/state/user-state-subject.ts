@@ -79,11 +79,11 @@ const DEFAULT_FRAME_SIZE = 32;
  * @template Dependencies use-specific dependencies provided by the user.
  */
 export class UserStateSubject<
-    State extends object,
-    Secret = State,
-    Disclosed = Record<string, never>,
-    Dependencies = null,
-  >
+  State extends object,
+  Secret = State,
+  Disclosed = Record<string, never>,
+  Dependencies = null,
+>
   extends Observable<State>
   implements SubjectLike<State>
 {

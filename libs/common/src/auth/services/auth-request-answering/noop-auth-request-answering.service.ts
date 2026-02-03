@@ -1,14 +1,22 @@
 import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
-import { AuthRequestAnsweringServiceAbstraction } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
-export class NoopAuthRequestAnsweringService implements AuthRequestAnsweringServiceAbstraction {
-  constructor() {}
+export class NoopAuthRequestAnsweringService implements AuthRequestAnsweringService {
+  async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
+    throw new Error(
+      "activeUserMeetsConditionsToShowApprovalDialog() not implemented for this client",
+    );
+  }
 
-  async receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {}
+  setupUnlockListenersForProcessingAuthRequests(): void {
+    throw new Error(
+      "setupUnlockListenersForProcessingAuthRequests() not implemented for this client",
+    );
+  }
 
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {}
-
-  async processPendingAuthRequests(): Promise<void> {}
+  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
+    throw new Error("handleAuthRequestNotificationClicked() not implemented for this client");
+  }
 }
