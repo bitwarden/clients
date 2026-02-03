@@ -90,11 +90,11 @@
       </ng-container>
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
           <button
             bit-item-content
             type="button"
-            (click)="onCipherSelect(cipher)"
+            (click)="primaryActionOnSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
               cipherItemTitleKey()(cipher)
@@ -125,14 +125,19 @@
           </button>
 
           <ng-container slot="end">
-            <bit-item-action *ngIf="isAutofillList()">
-              <span
-                class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
+            <bit-item-action *ngIf="!hideAutofillButton()">
+              <button
+                type="button"
+                bitBadge
+                variant="primary"
+                (click)="doAutofill(cipher)"
+                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
+                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
               >
                 {{ "fill" | i18n }}
-              </span>
+              </button>
             </bit-item-action>
-            <bit-item-action *ngIf="!isAutofillList() && CipherViewLikeUtils.canLaunch(cipher)">
+            <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
               <button
                 type="button"
                 bitIconButton="bwi-external-link"
@@ -144,7 +149,8 @@
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             <app-item-more-options
               [cipher]="cipher"
-              [showAutofill]="!isAutofillList()"
+              [hideAutofillOptions]="hideAutofillMenuOptions()"
+              [showViewOption]="primaryActionAutofill()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
