@@ -1092,7 +1092,7 @@ describe("Cipher Service", () => {
 
       await cipherService.deleteManyWithServer(testCipherIds, userId, true, orgId);
 
-      expect(apiSpy).toHaveBeenCalled();
+      expect(apiSpy).toHaveBeenCalledWith({ ids: testCipherIds, organizationId: orgId });
     });
 
     it("should use SDK to delete multiple ciphers when feature flag is enabled", async () => {
