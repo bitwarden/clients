@@ -104,7 +104,12 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any new shadow roots are found that aren't being observed
    */
   checkForNewShadowRoots = (): boolean => {
-    const currentRoots = this.queryShadowRoots(globalThis.document.body);
+    let currentRoots: ShadowRoot[];
+    try {
+      currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
+    } catch {
+      currentRoots = this.queryShadowRoots(globalThis.document.body);
+    }
 
     for (const root of currentRoots) {
       if (!this.observedShadowRoots.has(root)) {

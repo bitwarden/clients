@@ -1100,6 +1100,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
+    this.updateAutofillElementsAfterMutation();
   };
 
   /**
