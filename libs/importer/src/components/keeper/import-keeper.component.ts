@@ -18,6 +18,7 @@ import {
   CheckboxModule,
   FormFieldModule,
   IconButtonModule,
+  SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -39,10 +40,21 @@ import { KeeperDirectImportService } from "./keeper-direct-import.service";
     ReactiveFormsModule,
     IconButtonModule,
     CheckboxModule,
+    SelectModule,
   ],
 })
 export class ImportKeeperComponent implements OnInit, OnDestroy {
   private _parentFormGroup: FormGroup;
+
+  protected readonly regions = [
+    { value: "keepersecurity.com", label: "US" },
+    { value: "keepersecurity.eu", label: "EU" },
+    { value: "keepersecurity.com.au", label: "AU" },
+    { value: "keepersecurity.ca", label: "CA" },
+    { value: "keepersecurity.jp", label: "JP" },
+    { value: "govcloud.keepersecurity.us", label: "US (GOV)" },
+  ];
+
   protected formGroup = this.formBuilder.group({
     email: [
       "",
@@ -52,6 +64,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         updateOn: "submit",
       },
     ],
+    region: ["keepersecurity.com"],
     includeSharedFolders: [false],
   });
   protected emailHint$ = this.formGroup.controls.email.statusChanges.pipe(
@@ -93,6 +106,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
       try {
         const importResult = await this.keeperDirectImportService.handleImport(
           this.formGroup.controls.email.value,
+          this.formGroup.controls.region.value,
           this.formGroup.controls.includeSharedFolders.value,
         );
         this.importCompleted.emit(importResult);

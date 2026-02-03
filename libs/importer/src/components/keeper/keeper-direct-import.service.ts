@@ -34,10 +34,15 @@ export class KeeperDirectImportService {
   /**
    * Import a Keeper account by email
    * @param email The Keeper account email
+   * @param server The Keeper data center server hostname
    * @param includeSharedFolders Whether to include shared folders in the import
    * @returns The ImportResult containing imported vault data
    */
-  async handleImport(email: string, includeSharedFolders: boolean): Promise<ImportResult> {
+  async handleImport(
+    email: string,
+    server: string,
+    includeSharedFolders: boolean,
+  ): Promise<ImportResult> {
     const password = await KeeperPasswordPromptComponent.open(this.dialogService);
 
     if (!password) {
@@ -46,6 +51,7 @@ export class KeeperDirectImportService {
 
     const options: ClientOptions = {
       ui: this.keeperDirectImportUIService,
+      server,
     };
 
     const vault = await Vault.open(email, password, options);

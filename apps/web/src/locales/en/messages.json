@@ -13017,6 +13017,18 @@
       }
     }
   },
+  "importDirectlyFromKeeper": {
+    "message": "Import directly from Keeper"
+  },
+  "keeperEmail": {
+    "message": "Keeper Email"
+  },
+  "keeperRegion": {
+    "message": "Data Center Location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
   },
