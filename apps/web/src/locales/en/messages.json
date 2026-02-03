@@ -12814,8 +12814,8 @@
       }
     }
   },
-  "premiumMembershipDiscount": {
-    "message": "Premium membership discount"
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"

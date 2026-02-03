@@ -174,7 +174,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       estimatedTax: this.estimatedInvoice().tax,
       credit: {
         value: this.estimatedInvoice().credit,
-        translationKey: "premiumMembershipDiscount",
+        translationKey: "premiumSubscriptionCredit",
       },
     };
   });
