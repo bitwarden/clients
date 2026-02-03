@@ -58,6 +58,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckTimeoutMs = 500;
   private readonly shadowDomCheckDebounceMs = 300;
+  private lastMutationTimestamp = 0;
+  private consecutiveMutationCount = 0;
+  private readonly mutationCooldownMs = 500;
+  private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -163,7 +167,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return cachedElement;
       }
       // Stale entry - clean it up
-      this.autofillFieldElements.delete(cachedElement);
+      this.autofillFieldElements.delete(cachedElement as ElementWithOpId<typeof cachedElement>);
       this.autofillFieldsByOpid.delete(opid);
     }
 
@@ -485,7 +489,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Remove old element with same opid if it exists
     const oldElement = this.autofillFieldsByOpid.get(opid);
     if (oldElement && oldElement !== element) {
-      this.autofillFieldElements.delete(oldElement);
+      this.autofillFieldElements.delete(oldElement as ElementWithOpId<typeof oldElement>);
     }
 
     // Always cache the element, even if index is -1 (for dynamically added fields)
@@ -1331,7 +1335,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Updates the autofill elements after a DOM mutation has occurred.
-   * Is debounced to prevent excessive updates.
+   * Uses adaptive debouncing - extends timeout if DOM is "hot" (rapid mutations).
+   * This prevents premature collection during loading spinners or SPA transitions.
    * @private
    */
   private updateAutofillElementsAfterMutation() {
@@ -1339,9 +1344,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
 
+    const now = Date.now();
+    const timeSinceLastMutation = now - this.lastMutationTimestamp;
+    this.lastMutationTimestamp = now;
+
+    // Check if mutations are occurring rapidly (DOM is still "hot")
+    const isDomHot = timeSinceLastMutation < this.mutationCooldownMs;
+    if (isDomHot) {
+      this.consecutiveMutationCount++;
+    } else {
+      this.consecutiveMutationCount = 0;
+    }
+
+    // Calculate adaptive timeout based on mutation frequency
+    // If DOM is "hot" (mutations occurring rapidly), extend the wait time
+    let adaptiveTimeout = this.updateAfterMutationTimeout;
+    if (this.consecutiveMutationCount > 0) {
+      // Extend timeout proportionally to mutation frequency, up to max wait time
+      const extensionMs = Math.min(
+        this.consecutiveMutationCount * this.mutationCooldownMs,
+        this.maxMutationWaitMs - this.updateAfterMutationTimeout,
+      );
+      adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
+    }
+
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
-      { timeout: this.updateAfterMutationTimeout },
+      { timeout: adaptiveTimeout },
     );
   }
 
