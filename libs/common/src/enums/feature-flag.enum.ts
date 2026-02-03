@@ -196,6 +196,15 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
+  if (
+    flag === FeatureFlag.DesktopUiMigrationMilestone1 ||
+    flag === FeatureFlag.DesktopUiMigrationMilestone2 ||
+    flag === FeatureFlag.DesktopUiMigrationMilestone3 ||
+    flag === FeatureFlag.DesktopUiMigrationMilestone4
+  ) {
+    // Desktop milestone flags are only read from the server config during desktop app runtime.
+    return true;
+  }
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }

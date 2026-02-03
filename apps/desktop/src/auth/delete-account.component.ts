@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -22,11 +23,10 @@ import {
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-delete-account",
   templateUrl: "delete-account.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     JslibModule,
     UserVerificationFormInputComponent,
@@ -38,7 +38,13 @@ import { UserVerificationComponent } from "../app/components/user-verification.c
     ReactiveFormsModule,
   ],
 })
-export class DeleteAccountComponent implements OnInit {
+export class DeleteAccountComponent {
+  private i18nService = inject(I18nService);
+  private formBuilder = inject(FormBuilder);
+  private accountApiService = inject(AccountApiService);
+  private toastService = inject(ToastService);
+  private configService = inject(ConfigService);
+
   deleteForm = this.formBuilder.group({
     verification: undefined as VerificationWithSecret | undefined,
   });
@@ -47,26 +53,15 @@ export class DeleteAccountComponent implements OnInit {
    * Tracks whether the verification failed due to invalid credentials.
    * Used to show inline error messages in the verification component.
    */
-  protected invalidSecret = false;
+  protected readonly invalidSecret = signal(false);
 
   /**
    * Feature flag for UI Migration Milestone 4
    */
-  protected migrationMilestone4 = false;
-
-  constructor(
-    private i18nService: I18nService,
-    private formBuilder: FormBuilder,
-    private accountApiService: AccountApiService,
-    private toastService: ToastService,
-    private configService: ConfigService,
-  ) {}
-
-  async ngOnInit() {
-    this.migrationMilestone4 = await this.configService.getFeatureFlag(
-      FeatureFlag.DesktopUiMigrationMilestone4,
-    );
-  }
+  protected readonly migrationMilestone4 = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone4),
+    { initialValue: false },
+  );
 
   static open(dialogService: DialogService): DialogRef<DeleteAccountComponent> {
     return dialogService.open(DeleteAccountComponent);
@@ -78,8 +73,8 @@ export class DeleteAccountComponent implements OnInit {
 
   submit = async () => {
     try {
-      if (this.migrationMilestone4) {
-        this.invalidSecret = false;
+      if (this.migrationMilestone4()) {
+        this.invalidSecret.set(false);
       }
       const verification = this.deleteForm.get("verification").value;
       await this.accountApiService.deleteAccount(verification);
@@ -89,8 +84,8 @@ export class DeleteAccountComponent implements OnInit {
         message: this.i18nService.t("accountDeletedDesc"),
       });
     } catch {
-      if (this.migrationMilestone4) {
-        this.invalidSecret = true;
+      if (this.migrationMilestone4()) {
+        this.invalidSecret.set(true);
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),

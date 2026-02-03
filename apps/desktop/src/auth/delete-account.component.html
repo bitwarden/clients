@@ -6,11 +6,11 @@
       <bit-callout type="warning" title="{{ 'warning' | i18n }}">
         {{ "deleteAccountWarning" | i18n }}
       </bit-callout>
-      @if (migrationMilestone4) {
+      @if (migrationMilestone4()) {
         <app-user-verification-form-input
           formControlName="verification"
           verificationType="server"
-          [invalidSecret]="invalidSecret"
+          [invalidSecret]="invalidSecret()"
         ></app-user-verification-form-input>
       } @else {
         <!-- Temporary border styles. TODO: Remove when app-user-verification is migrated to the CL. -->
