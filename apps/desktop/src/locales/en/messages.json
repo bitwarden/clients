@@ -3813,7 +3813,13 @@
     "message": "Keeper Push"
   },
   "keeperDeviceApprovalEmailDesc": {
-    "message": "Check your email and click the link to approve this device. This dialog will close automatically."
+    "message": "Check your email and click the approval link, or enter the verification code below."
+  },
+  "keeperVerificationCode": {
+    "message": "Verification code"
+  },
+  "keeperVerificationCodeHint": {
+    "message": "Enter the 6-digit code from the email, or click the link and this dialog will close automatically."
   },
   "keeperDeviceApprovalPushDesc": {
     "message": "Approve the device request on your other Keeper device. This dialog will close automatically."

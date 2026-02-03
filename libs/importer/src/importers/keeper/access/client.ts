@@ -428,8 +428,10 @@ export class Client {
       if (method === DeviceApprovalChannel.Email) {
         await this.requestDeviceVerification(username, deviceToken, messageSessionUid, true);
       }
-    } else if (typeof result === "string") {
+      throw new Error("Device approval failed or timed out");
+    } else if (typeof result === "string" && result.length > 0) {
       await this.validateDeviceVerificationCode(username, result);
+      return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
     } else if ("messageType" in result) {
       const { messageType, message } = result as PushMessage;
       if (

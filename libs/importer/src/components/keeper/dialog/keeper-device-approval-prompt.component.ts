@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -38,7 +38,11 @@ type KeeperDeviceApprovalPromptData = {
   ],
 })
 export class KeeperDeviceApprovalPromptComponent {
-  private variant = this.data.variant;
+  protected variant = this.data.variant;
+
+  protected formGroup = new FormGroup({
+    code: new FormControl(""),
+  });
 
   protected get descriptionI18nKey(): string {
     switch (this.variant) {
@@ -54,6 +58,13 @@ export class KeeperDeviceApprovalPromptComponent {
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) protected data: KeeperDeviceApprovalPromptData,
   ) {}
+
+  submit = () => {
+    const code = this.formGroup.controls.code.value?.trim();
+    if (code) {
+      this.dialogRef.close(code);
+    }
+  };
 
   static open(dialogService: DialogService, data: KeeperDeviceApprovalPromptData) {
     return dialogService.open<string>(KeeperDeviceApprovalPromptComponent, { data });

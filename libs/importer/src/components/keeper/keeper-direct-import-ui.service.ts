@@ -72,14 +72,8 @@ export class KeeperDirectImportUIService implements Ui {
       return Cancel;
     }
 
-    // For email/push approval, the code is entered by user or they just confirm
-    // Return empty string for push (no code needed)
-    if (method === DeviceApprovalChannel.KeeperPush) {
-      return "";
-    }
-
-    // For email, return empty string as well - the actual code validation happens server-side
-    return "";
+    // Return the code entered by the user (or empty string for push)
+    return result;
   }
 
   async selectTwoFactorMethod(
