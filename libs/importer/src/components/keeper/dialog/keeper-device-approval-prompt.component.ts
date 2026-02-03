@@ -55,10 +55,6 @@ export class KeeperDeviceApprovalPromptComponent {
     @Inject(DIALOG_DATA) protected data: KeeperDeviceApprovalPromptData,
   ) {}
 
-  approve = () => {
-    this.dialogRef.close("approved");
-  };
-
   static open(dialogService: DialogService, data: KeeperDeviceApprovalPromptData) {
     return dialogService.open<string>(KeeperDeviceApprovalPromptComponent, { data });
   }

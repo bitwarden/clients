@@ -4588,10 +4588,10 @@
     "message": "Keeper device approval required"
   },
   "keeperDeviceApprovalEmailDesc": {
-    "message": "Check your email and click the link to approve this device, then click Continue."
+    "message": "Check your email and click the link to approve this device. This dialog will close automatically."
   },
   "keeperDeviceApprovalPushDesc": {
-    "message": "Approve the device request on your other Keeper device, then click Continue."
+    "message": "Approve the device request on your other Keeper device. This dialog will close automatically."
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
