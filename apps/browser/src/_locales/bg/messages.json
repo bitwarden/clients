@@ -29,7 +29,7 @@
     "message": "Вписване със секретен ключ"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Отключване със секретен ключ"
   },
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Не"
+  },
+  "noAuth": {
+    "message": "Всеки с връзката"
+  },
+  "anyOneWithPassword": {
+    "message": "Всеки с парола, зададена от Вас"
   },
   "location": {
     "message": "Местоположение"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Електронна поща"
+  },
+  "emails": {
+    "message": "Е-пощи"
   },
   "phone": {
     "message": "Телефон"
@@ -3371,10 +3380,10 @@
     "message": "Грешка"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Отключването със секретен ключ не беше успешно. Опитайте отново или използвайте друг начин за отключване."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Няма секретни ключове с включено PRF, налични за отключване. Първо се впишете със секретен ключ."
   },
   "decryptionError": {
     "message": "Грешка при дешифриране"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Сваляне на прикачения файл"
+  },
   "downloadBitwarden": {
     "message": "Сваляне на Битуорден"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Преоразмеряване на страничната навигация"
+  },
+  "whoCanView": {
+    "message": "Кой може да преглежда"
+  },
+  "specificPeople": {
+    "message": "Определени хора"
+  },
+  "emailVerificationDesc": {
+    "message": "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
+  },
+  "emailPlaceholder": {
+    "message": "потребител@bitwarden.com , потребител@acme.com"
   }
 }
