@@ -14,6 +14,27 @@
   "noCriticalAppsAtRisk": {
     "message": "No critical applications at risk"
   },
+  "critical":{
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge":{
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -249,6 +270,9 @@
   },
   "application": {
     "message": "Application"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -3781,6 +3805,9 @@
   "editCollection": {
     "message": "Edit collection"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "Collection info"
   },
@@ -5648,6 +5675,26 @@
       }
     }
   },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "durationTimeHours": {
     "message": "$HOURS$ hours",
     "placeholders": {
@@ -6937,17 +6984,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofill": {
-    "message": "Activate auto-fill"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit auto-fill on page load."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Learn more about auto-fill"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Select SSO type"
@@ -12718,6 +12765,15 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
+  "ownerBadgeA11yDescription":{
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders":{
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "You have Premium"
   },
@@ -12726,5 +12782,8 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "perUser": {
+    "message": "per user"
   }
 }

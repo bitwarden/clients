@@ -16,6 +16,6 @@
     routerLinkActive
     ariaCurrentWhenActive="page"
   >
-    <bit-icon [icon]="sideNavService.open() ? openIcon() : closedIcon()"></bit-icon>
+    <bit-svg [content]="sideNavService.open() ? openIcon() : closedIcon()"></bit-svg>
   </a>
 </div>

@@ -26,7 +26,7 @@
       </button>
     }
     <ng-container slot="end">
-      @if ((archiveFlagEnabled$ | async) && cipher.isArchived) {
+      @if ((archiveFlagEnabled$ | async) && cipher.isArchived && !cipher.isDeleted) {
         <button
           type="button"
           [bitAction]="unarchive"
