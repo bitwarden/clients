@@ -57,6 +57,8 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
+                case "premiumSubscriptionCredit":
+                  return "Premium subscription credit";
                 default:
                   return key;
               }
@@ -338,6 +340,95 @@ export const WithAmountDiscount: Story = {
         value: 50.0,
       },
       estimatedTax: 95.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithHiddenBreakdown: Story = {
+  name: "Hidden Cost Breakdown",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          hideBreakdown: true,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+          hideBreakdown: true,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 30.0,
+          hideBreakdown: true,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          translationKey: "additionalServiceAccountsV2",
+          cost: 6.0,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 19.2,
+    } satisfies Cart,
+  },
+};
+
+export const WithCredit: Story = {
+  name: "With Account Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      credit: {
+        translationKey: "premiumSubscriptionCredit",
+        value: 25.0,
+      },
+      estimatedTax: 10.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithDiscountAndCredit: Story = {
+  name: "With Both Discount and Credit",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      discount: {
+        type: DiscountTypes.PercentOff,
+        value: 15,
+      },
+      credit: {
+        translationKey: "premiumSubscriptionCredit",
+        value: 50.0,
+      },
+      estimatedTax: 15.0,
     } satisfies Cart,
   },
 };

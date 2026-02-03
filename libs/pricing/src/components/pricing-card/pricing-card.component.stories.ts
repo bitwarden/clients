@@ -1,15 +1,42 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { TypographyModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SvgModule, TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PricingCardComponent } from "./pricing-card.component";
 
 export default {
   title: "Billing/Pricing Card",
   component: PricingCardComponent,
-  moduleMetadata: {
-    imports: [TypographyModule],
-  },
+  decorators: [
+    moduleMetadata({
+      imports: [PricingCardComponent, SvgModule, TypographyModule, I18nPipe],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "monthly":
+                  return "monthly";
+                case "year":
+                  return "year";
+                case "annually":
+                  return "annually";
+                case "perUser":
+                  return "per user";
+                default:
+                  return key;
+              }
+            },
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     tagline: "Everything you need for secure password management across all your devices",
   },
@@ -83,7 +110,7 @@ export const WithoutFeatures: Story = {
   }),
   args: {
     tagline: "Advanced security and management for your organization",
-    price: { amount: 3, cadence: "monthly" },
+    price: { amount: 3, cadence: "month" },
     button: { text: "Contact Sales", type: "primary" },
   },
 };
@@ -150,7 +177,7 @@ export const LongTagline: Story = {
   args: {
     tagline:
       "Comprehensive password management solution for teams and organizations that need advanced security features, detailed reporting, and enterprise-grade administration tools that scale with your business",
-    price: { amount: 5, cadence: "monthly", showPerUser: true },
+    price: { amount: 5, cadence: "month", showPerUser: true },
     button: { text: "Start Business Trial", type: "primary" },
     features: [
       "Everything in Premium",
@@ -274,7 +301,7 @@ export const WithoutButton: Story = {
   }),
   args: {
     tagline: "This plan will be available soon with exciting new features",
-    price: { amount: 15, cadence: "monthly" },
+    price: { amount: 15, cadence: "month" },
     features: ["Advanced security features", "Enhanced collaboration tools", "Premium support"],
   },
 };

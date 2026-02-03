@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeVariant, ButtonType, SvgModule, TypographyModule } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
@@ -69,6 +70,29 @@ describe("PricingCardComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PricingCardComponent, TestHostComponent, SvgModule, TypographyModule, CommonModule],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "monthly":
+                  return "monthly";
+                case "year":
+                  return "year";
+                case "annually":
+                  return "annually";
+                case "perUser":
+                  return "per user";
+                default:
+                  return key;
+              }
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     // For signal inputs, we need to set required inputs through the host component
@@ -151,7 +175,7 @@ describe("PricingCardComponent", () => {
   it("should display bwi-check icons for features", () => {
     hostFixture.detectChanges();
     const compiled = hostFixture.nativeElement;
-    const icons = compiled.querySelectorAll("i.bwi-check");
+    const icons = compiled.querySelectorAll("bit-icon[name='bwi-check']");
 
     expect(icons.length).toBe(3); // One for each feature
   });

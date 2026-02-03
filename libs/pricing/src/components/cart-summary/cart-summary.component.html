@@ -16,7 +16,7 @@
           {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
         </h2>
         <span bitTypography="h3">&nbsp;</span>
-        <span bitTypography="body1" class="tw-text-main">/ {{ term }}</span>
+        <span bitTypography="body1" class="tw-text-main tw-font-normal">/ {{ term }}</span>
       }
     </div>
     <button
@@ -38,21 +38,36 @@
       <!-- Password Manager Section -->
       <div id="password-manager" class="tw-border-b tw-border-secondary-100 tw-pb-2">
         <div class="tw-flex tw-justify-between tw-mb-1">
-          <h3 bitTypography="h5" class="tw-text-muted">{{ "passwordManager" | i18n }}</h3>
+          <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+            {{ "passwordManager" | i18n }}
+          </h3>
         </div>
 
         <!-- Password Manager Members -->
         <div id="password-manager-members" class="tw-flex tw-justify-between">
           <div class="tw-flex-1">
             @let passwordManagerSeats = cart.passwordManager.seats;
-            <div bitTypography="body1" class="tw-text-muted">
-              {{ passwordManagerSeats.quantity }} {{ passwordManagerSeats.translationKey | i18n }} x
-              {{ passwordManagerSeats.cost | currency: "USD" : "symbol" }}
-              /
-              {{ term }}
+            <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+              {{ passwordManagerSeats.quantity }}
+              {{
+                translateWithParams(
+                  passwordManagerSeats.translationKey,
+                  passwordManagerSeats.translationParams
+                )
+              }}
+              @if (!passwordManagerSeats.hideBreakdown) {
+                x
+                {{ passwordManagerSeats.cost | currency: "USD" : "symbol" }}
+                /
+                {{ term }}
+              }
             </div>
           </div>
-          <div bitTypography="body1" class="tw-text-muted" data-testid="password-manager-total">
+          <div
+            bitTypography="body1"
+            class="tw-text-muted tw-font-normal"
+            data-testid="password-manager-total"
+          >
             {{ passwordManagerSeatsTotal() | currency: "USD" : "symbol" }}
           </div>
         </div>
@@ -62,13 +77,25 @@
         @if (additionalStorage) {
           <div id="additional-storage" class="tw-flex tw-justify-between">
             <div class="tw-flex-1">
-              <div bitTypography="body1" class="tw-text-muted">
-                {{ additionalStorage.quantity }} {{ additionalStorage.translationKey | i18n }} x
-                {{ additionalStorage.cost | currency: "USD" : "symbol" }} /
-                {{ term }}
+              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+                {{ additionalStorage.quantity }}
+                {{
+                  translateWithParams(
+                    additionalStorage.translationKey,
+                    additionalStorage.translationParams
+                  )
+                }}
+                @if (!additionalStorage.hideBreakdown) {
+                  x {{ additionalStorage.cost | currency: "USD" : "symbol" }} /
+                  {{ term }}
+                }
               </div>
             </div>
-            <div bitTypography="body1" class="tw-text-muted" data-testid="additional-storage-total">
+            <div
+              bitTypography="body1"
+              class="tw-text-muted tw-font-normal"
+              data-testid="additional-storage-total"
+            >
               {{ additionalStorageTotal() | currency: "USD" : "symbol" }}
             </div>
           </div>
@@ -80,19 +107,30 @@
       @if (secretsManagerSeats) {
         <div id="secrets-manager" class="tw-border-b tw-border-secondary-100 tw-py-2">
           <div class="tw-flex tw-justify-between">
-            <h3 bitTypography="h5" class="tw-text-muted">{{ "secretsManager" | i18n }}</h3>
+            <div bitTypography="h5" class="tw-text-muted tw-font-semibold">
+              {{ "secretsManager" | i18n }}
+            </div>
           </div>
 
           <!-- Secrets Manager Members -->
           <div id="secrets-manager-members" class="tw-flex tw-justify-between">
-            <div bitTypography="body1" class="tw-text-muted">
-              {{ secretsManagerSeats.quantity }} {{ secretsManagerSeats.translationKey | i18n }} x
-              {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
-              / {{ term }}
+            <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+              {{ secretsManagerSeats.quantity }}
+              {{
+                translateWithParams(
+                  secretsManagerSeats.translationKey,
+                  secretsManagerSeats.translationParams
+                )
+              }}
+              @if (!secretsManagerSeats.hideBreakdown) {
+                x
+                {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
+                / {{ term }}
+              }
             </div>
             <div
               bitTypography="body1"
-              class="tw-text-muted"
+              class="tw-text-muted tw-font-normal"
               data-testid="secrets-manager-seats-total"
             >
               {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
@@ -103,12 +141,20 @@
           @let additionalServiceAccounts = cart.secretsManager?.additionalServiceAccounts;
           @if (additionalServiceAccounts) {
             <div id="additional-service-accounts" class="tw-flex tw-justify-between">
-              <div bitTypography="body1" class="tw-text-muted">
+              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
                 {{ additionalServiceAccounts.quantity }}
-                {{ additionalServiceAccounts.translationKey | i18n }} x
-                {{ additionalServiceAccounts.cost | currency: "USD" : "symbol" }}
-                /
-                {{ term }}
+                {{
+                  translateWithParams(
+                    additionalServiceAccounts.translationKey,
+                    additionalServiceAccounts.translationParams
+                  )
+                }}
+                @if (!additionalServiceAccounts.hideBreakdown) {
+                  x
+                  {{ additionalServiceAccounts.cost | currency: "USD" : "symbol" }}
+                  /
+                  {{ term }}
+                }
               </div>
               <div
                 bitTypography="body1"
@@ -129,9 +175,29 @@
           class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
           data-testid="discount-section"
         >
-          <h3 bitTypography="h5" class="tw-text-success-600">{{ discountLabel() }}</h3>
+          <div bitTypography="body1" class="tw-text-success-600">{{ discountLabel() }}</div>
           <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
             -{{ discountAmount() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+      }
+
+      <!-- Credit -->
+      @if (creditAmount() > 0) {
+        <div
+          id="credit-section"
+          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+          data-testid="credit-section"
+        >
+          <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+            {{ translateWithParams(cart.credit!.translationKey, cart.credit!.translationParams) }}
+          </div>
+          <div
+            bitTypography="body1"
+            class="tw-text-muted tw-font-normal"
+            data-testid="credit-amount"
+          >
+            -{{ creditAmount() | currency: "USD" : "symbol" }}
           </div>
         </div>
       }
@@ -141,7 +207,9 @@
         id="estimated-tax-section"
         class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pt-2 tw-pb-0.5"
       >
-        <h3 bitTypography="h5" class="tw-text-muted">{{ "estimatedTax" | i18n }}</h3>
+        <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+          {{ "estimatedTax" | i18n }}
+        </h3>
         <div bitTypography="body1" class="tw-text-muted" data-testid="estimated-tax">
           {{ estimatedTax() | currency: "USD" : "symbol" }}
         </div>
@@ -149,7 +217,7 @@
 
       <!-- Total -->
       <div id="total-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
-        <h3 bitTypography="h5" class="tw-text-muted">{{ "total" | i18n }}</h3>
+        <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">{{ "total" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted" data-testid="final-total">
           {{ total() | currency: "USD" : "symbol" }} / {{ term | i18n }}
         </div>
