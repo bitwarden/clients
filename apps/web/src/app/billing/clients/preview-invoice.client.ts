@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
 
@@ -13,6 +14,24 @@ class TaxAmountResponse extends BaseResponse implements TaxAmounts {
 
     this.tax = this.getResponseProperty("Tax");
     this.total = this.getResponseProperty("Total");
+  }
+}
+
+export class ProrationPreviewResponse extends BaseResponse {
+  tax: number;
+  total: number;
+  credit: number;
+  newPlanProratedMonths: number;
+  newPlanProratedAmount: number;
+
+  constructor(response: any) {
+    super(response);
+
+    this.tax = this.getResponseProperty("Tax");
+    this.total = this.getResponseProperty("Total");
+    this.credit = this.getResponseProperty("Credit");
+    this.newPlanProratedMonths = this.getResponseProperty("NewPlanProratedMonths");
+    this.newPlanProratedAmount = this.getResponseProperty("NewPlanProratedAmount");
   }
 }
 
@@ -51,7 +70,7 @@ export interface TaxAmounts {
 }
 
 @Injectable()
-export class TaxClient {
+export class PreviewInvoiceClient {
   constructor(private apiService: ApiService) {}
 
   previewTaxForOrganizationSubscriptionPurchase = async (
@@ -60,7 +79,7 @@ export class TaxClient {
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
-      "/billing/tax/organizations/subscriptions/purchase",
+      "/billing/preview-invoice/organizations/subscriptions/purchase",
       {
         purchase,
         billingAddress,
@@ -82,7 +101,7 @@ export class TaxClient {
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
-      `/billing/tax/organizations/${organizationId}/subscription/plan-change`,
+      `/billing/preview-invoice/organizations/${organizationId}/subscription/plan-change`,
       {
         plan,
         billingAddress,
@@ -100,7 +119,7 @@ export class TaxClient {
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
-      `/billing/tax/organizations/${organizationId}/subscription/update`,
+      `/billing/preview-invoice/organizations/${organizationId}/subscription/update`,
       {
         update,
       },
@@ -117,7 +136,7 @@ export class TaxClient {
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
-      `/billing/tax/premium/subscriptions/purchase`,
+      `/billing/preview-invoice/premium/subscriptions/purchase`,
       {
         additionalStorage,
         billingAddress,
@@ -127,5 +146,23 @@ export class TaxClient {
     );
 
     return new TaxAmountResponse(json);
+  };
+
+  previewProrationForPremiumUpgrade = async (
+    planTier: ProductTierType,
+    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+  ): Promise<ProrationPreviewResponse> => {
+    const prorationResponse = await this.apiService.send(
+      "POST",
+      `/billing/preview-invoice/premium/subscriptions/upgrade`,
+      {
+        targetProductTierType: planTier,
+        billingAddress,
+      },
+      true,
+      true,
+    );
+
+    return new ProrationPreviewResponse(prorationResponse);
   };
 }
