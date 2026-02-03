@@ -286,7 +286,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.folderId = uuidAsString(obj.folderId);
     cipherView.name = obj.name;
     cipherView.notes = obj.notes;
-    cipherView.type = obj.type ?? CipherType.Login;
+    cipherView.type = obj.type;
     cipherView.favorite = obj.favorite;
     cipherView.organizationUseTotp = obj.organizationUseTotp;
     cipherView.permissions = obj.permissions
@@ -295,15 +295,12 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
-    // Convert iterables to arrays to ensure .map() works
-    cipherView.attachments = (obj.attachments ?? []).map(
-      (a) => AttachmentView.fromSdkAttachmentView(a)!,
-    );
-    cipherView.fields = (obj.fields ?? []).map((f) => FieldView.fromSdkFieldView(f)!);
-    cipherView.passwordHistory = (obj.passwordHistory ?? []).map(
-      (ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!,
-    );
-    cipherView.collectionIds = (obj.collectionIds ?? []).map((i) => uuidAsString(i));
+    cipherView.attachments =
+      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)!) ?? [];
+    cipherView.passwordHistory =
+      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!) ?? [];
+    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidAsString(i)) ?? [];
     cipherView.revisionDate = new Date(obj.revisionDate);
     cipherView.creationDate = new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
