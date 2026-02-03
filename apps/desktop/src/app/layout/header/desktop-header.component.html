@@ -17,5 +17,7 @@
     <ng-content select="[slot=tabs]" />
   </ng-container>
 
-  <app-account-switcher></app-account-switcher>
+  @if (useNewAccountSwitcher()) {
+    <app-account-switcher-v3></app-account-switcher-v3>
+  }
 </bit-header>
