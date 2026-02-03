@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
+import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
