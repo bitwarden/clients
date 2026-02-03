@@ -682,7 +682,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles updating the list of ciphers when the
    * user scrolls to the bottom of the list.
    */
-  private updateCiphersListOnScroll = (event: MouseEvent) => {
+  private updateCiphersListOnScroll = (event: Event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -730,7 +730,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param event - The scroll event.
    */
-  private handleThrottledOnScrollEvent = (event: MouseEvent) => {
+  private handleThrottledOnScrollEvent = (event: Event) => {
     event.preventDefault();
     event.stopPropagation();
 
