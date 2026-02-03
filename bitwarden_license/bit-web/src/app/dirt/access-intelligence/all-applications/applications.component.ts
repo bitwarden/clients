@@ -7,7 +7,7 @@ import {
   signal,
   computed,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, debounceTime, EMPTY, from, map, startWith, switchMap, take } from "rxjs";
@@ -117,9 +117,13 @@ export class ApplicationsComponent implements OnInit {
       .filter((row) => this.selectedUrls().has(row.applicationName))
       .every((row) => row.isMarkedAsCritical);
   });
-  readonly enableRequestPasswordChange = computed(
-    () => this.applicationSummary().totalAtRiskMemberCount > 0,
+
+  protected readonly unassignedCipherIds = toSignal(
+    this.securityTasksService.unassignedCriticalCipherIds$,
+    { initialValue: [] },
   );
+
+  readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
 
   constructor(
     protected i18nService: I18nService,
