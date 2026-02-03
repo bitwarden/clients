@@ -127,7 +127,7 @@ describe("PremiumOrgUpgradeComponent", () => {
       expect(sut["familiesCardDetails"].title).toBe("planNameFamilies");
       expect(sut["familiesCardDetails"].tagline).toBe("Family plan for up to 6 users");
       expect(sut["familiesCardDetails"].price.amount).toBe(40 / 12);
-      expect(sut["familiesCardDetails"].price.cadence).toBe("monthly");
+      expect(sut["familiesCardDetails"].price.cadence).toBe("month");
       expect(sut["familiesCardDetails"].button.type).toBe("primary");
       expect(sut["familiesCardDetails"].button.text).toBe("upgradeToFamilies");
       expect(sut["familiesCardDetails"].features).toEqual(["Feature A", "Feature B", "Feature C"]);
@@ -137,7 +137,7 @@ describe("PremiumOrgUpgradeComponent", () => {
       expect(sut["teamsCardDetails"].title).toBe("planNameTeams");
       expect(sut["teamsCardDetails"].tagline).toBe("Teams plan for growing businesses");
       expect(sut["teamsCardDetails"].price.amount).toBe(48 / 12);
-      expect(sut["teamsCardDetails"].price.cadence).toBe("monthly");
+      expect(sut["teamsCardDetails"].price.cadence).toBe("month");
       expect(sut["teamsCardDetails"].button.type).toBe("secondary");
       expect(sut["teamsCardDetails"].button.text).toBe("upgradeToTeams");
       expect(sut["teamsCardDetails"].features).toEqual([
@@ -151,7 +151,7 @@ describe("PremiumOrgUpgradeComponent", () => {
       expect(sut["enterpriseCardDetails"].title).toBe("planNameEnterprise");
       expect(sut["enterpriseCardDetails"].tagline).toBe("Enterprise plan for large organizations");
       expect(sut["enterpriseCardDetails"].price.amount).toBe(72 / 12);
-      expect(sut["enterpriseCardDetails"].price.cadence).toBe("monthly");
+      expect(sut["enterpriseCardDetails"].price.cadence).toBe("month");
       expect(sut["enterpriseCardDetails"].button.type).toBe("secondary");
       expect(sut["enterpriseCardDetails"].button.text).toBe("upgradeToEnterprise");
       expect(sut["enterpriseCardDetails"].features).toEqual([

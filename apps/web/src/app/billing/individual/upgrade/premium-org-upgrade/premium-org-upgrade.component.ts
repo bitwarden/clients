@@ -20,7 +20,6 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
-  SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -161,7 +160,7 @@ export class PremiumOrgUpgradeComponent implements OnInit {
         priceAmount && priceAmount > 0
           ? {
               amount: priceAmount / 12,
-              cadence: SubscriptionCadenceIds.Monthly,
+              cadence: "month",
               showPerUser: shouldShowPerUser,
             }
           : undefined,
