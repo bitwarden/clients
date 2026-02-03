@@ -21,10 +21,10 @@
             name="verification"
           ></app-user-verification>
         </div>
+        <div id="confirmIdentityHelp">
+          <p>{{ "confirmIdentity" | i18n }}</p>
+        </div>
       }
-      <div id="confirmIdentityHelp">
-        <p>{{ "confirmIdentity" | i18n }}</p>
-      </div>
     </div>
     <ng-container bitDialogFooter>
       <button bitButton bitFormButton type="submit" buttonType="danger" [disabled]="!secret">

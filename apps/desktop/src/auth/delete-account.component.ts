@@ -72,10 +72,18 @@ export class DeleteAccountComponent {
   }
 
   submit = async () => {
+    if (!this.migrationMilestone4()) {
+      const verification = this.deleteForm.get("verification").value;
+      await this.accountApiService.deleteAccount(verification);
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("accountDeleted"),
+        message: this.i18nService.t("accountDeletedDesc"),
+      });
+      return;
+    }
     try {
-      if (this.migrationMilestone4()) {
-        this.invalidSecret.set(false);
-      }
+      this.invalidSecret.set(false);
       const verification = this.deleteForm.get("verification").value;
       await this.accountApiService.deleteAccount(verification);
       this.toastService.showToast({
@@ -84,14 +92,12 @@ export class DeleteAccountComponent {
         message: this.i18nService.t("accountDeletedDesc"),
       });
     } catch {
-      if (this.migrationMilestone4()) {
-        this.invalidSecret.set(true);
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("userVerificationFailed"),
-        });
-      }
+      this.invalidSecret.set(true);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("userVerificationFailed"),
+      });
     }
   };
 }
