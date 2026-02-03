@@ -297,6 +297,8 @@ export class NewApplicationsDialogComponent {
               variant: "error",
               title: this.i18nService.t("error"),
             });
+
+            this.saving.set(false);
             return EMPTY;
           }
 
@@ -310,6 +312,8 @@ export class NewApplicationsDialogComponent {
             title: this.i18nService.t("errorSavingReviewStatus"),
             message: this.i18nService.t("pleaseTryAgain"),
           });
+
+          this.saving.set(false);
           return EMPTY;
         }),
       )
