@@ -1,15 +1,32 @@
-<bit-dialog>
-  <span bitDialogTitle>
-    {{ "keeperDeviceApprovalRequired" | i18n }}
-  </span>
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "keeperDeviceApprovalRequired" | i18n }}
+    </span>
 
-  <div bitDialogContent>
-    <p>{{ descriptionI18nKey | i18n }}</p>
-  </div>
+    <div bitDialogContent>
+      <p>{{ descriptionI18nKey | i18n }}</p>
 
-  <ng-container bitDialogFooter>
-    <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
-      <span>{{ "cancel" | i18n }}</span>
-    </button>
-  </ng-container>
-</bit-dialog>
+      <bit-form-field *ngIf="variant === 'email'" class="tw-mt-4">
+        <bit-label>{{ "keeperVerificationCode" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="code" />
+        <bit-hint>{{ "keeperVerificationCodeHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    </div>
+
+    <ng-container bitDialogFooter>
+      <button
+        *ngIf="variant === 'email'"
+        bitButton
+        buttonType="primary"
+        type="submit"
+        bitFormButton
+      >
+        <span>{{ "submit" | i18n }}</span>
+      </button>
+      <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
+        <span>{{ "cancel" | i18n }}</span>
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>
