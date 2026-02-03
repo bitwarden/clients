@@ -1,4 +1,5 @@
 /**
+ * ONLY FOR SELF-HOSTED SETUPS
  * Redirects the user to the SSO cookie vendor endpoint when the window finishes loading.
  *
  * This script listens for the window's load event and automatically redirects the browser
@@ -6,6 +7,6 @@
  * of an authentication flow where cookies need to be set or validated through a vendor endpoint.
  */
 window.addEventListener("DOMContentLoaded", () => {
-  const newUrl = `${window.location.origin}/sso-cookie-vendor`;
-  window.location.href = newUrl;
+  const apiURL = `${window.location.origin}/api/sso-cookie-vendor`;
+  window.location.href = apiURL;
 });
