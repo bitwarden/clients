@@ -45,7 +45,7 @@ async function run(context) {
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
         id = is_mas_dev
-          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
+          ? "A579B6AE496B360642D05B8AB1B650C1B143B770"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
         id = "Developer ID Application: 8bit Solutions LLC";

@@ -3,8 +3,6 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
-import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
@@ -59,7 +57,7 @@ export class AccountBillingClient {
 
   upgradePremiumToOrganization = async (
     organizationName: string,
-    organizationKey: EncString,
+    organizationKey: string,
     planTier: ProductTierType,
     cadence: SubscriptionCadence,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
@@ -68,7 +66,13 @@ export class AccountBillingClient {
     await this.apiService.send(
       "POST",
       path,
-      { organizationName, key: organizationKey, tier: planTier, cadence, billingAddress },
+      {
+        organizationName,
+        key: organizationKey,
+        targetProductTierType: planTier,
+        cadence,
+        billingAddress,
+      },
       true,
       false,
     );

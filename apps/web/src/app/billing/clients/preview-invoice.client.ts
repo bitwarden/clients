@@ -21,6 +21,8 @@ export class ProrationPreviewResponse extends BaseResponse {
   tax: number;
   total: number;
   credit: number;
+  newPlanProratedMonths: number;
+  newPlanProratedAmount: number;
 
   constructor(response: any) {
     super(response);
@@ -28,6 +30,8 @@ export class ProrationPreviewResponse extends BaseResponse {
     this.tax = this.getResponseProperty("Tax");
     this.total = this.getResponseProperty("Total");
     this.credit = this.getResponseProperty("Credit");
+    this.newPlanProratedMonths = this.getResponseProperty("NewPlanProratedMonths");
+    this.newPlanProratedAmount = this.getResponseProperty("NewPlanProratedAmount");
   }
 }
 
