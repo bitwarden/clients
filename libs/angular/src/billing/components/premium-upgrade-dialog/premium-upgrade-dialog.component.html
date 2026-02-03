@@ -13,7 +13,6 @@
         buttonType="main"
         size="default"
         [label]="'close' | i18n"
-        [showTooltipOnFocus]="false"
         (click)="close()"
       ></button>
     </header>
@@ -51,6 +50,7 @@
         <!-- Button space (always reserved) -->
         <div class="tw-my-5 tw-h-12">
           <button
+            cdkFocusInitial
             bitButton
             [buttonType]="cardDetails.button.type"
             [block]="true"
