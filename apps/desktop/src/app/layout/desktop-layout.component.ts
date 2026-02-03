@@ -5,6 +5,7 @@ import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
@@ -22,6 +23,7 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     LayoutComponent,
     NavigationModule,
     DesktopSideNavComponent,
+    VaultFilterComponent,
     SendFiltersNavComponent,
   ],
   templateUrl: "./desktop-layout.component.html",

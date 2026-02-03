@@ -7,6 +7,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { Response } from "../../../models/response";
@@ -53,12 +54,28 @@ export class SendEditCommand {
     req.id = normalizedOptions.itemId || req.id;
     if (normalizedOptions.emails) {
       req.emails = normalizedOptions.emails;
-      req.password = undefined;
-    } else if (normalizedOptions.password) {
-      req.emails = undefined;
+    }
+    if (normalizedOptions.password) {
       req.password = normalizedOptions.password;
-    } else if (req.password && (typeof req.password !== "string" || req.password === "")) {
+    }
+    if (req.password && (typeof req.password !== "string" || req.password === "")) {
       req.password = undefined;
+    }
+
+    // Infer authType based on emails/password (mutually exclusive)
+    const hasEmails = req.emails != null && req.emails.length > 0;
+    const hasPassword = req.password != null && req.password.trim() !== "";
+
+    if (hasEmails && hasPassword) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
+
+    if (hasEmails) {
+      req.authType = AuthType.Email;
+    } else if (hasPassword) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
     }
 
     if (!req.id) {
@@ -90,10 +107,6 @@ export class SendEditCommand {
 
     try {
       const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-
       await this.sendApiService.save([encSend, encFileData]);
     } catch (e) {
       return Response.error(e);

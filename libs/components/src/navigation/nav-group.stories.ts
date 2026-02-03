@@ -1,4 +1,4 @@
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
@@ -14,10 +14,9 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class DummyContentComponent {}
 

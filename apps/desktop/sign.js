@@ -3,7 +3,7 @@ const child_process = require("child_process");
 
 exports.default = async function (configuration) {
   const ext = configuration.path.split(".").at(-1);
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ext == "exe") {
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe", "appx"].includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     child_process.execFileSync(
       "azuresigntool",

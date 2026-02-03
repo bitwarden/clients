@@ -13,7 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { ButtonModule, IconModule, ToastService } from "@bitwarden/components";
+import { ButtonModule, SvgModule, ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -34,7 +34,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopupPageComponent,
     RouterModule,
     PopupFooterComponent,
-    IconModule,
+    SvgModule,
   ],
 })
 export class SendCreatedComponent {
