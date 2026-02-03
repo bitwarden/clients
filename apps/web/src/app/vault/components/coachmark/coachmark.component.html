@@ -1,0 +1,66 @@
+<section
+  cdkTrapFocus
+  cdkTrapFocusAutoCapture
+  class="tw-relative"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="title()"
+>
+  <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg">
+    <div
+      class="tw-relative tw-z-20 tw-w-80 tw-break-words tw-bg-primary-100 tw-pb-4 tw-pt-2 tw-text-main"
+    >
+      <!-- Header -->
+      <div class="tw-me-2 tw-flex tw-items-start tw-justify-between tw-gap-4 tw-ps-4">
+        <h2 bitTypography="h5" class="tw-mb-0 tw-mt-1 tw-font-medium">
+          {{ title() }}
+        </h2>
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          [label]="'close' | i18n"
+          (click)="closed.emit()"
+          size="small"
+        ></button>
+      </div>
+
+      <!-- Content -->
+      <div bitTypography="body2" class="tw-px-4">
+        <p class="tw-mb-3">{{ description() }}</p>
+
+        @if (learnMoreUrl()) {
+          <a
+            bitLink
+            linkType="primary"
+            [href]="learnMoreUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="tw-mb-3 tw-flex tw-items-center tw-gap-1"
+          >
+            {{ "learnMore" | i18n }}
+            <i class="bwi bwi-external-link tw-text-sm" aria-hidden="true"></i>
+          </a>
+        }
+
+        <!-- Footer with navigation -->
+        <div class="tw-flex tw-items-center tw-justify-between tw-pt-2">
+          <span class="tw-text-muted">
+            {{ currentStep() }} {{ "of" | i18n }} {{ totalSteps() }}
+          </span>
+
+          <div class="tw-flex tw-gap-2">
+            @if (currentStep() > 1) {
+              <button bitButton buttonType="secondary" type="button" (click)="back.emit()">
+                {{ "back" | i18n }}
+              </button>
+            }
+            <button bitButton buttonType="primary" type="button" (click)="next.emit()">
+              {{ currentStep() === totalSteps() ? ("close" | i18n) : ("next" | i18n) }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bit-popover-arrow"></div>
+</section>
