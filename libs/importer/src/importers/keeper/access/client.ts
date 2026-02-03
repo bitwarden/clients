@@ -72,7 +72,7 @@ export class Client {
   private readonly locale: string = "en_US";
 
   constructor(options: ClientOptions = {}) {
-    this.server = options.server || "keepersecurity.com";
+    this.server = options.server || "keepersecurity.eu";
     this.clientVersion = options.clientVersion || "ts17.0.0";
     this.deviceName = options.deviceName || "TypeScript Keeper SDK";
     this.ui = options.ui || ({} as Ui);
@@ -380,12 +380,16 @@ export class Client {
       "Device approval",
     );
 
+    console.log(`[Keeper] handleDeviceApproval: method=${method}`);
     switch (method) {
       case DeviceApprovalChannel.Email:
+        console.log(`[Keeper] handleDeviceApproval: sending email verification`);
         await this.requestDeviceVerification(username, deviceToken, messageSessionUid);
         break;
       case DeviceApprovalChannel.KeeperPush:
+        console.log(`[Keeper] handleDeviceApproval: sending Keeper push`);
         await this.send2FAPush(response.encryptedLoginToken, TwoFactorPushType.TWO_FA_PUSH_KEEPER);
+        console.log(`[Keeper] handleDeviceApproval: Keeper push sent`);
         break;
       default:
         throw new Error("Unsupported device approval method selected");
@@ -395,8 +399,14 @@ export class Client {
 
     switch (method) {
       case DeviceApprovalChannel.KeeperPush:
-        // KeeperPush: just wait for push notification approval
-        approvalResult = await socket.waitForMessage();
+        // KeeperPush: show dialog and wait for push notification approval
+        approvalResult = this.throwIfCancel(
+          await Promise.race([
+            this.ui.provideApprovalCode(method, "Approve the request on your Keeper device"),
+            socket.waitForMessage(),
+          ]),
+          "Device approval",
+        );
         break;
       case DeviceApprovalChannel.Email:
         // Email: race between code entry and push notification
@@ -474,12 +484,16 @@ export class Client {
     encryptedLoginToken: Uint8Array,
     pushType?: TwoFactorPushType,
   ): Promise<void> {
+    console.log(
+      `[Keeper] send2FAPush: pushType=${pushType}, tokenLength=${encryptedLoginToken.length}`,
+    );
     const request = TwoFactorSendPushRequest.create({
       encryptedLoginToken,
       pushType: pushType || TwoFactorPushType.TWO_FA_PUSH_NONE,
     });
 
     await this.apiRequest("authentication/2fa_send_push", request, TwoFactorSendPushRequest);
+    console.log(`[Keeper] send2FAPush: completed successfully`);
   }
 
   private twoFactorMethodToUi = new Map<TwoFactorChannelType, TwoFactorMethod>([
