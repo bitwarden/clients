@@ -65,7 +65,7 @@ import { BrowserViewPasswordHistoryService } from "../../../services/browser-vie
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
-import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit-v2.component";
+import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit.component";
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
