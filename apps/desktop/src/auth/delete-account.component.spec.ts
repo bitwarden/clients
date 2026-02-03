@@ -1,9 +1,11 @@
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
@@ -12,13 +14,14 @@ import { DeleteAccountComponent } from "./delete-account.component";
 
 describe("DeleteAccountComponent", () => {
   let component: DeleteAccountComponent;
+  let fixture: ComponentFixture<DeleteAccountComponent>;
   let i18nService: MockProxy<I18nService>;
   let formBuilder: FormBuilder;
   let accountApiService: MockProxy<AccountApiService>;
   let toastService: MockProxy<ToastService>;
   let configService: MockProxy<ConfigService>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
 
     i18nService = mock<I18nService>();
@@ -29,37 +32,17 @@ describe("DeleteAccountComponent", () => {
 
     i18nService.t.mockImplementation((key: any) => key);
 
-    component = new DeleteAccountComponent(
-      i18nService,
-      formBuilder,
-      accountApiService,
-      toastService,
-      configService,
-    );
-  });
-
-  describe("ngOnInit", () => {
-    it("should set migrationMilestone4 to true when flag is enabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      await component.ngOnInit();
-
-      expect(component["migrationMilestone4"]).toBe(true);
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.DesktopUiMigrationMilestone4,
-      );
-    });
-
-    it("should set migrationMilestone4 to false when flag is disabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      await component.ngOnInit();
-
-      expect(component["migrationMilestone4"]).toBe(false);
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.DesktopUiMigrationMilestone4,
-      );
-    });
+    await TestBed.configureTestingModule({
+      imports: [DeleteAccountComponent],
+      providers: [
+        provideNoopAnimations(),
+        { provide: I18nService, useValue: i18nService },
+        { provide: FormBuilder, useValue: formBuilder },
+        { provide: AccountApiService, useValue: accountApiService },
+        { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
+      ],
+    }).compileComponents();
   });
 
   describe("submit", () => {
@@ -68,15 +51,14 @@ describe("DeleteAccountComponent", () => {
       secret: "masterPassword123",
     };
 
-    beforeEach(() => {
-      component.deleteForm.patchValue({
-        verification: mockVerification,
-      });
-    });
-
     describe("when feature flag is enabled", () => {
       beforeEach(() => {
-        component["migrationMilestone4"] = true;
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+        fixture = TestBed.createComponent(DeleteAccountComponent);
+        component = fixture.componentInstance;
+        component.deleteForm.patchValue({
+          verification: mockVerification,
+        });
       });
 
       it("should delete account and show success toast on successful deletion", async () => {
@@ -90,7 +72,7 @@ describe("DeleteAccountComponent", () => {
           title: "accountDeleted",
           message: "accountDeletedDesc",
         });
-        expect(component["invalidSecret"]).toBe(false);
+        expect(component["invalidSecret"]()).toBe(false);
       });
 
       it("should set invalidSecret to true and show error toast when deletion fails", async () => {
@@ -104,22 +86,27 @@ describe("DeleteAccountComponent", () => {
           title: "errorOccurred",
           message: "userVerificationFailed",
         });
-        expect(component["invalidSecret"]).toBe(true);
+        expect(component["invalidSecret"]()).toBe(true);
       });
 
       it("should reset invalidSecret to false before attempting deletion", async () => {
-        component["invalidSecret"] = true;
+        component["invalidSecret"].set(true);
         accountApiService.deleteAccount.mockResolvedValue(undefined);
 
         await component.submit();
 
-        expect(component["invalidSecret"]).toBe(false);
+        expect(component["invalidSecret"]()).toBe(false);
       });
     });
 
     describe("when feature flag is disabled", () => {
       beforeEach(() => {
-        component["migrationMilestone4"] = false;
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+        fixture = TestBed.createComponent(DeleteAccountComponent);
+        component = fixture.componentInstance;
+        component.deleteForm.patchValue({
+          verification: mockVerification,
+        });
       });
 
       it("should delete account and show success toast on successful deletion", async () => {
@@ -136,14 +123,14 @@ describe("DeleteAccountComponent", () => {
       });
 
       it("should not set invalidSecret when deletion fails", async () => {
-        const initialInvalidSecret = component["invalidSecret"];
+        const initialInvalidSecret = component["invalidSecret"]();
         accountApiService.deleteAccount.mockRejectedValue(new Error("Invalid credentials"));
 
-        await component.submit();
+        await expect(component.submit()).rejects.toThrow("Invalid credentials");
 
         expect(accountApiService.deleteAccount).toHaveBeenCalledWith(mockVerification);
         expect(toastService.showToast).not.toHaveBeenCalled();
-        expect(component["invalidSecret"]).toBe(initialInvalidSecret);
+        expect(component["invalidSecret"]()).toBe(initialInvalidSecret);
       });
     });
   });
