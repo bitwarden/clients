@@ -104,7 +104,7 @@ describe("VaultItemDialogComponent", () => {
             getFeatureFlag$: () => of(false),
           },
         },
-        { provide: Router, useValue: {} },
+        { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: ActivatedRoute, useValue: {} },
         {
           provide: BillingAccountProfileStateService,
@@ -303,6 +303,25 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("archive badge", () => {
+    it('should show "archived" badge when the item is archived and not an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeTruthy();
+      expect(archivedBadge.nativeElement.textContent.trim()).toBe("archived");
+    });
+
+    it('should not show "archived" badge when the item is archived and is an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view", isAdminConsoleAction: true });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeFalsy();
+    });
+  });
+
   describe("submitButtonText$", () => {
     it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
       jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
@@ -334,6 +353,78 @@ describe("VaultItemDialogComponent", () => {
       component["submitButtonText$"].subscribe((text) => {
         expect(text).toBe("save");
         done();
+      });
+    });
+  });
+
+  describe("changeMode", () => {
+    beforeEach(() => {
+      component.setTestCipher({ type: CipherType.Login, id: "cipher-id" });
+    });
+
+    it("refocuses the dialog header", async () => {
+      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "focusOnHeader");
+
+      await component["changeMode"]("view");
+
+      expect(focusOnHeaderSpy).toHaveBeenCalled();
+    });
+
+    describe("to view", () => {
+      beforeEach(() => {
+        component.setTestParams({ mode: "form" });
+        fixture.detectChanges();
+      });
+
+      it("sets mode to view", async () => {
+        await component["changeMode"]("view");
+
+        expect(component["params"].mode).toBe("view");
+      });
+
+      it("updates the url", async () => {
+        const router = TestBed.inject(Router);
+
+        await component["changeMode"]("view");
+
+        expect(router.navigate).toHaveBeenCalledWith([], {
+          queryParams: { action: "view", itemId: "cipher-id" },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
+      });
+    });
+
+    describe("to form", () => {
+      const waitForFormReady = async () => {
+        const changeModePromise = component["changeMode"]("form");
+
+        expect(component["loadForm"]).toBe(true);
+
+        component["onFormReady"]();
+        await changeModePromise;
+      };
+
+      beforeEach(() => {
+        component.setTestParams({ mode: "view" });
+        fixture.detectChanges();
+      });
+
+      it("waits for form to be ready when switching to form mode", async () => {
+        await waitForFormReady();
+
+        expect(component["params"].mode).toBe("form");
+      });
+
+      it("updates the url", async () => {
+        const router = TestBed.inject(Router);
+        await waitForFormReady();
+
+        expect(router.navigate).toHaveBeenCalledWith([], {
+          queryParams: { action: "edit", itemId: "cipher-id" },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
       });
     });
   });

@@ -426,8 +426,7 @@ export class VaultPopupAutofillService {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
-      await this.cipherService.updateWithServer(encCipher);
+      await this.cipherService.updateWithServer(cipher, activeUserId);
       this.messagingService.send("editedCipher");
       return true;
     } catch {
