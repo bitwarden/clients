@@ -409,7 +409,7 @@ export class SetInitialPasswordComponent implements OnInit {
         kdfConfig: passwordInputResult.kdfConfig,
         newPasswordHint: passwordInputResult.newPasswordHint,
         orgSsoIdentifier: this.orgSsoIdentifier,
-        orgId: this.orgId,
+        orgId: this.orgId as OrganizationId,
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
       };
 

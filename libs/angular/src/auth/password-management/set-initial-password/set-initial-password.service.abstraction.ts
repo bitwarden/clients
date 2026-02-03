@@ -61,7 +61,7 @@ export interface SetInitialPasswordTdeUserWithPermissionCredentials {
   kdfConfig: KdfConfig;
   newPasswordHint: string;
   orgSsoIdentifier: string;
-  orgId: string;
+  orgId: OrganizationId;
   resetPasswordAutoEnroll: boolean;
 }
 

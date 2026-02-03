@@ -368,7 +368,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
-    if (userKey == null) {
+    if (!userKey) {
       throw new Error("userKey not found.");
     }
 
