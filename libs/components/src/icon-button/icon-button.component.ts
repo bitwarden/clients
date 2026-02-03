@@ -112,7 +112,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   },
   hostDirectives: [
     AriaDisableDirective,
-    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+    { directive: TooltipDirective, inputs: ["tooltipPosition", "showTooltipOnFocus"] },
   ],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
