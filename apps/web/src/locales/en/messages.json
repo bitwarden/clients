@@ -12742,6 +12742,15 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
+  "ownerBadgeA11yDescription":{
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders":{
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "You have Premium"
   },
