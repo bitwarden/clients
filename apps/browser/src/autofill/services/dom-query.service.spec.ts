@@ -47,7 +47,7 @@ describe("DomQueryService", () => {
 
     expect(globalThis.addEventListener).toHaveBeenCalledWith(
       "load",
-      domQueryService["checkPageContainsShadowDom"],
+      domQueryService["updatePageContainsShadowDom"],
     );
   });
 

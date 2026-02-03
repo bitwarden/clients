@@ -135,10 +135,10 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   private async init() {
     if (globalThis.document.readyState === "complete") {
-      this.checkPageContainsShadowDom();
+      this.updatePageContainsShadowDom();
       return;
     }
-    globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
+    globalThis.addEventListener(EVENTS.LOAD, this.updatePageContainsShadowDom);
   }
 
   /**
