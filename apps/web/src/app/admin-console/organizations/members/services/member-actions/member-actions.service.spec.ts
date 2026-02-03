@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -17,6 +17,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
@@ -31,6 +32,7 @@ describe("MemberActionsService", () => {
   let service: MemberActionsService;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationUserService: MockProxy<OrganizationUserService>;
+  let configService: MockProxy<ConfigService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
 
   const organizationId = newGuid() as OrganizationId;
@@ -42,6 +44,7 @@ describe("MemberActionsService", () => {
   beforeEach(() => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationUserService = mock<OrganizationUserService>();
+    configService = mock<ConfigService>();
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
     mockOrganization = {
@@ -65,6 +68,7 @@ describe("MemberActionsService", () => {
         MemberActionsService,
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: OrganizationUserService, useValue: organizationUserService },
+        { provide: ConfigService, useValue: configService },
         {
           provide: OrganizationMetadataServiceAbstraction,
           useValue: organizationMetadataService,
@@ -174,25 +178,64 @@ describe("MemberActionsService", () => {
   });
 
   describe("restoreUser", () => {
-    it("should successfully restore a user", async () => {
-      organizationUserApiService.restoreOrganizationUser.mockResolvedValue(undefined);
+    describe("when feature flag is enabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+      });
 
-      const result = await service.restoreUser(mockOrganization, userIdToManage);
+      it("should call organizationUserService.restoreUser", async () => {
+        organizationUserService.restoreUser.mockReturnValue(of(undefined));
 
-      expect(result).toEqual({ success: true });
-      expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
-        organizationId,
-        userIdToManage,
-      );
+        const result = await service.restoreUser(mockOrganization, userIdToManage);
+
+        expect(result).toEqual({ success: true });
+        expect(organizationUserService.restoreUser).toHaveBeenCalledWith(
+          mockOrganization,
+          userIdToManage,
+        );
+        expect(organizationUserApiService.restoreOrganizationUser).not.toHaveBeenCalled();
+      });
+
+      it("should handle errors from organizationUserService.restoreUser", async () => {
+        const errorMessage = "Restore failed";
+        organizationUserService.restoreUser.mockReturnValue(
+          throwError(() => new Error(errorMessage)),
+        );
+
+        const result = await service.restoreUser(mockOrganization, userIdToManage);
+
+        expect(result).toEqual({ success: false, error: errorMessage });
+      });
     });
 
-    it("should handle restore errors", async () => {
-      const errorMessage = "Restore failed";
-      organizationUserApiService.restoreOrganizationUser.mockRejectedValue(new Error(errorMessage));
+    describe("when feature flag is disabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+      });
 
-      const result = await service.restoreUser(mockOrganization, userIdToManage);
+      it("should call organizationUserApiService.restoreOrganizationUser", async () => {
+        organizationUserApiService.restoreOrganizationUser.mockResolvedValue(undefined);
 
-      expect(result).toEqual({ success: false, error: errorMessage });
+        const result = await service.restoreUser(mockOrganization, userIdToManage);
+
+        expect(result).toEqual({ success: true });
+        expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
+          organizationId,
+          userIdToManage,
+        );
+        expect(organizationUserService.restoreUser).not.toHaveBeenCalled();
+      });
+
+      it("should handle errors", async () => {
+        const errorMessage = "Restore failed";
+        organizationUserApiService.restoreOrganizationUser.mockRejectedValue(
+          new Error(errorMessage),
+        );
+
+        const result = await service.restoreUser(mockOrganization, userIdToManage);
+
+        expect(result).toEqual({ success: false, error: errorMessage });
+      });
     });
   });
 

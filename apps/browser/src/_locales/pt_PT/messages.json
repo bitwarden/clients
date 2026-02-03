@@ -990,6 +990,12 @@
   "no": {
     "message": "Não"
   },
+  "noAuth": {
+    "message": "Qualquer pessoa com o link"
+  },
+  "anyOneWithPassword": {
+    "message": "Qualquer pessoa com uma palavra-passe definida por si"
+  },
   "location": {
     "message": "Localização"
   },
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "E-mail"
+  },
+  "emails": {
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefone"
@@ -4067,7 +4076,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor introduzido deve ser, no mínimo, $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -5000,6 +5009,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Transferir anexo"
   },
   "downloadBitwarden": {
     "message": "Descarregar o Bitwarden"
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
+  },
+  "whoCanView": {
+    "message": "Quem pode ver"
+  },
+  "specificPeople": {
+    "message": "Pessoas específicas"
+  },
+  "emailVerificationDesc": {
+    "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Introduza vários e-mails, separados por vírgula."
+  },
+  "emailPlaceholder": {
+    "message": "utilizador@bitwarden.com , utilizador@acme.com"
   }
 }
