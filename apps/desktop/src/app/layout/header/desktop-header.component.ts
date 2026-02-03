@@ -8,18 +8,18 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
-import { AccountSwitcherV3Component } from "../account-switcher/account-switcher-v3.component";
+import { AccountSwitcherV2Component } from "../account-switcher/account-switcher-v2.component";
 
 @Component({
   selector: "app-header",
   templateUrl: "./desktop-header.component.html",
-  imports: [BannerModule, HeaderComponent, AccountSwitcherV3Component],
+  imports: [BannerModule, HeaderComponent, AccountSwitcherV2Component],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopHeaderComponent {
   private route = inject(ActivatedRoute);
   private i18nService = inject(I18nService);
-  private configService: ConfigService = inject(ConfigService);
+  private configService = inject(ConfigService);
 
   protected readonly useNewAccountSwitcher = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone4),

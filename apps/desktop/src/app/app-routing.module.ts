@@ -56,7 +56,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
-import { AccountSwitcherV3Component } from "./layout/account-switcher/account-switcher-v3.component";
+import { AccountSwitcherV2Component } from "./layout/account-switcher/account-switcher-v2.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendV2Component } from "./tools/send-v2/send-v2.component";
@@ -163,7 +163,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },
@@ -182,7 +182,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },
@@ -207,7 +207,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },
@@ -223,7 +223,7 @@ const routes: Routes = [
           { path: "", component: LoginDecryptionOptionsComponent },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },
@@ -249,7 +249,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },
@@ -275,7 +275,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            component: AccountSwitcherV3Component,
+            component: AccountSwitcherV2Component,
             outlet: "header-actions",
             canActivate: [canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4)],
           },

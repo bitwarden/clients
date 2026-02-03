@@ -36,8 +36,8 @@ type InactiveAccount = ActiveAccount & {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-account-switcher-v3",
-  templateUrl: "account-switcher-v3.component.html",
+  selector: "app-account-switcher-v2",
+  templateUrl: "account-switcher-v2.component.html",
   imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule],
   animations: [
     trigger("transformPanel", [
@@ -60,7 +60,7 @@ type InactiveAccount = ActiveAccount & {
     ]),
   ],
 })
-export class AccountSwitcherV3Component implements OnInit {
+export class AccountSwitcherV2Component implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;
   inactiveAccounts$: Observable<{ [userId: string]: InactiveAccount }>;
   authStatus = AuthenticationStatus;

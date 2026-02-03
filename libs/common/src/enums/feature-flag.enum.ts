@@ -177,6 +177,7 @@ export const DefaultFeatureFlagValue = {
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
