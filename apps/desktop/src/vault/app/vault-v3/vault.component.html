@@ -59,7 +59,7 @@
       </div>
     </div>
   }
-  @if (action !== "add" && action !== "edit" && action !== "view" && action !== "clone") {
+  @if (!["add", "edit", "view", "clone"].includes(action)) {
     <div id="logo" class="logo">
       <div class="content">
         <div class="inner-content">
