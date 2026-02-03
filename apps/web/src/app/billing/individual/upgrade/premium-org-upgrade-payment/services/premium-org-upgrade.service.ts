@@ -83,6 +83,10 @@ export class PremiumOrgUpgradeService {
     const tier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(planDetails.tier);
     const [encryptedKey] = await this.keyService.makeOrgKey<OrgKey>(account.id);
 
+    if (!encryptedKey.encryptedString) {
+      throw new Error("Failed to generate encrypted organization key");
+    }
+
     await this.accountBillingClient.upgradePremiumToOrganization(
       organizationName,
       encryptedKey.encryptedString,

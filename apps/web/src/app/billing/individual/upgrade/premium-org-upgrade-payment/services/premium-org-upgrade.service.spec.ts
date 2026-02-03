@@ -150,6 +150,18 @@ describe("PremiumOrgUpgradeService", () => {
       ).rejects.toThrow("Key generation failed");
     });
 
+    it("should throw an error if encrypted string is undefined", async () => {
+      keyService.makeOrgKey.mockResolvedValue([{ encryptedString: undefined }, "decrypted-key"]);
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to generate encrypted organization key");
+    });
+
     it("should propagate error if upgrade API call fails", async () => {
       accountBillingClient.upgradePremiumToOrganization.mockRejectedValue(
         new Error("API call failed"),
