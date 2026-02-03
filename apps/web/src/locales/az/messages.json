@@ -1,33 +1,51 @@
 {
   "allApplications": {
-    "message": "Bütün tətbiqlər"
+    "message": "Bütün proqramlar"
   },
   "activity": {
     "message": "Fəaliyyət"
   },
   "appLogoLabel": {
-    "message": "Bitwarden loqosu"
+    "message": "Açar alətləri"
   },
   "criticalApplications": {
-    "message": "Kritik tətbiqlər"
+    "message": "Kritik proqramlar"
   },
   "noCriticalAppsAtRisk": {
     "message": "Risk altında heç bir kritik tətbiq yoxdur"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Giriş məlumatları"
   },
   "passwordRisk": {
-    "message": "Parol riski"
+    "message": "Açar təhlükəsi"
   },
   "noEditPermissions": {
-    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+    "message": "Bu bəndə düzəliş etmə icazəniz yoxdur"
   },
   "reviewAtRiskPasswords": {
-    "message": "Tətbiqlər arasında riskli (zəif, ifşa olunmuş və ya təkrar istifadə olunmuş) parolları incələyin. İstifadəçilərinizin riskli parollara yönəlmiş təhlükəsizlik tədbirlərinə əhəmiyyət vermələri üçün kritik tətbiqlərinizi seçin."
+    "message": "Proqramlar arasında risk altında olan açarları (zəif, açıq və ya təkrar istifadə olunmuş) nəzərdən keçirin. İstehlakçılarınızın risk altında olan açarları həll etməsinə yönəlmiş təhlükəsizlik tədbirlərinə üstünlük vermək üçün ən vacib proqramlarınızı seçin."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Riskli girişləri incələ"
+    "message": "Risk altında olan girişi nəzərdən keçirin"
   },
   "dataLastUpdated": {
     "message": "Verilərin son güncəlləmə tarixi: $DATE$",
@@ -39,10 +57,10 @@
     }
   },
   "noReportRan": {
-    "message": "Hələ heç bir hesabat yaratmamısınız"
+    "message": "Hələ heç bir hesabat qurmamısınız"
   },
   "notifiedMembers": {
-    "message": "Məlumatlandırılan üzvlər"
+    "message": "Bildirilən üzvlər"
   },
   "revokeMembers": {
     "message": "Üzvləri ləğv et"
@@ -51,10 +69,10 @@
     "message": "Üzvləri bərpa et"
   },
   "cannotRestoreAccessError": {
-    "message": "Təşkilat erişimi bərpa edilə bilmir"
+    "message": "Təşkilata giriş bərpa edilə bilmir"
   },
   "allApplicationsWithCount": {
-    "message": "Bütün tətbiqlər ($COUNT$)",
+    "message": "Bütün proqramlar ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -63,7 +81,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Yeni giriş elementi yarat"
+    "message": "Yeni giriş elementi meydana gətirin"
   },
   "percentageCompleted": {
     "message": "$PERCENT$% tamamlandı",
@@ -88,28 +106,28 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Parol dəyişmə irəliləyişi"
+    "message": "Açar dəyişikliyi prosesi"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "İrəliləyişi izləmək üçün üzvlərə tapşırıqlar təyin edin"
+    "message": "Prosesi izləmək üçün üzvlərə tapşırıqlar təyin edin"
   },
   "onceYouReviewApplications": {
-    "message": "Tətbiqləri incələyib kritik olaraq işarələdikdən sonra, üzvlərə parollarını dəyişməsi üçün tapşırıqlar təyin edin."
+    "message": "Proqramları nəzərdən keçirib kritik olaraq qeyd etdikdən sonra, üzvlərə açarları dəyişməsi üçün tapşırıqlar təyin edin."
   },
   "sendReminders": {
-    "message": "Xatırlatma göndər"
+    "message": "Yaddaqalan qeydləri göndər"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Tətbiqləri kritik olaraq işarələsəniz, onlar burada nümayiş olunacaq."
+    "message": "Proqramları kritik olaraq qeyd etsəniz, onlar burada nümayiş olunacaq."
   },
   "viewAtRiskMembers": {
-    "message": "Riskli üzvlərə bax"
+    "message": "Təhlükəli üzvlərə bax"
   },
   "viewAtRiskApplications": {
-    "message": "Riskli tətbiqlərə bax"
+    "message": "Təhlükəli proqramlara bax"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$/$TOTAL$ kritik tətbiq, riskli parollara görə risk altındadır",
+    "message": "$COUNT$/$TOTAL$ kritik tətbiq, təhlükəli şifrələrə görə risk altındadır",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -122,7 +140,7 @@
     }
   },
   "criticalApplicationsWithCount": {
-    "message": "Kritik tətbiqlər ($COUNT$)",
+    "message": "Kritik proqramlar ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -131,7 +149,7 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "kritik olaraq işarələnmiş tətbiqlər"
+    "message": "kritik olaraq qeyd edilmiş proqramlar"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritik tətbiq",
@@ -152,7 +170,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ parol risk altındadır",
+    "message": "$COUNT$ Açar risk altındadır",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -161,7 +179,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ yeni parol risklidir",
+    "message": "$COUNT$ yeni açar təhlükə altındadır",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -170,7 +188,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Məlumatlandırılan üzvlər ($COUNT$)",
+    "message": "Bildirilən üzvlər ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -179,19 +197,19 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "Heç bir veri tapılmadı"
+    "message": "Heç bir məlumat aşkar olunmadı"
   },
   "noDataInOrgDescription": {
-    "message": "Access Intelligence-i istifadə etməyə başlamaq üçün təşkilatınızın giriş verilərini daxilə köçürün. Bunu etdikdən sonra, bunları edə biləcəksiniz:"
+    "message": "Giriş məlumatı ilə başlamaq üçün müəssisənizin giriş məlumatlarını idxal edin. Bunu etdikdən sonra, bunları edə biləcəksiniz:"
   },
   "feature1Title": {
-    "message": "Tətbiqləri kritik olaraq işarələmə"
+    "message": "Proqramları kritik kimi qeyd edin"
   },
   "feature1Description": {
-    "message": "Bu, əvvəlcə ən vacib tətbiqlərinizdəki riskləri xaric etməyinizə kömək edəcək."
+    "message": "Bu, əvvəlcə ən vacib proqramlarınızdakı riskləri aradan qaldırmağa kömək edəcək."
   },
   "feature2Title": {
-    "message": "Üzvlərin təhlükəsizliyini təkmilləşdirməsinə kömək"
+    "message": "Üzvlərə təhlükəsizliklərini yaxşılaşdırmağa kömək edin"
   },
   "feature2Description": {
     "message": "Riskli üzvlərə kimlik məlumatlarını güncəlləməsi üçün təhlükəsizlik tapşırıqları təyin edin."
@@ -221,7 +239,7 @@
     "message": "Tətbiqi kritik olaraq işarələ"
   },
   "markAsCritical": {
-    "message": "Kritik olaraq işarələ"
+    "message": "Kritik olaraq qeyd et"
   },
   "applicationsSelected": {
     "message": "tətbiq seçildi"
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Tətbiq"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Riskli parollar"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-poçt"
+  },
+  "emails": {
+    "message": "E-poçtlar"
   },
   "phone": {
     "message": "Telefon"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "noAuth": {
+    "message": "Keçidə sahib olan hər kəs"
+  },
+  "anyOneWithPassword": {
+    "message": "Sizin təyin etdiyiniz parola sahib hər kəs"
   },
   "location": {
     "message": "Yerləşmə"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Növbəti ödəniş"
+  },
+  "nextChargeDate": {
+    "message": "Növbəti ödəniş vaxtı"
   },
   "plan": {
     "message": "Plan"
@@ -5419,10 +5452,10 @@
     "message": "Seçiləni bərpa et"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arxivlənmiş element bərpa edildi"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Arxivlənmiş elementlər bərpa edildi"
   },
   "restoredItem": {
     "message": "Element bərpa edildi"
@@ -5916,35 +5949,35 @@
     }
   },
   "centralizeDataOwnership": {
-    "message": "Centralize organization ownership"
+    "message": "Təşkilat sahibliyini mərkəzləşdirin"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+    "message": "Bütün üzv elementləri, təşkilat tərəfindən sahiblənəcək və idarə ediləcək. Adminlər və sahibləri daxil deyil. "
   },
   "centralizeDataOwnershipContentAnchor": {
-    "message": "Learn more about centralized ownership",
+    "message": "Mərkəzi sahiblik barədə daha ətraflı",
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
-    "message": "Benefits"
+    "message": "Faydaları"
   },
   "centralizeDataOwnershipBenefit1": {
-    "message": "Gain full visibility into credential health, including shared and unshared items."
+    "message": "Paylaşılan və paylaşılmayan elementlər daxil olmaqla kimlik məlumatı sağlamlığına tam görünmə əldə edin."
   },
   "centralizeDataOwnershipBenefit2": {
-    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+    "message": "Üzvlərin tərk etməsi və təhvil zamanı elementləri asanlıqla köçürün, erişim zamanı heç bir boşluğa yer buraxmayın."
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+    "message": "Bütün istifadəçilərə öz giriş məlumatlarını idarə edə biləcəkləri \"Elementlərim\" sahəsi verin."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "Prompt members to transfer their items"
+    "message": "Üzvlərdən öz elementlərini köçürməsi soruşulsun"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "Üzvlərin fərdi seyflərində elementləri varsa, onlardan elementləri təşkilata köçürməsi, ya da tərk etməsi soruşulacaq. Əgər tərk etsələr, erişimləri ləğv ediləcək, ancaq istənilən vaxt bərpa edə biləcəklər."
   },
   "centralizeDataOwnershipWarningLink": {
-    "message": "Learn more about the transfer"
+    "message": "Köçürmə barədə daha ətraflı"
   },
   "organizationDataOwnership": {
     "message": "Təşkilata veri üzərində məcburi sahiblik ver"
@@ -6925,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti, fərdi seyfi xaricə köçürməyinizi əngəlləyir."
   },
-  "activateAutofill": {
-    "message": "Avto-doldurmanı aktivləşdir"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Bütün mövcud və yeni üzvlər üçün brauzer uzantısında səhifə yüklənəndə avto-doldurmanı ayarını aktivləşdirin."
+  "activateAutofillPolicyDescription": {
+    "message": "Bütün mövcud və yeni üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını aktivləşdirin."
   },
-  "experimentalFeature": {
-    "message": "Təhlükəli və ya güvənilməyən veb saytlar, səhifə yüklənərkən avto-doldurmanı istifadə edə bilər."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Avto-doldurma haqqında daha ətraflı"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "SSO növü seçin"
@@ -10433,7 +10466,7 @@
     "message": "Seyf event verilərini Datadog serverinizə göndərin"
   },
   "huntressEventIntegrationDesc": {
-    "message": "Send event data to your Huntress SIEM instance"
+    "message": "Event verilərini öz \"Huntress SIEM instance\"na göndər"
   },
   "failedToSaveIntegration": {
     "message": "İnteqrasiya saxlanılmadı. Lütfən daha sonra yenidən sınayın."
@@ -11366,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden, ilk 72 saat ərzində domeni 3 dəfə götürməyə çalışacaq. Əgər domen götürülə bilməsə, \"host\"unuzdakı DNS qeydini yoxlayın və manual götürün. Domen götürülməsə, 7 gün ərzində təşkilatınızdan silinəcək."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden, domeni 72 saat ərzində götürməyə çalışacaq. Domen götürülə bilmirsə, DNS qeydinizi doğrulayın və manual götürün. Götürülməmiş domenlər 7 gün sonra xaric edilir."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Götürüldükdən sonra, domeni götürmüş mövcud üzvlərə e-poçtla məlumat veriləcək "
+  },
+  "accountOwnershipChange": {
+    "message": "hesab sahibliyinin dəyişməsi"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ götürülmədi. DNS qeydlərinizi yoxlayın.",
     "placeholders": {
@@ -11378,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Götürüldü"
   },
-  "domainStatusUnderVerification": {
-    "message": "Doğrulama altında"
+  "domainStatusPending": {
+    "message": "Gözlənilir"
   },
   "claimedDomainsDescription": {
     "message": "Üzv hesablarına sahiblik etmək üçün bir domen götürün. Domen götürmüş üzvlər üçün giriş zamanı SSO identifikatoru səhifəsi ötürüləcək və inzibatçılar bu domenə aid hesabları silə biləcək."
@@ -12102,13 +12147,13 @@
     "message": "İndi doğrula."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Kilidi keçid açarı ilə aç"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Kilid keçid açarı ilə açılmadı. Lütfən yenidən sınayın, ya da başqa kilid açma üsulunu sınayın."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Kilidi açmaq üçün PRF dəstəkli keçid açarı yoxdur."
   },
   "additionalStorageGB": {
     "message": "Əlavə anbar sahəsi GB"
@@ -12676,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Bütün $GB$ GB-lıq şifrələnmiş anbar sahənizi istifadə etmisiniz. Faylları saxlaya bilmək üçün daha çox anbar sahəsi əlavə edin."
   },
+  "whoCanView": {
+    "message": "Kimlər baxa bilər"
+  },
+  "specificPeople": {
+    "message": "Xüsusi insanlar"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send keçidini paylaşdıqdan sonra, bu \"Send\"ə baxması üçün insanlar e-poçtlarını bir kodla doğrulamalıdırlar."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Anbar sahəsini xaric etdiyiniz zaman, növbəti hesabınıza avtomatik olaraq köçürüləcək mütənasib hesab krediti alacaqsınız."
   },
@@ -12684,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-poçt qorunur"
+  },
+  "invalidSendPassword": {
+    "message": "Yararsız Send parolu"
   }
 }
