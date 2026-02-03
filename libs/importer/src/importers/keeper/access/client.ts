@@ -46,6 +46,7 @@ export interface LoginResult {
 }
 
 export interface ClientOptions {
+  // TODO: Make all not optional
   server?: string;
   clientVersion?: string;
   deviceName?: string;
@@ -102,6 +103,7 @@ export class Client {
       );
 
       let response = await this.startLogin(username, deviceToken, messageSessionUid);
+      console.log("Initial login response:", LoginState[response.loginState]);
 
       const maxIterations = 10;
       let iterations = 0;
@@ -765,6 +767,8 @@ export class Client {
       ? endpoint
       : `https://${this.server}/api/rest/${endpoint}`;
 
+    console.log(`[Keeper API] >>> ${endpoint} -> ${url}`);
+
     let keyId = this.serverKeyId;
     let lastError: Error | null = null;
 
@@ -785,6 +789,8 @@ export class Client {
         const requestBytes = ApiRequest.toBinary(apiRequest);
         const response = await post(url, new Uint8Array(requestBytes));
 
+        console.log(`[Keeper API] <<< ${endpoint} OK (${response.data?.length || 0} bytes)`);
+
         if (keyId !== this.serverKeyId) {
           this.serverKeyId = keyId;
         }
@@ -797,11 +803,13 @@ export class Client {
         return new Uint8Array();
       } catch (error: unknown) {
         lastError = error instanceof Error ? error : new Error(String(error));
+        console.log(`[Keeper API] <<< ${endpoint} ERROR: ${lastError.message}`);
 
         if (lastError.message.includes('"error":"key"')) {
           const match = lastError.message.match(/"key_id":(\d+)/);
           if (match) {
             const newKeyId = parseInt(match[1], 10);
+            console.log(`[Keeper API] Retrying with key ID ${newKeyId}`);
             keyId = newKeyId;
             continue;
           }
