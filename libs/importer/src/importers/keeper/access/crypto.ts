@@ -257,13 +257,40 @@ async function decryptAesNoPadding(
   key: Uint8Array,
   iv: Uint8Array,
 ): Promise<Uint8Array> {
-  // For no-padding decryption, we add a block of zeros and decrypt
-  // Then strip the last block
-  const paddedData = concatUint8Arrays(data, new Uint8Array(AES_BLOCK_SIZE));
+  // Web Crypto doesn't support no-padding mode, so we need a workaround.
+  // We encrypt a PKCS7 padding block and append it to get valid padded ciphertext.
   const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
+    "encrypt",
     "decrypt",
   ]);
-  const decrypted = await crypto.subtle.decrypt({ name: "AES-CBC", iv: iv }, cryptoKey, paddedData);
+
+  // Get the last block of ciphertext to use as IV for encrypting the padding
+  const lastBlock = data.subarray(data.length - AES_BLOCK_SIZE);
+
+  // Create a proper PKCS7 padding block (16 bytes of 0x10)
+  const paddingBlock = new Uint8Array(AES_BLOCK_SIZE).fill(AES_BLOCK_SIZE);
+
+  // Encrypt the padding block using the last ciphertext block as IV
+  const encryptedPadding = await crypto.subtle.encrypt(
+    { name: "AES-CBC", iv: lastBlock },
+    cryptoKey,
+    paddingBlock,
+  );
+
+  // Take only the first block of the encrypted padding (the second block is the padding of the padding)
+  const encryptedPaddingBlock = new Uint8Array(encryptedPadding).subarray(0, AES_BLOCK_SIZE);
+
+  // Append the encrypted padding to the original ciphertext
+  const paddedCiphertext = concatUint8Arrays(data, encryptedPaddingBlock);
+
+  // Now decrypt - Web Crypto will find valid PKCS7 padding
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-CBC", iv: iv },
+    cryptoKey,
+    paddedCiphertext,
+  );
+
+  // Return only the original data length (strip the decrypted padding block)
   return new Uint8Array(decrypted).subarray(0, data.length);
 }
 
