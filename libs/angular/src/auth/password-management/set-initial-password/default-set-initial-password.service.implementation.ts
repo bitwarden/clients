@@ -15,6 +15,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -223,11 +224,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) {
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
+    const ctx = "Could not set initial password.";
+    assertTruthy(credentials.newPassword, "newPassword", ctx);
+    assertTruthy(credentials.salt, "salt", ctx);
+    assertNonNullish(credentials.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(credentials.newPasswordHint, "newPasswordHint", ctx);
 
     if (userId == null) {
       throw new Error("userId not found. Could not set password.");
