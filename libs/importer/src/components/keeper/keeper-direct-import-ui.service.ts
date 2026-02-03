@@ -3,15 +3,17 @@ import { firstValueFrom } from "rxjs";
 
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { DeviceApprovalResult, OtpResult, Ui } from "../../importers/keeper/access";
+import {
+  Cancel,
+  DeviceApprovalChannel,
+  DuoMethod,
+  Resend,
+  TwoFactorMethod,
+  Ui,
+} from "../../importers/keeper/access";
 
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
-import {
-  KeeperMultifactorPromptComponent,
-  KeeperMultifactorPromptVariant,
-} from "./dialog/keeper-multifactor-prompt.component";
-
-type DeviceApprovalVariant = "email" | "push";
+import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
 
 @Injectable({
   providedIn: "root",
@@ -21,53 +23,98 @@ export class KeeperDirectImportUIService implements Ui {
 
   constructor(private dialogService: DialogService) {}
 
-  private async getDeviceApprovalResult(variant: DeviceApprovalVariant) {
-    const result = await this.openDeviceApprovalDialog(variant);
-    if (result === "cancel" || result === undefined) {
-      return DeviceApprovalResult.cancel;
-    }
-    return new DeviceApprovalResult(true);
-  }
-
-  private openDeviceApprovalDialog(variant: DeviceApprovalVariant) {
-    this.dialogRef = KeeperDeviceApprovalPromptComponent.open(this.dialogService, {
-      variant,
-    });
-    return firstValueFrom(this.dialogRef.closed);
-  }
-
-  private async getOTPResult(variant: KeeperMultifactorPromptVariant) {
-    const passcode = await this.openMFADialog(variant);
-    if (passcode === "cancel" || passcode === undefined) {
-      return OtpResult.cancel;
-    }
-    return new OtpResult(passcode, false);
-  }
-
-  private openMFADialog(variant: KeeperMultifactorPromptVariant) {
-    this.dialogRef = KeeperMultifactorPromptComponent.open(this.dialogService, {
-      variant,
-    });
-    return firstValueFrom(this.dialogRef.closed);
-  }
-
   closeDialog() {
     this.dialogRef?.close();
   }
 
-  async approveDeviceByEmail() {
-    return this.getDeviceApprovalResult("email");
+  async selectApprovalMethod(
+    methods: DeviceApprovalChannel[],
+  ): Promise<DeviceApprovalChannel | typeof Cancel> {
+    // For now, auto-select the first available method
+    // TODO: Show a selection dialog if multiple methods are available
+    if (methods.length === 0) {
+      return Cancel;
+    }
+    return methods[0];
   }
 
-  async approveDeviceByPush() {
-    return this.getDeviceApprovalResult("push");
+  async provideApprovalCode(
+    method: DeviceApprovalChannel,
+    _info?: string,
+  ): Promise<string | typeof Cancel | typeof Resend> {
+    const variant = method === DeviceApprovalChannel.Email ? "email" : "push";
+
+    this.dialogRef = KeeperDeviceApprovalPromptComponent.open(this.dialogService, {
+      variant,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+
+    if (result === "cancel" || result === undefined) {
+      return Cancel;
+    }
+
+    // For email/push approval, the code is entered by user or they just confirm
+    // Return empty string for push (no code needed)
+    if (method === DeviceApprovalChannel.KeeperPush) {
+      return "";
+    }
+
+    // For email, return empty string as well - the actual code validation happens server-side
+    return "";
   }
 
-  async provideTOTPCode() {
-    return this.getOTPResult("totp");
+  async selectTwoFactorMethod(
+    methods: TwoFactorMethod[],
+  ): Promise<TwoFactorMethod | typeof Cancel> {
+    // For now, auto-select the first available method
+    // TODO: Show a selection dialog if multiple methods are available
+    if (methods.length === 0) {
+      return Cancel;
+    }
+    return methods[0];
   }
 
-  async approveTwoFactorPush() {
-    return this.getOTPResult("push");
+  async provideTwoFactorCode(
+    method: TwoFactorMethod,
+    _info?: string,
+  ): Promise<string | typeof Cancel | typeof Resend> {
+    // Determine if this method needs a code input or just waiting for push
+    const needsCodeInput =
+      method === TwoFactorMethod.Totp ||
+      method === TwoFactorMethod.Sms ||
+      method === TwoFactorMethod.Backup ||
+      method === TwoFactorMethod.Rsa;
+
+    const variant = needsCodeInput ? "totp" : "push";
+
+    this.dialogRef = KeeperMultifactorPromptComponent.open(this.dialogService, {
+      variant,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+
+    if (result === "cancel" || result === undefined) {
+      return Cancel;
+    }
+
+    // For push-style methods, return empty string
+    if (!needsCodeInput) {
+      return "";
+    }
+
+    return result;
+  }
+
+  async selectDuoMethod(
+    methods: DuoMethod[],
+    _phoneNumber: string,
+  ): Promise<DuoMethod | typeof Cancel> {
+    // For now, auto-select the first available method
+    // TODO: Show a selection dialog for Duo methods
+    if (methods.length === 0) {
+      return Cancel;
+    }
+    return methods[0];
   }
 }
