@@ -2315,6 +2315,22 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
     });
+
+    it("clears pending overlay setup timeout when removing a field element", () => {
+      const fieldElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [fieldElement, autofillField],
+      ]);
+      const timeoutId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["pendingOverlaySetup"].set(fieldElement, timeoutId);
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+
+      collectAutofillContentService["deleteCachedAutofillElement"](fieldElement);
+
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(timeoutId);
+      expect(collectAutofillContentService["pendingOverlaySetup"].has(fieldElement)).toBe(false);
+    });
   });
 
   describe("handleWindowLocationMutation", () => {

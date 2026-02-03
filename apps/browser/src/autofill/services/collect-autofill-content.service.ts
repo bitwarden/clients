@@ -1256,6 +1256,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.autofillFieldElements.has(element)) {
       this.autofillFieldElements.delete(element);
     }
+
+    // Clear pending overlay setup timeout to prevent memory leak
+    const pendingTimeout = this.pendingOverlaySetup.get(element);
+    if (pendingTimeout) {
+      globalThis.clearTimeout(pendingTimeout);
+      this.pendingOverlaySetup.delete(element);
+    }
   }
 
   /**
@@ -1518,7 +1525,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Check if there's already a pending debounce for this element
     const existingTimeout = this.pendingOverlaySetup.get(formFieldElement);
-    const isFirstCall = !existingTimeout;
+    const shouldExecuteImmediately = !existingTimeout;
 
     // Cancel any pending setup for this element
     if (existingTimeout) {
@@ -1526,7 +1533,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     // Execute immediately on first call (leading edge), then debounce subsequent calls
-    if (isFirstCall) {
+    if (shouldExecuteImmediately) {
       this.executeOverlaySetup(formFieldElement, autofillField, pageDetails);
     }
 
