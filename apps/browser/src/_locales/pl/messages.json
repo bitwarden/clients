@@ -990,6 +990,12 @@
   "no": {
     "message": "Nie"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "Lokalizacja"
   },
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Adres e-mail"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Numer telefonu"
@@ -4845,7 +4854,7 @@
     "message": "Konsola administratora"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Administrator"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -5000,6 +5009,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Pobierz załącznik"
   },
   "downloadBitwarden": {
     "message": "Pobierz Bitwarden"
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

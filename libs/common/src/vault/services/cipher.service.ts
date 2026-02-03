@@ -1472,7 +1472,7 @@ export class CipherService implements CipherServiceAbstraction {
       return;
     }
 
-    const request = new CipherBulkDeleteRequest(ids);
+    const request = new CipherBulkDeleteRequest(ids, orgId);
     if (asAdmin) {
       await this.apiService.deleteManyCiphersAdmin(request);
     } else {
@@ -1669,7 +1669,7 @@ export class CipherService implements CipherServiceAbstraction {
       return;
     }
 
-    const request = new CipherBulkDeleteRequest(ids);
+    const request = new CipherBulkDeleteRequest(ids, orgId);
     if (asAdmin) {
       await this.apiService.putDeleteManyCiphersAdmin(request);
     } else {
