@@ -70,6 +70,8 @@ export enum FeatureFlag {
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   WelcomeDialog = "pm-29437-welcome-dialog",
+  SessionCountForPremiumUpgradePrompt = "session-count-for-premium-upgrade-prompt",
+
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
 
@@ -133,6 +135,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.WelcomeDialog]: true,
+  [FeatureFlag.SessionCountForPremiumUpgradePrompt]: 5,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,

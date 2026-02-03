@@ -5,6 +5,8 @@ import { filter, map, take } from "rxjs/operators";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
@@ -38,7 +40,6 @@ export const PREMIUM_MODAL_SESSION_COUNT_KEY = new UserKeyDefinition<number>(
 );
 
 const PREMIUM_MODAL_SESSION_MARKER_PREFIX = "premiumModalSessionTracked";
-const REQUIRED_SESSION_COUNT = 5;
 
 @Injectable({
   providedIn: "root",
@@ -54,6 +55,7 @@ export class UnifiedUpgradePromptService {
     private platformUtilsService: PlatformUtilsService,
     private stateProvider: StateProvider,
     private logService: LogService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -86,8 +88,12 @@ export class UnifiedUpgradePromptService {
       return null;
     }
 
+    const requiredSessionCount =
+      (await this.configService.getFeatureFlag(FeatureFlag.SessionCountForPremiumUpgradePrompt)) ??
+      5;
+
     const sessionCount = await this.incrementSessionCountIfNeeded(account.id);
-    if (sessionCount < REQUIRED_SESSION_COUNT) {
+    if (sessionCount < requiredSessionCount) {
       return null;
     }
 
