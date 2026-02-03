@@ -6,7 +6,7 @@
     <div class="tw-flex tw-mb-4 tw-gap-4 tw-items-center">
       <bit-search
         [placeholder]="'searchApps' | i18n"
-        class="tw-w-1/2"
+        class="tw-min-w-96"
         [formControl]="searchControl"
       ></bit-search>
 
@@ -18,7 +18,8 @@
         (ngModelChange)="setFilterApplicationsByStatus($event)"
         fullWidth="false"
         class="tw-min-w-48"
-      ></bit-chip-select>
+      >
+      </bit-chip-select>
 
       <button
         type="button"
