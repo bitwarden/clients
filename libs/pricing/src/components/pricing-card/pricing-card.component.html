@@ -37,9 +37,9 @@
     </div>
   }
 
-  <!-- Button space (always reserved) -->
-  <div class="tw-mb-6 tw-h-12">
-    @if (button(); as buttonConfig) {
+  <!-- Button -->
+  @if (button(); as buttonConfig) {
+    <div class="tw-mb-6 tw-h-12">
       <button
         bitButton
         [buttonType]="buttonConfig.type"
@@ -59,8 +59,8 @@
           <bit-icon [name]="buttonConfig.icon.type" class="tw-ms-2" aria-hidden="true"></bit-icon>
         }
       </button>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Features List -->
   <div class="tw-flex-grow">
