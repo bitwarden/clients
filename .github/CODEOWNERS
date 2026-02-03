@@ -154,6 +154,9 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
