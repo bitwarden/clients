@@ -427,6 +427,7 @@ export class Client {
         message.command === "device_verified" &&
         message.username === username
       ) {
+        this.ui.closeApprovalDialog?.();
         return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
       }
     }

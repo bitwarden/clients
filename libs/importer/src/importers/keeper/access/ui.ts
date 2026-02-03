@@ -40,6 +40,7 @@ export interface Ui {
     method: DeviceApprovalChannel,
     info?: string,
   ): Promise<string | Cancel | Resend>;
+  closeApprovalDialog?: () => void;
 
   // 2FA flow
   selectTwoFactorMethod(channels: TwoFactorMethod[]): Promise<TwoFactorMethod | Cancel>;

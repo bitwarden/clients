@@ -27,6 +27,10 @@ export class KeeperDirectImportUIService implements Ui {
     this.dialogRef?.close();
   }
 
+  closeApprovalDialog(): void {
+    this.dialogRef?.close();
+  }
+
   async selectApprovalMethod(
     methods: DeviceApprovalChannel[],
   ): Promise<DeviceApprovalChannel | typeof Cancel> {
