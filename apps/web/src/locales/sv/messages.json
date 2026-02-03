@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Inga kritiska applikationer i riskzonen"
   },
+  "critical": {
+    "message": "Kritiska ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Inte kritiska ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Applikation"
+  },
+  "applications": {
+    "message": "Applikationer"
   },
   "atRiskPasswords": {
     "message": "Lösenord i riskzonen"
@@ -584,6 +605,9 @@
     "message": "Körkortsnummer"
   },
   "email": {
+    "message": "E-post"
+  },
+  "emails": {
     "message": "E-post"
   },
   "phone": {
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nej"
+  },
+  "noAuth": {
+    "message": "Vem som helst med länken"
+  },
+  "anyOneWithPassword": {
+    "message": "Alla som har ett lösenord inställt av dig"
   },
   "location": {
     "message": "Plats"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Nästa betalning"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Plan"
@@ -5418,6 +5451,12 @@
   "restoreSelected": {
     "message": "Återställ markerade"
   },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
+  },
+  "archivedItemsRestored": {
+    "message": "Arkiverade objekt återställda"
+  },
   "restoredItem": {
     "message": "Återställde objekt"
   },
@@ -5620,13 +5659,13 @@
     "message": "Send skapades!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Kopiera och dela denna Send-länk. Den kan visas av personer som du har angivet nästa $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiera och dela denna Send-länk. Denna Send kommer att vara tillgänglig för alla med länken för nästa $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralisera organisationens ägarskap"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alla medlemsobjekt kommer att ägas och hanteras av organisationen. Administratörer och ägare är undantagna. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Läs mer om centraliserat ägarskap",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Fördelar"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Överför enkelt objekt under medlemmens offboarding och succession, vilket garanterar att det inte finns några åtkomstluckor."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Ge alla användare ett dedikerat \"Mina objekt\"-utrymme för att hantera sina egna inloggningar."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Fråga medlemmar att överföra sina objekt"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Läs mer om överföringen"
   },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
@@ -6888,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "En eller flera organisationspolicyer hindrar dig från att exportera ditt enskilda valv."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Aktivera autofyll"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Aktivera inställningen för automatisk ifyllnad vid sidladdning i webbläsartillägget för alla befintliga och nya medlemmar."
+  "activateAutofillPolicyDescription": {
+    "message": "Aktivera autofyll på sidladdningsinställningar på webbläsartillägget för alla befintliga och nya medlemmar."
   },
-  "experimentalFeature": {
-    "message": "Komprometterade eller opålitliga webbplatser kan utnyttja automatisk ifyllning vid sidladdning."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Komprometterade eller ej betrodda webbplatser kan utnyttja automatisk ifyllnad vid sidladdning."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Läs mer om autofyll"
   },
   "selectType": {
@@ -10395,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Skicka data om valvhändelser till din Datadog-instans"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Skicka händelsedata till din Huntress SIEM-instans"
+  },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
   },
@@ -10505,6 +10578,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -11320,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden kommer att försöka göra anspråk på domänen 3 gånger under de första 72 timmarna. Om domänen inte kan göras anspråk på, kontrollera DNS-posten i din host och gör anspråk manuellt. Domänen kommer att tas bort från din organisation inom 7 dagar om den inte görs anspråk på."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden kommer att försöka göra anspråk på domänen inom 72 timmar. Om domänen inte kan hävdas, kontrollera din DNS-post och anspråk manuellt. Domäner som inte gjorts anspråk på tas bort efter 7 dagar."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "När de har gjorts anspråk på kommer befintliga medlemmar med dessa domäner kommer att mailas om "
+  },
+  "accountOwnershipChange": {
+    "message": "byte av kontoäganderätt"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ inte hävdad. Kontrollera dina DNS-poster.",
     "placeholders": {
@@ -11332,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Ägd"
   },
-  "domainStatusUnderVerification": {
-    "message": "Under verifiering"
+  "domainStatusPending": {
+    "message": "Väntande"
   },
   "claimedDomainsDescription": {
     "message": "Begär en domän för att äga medlemskonton. SSO-identifierarsidan kommer att hoppas över under inloggningen för medlemmar med namngivna domäner och administratörer kommer att kunna ta bort begärda konton."
@@ -11701,8 +11792,8 @@
     "message": "Arkivera objekt",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt undantas från allmänna sökresultat och autofyllförslag. Är du säker på att du vill arkivera det här objektet?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
   },
   "archiveBulkItems": {
     "message": "Arkivera objekt",
@@ -12054,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Verifiera nu."
+  },
+  "unlockWithPasskey": {
+    "message": "Lås upp med lösennyckel"
+  },
+  "prfUnlockFailed": {
+    "message": "Det gick inte att låsa upp med lösennyckel. Försök igen eller använd en annan upplåsningsmetod."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Inga PRF-aktiverade lösennycklar finns tillgängliga för upplåsning."
   },
   "additionalStorageGB": {
     "message": "Ytterligare lagringsplats (GB)"
@@ -12606,7 +12706,7 @@
     "message": "Lagringen är full"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "Du har använt $USED$ av $AVAILABLE$ GB av din krypterade fillagring.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12619,15 +12719,33 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "Du har använt alla $GB$ GB av din krypterade lagring. För att fortsätta lagra filer, lägg till mer lagringsutrymme."
+  },
+  "whoCanView": {
+    "message": "Vem kan se"
+  },
+  "specificPeople": {
+    "message": "Specifika personer"
+  },
+  "emailVerificationDesc": {
+    "message": "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
+  },
+  "emailPlaceholder": {
+    "message": "användare@bitwarden.com , användare@acme.com"
   },
   "whenYouRemoveStorage": {
-    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+    "message": "När du tar bort lagring kommer du att få en proportionell kontokredit som automatiskt går mot din nästa faktura."
   },
   "youHavePremium": {
-    "message": "You have Premium"
+    "message": "Du har Premium"
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Ogiltigt Send-lösenord"
   }
 }

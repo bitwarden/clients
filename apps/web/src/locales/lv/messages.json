@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Nav riskam pakļautu būtisku lietotņu"
   },
+  "critical": {
+    "message": "Būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nav būtiski ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Lietotne"
+  },
+  "applications": {
+    "message": "Lietotnes"
   },
   "atRiskPasswords": {
     "message": "Riskam pakļautās paroles"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-pasts"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Tālrunis"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Atrašanās vieta"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Nākamais maksājums"
+  },
+  "nextChargeDate": {
+    "message": "Nākamās apmaksas datums"
   },
   "plan": {
     "message": "Plāns"
@@ -5418,6 +5451,12 @@
   "restoreSelected": {
     "message": "Atjaunot atlasīto"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
+  "archivedItemsRestored": {
+    "message": "Arhīva vienumi atjaunoti"
+  },
   "restoredItem": {
     "message": "Vienums atjaunots"
   },
@@ -5620,13 +5659,13 @@
     "message": "Send tika veiksmīgi izveidots.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Ievieto starpliktuvē un kopīgo šī Send saiti! To $TIME$ no šī brīža var apskatīt cilvēki, kurus norādīji.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizēt apvienības īpašumtiesības"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Visi dalībnieku vienumi piederēs un tos pārvaldīs apvienība. Pārvaldītāji un īpašnieki ir izņēmums. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Uzzināt vairāk par centralizētām īpašumtiesībām",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Ieguvumi"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Tiek iegūta pilna pārredzamība par pieteikšanās vienumu stāvokli, tajā skaitā kopīgotajiem un nekopīgotajiem vienumiem."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Vienkārša vienumu pārcelšana dalībnieku aiziešanas un aizstāšanas gadījumos, nodrošinot, ka nav piekļuvju spraugu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
@@ -6888,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Viens vai vairāki apvienības nosacījumi neļauj izgūt privātās glabātavas saturu."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Iespējot automātisko aizpildi"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Pārlūka paplašinājumā iespējot automātisko aizpildi lapas ielādes brīdī visiem esošajiem un jaunajiem dalībniekiem."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Uzzināt vairāk par automātisko aizpildi"
   },
   "selectType": {
@@ -10395,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Nosūtīt glabātavas notikumu datus uz savu Datadog serveri"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
@@ -10505,6 +10578,12 @@
   },
   "index": {
     "message": "Indekss"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -11320,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden mēģinās pārbaudīt domēnu 3 reizes pirmajās 72 stundās. Ja domēnu nevarēs pieteikt, būs jāpārbauda DNS ieraksts saimniekdatorā un tas pašrocīgi jāpiesaka. Domēns tiks noņemts no apvienības pēc 7 dienām, ja tas nebūs pieteikts."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nav pieteikts. Jāpārbauda DNS ieraksts.",
     "placeholders": {
@@ -11332,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Pieteikts"
   },
-  "domainStatusUnderVerification": {
-    "message": "Apliecināšanā"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Iegūsti domēna piederību, lai iegūtu dalībnieku kontu īpašumtiesības. SSO identificētāja lapa tiks izlaista, kad pieteiksies dalībnieki, kuru kontu piederība ir atkarīga no domēna, un pārvaldītāji varēs izdzēst šāda veida kontus."
@@ -11701,8 +11792,8 @@
     "message": "Arhivēt vienumu",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "archiveBulkItems": {
     "message": "Arhivēt vienumus",
@@ -12054,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Apliecini tagad!"
+  },
+  "unlockWithPasskey": {
+    "message": "Atslēgt ar piekļuves atslēgu"
+  },
+  "prfUnlockFailed": {
+    "message": "Neizdevās atslēgt ar piekļuves atslēgu. Lūgums mēģināt vēlreiz vai izmantot citu atslēgšanas veidu."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Atslēgšanai nav pieejama neviena PRF iespējota piekļuves atslēga."
   },
   "additionalStorageGB": {
     "message": "Papildu krātuve GB"
@@ -12621,6 +12721,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Kad noņemsi krātuvi, saņemsi konta kredītu noteiktā apjomā, kas tiks automātiski izmantots nākamajā rēķinā."
   },
@@ -12628,6 +12743,9 @@
     "message": "Tev ir Premium"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-pasts aizsargāts"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }

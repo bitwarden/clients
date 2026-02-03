@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Element został trwale usunięty"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "Element został przywrócony"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Archiwizuj element"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

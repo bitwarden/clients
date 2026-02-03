@@ -5,6 +5,7 @@ import { Component } from "@angular/core";
 import { OrganizationFilterComponent as BaseOrganizationFilterComponent } from "@bitwarden/angular/vault/vault-filter/components/organization-filter.component";
 import { DisplayMode } from "@bitwarden/angular/vault/vault-filter/models/display-mode";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
@@ -48,6 +49,17 @@ export class OrganizationFilterComponent extends BaseOrganizationFilterComponent
         title: null,
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
+    }
+  }
+
+  getIconString(organization: Organization): string {
+    if (
+      organization?.productTierType === ProductTierType.Free ||
+      organization?.productTierType === ProductTierType.Families
+    ) {
+      return "bwi-family";
+    } else {
+      return "bwi-business";
     }
   }
 }
