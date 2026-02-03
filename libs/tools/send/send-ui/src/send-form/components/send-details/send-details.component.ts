@@ -312,7 +312,7 @@ export class SendDetailsComponent implements OnInit {
       const emails = control.value.split(",").map((e: string) => e.trim());
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
-      return invalidEmails.length > 0 ? { email: true } : null;
+      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
     };
   }
 
