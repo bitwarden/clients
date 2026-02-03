@@ -18,6 +18,7 @@ import { filter, map, take } from "rxjs/operators";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
+import { ItemTypes } from "@bitwarden/assets/svg";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -58,6 +59,7 @@ import {
   ToastService,
   CopyClickListener,
   COPY_CLICK_LISTENER,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -112,6 +114,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     ButtonModule,
     PremiumBadgeComponent,
     VaultItemsV2Component,
+    NoItemsModule,
   ],
   providers: [
     {
@@ -180,6 +183,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
+  protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -187,10 +191,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => !!account),
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+  protected hasArchivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
     ),
   );
 
