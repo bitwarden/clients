@@ -186,7 +186,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       tax: 5.0,
       total: 53.0,
       credit: 10.0,
-      proratedAmountOfMonths: 1,
+      newPlanProratedMonths: 1,
     });
 
     mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(

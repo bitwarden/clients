@@ -35,7 +35,8 @@ export interface InvoicePreview {
   tax: number;
   total: number;
   credit: number;
-  proratedAmountOfMonths: number;
+  newPlanProratedMonths: number;
+  newPlanProratedAmount?: number;
 }
 
 @Injectable()
@@ -60,7 +61,8 @@ export class PremiumOrgUpgradeService {
       tax: invoicePreviewResponse.tax,
       total: invoicePreviewResponse.total,
       credit: invoicePreviewResponse.credit,
-      proratedAmountOfMonths: invoicePreviewResponse.proratedAmountOfMonths,
+      newPlanProratedMonths: invoicePreviewResponse.newPlanProratedMonths,
+      newPlanProratedAmount: invoicePreviewResponse.newPlanProratedAmount,
     };
   }
 
