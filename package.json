@@ -181,6 +181,7 @@
     "@microsoft/signalr": "10.0.0",
     "@microsoft/signalr-protocol-msgpack": "10.0.0",
     "@ng-select/ng-select": "20.7.0",
+    "@protobuf-ts/runtime": "2.11.1",
     "big-integer": "1.6.52",
     "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
