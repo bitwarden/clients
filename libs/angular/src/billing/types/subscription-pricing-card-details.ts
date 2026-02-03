@@ -8,6 +8,10 @@ export type SubscriptionPricingCardDetails = {
     cadence: "month" | "monthly" | "year" | "annually";
     showPerUser?: boolean;
   };
-  button: { text: string; type: ButtonType; icon?: { type: BitwardenIcon; position: "before" | "after" } };
+  button: {
+    text: string;
+    type: ButtonType;
+    icon?: { type: BitwardenIcon; position: "before" | "after" };
+  };
   features: string[];
 };

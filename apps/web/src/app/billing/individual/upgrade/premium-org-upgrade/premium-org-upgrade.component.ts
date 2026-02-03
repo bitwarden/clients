@@ -86,15 +86,10 @@ export class PremiumOrgUpgradeComponent implements OnInit {
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(
-        ([personalPlans, businessPlans]: [
-          PersonalSubscriptionPricingTier[],
-          BusinessSubscriptionPricingTier[],
-        ]) => {
-          this.setupCardDetails(personalPlans, businessPlans);
-          this.loading.set(false);
-        },
-      );
+      .subscribe(([personalPlans, businessPlans]) => {
+        this.setupCardDetails(personalPlans, businessPlans);
+        this.loading.set(false);
+      });
   }
 
   private setupCardDetails(
