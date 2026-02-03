@@ -47,9 +47,21 @@ tell application "System Events"
                 keystroke tab
                 delay 0.1
 
-                -- Type email and press enter
+                -- Type email
                 keystroke "lastpass.ruby+22-january-2026@gmail.com"
                 delay 0.2
+
+                -- Tab to region dropdown and select EU
+                keystroke tab
+                delay 0.1
+                keystroke "EU"
+                delay 0.1
+                keystroke return
+                delay 0.1
+                keystroke tab
+                delay 0.2
+
+                -- Press enter to submit
                 keystroke return
                 delay 0.3
 
