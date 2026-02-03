@@ -22,7 +22,7 @@
       (planSelected)="onPlanSelected($event)"
       (closeClicked)="onCloseClicked()"
     />
-  } @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
+  } @else if (step() == PaymentStep && selectedPersonalPlanId() !== null && account() !== null) {
     <app-upgrade-payment
       [selectedPlanId]="selectedPersonalPlanId()"
       [account]="account()"

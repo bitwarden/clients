@@ -84,6 +84,21 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly INITIAL_TAX_VALUE = 0;
   private readonly DEFAULT_SEAT_COUNT = 1;
   private readonly DEFAULT_CADENCE = "annually";
+  private readonly PLAN_MEMBERSHIP_MESSAGES: Record<string, string> = {
+    families: "familiesMembership",
+    teams: "teamsMembership",
+    enterprise: "enterpriseMembership",
+  };
+  private readonly UPGRADE_STATUS_MAP: Record<string, PremiumOrgUpgradePaymentStatus> = {
+    families: PremiumOrgUpgradePaymentStatus.UpgradedToFamilies,
+    teams: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
+    enterprise: PremiumOrgUpgradePaymentStatus.UpgradedToEnterprise,
+  };
+  private readonly UPGRADE_MESSAGE_KEYS: Record<string, string> = {
+    families: "upgradeToFamilies",
+    teams: "upgradeToTeams",
+    enterprise: "upgradeToEnterprise",
+  };
 
   protected readonly selectedPlanId = input.required<
     PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId
@@ -104,18 +119,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected readonly selectedPlan = signal<PremiumOrgUpgradePlanDetails | null>(null);
   protected readonly loading = signal(true);
   protected readonly upgradeToMessage = signal("");
-  protected readonly planMembershipMessage = computed<string>(() => {
-    switch (this.selectedPlanId()) {
-      case "families":
-        return "familiesMembership";
-      case "teams":
-        return "teamsMembership";
-      case "enterprise":
-        return "enterpriseMembership";
-      default:
-        return "";
-    }
-  });
+
+  protected readonly planMembershipMessage = computed<string>(
+    () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
+  );
 
   // Use defer to lazily create the observable when subscribed to
   protected estimatedInvoice$ = defer(() =>
@@ -133,7 +140,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   );
 
   protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
-    initialValue: { tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 },
+    initialValue: this.getEmptyInvoicePreview(),
   });
 
   // Cart Summary data
@@ -156,29 +163,18 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     return {
       passwordManager: {
         seats: {
-          translationKey:
-            this.estimatedInvoice()?.proratedAmountOfMonths > 0
-              ? "planProratedMembershipInMonths"
-              : this.planMembershipMessage(),
-          translationParams:
-            this.estimatedInvoice()?.proratedAmountOfMonths > 0
-              ? [
-                  this.selectedPlan()!.details.name,
-                  `${this.estimatedInvoice()?.proratedAmountOfMonths} month${this.estimatedInvoice()?.proratedAmountOfMonths > 1 ? "s" : ""}`,
-                ]
-              : [],
-          cost: this.selectedPlan()?.cost ?? 0,
+          translationKey: this.getMembershipTranslationKey(),
+          translationParams: this.getMembershipTranslationParams(),
+          cost: this.getCartCost(),
           quantity: this.DEFAULT_SEAT_COUNT,
           hideBreakdown: true,
         },
       },
       cadence: this.DEFAULT_CADENCE,
       estimatedTax: this.estimatedInvoice().tax,
-      discount: {
-        type: "amount-off",
+      credit: {
         value: this.estimatedInvoice().credit,
         translationKey: "premiumMembershipDiscount",
-        hideFormattedAmount: true,
       },
     };
   });
@@ -225,28 +221,8 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
 
         if (planDetails) {
-          this.selectedPlan.set({
-            tier: this.selectedPlanId(),
-            details: planDetails,
-            cost: this.getPlanPrice(planDetails),
-          });
-
-          switch (this.selectedPlanId()) {
-            case "families":
-              this.upgradeToMessage.set(this.i18nService.t("upgradeToFamilies", planDetails.name));
-              break;
-            case "teams":
-              this.upgradeToMessage.set(this.i18nService.t("upgradeToTeams", planDetails.name));
-              break;
-            case "enterprise":
-              this.upgradeToMessage.set(
-                this.i18nService.t("upgradeToEnterprise", planDetails.name),
-              );
-              break;
-            default:
-              this.upgradeToMessage.set("");
-              break;
-          }
+          this.setSelectedPlan(planDetails);
+          this.setUpgradeMessage(planDetails);
         } else {
           this.complete.emit({
             status: PremiumOrgUpgradePaymentStatus.Closed,
@@ -326,16 +302,70 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   private getUpgradeStatus(planId: string): PremiumOrgUpgradePaymentStatus {
-    switch (planId) {
-      case "families":
-        return PremiumOrgUpgradePaymentStatus.UpgradedToFamilies;
-      case "teams":
-        return PremiumOrgUpgradePaymentStatus.UpgradedToTeams;
-      case "enterprise":
-        return PremiumOrgUpgradePaymentStatus.UpgradedToEnterprise;
-      default:
-        return PremiumOrgUpgradePaymentStatus.Closed;
+    return this.UPGRADE_STATUS_MAP[planId] ?? PremiumOrgUpgradePaymentStatus.Closed;
+  }
+
+  /**
+   * Gets the appropriate translation key for the membership display.
+   * Returns a prorated message if the plan has prorated months, otherwise returns the standard plan message.
+   */
+  private getMembershipTranslationKey(): string {
+    return this.estimatedInvoice()?.newPlanProratedMonths > 0
+      ? "planProratedMembershipInMonths"
+      : this.planMembershipMessage();
+  }
+
+  /**
+   * Gets the translation parameters for the membership display.
+   * For prorated plans, returns an array with the plan name and formatted month duration.
+   * For non-prorated plans, returns an empty array.
+   */
+  private getMembershipTranslationParams(): string[] {
+    if (this.estimatedInvoice()?.newPlanProratedMonths > 0) {
+      const months = this.estimatedInvoice()!.newPlanProratedMonths;
+      const monthLabel = this.formatMonthLabel(months);
+      return [this.selectedPlan()!.details.name, monthLabel];
     }
+    return [];
+  }
+
+  /**
+   * Formats month count into a readable string (e.g., "1 month", "3 months").
+   */
+  private formatMonthLabel(months: number): string {
+    return `${months} month${months > 1 ? "s" : ""}`;
+  }
+
+  /**
+   * Calculates the cart cost, using prorated amount if available, otherwise the plan cost.
+   */
+  private getCartCost(): number {
+    const proratedAmount = this.estimatedInvoice().newPlanProratedAmount;
+    return proratedAmount && proratedAmount > 0 ? proratedAmount : this.selectedPlan()!.cost;
+  }
+
+  /**
+   * Sets the selected plan with tier, details, and cost.
+   */
+  private setSelectedPlan(
+    planDetails: PersonalSubscriptionPricingTier | BusinessSubscriptionPricingTier,
+  ): void {
+    this.selectedPlan.set({
+      tier: this.selectedPlanId(),
+      details: planDetails,
+      cost: this.getPlanPrice(planDetails),
+    });
+  }
+
+  /**
+   * Sets the upgrade message based on the selected plan.
+   */
+  private setUpgradeMessage(
+    planDetails: PersonalSubscriptionPricingTier | BusinessSubscriptionPricingTier,
+  ): void {
+    const messageKey = this.UPGRADE_MESSAGE_KEYS[this.selectedPlanId()];
+    const message = messageKey ? this.i18nService.t(messageKey, planDetails.name) : "";
+    this.upgradeToMessage.set(message);
   }
 
   /**
@@ -365,17 +395,31 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
+   * Returns an empty invoice preview with default values.
+   */
+  private getEmptyInvoicePreview(): InvoicePreview {
+    return {
+      tax: this.INITIAL_TAX_VALUE,
+      total: 0,
+      credit: 0,
+      newPlanProratedMonths: 0,
+      newPlanProratedAmount: 0,
+    };
+  }
+
+  /**
    * Refreshes the invoice preview based on the current form state.
    */
   private refreshInvoicePreview$(): Observable<InvoicePreview> {
     if (this.formGroup.invalid || !this.selectedPlan()) {
-      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
+      return of(this.getEmptyInvoicePreview());
     }
 
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
     if (!billingAddress.country || !billingAddress.postalCode) {
-      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
+      return of(this.getEmptyInvoicePreview());
     }
+
     return from(
       this.premiumOrgUpgradeService.previewProratedInvoice(this.selectedPlan()!, billingAddress),
     ).pipe(
@@ -385,7 +429,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
           variant: "error",
           message: this.i18nService.t("invoicePreviewErrorMessage"),
         });
-        return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
+        return of(this.getEmptyInvoicePreview());
       }),
     );
   }
