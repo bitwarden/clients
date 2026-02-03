@@ -10106,6 +10106,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
   },

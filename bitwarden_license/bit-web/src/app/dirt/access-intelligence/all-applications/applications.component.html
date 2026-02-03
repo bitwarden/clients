@@ -54,6 +54,7 @@
           buttonType="secondary"
           type="button"
           [disabled]="!enableRequestPasswordChange()"
+          [bitTooltip]="!enableRequestPasswordChange() ? ('allTasksAssigned' | i18n) : null"
           (click)="requestPasswordChange()"
         >
           <bit-icon class="tw-mr-2" name="bwi-envelope" />

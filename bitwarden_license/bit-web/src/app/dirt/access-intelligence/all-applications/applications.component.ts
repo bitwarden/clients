@@ -29,6 +29,7 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  TooltipDirective,
   TypographyModule,
   ChipSelectComponent,
   IconComponent,
@@ -70,6 +71,7 @@ export type ApplicationFilterOption =
     ReactiveFormsModule,
     ChipSelectComponent,
     IconComponent,
+    TooltipDirective,
   ],
 })
 export class ApplicationsComponent implements OnInit {
