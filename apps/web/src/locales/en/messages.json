@@ -3805,6 +3805,9 @@
   "editCollection": {
     "message": "Edit collection"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "Collection info"
   },

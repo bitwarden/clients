@@ -2,7 +2,7 @@
   <bit-dialog [disablePadding]="!loading" dialogSize="large">
     <span bitDialogTitle>
       <ng-container *ngIf="editMode">
-        {{ "editCollection" | i18n }}
+        {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}
         <span class="tw-text-sm tw-normal-case tw-text-muted" *ngIf="!loading">{{
           collection.name
         }}</span>
