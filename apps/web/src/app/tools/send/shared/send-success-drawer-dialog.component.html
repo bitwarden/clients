@@ -1,6 +1,6 @@
 <bit-dialog dialogSize="large" disablePadding="false" background="alt">
   <ng-container bitDialogTitle>
-    <span>{{ dialogTitle() | i18n }}</span>
+    <span>{{ dialogTitle | i18n }}</span>
   </ng-container>
   <ng-container bitDialogContent>
     <div
@@ -17,7 +17,13 @@
       </h3>
 
       <p bitTypography="body1" class="tw-mb-6 tw-max-w-sm">
-        {{ "sendCreatedDescriptionV2" | i18n: formattedExpirationTime }}
+        @let translationKey =
+          send.authType === AuthType.Email
+            ? "sendCreatedDescriptionEmail"
+            : send.authType === AuthType.Password
+              ? "sendCreatedDescriptionPassword"
+              : "sendCreatedDescriptionV2";
+        {{ translationKey | i18n: formattedExpirationTime }}
       </p>
 
       <bit-form-field class="tw-w-full tw-max-w-sm tw-mb-4">

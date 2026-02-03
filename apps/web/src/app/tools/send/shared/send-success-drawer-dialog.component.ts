@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Inject, signal, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Inject, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
@@ -6,6 +6,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DIALOG_DATA, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -16,13 +17,13 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSuccessDrawerDialogComponent {
+  readonly AuthType = AuthType;
   readonly sendLink = signal<string>("");
   activeSendIcon = ActiveSendIcon;
 
-  // Computed property to get the dialog title based on send type
-  readonly dialogTitle = computed(() => {
+  get dialogTitle(): string {
     return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
-  });
+  }
 
   constructor(
     @Inject(DIALOG_DATA) public send: SendView,
