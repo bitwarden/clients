@@ -104,6 +104,7 @@ export class ApplicationsComponent implements OnInit {
       icon: " ",
     },
   ]);
+  protected readonly emptyTableExplanation = signal("");
 
   constructor(
     protected i18nService: I18nService,
@@ -164,6 +165,12 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
+
+        if (this.dataSource?.filteredData?.length === 0) {
+          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
+        } else {
+          this.emptyTableExplanation.set("");
+        }
       });
   }
 
