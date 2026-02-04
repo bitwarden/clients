@@ -13,7 +13,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -85,7 +85,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1",
+          id: "col1" as CollectionId,
           name: "Test Collection",
           organizationId: mockOrganizationId,
         });
@@ -102,7 +102,9 @@ describe("MemberAccessReportService", () => {
           organizationId: mockOrganizationId,
           name: "Test Group",
           externalId: null,
-          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+          collections: [
+            { id: "col1" as CollectionId, readOnly: false, hidePasswords: false, manage: false },
+          ],
         });
 
         mockGroupApiService.getAllDetails.mockResolvedValue([group]);
@@ -147,7 +149,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1",
+          id: "col1" as CollectionId,
           name: "Test Collection",
           organizationId: mockOrganizationId,
         });
@@ -164,7 +166,9 @@ describe("MemberAccessReportService", () => {
           organizationId: mockOrganizationId,
           name: "Test Group",
           externalId: null,
-          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+          collections: [
+            { id: "col1" as CollectionId, readOnly: false, hidePasswords: false, manage: false },
+          ],
         });
 
         mockGroupApiService.getAllDetails.mockResolvedValue([group]);
@@ -311,7 +315,7 @@ describe("MemberAccessReportService", () => {
 
         // One collection assigned to group1
         const collection = new CollectionAdminView({
-          id: "col1",
+          id: "col1" as CollectionId,
           name: "Collection 1",
           organizationId: mockOrganizationId,
         });
@@ -329,7 +333,9 @@ describe("MemberAccessReportService", () => {
           organizationId: mockOrganizationId,
           name: "Group With Collection",
           externalId: null,
-          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: true }],
+          collections: [
+            { id: "col1" as CollectionId, readOnly: false, hidePasswords: false, manage: true },
+          ],
         });
         const group2 = new GroupDetailsView();
         Object.assign(group2, {
@@ -395,7 +401,7 @@ describe("MemberAccessReportService", () => {
 
         // Two collections both assigned to group1
         const collection1 = new CollectionAdminView({
-          id: "col1",
+          id: "col1" as CollectionId,
           name: "Collection 1",
           organizationId: mockOrganizationId,
         });
@@ -405,7 +411,7 @@ describe("MemberAccessReportService", () => {
         });
 
         const collection2 = new CollectionAdminView({
-          id: "col2",
+          id: "col2" as CollectionId,
           name: "Collection 2",
           organizationId: mockOrganizationId,
         });
@@ -425,8 +431,8 @@ describe("MemberAccessReportService", () => {
           name: "Multi Collection Group",
           externalId: null,
           collections: [
-            { id: "col1", readOnly: false, hidePasswords: false, manage: false },
-            { id: "col2", readOnly: true, hidePasswords: false, manage: false },
+            { id: "col1" as CollectionId, readOnly: false, hidePasswords: false, manage: false },
+            { id: "col2" as CollectionId, readOnly: true, hidePasswords: false, manage: false },
           ],
         });
 
@@ -537,7 +543,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1",
+          id: "col1" as CollectionId,
           name: "Collection A",
           organizationId: mockOrganizationId,
         });
@@ -554,7 +560,9 @@ describe("MemberAccessReportService", () => {
           organizationId: mockOrganizationId,
           name: "Group A",
           externalId: null,
-          collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
+          collections: [
+            { id: "col1" as CollectionId, readOnly: false, hidePasswords: false, manage: false },
+          ],
         });
         const group2 = new GroupDetailsView();
         Object.assign(group2, {

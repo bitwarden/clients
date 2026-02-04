@@ -7,6 +7,7 @@ import { ProgressModule } from "@bitwarden/components";
 import {
   MemberAccessProgress,
   MemberAccessProgressConfig,
+  MemberAccessProgressStep,
   calculateProgressPercentage,
 } from "../model/member-access-progress";
 
@@ -28,7 +29,7 @@ export class MemberAccessLoadingComponent {
   /**
    * Current progress step.
    */
-  readonly step = input<MemberAccessProgress>(MemberAccessProgress.FetchingMembers);
+  readonly step = input<MemberAccessProgressStep>(MemberAccessProgress.FetchingMembers);
 
   /**
    * Number of members processed so far.
