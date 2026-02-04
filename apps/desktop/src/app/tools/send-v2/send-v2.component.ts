@@ -4,6 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   signal,
@@ -93,6 +94,9 @@ export class SendV2Component {
   private toastService = inject(ToastService);
   private logService = inject(LogService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+
+  private activeDrawerRef: any = null;
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
@@ -146,6 +150,10 @@ export class SendV2Component {
       this.filteredSends();
       this.cdr.markForCheck();
     });
+
+    this.destroyRef.onDestroy(() => {
+      this.activeDrawerRef?.close();
+    });
   }
 
   protected readonly selectedSendType = computed(() => {
@@ -163,11 +171,12 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
@@ -195,11 +204,12 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       if (sendId === this.sendId() && this.action() === Action.Edit) {
         return;
