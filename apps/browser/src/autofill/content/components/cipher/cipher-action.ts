@@ -3,6 +3,7 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { BadgeButton } from "../../../content/components/buttons/badge-button";
 import { EditButton } from "../../../content/components/buttons/edit-button";
 import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
+import { EventSecurity } from "../../../utils/event-security";
 import { I18n } from "../common-types";
 import { selectedCipher as selectedCipherSignal } from "../signals/selected-cipher";
 
@@ -28,7 +29,7 @@ export function CipherAction({
   username,
 }: CipherActionProps) {
   const selectCipherHandleAction = (e: Event) => {
-    if (!e.isTrusted) {
+    if (!EventSecurity.isEventTrusted(e)) {
       return;
     }
 
