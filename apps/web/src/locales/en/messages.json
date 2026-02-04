@@ -38,6 +38,9 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
+  },
   "passwordRisk": {
     "message": "Password Risk"
   },
