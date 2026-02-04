@@ -106,7 +106,7 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
     { initialValue: false },
   );
-  protected readonly isPremiumOrgUpgradeEnabled = computed(
+  protected readonly showPremiumToOrganizationUpgrade = computed(
     () => this.hasPremiumPersonally() && this.premiumToOrganizationUpgradeEnabled(),
   );
 
