@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send sẽ được xóa vĩnh viễn vào ngày này.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Tệp để chia sẻ"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Ẩn văn bản theo mặc định"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Ẩn địa chỉ email của bạn với người xem."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Giới hạn số lượt xem"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ lượt xem còn lại",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,45 +127,45 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Không ai có thể xem Send này sau khi đạt đến giới hạn.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Ghi chú riêng tư"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Chi tiết Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Thêm mật khẩu tùy chọn cho người nhận để có thể truy cập vào Send này.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Nội dung chia sẻ"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Send văn bản mới",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Send tập tin mới",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Sửa Send văn bản",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Sửa Send tập tin",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Bạn có chắc chắn muốn xóa vĩnh viễn Send này không?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
-    "message": "New",
+    "message": "Mới",
     "description": "for adding new items"
   },
   "newUri": {
@@ -1267,7 +1267,7 @@
     "message": "Theo dõi chúng tôi"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Đồng bộ ngay"
   },
   "changeMasterPass": {
     "message": "Thay đổi mật khẩu chính"
@@ -1844,19 +1844,19 @@
     "message": "Xuất từ"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Đã xóa vĩnh viễn mục"
+  },
+  "archivedItemRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
   },
   "restoredItem": {
     "message": "Mục đã được khôi phục"
@@ -2480,7 +2483,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Sao chép liên kết Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4076,10 +4079,10 @@
     "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Thay đổi ngay"
   },
   "missingWebsite": {
     "message": "Thiếu trang web"
@@ -4110,14 +4113,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Không có kết quả tìm kiếm nào được trả về"
   },
   "sendsBodyNoItems": {
     "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Xóa bộ lọc hoặc thử cụm từ tìm kiếm khác"
   },
   "generatorNudgeTitle": {
     "message": "Tạo mật khẩu nhanh chóng"
@@ -4338,7 +4341,7 @@
     "message": "Phím tắt nhập liệu"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Bao gồm một hoặc hai phím bổ trợ sau: Ctrl, Alt, Win và một chữ cái."
   },
   "invalidShortcut": {
     "message": "Phím tắt không hợp lệ"
@@ -4377,7 +4380,7 @@
     "message": "Hủy lưu trữ"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Đã lưu trữ"
   },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
@@ -4397,23 +4400,23 @@
   "archiveItem": {
     "message": "Lưu trữ mục"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  "archiveItemDialogContent": {
+    "message": "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Bỏ lưu trữ và lưu"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Khởi động lại gói Cao cấp"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Gói đăng ký Cao cấp của bạn đã kết thúc"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Mục đã được khôi phục"
   },
   "zipPostalCodeLabel": {
     "message": "Mã ZIP / Bưu điện"
@@ -4446,43 +4449,43 @@
     "message": "Nâng cấp lên gói Cao cấp"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Tiếp tục đăng nhập"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Không tiếp tục"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Tên miền"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Tên miền này sẽ lưu trữ các khóa mã hóa tài khoản của bạn, vì vậy hãy đảm bảo bạn tin tưởng nó. Nếu bạn không chắc chắn, hãy kiểm tra với quản trị viên của bạn."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Xác minh tổ chức của bạn để đăng nhập"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Tổ chức đã được xác minh"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Tên miền đã được xác minh"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Nếu bạn không xác minh tổ chức của mình, quyền truy cập vào tổ chức sẽ bị thu hồi."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Rời khỏi ngay"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Xác minh tên miền của bạn để đăng nhập"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tên miền này."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tổ chức và tên miền."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Hành động sau khi đóng kho"
@@ -4491,7 +4494,7 @@
     "message": "Thời gian hết phiên"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Thay đổi kích thước thanh bên"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Cài đặt này do tổ chức của bạn quản lý."

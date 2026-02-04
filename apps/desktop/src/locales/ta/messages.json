@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "உருப்படி நிரந்தரமாக நீக்கப்பட்டது"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "உருப்படி மீட்டெடுக்கப்பட்டது"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

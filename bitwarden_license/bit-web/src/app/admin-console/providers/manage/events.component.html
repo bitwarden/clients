@@ -94,7 +94,12 @@
     [bitAction]="loadMoreEvents"
     *ngIf="continuationToken"
   >
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    <i
+      *ngIf="loading"
+      class="bwi bwi-spinner bwi-spin"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
     <span>{{ "loadMore" | i18n }}</span>
   </button>
 </ng-container>

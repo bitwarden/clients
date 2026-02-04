@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Kirjaudu pääsyavaimella"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Käytä kertakirjautumista"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Arkistoi kohde"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "En"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Sijainti"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "Sähköposti"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Puhelinnumero"
   },
@@ -2472,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kohde poistettiin pysyvästi"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Palauta kohde"
@@ -3363,6 +3378,12 @@
   },
   "error": {
     "message": "Virhe"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Salauksen purkuvirhe"
@@ -4739,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Lisää valintoja - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Lataa Bitwarden"
   },
@@ -5125,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Piilota vastaavuuden tunnistus $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Automaattitäytetäänkö sivun avautuessa?"
@@ -5670,6 +5694,9 @@
   "extraWide": {
     "message": "Erittäin leveä"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Syöttämäsi salasana on virheellinen."
   },
@@ -6102,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
