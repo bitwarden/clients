@@ -1,0 +1,14 @@
+<!-- Premium-to-Organization upgrade flow: User already has premium personally and is upgrading to Teams/Enterprise -->
+@if (step() == PlanSelectionStep) {
+  <app-premium-org-upgrade
+    (planSelected)="onPlanSelected($event)"
+    (closeClicked)="onCloseClicked()"
+  />
+} @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
+  <app-premium-org-upgrade-payment
+    [selectedPlanId]="selectedPlan()"
+    [account]="account()"
+    (goBack)="previousStep()"
+    (complete)="onComplete($event)"
+  />
+}
