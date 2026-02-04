@@ -155,8 +155,9 @@ describe("OverlayNotificationsContentService", () => {
         {
           command: "initNotificationBar",
           initData: expect.any(Object),
+          parentOrigin: expect.any(String),
         },
-        "*",
+        overlayNotificationsContentService["extensionOrigin"],
       );
     });
   });
@@ -257,7 +258,7 @@ describe("OverlayNotificationsContentService", () => {
 
       expect(postMessageSpy).toHaveBeenCalledWith(
         { command: "saveCipherAttemptCompleted", error: undefined },
-        "*",
+        overlayNotificationsContentService["extensionOrigin"],
       );
     });
   });

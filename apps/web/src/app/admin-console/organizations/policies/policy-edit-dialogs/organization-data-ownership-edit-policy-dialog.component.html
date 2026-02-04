@@ -1,0 +1,72 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
+    <ng-container bitDialogTitle>
+      @let title = multiStepSubmit()[currentStep()]?.titleContent();
+      @if (title) {
+        <ng-container [ngTemplateOutlet]="title"></ng-container>
+      }
+    </ng-container>
+
+    <ng-container bitDialogContent>
+      @if (loading) {
+        <div>
+          <i
+            class="bwi bwi-spinner bwi-spin tw-text-muted"
+            title="{{ 'loading' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        </div>
+      }
+      <div [hidden]="loading">
+        @if (policy.showDescription) {
+          <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        }
+      </div>
+      <ng-template #policyForm></ng-template>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      @let footer = multiStepSubmit()[currentStep()]?.footerContent();
+      @if (footer) {
+        <ng-container [ngTemplateOutlet]="footer"></ng-container>
+      }
+    </ng-container>
+  </bit-dialog>
+</form>
+
+<ng-template #step0Title>
+  {{ policy.name | i18n }}
+</ng-template>
+
+<ng-template #step1Title>
+  {{ "centralizeDataOwnershipWarningTitle" | i18n }}
+</ng-template>
+
+<ng-template #step0>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    @if (policyComponent?.policyResponse?.enabled) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
+  </button>
+
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>
+
+<ng-template #step1>
+  <button bitButton buttonType="primary" bitFormButton type="submit">
+    {{ "continue" | i18n }}
+  </button>
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>

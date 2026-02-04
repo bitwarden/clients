@@ -3,16 +3,16 @@
 import * as papa from "papaparse";
 import { filter, firstValueFrom, map } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionData,
-  Collection,
-  CollectionDetailsResponse,
   CollectionView,
-} from "@bitwarden/admin-console/common";
+  CollectionDetailsResponse,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -46,7 +46,7 @@ export class OrganizationVaultExportService
   constructor(
     private cipherService: CipherService,
     private vaultExportApiService: VaultExportApiService,
-    pinService: PinServiceAbstraction,
+    keyGenerationService: KeyGenerationService,
     private keyService: KeyService,
     encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
@@ -54,7 +54,7 @@ export class OrganizationVaultExportService
     kdfConfigService: KdfConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
+    super(keyGenerationService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
   /** Creates a password protected export of an organizational vault.
@@ -383,6 +383,7 @@ export class OrganizationVaultExportService
     decCiphers.forEach((c) => {
       const cipher = new CipherWithIdExport();
       cipher.build(c);
+      delete cipher.key;
       jsonDoc.items.push(cipher);
     });
     return JSON.stringify(jsonDoc, null, "  ");

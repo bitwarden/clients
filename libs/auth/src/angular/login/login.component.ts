@@ -205,14 +205,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      // This SSO required check should come after email has had a chance to be pre-filled (if it
-      // was found in query params or was the remembered email)
-      await this.determineIfSsoRequired();
-    }
+    // This SSO required check should come after email has had a chance to be pre-filled (if it
+    // was found in query params or was the remembered email)
+    await this.determineIfSsoRequired();
   }
 
   private async desktopOnInit(): Promise<void> {
@@ -386,8 +381,26 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // redirect to SSO if ssoOrganizationIdentifier is present in token response
+    if (authResult.requiresSso) {
+      const email = this.formGroup?.value?.email;
+      if (!email) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("emailRequiredForSsoLogin"),
+        });
+        return;
+      }
+      await this.loginComponentService.redirectToSsoLoginWithOrganizationSsoIdentifier(
+        email,
+        authResult.ssoOrganizationIdentifier,
+      );
+      return;
+    }
+
     // User logged in successfully so execute side effects
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Determine where to send the user next
     // The AuthGuard will handle routing to change-password based on state

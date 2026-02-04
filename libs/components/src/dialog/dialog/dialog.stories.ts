@@ -57,6 +57,7 @@ export default {
   args: {
     loading: false,
     dialogSize: "small",
+    disableAnimations: true,
   },
   argTypes: {
     _disablePadding: {
@@ -70,6 +71,9 @@ export default {
       table: {
         defaultValue: "default",
       },
+    },
+    disableAnimations: {
+      control: { type: "boolean" },
     },
   },
   parameters: {
@@ -86,10 +90,11 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
+
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
           <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
@@ -158,7 +163,7 @@ export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -175,6 +180,7 @@ export const ScrollingContent: Story = {
   }),
   args: {
     dialogSize: "small",
+    disableAnimations: true,
   },
 };
 
@@ -182,7 +188,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
+      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>
@@ -200,6 +206,7 @@ export const TabContent: Story = {
   args: {
     dialogSize: "large",
     disablePadding: true,
+    disableAnimations: true,
   },
   parameters: {
     docs: {
@@ -219,7 +226,7 @@ export const WithCards: Story = {
     },
     template: /*html*/ `
       <form [formGroup]="formObj">
-      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -283,5 +290,45 @@ export const WithCards: Story = {
     title: "Default",
     subtitle: "Subtitle",
     background: "alt",
+    disableAnimations: true,
+  },
+};
+
+export const HeaderEnd: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-dialog
+        [dialogSize]="dialogSize"
+        [title]="title"
+        [subtitle]="subtitle"
+        [loading]="loading"
+        [disablePadding]="disablePadding"
+        [disableAnimations]="disableAnimations">
+
+        <ng-container bitDialogHeaderEnd>
+          <span bitBadge>Archived</span>
+        </ng-container>
+
+        <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
+        <ng-container bitDialogFooter>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button
+            type="button"
+            [disabled]="loading"
+            class="tw-ms-auto"
+            bitIconButton="bwi-trash"
+            buttonType="danger"
+            size="default"
+            label="Delete"></button>
+        </ng-container>
+      </bit-dialog>
+    `,
+  }),
+  args: {
+    dialogSize: "small",
+    title: "Very Long Title That Should Be Truncated After Two Lines To Test Header End Slot",
+    subtitle: "Subtitle",
   },
 };

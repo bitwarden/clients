@@ -5,6 +5,7 @@
   [routerLinkActiveOptions]="routerLinkMatchOptions"
   #rla="routerLinkActive"
   [active]="rla.isActive"
+  [state]="{ focusMainAfterNav: false }"
   [disabled]="disabled"
   [attr.aria-disabled]="disabled"
   ariaCurrentWhenActive="page"

@@ -15,9 +15,7 @@ import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
 
-export class DefaultUserAsymmetricKeysRegenerationService
-  implements UserAsymmetricKeysRegenerationService
-{
+export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {
   constructor(
     private keyService: KeyService,
     private cipherService: CipherService,
@@ -37,7 +35,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
       if (privateKeyRegenerationFlag) {
         const shouldRegenerate = await this.shouldRegenerate(userId);
         if (shouldRegenerate) {
-          await this.regenerateUserAsymmetricKeys(userId);
+          await this.regenerateUserPublicKeyEncryptionKeyPair(userId);
         }
       }
     } catch (error) {
@@ -125,10 +123,13 @@ export class DefaultUserAsymmetricKeysRegenerationService
     return false;
   }
 
-  private async regenerateUserAsymmetricKeys(userId: UserId): Promise<void> {
+  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<boolean> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
       throw new Error("User key not found");
+    }
+    if (userKey.inner().type !== EncryptionType.AesCbc256_HmacSha256_B64) {
+      throw new Error("User key is not V1 encryption type");
     }
     const makeKeyPairResponse = await firstValueFrom(
       this.sdkService.client$.pipe(
@@ -151,19 +152,21 @@ export class DefaultUserAsymmetricKeysRegenerationService
         this.logService.info(
           "[UserAsymmetricKeyRegeneration] Regeneration not supported for this user at this time.",
         );
+        return false;
       } else {
         this.logService.error(
           "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server: " +
             error,
         );
+        return false;
       }
-      return;
     }
 
     await this.keyService.setPrivateKey(makeKeyPairResponse.userKeyEncryptedPrivateKey, userId);
     this.logService.info(
       "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
     );
+    return true;
   }
 
   private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {

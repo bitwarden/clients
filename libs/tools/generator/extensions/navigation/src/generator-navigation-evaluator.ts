@@ -8,9 +8,10 @@ import { GeneratorNavigationPolicy } from "./generator-navigation-policy";
 
 /** Enforces policy for generator navigation options.
  */
-export class GeneratorNavigationEvaluator
-  implements PolicyEvaluator<GeneratorNavigationPolicy, GeneratorNavigation>
-{
+export class GeneratorNavigationEvaluator implements PolicyEvaluator<
+  GeneratorNavigationPolicy,
+  GeneratorNavigation
+> {
   /** Instantiates the evaluator.
    * @param policy The policy applied by the evaluator. When this conflicts with
    *               the defaults, the policy takes precedence.

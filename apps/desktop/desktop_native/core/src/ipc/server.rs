@@ -3,9 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use futures::{SinkExt, StreamExt, TryFutureExt};
-
 use anyhow::Result;
+use futures::{SinkExt, StreamExt, TryFutureExt};
 use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -42,14 +41,17 @@ impl Server {
     ///
     /// # Parameters
     ///
-    /// - `name`: The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
-    /// - `client_to_server_send`: This [`mpsc::Sender<Message>`] will receive all the [`Message`]'s that the clients send to this server.
+    /// - `name`: The endpoint name to listen on. This name uniquely identifies the IPC connection
+    ///   and must be the same for both the server and client.
+    /// - `client_to_server_send`: This [`mpsc::Sender<Message>`] will receive all the [`Message`]'s
+    ///   that the clients send to this server.
     pub fn start(
         path: &Path,
         client_to_server_send: mpsc::Sender<Message>,
     ) -> Result<Self, Box<dyn Error>> {
-        // If the unix socket file already exists, we get an error when trying to bind to it. So we remove it first.
-        // Any processes that were using the old socket should remain connected to it but any new connections will use the new socket.
+        // If the unix socket file already exists, we get an error when trying to bind to it. So we
+        // remove it first. Any processes that were using the old socket should remain
+        // connected to it but any new connections will use the new socket.
         if !cfg!(windows) {
             let _ = std::fs::remove_file(path);
         }
@@ -58,8 +60,9 @@ impl Server {
         let opts = ListenerOptions::new().name(name);
         let listener = opts.create_tokio()?;
 
-        // This broadcast channel is used for sending messages to all connected clients, and so the sender
-        // will be stored in the server while the receiver will be cloned and passed to each client handler.
+        // This broadcast channel is used for sending messages to all connected clients, and so the
+        // sender will be stored in the server while the receiver will be cloned and passed
+        // to each client handler.
         let (server_to_clients_send, server_to_clients_recv) =
             broadcast::channel::<String>(MESSAGE_CHANNEL_BUFFER);
 

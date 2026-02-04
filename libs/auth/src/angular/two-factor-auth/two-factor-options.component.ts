@@ -9,11 +9,8 @@ import {
   TwoFactorAuthWebAuthnIcon,
   TwoFactorAuthYubicoIcon,
 } from "@bitwarden/assets/svg";
-import {
-  TwoFactorProviderDetails,
-  TwoFactorService,
-} from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorProviderDetails, TwoFactorService } from "@bitwarden/common/auth/two-factor";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -21,7 +18,7 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
-  IconModule,
+  SvgModule,
   ItemModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -42,7 +39,7 @@ export type TwoFactorOptionsDialogResult = {
     ButtonModule,
     TypographyModule,
     ItemModule,
-    IconModule,
+    SvgModule,
   ],
   providers: [],
 })

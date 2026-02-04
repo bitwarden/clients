@@ -50,7 +50,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -117,7 +117,7 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
+  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -248,7 +248,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
     private configService: ConfigService,
   ) {}
@@ -387,6 +387,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.focusedIndex = this.selectableProducts.length - 1;
     if (!this.isSubscriptionCanceled) {
       await this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    } else {
+      await this.selectPlan(this.reSubscribablePlan);
     }
   }
 
@@ -547,10 +549,28 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
+  get reSubscribablePlan() {
+    if (!this.currentPlan) {
+      throw new Error(
+        "Current plan must be set to find the re-subscribable plan for a cancelled subscription.",
+      );
+    }
+    if (!this.currentPlan.disabled) {
+      return this.currentPlan;
+    }
+    return (
+      this.passwordManagerPlans.find(
+        (plan) =>
+          plan.productTier === this.currentPlan.productTier &&
+          plan.isAnnual === this.currentPlan.isAnnual &&
+          !plan.disabled,
+      ) ?? this.currentPlan
+    );
+  }
+
   get selectableProducts() {
     if (this.isSubscriptionCanceled) {
-      // Return only the current plan if the subscription is canceled
-      return [this.currentPlan];
+      return [this.reSubscribablePlan];
     }
 
     if (this.acceptingSponsorship) {
@@ -620,7 +640,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get storageGb() {
-    return this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0;
+    return Math.max(
+      0,
+      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+    );
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -644,12 +667,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
-    );
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
@@ -1050,11 +1068,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
-      this.organizationId,
-      getPlanFromLegacyEnum(this.selectedPlan.type),
-      billingAddress,
-    );
+    const taxAmounts =
+      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
+        this.organizationId,
+        getPlanFromLegacyEnum(this.selectedPlan.type),
+        billingAddress,
+      );
 
     this.estimatedTax = taxAmounts.tax;
   }

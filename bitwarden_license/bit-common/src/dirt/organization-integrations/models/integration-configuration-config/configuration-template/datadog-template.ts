@@ -1,17 +1,55 @@
-import { OrganizationIntegrationServiceType } from "../../organization-integration-service-type";
+import { OrgIntegrationTemplate } from "../../integration-builder";
+import { OrganizationIntegrationServiceName } from "../../organization-integration-service-type";
 
-export class DatadogTemplate {
-  source_type_name = "Bitwarden";
-  title: string = "#Title#";
-  text: string =
-    "ActingUser: #ActingUserId#\nUser: #UserId#\nEvent: #Type#\nOrganization: #OrganizationId#\nPolicyId: #PolicyId#\nIpAddress: #IpAddress#\nDomainName: #DomainName#\nCipherId: #CipherId#\n";
-  service: OrganizationIntegrationServiceType;
+export class DatadogTemplate implements OrgIntegrationTemplate {
+  bw_serviceName: OrganizationIntegrationServiceName;
 
-  constructor(service: string) {
-    this.service = service as OrganizationIntegrationServiceType;
+  constructor(service: OrganizationIntegrationServiceName) {
+    this.bw_serviceName = service;
+  }
+
+  private toJSON() {
+    return {
+      bw_serviceName: this.bw_serviceName,
+      ddsource: "bitwarden",
+      service: "event-logs",
+      event: {
+        service: "payments",
+        object: "event",
+        type: "#Type#",
+        itemId: "#CipherId#",
+        collectionId: "#CollectionId#",
+        groupId: "#GroupId#",
+        policyId: "#PolicyId#",
+        memberId: "#UserId#",
+        actingUserId: "#ActingUserId#",
+        installationId: "#InstallationId#",
+        date: "#DateIso8601#",
+        device: "#DeviceType#",
+        ipAddress: "#IpAddress#",
+        secretId: "#SecretId#",
+        projectId: "#ProjectId#",
+        serviceAccountId: "#ServiceAccountId#",
+      },
+      enrichment_details: {
+        actingUser: {
+          name: "#ActingUserName#",
+          email: "#ActingUserEmail#",
+          type: "#ActingUserType#",
+        },
+        member: {
+          name: "#UserName#",
+          email: "#UserEmail#",
+          type: "#UserType#",
+        },
+        group: {
+          name: "#GroupName#",
+        },
+      },
+    };
   }
 
   toString(): string {
-    return JSON.stringify(this);
+    return JSON.stringify(this.toJSON());
   }
 }

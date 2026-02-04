@@ -15,7 +15,7 @@
     <bit-item>
       <button type="button" bit-item-content (click)="import()">
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
-          <p>{{ "importItems" | i18n }}</p>
+          <p>{{ "importNoun" | i18n }}</p>
           <span
             *ngIf="emptyVaultImportBadge$ | async"
             bitBadge
@@ -30,17 +30,34 @@
     </bit-item>
     <bit-item>
       <a bit-item-content routerLink="/export">
-        {{ "exportVault" | i18n }}
+        {{ "exportNoun" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    @if (userCanArchive() || showArchiveFilter()) {
-      <bit-item>
-        <a bit-item-content routerLink="/archive">
-          {{ "archiveNoun" | i18n }}
-          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-        </a>
-      </bit-item>
+    @if (showArchiveItem()) {
+      @if (userCanArchive()) {
+        <bit-item>
+          <a data-test-id="archive-link" bit-item-content routerLink="/archive">
+            {{ "archiveNoun" | i18n }}
+            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+          </a>
+        </bit-item>
+      } @else {
+        <bit-item>
+          <a
+            data-test-id="premium-archive-link"
+            bit-item-content
+            href="#"
+            (click)="conditionallyRouteToArchive($event)"
+          >
+            <span class="tw-flex tw-items-center tw-gap-2">
+              {{ "archiveNoun" | i18n }}
+              <app-premium-badge></app-premium-badge>
+            </span>
+            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+          </a>
+        </bit-item>
+      }
     }
     <bit-item>
       <a bit-item-content routerLink="/trash">
@@ -50,7 +67,7 @@
     </bit-item>
     <bit-item>
       <button type="button" bit-item-content (click)="sync()">
-        {{ "syncVaultNow" | i18n }}
+        {{ "syncNow" | i18n }}
         <span slot="secondary">{{ lastSync }}</span>
         <i slot="end" class="bwi bwi-refresh" aria-hidden="true"></i>
       </button>

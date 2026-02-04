@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import {
   createAutofillOverlayCipherDataMock,
@@ -23,6 +24,7 @@ describe("AutofillInlineMenuList", () => {
 
   let autofillInlineMenuList: AutofillInlineMenuList | null;
   const portKey: string = "inlineMenuListPortKey";
+  const expectedOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1) || "chrome-extension://id";
   const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
@@ -67,8 +69,8 @@ describe("AutofillInlineMenuList", () => {
         unlockButton.dispatchEvent(new Event("click"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "unlockVault", portKey },
-          "*",
+          { command: "unlockVault", portKey, token: "test-token" },
+          expectedOrigin,
         );
       });
     });
@@ -134,8 +136,13 @@ describe("AutofillInlineMenuList", () => {
         addVaultItemButton.dispatchEvent(new Event("click"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
-          "*",
+          {
+            command: "addNewVaultItem",
+            portKey,
+            addNewCipherType: CipherType.Login,
+            token: "test-token",
+          },
+          expectedOrigin,
         );
       });
     });
@@ -324,8 +331,9 @@ describe("AutofillInlineMenuList", () => {
                 inlineMenuCipherId: "1",
                 usePasskey: false,
                 portKey,
+                token: "test-token",
               },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -492,8 +500,13 @@ describe("AutofillInlineMenuList", () => {
           viewCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "viewSelectedCipher", inlineMenuCipherId: "1", portKey },
-            "*",
+            {
+              command: "viewSelectedCipher",
+              inlineMenuCipherId: "1",
+              portKey,
+              token: "test-token",
+            },
+            expectedOrigin,
           );
         });
 
@@ -581,8 +594,13 @@ describe("AutofillInlineMenuList", () => {
           newVaultItemButtonSpy.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
-            "*",
+            {
+              command: "addNewVaultItem",
+              portKey,
+              addNewCipherType: CipherType.Login,
+              token: "test-token",
+            },
+            expectedOrigin,
           );
         });
 
@@ -826,8 +844,8 @@ describe("AutofillInlineMenuList", () => {
           fillGeneratedPasswordButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillGeneratedPassword", portKey },
-            "*",
+            { command: "fillGeneratedPassword", portKey, token: "test-token" },
+            expectedOrigin,
           );
         });
 
@@ -843,7 +861,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
               { command: "fillGeneratedPassword", portKey },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -857,8 +875,8 @@ describe("AutofillInlineMenuList", () => {
             );
 
             expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-              { command: "fillGeneratedPassword", portKey },
-              "*",
+              { command: "fillGeneratedPassword", portKey, token: "test-token" },
+              expectedOrigin,
             );
           });
 
@@ -896,8 +914,8 @@ describe("AutofillInlineMenuList", () => {
           refreshGeneratedPasswordButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "refreshGeneratedPassword", portKey },
-            "*",
+            { command: "refreshGeneratedPassword", portKey, token: "test-token" },
+            expectedOrigin,
           );
         });
 
@@ -913,7 +931,7 @@ describe("AutofillInlineMenuList", () => {
 
             expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
               { command: "refreshGeneratedPassword", portKey },
-              "*",
+              expectedOrigin,
             );
           });
 
@@ -927,8 +945,8 @@ describe("AutofillInlineMenuList", () => {
             );
 
             expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-              { command: "refreshGeneratedPassword", portKey },
-              "*",
+              { command: "refreshGeneratedPassword", portKey, token: "test-token" },
+              expectedOrigin,
             );
           });
 
@@ -972,7 +990,7 @@ describe("AutofillInlineMenuList", () => {
     it("does not post a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused", token: "test-token" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
@@ -983,7 +1001,7 @@ describe("AutofillInlineMenuList", () => {
         .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
         .mockReturnValue(autofillInlineMenuList["inlineMenuListContainer"]);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused", token: "test-token" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
@@ -994,7 +1012,7 @@ describe("AutofillInlineMenuList", () => {
       jest
         .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
         .mockReturnValue(autofillInlineMenuList["inlineMenuListContainer"]);
-      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused", token: "test-token" });
       await flushPromises();
 
       globalThis.document.dispatchEvent(new MouseEvent("mouseout"));
@@ -1010,11 +1028,11 @@ describe("AutofillInlineMenuList", () => {
         .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
         .mockReturnValue(null);
 
-      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused", token: "test-token" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "checkAutofillInlineMenuButtonFocused", portKey },
-        "*",
+        { command: "checkAutofillInlineMenuButtonFocused", portKey, token: "test-token" },
+        expectedOrigin,
       );
     });
 
@@ -1022,7 +1040,7 @@ describe("AutofillInlineMenuList", () => {
       postWindowMessage(createInitAutofillInlineMenuListMessageMock());
       const updateCiphersSpy = jest.spyOn(autofillInlineMenuList as any, "updateListItems");
 
-      postWindowMessage({ command: "updateAutofillInlineMenuListCiphers" });
+      postWindowMessage({ command: "updateAutofillInlineMenuListCiphers", token: "test-token" });
 
       expect(updateCiphersSpy).toHaveBeenCalled();
     });
@@ -1062,7 +1080,10 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock());
         await flushPromises();
 
-        postWindowMessage({ command: "updateAutofillInlineMenuGeneratedPassword" });
+        postWindowMessage({
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          token: "test-token",
+        });
 
         expect(buildColorizedPasswordElementSpy).not.toHaveBeenCalled();
       });
@@ -1074,6 +1095,7 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage({
           command: "updateAutofillInlineMenuGeneratedPassword",
           generatedPassword,
+          token: "test-token",
         });
 
         expect(buildPasswordGeneratorSpy).toHaveBeenCalled();
@@ -1090,6 +1112,7 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage({
           command: "updateAutofillInlineMenuGeneratedPassword",
           generatedPassword,
+          token: "test-token",
         });
 
         expect(buildPasswordGeneratorSpy).toHaveBeenCalledTimes(1);
@@ -1115,7 +1138,7 @@ describe("AutofillInlineMenuList", () => {
         );
         await flushPromises();
 
-        postWindowMessage({ command: "showSaveLoginInlineMenuList" });
+        postWindowMessage({ command: "showSaveLoginInlineMenuList", token: "test-token" });
 
         expect(buildSaveLoginInlineMenuSpy).not.toHaveBeenCalled();
       });
@@ -1124,7 +1147,7 @@ describe("AutofillInlineMenuList", () => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock());
         await flushPromises();
 
-        postWindowMessage({ command: "showSaveLoginInlineMenuList" });
+        postWindowMessage({ command: "showSaveLoginInlineMenuList", token: "test-token" });
 
         expect(buildSaveLoginInlineMenuSpy).toHaveBeenCalled();
       });
@@ -1143,7 +1166,7 @@ describe("AutofillInlineMenuList", () => {
           "setAttribute",
         );
 
-        postWindowMessage({ command: "focusAutofillInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
         expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
         expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
@@ -1161,7 +1184,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusAutofillInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
@@ -1173,7 +1196,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusAutofillInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
         expect((newItemButton as HTMLElement).focus).toBeCalled();
       });
@@ -1184,7 +1207,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusAutofillInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });
@@ -1197,8 +1220,8 @@ describe("AutofillInlineMenuList", () => {
         globalThis.dispatchEvent(new Event("blur"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "autofillInlineMenuBlurred", portKey },
-          "*",
+          { command: "autofillInlineMenuBlurred", portKey, token: "test-token" },
+          expectedOrigin,
         );
       });
     });
@@ -1220,8 +1243,13 @@ describe("AutofillInlineMenuList", () => {
         );
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectAutofillInlineMenuFocusOut", direction: "previous", portKey },
-          "*",
+          {
+            command: "redirectAutofillInlineMenuFocusOut",
+            direction: "previous",
+            portKey,
+            token: "test-token",
+          },
+          expectedOrigin,
         );
       });
 
@@ -1229,8 +1257,13 @@ describe("AutofillInlineMenuList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectAutofillInlineMenuFocusOut", direction: "next", portKey },
-          "*",
+          {
+            command: "redirectAutofillInlineMenuFocusOut",
+            direction: "next",
+            portKey,
+            token: "test-token",
+          },
+          expectedOrigin,
         );
       });
 
@@ -1238,8 +1271,13 @@ describe("AutofillInlineMenuList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectAutofillInlineMenuFocusOut", direction: "current", portKey },
-          "*",
+          {
+            command: "redirectAutofillInlineMenuFocusOut",
+            direction: "current",
+            portKey,
+            token: "test-token",
+          },
+          expectedOrigin,
         );
       });
     });
@@ -1274,8 +1312,13 @@ describe("AutofillInlineMenuList", () => {
       autofillInlineMenuList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "updateAutofillInlineMenuListHeight", styles: { height: "300px" }, portKey },
-        "*",
+        {
+          command: "updateAutofillInlineMenuListHeight",
+          styles: { height: "300px" },
+          portKey,
+          token: "test-token",
+        },
+        expectedOrigin,
       );
     });
   });

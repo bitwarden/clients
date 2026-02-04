@@ -8,15 +8,18 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { FormFieldModule, CheckboxModule } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   EffUsernameGenerationOptions,
   BuiltIn,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /** Options group for usernames */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -24,7 +27,7 @@ import {
 @Component({
   selector: "tools-username-settings",
   templateUrl: "username-settings.component.html",
-  standalone: false,
+  imports: [ReactiveFormsModule, FormFieldModule, CheckboxModule, JslibModule, I18nPipe],
 })
 export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component

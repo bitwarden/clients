@@ -3,7 +3,7 @@
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
 import { SendAccessView } from "../view/send-access.view";
 
@@ -54,7 +54,7 @@ export class SendAccess extends Domain {
   async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
     const model = new SendAccessView(this);
 
-    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], null, key);
+    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], key);
 
     switch (this.type) {
       case SendType.File:

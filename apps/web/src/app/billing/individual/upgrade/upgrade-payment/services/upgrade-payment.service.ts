@@ -26,7 +26,7 @@ import {
   OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -58,7 +58,7 @@ export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private accountBillingClient: AccountBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private logService: LogService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
@@ -98,41 +98,41 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
   ): Promise<number> {
-    try {
-      const isOrganizationPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
-      const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
+    const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
+    const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
 
-      let taxClientCall: Promise<TaxAmounts> | null = null;
+    let previewInvoiceClientCall: Promise<TaxAmounts> | null = null;
 
-      if (isOrganizationPlan) {
-        const seats = this.getPasswordManagerSeats(planDetails);
-        if (seats === 0) {
-          throw new Error("Seats must be greater than 0 for organization plan");
-        }
-        // Currently, only Families plan is supported for organization plans
-        const request: OrganizationSubscriptionPurchase = {
-          tier: "families",
-          cadence: "annually",
-          passwordManager: { seats, additionalStorage: 0, sponsored: false },
-        };
+    if (isFamiliesPlan) {
+      // Currently, only Families plan is supported for organization plans
+      const request: OrganizationSubscriptionPurchase = {
+        tier: "families",
+        cadence: "annually",
+        passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+      };
 
-        taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+      previewInvoiceClientCall =
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           request,
           billingAddress,
         );
-      }
+    }
 
-      if (isPremiumPlan) {
-        taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
-      }
+    if (isPremiumPlan) {
+      previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
+        0,
+        billingAddress,
+      );
+    }
 
-      if (taxClientCall === null) {
-        throw new Error("Tax client call is not defined");
-      }
+    if (previewInvoiceClientCall === null) {
+      throw new Error("Preview client call is not defined");
+    }
 
-      const preview = await taxClientCall;
+    try {
+      const preview = await previewInvoiceClientCall;
       return preview.tax;
-    } catch (error: unknown) {
+    } catch (error) {
       this.logService.error("Tax calculation failed:", error);
       throw error;
     }
@@ -147,7 +147,7 @@ export class UpgradePaymentService {
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchasePremiumSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress);
 
     await this.refreshAndSync();
   }
@@ -204,7 +204,8 @@ export class UpgradePaymentService {
   }
 
   private getPasswordManagerSeats(planDetails: PlanDetails): number {
-    return "users" in planDetails.details.passwordManager
+    return "users" in planDetails.details.passwordManager &&
+      planDetails.details.passwordManager.users
       ? planDetails.details.passwordManager.users
       : 0;
   }

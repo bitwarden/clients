@@ -5,7 +5,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { BitIconButtonComponent, MenuItemDirective } from "@bitwarden/components";
+import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
 import { CopyCipherFieldService } from "@bitwarden/vault";
 
 import { CopyCipherFieldDirective } from "./copy-cipher-field.directive";
@@ -83,7 +83,7 @@ describe("CopyCipherFieldDirective", () => {
     });
 
     it("updates menuItemDirective disabled state", async () => {
-      const menuItemDirective = {
+      const menuItemComponent = {
         disabled: false,
       };
 
@@ -91,14 +91,14 @@ describe("CopyCipherFieldDirective", () => {
         copyFieldService as unknown as CopyCipherFieldService,
         mockAccountService,
         mockCipherService,
-        menuItemDirective as unknown as MenuItemDirective,
+        menuItemComponent as unknown as MenuItemComponent,
       );
 
       copyCipherFieldDirective.action = "totp";
 
       await copyCipherFieldDirective.ngOnChanges();
 
-      expect(menuItemDirective.disabled).toBe(true);
+      expect(menuItemComponent.disabled).toBe(true);
     });
   });
 

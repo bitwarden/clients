@@ -8,6 +8,7 @@ import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } fro
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
 import {
+  canAccessAccessIntelligence,
   canAccessBillingTab,
   canAccessGroupsTab,
   canAccessMembersTab,
@@ -25,7 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BannerModule, IconModule } from "@bitwarden/components";
+import { BannerModule, SvgModule } from "@bitwarden/components";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
@@ -46,7 +47,7 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
@@ -170,6 +171,10 @@ export class OrganizationLayoutComponent implements OnInit {
 
   canShowBillingTab(organization: Organization): boolean {
     return canAccessBillingTab(organization);
+  }
+
+  canShowAccessIntelligenceTab(organization: Organization): boolean {
+    return canAccessAccessIntelligence(organization);
   }
 
   getReportTabLabel(organization: Organization): string {

@@ -19,6 +19,7 @@ import {
   DialogService,
   BitValidators,
   ToastService,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
@@ -225,6 +226,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
         data: {
           secrets: secretListView,
         },
+        positionStrategy: new CenterPositionStrategy(),
       },
     );
 

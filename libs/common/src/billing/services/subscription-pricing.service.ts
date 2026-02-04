@@ -19,6 +19,7 @@ import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/p
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
@@ -40,17 +41,20 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
    */
   private static readonly FALLBACK_PREMIUM_SEAT_PRICE = 10;
   private static readonly FALLBACK_PREMIUM_STORAGE_PRICE = 4;
+  private static readonly FALLBACK_PREMIUM_PROVIDED_STORAGE_GB = 1;
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private configService: ConfigService,
     private i18nService: I18nService,
     private logService: LogService,
+    private environmentService: EnvironmentService,
   ) {}
 
   /**
    * Gets personal subscription pricing tiers (Premium and Families).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of personal subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -65,6 +69,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers.
    * @throws Error if any errors occur during api request.
    */
@@ -79,6 +84,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   /**
    * Gets developer subscription pricing tiers (Free, Teams, and Enterprise).
    * Throws any errors that occur during api request so callers must handle errors.
+   * Pricing information will be undefined if current environment is self-hosted.
    * @returns An observable of an array of business subscription pricing tiers for developers.
    * @throws Error if any errors occur during api request.
    */
@@ -90,19 +96,32 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
-  private plansResponse$: Observable<ListResponse<PlanResponse>> = from(
-    this.billingApiService.getPlans(),
-  ).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+  private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> =
+    this.environmentService.environment$.pipe(
+      take(1),
+      switchMap((environment) =>
+        !environment.isCloud()
+          ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
+          : from(this.billingApiService.getPlans()),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
 
-  private premiumPlanResponse$: Observable<PremiumPlanResponse> = from(
-    this.billingApiService.getPremiumPlan(),
-  ).pipe(
-    catchError((error: unknown) => {
-      this.logService.error("Failed to fetch premium plan from API", error);
-      return throwError(() => error); // Re-throw to propagate to higher-level error handler
-    }),
-    shareReplay({ bufferSize: 1, refCount: false }),
-  );
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> =
+    this.environmentService.environment$.pipe(
+      take(1),
+      switchMap((environment) =>
+        !environment.isCloud()
+          ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
+          : from(this.billingApiService.getPremiumPlan()).pipe(
+              catchError((error: unknown) => {
+                this.logService.error("Failed to fetch premium plan from API", error);
+                return throwError(() => error); // Re-throw to propagate to higher-level error handler
+              }),
+            ),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
 
   private premium$: Observable<PersonalSubscriptionPricingTier> = this.configService
     .getFeatureFlag$(FeatureFlag.PM26793_FetchPremiumPriceFromPricingService)
@@ -112,24 +131,27 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         fetchPremiumFromPricingService
           ? this.premiumPlanResponse$.pipe(
               map((premiumPlan) => ({
-                seat: premiumPlan.seat.price,
-                storage: premiumPlan.storage.price,
+                seat: premiumPlan.seat?.price,
+                storage: premiumPlan.storage?.price,
+                provided: premiumPlan.storage?.provided,
               })),
             )
           : of({
               seat: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_SEAT_PRICE,
               storage: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_STORAGE_PRICE,
+              provided: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_PROVIDED_STORAGE_GB,
             }),
       ),
       map((premiumPrices) => ({
         id: PersonalSubscriptionPricingTierIds.Premium,
         name: this.i18nService.t("premium"),
-        description: this.i18nService.t("planDescPremium"),
+        description: this.i18nService.t("advancedOnlineSecurity"),
         availableCadences: [SubscriptionCadenceIds.Annually],
         passwordManager: {
           type: "standalone",
           annualPrice: premiumPrices.seat,
           annualPricePerAdditionalStorageGB: premiumPrices.storage,
+          providedStorageGB: premiumPrices.provided,
           features: [
             this.featureTranslations.builtInAuthenticator(),
             this.featureTranslations.secureFileStorage(),
@@ -141,40 +163,42 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       })),
     );
 
-  private families$: Observable<PersonalSubscriptionPricingTier> = this.plansResponse$.pipe(
-    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
-    map(([plans, milestone3FeatureEnabled]) => {
-      const familiesPlan = plans.data.find(
-        (plan) =>
-          plan.type ===
-          (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
-      )!;
+  private families$: Observable<PersonalSubscriptionPricingTier> =
+    this.organizationPlansResponse$.pipe(
+      combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
+      map(([plans, milestone3FeatureEnabled]) => {
+        const familiesPlan = plans.data.find(
+          (plan) =>
+            plan.type ===
+            (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
+        );
 
-      return {
-        id: PersonalSubscriptionPricingTierIds.Families,
-        name: this.i18nService.t("planNameFamilies"),
-        description: this.i18nService.t("planDescFamiliesV2"),
-        availableCadences: [SubscriptionCadenceIds.Annually],
-        passwordManager: {
-          type: "packaged",
-          users: familiesPlan.PasswordManager.baseSeats,
-          annualPrice: familiesPlan.PasswordManager.basePrice,
-          annualPricePerAdditionalStorageGB:
-            familiesPlan.PasswordManager.additionalStoragePricePerGb,
-          features: [
-            this.featureTranslations.premiumAccounts(),
-            this.featureTranslations.familiesUnlimitedSharing(),
-            this.featureTranslations.familiesUnlimitedCollections(),
-            this.featureTranslations.familiesSharedStorage(),
-          ],
-        },
-      };
-    }),
-  );
+        return {
+          id: PersonalSubscriptionPricingTierIds.Families,
+          name: this.i18nService.t("planNameFamilies"),
+          description: this.i18nService.t("planDescFamiliesV2"),
+          availableCadences: [SubscriptionCadenceIds.Annually],
+          passwordManager: {
+            type: "packaged",
+            users: familiesPlan?.PasswordManager?.baseSeats,
+            annualPrice: familiesPlan?.PasswordManager?.basePrice,
+            annualPricePerAdditionalStorageGB:
+              familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
+            providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
+            features: [
+              this.featureTranslations.premiumAccounts(),
+              this.featureTranslations.familiesUnlimitedSharing(),
+              this.featureTranslations.familiesUnlimitedCollections(),
+              this.featureTranslations.familiesSharedStorage(),
+            ],
+          },
+        };
+      }),
+    );
 
-  private free$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
+  private free$: Observable<BusinessSubscriptionPricingTier> = this.organizationPlansResponse$.pipe(
     map((plans): BusinessSubscriptionPricingTier => {
-      const freePlan = plans.data.find((plan) => plan.type === PlanType.Free)!;
+      const freePlan = plans.data.find((plan) => plan.type === PlanType.Free);
 
       return {
         id: BusinessSubscriptionPricingTierIds.Free,
@@ -184,8 +208,10 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
         passwordManager: {
           type: "free",
           features: [
-            this.featureTranslations.limitedUsersV2(freePlan.PasswordManager.maxSeats),
-            this.featureTranslations.limitedCollectionsV2(freePlan.PasswordManager.maxCollections),
+            this.featureTranslations.limitedUsersV2(freePlan?.PasswordManager?.maxSeats),
+            this.featureTranslations.limitedCollectionsV2(
+              freePlan?.PasswordManager?.maxCollections,
+            ),
             this.featureTranslations.alwaysFree(),
           ],
         },
@@ -193,108 +219,113 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
           type: "free",
           features: [
             this.featureTranslations.twoSecretsIncluded(),
-            this.featureTranslations.projectsIncludedV2(freePlan.SecretsManager.maxProjects),
+            this.featureTranslations.projectsIncludedV2(freePlan?.SecretsManager?.maxProjects),
           ],
         },
       };
     }),
   );
 
-  private teams$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map((plans) => {
-      const annualTeamsPlan = plans.data.find((plan) => plan.type === PlanType.TeamsAnnually)!;
+  private teams$: Observable<BusinessSubscriptionPricingTier> =
+    this.organizationPlansResponse$.pipe(
+      map((plans) => {
+        const annualTeamsPlan = plans.data.find((plan) => plan.type === PlanType.TeamsAnnually);
 
-      return {
-        id: BusinessSubscriptionPricingTierIds.Teams,
-        name: this.i18nService.t("planNameTeams"),
-        description: this.i18nService.t("teamsPlanUpgradeMessage"),
-        availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
-        passwordManager: {
-          type: "scalable",
-          annualPricePerUser: annualTeamsPlan.PasswordManager.seatPrice,
-          annualPricePerAdditionalStorageGB:
-            annualTeamsPlan.PasswordManager.additionalStoragePricePerGb,
-          features: [
-            this.featureTranslations.secureItemSharing(),
-            this.featureTranslations.eventLogMonitoring(),
-            this.featureTranslations.directoryIntegration(),
-            this.featureTranslations.scimSupport(),
-          ],
-        },
-        secretsManager: {
-          type: "scalable",
-          annualPricePerUser: annualTeamsPlan.SecretsManager.seatPrice,
-          annualPricePerAdditionalServiceAccount:
-            annualTeamsPlan.SecretsManager.additionalPricePerServiceAccount,
-          features: [
-            this.featureTranslations.unlimitedSecretsAndProjects(),
-            this.featureTranslations.includedMachineAccountsV2(
-              annualTeamsPlan.SecretsManager.baseServiceAccount,
-            ),
-          ],
-        },
-      };
-    }),
-  );
-
-  private enterprise$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map((plans) => {
-      const annualEnterprisePlan = plans.data.find(
-        (plan) => plan.type === PlanType.EnterpriseAnnually,
-      )!;
-
-      return {
-        id: BusinessSubscriptionPricingTierIds.Enterprise,
-        name: this.i18nService.t("planNameEnterprise"),
-        description: this.i18nService.t("planDescEnterpriseV2"),
-        availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
-        passwordManager: {
-          type: "scalable",
-          annualPricePerUser: annualEnterprisePlan.PasswordManager.seatPrice,
-          annualPricePerAdditionalStorageGB:
-            annualEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
-          features: [
-            this.featureTranslations.enterpriseSecurityPolicies(),
-            this.featureTranslations.passwordLessSso(),
-            this.featureTranslations.accountRecovery(),
-            this.featureTranslations.selfHostOption(),
-            this.featureTranslations.complimentaryFamiliesPlan(),
-          ],
-        },
-        secretsManager: {
-          type: "scalable",
-          annualPricePerUser: annualEnterprisePlan.SecretsManager.seatPrice,
-          annualPricePerAdditionalServiceAccount:
-            annualEnterprisePlan.SecretsManager.additionalPricePerServiceAccount,
-          features: [
-            this.featureTranslations.unlimitedUsers(),
-            this.featureTranslations.includedMachineAccountsV2(
-              annualEnterprisePlan.SecretsManager.baseServiceAccount,
-            ),
-          ],
-        },
-      };
-    }),
-  );
-
-  private custom$: Observable<BusinessSubscriptionPricingTier> = this.plansResponse$.pipe(
-    map(
-      (): BusinessSubscriptionPricingTier => ({
-        id: BusinessSubscriptionPricingTierIds.Custom,
-        name: this.i18nService.t("planNameCustom"),
-        description: this.i18nService.t("planDescCustom"),
-        availableCadences: [],
-        passwordManager: {
-          type: "custom",
-          features: [
-            this.featureTranslations.strengthenCybersecurity(),
-            this.featureTranslations.boostProductivity(),
-            this.featureTranslations.seamlessIntegration(),
-          ],
-        },
+        return {
+          id: BusinessSubscriptionPricingTierIds.Teams,
+          name: this.i18nService.t("planNameTeams"),
+          description: this.i18nService.t("teamsPlanUpgradeMessage"),
+          availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
+          passwordManager: {
+            type: "scalable",
+            annualPricePerUser: annualTeamsPlan?.PasswordManager?.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              annualTeamsPlan?.PasswordManager?.additionalStoragePricePerGb,
+            providedStorageGB: annualTeamsPlan?.PasswordManager?.baseStorageGb,
+            features: [
+              this.featureTranslations.secureItemSharing(),
+              this.featureTranslations.eventLogMonitoring(),
+              this.featureTranslations.directoryIntegration(),
+              this.featureTranslations.scimSupport(),
+            ],
+          },
+          secretsManager: {
+            type: "scalable",
+            annualPricePerUser: annualTeamsPlan?.SecretsManager?.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              annualTeamsPlan?.SecretsManager?.additionalPricePerServiceAccount,
+            features: [
+              this.featureTranslations.unlimitedSecretsAndProjects(),
+              this.featureTranslations.includedMachineAccountsV2(
+                annualTeamsPlan?.SecretsManager?.baseServiceAccount,
+              ),
+            ],
+          },
+        };
       }),
-    ),
-  );
+    );
+
+  private enterprise$: Observable<BusinessSubscriptionPricingTier> =
+    this.organizationPlansResponse$.pipe(
+      map((plans) => {
+        const annualEnterprisePlan = plans.data.find(
+          (plan) => plan.type === PlanType.EnterpriseAnnually,
+        );
+
+        return {
+          id: BusinessSubscriptionPricingTierIds.Enterprise,
+          name: this.i18nService.t("planNameEnterprise"),
+          description: this.i18nService.t("planDescEnterpriseV2"),
+          availableCadences: [SubscriptionCadenceIds.Annually, SubscriptionCadenceIds.Monthly],
+          passwordManager: {
+            type: "scalable",
+            annualPricePerUser: annualEnterprisePlan?.PasswordManager?.seatPrice,
+            annualPricePerAdditionalStorageGB:
+              annualEnterprisePlan?.PasswordManager?.additionalStoragePricePerGb,
+            providedStorageGB: annualEnterprisePlan?.PasswordManager?.baseStorageGb,
+            features: [
+              this.featureTranslations.enterpriseSecurityPolicies(),
+              this.featureTranslations.passwordLessSso(),
+              this.featureTranslations.accountRecovery(),
+              this.featureTranslations.selfHostOption(),
+              this.featureTranslations.complimentaryFamiliesPlan(),
+            ],
+          },
+          secretsManager: {
+            type: "scalable",
+            annualPricePerUser: annualEnterprisePlan?.SecretsManager?.seatPrice,
+            annualPricePerAdditionalServiceAccount:
+              annualEnterprisePlan?.SecretsManager?.additionalPricePerServiceAccount,
+            features: [
+              this.featureTranslations.unlimitedUsers(),
+              this.featureTranslations.includedMachineAccountsV2(
+                annualEnterprisePlan?.SecretsManager?.baseServiceAccount,
+              ),
+            ],
+          },
+        };
+      }),
+    );
+
+  private custom$: Observable<BusinessSubscriptionPricingTier> =
+    this.organizationPlansResponse$.pipe(
+      map(
+        (): BusinessSubscriptionPricingTier => ({
+          id: BusinessSubscriptionPricingTierIds.Custom,
+          name: this.i18nService.t("planNameCustom"),
+          description: this.i18nService.t("planDescCustom"),
+          availableCadences: [],
+          passwordManager: {
+            type: "custom",
+            features: [
+              this.featureTranslations.strengthenCybersecurity(),
+              this.featureTranslations.boostProductivity(),
+              this.featureTranslations.seamlessIntegration(),
+            ],
+          },
+        }),
+      ),
+    );
 
   private featureTranslations = {
     builtInAuthenticator: () => ({
@@ -333,11 +364,11 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "familiesSharedStorage",
       value: this.i18nService.t("familiesSharedStorage"),
     }),
-    limitedUsersV2: (users: number) => ({
+    limitedUsersV2: (users?: number) => ({
       key: "limitedUsersV2",
       value: this.i18nService.t("limitedUsersV2", users),
     }),
-    limitedCollectionsV2: (collections: number) => ({
+    limitedCollectionsV2: (collections?: number) => ({
       key: "limitedCollectionsV2",
       value: this.i18nService.t("limitedCollectionsV2", collections),
     }),
@@ -349,7 +380,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "twoSecretsIncluded",
       value: this.i18nService.t("twoSecretsIncluded"),
     }),
-    projectsIncludedV2: (projects: number) => ({
+    projectsIncludedV2: (projects?: number) => ({
       key: "projectsIncludedV2",
       value: this.i18nService.t("projectsIncludedV2", projects),
     }),
@@ -373,7 +404,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "unlimitedSecretsAndProjects",
       value: this.i18nService.t("unlimitedSecretsAndProjects"),
     }),
-    includedMachineAccountsV2: (included: number) => ({
+    includedMachineAccountsV2: (included?: number) => ({
       key: "includedMachineAccountsV2",
       value: this.i18nService.t("includedMachineAccountsV2", included),
     }),

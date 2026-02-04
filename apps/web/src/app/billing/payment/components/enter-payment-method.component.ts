@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { map, Observable, of, startWith, Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PopoverModule, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
@@ -34,18 +35,17 @@ type PaymentMethodFormGroup = FormGroup<{
   }>;
 }>;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-enter-payment-method",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @let showBillingDetails = includeBillingAddress && selected !== "payPal";
-    <form [formGroup]="group">
+    @let showBillingDetails = includeBillingAddress() && selected !== "payPal";
+    <form [formGroup]="group()">
       @if (showBillingDetails) {
         <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
       }
       <div class="tw-mb-4 tw-text-lg">
-        <bit-radio-group [formControl]="group.controls.type">
+        <bit-radio-group [formControl]="group().controls.type">
           <bit-radio-button id="card-payment-method" [value]="'card'">
             <bit-label>
               <i class="bwi bwi-fw bwi-credit-card" aria-hidden="true"></i>
@@ -60,7 +60,7 @@ type PaymentMethodFormGroup = FormGroup<{
               </bit-label>
             </bit-radio-button>
           }
-          @if (showPayPal) {
+          @if (showPayPal()) {
             <bit-radio-button id="paypal-payment-method" [value]="'payPal'">
               <bit-label>
                 <i class="bwi bwi-fw bwi-paypal" aria-hidden="true"></i>
@@ -68,7 +68,7 @@ type PaymentMethodFormGroup = FormGroup<{
               </bit-label>
             </bit-radio-button>
           }
-          @if (showAccountCredit) {
+          @if (showAccountCredit()) {
             <bit-radio-button id="credit-payment-method" [value]="'accountCredit'">
               <bit-label>
                 <i class="bwi bwi-fw bwi-dollar" aria-hidden="true"></i>
@@ -82,10 +82,10 @@ type PaymentMethodFormGroup = FormGroup<{
         @case ("card") {
           <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4">
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-number" required>
+              <app-payment-label [for]="'stripe-card-number-' + instanceId" required>
                 {{ "cardNumberLabel" | i18n }}
               </app-payment-label>
-              <div id="stripe-card-number" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-number-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
             <div class="tw-col-span-1 tw-flex tw-items-end">
               <img
@@ -95,13 +95,13 @@ type PaymentMethodFormGroup = FormGroup<{
               />
             </div>
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-expiry" required>
+              <app-payment-label [for]="'stripe-card-expiry-' + instanceId" required>
                 {{ "expiration" | i18n }}
               </app-payment-label>
-              <div id="stripe-card-expiry" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-expiry-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
             <div class="tw-col-span-1">
-              <app-payment-label for="stripe-card-cvc" required>
+              <app-payment-label [for]="'stripe-card-cvc-' + instanceId" required>
                 {{ "securityCodeSlashCVV" | i18n }}
                 <button
                   [bitPopoverTriggerFor]="cardSecurityCodePopover"
@@ -115,7 +115,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
                 </bit-popover>
               </app-payment-label>
-              <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>
+              <div [id]="'stripe-card-cvc-' + instanceId" class="tw-stripe-form-control"></div>
             </div>
           </div>
         }
@@ -131,7 +131,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   bitInput
                   id="routingNumber"
                   type="text"
-                  [formControl]="group.controls.bankAccount.controls.routingNumber"
+                  [formControl]="group().controls.bankAccount.controls.routingNumber"
                   required
                 />
               </bit-form-field>
@@ -141,7 +141,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   bitInput
                   id="accountNumber"
                   type="text"
-                  [formControl]="group.controls.bankAccount.controls.accountNumber"
+                  [formControl]="group().controls.bankAccount.controls.accountNumber"
                   required
                 />
               </bit-form-field>
@@ -151,7 +151,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   id="accountHolderName"
                   bitInput
                   type="text"
-                  [formControl]="group.controls.bankAccount.controls.accountHolderName"
+                  [formControl]="group().controls.bankAccount.controls.accountHolderName"
                   required
                 />
               </bit-form-field>
@@ -159,7 +159,7 @@ type PaymentMethodFormGroup = FormGroup<{
                 <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
                 <bit-select
                   id="accountHolderType"
-                  [formControl]="group.controls.bankAccount.controls.accountHolderType"
+                  [formControl]="group().controls.bankAccount.controls.accountHolderType"
                   required
                 >
                   <bit-option [value]="''" label="-- {{ 'select' | i18n }} --"></bit-option>
@@ -186,7 +186,7 @@ type PaymentMethodFormGroup = FormGroup<{
         }
         @case ("accountCredit") {
           <ng-container>
-            @if (hasEnoughAccountCredit) {
+            @if (hasEnoughAccountCredit()) {
               <bit-callout type="info">
                 {{ "makeSureEnoughCredit" | i18n }}
               </bit-callout>
@@ -204,7 +204,7 @@ type PaymentMethodFormGroup = FormGroup<{
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
               <bit-label>{{ "country" | i18n }}</bit-label>
-              <bit-select [formControl]="group.controls.billingAddress.controls.country">
+              <bit-select [formControl]="group().controls.billingAddress.controls.country">
                 @for (selectableCountry of selectableCountries; track selectableCountry.value) {
                   <bit-option
                     [value]="selectableCountry.value"
@@ -221,7 +221,7 @@ type PaymentMethodFormGroup = FormGroup<{
               <input
                 bitInput
                 type="text"
-                [formControl]="group.controls.billingAddress.controls.postalCode"
+                [formControl]="group().controls.billingAddress.controls.postalCode"
                 autocomplete="postal-code"
               />
             </bit-form-field>
@@ -233,26 +233,15 @@ type PaymentMethodFormGroup = FormGroup<{
   standalone: true,
   imports: [BillingServicesModule, PaymentLabelComponent, PopoverModule, SharedModule],
 })
-export class EnterPaymentMethodComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) group!: PaymentMethodFormGroup;
+export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
+  protected readonly instanceId = Utils.newGuid();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() private showBankAccount = true;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showPayPal = true;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showAccountCredit = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() hasEnoughAccountCredit = true;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() includeBillingAddress = false;
+  readonly group = input.required<PaymentMethodFormGroup>();
+  protected readonly showBankAccount = input(true);
+  readonly showPayPal = input(true);
+  readonly showAccountCredit = input(false);
+  readonly hasEnoughAccountCredit = input(true);
+  readonly includeBillingAddress = input(false);
 
   protected showBankAccount$!: Observable<boolean>;
   protected selectableCountries = selectableCountries;
@@ -269,57 +258,62 @@ export class EnterPaymentMethodComponent implements OnInit {
 
   ngOnInit() {
     this.stripeService.loadStripe(
+      this.instanceId,
       {
-        cardNumber: "#stripe-card-number",
-        cardExpiry: "#stripe-card-expiry",
-        cardCvc: "#stripe-card-cvc",
+        cardNumber: `#stripe-card-number-${this.instanceId}`,
+        cardExpiry: `#stripe-card-expiry-${this.instanceId}`,
+        cardCvc: `#stripe-card-cvc-${this.instanceId}`,
       },
       true,
     );
 
-    if (this.showPayPal) {
+    if (this.showPayPal()) {
       this.braintreeService.loadBraintree("#braintree-container", false);
     }
 
-    if (!this.includeBillingAddress) {
-      this.showBankAccount$ = of(this.showBankAccount);
-      this.group.controls.billingAddress.disable();
+    if (!this.includeBillingAddress()) {
+      this.showBankAccount$ = of(this.showBankAccount());
+      this.group().controls.billingAddress.disable();
     } else {
-      this.group.controls.billingAddress.patchValue({
+      this.group().controls.billingAddress.patchValue({
         country: "US",
       });
-      this.showBankAccount$ = this.group.controls.billingAddress.controls.country.valueChanges.pipe(
-        startWith(this.group.controls.billingAddress.controls.country.value),
-        map((country) => this.showBankAccount && country === "US"),
-      );
+      this.showBankAccount$ =
+        this.group().controls.billingAddress.controls.country.valueChanges.pipe(
+          startWith(this.group().controls.billingAddress.controls.country.value),
+          map((country) => this.showBankAccount() && country === "US"),
+        );
     }
 
-    this.group.controls.type.valueChanges
-      .pipe(startWith(this.group.controls.type.value), takeUntil(this.destroy$))
+    this.group()
+      .controls.type.valueChanges.pipe(
+        startWith(this.group().controls.type.value),
+        takeUntil(this.destroy$),
+      )
       .subscribe((selected) => {
         if (selected === "bankAccount") {
-          this.group.controls.bankAccount.enable();
-          if (this.includeBillingAddress) {
-            this.group.controls.billingAddress.enable();
+          this.group().controls.bankAccount.enable();
+          if (this.includeBillingAddress()) {
+            this.group().controls.billingAddress.enable();
           }
         } else {
           switch (selected) {
             case "card": {
-              this.stripeService.mountElements();
-              if (this.includeBillingAddress) {
-                this.group.controls.billingAddress.enable();
+              this.stripeService.mountElements(this.instanceId);
+              if (this.includeBillingAddress()) {
+                this.group().controls.billingAddress.enable();
               }
               break;
             }
             case "payPal": {
               this.braintreeService.createDropin();
-              if (this.includeBillingAddress) {
-                this.group.controls.billingAddress.disable();
+              if (this.includeBillingAddress()) {
+                this.group().controls.billingAddress.disable();
               }
               break;
             }
           }
-          this.group.controls.bankAccount.disable();
+          this.group().controls.bankAccount.disable();
         }
       });
 
@@ -330,22 +324,28 @@ export class EnterPaymentMethodComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.stripeService.unloadStripe(this.instanceId);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   select = (paymentMethod: PaymentMethodOption) =>
-    this.group.controls.type.patchValue(paymentMethod);
+    this.group().controls.type.patchValue(paymentMethod);
 
   tokenize = async (): Promise<TokenizedPaymentMethod | null> => {
     const exchange = async (paymentMethod: TokenizablePaymentMethod) => {
       switch (paymentMethod) {
         case "bankAccount": {
-          this.group.controls.bankAccount.markAllAsTouched();
-          if (!this.group.controls.bankAccount.valid) {
+          this.group().controls.bankAccount.markAllAsTouched();
+          if (!this.group().controls.bankAccount.valid) {
             throw new Error("Attempted to tokenize invalid bank account information.");
           }
 
-          const bankAccount = this.group.controls.bankAccount.getRawValue();
+          const bankAccount = this.group().controls.bankAccount.getRawValue();
           const clientSecret = await this.stripeService.createSetupIntent("bankAccount");
-          const billingDetails = this.group.controls.billingAddress.enabled
-            ? this.group.controls.billingAddress.getRawValue()
+          const billingDetails = this.group().controls.billingAddress.enabled
+            ? this.group().controls.billingAddress.getRawValue()
             : undefined;
           return await this.stripeService.setupBankAccountPaymentMethod(
             clientSecret,
@@ -355,10 +355,14 @@ export class EnterPaymentMethodComponent implements OnInit {
         }
         case "card": {
           const clientSecret = await this.stripeService.createSetupIntent("card");
-          const billingDetails = this.group.controls.billingAddress.enabled
-            ? this.group.controls.billingAddress.getRawValue()
+          const billingDetails = this.group().controls.billingAddress.enabled
+            ? this.group().controls.billingAddress.getRawValue()
             : undefined;
-          return this.stripeService.setupCardPaymentMethod(clientSecret, billingDetails);
+          return this.stripeService.setupCardPaymentMethod(
+            this.instanceId,
+            clientSecret,
+            billingDetails,
+          );
         }
         case "payPal": {
           return this.braintreeService.requestPaymentMethod();
@@ -410,15 +414,15 @@ export class EnterPaymentMethodComponent implements OnInit {
 
   validate = (): boolean => {
     if (this.selected === "bankAccount") {
-      this.group.controls.bankAccount.markAllAsTouched();
-      return this.group.controls.bankAccount.valid;
+      this.group().controls.bankAccount.markAllAsTouched();
+      return this.group().controls.bankAccount.valid;
     }
 
     return true;
   };
 
   get selected(): PaymentMethodOption {
-    return this.group.value.type!;
+    return this.group().value.type!;
   }
 
   static getFormGroup = (): PaymentMethodFormGroup =>

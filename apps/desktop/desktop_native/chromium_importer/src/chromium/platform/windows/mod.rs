@@ -1,11 +1,14 @@
+use std::path::{Path, PathBuf};
+
 use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
-use std::path::{Path, PathBuf};
 
-use crate::chromium::{BrowserConfig, CryptoService, LocalState};
-use crate::util;
+use crate::{
+    chromium::{BrowserConfig, CryptoService, LocalState},
+    util,
+};
 mod abe;
 mod abe_config;
 mod crypto;
@@ -22,27 +25,27 @@ pub use signature::*;
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Brave",
-        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+        data_dir: &["AppData/Local/BraveSoftware/Brave-Browser/User Data"],
     },
     BrowserConfig {
         name: "Chrome",
-        data_dir: "AppData/Local/Google/Chrome/User Data",
+        data_dir: &["AppData/Local/Google/Chrome/User Data"],
     },
     BrowserConfig {
         name: "Chromium",
-        data_dir: "AppData/Local/Chromium/User Data",
+        data_dir: &["AppData/Local/Chromium/User Data"],
     },
     BrowserConfig {
         name: "Microsoft Edge",
-        data_dir: "AppData/Local/Microsoft/Edge/User Data",
+        data_dir: &["AppData/Local/Microsoft/Edge/User Data"],
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: "AppData/Roaming/Opera Software/Opera Stable",
+        data_dir: &["AppData/Roaming/Opera Software/Opera Stable"],
     },
     BrowserConfig {
         name: "Vivaldi",
-        data_dir: "AppData/Local/Vivaldi/User Data",
+        data_dir: &["AppData/Local/Vivaldi/User Data"],
     },
 ];
 
@@ -95,7 +98,8 @@ impl CryptoService for WindowsCryptoService {
         let (version, no_prefix) =
             util::split_encrypted_string_and_validate(encrypted, &["v10", "v20"])?;
 
-        // v10 is already stripped; Windows Chrome uses AES-GCM: [12 bytes IV][ciphertext][16 bytes auth tag]
+        // v10 is already stripped; Windows Chrome uses AES-GCM: [12 bytes IV][ciphertext][16 bytes
+        // auth tag]
         const IV_SIZE: usize = 12;
         const TAG_SIZE: usize = 16;
         const MIN_LENGTH: usize = IV_SIZE + TAG_SIZE;
@@ -242,8 +246,8 @@ fn get_dist_admin_exe_path(current_exe_full_path: &Path) -> Result<PathBuf> {
     Ok(admin_exe)
 }
 
-// Try to find bitwarden_chromium_import_helper.exe in debug build folders. This might not cover all the cases.
-// Tested on `npm run electron` from apps/desktop and apps/desktop/desktop_native.
+// Try to find bitwarden_chromium_import_helper.exe in debug build folders. This might not cover all
+// the cases. Tested on `npm run electron` from apps/desktop and apps/desktop/desktop_native.
 fn get_debug_admin_exe_path() -> Result<PathBuf> {
     let current_dir = std::env::current_dir()?;
     let folder_name = current_dir

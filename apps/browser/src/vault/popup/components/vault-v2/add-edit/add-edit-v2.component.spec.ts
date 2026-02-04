@@ -1,10 +1,15 @@
+import { Location } from "@angular/common";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,13 +17,17 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { DialogService } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormMode,
@@ -45,15 +54,17 @@ describe("AddEditV2Component", () => {
   let cipherServiceMock: MockProxy<CipherService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
-  const buildConfig = jest.fn((mode: CipherFormMode) =>
-    Promise.resolve({ ...buildConfigResponse, mode }),
-  );
+  const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
   const queryParams$ = new BehaviorSubject({});
   const disable = jest.fn();
   const navigate = jest.fn();
   const back = jest.fn().mockResolvedValue(null);
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
+  const history$ = jest.fn();
+  const historyGo = jest.fn().mockResolvedValue(null);
+  const openSimpleDialog = jest.fn().mockResolvedValue(true);
+  const cipherArchiveService = mock<CipherArchiveService>();
 
   beforeEach(async () => {
     buildConfig.mockClear();
@@ -61,6 +72,12 @@ describe("AddEditV2Component", () => {
     navigate.mockClear();
     back.mockClear();
     collect.mockClear();
+    history$.mockClear();
+    historyGo.mockClear();
+    openSimpleDialog.mockClear();
+
+    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+    cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
@@ -70,11 +87,13 @@ describe("AddEditV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [AddEditV2Component],
       providers: [
+        provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory, history$ } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
+        { provide: Location, useValue: { historyGo } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherService, useValue: cipherServiceMock },
@@ -83,15 +102,43 @@ describe("AddEditV2Component", () => {
         {
           provide: CipherAuthorizationService,
           useValue: {
-            canDeleteCipher$: jest.fn().mockReturnValue(true),
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
+        {
+          provide: TaskService,
+          useValue: mock<TaskService>(),
+        },
+        {
+          provide: ViewCacheService,
+          useValue: { signal: jest.fn(() => (): any => null) },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: cipherArchiveService,
+        },
+        {
+          provide: ArchiveCipherUtilitiesService,
+          useValue: {
+            archiveCipher: jest.fn().mockResolvedValue(null),
+            unarchiveCipher: jest.fn().mockResolvedValue(null),
+          },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
         useValue: {
           buildConfig,
+        },
+      })
+      .overrideProvider(DialogService, {
+        useValue: {
+          openSimpleDialog,
         },
       })
       .compileComponents();
@@ -356,6 +403,151 @@ describe("AddEditV2Component", () => {
     });
   });
 
+  describe("submit button text", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+    });
+
+    it("sets it to 'save' by default", fakeAsync(() => {
+      buildConfigResponse.originalCipher = {} as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
+
+    it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { isArchived: false } as any;
+
+      queryParams$.next({});
+
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
+
+    it("sets it to 'unarchiveAndSave' when the user cannot archive and the item is archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      buildConfigResponse.originalCipher = { isArchived: true } as any;
+
+      queryParams$.next({});
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
+  });
+
+  describe("archive", () => {
+    it("calls archiveCipherUtilsService service to archive the cipher", async () => {
+      buildConfigResponse.originalCipher = { id: "222-333-444-5555", edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await fixture.whenStable();
+      await component.archive();
+
+      expect(component["archiveCipherUtilsService"].archiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+        true,
+      );
+    });
+  });
+
+  describe("unarchive", () => {
+    it("calls archiveCipherUtilsService service to unarchive the cipher", async () => {
+      buildConfigResponse.originalCipher = {
+        id: "222-333-444-5555",
+        archivedDate: new Date(),
+        edit: true,
+      } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await component.unarchive();
+
+      expect(component["archiveCipherUtilsService"].unarchiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+      );
+    });
+  });
+
+  describe("archive button", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { archivedDate: undefined, edit: true } as Cipher;
+    });
+
+    it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the archive button when the user cannot archive", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+
+    it("does not show the archive button when the cipher cannot be archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+  });
+
+  describe("unarchive button", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { edit: true } as Cipher;
+    });
+
+    it("shows the unarchive button when the cipher is archived", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the unarchive button when the cipher is not archived", fakeAsync(() => {
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeFalsy();
+    }));
+  });
+
   describe("delete", () => {
     it("dialogService openSimpleDialog called when deleteBtn is hit", async () => {
       const dialogSpy = jest
@@ -374,11 +566,187 @@ describe("AddEditV2Component", () => {
       expect(deleteCipherSpy).toHaveBeenCalled();
     });
 
-    it("navigates to vault tab after deletion", async () => {
+    it("navigates to vault tab after deletion by default", async () => {
       jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
       await component.delete();
 
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
     });
+
+    it("navigates to custom route when not in history", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
+      queryParams$.next({
+        cipherId: "123",
+        routeAfterDeletion: "/archive",
+      });
+
+      tick();
+
+      // Mock history without the target route
+      history$.mockReturnValue(
+        of([
+          { url: "/tabs/vault" },
+          { url: "/view-cipher?cipherId=123" },
+          { url: "/add-edit?cipherId=123" },
+        ]),
+      );
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(history$).toHaveBeenCalled();
+      expect(historyGo).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/archive"]);
+    }));
+
+    it("uses historyGo when custom route exists in history", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
+      queryParams$.next({
+        cipherId: "123",
+        routeAfterDeletion: "/archive",
+      });
+
+      tick();
+
+      history$.mockReturnValue(
+        of([
+          { url: "/tabs/vault" },
+          { url: "/archive" },
+          { url: "/view-cipher?cipherId=123" },
+          { url: "/add-edit?cipherId=123" },
+        ]),
+      );
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(history$).toHaveBeenCalled();
+      expect(historyGo).toHaveBeenCalledWith(-2);
+      expect(navigate).not.toHaveBeenCalled();
+    }));
+
+    it("uses router.navigate for default /tabs/vault route", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "456" } as Cipher;
+      component.routeAfterDeletion = "/tabs/vault";
+
+      queryParams$.next({
+        cipherId: "456",
+      });
+
+      tick();
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(history$).not.toHaveBeenCalled();
+      expect(historyGo).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+    }));
+
+    it("ignores invalid routeAfterDeletion query param and uses default route", fakeAsync(() => {
+      // Reset the component's routeAfterDeletion to default before this test
+      component.routeAfterDeletion = "/tabs/vault";
+
+      buildConfigResponse.originalCipher = { edit: true, id: "456" } as Cipher;
+      queryParams$.next({
+        cipherId: "456",
+        routeAfterDeletion: "/invalid/route",
+      });
+
+      tick();
+
+      // The invalid route should be ignored, routeAfterDeletion should remain default
+      expect(component.routeAfterDeletion).toBe("/tabs/vault");
+    }));
+  });
+
+  describe("reloadAddEditCipherData", () => {
+    beforeEach(fakeAsync(() => {
+      addEditCipherInfo$.next({
+        cipher: {
+          name: "InitialName",
+          type: CipherType.Login,
+          login: {
+            password: "initialPassword",
+            username: "initialUsername",
+            uris: [{ uri: "https://initial.com" }],
+          },
+        },
+      } as AddEditCipherInfo);
+      queryParams$.next({});
+      tick();
+
+      cipherServiceMock.setAddEditCipherInfo.mockClear();
+    }));
+
+    it("replaces all initialValues with new data, clearing stale fields", fakeAsync(() => {
+      const newCipherInfo = {
+        cipher: {
+          name: "UpdatedName",
+          type: CipherType.Login,
+          login: {
+            password: "updatedPassword",
+            uris: [{ uri: "https://updated.com" }],
+          },
+        },
+      } as AddEditCipherInfo;
+
+      addEditCipherInfo$.next(newCipherInfo);
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(component.config.initialValues).toEqual({
+        name: "UpdatedName",
+        password: "updatedPassword",
+        loginUri: "https://updated.com",
+      } as OptionalInitialValues);
+
+      expect(cipherServiceMock.setAddEditCipherInfo).toHaveBeenCalledWith(null, "UserId");
+    }));
+
+    it("does not reload data if config is not set", fakeAsync(() => {
+      component.config = null;
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(cipherServiceMock.setAddEditCipherInfo).not.toHaveBeenCalled();
+    }));
+
+    it("does not reload data if latestCipherInfo is null", fakeAsync(() => {
+      addEditCipherInfo$.next(null);
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "reloadAddEditCipherData" });
+      tick();
+
+      expect(component.config.initialValues).toEqual({
+        name: "InitialName",
+        password: "initialPassword",
+        username: "initialUsername",
+        loginUri: "https://initial.com",
+      } as OptionalInitialValues);
+
+      expect(cipherServiceMock.setAddEditCipherInfo).not.toHaveBeenCalled();
+    }));
+
+    it("ignores messages with different commands", fakeAsync(() => {
+      const initialValues = component.config.initialValues;
+
+      const messageListener = component["messageListener"];
+      messageListener({ command: "someOtherCommand" });
+      tick();
+
+      expect(component.config.initialValues).toBe(initialValues);
+    }));
   });
 });

@@ -25,20 +25,25 @@ export class SSOLocalhostCallbackService {
     private messagingService: MessageSender,
     private ssoUrlService: SsoUrlService,
   ) {
-    ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state, email }) => {
-      // Close any existing server before starting new one
-      if (this.currentServer) {
-        await this.closeCurrentServer();
-      }
+    ipcMain.handle(
+      "openSsoPrompt",
+      async (event, { codeChallenge, state, email, orgSsoIdentifier }) => {
+        // Close any existing server before starting new one
+        if (this.currentServer) {
+          await this.closeCurrentServer();
+        }
 
-      return this.openSsoPrompt(codeChallenge, state, email).then(({ ssoCode, recvState }) => {
-        this.messagingService.send("ssoCallback", {
-          code: ssoCode,
-          state: recvState,
-          redirectUri: this.ssoRedirectUri,
-        });
-      });
-    });
+        return this.openSsoPrompt(codeChallenge, state, email, orgSsoIdentifier).then(
+          ({ ssoCode, recvState }) => {
+            this.messagingService.send("ssoCallback", {
+              code: ssoCode,
+              state: recvState,
+              redirectUri: this.ssoRedirectUri,
+            });
+          },
+        );
+      },
+    );
   }
 
   private async closeCurrentServer(): Promise<void> {
@@ -58,6 +63,7 @@ export class SSOLocalhostCallbackService {
     codeChallenge: string,
     state: string,
     email: string,
+    orgSsoIdentifier?: string,
   ): Promise<{ ssoCode: string; recvState: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -121,6 +127,7 @@ export class SSOLocalhostCallbackService {
           state,
           codeChallenge,
           email,
+          orgSsoIdentifier,
         );
 
         // Set up error handler before attempting to listen

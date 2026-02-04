@@ -2,7 +2,16 @@ import { CommonModule } from "@angular/common";
 import { Component, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime, distinctUntilChanged, filter } from "rxjs";
+import {
+  Subject,
+  Subscription,
+  combineLatest,
+  debounce,
+  distinctUntilChanged,
+  filter,
+  map,
+  timer,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
@@ -48,13 +57,26 @@ export class VaultV2SearchComponent {
       });
   }
 
-  subscribeToApplyFilter(): Subscription {
-    return this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), distinctUntilChanged(), takeUntilDestroyed())
-      .subscribe((data) => {
+  subscribeToApplyFilter(): void {
+    combineLatest([this.searchText$, this.loading$])
+      .pipe(
+        debounce(([_, isLoading]) => {
+          // If loading apply immediately to avoid stale searches.
+          // After loading completes, debounce to avoid excessive searches.
+          const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
+          return timer(delayTime);
+        }),
+        distinctUntilChanged(
+          ([prevText, prevLoading], [newText, newLoading]) =>
+            prevText === newText && prevLoading === newLoading,
+        ),
+        map(([text, _]) => text),
+        takeUntilDestroyed(),
+      )
+      .subscribe((text) => {
         this.ngZone.runOutsideAngular(() => {
           this.ngZone.run(() => {
-            this.vaultPopupItemsService.applyFilter(data);
+            this.vaultPopupItemsService.applyFilter(text);
           });
         });
       });

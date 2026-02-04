@@ -5,15 +5,14 @@ import { combineLatest, of, switchMap, map, catchError, from, Observable, startW
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -112,7 +111,6 @@ export class CipherViewComponent {
     private logService: LogService,
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -247,19 +245,9 @@ export class CipherViewComponent {
    * The password is only evaluated when the user is premium and has edit access to the cipher.
    */
   readonly passwordIsAtRisk = toSignal(
-    combineLatest([
-      this.activeUserId$,
-      this.cipher$,
-      this.configService.getFeatureFlag$(FeatureFlag.RiskInsightsForPremium),
-    ]).pipe(
-      switchMap(([userId, cipher, featureEnabled]) => {
-        if (
-          !featureEnabled ||
-          !cipher.hasLoginPassword ||
-          !cipher.edit ||
-          cipher.organizationId ||
-          cipher.isDeleted
-        ) {
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
           return of(false);
         }
         return this.switchPremium$(

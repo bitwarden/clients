@@ -1,15 +1,17 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, input, output } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged, debounceTime } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
@@ -17,7 +19,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuModule } from "@bitwarden/components";
+import { CalloutComponent, MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -26,10 +28,19 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
-  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule],
+  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule, CalloutComponent],
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
+  readonly showPremiumCallout = input<boolean>(false);
+
+  readonly onAddFolder = output<void>();
+
+  protected readonly desktopMigrationMilestone1 = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone1),
+  );
+
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+
   constructor(
     searchService: SearchService,
     private readonly searchBarService: SearchBarService,
@@ -37,6 +48,7 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
     accountService: AccountService,
     restrictedItemTypesService: RestrictedItemTypesService,
     configService: ConfigService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(searchService, cipherService, accountService, restrictedItemTypesService, configService);
 
@@ -45,6 +57,10 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
       .subscribe((searchText) => {
         this.searchText = searchText!;
       });
+  }
+
+  async navigateToGetPremium() {
+    await this.premiumUpgradePromptService.promptForPremium();
   }
 
   trackByFn(index: number, c: C): string {

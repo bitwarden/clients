@@ -42,9 +42,18 @@ describe("CipherFormComponent", () => {
         { provide: CipherFormService, useValue: mockAddEditFormService },
         {
           provide: CipherFormCacheService,
-          useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
+          useValue: { init: jest.fn(), getCachedCipherView: jest.fn(), clearCache: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: jest.fn(() => {
+              const signalFn = (): any => null;
+              signalFn.set = jest.fn();
+              return signalFn;
+            }),
+          },
+        },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },
@@ -154,13 +163,13 @@ describe("CipherFormComponent", () => {
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
     });
 
-    it("clears archiveDate on updatedCipherView", async () => {
+    it("does not clear archiveDate on updatedCipherView", async () => {
       cipherView.archivedDate = new Date();
       decryptCipher.mockResolvedValue(cipherView);
 
       await component.ngOnInit();
 
-      expect(component["updatedCipherView"]?.archivedDate).toBeNull();
+      expect(component["updatedCipherView"]?.archivedDate).toBe(cipherView.archivedDate);
     });
   });
 

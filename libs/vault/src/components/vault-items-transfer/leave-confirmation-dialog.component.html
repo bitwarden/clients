@@ -1,0 +1,33 @@
+<bit-simple-dialog>
+  <i
+    bitDialogIcon
+    class="bwi bwi-exclamation-triangle tw-text-warning tw-text-3xl"
+    aria-hidden="true"
+  ></i>
+
+  <span bitDialogTitle>{{ "leaveConfirmationDialogTitle" | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    <p bitTypography="body1">
+      {{ "leaveConfirmationDialogContentOne" | i18n }}
+    </p>
+    <p bitTypography="body1" class="tw-mb-0">
+      {{ "leaveConfirmationDialogContentTwo" | i18n }}
+    </p>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="dangerPrimary" (click)="confirmLeave()">
+      {{ "leaveConfirmationDialogConfirmButton" | i18n: organizationName }}
+    </button>
+
+    <button bitButton type="button" buttonType="secondary" (click)="goBack()">
+      {{ "goBack" | i18n }}
+    </button>
+
+    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-w-full tw-text-center tw-text-sm">
+      {{ "howToManageMyVault" | i18n }}
+      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+    </a>
+  </ng-container>
+</bit-simple-dialog>

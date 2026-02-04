@@ -6,6 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
+import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -29,6 +30,8 @@ export interface AutoFillOptions {
   allowTotpAutofill?: boolean;
   autoSubmitLogin?: boolean;
   focusedFieldForm?: string;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: InlineMenuFillType;
 }
 
 export interface FormData {
@@ -47,6 +50,8 @@ export interface GenerateFillScriptOptions {
   cipher: CipherView;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: InlineMenuFillType;
 }
 
 export type CollectPageDetailsResponseMessage = {
