@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import {
@@ -46,6 +48,7 @@ export class PremiumOrgUpgradeService {
     private previewInvoiceClient: PreviewInvoiceClient,
     private syncService: SyncService,
     private keyService: KeyService,
+    private organizationService: OrganizationService,
   ) {}
 
   async previewProratedInvoice(
@@ -71,7 +74,7 @@ export class PremiumOrgUpgradeService {
     organizationName: string,
     planDetails: PremiumOrgUpgradePlanDetails,
     billingAddress: BillingAddress,
-  ): Promise<void> {
+  ): Promise<string> {
     if (!organizationName) {
       throw new Error("Organization name is required for organization upgrade");
     }
@@ -96,6 +99,17 @@ export class PremiumOrgUpgradeService {
     );
 
     await this.syncService.fullSync(true);
+
+    // Get the newly created organization
+    const organizations = await firstValueFrom(this.organizationService.organizations$(account.id));
+
+    const newOrg = organizations?.find((org) => org.name === organizationName && org.isOwner);
+
+    if (!newOrg) {
+      throw new Error("Failed to find newly created organization");
+    }
+
+    return newOrg.id;
   }
 
   private ProductTierTypeFromSubscriptionTierId(

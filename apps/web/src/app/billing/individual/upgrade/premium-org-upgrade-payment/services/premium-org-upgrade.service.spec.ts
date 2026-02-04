@@ -1,6 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BusinessSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -21,6 +23,7 @@ describe("PremiumOrgUpgradeService", () => {
   let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let syncService: jest.Mocked<SyncService>;
   let keyService: jest.Mocked<KeyService>;
+  let organizationService: jest.Mocked<OrganizationService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -61,6 +64,17 @@ describe("PremiumOrgUpgradeService", () => {
         .fn()
         .mockResolvedValue([{ encryptedString: "encrypted-string" }, "decrypted-key"]),
     } as any;
+    organizationService = {
+      organizations$: jest.fn().mockReturnValue(
+        of([
+          {
+            id: "new-org-id",
+            name: "Test Organization",
+            isOwner: true,
+          } as Organization,
+        ]),
+      ),
+    } as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -70,6 +84,7 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
         { provide: KeyService, useValue: keyService },
+        { provide: OrganizationService, useValue: organizationService },
       ],
     });
 
@@ -77,8 +92,8 @@ describe("PremiumOrgUpgradeService", () => {
   });
 
   describe("upgradeToOrganization", () => {
-    it("should successfully upgrade premium account to organization", async () => {
-      await service.upgradeToOrganization(
+    it("should successfully upgrade premium account to organization and return organization ID", async () => {
+      const result = await service.upgradeToOrganization(
         mockAccount,
         "Test Organization",
         mockPlanDetails,
@@ -94,6 +109,8 @@ describe("PremiumOrgUpgradeService", () => {
       );
       expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(organizationService.organizations$).toHaveBeenCalledWith("user-id");
+      expect(result).toBe("new-org-id");
     });
 
     it("should throw an error if organization name is missing", async () => {
@@ -151,7 +168,10 @@ describe("PremiumOrgUpgradeService", () => {
     });
 
     it("should throw an error if encrypted string is undefined", async () => {
-      keyService.makeOrgKey.mockResolvedValue([{ encryptedString: undefined }, "decrypted-key"]);
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: null } as any,
+        "decrypted-key" as any,
+      ]);
       await expect(
         service.upgradeToOrganization(
           mockAccount,
@@ -186,6 +206,40 @@ describe("PremiumOrgUpgradeService", () => {
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
+    });
+
+    it("should throw an error if organization is not found after sync", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "different-org-id",
+            name: "Different Organization",
+            isOwner: true,
+          } as Organization,
+        ]),
+      );
+
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to find newly created organization");
+    });
+
+    it("should throw an error if no organizations are returned", async () => {
+      organizationService.organizations$.mockReturnValue(of([]));
+
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to find newly created organization");
     });
   });
 

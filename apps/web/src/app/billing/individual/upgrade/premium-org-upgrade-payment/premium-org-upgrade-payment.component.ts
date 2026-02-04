@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  inject,
   input,
   OnInit,
   output,
@@ -179,14 +180,12 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     };
   });
 
-  constructor(
-    private i18nService: I18nService,
-    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
-    private toastService: ToastService,
-    private logService: LogService,
-    private destroyRef: DestroyRef,
-    private premiumOrgUpgradeService: PremiumOrgUpgradeService,
-  ) {}
+  private readonly i18nService = inject(I18nService);
+  private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
 
   async ngOnInit(): Promise<void> {
     // If the selected plan is Personal Premium, no upgrade is needed
@@ -288,7 +287,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       throw new Error("Payment method is required");
     }
 
-    await this.premiumOrgUpgradeService.upgradeToOrganization(
+    const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
       this.account(),
       organizationName,
       this.selectedPlan()!,
@@ -297,7 +296,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
     return {
       status: this.getUpgradeStatus(this.selectedPlanId()),
-      organizationId: null,
+      organizationId,
     };
   }
 
