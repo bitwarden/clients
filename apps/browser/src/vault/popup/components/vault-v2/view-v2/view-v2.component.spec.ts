@@ -18,6 +18,7 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,6 +34,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -46,6 +48,10 @@ import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
+import {
+  AutofillConfirmationDialogComponent,
+  AutofillConfirmationDialogResult,
+} from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
 
 import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
 import { ViewV2Component } from "./view-v2.component";
@@ -62,6 +68,7 @@ describe("ViewV2Component", () => {
   const mockNavigate = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
   const doAutofill = jest.fn().mockResolvedValue(true);
+  const doAutofillAndSave = jest.fn().mockResolvedValue(true);
   const copy = jest.fn().mockResolvedValue(true);
   const back = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
@@ -69,6 +76,8 @@ describe("ViewV2Component", () => {
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
+  const getFeatureFlag = jest.fn().mockResolvedValue(true);
+  const currentAutofillTab$ = of({ url: "https://example.com", id: 1 });
 
   const mockCipher = {
     id: "122-333-444",
@@ -89,6 +98,8 @@ describe("ViewV2Component", () => {
   };
   const mockVaultPopupAutofillService = {
     doAutofill,
+    doAutofillAndSave,
+    currentAutofillTab$,
   };
   const mockCopyCipherFieldService = {
     copy,
@@ -112,12 +123,14 @@ describe("ViewV2Component", () => {
     mockNavigate.mockClear();
     collect.mockClear();
     doAutofill.mockClear();
+    doAutofillAndSave.mockClear();
     copy.mockClear();
     stop.mockClear();
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
     showPasswordPrompt.mockClear();
+    getFeatureFlag.mockClear();
     cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -137,7 +150,7 @@ describe("ViewV2Component", () => {
         { provide: VaultPopupScrollPositionService, useValue: { stop } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
-        { provide: ConfigService, useValue: { getFeatureFlag$ } },
+        { provide: ConfigService, useValue: { getFeatureFlag$, getFeatureFlag } },
         {
           provide: I18nService,
           useValue: {
@@ -203,6 +216,8 @@ describe("ViewV2Component", () => {
           provide: DomainSettingsService,
           useValue: {
             showFavicons$: of(true),
+            resolvedDefaultUriMatchStrategy$: of(UriMatchStrategy.Domain),
+            getUrlEquivalentDomains: jest.fn().mockReturnValue(of([])),
           },
         },
         {
@@ -683,6 +698,368 @@ describe("ViewV2Component", () => {
 
       const badge = fixture.nativeElement.querySelector("span[bitBadge]");
       expect(badge).toBeFalsy();
+    });
+  });
+
+  describe("showAutofillButton", () => {
+    beforeEach(() => {
+      component.cipher = { ...mockCipher, type: CipherType.Login } as CipherView;
+    });
+
+    it("returns true when feature flag is enabled, cipher is a login, and not archived/deleted", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true for Card type when conditions are met", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Card,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true for Identity type when conditions are met", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Identity,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when feature flag is disabled", fakeAsync(() => {
+      getFeatureFlag$.mockReturnValue(of(false));
+
+      // Recreate component to pick up the new feature flag value
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      flush();
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    }));
+
+    it("returns false for SecureNote type", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.SecureNote,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false for SshKey type", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.SshKey,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when cipher is archived", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        isArchived: true,
+        isDeleted: false,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        isArchived: false,
+        isDeleted: true,
+      } as CipherView;
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("doAutofill", () => {
+    let dialogService: DialogService;
+    const originalCurrentAutofillTab$ = currentAutofillTab$;
+
+    beforeEach(() => {
+      dialogService = TestBed.inject(DialogService);
+
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        login: {
+          username: "test",
+          password: "test",
+          uris: [
+            {
+              uri: "https://example.com",
+              match: null,
+            } as LoginUriView,
+          ],
+        },
+        edit: true,
+      } as CipherView;
+    });
+
+    afterEach(() => {
+      // Restore original observable to prevent test pollution
+      mockVaultPopupAutofillService.currentAutofillTab$ = originalCurrentAutofillTab$;
+    });
+
+    it("returns early when feature flag is disabled", async () => {
+      getFeatureFlag.mockResolvedValue(false);
+
+      await component.doAutofill();
+
+      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
+    });
+
+    it("shows exact match dialog when no URIs and default strategy is Exact", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      component.cipher.login.uris = [];
+      (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
+
+      await component.doAutofill();
+
+      expect(openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "cannotAutofill" },
+        content: { key: "cannotAutofillExactMatch" },
+        type: "info",
+        acceptButtonText: { key: "okay" },
+        cancelButtonText: null,
+      });
+      expect(doAutofill).not.toHaveBeenCalled();
+    });
+
+    it("shows exact match dialog when all URIs have exact match strategy", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      component.cipher.login.uris = [
+        { uri: "https://example.com", match: UriMatchStrategy.Exact } as LoginUriView,
+        { uri: "https://example2.com", match: UriMatchStrategy.Exact } as LoginUriView,
+      ];
+
+      await component.doAutofill();
+
+      expect(openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "cannotAutofill" },
+        content: { key: "cannotAutofillExactMatch" },
+        type: "info",
+        acceptButtonText: { key: "okay" },
+        cancelButtonText: null,
+      });
+      expect(doAutofill).not.toHaveBeenCalled();
+    });
+
+    it("shows error dialog when current tab URL is unavailable", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      mockVaultPopupAutofillService.currentAutofillTab$ = of({ url: null, id: 1 });
+
+      await component.doAutofill();
+
+      expect(openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "error" },
+        content: { key: "errorGettingAutoFillData" },
+        type: "danger",
+      });
+      expect(doAutofill).not.toHaveBeenCalled();
+    });
+
+    it("autofills directly when domain matches", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
+
+      await component.doAutofill();
+
+      expect(doAutofill).toHaveBeenCalledWith(component.cipher, true, true);
+    });
+
+    it("shows confirmation dialog when domain does not match", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.Canceled),
+      };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(AutofillConfirmationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+        data: {
+          currentUrl: "https://example.com",
+          savedUrls: ["https://example.com"],
+          viewOnly: false,
+        },
+      });
+    });
+
+    it("does not autofill when user cancels confirmation dialog", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.Canceled),
+      };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(doAutofill).not.toHaveBeenCalled();
+      expect(doAutofillAndSave).not.toHaveBeenCalled();
+    });
+
+    it("autofills only when user selects AutofilledOnly", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.AutofilledOnly),
+      };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(doAutofill).toHaveBeenCalledWith(component.cipher, true, true);
+      expect(doAutofillAndSave).not.toHaveBeenCalled();
+    });
+
+    it("autofills and saves URL when user selects AutofillAndUrlAdded", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.AutofillAndUrlAdded),
+      };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(doAutofillAndSave).toHaveBeenCalledWith(component.cipher, true, true);
+      expect(doAutofill).not.toHaveBeenCalled();
+    });
+
+    it("passes viewOnly as true when cipher is not editable", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      component.cipher.edit = false;
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.Canceled),
+      };
+      const openSpy = jest
+        .spyOn(AutofillConfirmationDialogComponent, "open")
+        .mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(dialogService, {
+        data: {
+          currentUrl: "https://example.com",
+          savedUrls: ["https://example.com"],
+          viewOnly: true,
+        },
+      });
+    });
+
+    it("filters out URIs without uri property", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      component.cipher.login.uris = [
+        { uri: "https://example.com" } as LoginUriView,
+        { uri: null } as LoginUriView,
+        { uri: "https://example2.com" } as LoginUriView,
+      ];
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.Canceled),
+      };
+      const openSpy = jest
+        .spyOn(AutofillConfirmationDialogComponent, "open")
+        .mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(dialogService, {
+        data: {
+          currentUrl: "https://example.com",
+          savedUrls: ["https://example.com", "https://example2.com"],
+          viewOnly: false,
+        },
+      });
+    });
+
+    it("handles cipher with no login uris gracefully", async () => {
+      getFeatureFlag.mockResolvedValue(true);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      component.cipher.login.uris = null;
+
+      const mockDialogRef = {
+        closed: of(AutofillConfirmationDialogResult.Canceled),
+      };
+      const openSpy = jest
+        .spyOn(AutofillConfirmationDialogComponent, "open")
+        .mockReturnValue(mockDialogRef as any);
+
+      await component.doAutofill();
+
+      expect(openSpy).toHaveBeenCalledWith(dialogService, {
+        data: {
+          currentUrl: "https://example.com",
+          savedUrls: [],
+          viewOnly: false,
+        },
+      });
     });
   });
 });
