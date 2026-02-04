@@ -531,10 +531,10 @@ describe("ViewV2Component", () => {
       expect(openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
-    it("navigates back", async () => {
+    it("navigates to vault", async () => {
       await component.delete();
 
-      expect(back).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(["/tabs/vault"]);
     });
 
     it("stops scroll position service", async () => {
