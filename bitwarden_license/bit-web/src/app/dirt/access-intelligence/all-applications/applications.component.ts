@@ -164,7 +164,7 @@ export class ApplicationsComponent implements OnInit {
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
 
-        if (this.dataSource.filteredData.length === 0) {
+        if (this.dataSource?.filteredData?.length === 0) {
           this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
         } else {
           this.emptyTableExplanation.set("");
