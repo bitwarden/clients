@@ -86,11 +86,13 @@ jobs:
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build CL Storybook
         if: steps.get-changed-files-for-chromatic-cl.outputs.storyFiles == 'true'
+        env:
+          STORYBOOK_TEST: hi
         run: npm run build-storybook:ci
 
       - name: Build Autofill Storybook
         if: steps.get-changed-files-for-chromatic-autofill.outputs.storyFiles == 'true'
-        run: npm run storybook-autofill-build:ci
+        run: npm run build-storybook:autofill:ci
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
