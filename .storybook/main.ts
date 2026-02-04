@@ -83,7 +83,7 @@ const config: StorybookConfig = {
 
     return {
       autofill: {
-        title: `Autofill Components ${branchName}`,
+        title: `Autofill Components (branch: ${branchName})`,
         url: `https://${branchName}--695ffc4bef53d3a5ae4c8067.chromatic.com`,
       },
     };

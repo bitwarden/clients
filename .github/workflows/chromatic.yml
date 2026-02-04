@@ -87,6 +87,8 @@ jobs:
       - name: Get branch name
         id: branch-names
         uses: tj-actions/branch-names@5250492686b253f06fa55861556d1027b067aeb5 # v9
+        with:
+          replace_slashes_with_hyphens: 'true'
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build CL Storybook
