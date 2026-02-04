@@ -14,6 +14,9 @@ import { ChipSize, ChipSizes } from "./base-chip.directive";
   templateUrl: "./chip-content.component.html",
   imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "classList()",
+  },
 })
 export class ChipContentComponent {
   /** Icon class to show at start (e.g., 'bwi-folder') */
@@ -24,7 +27,8 @@ export class ChipContentComponent {
 
   readonly size = input<ChipSize>(ChipSizes.Large);
 
-  readonly contentGapClass = computed(() => {
-    return this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1";
+  protected readonly classList = computed(() => {
+    const gapClass = this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1";
+    return ["tw-inline-flex", "tw-min-w-0", "tw-max-w-full", "tw-items-center", gapClass].join(" ");
   });
 }

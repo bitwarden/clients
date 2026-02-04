@@ -1,5 +1,5 @@
 <div class="!tw-ps-0" bitBaseChip [variant]="!selectedOption ? 'subtle' : 'primary'">
-  <bit-chip-content>
+  <bit-chip-content [size]="size()">
     <!-- Primary button -->
     <button
       bitChipContent
@@ -8,7 +8,7 @@
         !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
       "
       type="button"
-      class="tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
+      class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
       [class.tw-ps-1.5]="size() === 'small'"
       [class.tw-ps-2]="size() === 'large'"
       [class.tw-cursor-not-allowed]="disabled()"
@@ -20,7 +20,7 @@
       (click)="setMenuWidth()"
       #chipSelectButton
     >
-      <span class="tw-truncate">{{ label }}</span>
+      <span class="tw-truncate tw-min-w-0">{{ label }}</span>
     </button>
     @if (selectedOption) {
       <!-- Close button -->
