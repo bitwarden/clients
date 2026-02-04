@@ -241,7 +241,7 @@ describe("DefaultSetInitialPasswordService", () => {
         }
       }
 
-      // Mock handleResetPasswordAutoEnroll() values
+      // Mock handleResetPasswordAutoEnrollOld() values
       if (config.resetPasswordAutoEnroll) {
         organizationApiService.getKeys.mockResolvedValue(organizationKeys);
         encryptService.encapsulateKeyUnsigned.mockResolvedValue(orgPublicKeyEncryptedUserKey);
@@ -1278,14 +1278,6 @@ describe("DefaultSetInitialPasswordService", () => {
         );
       });
 
-      it("should set the userKey to state", async () => {
-        // Act
-        await sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
-
-        // Assert
-        expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-      });
-
       it("should update legacy state", async () => {
         // Act
         await sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
@@ -1355,20 +1347,6 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should throw the userKey is not found in the handleResetPasswordAutoEnroll method", async () => {
-          // Arrange
-          keyService.userKey$.mockReturnValueOnce(of(userKey)); // setInitialPasswordTdeUserWithPermission() method
-          keyService.userKey$.mockReturnValueOnce(of(null)); // handleResetPasswordAutoEnroll() method
-
-          // Act
-          const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
-
-          // Assert
-          await expect(promise).rejects.toThrow(
-            "userKey not found. Could not handle reset password auto enroll.",
-          );
-        });
-
         it("should throw the orgPublicKeyEncryptedUserKey is not found", async () => {
           // Arrange
           encryptService.encapsulateKeyUnsigned.mockResolvedValue(null);
@@ -1382,7 +1360,20 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should handle reset password (account recovery) auto enroll", async () => {
+        it("should throw the orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
+          // Arrange
+          orgPublicKeyEncryptedUserKey.encryptedString = null;
+
+          // Act
+          const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(
+            "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
+          );
+        });
+
+        it("should call the API method to handle reset password (account recovery) auto enroll", async () => {
           // Act
           await sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
 
