@@ -34,7 +34,7 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("encryptedEmailList");
-      send.anonAccessEmails = "HASH1,HASH2,HASH3";
+      send.anonAccessEmails = "person1@company,person2@company,person3@company";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -43,7 +43,7 @@ describe("SendRequest", () => {
 
       const request = new SendRequest(send);
 
-      expect(request.anonAccessEmails).toBe("HASH1,HASH2,HASH3");
+      expect(request.anonAccessEmails).toBe("person1@company,person2@company,person3@company");
     });
 
     it("should set emails to null when Send.emails is null", () => {
@@ -90,7 +90,7 @@ describe("SendRequest", () => {
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("2.encrypted|emaildata|here");
-      send.anonAccessEmails = "ABC123,DEF456";
+      send.anonAccessEmails = "person1@company,person2@company";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -169,7 +169,7 @@ describe("SendRequest", () => {
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("2.encryptedEmailString|data");
-      send.anonAccessEmails = "A1B2C3D4,E5F6G7H8"; // Plaintext hashes
+      send.anonAccessEmails = "person1@company,person2@company"; // Plaintext emails
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -184,7 +184,7 @@ describe("SendRequest", () => {
       expect(request.emails).toContain("encrypted");
 
       //anonAccessEmails field contains plaintext comma-separated hashes
-      expect(request.anonAccessEmails).toBe("A1B2C3D4,E5F6G7H8");
+      expect(request.anonAccessEmails).toBe("person1@company,person2@company");
       expect(request.anonAccessEmails).not.toContain("encrypted");
       expect(request.anonAccessEmails.split(",")).toHaveLength(2);
     });

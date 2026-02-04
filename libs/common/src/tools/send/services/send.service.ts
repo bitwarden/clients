@@ -9,7 +9,6 @@ import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeyGenerationService } from "../../../key-management/crypto";
-import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -54,7 +53,6 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
     private configService: ConfigService,
   ) {}
 
