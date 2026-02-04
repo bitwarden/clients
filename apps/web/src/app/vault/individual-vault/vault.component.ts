@@ -33,7 +33,7 @@ import {
   EmptyTrash,
   FavoritesIcon,
   ItemTypes,
-  Icon,
+  BitSvg,
 } from "@bitwarden/assets/svg";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -160,7 +160,7 @@ type EmptyStateType = "trash" | "favorites" | "archive";
 type EmptyStateItem = {
   title: string;
   description: string;
-  icon: Icon;
+  icon: BitSvg;
 };
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
@@ -925,6 +925,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
       organizationId: cipher.organizationId as OrganizationId,
+      canEditCipher: cipher.edit,
     });
 
     const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
@@ -1536,8 +1537,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherFullView = await this.cipherService.getFullCipherView(cipher);
     cipherFullView.favorite = !cipherFullView.favorite;
-    const encryptedCipher = await this.cipherService.encrypt(cipherFullView, activeUserId);
-    await this.cipherService.updateWithServer(encryptedCipher);
+    await this.cipherService.updateWithServer(cipherFullView, activeUserId);
 
     this.toastService.showToast({
       variant: "success",

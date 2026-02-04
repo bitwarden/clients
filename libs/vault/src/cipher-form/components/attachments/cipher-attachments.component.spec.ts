@@ -51,6 +51,7 @@ describe("CipherAttachmentsComponent", () => {
       username: "username",
       password: "password",
     },
+    edit: true,
   } as CipherView;
 
   const cipherDomain = {
@@ -197,6 +198,10 @@ describe("CipherAttachmentsComponent", () => {
     let file: File;
 
     beforeEach(() => {
+      const nonEditableCipherView = { ...cipherView, edit: false };
+      cipherServiceDecrypt.mockResolvedValue(nonEditableCipherView);
+      fixture.detectChanges();
+
       submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
@@ -365,6 +370,32 @@ describe("CipherAttachmentsComponent", () => {
         await setupWithOrganization(true);
 
         const emitSpy = jest.spyOn(component.onUploadSuccess, "emit");
+
+        await component.submit();
+
+        expect(emitSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("close", () => {
+      async function setup(): Promise<void> {
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        submitBtnFixture = TestBed.createComponent(ButtonComponent);
+
+        // Set organizationId BEFORE cipherId so the effect picks it up
+        fixture.componentRef.setInput("organizationId", organization.id);
+        fixture.componentRef.setInput("submitBtn", submitBtnFixture.componentInstance);
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        await waitForInitialization();
+        const nonEditableCipherView = { ...cipherView, edit: false };
+        cipherServiceDecrypt.mockResolvedValue(nonEditableCipherView);
+        fixture.detectChanges();
+      }
+
+      it('emits "onCloseButtonPress"', async () => {
+        await setup();
+        const emitSpy = jest.spyOn(component.onCloseButtonPress, "emit");
 
         await component.submit();
 

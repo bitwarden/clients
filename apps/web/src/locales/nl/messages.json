@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Geen kritische applicaties in gevaar"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Applicatie"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "E-mailadres"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefoonnummer"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Locatie"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Volgende betaling"
+  },
+  "nextChargeDate": {
+    "message": "Volgende datum van betaling"
   },
   "plan": {
     "message": "Pakket"
@@ -5418,6 +5451,12 @@
   "restoreSelected": {
     "message": "Selectie herstellen"
   },
+  "archivedItemRestored": {
+    "message": "Gearchiveerd item hersteld"
+  },
+  "archivedItemsRestored": {
+    "message": "Gearchiveerde items hersteld"
+  },
   "restoredItem": {
     "message": "Hersteld item"
   },
@@ -5620,13 +5659,13 @@
     "message": "Send created successfully!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link voor de volgende $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centraliseer organisatie-eigendom"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alle items van leden worden eigendom van en beheerd door de organisatie. Beheerders en eigenaren zijn vrijgesteld. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Meer informatie over gecentraliseerd eigendom",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Voordelen"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Krijg volledige zichtbaarheid in de gezondheid van inloggegevens, inclusief gedeelde en niet-gedeelde items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Eenvoudig items tijdens het offboarden van leden en opvolging verplaatsen, verzekerd dat er geen toegangsgaten zijn."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Geef alle gebruikers een toegewijde \"Mijn Items\"-ruimte voor het beheren van hun eigen inloggegevens."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Vraagt de leden om hun items over te brengen"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Als leden items in hun individuele kluis hebben, worden ze gevraagd deze over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Meer informatie over de overstap"
   },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
@@ -6888,17 +6958,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert."
   },
-  "activateAutofill": {
-    "message": "Automatisch invullen activeren"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activeer de automatisch invullen wanneer de pagina geladen is instelling in de browser extensie voor bestaande en nieuwe gebruikers."
+  "activateAutofillPolicyDescription": {
+    "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
   },
-  "experimentalFeature": {
-    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen bij laden van pagina misbruiken."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Meer info over automatisch invullen"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Selecteer Type"
@@ -10395,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Stuur eventgegevens naar je Huntress SIEM-instantie"
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -10505,6 +10578,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Selecteer een plan"
@@ -11320,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden probeert het domein gedurende de eerste 72 uur driemaal te verifiëren. Als het domein niet geverifieerd kan worden, controleer dan het DNS-record bij je host en verifieer handmatig. Het domein wordt binnen 7 dagen verwijderd uit je organisatie als het niet geverifieerd is."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden probeert het domein binnen 72 uur te claimen. Als het domein niet kan worden geclaimd, controleer dan je DNS-record en claim handmatig. Niet-geclaimde domeinen worden na 7 dagen verwijderd."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Eenmaal geclaimd, zullen bestaande leden met geclaimde domeinen gemaild worden over de "
+  },
+  "accountOwnershipChange": {
+    "message": "accounteigendom wijziging"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ niet geverifieerd. Controleer je DNS-records.",
     "placeholders": {
@@ -11332,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Geverifieerd"
   },
-  "domainStatusUnderVerification": {
-    "message": "Gebruikersverificatie"
+  "domainStatusPending": {
+    "message": "In behandeling"
   },
   "claimedDomainsDescription": {
     "message": "Claim een domein voor eigendom van ledenaccounts. De SSO-identificatiepagina wordt overgeslagen tijdens het inloggen voor leden met geclaimde domeinen en beheerders kunnen geclaimde accounts verwijderen."
@@ -11701,8 +11792,8 @@
     "message": "Item archiveren",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  "archiveItemDialogContent": {
+    "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
   },
   "archiveBulkItems": {
     "message": "Items archiveren",
@@ -12054,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Nu verifiëren."
+  },
+  "unlockWithPasskey": {
+    "message": "Ontgrendelen met passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen."
   },
   "additionalStorageGB": {
     "message": "Extra opslagruimte (GB)"
@@ -12621,6 +12721,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
   },
@@ -12629,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "E-mail beveiligd"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }
