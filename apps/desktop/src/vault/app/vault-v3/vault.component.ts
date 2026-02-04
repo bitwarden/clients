@@ -49,7 +49,7 @@ import {
   getNestedCollectionTree,
   getFlatCollectionTree,
 } from "@bitwarden/common/admin-console/utils";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
