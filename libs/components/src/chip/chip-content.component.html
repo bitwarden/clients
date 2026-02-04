@@ -1,0 +1,17 @@
+<div class="tw-flex tw-items-center" [class]="contentGapClass()">
+  <ng-content select="[chipStart]"></ng-content>
+
+  @if (startIcon()) {
+    <bit-icon [name]="startIcon()" class="tw-text-sm" />
+  }
+
+  <span>
+    <ng-content></ng-content>
+  </span>
+
+  <ng-content select="[chipEnd]"></ng-content>
+
+  @if (endIcon()) {
+    <bit-icon [name]="endIcon()" class="tw-text-sm" />
+  }
+</div>
