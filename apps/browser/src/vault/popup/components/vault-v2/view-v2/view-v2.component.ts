@@ -265,9 +265,9 @@ export class ViewV2Component {
       return false;
     }
 
+    // Navigate directly to vault instead of back() to avoid Firefox bfcache scroll restoration
     this.popupScrollPositionService.stop(true);
-    this.popupScrollPositionService.forceTopOnNextVaultStart();
-    await this.popupRouterCacheService.back();
+    await this.router.navigate(["/tabs/vault"]);
 
     this.toastService.showToast({
       variant: "success",

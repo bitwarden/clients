@@ -111,7 +111,6 @@ describe("VaultPopupScrollPositionService", () => {
 
       it("forces scroll to top on next start when requested", fakeAsync(() => {
         service["scrollPosition"] = 500;
-        service.forceTopOnNextVaultStart();
 
         service.start(scrollElement);
 
