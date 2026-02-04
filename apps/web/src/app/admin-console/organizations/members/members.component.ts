@@ -133,6 +133,8 @@ export class vNextMembersComponent {
       ),
     );
 
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.memberActionsService.isProcessing;
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(

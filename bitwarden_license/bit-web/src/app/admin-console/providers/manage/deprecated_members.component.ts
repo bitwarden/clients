@@ -339,4 +339,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       .getCheckedUsers()
       .filter((member) => member.status === this.userStatusType.Invited).length;
   }
+
+  get isSingleInvite(): boolean {
+    return this.selectedInvitedCount === 1;
+  }
 }

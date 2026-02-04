@@ -110,6 +110,8 @@ export class vNextMembersComponent {
       map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
     );
 
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.providerActionsService.isProcessing;
 
   constructor() {
