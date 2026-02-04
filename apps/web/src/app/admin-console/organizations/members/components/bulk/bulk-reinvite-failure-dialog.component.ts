@@ -20,7 +20,7 @@ export interface BulkReinviteFailureDialogParams {
 
 @Component({
   templateUrl: "bulk-reinvite-failure-dialog.component.html",
-  selector: "member-bulk-progress-dialog",
+  selector: "member-bulk-reinvite-failure-dialog",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })

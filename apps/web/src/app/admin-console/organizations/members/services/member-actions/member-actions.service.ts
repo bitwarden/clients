@@ -210,7 +210,11 @@ export class MemberActionsService {
     users: OrganizationUserView[],
   ): Promise<BulkActionResult> {
     let result = new BulkActionResult();
-    if (users.length > REQUESTS_PER_BATCH) {
+    const bulkReinviteUIEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
+    );
+
+    if (bulkReinviteUIEnabled && users.length > REQUESTS_PER_BATCH) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: this.i18nService.t("bulkReinviteWarningTitle", users.length.toString()),
         content: this.i18nService.t("bulkReinviteWarningDescription"),
@@ -223,7 +227,11 @@ export class MemberActionsService {
       }
     }
 
-    this.startProcessing(users.length);
+    if (bulkReinviteUIEnabled) {
+      this.startProcessing(users.length);
+    } else {
+      this.startProcessing();
+    }
 
     try {
       result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
@@ -234,7 +242,7 @@ export class MemberActionsService {
         );
       });
 
-      if (result.failed.length > 0) {
+      if (bulkReinviteUIEnabled && result.failed.length > 0) {
         this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
       }
     } catch (error) {

@@ -33,6 +33,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -101,6 +103,7 @@ export class vNextMembersComponent {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
+  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -133,6 +136,10 @@ export class vNextMembersComponent {
 
   protected readonly showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
+  );
+
+  protected readonly bulkReinviteUIEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
   );
 
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
@@ -389,7 +396,7 @@ export class vNextMembersComponent {
 
     // In cloud environments, limit invited users and uncheck the excess
     let filteredUsers: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+    if (this.dataSource().isIncreasedBulkLimitEnabled() && !this.bulkReinviteUIEnabled()) {
       filteredUsers = this.dataSource().limitAndUncheckExcess(
         allInvitedUsers,
         CloudBulkReinviteLimit,
@@ -422,7 +429,8 @@ export class vNextMembersComponent {
       const selectedCount = originalInvitedCount;
       const invitedCount = filteredUsers.length;
 
-      if (selectedCount > CloudBulkReinviteLimit) {
+      // Only show limited toast if feature flag is disabled and limit was applied
+      if (!this.bulkReinviteUIEnabled() && selectedCount > CloudBulkReinviteLimit) {
         const excludedCount = selectedCount - CloudBulkReinviteLimit;
         this.toastService.showToast({
           variant: "success",
