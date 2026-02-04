@@ -402,7 +402,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // User now has a password so update decryption state
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
-    await this.keyService.setUserKey(userKey, userId);
     await this.updateLegacyState(
       newPassword,
       kdfConfig,
