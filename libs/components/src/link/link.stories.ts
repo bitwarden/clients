@@ -2,7 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
-import { LinkComponent } from "./link.component";
+import { LinkComponent, LinkTypes } from "./link.component";
 import { LinkModule } from "./link.module";
 
 export default {
@@ -40,7 +40,9 @@ export const Default: Story = {
             : "tw-bg-transparent",
     },
     template: /*html*/ `
+    <div class="tw-p-2" [class]="backgroundClass">
       <a bitLink href="#" ${formatArgsForCodeSnippet<LinkComponent>(args)}>Your text here</a>
+    </div>
     `,
   }),
   args: {
@@ -278,7 +280,7 @@ export const WithIcons: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: {
       ...args,
@@ -288,7 +290,7 @@ export const Disabled: Story = {
     },
     template: /*html*/ `
       <button type="button" bitLink (click)="onClick()" disabled linkType="primary" class="tw-me-2">Primary button</button>
-      <a bitLink disabled linkType="primary" class="tw-me-2">Links can not be disabled</a>
+      <a bitLink href="" disabled linkType="primary" class="tw-me-2">Links can not be inactive</a>
       <button type="button" bitLink disabled linkType="secondary" class="tw-me-2">Secondary button</button>
       <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">
         <button type="button" bitLink disabled linkType="contrast">Contrast button</button>

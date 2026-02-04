@@ -5,7 +5,7 @@ import { booleanAttribute, Component, ElementRef, inject, input, viewChild } fro
 import { RouterModule } from "@angular/router";
 
 import { DrawerService } from "../dialog/drawer.service";
-import { LinkModule } from "../link";
+import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
 
@@ -56,7 +56,7 @@ export class LayoutComponent {
   handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
-      this.skipLink().focus();
+      this.skipLink().el.nativeElement.focus();
     }
   }
 }
