@@ -25,8 +25,10 @@ behavior across Bitwarden applications.
   - [With Secrets Manager](#with-secrets-manager)
   - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
   - [All Products](#all-products)
+  - [With Account Credit](#with-account-credit)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
+  - [With Discount and Credit](#with-discount-and-credit)
   - [Custom Header Template](#custom-header-template)
   - [Premium Plan](#premium-plan)
   - [Families Plan](#families-plan)
@@ -85,7 +87,14 @@ export type Cart = {
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
   discount?: Discount; // Optional cart-level discount
+  credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
+};
+
+export type Credit = {
+  translationKey: string; // Translation key for credit label
+  translationParams?: Array<string | number>; // Optional params for translation
+  value: number; // Credit amount to subtract from subtotal
 };
 
 import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
@@ -330,6 +339,33 @@ Show a cart with all available products:
 </billing-cart-summary>
 ```
 
+### With Account Credit
+
+Show cart with account credit applied:
+
+<Canvas of={CartSummaryStories.WithCredit} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00
+      }
+    },
+    cadence: 'monthly',
+    credit: {
+      translationKey: 'accountCredit',
+      value: 25.00
+    },
+    estimatedTax: 10.00
+  }"
+>
+</billing-cart-summary>
+```
+
 ### With Percent Discount
 
 Show cart with percentage-based discount:
@@ -391,6 +427,42 @@ Show cart with fixed amount discount:
       value: 50.00
     },
     estimatedTax: 95.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Discount and Credit
+
+Show cart with both discount and credit applied:
+
+<Canvas of={CartSummaryStories.WithDiscountAndCredit} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        translationKey: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'annually',
+    discount: {
+      type: 'percent-off',
+      value: 15
+    },
+    credit: {
+      translationKey: 'accountCredit',
+      value: 50.00
+    },
+    estimatedTax: 15.00
   }"
 >
 </billing-cart-summary>
@@ -466,10 +538,12 @@ Show cart with families plan:
 - **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
   detailed view showing all line items
 - **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
-- **Dynamic Calculations**: Automatically calculates subtotals, discounts, taxes, and totals using
-  Angular signals and computed values
+- **Dynamic Calculations**: Automatically calculates subtotals, discounts, credits, taxes, and
+  totals using Angular signals and computed values
 - **Discount Support**: Displays both percentage-based and fixed-amount discounts with green success
   styling
+- **Credit Support**: Shows account credit deductions with clear labeling using i18n translation
+  keys
 - **Custom Header Templates**: Optional header input allows for custom header designs while
   maintaining cart functionality
 - **Flexible Structure**: Accommodates different combinations of products, add-ons, and discounts

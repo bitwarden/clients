@@ -992,6 +992,7 @@ export default class NotificationBackground {
             inputScenarios.usernameNewPassword,
             inputScenarios.usernamePassword,
             inputScenarios.username,
+            inputScenarios.passwordNewPassword,
           ] as InputScenario[]
         ).includes(inputScenario) &&
         newLoginNotificationIsEnabled
