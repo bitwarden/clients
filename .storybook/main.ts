@@ -78,10 +78,13 @@ const config: StorybookConfig = {
         },
       };
     }
+
+    const branchName = process.env.STORYBOOK_BRANCH_NAME;
+
     return {
       autofill: {
-        title: `Autofill Components ${process.env.STORYBOOK_TEST}`,
-        url: "https://main--695ffc4bef53d3a5ae4c8067.chromatic.com",
+        title: "Autofill Components",
+        url: `https://${branchName}--695ffc4bef53d3a5ae4c8067.chromatic.com`,
       },
     };
   },

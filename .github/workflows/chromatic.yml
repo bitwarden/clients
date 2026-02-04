@@ -84,11 +84,15 @@ jobs:
         if: steps.get-changed-files-for-chromatic-cl.outputs.storyFiles == 'true' || steps.get-changed-files-for-chromatic-autofill.outputs.storyFiles == 'true'
         run: npm ci
 
+      - name: Get branch name
+        id: branch-names
+        uses: tj-actions/branch-names@5250492686b253f06fa55861556d1027b067aeb5 # v9
+
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build CL Storybook
         if: steps.get-changed-files-for-chromatic-cl.outputs.storyFiles == 'true'
         env:
-          STORYBOOK_TEST: hi
+          STORYBOOK_BRANCH_NAME: ${{ steps.branch-names.outputs.current_branch }}
         run: npm run build-storybook:ci
 
       - name: Build Autofill Storybook
