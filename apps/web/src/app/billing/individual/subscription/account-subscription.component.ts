@@ -50,7 +50,6 @@ import {
 import {
   PremiumOrgUpgradeDialogComponent,
   PremiumOrgUpgradeDialogParams,
-  PremiumOrgUpgradeDialogResult,
 } from "../upgrade/premium-org-upgrade-dialog/premium-org-upgrade-dialog.component";
 
 @Component({
@@ -305,17 +304,17 @@ export class AccountSubscriptionComponent {
     }
   };
 
-  openUpgradeDialog = async (): Promise<PremiumOrgUpgradeDialogResult> => {
+  openUpgradeDialog = async (): Promise<void> => {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
-      return null;
+      return;
     }
     const hasPremiumPersonally = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
     );
 
     if (!hasPremiumPersonally) {
-      return null;
+      return;
     }
 
     const dialogParams: PremiumOrgUpgradeDialogParams = {
@@ -326,6 +325,6 @@ export class AccountSubscriptionComponent {
     const dialogRef = PremiumOrgUpgradeDialogComponent.open(this.dialogService, {
       data: dialogParams,
     });
-    return await firstValueFrom(dialogRef.closed);
+    await firstValueFrom(dialogRef.closed);
   };
 }
