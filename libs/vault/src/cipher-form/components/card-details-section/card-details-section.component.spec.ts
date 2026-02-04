@@ -161,4 +161,27 @@ describe("CardDetailsSectionComponent", () => {
 
     expect(heading.nativeElement.textContent.trim()).toBe("cardDetails");
   });
+
+  it("initializes `cardDetailsForm` from `initialValues` when provided and editing existing cipher", () => {
+    const initialCardholderName = "New Name";
+    const initialBrand = "Amex";
+
+    (cipherFormProvider as any).config = {
+      initialValues: {
+        cardholderName: initialCardholderName,
+        brand: initialBrand,
+      },
+    };
+
+    const existingCard = new CardView();
+    existingCard.cardholderName = "Old Name";
+    existingCard.brand = "Visa";
+
+    getInitialCipherView.mockReturnValueOnce({ card: existingCard });
+
+    component.ngOnInit();
+
+    expect(component.cardDetailsForm.value.cardholderName).toBe(initialCardholderName);
+    expect(component.cardDetailsForm.value.brand).toBe(initialBrand);
+  });
 });
