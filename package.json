@@ -177,7 +177,7 @@
     "bufferutil": "4.1.0",
     "chalk": "4.1.2",
     "commander": "14.0.0",
-    "core-js": "3.47.0",
+    "core-js": "3.48.0",
     "form-data": "4.0.4",
     "https-proxy-agent": "7.0.6",
     "inquirer": "8.2.6",
