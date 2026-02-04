@@ -34,7 +34,7 @@ export class VaultPopupScrollPositionService {
     if (this.hasScrollPosition()) {
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
-        scrollElement.scrollTo({ top: this.scrollPosition, behavior: "instant" });
+        scrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
       });
     }
 
