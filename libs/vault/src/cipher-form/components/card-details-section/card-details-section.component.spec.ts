@@ -108,12 +108,17 @@ describe("CardDetailsSectionComponent", () => {
     const cardholderName = "Ron Burgundy";
     const number = "4242 4242 4242 4242";
     const code = "619";
+    const brand = "Maestro";
+    const expMonth = "5";
+    const expYear = "2028";
 
     const cardView = new CardView();
     cardView.cardholderName = cardholderName;
     cardView.number = number;
     cardView.code = code;
-    cardView.brand = "Visa";
+    cardView.brand = brand;
+    cardView.expMonth = expMonth;
+    cardView.expYear = expYear;
 
     getInitialCipherView.mockReturnValueOnce({ card: cardView });
 
@@ -123,7 +128,9 @@ describe("CardDetailsSectionComponent", () => {
       cardholderName,
       number,
       code,
-      brand: cardView.brand,
+      brand,
+      expMonth,
+      expYear,
     });
   });
 
@@ -153,5 +160,28 @@ describe("CardDetailsSectionComponent", () => {
     fixture.detectChanges();
 
     expect(heading.nativeElement.textContent.trim()).toBe("cardDetails");
+  });
+
+  it("initializes `cardDetailsForm` from `initialValues` when provided and editing existing cipher", () => {
+    const initialCardholderName = "New Name";
+    const initialBrand = "Amex";
+
+    (cipherFormProvider as any).config = {
+      initialValues: {
+        cardholderName: initialCardholderName,
+        brand: initialBrand,
+      },
+    };
+
+    const existingCard = new CardView();
+    existingCard.cardholderName = "Old Name";
+    existingCard.brand = "Visa";
+
+    getInitialCipherView.mockReturnValueOnce({ card: existingCard });
+
+    component.ngOnInit();
+
+    expect(component.cardDetailsForm.value.cardholderName).toBe(initialCardholderName);
+    expect(component.cardDetailsForm.value.brand).toBe(initialBrand);
   });
 });
