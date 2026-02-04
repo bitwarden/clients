@@ -1,5 +1,5 @@
 //! This module defines the [`KeyStore`] trait and provides an encrypted in-memory
-//! implementation for storing SSH keys securely.All stored data is ephemeral and
+//! implementation for storing SSH keys securely. All stored data is ephemeral and
 //! lost when the store is dropped.
 
 use std::sync::{Arc, Mutex};
@@ -8,25 +8,24 @@ use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
 #[cfg(test)]
-use super::MockKeyData;
-use super::{KeyData, PublicKey, SSHKeyData};
+use super::MockQueryableKeyData;
+use super::{PublicKey, QueryableKeyData, SSHKeyData};
 
 /// Securely store and retrieve SSH key data.
 ///
 /// Provides an abstraction over key storage mechanisms, allowing for different
 /// implementations or mocks.
-#[cfg_attr(test, mockall::automock(type KeyData = MockKeyData;))]
+#[cfg_attr(test, mockall::automock(type KeyData = MockQueryableKeyData;))]
 pub trait KeyStore: Send + Sync {
     /// The type of key data stored by this keystore.
-    type KeyData: KeyData;
+    type KeyData: QueryableKeyData;
 
     /// Stores or updates an SSH key in the keystore.
     /// If a key with the same public key already exists, it will be overwritten.
     ///
     /// # Arguments
     ///
-    /// * `key_data` - The SSH key data to store, including private key, public key, name, and
-    ///   cipher ID
+    /// * `key_data` - The SSH key data to store
     ///
     /// # Returns
     ///
@@ -46,8 +45,6 @@ pub trait KeyStore: Send + Sync {
     /// * `Err(_)` if an error occurred during retrieval
     fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>>;
 
-    /// Returns all public keys and their names.
-    ///
     /// # Returns
     ///
     /// A vector of tuples containing each key's public key and human-readable name,
@@ -135,7 +132,7 @@ mod tests {
     };
 
     use super::*;
-    use crate::crypto::PrivateKey;
+    use crate::crypto::{PrivateKey, QueryableKeyData};
 
     fn create_test_keydata_ed25519(name: &str, cipher_id: &str) -> SSHKeyData {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);

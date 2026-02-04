@@ -19,12 +19,12 @@ use ssh_key::private::{Ed25519Keypair, RsaKeypair};
 pub mod keystore;
 mod serialization;
 
-/// Trait representing SSH key data with its associated metadata.
+/// Represents SSH key that is queryable.
 ///
-/// This trait abstracts over different key data implementations,
-/// allowing for mocking in tests without requiring actual cryptographic keys.
+/// Allows bstracting  over different key data implementations,
+/// for mocking in tests without requiring actual cryptographic keys.
 #[cfg_attr(test, mockall::automock)]
-pub trait KeyData: Send + Sync {
+pub trait QueryableKeyData: Send + Sync {
     /// # Returns
     ///
     /// A reference to the [`PublicKey`].
@@ -85,8 +85,7 @@ impl SSHKeyData {
     }
 }
 
-// Implement KeyData trait for SSHKeyData
-impl KeyData for SSHKeyData {
+impl QueryableKeyData for SSHKeyData {
     fn public_key(&self) -> &PublicKey {
         &self.public_key
     }

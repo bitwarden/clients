@@ -106,7 +106,7 @@ mod tests {
     };
 
     use super::*;
-    use crate::crypto::KeyData;
+    use crate::crypto::QueryableKeyData;
 
     const INVALID_KEY: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
 invalid_base64_data!!!
