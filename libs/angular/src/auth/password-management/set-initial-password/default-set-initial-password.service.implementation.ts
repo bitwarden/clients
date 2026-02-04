@@ -216,7 +216,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
   }
 
@@ -415,6 +415,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         authenticationData.masterPasswordAuthenticationHash,
         orgId,
         userId,
+        userKey,
       );
     }
   }
@@ -524,7 +525,19 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
-  private async handleResetPasswordAutoEnroll(
+  /**
+   * @deprecated To be removed in PM-28143
+   *
+   * This method is now deprecated because it is used with the deprecated `setInitialPassword()` method,
+   * which handles both JIT MP and TDE + Permission user flows.
+   *
+   * Since these methods can handle the JIT MP flow - which creates a new user key and sets it to state - we
+   * must retreive that user key here in this method.
+   *
+   * But the new handleResetPasswordAutoEnroll() method is only used in the TDE + Permission user case, in which
+   * case we already have the user key and can simply pass it through via method parameter ( @see handleResetPasswordAutoEnroll )
+   */
+  private async handleResetPasswordAutoEnrollOld(
     masterKeyHash: string,
     orgId: string,
     userId: UserId,
@@ -543,6 +556,45 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userKey == null) {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
+
+    // RSA encrypt user key with organization public key
+    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
+      orgPublicKey,
+    );
+
+    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey.encryptedString) {
+      throw new Error(
+        "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
+      );
+    }
+
+    const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+    enrollmentRequest.masterPasswordHash = masterKeyHash;
+    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+
+    await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
+      orgId,
+      userId,
+      enrollmentRequest,
+    );
+  }
+
+  private async handleResetPasswordAutoEnroll(
+    masterKeyHash: string,
+    orgId: string,
+    userId: UserId,
+    userKey: UserKey,
+  ) {
+    const organizationKeys = await this.organizationApiService.getKeys(orgId);
+
+    if (organizationKeys == null) {
+      throw new Error(
+        "Organization keys response is null. Could not handle reset password auto enroll.",
+      );
+    }
+
+    const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
 
     // RSA encrypt user key with organization public key
     const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
