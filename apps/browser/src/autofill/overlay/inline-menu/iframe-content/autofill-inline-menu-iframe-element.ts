@@ -1,6 +1,8 @@
 import { AutofillInlineMenuIframeService } from "./autofill-inline-menu-iframe.service";
 
 export class AutofillInlineMenuIframeElement {
+  private autofillInlineMenuIframeService: AutofillInlineMenuIframeService;
+
   constructor(
     element: HTMLElement,
     portName: string,
@@ -12,14 +14,14 @@ export class AutofillInlineMenuIframeElement {
     const shadow: ShadowRoot = element.attachShadow({ mode: "closed" });
     shadow.prepend(style);
 
-    const autofillInlineMenuIframeService = new AutofillInlineMenuIframeService(
+    this.autofillInlineMenuIframeService = new AutofillInlineMenuIframeService(
       shadow,
       portName,
       initStyles,
       iframeTitle,
       ariaAlert,
     );
-    autofillInlineMenuIframeService.initMenuIframe();
+    this.autofillInlineMenuIframeService.initMenuIframe();
   }
 
   /**
@@ -66,5 +68,12 @@ export class AutofillInlineMenuIframeElement {
     style.appendChild(css);
 
     return style;
+  }
+
+  /**
+   * Cleans up the iframe service to prevent memory leaks.
+   */
+  destroy() {
+    this.autofillInlineMenuIframeService?.destroy();
   }
 }

@@ -41,7 +41,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
   private buttonElement?: HTMLElement;
+  private buttonIframe?: AutofillInlineMenuButtonIframe;
   private listElement?: HTMLElement;
+  private listIframe?: AutofillInlineMenuListIframe;
   private htmlMutationObserver: MutationObserver;
   private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
@@ -264,18 +266,19 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       this.buttonElement.setAttribute("popover", "manual");
-      new AutofillInlineMenuButtonIframe(this.buttonElement);
+      this.buttonIframe = new AutofillInlineMenuButtonIframe(this.buttonElement);
 
       return this.buttonElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
+    const self = this;
     globalThis.customElements?.define(
       customElementName,
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillInlineMenuButtonIframe(this);
+          self.buttonIframe = new AutofillInlineMenuButtonIframe(this);
         }
       },
     );
@@ -293,18 +296,19 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       this.listElement.setAttribute("popover", "manual");
-      new AutofillInlineMenuListIframe(this.listElement);
+      this.listIframe = new AutofillInlineMenuListIframe(this.listElement);
 
       return this.listElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
+    const self = this;
     globalThis.customElements?.define(
       customElementName,
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillInlineMenuListIframe(this);
+          self.listIframe = new AutofillInlineMenuListIframe(this);
         }
       },
     );
@@ -778,5 +782,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.closeInlineMenu();
     this.clearPersistentLastChildOverrideTimeout();
     this.unobservePageAttributes();
+    this.unobserveCustomElements();
+    this.unobserveContainerElement();
+    if (this.mutationObserverIterationsResetTimeout) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+      this.mutationObserverIterationsResetTimeout = null;
+    }
+    this.buttonIframe?.destroy();
+    this.listIframe?.destroy();
   }
 }
