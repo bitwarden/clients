@@ -252,6 +252,23 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       );
     }
 
+    // Add Huntress SIEM integration (separate feature flag)
+    const huntressFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForHuntress),
+    );
+
+    if (huntressFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Huntress,
+        linkURL: "https://bitwarden.com/help/huntress-siem/",
+        image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
+        type: IntegrationType.EVENT,
+        description: "huntressEventIntegrationDesc",
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+      });
+    }
+
     const orgIntegrations = await firstValueFrom(
       this.organizationIntegrationService.integrations$.pipe(take(1)),
     );
