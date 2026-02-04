@@ -9,6 +9,7 @@ members = [
     "napi",
     "process_isolation",
     "proxy",
+    "ssh_agent",
     "windows_plugin_authenticator",
 ]
 
