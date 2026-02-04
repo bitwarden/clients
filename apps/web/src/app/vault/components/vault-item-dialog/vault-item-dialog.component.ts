@@ -563,22 +563,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipher.archivedDate = archivedDate;
-    this.cipher.revisionDate = revisionDate;
-
-    // If we're in View mode, we don't need to update the form.
-    if (this.params.mode === "view") {
-      return;
-    }
-
-    this.cipherFormComponent().patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
-    });
-  };
-
   archive = async () => {
     const activeUserId = await firstValueFrom(this.userId$);
     try {
@@ -586,10 +570,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(
-        new Date(cipherResponse.revisionDate),
-        cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
-      );
+
+      const cipher: Cipher = new Cipher(cipherResponse);
+
+      cipher.collectionIds = [...this.cipher.collectionIds];
+
+      const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
+
+      await this.onCipherSaved(cipherView);
 
       this.toastService.showToast({
         variant: "success",
@@ -610,7 +598,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+
+      const cipher: Cipher = new Cipher(cipherResponse);
+
+      cipher.collectionIds = [...this.cipher.collectionIds];
+
+      const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
+
+      await this.onCipherSaved(cipherView);
+
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemWasUnarchived"),
