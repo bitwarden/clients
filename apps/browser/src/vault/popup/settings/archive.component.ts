@@ -135,6 +135,10 @@ export class ArchiveComponent {
     switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
   );
 
+  protected userHasPremium$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.userHasPremium$(userId)),
+  );
+
   async navigateToPremium() {
     await this.router.navigate(["/premium"]);
   }

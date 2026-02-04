@@ -1,4 +1,6 @@
-import { TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -7,10 +9,13 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-cache/popup-router-cache.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -25,40 +30,78 @@ jest.mock("qrcode-parser", () => {});
 
 describe("ArchiveComponent", () => {
   let component: ArchiveComponent;
+  let fixture: ComponentFixture<ArchiveComponent>;
 
   let hasOrganizations: jest.Mock;
   let decryptedCollections$: jest.Mock;
   let navigate: jest.Mock;
   let showPasswordPrompt: jest.Mock;
+  let userHasPremium$: jest.Mock;
+  let archivedCiphers$: jest.Mock;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     navigate = jest.fn();
     showPasswordPrompt = jest.fn().mockResolvedValue(true);
-    hasOrganizations = jest.fn();
-    decryptedCollections$ = jest.fn();
+    hasOrganizations = jest.fn().mockReturnValue(of(false));
+    decryptedCollections$ = jest.fn().mockReturnValue(of([]));
+    userHasPremium$ = jest.fn().mockReturnValue(of(false));
+    archivedCiphers$ = jest.fn().mockReturnValue(of([{ id: "cipher-1" }]));
 
     await TestBed.configureTestingModule({
+      imports: [ArchiveComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: Router, useValue: { navigate } },
         {
           provide: AccountService,
           useValue: { activeAccount$: new BehaviorSubject({ id: "user-id" }) },
         },
         { provide: PasswordRepromptService, useValue: { showPasswordPrompt } },
-        { provide: OrganizationService, useValue: { hasOrganizations } },
+        {
+          provide: OrganizationService,
+          useValue: { hasOrganizations, organizations$: () => of([]) },
+        },
         { provide: CollectionService, useValue: { decryptedCollections$ } },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
-        { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            userHasPremium$,
+            archivedCiphers$,
+            userCanArchive$: jest.fn().mockReturnValue(of(true)),
+            showSubscriptionEndedMessaging$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: of({
+              getIconsUrl: () => "https://icons.example.com",
+            }),
+          },
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            showFavicons$: of(true),
+          },
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
+          },
+        },
       ],
     }).compileComponents();
 
-    const fixture = TestBed.createComponent(ArchiveComponent);
+    fixture = TestBed.createComponent(ArchiveComponent);
     component = fixture.componentInstance;
   });
 
@@ -135,6 +178,56 @@ describe("ArchiveComponent", () => {
 
       expect(showPasswordPrompt).toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("clone menu option", () => {
+    const getBitMenuPanel = () => document.querySelector(".bit-menu-panel");
+
+    it("is shown when user has premium", async () => {
+      userHasPremium$.mockReturnValue(of(true));
+
+      const testFixture = TestBed.createComponent(ArchiveComponent);
+      testFixture.detectChanges();
+      await testFixture.whenStable();
+
+      const menuTrigger = testFixture.debugElement.query(By.css('button[aria-haspopup="menu"]'));
+      expect(menuTrigger).toBeTruthy();
+      (menuTrigger.nativeElement as HTMLButtonElement).click();
+      testFixture.detectChanges();
+
+      const menuPanel = getBitMenuPanel();
+      expect(menuPanel).toBeTruthy();
+
+      const menuButtons = menuPanel?.querySelectorAll("button[bitMenuItem]");
+      const cloneButtonFound = Array.from(menuButtons || []).some(
+        (btn) => btn.textContent?.trim() === "clone",
+      );
+
+      expect(cloneButtonFound).toBe(true);
+    });
+
+    it("is not shown when user does not have premium", async () => {
+      userHasPremium$.mockReturnValue(of(false));
+
+      const testFixture = TestBed.createComponent(ArchiveComponent);
+      testFixture.detectChanges();
+      await testFixture.whenStable();
+
+      const menuTrigger = testFixture.debugElement.query(By.css('button[aria-haspopup="menu"]'));
+      expect(menuTrigger).toBeTruthy();
+      (menuTrigger.nativeElement as HTMLButtonElement).click();
+      testFixture.detectChanges();
+
+      const menuPanel = getBitMenuPanel();
+      expect(menuPanel).toBeTruthy();
+
+      const menuButtons = menuPanel?.querySelectorAll("button[bitMenuItem]");
+      const cloneButtonFound = Array.from(menuButtons || []).some(
+        (btn) => btn.textContent?.trim() === "clone",
+      );
+
+      expect(cloneButtonFound).toBe(false);
     });
   });
 });
