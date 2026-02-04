@@ -122,6 +122,11 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    if (!this.showPremiumToOrganizationUpgrade()) {
+      // If the premium to organization upgrade feature is not enabled or user does not have premium personally, close the dialog
+      this.close({ status: PremiumOrgUpgradeDialogStatus.Closed });
+      return;
+    }
     this.account.set(this.params.account);
     this.step.set(this.params.initialStep ?? PremiumOrgUpgradeDialogStep.PlanSelection);
     this.selectedPlan.set(this.params.selectedPlan ?? null);
