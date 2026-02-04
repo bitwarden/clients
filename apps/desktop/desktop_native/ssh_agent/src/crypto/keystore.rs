@@ -7,13 +7,19 @@ use std::sync::{Arc, Mutex};
 use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use super::{PublicKey, SSHKeyData};
+#[cfg(test)]
+use super::MockKeyData;
+use super::{KeyData, PublicKey, SSHKeyData};
 
 /// Securely store and retrieve SSH key data.
 ///
 /// Provides an abstraction over key storage mechanisms, allowing for different
 /// implementations or mocks.
-pub(crate) trait KeyStore {
+#[cfg_attr(test, mockall::automock(type KeyData = MockKeyData;))]
+pub trait KeyStore: Send + Sync {
+    /// The type of key data stored by this keystore.
+    type KeyData: KeyData;
+
     /// Stores or updates an SSH key in the keystore.
     /// If a key with the same public key already exists, it will be overwritten.
     ///
@@ -25,7 +31,7 @@ pub(crate) trait KeyStore {
     /// # Returns
     ///
     /// `Ok(())` if the key was successfully stored, or an error if the operation failed.
-    fn insert(&self, key_data: SSHKeyData) -> Result<()>;
+    fn insert(&self, key_data: Self::KeyData) -> Result<()>;
 
     /// Retrieves SSH key data by its public key.
     ///
@@ -35,16 +41,31 @@ pub(crate) trait KeyStore {
     ///
     /// # Returns
     ///
-    /// * `Ok(Some(SSHKeyData))` if the key was found
+    /// * `Ok(Some(KeyData))` if the key was found
     /// * `Ok(None)` if no key with the given public key exists
     /// * `Err(_)` if an error occurred during retrieval
-    fn get(&self, public_key: &PublicKey) -> Result<Option<SSHKeyData>>;
+    fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>>;
 
+    /// Returns all public keys and their names.
+    ///
     /// # Returns
     ///
     /// A vector of tuples containing each key's public key and human-readable name,
     /// or an error if the operation failed.
     fn get_all_public_keys_and_names(&mut self) -> Result<Vec<(PublicKey, String)>>;
+
+    /// Signs data using the private key associated with the given public key.
+    ///
+    /// # Arguments
+    ///
+    /// * `public_key` - The public key identifying which private key to use
+    /// * `data` - The data to sign
+    ///
+    /// # Returns
+    ///
+    /// The signature bytes, or an error if signing fails
+    /// (e.g., key not found, key locked, or cryptographic error).
+    fn sign_data(&self, public_key: &PublicKey, data: &[u8]) -> Result<Vec<u8>>;
 }
 
 /// A thread-safe, in-memory, and encrypted implementation of the [`KeyStore`] trait.
@@ -52,12 +73,12 @@ pub(crate) trait KeyStore {
 /// Stores SSH keys in encrypted form in memory using [`EncryptedMemoryStore`].
 /// Keys are encrypted when inserted and decrypted when retrieved.
 /// All data is lost when the instance is dropped.
-pub(crate) struct InMemoryEncryptedKeyStore {
+pub struct InMemoryEncryptedKeyStore {
     secure_memory: Arc<Mutex<EncryptedMemoryStore<PublicKey>>>,
 }
 
 impl InMemoryEncryptedKeyStore {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::new())),
         }
@@ -65,7 +86,9 @@ impl InMemoryEncryptedKeyStore {
 }
 
 impl KeyStore for InMemoryEncryptedKeyStore {
-    fn insert(&self, key_data: SSHKeyData) -> Result<()> {
+    type KeyData = SSHKeyData;
+
+    fn insert(&self, key_data: Self::KeyData) -> Result<()> {
         let pub_key = key_data.public_key().clone();
         let bytes: Vec<u8> = key_data.try_into()?;
 
@@ -77,7 +100,7 @@ impl KeyStore for InMemoryEncryptedKeyStore {
         Ok(())
     }
 
-    fn get(&self, public_key: &PublicKey) -> Result<Option<SSHKeyData>> {
+    fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>> {
         self.secure_memory
             .lock()
             .expect("Mutex is not poisoned.")
@@ -97,6 +120,10 @@ impl KeyStore for InMemoryEncryptedKeyStore {
                     .map(|key_data| (key_data.public_key().clone(), key_data.name().clone()))
             })
             .collect::<Result<Vec<_>, _>>()
+    }
+
+    fn sign_data(&self, _public_key: &PublicKey, _data: &[u8]) -> Result<Vec<u8>> {
+        todo!();
     }
 }
 
