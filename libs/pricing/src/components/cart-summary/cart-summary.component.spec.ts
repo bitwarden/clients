@@ -89,6 +89,8 @@ describe("CartSummaryComponent", () => {
                   return "Premium membership";
                 case "discount":
                   return "discount";
+                case "accountCredit":
+                  return "accountCredit";
                 default:
                   return key;
               }
@@ -253,6 +255,126 @@ describe("CartSummaryComponent", () => {
     });
   });
 
+  describe("hideBreakdown Property", () => {
+    it("should hide cost breakdown when hideBreakdown is true for password manager seats", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 50,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const pmLineItem = fixture.debugElement.query(
+        By.css('[id="password-manager-members"] .tw-flex-1 .tw-text-muted'),
+      );
+
+      // Act / Assert
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members");
+    });
+
+    it("should show cost breakdown when hideBreakdown is false for password manager seats", () => {
+      // Arrange / Act
+      const pmLineItem = fixture.debugElement.query(
+        By.css('[id="password-manager-members"] .tw-flex-1 .tw-text-muted'),
+      );
+
+      // Assert
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00 / month");
+    });
+
+    it("should hide cost breakdown for additional storage when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          additionalStorage: {
+            quantity: 2,
+            translationKey: "additionalStorageGB",
+            cost: 10,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const storageItem = fixture.debugElement.query(By.css("[id='additional-storage']"));
+      const storageLineItem = storageItem.query(By.css(".tw-flex-1 .tw-text-muted"));
+      const storageTotal = storageItem.query(By.css("[data-testid='additional-storage-total']"));
+
+      // Act / Assert
+      expect(storageLineItem.nativeElement.textContent).toContain("2 Additional storage GB");
+      expect(storageTotal.nativeElement.textContent).toContain("$20.00");
+    });
+
+    it("should hide cost breakdown for secrets manager seats when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        secretsManager: {
+          seats: {
+            quantity: 3,
+            translationKey: "secretsManagerSeats",
+            cost: 30,
+            hideBreakdown: true,
+          },
+          additionalServiceAccounts: mockCart.secretsManager!.additionalServiceAccounts,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const smLineItem = fixture.debugElement.query(
+        By.css('[id="secrets-manager-members"] .tw-text-muted'),
+      );
+      const smTotal = fixture.debugElement.query(
+        By.css('[data-testid="secrets-manager-seats-total"]'),
+      );
+
+      // Act / Assert
+      expect(smLineItem.nativeElement.textContent).toContain("3 Secrets Manager seats");
+      expect(smTotal.nativeElement.textContent).toContain("$90.00");
+    });
+
+    it("should hide cost breakdown for additional service accounts when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        secretsManager: {
+          seats: mockCart.secretsManager!.seats,
+          additionalServiceAccounts: {
+            quantity: 2,
+            translationKey: "additionalServiceAccountsV2",
+            cost: 6,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const saLineItem = fixture.debugElement.query(
+        By.css('[id="additional-service-accounts"] .tw-text-muted'),
+      );
+      const saTotal = fixture.debugElement.query(
+        By.css('[data-testid="additional-service-accounts-total"]'),
+      );
+
+      // Act / Assert
+      expect(saLineItem.nativeElement.textContent).toContain("2 Additional machine accounts");
+      expect(saTotal.nativeElement.textContent).toContain("$12.00");
+    });
+  });
+
   describe("Discount Display", () => {
     it("should not display discount section when no discount is present", () => {
       // Arrange / Act
@@ -332,6 +454,94 @@ describe("CartSummaryComponent", () => {
       const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
 
       // Act / Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+  });
+
+  describe("Credit Display", () => {
+    it("should not display credit section when no credit is present", () => {
+      // Arrange / Act
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+
+      // Assert
+      expect(creditSection).toBeFalsy();
+    });
+
+    it("should display credit correctly", () => {
+      // Arrange
+      const cartWithCredit: Cart = {
+        ...mockCart,
+        credit: {
+          translationKey: "accountCredit",
+          value: 25.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithCredit);
+      fixture.detectChanges();
+
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+      const creditLabel = creditSection.query(By.css("h3"));
+      const creditAmount = creditSection.query(By.css('[data-testid="credit-amount"]'));
+
+      // Act / Assert
+      expect(creditSection).toBeTruthy();
+      expect(creditLabel.nativeElement.textContent.trim()).toBe("accountCredit");
+      expect(creditAmount.nativeElement.textContent).toContain("-$25.00");
+    });
+
+    it("should apply credit to total calculation", () => {
+      // Arrange
+      const cartWithCredit: Cart = {
+        ...mockCart,
+        credit: {
+          translationKey: "accountCredit",
+          value: 50.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithCredit);
+      fixture.detectChanges();
+
+      // Subtotal = 372, credit = 50, tax = 9.6
+      // Total = 372 - 50 + 9.6 = 331.6
+      const expectedTotal = "$331.60";
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should display and apply both discount and credit correctly", () => {
+      // Arrange
+      const cartWithBoth: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+        credit: {
+          translationKey: "accountCredit",
+          value: 30.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithBoth);
+      fixture.detectChanges();
+
+      // Subtotal = 372, discount = 37.2 (10%), credit = 30, tax = 9.6
+      // Total = 372 - 37.2 - 30 + 9.6 = 314.4
+      const expectedTotal = "$314.40";
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+      const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(discountSection).toBeTruthy();
+      expect(creditSection).toBeTruthy();
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
@@ -424,6 +634,8 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Collapse purchase details";
                 case "discount":
                   return "discount";
+                case "accountCredit":
+                  return "accountCredit";
                 default:
                   return key;
               }

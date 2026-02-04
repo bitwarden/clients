@@ -5,10 +5,9 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
-
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use super::{KeyData, PublicKey};
+use super::{PublicKey, SSHKeyData};
 
 /// Securely store and retrieve SSH key data.
 ///
@@ -20,12 +19,13 @@ pub(crate) trait KeyStore {
     ///
     /// # Arguments
     ///
-    /// * `key_data` - The SSH key data to store, including private key, public key, name, and cipher ID
+    /// * `key_data` - The SSH key data to store, including private key, public key, name, and
+    ///   cipher ID
     ///
     /// # Returns
     ///
     /// `Ok(())` if the key was successfully stored, or an error if the operation failed.
-    fn insert(&self, key_data: KeyData) -> Result<()>;
+    fn insert(&self, key_data: SSHKeyData) -> Result<()>;
 
     /// Retrieves SSH key data by its public key.
     ///
@@ -35,10 +35,10 @@ pub(crate) trait KeyStore {
     ///
     /// # Returns
     ///
-    /// * `Ok(Some(KeyData))` if the key was found
+    /// * `Ok(Some(SSHKeyData))` if the key was found
     /// * `Ok(None)` if no key with the given public key exists
     /// * `Err(_)` if an error occurred during retrieval
-    fn get(&self, public_key: &PublicKey) -> Result<Option<KeyData>>;
+    fn get(&self, public_key: &PublicKey) -> Result<Option<SSHKeyData>>;
 
     /// # Returns
     ///
@@ -65,7 +65,7 @@ impl InMemoryEncryptedKeyStore {
 }
 
 impl KeyStore for InMemoryEncryptedKeyStore {
-    fn insert(&self, key_data: KeyData) -> Result<()> {
+    fn insert(&self, key_data: SSHKeyData) -> Result<()> {
         let pub_key = key_data.public_key().clone();
         let bytes: Vec<u8> = key_data.try_into()?;
 
@@ -77,12 +77,12 @@ impl KeyStore for InMemoryEncryptedKeyStore {
         Ok(())
     }
 
-    fn get(&self, public_key: &PublicKey) -> Result<Option<KeyData>> {
+    fn get(&self, public_key: &PublicKey) -> Result<Option<SSHKeyData>> {
         self.secure_memory
             .lock()
             .expect("Mutex is not poisoned.")
             .get(public_key)?
-            .map(KeyData::try_from)
+            .map(SSHKeyData::try_from)
             .transpose()
     }
 
@@ -93,7 +93,7 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .to_vec()?
             .into_iter()
             .map(|bytes| {
-                KeyData::try_from(bytes)
+                SSHKeyData::try_from(bytes)
                     .map(|key_data| (key_data.public_key().clone(), key_data.name().clone()))
             })
             .collect::<Result<Vec<_>, _>>()
@@ -102,14 +102,15 @@ impl KeyStore for InMemoryEncryptedKeyStore {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::crypto::PrivateKey;
     use ssh_key::{
         private::{Ed25519Keypair, RsaKeypair},
         rand_core::OsRng,
     };
 
-    fn create_test_keydata_ed25519(name: &str, cipher_id: &str) -> KeyData {
+    use super::*;
+    use crate::crypto::PrivateKey;
+
+    fn create_test_keydata_ed25519(name: &str, cipher_id: &str) -> SSHKeyData {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
         let ssh_key = ssh_key::PrivateKey::new(
             ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
@@ -118,7 +119,7 @@ mod tests {
         .unwrap();
         let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
 
-        KeyData::new(
+        SSHKeyData::new(
             PrivateKey::Ed25519(ed25519_keypair),
             PublicKey {
                 alg: "ssh-ed25519".to_string(),
@@ -129,14 +130,14 @@ mod tests {
         )
     }
 
-    fn create_test_keydata_rsa(name: &str, cipher_id: &str) -> KeyData {
+    fn create_test_keydata_rsa(name: &str, cipher_id: &str) -> SSHKeyData {
         let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair.clone()), "")
                 .unwrap();
         let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
 
-        KeyData::new(
+        SSHKeyData::new(
             PrivateKey::Rsa(rsa_keypair),
             PublicKey {
                 alg: "ssh-rsa".to_string(),
@@ -179,9 +180,9 @@ mod tests {
         // insert first key
         ks.insert(key_data1).unwrap();
 
-        // Create new KeyData with same public key but different name/cipher_id
+        // Create new SSHKeyData with same public key but different name/cipher_id
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
-        let key_data2 = KeyData::new(
+        let key_data2 = SSHKeyData::new(
             PrivateKey::Ed25519(ed25519_keypair),
             public_key.clone(),
             "updated-name".to_string(),

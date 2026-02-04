@@ -1,18 +1,12 @@
 //! Cryptographic key management for the SSH agent.
 //!
-//! This module provides the core primative types and functionality for managing
+//! This module provides the core primitive types and functionality for managing
 //! SSH keys in the Bitwarden SSH agent.
 //!
-//! The module exposes several key types:
+//! # Supported signing algorithms
 //!
-//! - [`KeyData`] - Complete SSH key with metadata (private key, public key, name, cipher ID)
-//! - [`PrivateKey`] - SSH private key (Ed25519 or RSA)
-//! - [`PublicKey`] - SSH public key with algorithm and blob data
-//!
-//! # Supported Algorithms
-//!
-//! - Ed25519 keys
-//! - RSA keys
+//! - Ed25519
+//! - RSA
 //!
 //! ECDSA keys are not currently supported (PM-29894)
 
@@ -25,31 +19,28 @@ use ssh_key::private::{Ed25519Keypair, RsaKeypair};
 mod keystore;
 mod serialization;
 
-/// Represents an SSH key with its associated metadata.
-///
-/// Contains the private and public components of an SSH key,
-/// along with a human-readable name and the cipher ID from the vault.
+/// Represents an SSH key and its associated metadata.
 #[derive(Clone)]
-pub(crate) struct KeyData {
+pub(crate) struct SSHKeyData {
+    /// Private key of the key pair
     private_key: PrivateKey,
+    /// Public key of the key pair
     public_key: PublicKey,
+    /// Human-readable name
     name: String,
+    /// Vault cipher ID associated with the key pair
     cipher_id: String,
 }
 
-impl KeyData {
-    /// Creates a new `KeyData` instance.
+impl SSHKeyData {
+    /// Creates a new `SSHKeyData` instance.
     ///
     /// # Arguments
     ///
-    /// * `private_key` - The private key component (Ed25519 or RSA)
-    /// * `public_key` - The public key component with algorithm and blob
+    /// * `private_key` - The private key component
+    /// * `public_key` - The public key component
     /// * `name` - A human-readable name for the key
     /// * `cipher_id` - The vault cipher identifier associated with this key
-    ///
-    /// # Returns
-    ///
-    /// A new `KeyData` instance containing all provided key data and metadata.
     pub(crate) fn new(
         private_key: PrivateKey,
         public_key: PublicKey,
@@ -66,36 +57,34 @@ impl KeyData {
 
     /// # Returns
     ///
-    /// A reference to the [`PublicKey`] containing the algorithm and blob.
+    /// A reference to the [`PublicKey`].
     pub(crate) fn public_key(&self) -> &PublicKey {
         &self.public_key
     }
 
     /// # Returns
     ///
-    /// A reference to the [`PrivateKey`] enum variant (Ed25519 or RSA).
+    /// A reference to the [`PrivateKey`].
     pub(crate) fn private_key(&self) -> &PrivateKey {
         &self.private_key
     }
 
     /// # Returns
     ///
-    /// A reference to the human-readable name string for this key.
+    /// A reference to the human-readable name for this key.
     pub(crate) fn name(&self) -> &String {
         &self.name
     }
 
     /// # Returns
     ///
-    /// A reference to the cipher ID string that links this key to a vault entry.
+    /// A reference to the cipher ID that links this key to a vault entry.
     pub(crate) fn cipher_id(&self) -> &String {
         &self.cipher_id
     }
 }
 
 /// Represents an SSH private key.
-///
-/// Supported key types: Ed25519, RSA.
 #[derive(Clone, PartialEq, Debug)]
 pub(crate) enum PrivateKey {
     Ed25519(Ed25519Keypair),
@@ -168,6 +157,8 @@ mod tests {
 
     use super::*;
 
+    const MIN_KEY_BIT_SIZE: usize = 2048;
+
     fn create_valid_ed25519_key_string() -> String {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
         let ssh_key =
@@ -187,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_privatekey_from_rsa() {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair), "").unwrap();
 

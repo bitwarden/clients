@@ -29,8 +29,9 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
       cipher.notes = this.getValueOrDefault(value.Note);
       cipher.name = this.getValueOrDefault(value.Name, "--");
       cipher.login.username = this.getValueOrDefault(value.Login);
-      cipher.login.password = this.getValueOrDefault(value.Pwd);
-      cipher.login.uris = this.makeUriArray(value.Url);
+      cipher.login.password =
+        this.getValueOrDefault(value.Pwd) ?? this.getValueOrDefault(value.Password);
+      cipher.login.uris = this.makeUriArray(value.Url) ?? this.makeUriArray(value.URL);
 
       if (!this.isNullOrWhitespace(value.Rf_fields)) {
         this.parseRfFields(cipher, value);

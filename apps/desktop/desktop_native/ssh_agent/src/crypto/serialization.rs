@@ -1,6 +1,6 @@
 //! Serialization and deserialization of SSH key data.
 //!
-//! This module handles the conversion of [`KeyData`] to and from binary format
+//! This module handles the conversion of [`SSHKeyData`] to and from binary format
 //! for secure storage. It uses the `rkyv` crate for efficient zero-copy
 //! serialization and deserialization.
 //!
@@ -10,7 +10,7 @@
 //! The serialization process:
 //!
 //! 1. Converts [`PrivateKey`] to OpenSSH PEM string format
-//! 2. Combines with [`PublicKey`], name, and cipher ID into [`KeyDataSerializable`]
+//! 2. Combines with [`PublicKey`], name, and cipher ID into [`SSHKeyDataSerializable`]
 //! 3. Serializes to binary using `rkyv`
 //!
 //! Deserialization reverses this process and validates the key format.
@@ -19,20 +19,20 @@ use anyhow::{anyhow, Error};
 use rkyv::{deserialize, rancor::Error as RancorError, Archive, Deserialize, Serialize};
 use ssh_key::{private::KeypairData, LineEnding};
 
-use super::{KeyData, PrivateKey, PublicKey};
+use super::{PrivateKey, PublicKey, SSHKeyData};
 
 #[derive(Archive, Serialize, Deserialize, PartialEq)]
-struct KeyDataSerializable {
+struct SSHKeyDataSerializable {
     private_key: String,
     public_key: PublicKey,
     name: String,
     cipher_id: String,
 }
 
-impl TryFrom<KeyDataSerializable> for KeyData {
+impl TryFrom<SSHKeyDataSerializable> for SSHKeyData {
     type Error = anyhow::Error;
 
-    fn try_from(key_data: KeyDataSerializable) -> Result<Self, Self::Error> {
+    fn try_from(key_data: SSHKeyDataSerializable) -> Result<Self, Self::Error> {
         let private_key = parse_key(&key_data.private_key)?;
         let private_key = PrivateKey::try_from(private_key)?;
 
@@ -55,23 +55,23 @@ fn parse_key(pem: &str) -> Result<ssh_key::PrivateKey, Error> {
     }
 }
 
-impl TryFrom<Vec<u8>> for KeyData {
+impl TryFrom<Vec<u8>> for SSHKeyData {
     type Error = anyhow::Error;
 
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> {
-        let archived = rkyv::access::<ArchivedKeyDataSerializable, RancorError>(&bytes[..])?;
-        let serializable = deserialize::<KeyDataSerializable, RancorError>(archived)?;
-        KeyData::try_from(serializable)
+        let archived = rkyv::access::<ArchivedSSHKeyDataSerializable, RancorError>(&bytes[..])?;
+        let serializable = deserialize::<SSHKeyDataSerializable, RancorError>(archived)?;
+        SSHKeyData::try_from(serializable)
     }
 }
 
-impl TryFrom<KeyData> for Vec<u8> {
+impl TryFrom<SSHKeyData> for Vec<u8> {
     type Error = anyhow::Error;
 
-    fn try_from(key_data: KeyData) -> Result<Self, Self::Error> {
+    fn try_from(key_data: SSHKeyData) -> Result<Self, Self::Error> {
         let private_key = String::try_from(key_data.private_key)?;
 
-        let serializable = KeyDataSerializable {
+        let serializable = SSHKeyDataSerializable {
             private_key,
             public_key: key_data.public_key,
             name: key_data.name,
@@ -99,12 +99,13 @@ impl TryFrom<PrivateKey> for String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use ssh_key::{
         private::{Ed25519Keypair, RsaKeypair},
         rand_core::OsRng,
         LineEnding,
     };
+
+    use super::*;
 
     const INVALID_KEY: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
 invalid_base64_data!!!
@@ -118,7 +119,7 @@ invalid_base64_data!!!
         ssh_key.to_openssh(LineEnding::LF).unwrap().to_string()
     }
 
-    fn create_test_keydata_ed25519() -> KeyData {
+    fn create_test_keydata_ed25519() -> SSHKeyData {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
         let ssh_key = ssh_key::PrivateKey::new(
             ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
@@ -127,7 +128,7 @@ invalid_base64_data!!!
         .unwrap();
         let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
 
-        KeyData {
+        SSHKeyData {
             private_key: PrivateKey::Ed25519(ed25519_keypair),
             public_key: PublicKey {
                 alg: "ssh-ed25519".to_string(),
@@ -138,14 +139,14 @@ invalid_base64_data!!!
         }
     }
 
-    fn create_test_keydata_rsa() -> KeyData {
+    fn create_test_keydata_rsa() -> SSHKeyData {
         let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair.clone()), "")
                 .unwrap();
         let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
 
-        KeyData {
+        SSHKeyData {
             private_key: PrivateKey::Rsa(rsa_keypair),
             public_key: PublicKey {
                 alg: "ssh-rsa".to_string(),
@@ -222,7 +223,7 @@ invalid_base64_data!!!
     #[test]
     fn test_keydataserializable_to_keydata_valid() {
         let key_string = create_valid_ed25519_key_string();
-        let serializable = KeyDataSerializable {
+        let serializable = SSHKeyDataSerializable {
             private_key: key_string,
             public_key: PublicKey {
                 alg: "ssh-ed25519".to_string(),
@@ -232,14 +233,14 @@ invalid_base64_data!!!
             cipher_id: "cipher-123".to_string(),
         };
 
-        let result = KeyData::try_from(serializable);
+        let result = SSHKeyData::try_from(serializable);
         assert!(result.is_ok());
     }
 
     #[test]
     #[should_panic(expected = "Failed to parse key")]
     fn test_keydataserializable_to_keydata_invalid_key() {
-        let serializable = KeyDataSerializable {
+        let serializable = SSHKeyDataSerializable {
             private_key: INVALID_KEY.to_string(),
             public_key: PublicKey {
                 alg: "ssh-ed25519".to_string(),
@@ -249,21 +250,21 @@ invalid_base64_data!!!
             cipher_id: "cipher-123".to_string(),
         };
 
-        KeyData::try_from(serializable).unwrap();
+        SSHKeyData::try_from(serializable).unwrap();
     }
 
     #[test]
     #[should_panic(expected = "subtree pointer overran range")]
     fn test_keydata_from_corrupted_bytes() {
         let corrupted_bytes = vec![0u8, 1, 2, 3, 4, 5];
-        KeyData::try_from(corrupted_bytes).unwrap();
+        SSHKeyData::try_from(corrupted_bytes).unwrap();
     }
 
     #[test]
     #[should_panic(expected = "subtree pointer overran range")]
     fn test_keydata_from_empty_bytes() {
         let empty_bytes: Vec<u8> = vec![];
-        KeyData::try_from(empty_bytes).unwrap();
+        SSHKeyData::try_from(empty_bytes).unwrap();
     }
 
     #[test]
@@ -271,7 +272,7 @@ invalid_base64_data!!!
         let original = create_test_keydata_ed25519();
 
         let bytes: Vec<u8> = original.clone().try_into().unwrap();
-        let restored: KeyData = bytes.try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
 
         assert_eq!(restored.name(), original.name());
         assert_eq!(restored.cipher_id(), original.cipher_id());
@@ -284,7 +285,7 @@ invalid_base64_data!!!
         let original = create_test_keydata_rsa();
 
         let bytes: Vec<u8> = original.clone().try_into().unwrap();
-        let restored: KeyData = bytes.try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
 
         assert_eq!(restored.name(), original.name());
         assert_eq!(restored.cipher_id(), original.cipher_id());
