@@ -1,17 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  resource,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
@@ -77,8 +69,6 @@ export class AccountSubscriptionComponent {
   private router = inject(Router);
   private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private toastService = inject(ToastService);
-  private apiService = inject(ApiService);
-  private destroyRef = inject(DestroyRef);
 
   readonly subscription = resource({
     loader: async () => {
