@@ -9,24 +9,32 @@ import {
   inject,
 } from "@angular/core";
 
-import { IconComponent } from "../icon/icon.component";
 import { BitwardenIcon } from "../shared/icon";
 
+import {
+  BaseChipDirective,
+  type ChipVariant,
+  type ChipSize,
+  ChipVariants,
+  ChipSizes,
+} from "./base-chip.directive";
+import { ChipContentComponent } from "./chip-content.component";
+
 @Component({
-  selector: "[bitChip]",
+  selector: "a[bitChip], button[bitChip]",
   standalone: true,
-  imports: [IconComponent],
+  imports: [ChipContentComponent],
   templateUrl: "./chip.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [
+    {
+      directive: BaseChipDirective,
+      inputs: ["variant", "size"],
+    },
+  ],
   host: {
-    "[class]":
-      '"tw-inline-flex tw-px-2 tw-py-1 tw-rounded-md tw-items-center tw-gap-2 tw-rounded-full tw-border tw-max-w-52 tw-transition-colors [&:is(button)]:tw-appearance-none [&:is(button)]:tw-outline-none [&:is(button)]:tw-bg-transparent"',
-
-    // State-based classes
-    "[class.tw-opacity-50]": "disabled()",
-    "[class.tw-pointer-events-none]": "disabled()",
-    "[class.tw-w-full]": "fullWidth()",
-    "[class.tw-ring-2]": "focusVisibleWithin()",
+    // State-based attributes
+    "[attr.disabled]": "disabled() ? true : null",
 
     // Events
     "(click)": "handleClick($event)",
@@ -35,14 +43,17 @@ import { BitwardenIcon } from "../shared/icon";
   },
 })
 export class ChipComponent {
-  // Inputs
-  readonly selected = input<boolean>(false);
+  readonly variant = input<ChipVariant>(ChipVariants.Primary);
+  readonly size = input<ChipSize>(ChipSizes.Large);
+
+  // Behavioral inputs
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
   readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
   readonly dismissible = input<boolean, unknown>(false, { transform: booleanAttribute });
+
+  // Content inputs
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
-  readonly label = input<string>();
 
   // Outputs
   readonly chipClick = output<MouseEvent>();
