@@ -1,0 +1,29 @@
+<!-- Start content slot -->
+<ng-content select="[chipStart]"></ng-content>
+<!-- Start icon (auto-rendered if provided) -->
+@if (startIcon()) {
+  <bit-icon [name]="startIcon()" class="tw-text-sm" />
+}
+<!-- Default content -->
+<span class="tw-text-sm tw-font-medium">
+  <ng-content></ng-content>
+</span>
+
+<!-- End content slot -->
+<ng-content select="[chipEnd]"></ng-content>
+<!-- End icon (auto-rendered if provided) -->
+@if (endIcon()) {
+  <bit-icon [name]="endIcon()" class="tw-text-sm" />
+}
+
+<!-- Dismiss button (auto-rendered if dismissible) -->
+@if (dismissible()) {
+  <button
+    type="button"
+    [attr.aria-label]="'Remove ' + (label() || 'item')"
+    [disabled]="disabled()"
+    (click)="handleDismiss($event)"
+  >
+    <bit-icon name="bwi-close" class="tw-text-xs" />
+  </button>
+}
