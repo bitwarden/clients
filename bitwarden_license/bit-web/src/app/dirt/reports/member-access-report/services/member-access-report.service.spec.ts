@@ -48,9 +48,6 @@ describe("MemberAccessReportService", () => {
       of({ mockOrgId: new SymmetricCryptoKey(new Uint8Array(64)) }),
     );
 
-    // Mock account service
-    mockAccountService.activeAccount$ = of({ id: userId } as any);
-
     service = new MemberAccessReportService(
       mockI18nService,
       mockEncryptService,
@@ -88,7 +85,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1" as any,
+          id: "col1",
           name: "Test Collection",
           organizationId: mockOrganizationId,
         });
@@ -102,7 +99,7 @@ describe("MemberAccessReportService", () => {
         const group = new GroupDetailsView();
         Object.assign(group, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Test Group",
           externalId: null,
           collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
@@ -150,7 +147,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1" as any,
+          id: "col1",
           name: "Test Collection",
           organizationId: mockOrganizationId,
         });
@@ -164,7 +161,7 @@ describe("MemberAccessReportService", () => {
         const group = new GroupDetailsView();
         Object.assign(group, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Test Group",
           externalId: null,
           collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
@@ -262,7 +259,7 @@ describe("MemberAccessReportService", () => {
         const group = new GroupDetailsView();
         Object.assign(group, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Empty Group",
           externalId: null,
           collections: [], // No collections
@@ -314,7 +311,7 @@ describe("MemberAccessReportService", () => {
 
         // One collection assigned to group1
         const collection = new CollectionAdminView({
-          id: "col1" as any,
+          id: "col1",
           name: "Collection 1",
           organizationId: mockOrganizationId,
         });
@@ -329,7 +326,7 @@ describe("MemberAccessReportService", () => {
         const group1 = new GroupDetailsView();
         Object.assign(group1, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Group With Collection",
           externalId: null,
           collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: true }],
@@ -337,7 +334,7 @@ describe("MemberAccessReportService", () => {
         const group2 = new GroupDetailsView();
         Object.assign(group2, {
           id: "group2",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Group Without Collection",
           externalId: null,
           collections: [],
@@ -398,7 +395,7 @@ describe("MemberAccessReportService", () => {
 
         // Two collections both assigned to group1
         const collection1 = new CollectionAdminView({
-          id: "col1" as any,
+          id: "col1",
           name: "Collection 1",
           organizationId: mockOrganizationId,
         });
@@ -408,7 +405,7 @@ describe("MemberAccessReportService", () => {
         });
 
         const collection2 = new CollectionAdminView({
-          id: "col2" as any,
+          id: "col2",
           name: "Collection 2",
           organizationId: mockOrganizationId,
         });
@@ -424,7 +421,7 @@ describe("MemberAccessReportService", () => {
         const group = new GroupDetailsView();
         Object.assign(group, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Multi Collection Group",
           externalId: null,
           collections: [
@@ -483,7 +480,7 @@ describe("MemberAccessReportService", () => {
         const group = new GroupDetailsView();
         Object.assign(group, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "No Collection Group",
           externalId: null,
           collections: [],
@@ -540,7 +537,7 @@ describe("MemberAccessReportService", () => {
         );
 
         const collection = new CollectionAdminView({
-          id: "col1" as any,
+          id: "col1",
           name: "Collection A",
           organizationId: mockOrganizationId,
         });
@@ -554,7 +551,7 @@ describe("MemberAccessReportService", () => {
         const group1 = new GroupDetailsView();
         Object.assign(group1, {
           id: "group1",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Group A",
           externalId: null,
           collections: [{ id: "col1", readOnly: false, hidePasswords: false, manage: false }],
@@ -562,7 +559,7 @@ describe("MemberAccessReportService", () => {
         const group2 = new GroupDetailsView();
         Object.assign(group2, {
           id: "group2",
-          organizationId: mockOrganizationId as any,
+          organizationId: mockOrganizationId,
           name: "Group B",
           externalId: null,
           collections: [], // No collections

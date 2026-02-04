@@ -3,8 +3,8 @@ import { Observable } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { MemberAccessProgressState } from "../model/member-access-progress";
-import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportView } from "../view/member-access-report.view";
+import { MemberAccessExportItem } from "../model/view/member-access-export.view";
+import { MemberAccessReportView } from "../model/view/member-access-report.view";
 
 export abstract class MemberAccessReportServiceAbstraction {
   /** Observable for progress state updates during report generation */

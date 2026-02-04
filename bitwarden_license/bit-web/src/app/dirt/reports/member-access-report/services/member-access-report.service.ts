@@ -24,56 +24,12 @@ import {
   convertToPermission,
 } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
+import { CollectionAccess } from "../model/data/collection-access";
+import { LookupMaps } from "../model/data/lookup-maps";
+import { MemberData } from "../model/data/member-data";
 import { MemberAccessProgress, MemberAccessProgressState } from "../model/member-access-progress";
-import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportView } from "../view/member-access-report.view";
-
-/**
- * Internal interface for collection access tracking
- */
-interface CollectionAccess {
-  collectionId: string;
-  collectionName: string;
-  readOnly: boolean;
-  hidePasswords: boolean;
-  manage: boolean;
-  /** Group ID if access is via group, null for direct access */
-  viaGroupId: string | null;
-  /** Group name if access is via group, null for direct access */
-  viaGroupName: string | null;
-}
-
-/**
- * Internal interface for member data from the API
- */
-interface MemberData {
-  id: string;
-  name: string;
-  email: string;
-  twoFactorEnabled: boolean;
-  resetPasswordEnrolled: boolean;
-  usesKeyConnector: boolean;
-  groups: string[];
-  avatarColor: string | null;
-}
-
-/**
- * Lookup maps for efficient data access during member processing
- */
-interface LookupMaps {
-  /** Map: userId → direct collection access[] */
-  userCollectionMap: Map<string, CollectionAccess[]>;
-  /** Map: groupId → collection access[] */
-  groupCollectionMap: Map<string, CollectionAccess[]>;
-  /** Map: userId → groupId[] */
-  userGroupMap: Map<string, string[]>;
-  /** Map: collectionId → cipher count */
-  collectionCipherCountMap: Map<string, number>;
-  /** Map: groupId → group name */
-  groupNameMap: Map<string, string>;
-  /** Map: collectionId → collection name (decrypted) */
-  collectionNameMap: Map<string, string>;
-}
+import { MemberAccessExportItem } from "../model/view/member-access-export.view";
+import { MemberAccessReportView } from "../model/view/member-access-report.view";
 
 @Injectable({ providedIn: "root" })
 export class MemberAccessReportService {
@@ -110,6 +66,11 @@ export class MemberAccessReportService {
     organizationId: OrganizationId,
   ): Promise<MemberAccessReportView[]> {
     // Clear cached data on new report generation
+    // Cache is cleared early (before fetching) rather than late (after completion) because:
+    // 1. Users expect fresh data when regenerating the report
+    // 2. Stale cache during errors would be misleading on retry
+    // 3. Reduces memory footprint during generation for large organizations
+    // 4. Export feature uses fresh cache from most recent successful generation
     this.cachedLookupMaps = null;
     this.cachedMembers = null;
 
@@ -373,6 +334,25 @@ export class MemberAccessReportService {
   }
 
   /**
+   * Helper method to generate common member fields for export items.
+   * Reduces duplication across multiple export scenarios.
+   */
+  private getMemberBaseExportFields(
+    member: MemberData,
+  ): Omit<MemberAccessExportItem, "group" | "collection" | "collectionPermission" | "totalItems"> {
+    return {
+      email: member.email,
+      name: member.name || "(No Name)",
+      twoStepLogin: member.twoFactorEnabled
+        ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
+        : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+      accountRecovery: member.resetPasswordEnrolled
+        ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
+        : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+    };
+  }
+
+  /**
    * Generates detailed export data with one row per user-collection access
    */
   private generateExportData(
@@ -399,14 +379,7 @@ export class MemberAccessReportService {
       // Export direct collection access (group = "No Group")
       for (const access of directAccess) {
         exportItems.push({
-          email: member.email,
-          name: member.name || "(No Name)",
-          twoStepLogin: member.twoFactorEnabled
-            ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-            : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-          accountRecovery: member.resetPasswordEnrolled
-            ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-            : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+          ...this.getMemberBaseExportFields(member),
           group: this.i18nService.t("memberAccessReportNoGroup"),
           collection: access.collectionName || this.i18nService.t("memberAccessReportNoCollection"),
           collectionPermission: this.getPermissionText(access),
@@ -424,14 +397,7 @@ export class MemberAccessReportService {
           // Group has collection access - create a row for each collection
           for (const access of groupCollections) {
             exportItems.push({
-              email: member.email,
-              name: member.name || "(No Name)",
-              twoStepLogin: member.twoFactorEnabled
-                ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-                : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-              accountRecovery: member.resetPasswordEnrolled
-                ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-                : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+              ...this.getMemberBaseExportFields(member),
               group: groupName,
               collection:
                 access.collectionName || this.i18nService.t("memberAccessReportNoCollection"),
@@ -442,14 +408,7 @@ export class MemberAccessReportService {
         } else {
           // Group has no collection access - still show the group membership
           exportItems.push({
-            email: member.email,
-            name: member.name || "(No Name)",
-            twoStepLogin: member.twoFactorEnabled
-              ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-              : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-            accountRecovery: member.resetPasswordEnrolled
-              ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-              : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+            ...this.getMemberBaseExportFields(member),
             group: groupName,
             collection: this.i18nService.t("memberAccessReportNoCollection"),
             collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
@@ -461,14 +420,7 @@ export class MemberAccessReportService {
       // If member has no collection access at all, add a single row showing that
       if (directAccess.length === 0 && memberGroups.length === 0) {
         exportItems.push({
-          email: member.email,
-          name: member.name || "(No Name)",
-          twoStepLogin: member.twoFactorEnabled
-            ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-            : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-          accountRecovery: member.resetPasswordEnrolled
-            ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-            : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+          ...this.getMemberBaseExportFields(member),
           group: this.i18nService.t("memberAccessReportNoGroup"),
           collection: this.i18nService.t("memberAccessReportNoCollection"),
           collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
