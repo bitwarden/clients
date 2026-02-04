@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
@@ -21,7 +21,11 @@ import {
   SHOW_AUTOFILL_BUTTON,
   UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -32,6 +36,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
@@ -62,11 +67,16 @@ import { BrowserViewPasswordHistoryService } from "../../../services/browser-vie
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
 import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit-v2.component";
+import {
+  AutofillConfirmationDialogComponent,
+  AutofillConfirmationDialogResult,
+} from "../autofill-confirmation-dialog/autofill-confirmation-dialog.component";
 
 import { PopupFooterComponent } from "./../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
+
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
@@ -119,6 +129,13 @@ export class ViewV2Component {
   senderTabId?: number;
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
+  //feature flag
+  private pm30521FeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM30521_AutofillButtonViewLoginScreen,
+  );
+  private readonly pm30521FeatureFlagSignal = toSignal(this.pm30521FeatureFlag$);
+
+  private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
@@ -143,6 +160,8 @@ export class ViewV2Component {
     private popupScrollPositionService: VaultPopupScrollPositionService,
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
+    private domainSettingsService: DomainSettingsService,
+    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -314,6 +333,107 @@ export class ViewV2Component {
     return this.cipher.isDeleted
       ? this.cipherService.deleteWithServer(this.cipher.id, this.activeUserId)
       : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
+  }
+
+  showAutofillButton(): boolean {
+    //feature flag
+    if (!this.pm30521FeatureFlagSignal()) {
+      return false;
+    }
+
+    const validAutofillType = (
+      [CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]
+    ).includes(CipherViewLikeUtils.getType(this.cipher));
+
+    return validAutofillType && !(this.cipher.isArchived || this.cipher.isDeleted);
+  }
+
+  async doAutofill() {
+    //feature flag
+    if (
+      !(await this.configService.getFeatureFlag(FeatureFlag.PM30521_AutofillButtonViewLoginScreen))
+    ) {
+      return;
+    }
+
+    const cipher = this.cipher;
+
+    const uris = cipher.login?.uris ?? [];
+    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
+
+    const showExactMatchDialog =
+      uris.length === 0
+        ? uriMatchStrategy === UriMatchStrategy.Exact
+        : // all saved URIs are exact match
+          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
+
+    if (showExactMatchDialog) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "cannotAutofill" },
+        content: { key: "cannotAutofillExactMatch" },
+        type: "info",
+        acceptButtonText: { key: "okay" },
+        cancelButtonText: null,
+      });
+      return;
+    }
+
+    const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+
+    if (!currentTab?.url) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "error" },
+        content: { key: "errorGettingAutoFillData" },
+        type: "danger",
+      });
+      return;
+    }
+
+    if (await this._domainMatched()) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
+    const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
+      data: {
+        currentUrl: currentTab?.url || "",
+        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        viewOnly: !this.cipher.edit,
+      },
+    });
+
+    const result = await firstValueFrom(ref.closed);
+
+    switch (result) {
+      case AutofillConfirmationDialogResult.Canceled:
+        return;
+      case AutofillConfirmationDialogResult.AutofilledOnly:
+        await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+        return;
+      case AutofillConfirmationDialogResult.AutofillAndUrlAdded:
+        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, true, true);
+        // await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
+        //if we keep the extension open when autofilling and saving, the uri doesn't show up and it doesn't add to the autofill container in the view
+        //closing when autofilling fixes both of these.
+        return;
+    }
+  }
+
+  private async _domainMatched(): Promise<boolean> {
+    const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(currentTab?.url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    if (
+      CipherViewLikeUtils.matchesUri(this.cipher, currentTab?.url, equivalentDomains, defaultMatch)
+    ) {
+      return true;
+    }
+    return false;
   }
 
   /**
