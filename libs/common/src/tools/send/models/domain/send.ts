@@ -97,10 +97,7 @@ export class Send extends Domain {
     model.notes =
       this.notes != null ? await encryptService.decryptString(this.notes, model.cryptoKey) : null;
 
-    if (this.emails != null) {
-      const decryptedEmails = await encryptService.decryptString(this.emails, model.cryptoKey);
-      model.emails = decryptedEmails ? decryptedEmails.split(",").map((e) => e.trim()) : [];
-    } else {
+    if (this.emails == null) {
       model.emails = [];
     }
 
@@ -131,7 +128,7 @@ export class Send extends Domain {
       key: EncString.fromJSON(obj.key),
       name: EncString.fromJSON(obj.name),
       notes: EncString.fromJSON(obj.notes),
-      emails: EncString.fromJSON(obj.emails),
+      emails,
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
       revisionDate,
