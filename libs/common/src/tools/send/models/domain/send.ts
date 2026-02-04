@@ -128,7 +128,7 @@ export class Send extends Domain {
       key: EncString.fromJSON(obj.key),
       name: EncString.fromJSON(obj.name),
       notes: EncString.fromJSON(obj.notes),
-      emails,
+      emails: obj.emails,
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
       revisionDate,

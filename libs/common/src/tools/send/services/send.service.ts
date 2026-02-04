@@ -389,19 +389,4 @@ export class SendService implements InternalSendServiceAbstraction {
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));
     return decryptedSends;
   }
-
-  private async hashEmails(emails: string): Promise<string> {
-    if (!emails) {
-      return "";
-    }
-
-    const emailArray = emails.split(",").map((e) => e.trim().toLowerCase());
-    const hashPromises = emailArray.map(async (email) => {
-      const hash: Uint8Array = await this.cryptoFunctionService.hash(email, "sha256");
-      return Utils.fromBufferToHex(hash).toUpperCase();
-    });
-
-    const hashes = await Promise.all(hashPromises);
-    return hashes.join(",");
-  }
 }
