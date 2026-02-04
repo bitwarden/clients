@@ -61,6 +61,9 @@
       @if (sendDetailsForm.get("authType").value === AuthType.Email) {
         <bit-hint class="tw-mt-2">{{ "emailVerificationDesc" | i18n }}</bit-hint>
       }
+      @if (sendDetailsForm.get("authType").value === AuthType.Password) {
+        <bit-hint class="tw-mt-2">{{ "sendPasswordHelperText" | i18n }}</bit-hint>
+      }
     </bit-form-field>
 
     @if (sendDetailsForm.get("authType").value === AuthType.Password) {
@@ -108,7 +111,6 @@
             ></button>
           }
         </div>
-        <bit-hint>{{ "sendPasswordDescV3" | i18n }}</bit-hint>
       </bit-form-field>
     }
 
