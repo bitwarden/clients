@@ -94,7 +94,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     protected cipherService: CipherService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
+    protected configService: ConfigService,
   ) {
     this.subscribeToCiphers();
 
