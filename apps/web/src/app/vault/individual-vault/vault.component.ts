@@ -174,6 +174,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    WebVaultPromptService,
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
