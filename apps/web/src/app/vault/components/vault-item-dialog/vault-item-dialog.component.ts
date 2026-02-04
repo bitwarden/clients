@@ -28,7 +28,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -577,6 +577,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
+  updateCipherFromResponse = async (cipherResponse: CipherData, userId: UserId) => {
+    const cipher: Cipher = new Cipher(cipherResponse);
+
+    cipher.collectionIds = [...this.cipher.collectionIds];
+
+    const cipherView = await this.cipherService.decrypt(cipher, userId);
+
+    await this.onCipherSaved(cipherView);
+  };
+
   archive = async () => {
     const activeUserId = await firstValueFrom(this.userId$);
     try {
@@ -585,13 +595,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         activeUserId,
       );
 
-      const cipher: Cipher = new Cipher(cipherResponse);
-
-      cipher.collectionIds = [...this.cipher.collectionIds];
-
-      const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
-
-      await this.onCipherSaved(cipherView);
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -613,13 +617,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         activeUserId,
       );
 
-      const cipher: Cipher = new Cipher(cipherResponse);
-
-      cipher.collectionIds = [...this.cipher.collectionIds];
-
-      const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
-
-      await this.onCipherSaved(cipherView);
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -630,7 +628,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
-      return;
     }
   };
 
