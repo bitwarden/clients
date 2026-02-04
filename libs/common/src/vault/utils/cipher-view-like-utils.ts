@@ -296,7 +296,7 @@ export class CipherViewLikeUtils {
    * Returns the notes from the cipher.
    *
    * @param cipher - The cipher to extract notes from (either `CipherView` or `CipherListView`)
-   * @returns The notes string if present, `null` if explicitly null, or `undefined` if not set
+   * @returns The notes string if present, or `undefined` if not set
    */
   static getNotes = (cipher: CipherViewLike): string | undefined => {
     return cipher.notes;
