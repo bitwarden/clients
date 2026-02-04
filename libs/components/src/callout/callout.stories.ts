@@ -113,7 +113,7 @@ export const WithTextButton: Story = {
     template: `
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
       <p class="tw-mb-2">The content of the callout</p>
-        <a bitLink> Visit the help center<i aria-hidden="true" class="bwi bwi-fw bwi-sm bwi-angle-right"></i> </a>
+        <a bitLink endIcon="bwi-angle-right">Visit the help center</a>
       </bit-callout>
     `,
   }),

@@ -1,4 +1,4 @@
-import { NgClass } from "@angular/common";
+import { NgClass, NgTemplateOutlet } from "@angular/common";
 import {
   input,
   HostBinding,
@@ -14,6 +14,7 @@ import { debounce, interval } from "rxjs";
 
 import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { BitwardenIcon } from "../shared/icon";
 import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
@@ -71,7 +72,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass, SpinnerComponent],
+  imports: [NgClass, NgTemplateOutlet, SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
@@ -125,12 +126,23 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   readonly buttonType = input<ButtonType>("secondary");
 
+  readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+
+  readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+
   readonly size = input<ButtonSize>("default");
 
   readonly block = input(false, { transform: booleanAttribute });
 
   readonly loading = model<boolean>(false);
 
+  readonly startIconClasses = computed(() => {
+    return ["bwi", this.startIcon()];
+  });
+
+  readonly endIconClasses = computed(() => {
+    return ["bwi", this.endIcon()];
+  });
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
    * a spinner if it's been more than 75 ms since the `loading` state began. This prevents

@@ -1,6 +1,14 @@
-import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  booleanAttribute,
+  inject,
+  ElementRef,
+} from "@angular/core";
 
-import { AriaDisableDirective } from "../a11y";
+import { BitwardenIcon } from "../shared/icon";
 import { ariaDisableElement } from "../utils";
 
 export const LinkTypes = [
@@ -46,16 +54,16 @@ const commonStyles = [
   "tw-transition",
   "tw-no-underline",
   "tw-cursor-pointer",
-  "hover:tw-underline",
-  "hover:tw-decoration-1",
+  "[&:hover_span]:tw-underline",
+  "[&.tw-test-hover_span]:tw-underline",
+  "[&:hover_span]:tw-decoration-[.125em]",
+  "[&.tw-test-hover_span]:tw-decoration-[.125em]",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
   "disabled:!tw-text-fg-disabled",
   "disabled:hover:!tw-text-fg-disabled",
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
-  "focus-visible:tw-underline",
-  "focus-visible:tw-decoration-1",
   "focus-visible:before:tw-ring-border-focus",
 
   // Workaround for html button tag not being able to be set to `display: inline`
@@ -72,8 +80,12 @@ const commonStyles = [
   "before:tw-block",
   "before:tw-absolute",
   "before:-tw-inset-x-[0.1em]",
+  "before:-tw-inset-y-[0]",
   "before:tw-rounded-md",
   "before:tw-transition",
+  "before:tw-h-full",
+  "before:tw-w-[calc(100%_+_.25rem)]",
+  "before:tw-pointer-events-none",
   "focus-visible:before:tw-ring-2",
   "focus-visible:tw-z-10",
   "aria-disabled:tw-no-underline",
@@ -83,47 +95,57 @@ const commonStyles = [
   "aria-disabled:hover:tw-no-underline",
 ];
 
-@Directive()
-abstract class LinkDirective {
-  readonly linkType = input<LinkType>("default");
-}
-
-/**
-  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
-
-  * - if navigating to a new page, use a `<a>`
-  * - if taking an action on the current page, use a `<button>`
-
-  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
- */
-@Directive({
-  selector: "a[bitLink]",
+@Component({
+  selector: "a[bitLink], button[bitLink]",
+  templateUrl: "./link.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "classList()",
+    // This is for us to be able to correctly aria-disable the button and capture clicks.
+    // It's normally added via the AriaDisableDirective as a host directive.
+    // But, we're not able to conditionally apply the host directive based on if this is a button or not
+    "[attr.bit-aria-disable]": "isButton ? true : null",
+  },
 })
-export class AnchorLinkDirective extends LinkDirective {
-  @HostBinding("class") get classList() {
-    return ["before:-tw-inset-y-[0.125rem]"]
-      .concat(commonStyles)
-      .concat(linkStyles[this.linkType()] ?? []);
-  }
-}
-
-@Directive({
-  selector: "button[bitLink]",
-  hostDirectives: [AriaDisableDirective],
-})
-export class ButtonLinkDirective extends LinkDirective {
-  private el = inject(ElementRef<HTMLButtonElement>);
-
+export class LinkComponent {
+  readonly el = inject(ElementRef<HTMLElement>);
+  /**
+   * The variant of link you want to render
+   * @default "primary"
+   */
+  readonly linkType = input<LinkType>("primary");
+  /**
+   * The leading icon to display within the link
+   * @default undefined
+   */
+  readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+  /**
+   * The trailing icon to display within the link
+   * @default undefined
+   */
+  readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+  /**
+   * Whether the button is disabled
+   * @default false
+   * @note Only applicable if the link is rendered as a button
+   */
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  @HostBinding("class") get classList() {
-    return ["before:-tw-inset-y-[0.25rem]"]
+  protected readonly isButton = this.el.nativeElement.tagName === "BUTTON";
+
+  readonly classList = computed(() => {
+    return [!this.isButton && "tw-inline-flex"]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
+  });
+
+  focus() {
+    this.el.nativeElement.focus();
   }
 
   constructor() {
-    super();
-    ariaDisableElement(this.el.nativeElement, this.disabled);
+    if (this.isButton) {
+      ariaDisableElement(this.el.nativeElement, this.disabled);
+    }
   }
 }

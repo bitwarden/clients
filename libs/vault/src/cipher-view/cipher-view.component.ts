@@ -30,7 +30,7 @@ import {
   CalloutModule,
   SearchModule,
   TypographyModule,
-  AnchorLinkDirective,
+  LinkComponent,
 } from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
@@ -66,7 +66,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
-    AnchorLinkDirective,
+    LinkComponent,
     TypographyModule,
   ],
 })

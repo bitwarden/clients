@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { AnchorLinkDirective } from "../../link";
+import { LinkComponent } from "../../link";
 import { TypographyModule } from "../../typography";
 
 import { BaseCardComponent } from "./base-card.component";
@@ -10,7 +10,7 @@ export default {
   component: BaseCardComponent,
   decorators: [
     moduleMetadata({
-      imports: [AnchorLinkDirective, TypographyModule],
+      imports: [LinkComponent, TypographyModule],
     }),
   ],
   parameters: {
