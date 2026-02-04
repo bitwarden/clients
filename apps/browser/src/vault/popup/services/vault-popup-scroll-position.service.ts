@@ -31,9 +31,12 @@ export class VaultPopupScrollPositionService {
 
   /** Scrolls the user to the stored scroll position and starts tracking scroll of the page. */
   start(scrollElement: HTMLElement) {
-    setTimeout(() => {
-      scrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
-    });
+    if (this.hasScrollPosition()) {
+      // Use `setTimeout` to scroll after rendering is complete
+      setTimeout(() => {
+        scrollElement.scrollTo({ top: this.scrollPosition, behavior: "instant" });
+      });
+    }
 
     this.scrollSubscription?.unsubscribe();
 
