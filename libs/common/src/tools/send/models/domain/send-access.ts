@@ -3,7 +3,7 @@
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
 import { SendAccessView } from "../view/send-access.view";
 

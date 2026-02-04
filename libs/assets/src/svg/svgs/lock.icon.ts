@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const LockIcon = svgIcon`
+export const LockIcon = svg`
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 80 73.33">
   <path class="tw-fill-illustration-bg-primary" d="M11.667 31.666c0-5.523 3.805-10 8.5-10h39.666c4.695 0 8.5 4.477 8.5 10v31.667c0 5.523-3.805 10-8.5 10H20.167c-4.695 0-8.5-4.477-8.5-10V31.666Z"/>
   <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M59.833 23.333H20.167c-3.912 0-7.084 3.73-7.084 8.333v31.667c0 4.602 3.172 8.333 7.084 8.333h39.666c3.912 0 7.084-3.73 7.084-8.333V31.666c0-4.602-3.172-8.333-7.084-8.333Zm-39.666-1.667c-4.695 0-8.5 4.477-8.5 10v31.667c0 5.523 3.805 10 8.5 10h39.666c4.695 0 8.5-4.477 8.5-10V31.666c0-5.523-3.805-10-8.5-10H20.167Z" clip-rule="evenodd"/>

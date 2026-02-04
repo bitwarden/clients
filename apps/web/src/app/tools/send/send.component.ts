@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
-import { lastValueFrom } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
+import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
@@ -17,6 +19,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import {
@@ -26,6 +30,7 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  ToggleGroupModule,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -53,6 +58,7 @@ const BroadcasterSubscriptionId = "SendComponent";
     NoItemsModule,
     HeaderModule,
     NewSendDropdownComponent,
+    ToggleGroupModule,
     SendTableComponent,
   ],
   templateUrl: "send.component.html",
@@ -61,6 +67,8 @@ const BroadcasterSubscriptionId = "SendComponent";
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
+  selectedToggleValue?: SendFilterType;
+  SendUIRefresh$: Observable<boolean>;
 
   override set filteredSends(filteredSends: SendView[]) {
     super.filteredSends = filteredSends;
@@ -88,6 +96,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     accountService: AccountService,
+    private route: ActivatedRoute,
+    private router: Router,
     private configService: ConfigService,
   ) {
     super(
@@ -104,10 +114,38 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       toastService,
       accountService,
     );
+
+    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
+
+    this.SendUIRefresh$.pipe(
+      switchMap((sendUiRefreshEnabled) => {
+        if (sendUiRefreshEnabled) {
+          return this.route.queryParamMap;
+        }
+        return EMPTY;
+      }),
+      takeUntilDestroyed(),
+    ).subscribe((params) => {
+      const typeParam = params.get("type");
+      const value = (
+        typeParam === SendFilterType.Text || typeParam === SendFilterType.File
+          ? typeParam
+          : SendFilterType.All
+      ) as SendFilterType;
+      this.selectedToggleValue = value;
+
+      if (this.loaded) {
+        this.applyTypeFilter(value);
+      }
+    });
   }
 
   async ngOnInit() {
     await super.ngOnInit();
+    this.onSuccessfulLoad = async () => {
+      this.applyTypeFilter(this.selectedToggleValue);
+    };
+
     await this.load();
 
     // Broadcaster subscription - load if sync completes in the background
@@ -193,5 +231,29 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
         data: result.send,
       });
     }
+  }
+
+  private applyTypeFilter(value: SendFilterType) {
+    if (value === SendFilterType.All) {
+      this.selectAll();
+    } else if (value === SendFilterType.Text) {
+      this.selectType(SendType.Text);
+    } else if (value === SendFilterType.File) {
+      this.selectType(SendType.File);
+    }
+  }
+
+  onToggleChange(value: SendFilterType) {
+    const queryParams = value === SendFilterType.All ? { type: null } : { type: value };
+
+    this.router
+      .navigate([], {
+        relativeTo: this.route,
+        queryParams,
+        queryParamsHandling: "merge",
+      })
+      .catch((err) => {
+        this.logService.error("Failed to update route query params:", err);
+      });
   }
 }

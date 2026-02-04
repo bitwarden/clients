@@ -492,9 +492,8 @@ export class AppComponent implements OnInit, OnDestroy {
               this.loading = true;
               await this.syncService.fullSync(false);
               this.loading = false;
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.router.navigate(["vault"]);
+              // Force reload to ensure route guards are activated
+              await this.router.navigate(["vault"], { onSameUrlNavigation: "reload" });
             }
             this.messagingService.send("finishSwitchAccount");
             break;

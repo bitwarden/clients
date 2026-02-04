@@ -1,4 +1,6 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
+
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
@@ -9,6 +11,19 @@ const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z0O ";
 export default {
   title: "Component Library/Color Password",
   component: ColorPasswordComponent,
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     password: examplePassword,
     showCount: false,

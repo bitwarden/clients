@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
+  "unlockWithPasskey": {
+    "message": "Desbloquear com chave de acesso"
+  },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Depois de arquivado, este item será excluído dos resultados de pesquisa e das sugestões de preenchimento automático."
+  },
+  "archived": {
+    "message": "Arquivado"
+  },
+  "unarchiveAndSave": {
+    "message": "Desarquivar e guardar"
   },
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
@@ -981,6 +990,12 @@
   "no": {
     "message": "Não"
   },
+  "noAuth": {
+    "message": "Qualquer pessoa com o link"
+  },
+  "anyOneWithPassword": {
+    "message": "Qualquer pessoa com uma palavra-passe definida por si"
+  },
   "location": {
     "message": "Localização"
   },
@@ -1065,7 +1080,7 @@
     }
   },
   "deleteItemConfirmation": {
-    "message": "Tem a certeza de que pretende eliminar este item?"
+    "message": "Pretende realmente mover este item para o lixo?"
   },
   "deletedItem": {
     "message": "Item movido para o lixo"
@@ -1538,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "archivePremiumRestart": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Reiniciar o Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "E-mail"
   },
+  "emails": {
+    "message": "E-mails"
+  },
   "phone": {
     "message": "Telefone"
   },
@@ -2457,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item eliminado permanentemente"
+  },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
   },
   "restoreItem": {
     "message": "Restaurar item"
@@ -3349,6 +3379,12 @@
   "error": {
     "message": "Erro"
   },
+  "prfUnlockFailed": {
+    "message": "Não foi possível desbloquear com a chave de acesso. Por favor, tente novamente ou utilize outro método de desbloqueio."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Não estão disponíveis chaves de acesso com PRF ativado para o desbloqueio. Por favor, inicie sessão primeiro com uma chave de acesso."
+  },
   "decryptionError": {
     "message": "Erro de desencriptação"
   },
@@ -4040,7 +4076,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor introduzido deve ser, no mínimo, $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -4724,6 +4760,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Mais opções"
+  },
   "moreOptionsTitle": {
     "message": "Mais opções - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4971,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Transferir anexo"
+  },
   "downloadBitwarden": {
     "message": "Descarregar o Bitwarden"
   },
@@ -5110,14 +5152,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ocultar deteção de correspondência para $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
   },
   "autoFillOnPageLoad": {
     "message": "Preencher automaticamente ao carregar a página?"
@@ -5655,6 +5694,9 @@
   "extraWide": {
     "message": "Muito ampla"
   },
+  "narrow": {
+    "message": "Estreito"
+  },
   "sshKeyWrongPassword": {
     "message": "A palavra-passe que introduziu está incorreta."
   },
@@ -6087,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
+  },
+  "whoCanView": {
+    "message": "Quem pode ver"
+  },
+  "specificPeople": {
+    "message": "Pessoas específicas"
+  },
+  "emailVerificationDesc": {
+    "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Introduza vários e-mails, separados por vírgula."
+  },
+  "emailPlaceholder": {
+    "message": "utilizador@bitwarden.com , utilizador@acme.com"
   }
 }

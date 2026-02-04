@@ -103,7 +103,7 @@ export const Active: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -131,7 +131,7 @@ export const ActiveWithUpgrade: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -157,7 +157,7 @@ export const Trial: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -185,7 +185,7 @@ export const TrialWithUpgrade: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -212,7 +212,7 @@ export const Incomplete: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -239,7 +239,7 @@ export const IncompleteExpired: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -266,7 +266,7 @@ export const PastDue: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -293,7 +293,7 @@ export const PendingCancellation: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -320,7 +320,7 @@ export const Unpaid: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -346,7 +346,7 @@ export const Canceled: Story = {
         passwordManager: {
           seats: {
             quantity: 1,
-            name: "members",
+            translationKey: "members",
             cost: 10.0,
           },
         },
@@ -372,31 +372,30 @@ export const Enterprise: Story = {
         passwordManager: {
           seats: {
             quantity: 5,
-            name: "members",
+            translationKey: "members",
             cost: 7,
           },
           additionalStorage: {
             quantity: 2,
-            name: "additionalStorageGB",
+            translationKey: "additionalStorageGB",
             cost: 0.5,
           },
         },
         secretsManager: {
           seats: {
             quantity: 3,
-            name: "members",
+            translationKey: "members",
             cost: 13,
           },
           additionalServiceAccounts: {
             quantity: 5,
-            name: "additionalServiceAccountsV2",
+            translationKey: "additionalServiceAccountsV2",
             cost: 1,
           },
         },
         discount: {
           type: DiscountTypes.PercentOff,
-          active: true,
-          value: 0.25,
+          value: 25,
         },
         cadence: "monthly",
         estimatedTax: 6.4,

@@ -4,9 +4,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
   FormFieldModule,
