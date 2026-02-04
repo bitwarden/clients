@@ -298,6 +298,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher?.isArchived;
   }
 
+  private _userCanArchive = false;
+
+  protected get showArchiveOptions(): boolean {
+    return this._userCanArchive && !this.params.isAdminConsoleAction && this.params.mode === "view";
+  }
+
+  protected get showArchiveBtn(): boolean {
+    return this.cipher?.canBeArchived;
+  }
+
+  protected get showUnarchiveBtn(): boolean {
+    return this.isCipherArchived && !this.cipher?.isDeleted;
+  }
+
   /**
    * Flag to initialize/attach the form component.
    */
@@ -344,6 +358,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    this.userCanArchive$.pipe(takeUntilDestroyed()).subscribe((v) => (this._userCanArchive = v));
   }
 
   async ngOnInit() {
