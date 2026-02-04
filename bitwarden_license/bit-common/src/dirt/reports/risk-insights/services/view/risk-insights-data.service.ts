@@ -95,6 +95,8 @@ export class RiskInsightsDataService {
   }
 
   triggerReport(): void {
+    // eslint-disable-next-line no-console
+    console.log("🚀 [RiskInsights] Report generation triggered by user");
     this.orchestrator.generateReport();
   }
 

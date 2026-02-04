@@ -66,11 +66,13 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
+import { PerformanceTracker } from "./performance-tracker";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 export class RiskInsightsOrchestratorService {
   private _destroy$ = new Subject<void>();
+  private _performanceTracker = new PerformanceTracker();
 
   // -------------------------- Context state --------------------------
   // Current user viewing risk insights
@@ -665,19 +667,52 @@ export class RiskInsightsOrchestratorService {
     organizationId: OrganizationId,
     userId: UserId,
   ): Observable<ReportState> {
-    // Reset progress at the start
+    // Reset progress and performance tracking
     this._reportProgressSubject.next(null);
+    this._performanceTracker.reset();
+    this._performanceTracker.mark("report-generation-total");
 
     this.logService.debug("[RiskInsightsOrchestratorService] Fetching member cipher details");
     this._reportProgressSubject.next(ReportProgress.FetchingMembers);
+    this._performanceTracker.mark("fetch-member-ciphers");
 
     // Generate the report - fetch member ciphers and org ciphers in parallel
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
-    ).pipe(map((memberCiphers) => flattenMemberDetails(memberCiphers)));
+    ).pipe(
+      tap((memberCiphers) => {
+        this._performanceTracker.measure("fetch-member-ciphers");
+        this._performanceTracker.logDataSize("Raw Member Ciphers", memberCiphers?.length ?? 0);
+        this._performanceTracker.mark("flatten-member-details");
+      }),
+      map((memberCiphers) => flattenMemberDetails(memberCiphers)),
+      tap((flattenedMembers) => {
+        this._performanceTracker.measure("flatten-member-details");
+        this._performanceTracker.logDataSize("Flattened Member Details", flattenedMembers.length);
+      }),
+      catchError((error: unknown) => {
+        this.logService.error(
+          "[RiskInsightsOrchestratorService] Failed to fetch member cipher details - this is likely a timeout or backend cartesian product issue",
+          error,
+        );
+        this._performanceTracker.measure("fetch-member-ciphers");
+        // Re-throw to trigger the outer catchError and show proper error state
+        return throwError(
+          () =>
+            new Error(
+              "Failed to fetch member cipher details. This organization may be too large for the current backend implementation.",
+            ),
+        );
+      }),
+    );
 
     // Start the generation pipeline
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
+      tap(([ciphers, memberCiphers]) => {
+        this._performanceTracker.logDataSize("Organization Ciphers", ciphers?.length ?? 0);
+        this._performanceTracker.logDataSize("Member Cipher Relationships", memberCiphers.length);
+        this._performanceTracker.mark("analyze-password-health");
+      }),
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
         this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
@@ -685,23 +720,39 @@ export class RiskInsightsOrchestratorService {
           memberDetails: of(memberCiphers),
           cipherHealthReports: this._getCipherHealth(ciphers ?? [], memberCiphers),
         }).pipe(
+          tap(({ cipherHealthReports }) => {
+            this._performanceTracker.measure("analyze-password-health");
+            this._performanceTracker.logDataSize(
+              "Cipher Health Reports",
+              cipherHealthReports.length,
+            );
+            this._performanceTracker.mark("get-unique-members");
+          }),
           map(({ memberDetails, cipherHealthReports }) => {
             const uniqueMembers = getUniqueMembers(memberDetails);
             const totalMemberCount = uniqueMembers.length;
+            this._performanceTracker.measure("get-unique-members");
+            this._performanceTracker.logDataSize("Unique Members", totalMemberCount);
 
             return { cipherHealthReports, totalMemberCount };
           }),
         );
       }),
+      tap(() => {
+        this._performanceTracker.mark("calculate-risk-scores");
+      }),
       map(({ cipherHealthReports, totalMemberCount }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
         this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
         const report = this.reportService.generateApplicationsReport(cipherHealthReports);
+        this._performanceTracker.measure("calculate-risk-scores");
+        this._performanceTracker.logDataSize("Application Reports Generated", report.length);
         return { report, totalMemberCount };
       }),
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
+        this._performanceTracker.mark("enrich-and-summarize");
       }),
       withLatestFrom(this.rawReportData$),
       map(([{ report, totalMemberCount }, previousReport]) => {
@@ -732,12 +783,21 @@ export class RiskInsightsOrchestratorService {
         // and the class will expose getCriticalApplications
         const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummary);
 
+        this._performanceTracker.measure("enrich-and-summarize");
+        this._performanceTracker.logDataSize(
+          "Updated Application Data",
+          updatedApplicationData.length,
+        );
+
         return {
           report,
           summary: updatedSummary,
           applications: updatedApplicationData,
           metrics,
         };
+      }),
+      tap(() => {
+        this._performanceTracker.mark("save-report");
       }),
       switchMap(({ report, summary, applications, metrics }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Saving report");
@@ -748,6 +808,9 @@ export class RiskInsightsOrchestratorService {
             userId,
           })
           .pipe(
+            tap(() => {
+              this._performanceTracker.measure("save-report");
+            }),
             map((result) => ({
               report,
               summary,
@@ -761,6 +824,8 @@ export class RiskInsightsOrchestratorService {
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Report generation complete");
         this._reportProgressSubject.next(ReportProgress.Complete);
+        this._performanceTracker.measure("report-generation-total");
+        this._performanceTracker.logSummary();
       }),
       map((mappedResult): ReportState => {
         const { id, report, summary, applications, contentEncryptionKey } = mappedResult;
@@ -777,10 +842,16 @@ export class RiskInsightsOrchestratorService {
           },
         };
       }),
-      catchError((): Observable<ReportState> => {
+      catchError((error: unknown): Observable<ReportState> => {
+        this.logService.error("[RiskInsightsOrchestratorService] Report generation failed", error);
+        this._performanceTracker.logSummary();
+
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to generate or save report";
+
         return of({
           status: ReportStatus.Error,
-          error: "Failed to generate or save report",
+          error: errorMessage,
           data: null,
         });
       }),
@@ -849,13 +920,29 @@ export class RiskInsightsOrchestratorService {
     ciphers: CipherView[],
     memberDetails: MemberDetails[],
   ): Observable<CipherHealthReport[]> {
+    this._performanceTracker.mark("filter-valid-ciphers");
     const validCiphers = ciphers.filter((cipher) =>
       this.passwordHealthService.isValidCipher(cipher),
     );
+    this._performanceTracker.measure("filter-valid-ciphers");
+    this._performanceTracker.logDataSize("Valid Ciphers", validCiphers.length, {
+      totalCiphers: ciphers.length,
+      filteredOut: ciphers.length - validCiphers.length,
+    });
+
+    this._performanceTracker.mark("build-password-use-map");
     const passwordUseMap = buildPasswordUseMap(validCiphers);
+    this._performanceTracker.measure("build-password-use-map");
+    this._performanceTracker.logDataSize("Password Use Map", passwordUseMap.size);
 
     // Check for exposed passwords and map to cipher health report
+    this._performanceTracker.mark("audit-password-leaks");
     return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
+      tap((exposedDetails) => {
+        this._performanceTracker.measure("audit-password-leaks");
+        this._performanceTracker.logDataSize("Exposed Password Details", exposedDetails.length);
+        this._performanceTracker.mark("build-cipher-health-reports");
+      }),
       map((exposedDetails) => {
         return validCiphers.map((cipher) => {
           const exposedPasswordDetail = exposedDetails.find((x) => x?.cipherId === cipher.id);
@@ -874,6 +961,9 @@ export class RiskInsightsOrchestratorService {
             },
           } as CipherHealthReport;
         });
+      }),
+      tap(() => {
+        this._performanceTracker.measure("build-cipher-health-reports");
       }),
     );
   }

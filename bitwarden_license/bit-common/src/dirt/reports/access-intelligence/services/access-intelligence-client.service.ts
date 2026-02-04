@@ -43,6 +43,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import { PerformanceTracker } from "../../risk-insights/services/domain/performance-tracker";
+
 /**
  * Internal interface for organization data needed for member mapping
  */
@@ -80,6 +82,9 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
   private readonly accountService = inject(AccountService);
   private readonly logService = inject(LogService);
 
+  // Performance tracking
+  private readonly _performanceTracker = new PerformanceTracker();
+
   // State signals (per ADR-0027)
   private readonly _state = signal<AccessIntelligenceState>(AccessIntelligenceState.Idle);
   private readonly _error = signal<string | null>(null);
@@ -102,6 +107,8 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
   start(organizationId: OrganizationId): void {
     this.reset();
     this._state.set(AccessIntelligenceState.LoadingCiphers);
+    this._performanceTracker.reset();
+    this._performanceTracker.mark("access-intelligence-total");
 
     this.logService.info(
       `[AccessIntelligenceClientService] Starting analysis for organization ${organizationId}`,
@@ -111,6 +118,8 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
       next: (result: AccessIntelligenceResult) => {
         this._result.set(result);
         this._state.set(AccessIntelligenceState.Complete);
+        this._performanceTracker.measure("access-intelligence-total");
+        this._performanceTracker.logSummary();
         this.logService.info(
           `[AccessIntelligenceClientService] Analysis complete: ${result.totalCipherCount} ciphers, ${result.atRiskCipherCount} at risk`,
         );
@@ -119,6 +128,7 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
         const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
         this._error.set(errorMessage);
         this._state.set(AccessIntelligenceState.Error);
+        this._performanceTracker.logSummary();
         this.logService.error(`[AccessIntelligenceClientService] Analysis failed`, err);
       },
     });
@@ -140,9 +150,13 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
    * Main execution flow - orchestrates the parallel operations
    */
   private executeFlow$(organizationId: OrganizationId): Observable<AccessIntelligenceResult> {
+    this._performanceTracker.mark("load-ciphers");
+
     // (1) Load ciphers first
     const ciphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId)).pipe(
       tap((ciphers) => {
+        this._performanceTracker.measure("load-ciphers");
+        this._performanceTracker.logDataSize("Organization Ciphers", ciphers.length);
         this.logService.info(`[AccessIntelligenceClientService] Loaded ${ciphers.length} ciphers`);
         this._cipherProgress.set(createProgress(ciphers.length, ciphers.length));
       }),
@@ -157,9 +171,14 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
 
     // (2a) Health checks - starts as soon as ciphers arrive
     const healthResults$ = ciphers$.pipe(
-      tap(() => this._state.set(AccessIntelligenceState.ProcessingHealth)),
+      tap(() => {
+        this._state.set(AccessIntelligenceState.ProcessingHealth);
+        this._performanceTracker.mark("health-checks-total");
+      }),
       switchMap((ciphers) => this.runAllHealthChecks$(ciphers)),
       tap((healthMap) => {
+        this._performanceTracker.measure("health-checks-total");
+        this._performanceTracker.logDataSize("Ciphers with Health Data", healthMap.size);
         this.logService.info(
           `[AccessIntelligenceClientService] Health checks complete for ${healthMap.size} ciphers`,
         );
@@ -169,9 +188,16 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
 
     // (2b) Org data - loads in parallel with health checks
     const orgData$ = combineLatest([ciphers$, currentUserId$]).pipe(
-      tap(() => this._state.set(AccessIntelligenceState.LoadingOrganizationData)),
+      tap(() => {
+        this._state.set(AccessIntelligenceState.LoadingOrganizationData);
+        this._performanceTracker.mark("load-org-data");
+      }),
       switchMap(([, userId]) => this.loadOrganizationData$(organizationId, userId)),
       tap((orgData) => {
+        this._performanceTracker.measure("load-org-data");
+        this._performanceTracker.logDataSize("Collections", orgData.collectionMap.size);
+        this._performanceTracker.logDataSize("Users", orgData.userEmailMap.size);
+        this._performanceTracker.logDataSize("Groups", orgData.groupMemberMap.size);
         this.logService.info(
           `[AccessIntelligenceClientService] Org data loaded: ${orgData.collectionMap.size} collections, ${orgData.userEmailMap.size} users`,
         );
@@ -181,9 +207,14 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
 
     // (3) Member mapping - when org data is ready
     const ciphersWithMembers$ = combineLatest([ciphers$, orgData$]).pipe(
-      tap(() => this._state.set(AccessIntelligenceState.MappingAccess)),
+      tap(() => {
+        this._state.set(AccessIntelligenceState.MappingAccess);
+        this._performanceTracker.mark("map-members");
+      }),
       switchMap(([ciphers, orgData]) => this.mapCiphersToMembers$(ciphers, orgData)),
       tap((mappings) => {
+        this._performanceTracker.measure("map-members");
+        this._performanceTracker.logDataSize("Ciphers with Member Mappings", mappings.size);
         this.logService.info(
           `[AccessIntelligenceClientService] Member mapping complete for ${mappings.size} ciphers`,
         );
@@ -193,9 +224,17 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
 
     // (4) Combine all results into final output
     return combineLatest([ciphers$, healthResults$, ciphersWithMembers$]).pipe(
+      tap(() => this._performanceTracker.mark("build-final-result")),
       map(([ciphers, healthMap, memberMap]) =>
         this.buildFinalResult(ciphers, healthMap, memberMap),
       ),
+      tap((result) => {
+        this._performanceTracker.measure("build-final-result");
+        this._performanceTracker.logDataSize("Final Result Ciphers", result.totalCipherCount);
+        this._performanceTracker.logDataSize("At Risk Ciphers", result.atRiskCipherCount);
+        this._performanceTracker.logDataSize("Total Members", result.totalMemberCount);
+        this._performanceTracker.logDataSize("At Risk Members", result.atRiskMemberCount);
+      }),
     );
   }
 
@@ -203,7 +242,14 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
    * Run all health checks in parallel using forkJoin
    */
   private runAllHealthChecks$(ciphers: CipherView[]): Observable<Map<string, CipherHealthResult>> {
+    this._performanceTracker.mark("filter-valid-ciphers");
     const validCiphers = ciphers.filter((c) => this.isValidCipher(c));
+    this._performanceTracker.measure("filter-valid-ciphers");
+    this._performanceTracker.logDataSize("Valid Ciphers", validCiphers.length, {
+      totalCiphers: ciphers.length,
+      filteredOut: ciphers.length - validCiphers.length,
+    });
+
     const totalChecks = validCiphers.length;
 
     if (totalChecks === 0) {
@@ -214,17 +260,33 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
     this._healthProgress.set(createProgress(0, totalChecks));
 
     // Build password use map for reuse detection (synchronous)
+    this._performanceTracker.mark("build-password-use-map");
     const passwordUseMap = this.buildPasswordUseMap(validCiphers);
+    this._performanceTracker.measure("build-password-use-map");
+    this._performanceTracker.logDataSize("Password Use Map", passwordUseMap.size);
 
     // Check weak passwords (synchronous, fast)
+    this._performanceTracker.mark("check-weak-passwords");
     const weakResults = this.checkWeakPasswords(validCiphers);
+    this._performanceTracker.measure("check-weak-passwords");
+    this._performanceTracker.logDataSize("Weak Password Results", weakResults.size);
 
     // Run HIBP checks (asynchronous, API calls)
+    this._performanceTracker.mark("hibp-checks");
     return this.runHibpChecks$(validCiphers).pipe(
+      tap((hibpResults) => {
+        this._performanceTracker.measure("hibp-checks");
+        this._performanceTracker.logDataSize("HIBP Results", hibpResults.length);
+        this._performanceTracker.mark("combine-health-results");
+      }),
       map((hibpResults) => {
         return this.combineHealthResults(validCiphers, weakResults, hibpResults, passwordUseMap);
       }),
-      tap(() => this._healthProgress.set(createProgress(totalChecks, totalChecks))),
+      tap((combinedResults) => {
+        this._performanceTracker.measure("combine-health-results");
+        this._performanceTracker.logDataSize("Combined Health Results", combinedResults.size);
+        this._healthProgress.set(createProgress(totalChecks, totalChecks));
+      }),
     );
   }
 
@@ -382,20 +444,37 @@ export class AccessIntelligenceClientService implements AccessIntelligenceClient
     organizationId: OrganizationId,
     currentUserId: UserId,
   ): Observable<OrganizationData> {
+    this._performanceTracker.mark("fetch-collections");
+    this._performanceTracker.mark("fetch-users-and-groups");
+
     // Fetch collections and users in parallel
     const collections$ = this.collectionAdminService
       .collectionAdminViews$(organizationId, currentUserId)
-      .pipe(take(1));
+      .pipe(
+        take(1),
+        tap((collections) => {
+          this._performanceTracker.measure("fetch-collections");
+          this._performanceTracker.logDataSize("Collections Loaded", collections.length);
+        }),
+      );
 
-    const usersAndGroups$ = from(this.fetchOrganizationUsersAndGroups(organizationId));
+    const usersAndGroups$ = from(this.fetchOrganizationUsersAndGroups(organizationId)).pipe(
+      tap(({ groupMemberMap, userEmailMap }) => {
+        this._performanceTracker.measure("fetch-users-and-groups");
+        this._performanceTracker.logDataSize("Users Loaded", userEmailMap.size);
+        this._performanceTracker.logDataSize("Groups Loaded", groupMemberMap.size);
+      }),
+    );
 
     return forkJoin([collections$, usersAndGroups$]).pipe(
+      tap(() => this._performanceTracker.mark("build-org-data-maps")),
       map(([collections, { groupMemberMap, userEmailMap }]) => {
         const collectionMap = new Map<string, CollectionAdminView>();
         collections.forEach((c) => collectionMap.set(c.id, c));
 
         return { collectionMap, groupMemberMap, userEmailMap };
       }),
+      tap(() => this._performanceTracker.measure("build-org-data-maps")),
     );
   }
 
