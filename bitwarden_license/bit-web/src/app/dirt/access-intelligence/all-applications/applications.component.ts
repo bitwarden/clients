@@ -35,10 +35,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import {
-  ApplicationTableDataSource,
-  AppTableRowScrollableComponent,
-} from "../shared/app-table-row-scrollable.component";
+import { AppTableRowScrollableM11Component } from "../shared/app-table-row-scrollable-m11.component";
+import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 export const ApplicationFilterOption = {
@@ -62,7 +60,7 @@ export type ApplicationFilterOption =
     PipesModule,
     NoItemsModule,
     SharedModule,
-    AppTableRowScrollableComponent,
+    AppTableRowScrollableM11Component,
     IconButtonModule,
     TypographyModule,
     ButtonModule,
@@ -98,12 +96,15 @@ export class ApplicationsComponent implements OnInit {
     {
       label: this.i18nService.t("critical", this.criticalApplicationsCount()),
       value: ApplicationFilterOption.Critical,
+      icon: " ",
     },
     {
       label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
       value: ApplicationFilterOption.NonCritical,
+      icon: " ",
     },
   ]);
+  protected readonly emptyTableExplanation = signal("");
 
   constructor(
     protected i18nService: I18nService,
@@ -164,6 +165,12 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
+
+        if (this.dataSource?.filteredData?.length === 0) {
+          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
+        } else {
+          this.emptyTableExplanation.set("");
+        }
       });
   }
 
