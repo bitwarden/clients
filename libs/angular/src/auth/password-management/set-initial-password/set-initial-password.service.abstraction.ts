@@ -119,7 +119,7 @@ export abstract class SetInitialPasswordService {
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
    *
    * @param credentials An object of the credentials needed to set the initial password
-   * @throws If any property on the `credentials` object is null or undefined
+   * @throws If any property on the `credentials` object not found, or if userKey is not found
    */
   abstract setInitialPasswordTdeUserWithPermission: (
     credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
