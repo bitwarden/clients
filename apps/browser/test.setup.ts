@@ -200,5 +200,3 @@ global.chrome = {
   webRequest,
   alarms,
 } as any;
-
-// Clean test setup - EventSecurity is mocked per test as needed
