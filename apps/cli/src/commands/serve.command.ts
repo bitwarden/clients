@@ -1,7 +1,7 @@
 import http from "node:http";
 import net from "node:net";
 
-import * as koaRouter from "@koa/router";
+import { Router } from "@koa/router";
 import { OptionValues } from "commander";
 import * as koa from "koa";
 import * as koaBodyParser from "koa-bodyparser";
@@ -29,7 +29,7 @@ export class ServeCommand {
     );
 
     const server = new koa();
-    const router = new koaRouter();
+    const router = new Router();
     process.env.BW_SERVE = "true";
     process.env.BW_NOINTERACTION = "true";
 
