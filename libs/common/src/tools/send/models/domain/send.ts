@@ -31,8 +31,7 @@ export class Send extends Domain {
   expirationDate: Date;
   deletionDate: Date;
   password: string;
-  emails: EncString;
-  anonAccessEmails: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
   authType: AuthType;
@@ -62,7 +61,6 @@ export class Send extends Domain {
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;
-    this.anonAccessEmails = obj.anonAccessEmails;
     this.disabled = obj.disabled;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;

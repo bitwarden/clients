@@ -41,7 +41,6 @@ describe("Send", () => {
       deletionDate: "2022-01-31T12:00:00.000Z",
       password: "password",
       emails: "",
-      anonAccessEmails: "",
       disabled: false,
       hideEmail: true,
       authType: AuthType.None,
@@ -71,7 +70,6 @@ describe("Send", () => {
       deletionDate: null,
       password: undefined,
       emails: null,
-      anonAccessEmails: undefined,
       disabled: undefined,
       hideEmail: undefined,
     });
@@ -98,7 +96,6 @@ describe("Send", () => {
       deletionDate: new Date("2022-01-31T12:00:00.000Z"),
       password: "password",
       emails: null,
-      anonAccessEmails: "",
       disabled: false,
       hideEmail: true,
       authType: AuthType.None,

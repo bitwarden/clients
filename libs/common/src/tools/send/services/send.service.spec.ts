@@ -611,58 +611,6 @@ describe("SendService", () => {
         configService.getFeatureFlag.mockResolvedValue(true);
       });
 
-      describe("email encryption", () => {
-        it("should encrypt emails when email list is provided", async () => {
-          sendView.emails = ["test@example.com", "user@test.com"];
-
-          const [send] = await sendService.encrypt(sendView, null, null);
-
-          expect(encryptService.encryptString).toHaveBeenCalledWith(
-            "test@example.com,user@test.com",
-            mockCryptoKey,
-          );
-          expect(send.emails).toEqual({ encryptedString: "encrypted" });
-          expect(send.password).toBeNull();
-        });
-
-        it("should set emails to null when email list is empty", async () => {
-          sendView.emails = [];
-
-          const [send] = await sendService.encrypt(sendView, null, null);
-
-          expect(send.emails).toBeNull();
-          expect(send.anonAccessEmails).toBe("");
-        });
-
-        it("should set emails to null when email list is null", async () => {
-          sendView.emails = null;
-
-          const [send] = await sendService.encrypt(sendView, null, null);
-
-          expect(send.emails).toBeNull();
-          expect(send.anonAccessEmails).toBe("");
-        });
-
-        it("should set emails to null when email list is undefined", async () => {
-          sendView.emails = undefined;
-
-          const [send] = await sendService.encrypt(sendView, null, null);
-
-          expect(send.emails).toBeNull();
-          expect(send.anonAccessEmails).toBe("");
-        });
-      });
-
-      describe("anonAccessEmails and emails matching", () => {
-        it("should set anonAccessEmails to empty string when no emails", async () => {
-          sendView.emails = [];
-
-          const [send] = await sendService.encrypt(sendView, null, null);
-
-          expect(send.anonAccessEmails).toBe("");
-        });
-      });
-
       describe("emails and password mutual exclusivity", () => {
         it("should set password to null when emails are provided", async () => {
           sendView.emails = ["test@example.com"];
@@ -698,7 +646,6 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, null);
 
         expect(send.emails).toBeNull();
-        expect(send.anonAccessEmails).toBe("");
       });
 
       it("should use password when provided and flag is OFF", async () => {
@@ -710,7 +657,6 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, "password123");
 
         expect(send.emails).toBeNull();
-        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBe("hashedPassword");
       });
 
@@ -723,7 +669,6 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, "password123");
 
         expect(send.emails).toBeNull();
-        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBe("hashedPassword");
       });
 
@@ -733,7 +678,6 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, null);
 
         expect(send.emails).toBeNull();
-        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBeUndefined();
       });
     });
