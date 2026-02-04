@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { Option } from "../common-types";
 import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
@@ -57,7 +58,7 @@ export function OptionItems({
 }
 
 function handleMenuKeyUp(event: KeyboardEvent) {
-  if (!event.isTrusted) {
+  if (!EventSecurity.isEventTrusted(event)) {
     return;
   }
 

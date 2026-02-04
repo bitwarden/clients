@@ -12,7 +12,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
-import { isEventTrusted } from "../../../../utils/security-utils";
+import { EventSecurity } from "../../../../utils/event-security";
 import {
   creditCardIcon,
   globeIcon,
@@ -198,9 +198,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (
       /**
        * Reject synthetic events (not originating from the user agent)
-       * except in test environments where Jest creates synthetic events
        */
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -364,10 +363,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
     if (
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       event.ctrlKey ||
       event.altKey ||
       event.metaKey ||
@@ -415,10 +413,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
     if (
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       event.ctrlKey ||
       event.altKey ||
       event.metaKey ||
@@ -1008,7 +1005,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
      * except in test environments where Jest creates synthetic events
      */
     if (
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -1044,7 +1041,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
      * except in test environments where Jest creates synthetic events
      */
     if (
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -1114,7 +1111,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
      * except in test environments where Jest creates synthetic events
      */
     if (
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {

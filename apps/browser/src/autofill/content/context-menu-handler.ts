@@ -1,4 +1,4 @@
-import { isEventTrusted } from "../utils/security-utils";
+import { EventSecurity } from "../utils/event-security";
 
 const inputTags = ["input", "textarea", "select"];
 const labelTags = ["label", "span"];
@@ -56,9 +56,8 @@ function isNullOrEmpty(s: string | null) {
 document.addEventListener("contextmenu", (event) => {
   /**
    * Reject synthetic events (not originating from the user agent)
-   * except in test environments where Jest creates synthetic events
    */
-  if (!isEventTrusted(event)) {
+  if (!EventSecurity.isEventTrusted(event)) {
     return;
   }
   clickedElement = event.target as HTMLElement;

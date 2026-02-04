@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { RedirectFocusDirection } from "../../../../enums/autofill-overlay.enum";
-import { isEventTrusted } from "../../../../utils/security-utils";
+import { EventSecurity } from "../../../../utils/event-security";
 import {
   AutofillInlineMenuPageElementWindowMessage,
   AutofillInlineMenuPageElementWindowMessageHandlers,
@@ -166,9 +166,8 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
     const listenedForKeys = new Set(["Tab", "Escape", "ArrowUp", "ArrowDown"]);
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
-    if (!isEventTrusted(event) || !listenedForKeys.has(event.code)) {
+    if (!EventSecurity.isEventTrusted(event) || !listenedForKeys.has(event.code)) {
       return;
     }
 

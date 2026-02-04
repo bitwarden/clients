@@ -45,7 +45,7 @@ import {
   sendExtensionMessage,
   throttle,
 } from "../utils";
-import { isEventTrusted } from "../utils/security-utils";
+import { EventSecurity } from "../utils/event-security";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -621,9 +621,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (
       /**
        * Reject synthetic events (not originating from the user agent)
-       * except in test environments where Jest creates synthetic events
        */
-      !isEventTrusted(event) ||
+      !EventSecurity.isEventTrusted(event) ||
       !this.submitElements.has(event.target as HTMLElement) ||
       (event.type === "keyup" &&
         !["Enter", "Space"].includes((event as unknown as KeyboardEvent).code))
@@ -711,9 +710,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private handleFormFieldKeyupEvent = async (event: globalThis.KeyboardEvent) => {
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
-    if (!isEventTrusted(event)) {
+    if (!EventSecurity.isEventTrusted(event)) {
       return;
     }
 

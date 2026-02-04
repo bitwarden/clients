@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { isEventTrusted } from "../../../utils/security-utils";
+import { EventSecurity } from "../../../utils/event-security";
 import { IconProps, Option } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
@@ -32,9 +32,8 @@ export function OptionItem({
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
-    if (!isEventTrusted(event)) {
+    if (!EventSecurity.isEventTrusted(event)) {
       return;
     }
 
@@ -49,9 +48,8 @@ export function OptionItem({
   const handleSelectionClickProxy = (event: MouseEvent) => {
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
-    if (!isEventTrusted(event)) {
+    if (!EventSecurity.isEventTrusted(event)) {
       return;
     }
 

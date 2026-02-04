@@ -1,7 +1,7 @@
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
-import { isEventTrusted } from "../utils/security-utils";
+import { EventSecurity } from "../utils/event-security";
 
 import {
   ContentMessageWindowData,
@@ -96,9 +96,8 @@ function handleWindowMessageEvent(event: MessageEvent) {
   const { source, data, origin } = event;
   /**
    * Reject synthetic events (not originating from the user agent)
-   * except in test environments where Jest creates synthetic events
    */
-  if (!isEventTrusted(event) || source !== window || !data?.command) {
+  if (!EventSecurity.isEventTrusted(event) || source !== window || !data?.command) {
     return;
   }
 
