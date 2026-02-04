@@ -1002,7 +1002,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowRight"]);
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
     if (
       !EventSecurity.isEventTrusted(event) ||
@@ -1038,7 +1037,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp"]);
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
     if (
       !EventSecurity.isEventTrusted(event) ||
@@ -1108,7 +1106,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowLeft"]);
     /**
      * Reject synthetic events (not originating from the user agent)
-     * except in test environments where Jest creates synthetic events
      */
     if (
       !EventSecurity.isEventTrusted(event) ||
