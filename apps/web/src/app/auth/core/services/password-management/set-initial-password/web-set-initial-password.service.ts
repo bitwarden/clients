@@ -92,6 +92,17 @@ export class WebSetInitialPasswordService
     await this.organizationInviteService.clearOrganizationInvitation();
   }
 
+  override async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void> {
+    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+    // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
+    await this.routerService.getAndClearLoginRedirectUrl();
+    await this.organizationInviteService.clearOrganizationInvitation();
+  }
+
   override async setInitialPasswordTdeUserWithPermission(
     credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
     userId: UserId,
@@ -119,17 +130,6 @@ export class WebSetInitialPasswordService
      * at which point we must remember to clear the deep linked URL used for accepting the org invite, as well
      * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
      */
-    await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvitation();
-  }
-
-  override async initializePasswordJitPasswordUserV2Encryption(
-    credentials: InitializeJitPasswordCredentials,
-    userId: UserId,
-  ): Promise<void> {
-    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
-
-    // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
     await this.routerService.getAndClearLoginRedirectUrl();
     await this.organizationInviteService.clearOrganizationInvitation();
   }
