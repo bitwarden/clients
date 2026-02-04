@@ -299,7 +299,6 @@ describe("WebCrypto Function Service", () => {
   });
 
   describe("rsaGenerateKeyPair", () => {
-    testRsaGenerateKeyPair(1024);
     testRsaGenerateKeyPair(2048);
 
     // Generating 4096 bit keys can be slow. Commenting it out to save CI.
@@ -495,7 +494,7 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
   });
 }
 
-function testRsaGenerateKeyPair(length: 1024 | 2048 | 4096) {
+function testRsaGenerateKeyPair(length: 2048) {
   it(
     "should successfully generate a " + length + " bit key pair",
     async () => {

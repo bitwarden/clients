@@ -48,7 +48,11 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
       result: BiometricsStatus;
       error: string;
     }>(BiometricsCommands.GetBiometricsStatusForUser, { userId: id });
-    return response.result;
+    if (response != null) {
+      return response.result;
+    } else {
+      return BiometricsStatus.DesktopDisconnected;
+    }
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {

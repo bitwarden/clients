@@ -52,8 +52,8 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
+  PreviewInvoiceClient,
   SubscriberBillingClient,
-  TaxClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
@@ -87,7 +87,7 @@ const Allowed2020PlansForLegacyProviders = [
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
+  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -219,7 +219,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
@@ -654,6 +654,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.singleOrgPolicyBlock) {
       return;
     }
+
+    // Validate billing form for paid plans during creation
+    if (this.createOrganization && this.selectedPlan.type !== PlanType.Free) {
+      this.billingFormGroup.markAllAsTouched();
+      if (this.billingFormGroup.invalid) {
+        return;
+      }
+    }
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
       if (this.createOrganization) {
@@ -703,11 +711,18 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return orgId;
     };
 
-    this.formPromise = doSubmit();
-    const organizationId = await this.formPromise;
-    this.onSuccess.emit({ organizationId: organizationId });
-    // TODO: No one actually listening to this message?
-    this.messagingService.send("organizationCreated", { organizationId });
+    try {
+      this.formPromise = doSubmit();
+      const organizationId = await this.formPromise;
+      this.onSuccess.emit({ organizationId: organizationId });
+      // TODO: No one actually listening to this message?
+      this.messagingService.send("organizationCreated", { organizationId });
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      throw error;
+    }
   };
 
   protected get showTaxIdField(): boolean {
@@ -778,11 +793,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       // by comparing tax on base+storage vs tax on base only
       //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
-        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           this.buildTaxPreviewRequest(0, false),
           billingAddress,
         ),
-        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, false),
           billingAddress,
         ),
@@ -791,10 +806,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       // Tax on storage = Tax on (base + storage) - Tax on (base only)
       this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
     } else {
-      const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-        this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, sponsoredForTaxPreview),
-        billingAddress,
-      );
+      const taxAmounts =
+        await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(
+            this.formGroup.value.additionalStorage,
+            sponsoredForTaxPreview,
+          ),
+          billingAddress,
+        );
 
       this.estimatedTax = taxAmounts.tax;
     }
@@ -826,6 +845,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return;
       }
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      if (!paymentMethod) {
+        throw new Error("Payment method validation failed");
+      }
       await this.subscriberBillingClient.updatePaymentMethod(
         { type: "organization", data: this.organization },
         paymentMethod,
@@ -877,6 +899,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       }
 
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      if (!paymentMethod) {
+        throw new Error("Payment method validation failed");
+      }
 
       const billingAddress = getBillingAddressFromForm(
         this.billingFormGroup.controls.billingAddress,

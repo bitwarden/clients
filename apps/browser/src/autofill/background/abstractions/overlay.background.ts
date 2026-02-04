@@ -69,8 +69,8 @@ export type FieldRect = {
 };
 
 export type InlineMenuPosition = {
-  button?: InlineMenuElementPosition;
-  list?: InlineMenuElementPosition;
+  button?: InlineMenuElementPosition | null;
+  list?: InlineMenuElementPosition | null;
 };
 
 export type NewLoginCipherData = {

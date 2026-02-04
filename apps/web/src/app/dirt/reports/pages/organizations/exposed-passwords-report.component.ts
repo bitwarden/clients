@@ -16,15 +16,18 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
+import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import {
+  PasswordRepromptService,
+  CipherFormConfigService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+} from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
-import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../exposed-passwords-report.component";
 
@@ -42,7 +45,7 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
 })
 export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent

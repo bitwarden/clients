@@ -6,6 +6,7 @@ import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AutofillBrowserSettingsService } from "@bitwarden/browser/autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -42,6 +43,9 @@ describe("SettingsV2Component", () => {
     defaultBrowserAutofillDisabled$: Subject<boolean>;
     isBrowserAutofillSettingOverridden: jest.Mock<Promise<boolean>>;
   };
+  let mockAutoConfirmService: {
+    canManageAutoConfirm$: jest.Mock;
+  };
   let dialogService: MockProxy<DialogService>;
   let openSpy: jest.SpyInstance;
 
@@ -66,6 +70,10 @@ describe("SettingsV2Component", () => {
       isBrowserAutofillSettingOverridden: jest.fn().mockResolvedValue(false),
     };
 
+    mockAutoConfirmService = {
+      canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
+    };
+
     jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue("Chrome");
 
     const cfg = TestBed.configureTestingModule({
@@ -75,6 +83,7 @@ describe("SettingsV2Component", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingState },
         { provide: NudgesService, useValue: mockNudges },
         { provide: AutofillBrowserSettingsService, useValue: mockAutofillSettings },
+        { provide: AutomaticUserConfirmationService, useValue: mockAutoConfirmService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
@@ -148,31 +157,7 @@ describe("SettingsV2Component", () => {
     expect(openSpy).toHaveBeenCalledWith(dialogService);
   });
 
-  it("isBrowserAutofillSettingOverridden$ emits the value from the AutofillBrowserSettingsService", async () => {
-    pushActiveAccount();
-
-    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(true);
-
-    const fixture = TestBed.createComponent(SettingsV2Component);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const value = await firstValueFrom(component["isBrowserAutofillSettingOverridden$"]);
-    expect(value).toBe(true);
-
-    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(false);
-
-    const fixture2 = TestBed.createComponent(SettingsV2Component);
-    const component2 = fixture2.componentInstance;
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-
-    const value2 = await firstValueFrom(component2["isBrowserAutofillSettingOverridden$"]);
-    expect(value2).toBe(false);
-  });
-
-  it("showAutofillBadge$ emits true when default autofill is NOT disabled and nudge is true", async () => {
+  it("showAutofillBadge$ emits true when showNudgeBadge is true", async () => {
     pushActiveAccount();
 
     mockNudges.showNudgeBadge$.mockImplementation((type: NudgeType) =>
@@ -184,28 +169,8 @@ describe("SettingsV2Component", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    mockAutofillSettings.defaultBrowserAutofillDisabled$.next(false);
-
     const value = await firstValueFrom(component.showAutofillBadge$);
     expect(value).toBe(true);
-  });
-
-  it("showAutofillBadge$ emits false when default autofill IS disabled even if nudge is true", async () => {
-    pushActiveAccount();
-
-    mockNudges.showNudgeBadge$.mockImplementation((type: NudgeType) =>
-      of(type === NudgeType.AutofillNudge),
-    );
-
-    const fixture = TestBed.createComponent(SettingsV2Component);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    mockAutofillSettings.defaultBrowserAutofillDisabled$.next(true);
-
-    const value = await firstValueFrom(component.showAutofillBadge$);
-    expect(value).toBe(false);
   });
 
   it("dismissBadge dismisses when showVaultBadge$ emits true", async () => {

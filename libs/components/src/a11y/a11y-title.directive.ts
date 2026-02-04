@@ -1,21 +1,23 @@
-import { Directive } from "@angular/core";
+import { Directive, effect, ElementRef, input } from "@angular/core";
 
-import { TooltipDirective } from "../tooltip/tooltip.directive";
+import { setA11yTitleAndAriaLabel } from "./set-a11y-title-and-aria-label";
 
-/**
- * @deprecated This function is deprecated in favor of `bitTooltip`.
- * Please use `bitTooltip` instead.
- *
- * Directive that provides accessible tooltips by internally using TooltipDirective.
- * This maintains the appA11yTitle API while leveraging the enhanced tooltip functionality.
- */
 @Directive({
   selector: "[appA11yTitle]",
-  hostDirectives: [
-    {
-      directive: TooltipDirective,
-      inputs: ["bitTooltip: appA11yTitle", "tooltipPosition"],
-    },
-  ],
 })
-export class A11yTitleDirective {}
+export class A11yTitleDirective {
+  readonly title = input.required<string>({ alias: "appA11yTitle" });
+
+  constructor(private el: ElementRef) {
+    const originalTitle = this.el.nativeElement.getAttribute("title");
+    const originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
+
+    effect(() => {
+      setA11yTitleAndAriaLabel({
+        element: this.el.nativeElement,
+        title: originalTitle ?? this.title(),
+        label: originalAriaLabel ?? this.title(),
+      });
+    });
+  }
+}

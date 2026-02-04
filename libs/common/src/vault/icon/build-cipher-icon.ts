@@ -49,10 +49,12 @@ export function buildCipherIcon(
         let isWebsite = false;
 
         if (hostnameUri.indexOf("androidapp://") === 0) {
-          icon = "bwi-android";
+          // @TODO Re-add once we have Android icon https://bitwarden.atlassian.net/browse/PM-29028
+          // icon = "bwi-android";
           image = null;
         } else if (hostnameUri.indexOf("iosapp://") === 0) {
-          icon = "bwi-apple";
+          // @TODO Re-add once we have iOS icon https://bitwarden.atlassian.net/browse/PM-29028
+          // icon = "bwi-apple";
           image = null;
         } else if (
           showFavicon &&

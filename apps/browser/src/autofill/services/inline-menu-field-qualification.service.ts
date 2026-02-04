@@ -16,9 +16,7 @@ import {
 } from "./autofill-constants";
 import AutofillService from "./autofill.service";
 
-export class InlineMenuFieldQualificationService
-  implements InlineMenuFieldQualificationServiceInterface
-{
+export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillFieldTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
@@ -945,7 +943,8 @@ export class InlineMenuFieldQualificationService
       !fieldType ||
       !this.usernameFieldTypes.has(fieldType) ||
       this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) ||
-      this.fieldHasDisqualifyingAttributeValue(field)
+      this.fieldHasDisqualifyingAttributeValue(field) ||
+      this.isTotpField(field)
     ) {
       return false;
     }

@@ -1,0 +1,54 @@
+@if (hideEmail()) {
+  <bit-callout type="warning" title="{{ 'warning' | i18n }}">
+    {{ "viewSendHiddenEmailWarning" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
+      "learnMore" | i18n
+    }}</a>
+  </bit-callout>
+}
+
+@if (loading()) {
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+} @else {
+  @if (unavailable()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+    </div>
+  }
+  @if (error()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
+    </div>
+  }
+  @if (send()) {
+    <div>
+      <p class="tw-text-center">
+        <b>{{ send().name }}</b>
+      </p>
+      <hr />
+      @switch (send().type) {
+        @case (sendType.Text) {
+          <app-send-access-text [send]="send()"></app-send-access-text>
+        }
+        @case (sendType.File) {
+          <app-send-access-file
+            [send]="send()"
+            [decKey]="decKey"
+            [accessRequest]="accessRequest()"
+            [accessToken]="accessToken()"
+          ></app-send-access-file>
+        }
+      }
+      @if (expirationDate()) {
+        <p class="tw-text-center tw-text-muted">Expires: {{ expirationDate() | date: "medium" }}</p>
+      }
+    </div>
+  }
+}

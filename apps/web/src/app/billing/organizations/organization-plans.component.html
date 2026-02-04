@@ -104,7 +104,7 @@
                   <li *ngIf="selectableProduct.PasswordManager.baseStorageGb">
                     {{
                       "gbEncryptedFileStorage"
-                        | i18n: selectableProduct.PasswordManager.baseStorageGb + "GB"
+                        | i18n: selectableProduct.PasswordManager.baseStorageGb + " GB"
                     }}
                   </li>
                   <li *ngIf="selectableProduct.hasGroups">
@@ -239,7 +239,7 @@
           <bit-hint class="tw-text-sm">{{
             "additionalStorageIntervalDesc"
               | i18n
-                : "1 GB"
+                : `${selectedPlan.PasswordManager.baseStorageGb} GB`
                 : (additionalStoragePriceMonthly(selectedPlan) | currency: "$")
                 : ("month" | i18n)
           }}</bit-hint>

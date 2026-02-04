@@ -79,7 +79,7 @@ export class AppearanceV2Component implements OnInit {
   protected readonly widthOptions: Option<PopupWidthOption>[] = [
     { label: this.i18nService.t("default"), value: "default" },
     { label: this.i18nService.t("wide"), value: "wide" },
-    { label: this.i18nService.t("extraWide"), value: "extra-wide" },
+    { label: this.i18nService.t("narrow"), value: "narrow" },
   ];
 
   constructor(

@@ -11,9 +11,11 @@ import {
   DestroyRef,
   computed,
   signal,
+  AfterViewInit,
+  NgZone,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -25,6 +27,20 @@ import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+
+type DialogSize = "small" | "default" | "large";
+
+const dialogSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-xl",
+  large: "md:tw-max-w-3xl",
+} as const;
+
+const drawerSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-lg",
+  large: "md:tw-max-w-2xl",
+} as const;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -48,8 +64,13 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     SpinnerComponent,
   ],
 })
-export class DialogComponent {
+export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly el = inject(ElementRef);
+
+  private readonly dialogHeader =
+    viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
   private readonly scrollableBody = viewChild.required(CdkScrollable);
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
@@ -71,7 +92,7 @@ export class DialogComponent {
   /**
    * Dialog size, more complex dialogs should use large, otherwise default is fine.
    */
-  readonly dialogSize = input<"small" | "default" | "large">("default");
+  readonly dialogSize = input<DialogSize>("default");
 
   /**
    * Title to show in the dialog's header
@@ -100,21 +121,31 @@ export class DialogComponent {
 
   private readonly animationCompleted = signal(false);
 
+  protected readonly width = computed(() => {
+    const size = this.dialogSize() ?? "default";
+    const isDrawer = this.dialogRef?.isDrawer;
+
+    if (isDrawer) {
+      return drawerSizeToWidth[size];
+    }
+
+    return dialogSizeToWidth[size];
+  });
+
   protected readonly classes = computed(() => {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
-    const sizeClasses = this.dialogRef?.isDrawer
-      ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
-      : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"];
+    const sizeClasses = this.dialogRef?.isDrawer ? ["tw-h-full"] : ["md:tw-p-4", "tw-max-h-[90vh]"];
 
+    const size = this.dialogSize() ?? "default";
     const animationClasses =
       this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
         ? []
-        : this.dialogSize() === "small"
+        : size === "small"
           ? ["tw-animate-slide-down"]
           : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
-    return [...baseClasses, this.width, ...sizeClasses, ...animationClasses];
+    return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
   handleEsc(event: Event) {
@@ -124,21 +155,58 @@ export class DialogComponent {
     }
   }
 
-  get width() {
-    switch (this.dialogSize()) {
-      case "small": {
-        return "md:tw-max-w-sm";
-      }
-      case "large": {
-        return "md:tw-max-w-3xl";
-      }
-      default: {
-        return "md:tw-max-w-xl";
-      }
+  onAnimationEnd() {
+    this.animationCompleted.set(true);
+  }
+
+  async ngAfterViewInit() {
+    /**
+     * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
+     * child elements are rendered and stable.
+     */
+    if (this.ngZone.isStable) {
+      this.handleAutofocus();
+    } else {
+      await firstValueFrom(this.ngZone.onStable);
+      this.handleAutofocus();
     }
   }
 
-  onAnimationEnd() {
-    this.animationCompleted.set(true);
+  /**
+   * Ensure that the user's focus is in the dialog by autofocusing the appropriate element.
+   *
+   * If there is a descendant of the dialog with the AutofocusDirective applied, we defer to that.
+   * If not, we want to fallback to a default behavior of focusing the dialog's header element. We
+   * choose the dialog header as the default fallback for dialog focus because it is always present,
+   * unlike possible interactive elements.
+   */
+  handleAutofocus() {
+    /**
+     * Angular's contentChildren query cannot see into the internal templates of child components.
+     * We need to use a regular DOM query instead to see if there are descendants using the
+     * AutofocusDirective.
+     */
+    const dialogRef = this.el.nativeElement;
+    // Must match selectors of AutofocusDirective
+    const autofocusDescendants = dialogRef.querySelectorAll("[appAutofocus], [bitAutofocus]");
+    const hasAutofocusDescendants = autofocusDescendants.length > 0;
+
+    if (!hasAutofocusDescendants) {
+      /**
+       * Wait a tick for any focus management to occur on the trigger element before moving focus
+       * to the dialog header.
+       *
+       * We are doing this manually instead of using Angular's built-in focus management
+       * directives (`cdkTrapFocusAutoCapture` and `cdkFocusInitial`) because we need this delay
+       * behavior.
+       *
+       * And yes, we need the timeout even though we are already waiting for ngZone to stabilize.
+       */
+      const headerFocusTimeout = setTimeout(() => {
+        this.dialogHeader().nativeElement.focus();
+      }, 0);
+
+      this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
+    }
   }
 }

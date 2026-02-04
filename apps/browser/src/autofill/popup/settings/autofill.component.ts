@@ -611,6 +611,10 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }

@@ -1,0 +1,24 @@
+@if (!hideArchive()) {
+  <bit-nav-item
+    [icon]="archiveFilter.icon"
+    [forceActiveStyles]="activeFilter()?.isArchived"
+    (click)="handleArchiveFilter($event)"
+    [text]="archiveFilter.name | i18n"
+    [attr.aria-pressed]="activeFilter()?.isArchived"
+    [appA11yTitle]="archiveFilter.name | i18n"
+  >
+    @if (!(canArchive$ | async)) {
+      <ng-container slot="end">
+        <app-premium-badge />
+      </ng-container>
+    }
+  </bit-nav-item>
+}
+<bit-nav-item
+  [icon]="trashFilter.icon"
+  [forceActiveStyles]="activeFilter()?.isDeleted"
+  (click)="applyFilter('trash')"
+  [text]="trashFilter.name | i18n"
+  [attr.aria-pressed]="activeFilter()?.isDeleted"
+  [appA11yTitle]="trashFilter.name | i18n"
+/>

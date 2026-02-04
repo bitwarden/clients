@@ -10,8 +10,7 @@ import { Classifier } from "@bitwarden/common/tools/state/classifier";
 export class OptionsClassifier<
   Settings,
   Options extends IntegrationRequest & Settings = IntegrationRequest & Settings,
-> implements Classifier<Options, Record<string, never>, Settings>
-{
+> implements Classifier<Options, Record<string, never>, Settings> {
   /** Partitions `secret` into its disclosed properties and secret properties.
    *  @param value The object to partition
    *  @returns an object that classifies secrets.

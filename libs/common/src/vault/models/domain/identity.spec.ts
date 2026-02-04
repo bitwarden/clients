@@ -1,4 +1,4 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
@@ -27,6 +27,8 @@ describe("Identity", () => {
       passportNumber: "encpassportNumber",
       licenseNumber: "enclicenseNumber",
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {

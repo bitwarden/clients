@@ -28,7 +28,7 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      element: "#storybook-root",
+      context: "#storybook-root",
     },
     controls: {
       matchers: {

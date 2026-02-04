@@ -1,5 +1,9 @@
+/**
+ * include structuredClone in test environment.
+ * @jest-environment ../../../../shared/test.environment.ts
+ */
 import { mock } from "jest-mock-extended";
-import { of, firstValueFrom } from "rxjs";
+import { of, firstValueFrom, BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -24,12 +28,14 @@ describe("DefaultCipherArchiveService", () => {
 
   const userId = "user-id" as UserId;
   const cipherId = "123" as CipherId;
+  const featureFlag = new BehaviorSubject<boolean>(true);
 
   beforeEach(() => {
     mockCipherService = mock<CipherService>();
     mockApiService = mock<ApiService>();
     mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(featureFlag.asObservable());
 
     service = new DefaultCipherArchiveService(
       mockCipherService,
@@ -86,7 +92,7 @@ describe("DefaultCipherArchiveService", () => {
   describe("userCanArchive$", () => {
     it("should return true when user has premium and feature flag is enabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.userCanArchive$(userId));
 
@@ -101,9 +107,97 @@ describe("DefaultCipherArchiveService", () => {
 
     it("should return false when feature flag is disabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      featureFlag.next(false);
 
       const result = await firstValueFrom(service.userCanArchive$(userId));
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("hasArchiveFlagEnabled$", () => {
+    it("returns true when feature flag is enabled", async () => {
+      featureFlag.next(true);
+
+      const result = await firstValueFrom(service.hasArchiveFlagEnabled$);
+
+      expect(result).toBe(true);
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM19148_InnovationArchive,
+      );
+    });
+
+    it("returns false when feature flag is disabled", async () => {
+      featureFlag.next(false);
+
+      const result = await firstValueFrom(service.hasArchiveFlagEnabled$);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("userHasPremium$", () => {
+    it("returns true when user has premium", async () => {
+      mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      const result = await firstValueFrom(service.userHasPremium$(userId));
+
+      expect(result).toBe(true);
+      expect(mockBillingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+
+    it("returns false when user does not have premium", async () => {
+      mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      const result = await firstValueFrom(service.userHasPremium$(userId));
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("showSubscriptionEndedMessaging$", () => {
+    it("returns true when user has archived ciphers but no premium", async () => {
+      const mockCiphers: CipherListView[] = [
+        {
+          id: "1",
+          archivedDate: "2024-01-15T10:30:00.000Z",
+          type: "identity",
+        } as unknown as CipherListView,
+      ];
+
+      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      featureFlag.next(true);
+
+      const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when user has archived ciphers and has premium", async () => {
+      const mockCiphers: CipherListView[] = [
+        {
+          id: "1",
+          archivedDate: "2024-01-15T10:30:00.000Z",
+          type: "identity",
+        } as unknown as CipherListView,
+      ];
+
+      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when user has no archived ciphers and no premium", async () => {
+      mockCipherService.cipherListViews$.mockReturnValue(of([]));
+      mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
 
       expect(result).toBe(false);
     });
@@ -130,7 +224,7 @@ describe("DefaultCipherArchiveService", () => {
           } as any,
         }),
       );
-      mockCipherService.replace.mockResolvedValue(undefined);
+      mockCipherService.upsert.mockResolvedValue(undefined);
     });
 
     it("should archive single cipher", async () => {
@@ -144,13 +238,13 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
-      expect(mockCipherService.replace).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [cipherId]: expect.objectContaining({
+      expect(mockCipherService.upsert).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
             archivedDate: "2024-01-15T10:30:00.000Z",
             revisionDate: "2024-01-15T10:31:00.000Z",
           }),
-        }),
+        ],
         userId,
       );
     });
@@ -193,7 +287,7 @@ describe("DefaultCipherArchiveService", () => {
           } as any,
         }),
       );
-      mockCipherService.replace.mockResolvedValue(undefined);
+      mockCipherService.upsert.mockResolvedValue(undefined);
     });
 
     it("should unarchive single cipher", async () => {
@@ -207,12 +301,12 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
-      expect(mockCipherService.replace).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [cipherId]: expect.objectContaining({
+      expect(mockCipherService.upsert).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
             revisionDate: "2024-01-15T10:31:00.000Z",
           }),
-        }),
+        ],
         userId,
       );
     });

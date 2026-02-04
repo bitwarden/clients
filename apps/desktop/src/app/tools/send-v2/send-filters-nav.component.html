@@ -1,0 +1,25 @@
+<bit-nav-group
+  icon="bwi-send"
+  [text]="'send' | i18n"
+  route="new-sends"
+  (click)="selectTypeAndNavigate()"
+>
+  <bit-nav-item
+    icon="bwi-send"
+    [text]="'allSends' | i18n"
+    (click)="selectTypeAndNavigate(null); $event.stopPropagation()"
+    [forceActiveStyles]="activeSendType() === null"
+  ></bit-nav-item>
+  <bit-nav-item
+    icon="bwi-file-text"
+    [text]="'sendTypeText' | i18n"
+    (click)="selectTypeAndNavigate(SendType.Text); $event.stopPropagation()"
+    [forceActiveStyles]="activeSendType() === SendType.Text"
+  ></bit-nav-item>
+  <bit-nav-item
+    icon="bwi-file"
+    [text]="'sendTypeFile' | i18n"
+    (click)="selectTypeAndNavigate(SendType.File); $event.stopPropagation()"
+    [forceActiveStyles]="activeSendType() === SendType.File"
+  ></bit-nav-item>
+</bit-nav-group>
