@@ -15,7 +15,7 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("encryptedEmailList");
-      send.emailHashes = "HASH1,HASH2,HASH3";
+      send.anonAccessEmails = "person1@company.com,person2@company.com,person3@company.com";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -27,14 +27,14 @@ describe("SendRequest", () => {
       expect(request.emails).toBe("encryptedEmailList");
     });
 
-    it("should populate emailHashes from Send.emailHashes", () => {
+    it("should populate anonAccessEmails from Send.anonAccessEmails", () => {
       const send = new Send();
       send.type = SendType.Text;
       send.name = new EncString("encryptedName");
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("encryptedEmailList");
-      send.emailHashes = "HASH1,HASH2,HASH3";
+      send.anonAccessEmails = "HASH1,HASH2,HASH3";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -43,7 +43,7 @@ describe("SendRequest", () => {
 
       const request = new SendRequest(send);
 
-      expect(request.emailHashes).toBe("HASH1,HASH2,HASH3");
+      expect(request.anonAccessEmails).toBe("HASH1,HASH2,HASH3");
     });
 
     it("should set emails to null when Send.emails is null", () => {
@@ -53,7 +53,7 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -63,16 +63,16 @@ describe("SendRequest", () => {
       const request = new SendRequest(send);
 
       expect(request.emails).toBeNull();
-      expect(request.emailHashes).toBe("");
+      expect(request.anonAccessEmails).toBe("");
     });
 
-    it("should handle empty emailHashes", () => {
+    it("should handle empty anonAccessEmails", () => {
       const send = new Send();
       send.type = SendType.Text;
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -81,7 +81,7 @@ describe("SendRequest", () => {
 
       const request = new SendRequest(send);
 
-      expect(request.emailHashes).toBe("");
+      expect(request.anonAccessEmails).toBe("");
     });
 
     it("should not expose plaintext emails", () => {
@@ -90,7 +90,7 @@ describe("SendRequest", () => {
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("2.encrypted|emaildata|here");
-      send.emailHashes = "ABC123,DEF456";
+      send.anonAccessEmails = "ABC123,DEF456";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -111,7 +111,7 @@ describe("SendRequest", () => {
       send.notes = new EncString("encryptedNotes");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -130,7 +130,7 @@ describe("SendRequest", () => {
       send.notes = null;
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -148,7 +148,7 @@ describe("SendRequest", () => {
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -162,14 +162,14 @@ describe("SendRequest", () => {
   });
 
   describe("Email auth requirements", () => {
-    it("should create request with encrypted emails and plaintext emailHashes", () => {
+    it("should create request with encrypted emails and plaintext anonAccessEmails", () => {
       // Setup: A Send with encrypted emails and computed hashes
       const send = new Send();
       send.type = SendType.Text;
       send.name = new EncString("encryptedName");
       send.key = new EncString("encryptedKey");
       send.emails = new EncString("2.encryptedEmailString|data");
-      send.emailHashes = "A1B2C3D4,E5F6G7H8"; // Plaintext hashes
+      send.anonAccessEmails = "A1B2C3D4,E5F6G7H8"; // Plaintext hashes
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
@@ -183,10 +183,10 @@ describe("SendRequest", () => {
       expect(request.emails).toBe("2.encryptedEmailString|data");
       expect(request.emails).toContain("encrypted");
 
-      //emailHashes field contains plaintext comma-separated hashes
-      expect(request.emailHashes).toBe("A1B2C3D4,E5F6G7H8");
-      expect(request.emailHashes).not.toContain("encrypted");
-      expect(request.emailHashes.split(",")).toHaveLength(2);
+      //anonAccessEmails field contains plaintext comma-separated hashes
+      expect(request.anonAccessEmails).toBe("A1B2C3D4,E5F6G7H8");
+      expect(request.anonAccessEmails).not.toContain("encrypted");
+      expect(request.anonAccessEmails.split(",")).toHaveLength(2);
     });
   });
 });

@@ -18,7 +18,7 @@ export class SendRequest {
   file: SendFileApi;
   password: string;
   emails: string;
-  emailHashes: string;
+  anonAccessEmails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -33,7 +33,7 @@ export class SendRequest {
     this.key = send.key != null ? send.key.encryptedString : null;
     this.password = send.password;
     this.emails = send.emails ? send.emails.encryptedString : null;
-    this.emailHashes = send.emailHashes;
+    this.anonAccessEmails = send.anonAccessEmails;
     this.disabled = send.disabled;
     this.hideEmail = send.hideEmail;
 

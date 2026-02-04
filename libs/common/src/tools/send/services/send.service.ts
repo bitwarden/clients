@@ -93,11 +93,11 @@ export class SendService implements InternalSendServiceAbstraction {
     if (sendEmailOTPEnabled && hasEmails) {
       const plaintextEmails = model.emails.join(",");
       send.emails = await this.encryptService.encryptString(plaintextEmails, model.cryptoKey);
-      send.emailHashes = await this.hashEmails(plaintextEmails);
+      send.anonAccessEmails = plaintextEmails;
       send.password = null;
     } else {
       send.emails = null;
-      send.emailHashes = "";
+      send.anonAccessEmails = "";
 
       if (password != null) {
         // Note: Despite being called key, the passwordKey is not used for encryption.

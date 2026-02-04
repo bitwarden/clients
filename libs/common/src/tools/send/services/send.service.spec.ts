@@ -636,7 +636,7 @@ describe("SendService", () => {
           const [send] = await sendService.encrypt(sendView, null, null);
 
           expect(send.emails).toBeNull();
-          expect(send.emailHashes).toBe("");
+          expect(send.anonAccessEmails).toBe("");
         });
 
         it("should set emails to null when email list is null", async () => {
@@ -645,7 +645,7 @@ describe("SendService", () => {
           const [send] = await sendService.encrypt(sendView, null, null);
 
           expect(send.emails).toBeNull();
-          expect(send.emailHashes).toBe("");
+          expect(send.anonAccessEmails).toBe("");
         });
 
         it("should set emails to null when email list is undefined", async () => {
@@ -654,7 +654,7 @@ describe("SendService", () => {
           const [send] = await sendService.encrypt(sendView, null, null);
 
           expect(send.emails).toBeNull();
-          expect(send.emailHashes).toBe("");
+          expect(send.anonAccessEmails).toBe("");
         });
       });
 
@@ -668,7 +668,7 @@ describe("SendService", () => {
           const [send] = await sendService.encrypt(sendView, null, null);
 
           expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
-          expect(send.emailHashes).toBe("ABCDEF");
+          expect(send.anonAccessEmails).toBe("ABCDEF");
         });
 
         it("should hash multiple emails and return comma-separated hashes", async () => {
@@ -684,7 +684,7 @@ describe("SendService", () => {
 
           expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
           expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
-          expect(send.emailHashes).toBe("ABCD,1234");
+          expect(send.anonAccessEmails).toBe("ABCD,1234");
         });
 
         it("should trim and lowercase emails before hashing", async () => {
@@ -699,12 +699,12 @@ describe("SendService", () => {
           expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
         });
 
-        it("should set emailHashes to empty string when no emails", async () => {
+        it("should set anonAccessEmails to empty string when no emails", async () => {
           sendView.emails = [];
 
           const [send] = await sendService.encrypt(sendView, null, null);
 
-          expect(send.emailHashes).toBe("");
+          expect(send.anonAccessEmails).toBe("");
           expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
         });
 
@@ -716,7 +716,7 @@ describe("SendService", () => {
 
           const [send] = await sendService.encrypt(sendView, null, null);
 
-          expect(send.emailHashes).toBe("A1B2C3");
+          expect(send.anonAccessEmails).toBe("A1B2C3");
         });
       });
 
@@ -756,7 +756,7 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, null);
 
         expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+        expect(send.anonAccessEmails).toBe("");
         expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
       });
 
@@ -769,7 +769,7 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, "password123");
 
         expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBe("hashedPassword");
       });
 
@@ -782,7 +782,7 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, "password123");
 
         expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBe("hashedPassword");
         expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
       });
@@ -793,7 +793,7 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, null);
 
         expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+        expect(send.anonAccessEmails).toBe("");
         expect(send.password).toBeUndefined();
       });
     });

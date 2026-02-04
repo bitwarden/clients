@@ -41,7 +41,7 @@ export function createSendData(value: Partial<SendData> = {}) {
     deletionDate: "2024-09-04",
     password: "password",
     emails: "",
-    emailHashes: "",
+    anonAccessEmails: "",
     disabled: false,
     hideEmail: false,
   };
@@ -66,7 +66,7 @@ export function testSendData(id: string, name: string) {
   data.notes = "Notes!!";
   data.key = null;
   data.emails = "";
-  data.emailHashes = "";
+  data.anonAccessEmails = "";
   return data;
 }
 
@@ -83,6 +83,6 @@ export function testSend(id: string, name: string) {
   data.notes = new EncString("Notes!!");
   data.key = null;
   data.emails = null;
-  data.emailHashes = "";
+  data.anonAccessEmails = "";
   return data;
 }
