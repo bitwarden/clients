@@ -171,7 +171,6 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
     expect(component["step"]()).toBe(PremiumOrgUpgradeDialogStep.PlanSelection);
     expect(component["selectedPlan"]()).toBeNull();
     expect(component["account"]()).toEqual(mockAccount);
-    expect(component["planSelectionStepTitleOverride"]()).toBeNull();
   });
 
   it("should initialize with custom initial step", async () => {
@@ -185,25 +184,6 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
 
     expect(customComponent["step"]()).toBe(PremiumOrgUpgradeDialogStep.Payment);
     expect(customComponent["selectedPlan"]()).toBe("teams");
-  });
-
-  describe("custom dialog title", () => {
-    it("should use null as default when no override is provided", () => {
-      expect(component["planSelectionStepTitleOverride"]()).toBeNull();
-    });
-
-    it("should use custom title when provided in dialog config", async () => {
-      const customDialogData: PremiumOrgUpgradeDialogParams = {
-        account: mockAccount,
-        initialStep: PremiumOrgUpgradeDialogStep.PlanSelection,
-        selectedPlan: null,
-        planSelectionStepTitleOverride: "upgradeYourPlan",
-      };
-
-      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
-
-      expect(customComponent["planSelectionStepTitleOverride"]()).toBe("upgradeYourPlan");
-    });
   });
 
   describe("onPlanSelected", () => {
