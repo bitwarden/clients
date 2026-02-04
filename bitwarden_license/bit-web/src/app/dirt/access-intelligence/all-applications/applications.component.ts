@@ -102,6 +102,7 @@ export class ApplicationsComponent implements OnInit {
       value: ApplicationFilterOption.NonCritical,
     },
   ]);
+  protected readonly showEmptyTableExplanation = signal("");
 
   constructor(
     protected i18nService: I18nService,
@@ -162,6 +163,12 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
+
+        if (this.dataSource.filteredData.length === 0) {
+          this.showEmptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
+        } else {
+          this.showEmptyTableExplanation.set("");
+        }
       });
   }
 
