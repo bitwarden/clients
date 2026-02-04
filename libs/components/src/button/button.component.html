@@ -1,25 +1,13 @@
-<ng-template #buttonContent>
-  <ng-content></ng-content>
-</ng-template>
-
 <span class="tw-relative tw-flex tw-items-center tw-justify-center">
-  <span [class.tw-invisible]="showLoadingStyle()">
-    @if (startIcon() || endIcon()) {
-      <div class="tw-flex tw-items-center tw-gap-2">
-        @if (startIcon()) {
-          <i class="{{ startIconClasses() }}"></i>
-        }
-        <div>
-          <ng-container *ngTemplateOutlet="buttonContent"></ng-container>
-        </div>
-        @if (endIcon()) {
-          <i class="{{ endIconClasses() }}"></i>
-        }
-      </div>
-    } @else {
-      <div>
-        <ng-container *ngTemplateOutlet="buttonContent"></ng-container>
-      </div>
+  <span [class.tw-invisible]="showLoadingStyle()" class="tw-flex tw-items-center tw-gap-2">
+    @if (startIcon()) {
+      <i class="{{ startIconClasses() }}"></i>
+    }
+    <div>
+      <ng-content></ng-content>
+    </div>
+    @if (endIcon()) {
+      <i class="{{ endIconClasses() }}"></i>
     }
   </span>
   @if (showLoadingStyle()) {
