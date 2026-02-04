@@ -15,7 +15,7 @@ export enum FeatureFlag {
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
-  BulkReinviteUI = "tbd",
+  BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
