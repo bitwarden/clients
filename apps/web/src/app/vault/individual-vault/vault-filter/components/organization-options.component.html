@@ -46,17 +46,21 @@
           bitMenuItem
           (click)="unlinkSso(organization)"
         >
+          <i class="bwi bwi-fw bwi-minus-circle"></i>
           {{ "unlinkSso" | i18n }}
         </button>
         <ng-template #linkSso>
           <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
+            <i class="bwi bwi-fw bwi-plus-circle"></i>
             {{ "linkSso" | i18n }}
           </button>
         </ng-template>
       </ng-container>
       <button *ngIf="showLeaveOrgOption" type="button" bitMenuItem (click)="leave(organization)">
-        <i class="bwi bwi-fw bwi-sign-out tw-text-danger" aria-hidden="true"></i>
-        <span class="tw-text-danger">{{ "leave" | i18n }}</span>
+        <span class="tw-text-danger">
+          <i class="bwi bwi-fw bwi-sign-out" aria-hidden="true"></i>
+          {{ "leave" | i18n }}
+        </span>
       </button>
     </div>
   </bit-menu>
