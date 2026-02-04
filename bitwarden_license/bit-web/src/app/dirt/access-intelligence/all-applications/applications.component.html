@@ -43,5 +43,11 @@
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
     ></app-table-row-scrollable-m11>
+
+    @if (emptyTableExplanation()) {
+      <div class="tw-flex tw-mt-10 tw-justify-center">
+        <span bitTypography="body2">{{ emptyTableExplanation() }}</span>
+      </div>
+    }
   </div>
 }
