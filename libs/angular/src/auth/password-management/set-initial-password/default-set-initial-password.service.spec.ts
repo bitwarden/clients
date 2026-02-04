@@ -1347,7 +1347,7 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should throw the orgPublicKeyEncryptedUserKey is not found", async () => {
+        it("should throw if orgPublicKeyEncryptedUserKey is not found", async () => {
           // Arrange
           encryptService.encapsulateKeyUnsigned.mockResolvedValue(null);
 
@@ -1360,7 +1360,7 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should throw the orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
+        it("should throw if orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
           // Arrange
           orgPublicKeyEncryptedUserKey.encryptedString = null;
 
