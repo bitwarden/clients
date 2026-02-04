@@ -174,7 +174,7 @@ export class ApplicationsComponent implements OnInit {
           }
         });
         this.selectedUrls.set(filteredUrls);
-      
+
         if (this.dataSource?.filteredData?.length === 0) {
           this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
         } else {
