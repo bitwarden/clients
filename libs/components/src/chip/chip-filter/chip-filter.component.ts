@@ -24,7 +24,9 @@ import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective }
 import { Option } from "../../select/option";
 import { SharedModule } from "../../shared";
 import { TypographyModule } from "../../typography";
-import { BaseChipDirective } from "../base-chip.directive";
+import { BaseChipDirective, ChipSize, ChipSizes } from "../base-chip.directive";
+import { ChipContentComponent } from "../chip-content.component";
+import { ChipDismissButtonComponent } from "../chip-dismiss-button.component";
 
 /** An option that will be showed in the overlay menu of `ChipFilterComponent` */
 export type ChipSelectOption<T> = Option<T> & {
@@ -45,7 +47,9 @@ export type ChipSelectOption<T> = Option<T> & {
     MenuModule,
     TypographyModule,
     BaseChipDirective,
-  ],
+    ChipContentComponent,
+    ChipDismissButtonComponent,
+],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -62,7 +66,8 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly menuItems = viewChildren(MenuItemComponent);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
   readonly menuTrigger = viewChild(MenuTriggerForDirective);
-
+  readonly size = input<ChipSize>(ChipSizes.Large);
+  
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
 

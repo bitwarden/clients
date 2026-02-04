@@ -2,16 +2,16 @@
   <ng-content select="[chipStart]"></ng-content>
 
   @if (startIcon()) {
-    <bit-icon [name]="startIcon()" class="tw-text-sm" />
+    <bit-icon [name]="startIcon()" class="tw-text-base/5" />
   }
 
-  <span>
+  <span class="tw-leading-5">
     <ng-content></ng-content>
   </span>
 
   <ng-content select="[chipEnd]"></ng-content>
 
   @if (endIcon()) {
-    <bit-icon [name]="endIcon()" class="tw-text-sm" />
+    <bit-icon [name]="endIcon()" class="tw-text-base/5" />
   }
 </div>
