@@ -10,8 +10,9 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   BusinessSubscriptionPricingTier,
@@ -28,9 +29,10 @@ import { CartSummaryComponent } from "@bitwarden/pricing";
 
 import { AccountBillingClient } from "../../../clients/account-billing.client";
 import { PreviewInvoiceClient } from "../../../clients/preview-invoice.client";
+import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
 import {
   EnterBillingAddressComponent,
-  EnterPaymentMethodComponent,
+  DisplayPaymentMethodComponent,
 } from "../../../payment/components";
 
 import {
@@ -54,40 +56,19 @@ class MockCartSummaryComponent {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-enter-payment-method",
-  template: `<h1>Mock Enter Payment Method</h1>`,
+  selector: "app-display-payment-method",
+  template: `<h1>Mock Display Payment Method</h1>`,
   providers: [
     {
-      provide: EnterPaymentMethodComponent,
-      useClass: MockEnterPaymentMethodComponent,
+      provide: DisplayPaymentMethodComponent,
+      useClass: MockDisplayPaymentMethodComponent,
     },
   ],
 })
-class MockEnterPaymentMethodComponent {
-  readonly group = input.required<any>();
-  readonly showBankAccount = input(true);
-  readonly showPayPal = input(true);
-  readonly showAccountCredit = input(false);
-  readonly hasEnoughAccountCredit = input(true);
-  readonly includeBillingAddress = input(false);
-
-  tokenize = jest.fn().mockResolvedValue({ type: "card", token: "mock-token" });
-  validate = jest.fn().mockReturnValue(true);
-
-  static getFormGroup = () =>
-    new FormGroup({
-      type: new FormControl<string>("card", { nonNullable: true }),
-      bankAccount: new FormGroup({
-        routingNumber: new FormControl<string>("", { nonNullable: true }),
-        accountNumber: new FormControl<string>("", { nonNullable: true }),
-        accountHolderName: new FormControl<string>("", { nonNullable: true }),
-        accountHolderType: new FormControl<string>("", { nonNullable: true }),
-      }),
-      billingAddress: new FormGroup({
-        country: new FormControl<string>("", { nonNullable: true }),
-        postalCode: new FormControl<string>("", { nonNullable: true }),
-      }),
-    });
+class MockDisplayPaymentMethodComponent {
+  readonly subscriber = input.required<any>();
+  readonly paymentMethod = input<any>();
+  readonly hideHeader = input<boolean>();
 }
 
 @Component({
@@ -148,6 +129,9 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
   const mockOrganizationService = mock<OrganizationService>();
+  const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
+  const mockApiService = mock<ApiService>();
+  const mockAccountService = mock<AccountService>();
   const mockI18nService = { t: jest.fn((key: string, ...params: any[]) => key) };
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
@@ -191,6 +175,13 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       newPlanProratedMonths: 1,
     });
     mockOrganizationService.organizations$.mockReturnValue(of([]));
+    mockAccountService.activeAccount$ = of(mockAccount);
+    mockSubscriberBillingClient.getPaymentMethod.mockResolvedValue({
+      type: "card",
+      brand: "visa",
+      last4: "4242",
+      expiration: "12/2025",
+    });
 
     mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
       of([mockTeamsPlan]),
@@ -212,6 +203,9 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
+        { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: ApiService, useValue: mockApiService },
         {
           provide: KeyService,
           useValue: {
@@ -230,14 +224,14 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         add: {
           imports: [
             MockEnterBillingAddressComponent,
-            MockEnterPaymentMethodComponent,
+            MockDisplayPaymentMethodComponent,
             MockCartSummaryComponent,
           ],
         },
         remove: {
           imports: [
             EnterBillingAddressComponent,
-            EnterPaymentMethodComponent,
+            DisplayPaymentMethodComponent,
             CartSummaryComponent,
           ],
         },
@@ -304,8 +298,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     it("should successfully upgrade to organization", async () => {
       const completeSpy = jest.spyOn(component["complete"], "emit");
 
-      // Mock isFormValid and processUpgrade to bypass form validation
-      jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
+      // Mock processUpgrade to bypass form validation
       jest.spyOn(component as any, "processUpgrade").mockResolvedValue({
         status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
         organizationId: null,
@@ -313,19 +306,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
-        paymentForm: {
-          type: "card",
-          bankAccount: {
-            routingNumber: "",
-            accountNumber: "",
-            accountHolderName: "",
-            accountHolderType: "",
-          },
-          billingAddress: {
-            country: "",
-            postalCode: "",
-          },
-        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -350,8 +330,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     });
 
     it("should show an error toast if upgrade fails", async () => {
-      // Mock isFormValid to return true
-      jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
       // Mock processUpgrade to throw an error
       jest
         .spyOn(component as any, "processUpgrade")
@@ -359,19 +337,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
-        paymentForm: {
-          type: "card",
-          bankAccount: {
-            routingNumber: "",
-            accountNumber: "",
-            accountHolderName: "",
-            accountHolderType: "",
-          },
-          billingAddress: {
-            country: "",
-            postalCode: "",
-          },
-        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -428,7 +393,8 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         },
       });
 
-      tick(1000);
+      // Advance time to allow any async operations to complete
+      tick(1500);
       fixture.detectChanges();
 
       const estimatedInvoice = component["estimatedInvoice"]();
@@ -446,23 +412,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     it("should validate organization name when provided", () => {
       component["formGroup"].patchValue({ organizationName: "My Organization" });
       expect(component["formGroup"].get("organizationName")?.valid).toBe(true);
-    });
-
-    it("should return false when payment component validation fails", () => {
-      component["formGroup"].patchValue({
-        organizationName: "Test Org",
-        billingAddress: {
-          country: "US",
-          postalCode: "12345",
-        },
-      });
-
-      const mockPaymentComponent = {
-        validate: jest.fn().mockReturnValue(false),
-      } as any;
-      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
-
-      expect(component["isFormValid"]()).toBe(false);
     });
   });
 
@@ -516,6 +465,16 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   });
 
   describe("processUpgrade", () => {
+    beforeEach(() => {
+      // Set paymentMethod signal for these tests
+      component["paymentMethod"].set({
+        type: "card",
+        brand: "visa",
+        last4: "4242",
+        expiration: "12/2025",
+      });
+    });
+
     it("should throw error when billing address is incomplete", async () => {
       component["formGroup"].patchValue({
         organizationName: "Test Org",
@@ -524,11 +483,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           postalCode: "",
         },
       });
-
-      const mockPaymentComponent = {
-        tokenize: jest.fn().mockResolvedValue({ type: "card", token: "mock-token" }),
-      } as any;
-      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
 
       await expect(component["processUpgrade"]()).rejects.toThrow("Billing address is incomplete");
     });
@@ -542,29 +496,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         },
       });
 
-      const mockPaymentComponent = {
-        tokenize: jest.fn().mockResolvedValue({ type: "card", token: "mock-token" }),
-      } as any;
-      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
-
       await expect(component["processUpgrade"]()).rejects.toThrow("Organization name is required");
-    });
-
-    it("should throw error when payment method tokenization fails", async () => {
-      component["formGroup"].patchValue({
-        organizationName: "Test Org",
-        billingAddress: {
-          country: "US",
-          postalCode: "12345",
-        },
-      });
-
-      const mockPaymentComponent = {
-        tokenize: jest.fn().mockResolvedValue(null),
-      } as any;
-      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
-
-      await expect(component["processUpgrade"]()).rejects.toThrow("Payment method is required");
     });
   });
 
@@ -606,8 +538,20 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
   describe("Error Handling", () => {
     it("should log error and continue when submit fails", async () => {
-      jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
       jest.spyOn(component as any, "processUpgrade").mockRejectedValue(new Error("Network error"));
+
+      component["formGroup"].setValue({
+        organizationName: "My New Org",
+        billingAddress: {
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          line2: "",
+          city: "Beverly Hills",
+          state: "CA",
+          taxId: "",
+        },
+      });
 
       await component["submit"]();
 
