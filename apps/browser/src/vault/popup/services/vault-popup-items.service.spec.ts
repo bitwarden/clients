@@ -323,6 +323,25 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
+  describe("filteredCiphers$", () => {
+    it("should filter filteredCipher$ down to search term", (done) => {
+      const cipherList = Object.values(allCiphers);
+      const searchText = "Login";
+
+      searchService.searchCiphers.mockImplementation(async () => {
+        return cipherList.filter((cipher) => {
+          return cipher.name.includes(searchText);
+        });
+      });
+
+      service.filteredCiphers$.subscribe((ciphers) => {
+        // There are 10 ciphers but only 3 with "Login" in the name
+        expect(ciphers.length).toBe(3);
+        done();
+      });
+    });
+  });
+
   describe("favoriteCiphers$", () => {
     it("should exclude autofill ciphers", (done) => {
       service.favoriteCiphers$.subscribe((ciphers) => {

@@ -202,6 +202,15 @@ export class VaultPopupItemsService {
   );
 
   /**
+   * List of ciphers that are filtered using filters and search.
+   * Includes favorite ciphers and ciphers currently suggested for autofill.
+   * Ciphers are sorted by name.
+   */
+  filteredCiphers$: Observable<PopupCipherViewLike[]> = this._filteredCipherList$.pipe(
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  /**
    * List of ciphers that can be used for autofill on the current tab. Includes cards and/or identities
    * if enabled in the vault settings. Ciphers are sorted by type, then by last used date, then by name.
    *
