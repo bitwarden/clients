@@ -78,7 +78,6 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
     account: mockAccount,
     initialStep: null,
     selectedPlan: null,
-    planSelectionStepTitleOverride: null,
   };
 
   /**
