@@ -25,6 +25,7 @@ import {
 } from "@bitwarden/components";
 
 import { LoginEmailService } from "../../../common";
+import { PqpAuthService } from "../../../common/services/pqp-auth";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -90,6 +91,20 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   showErrorSummary = false;
 
+  // PqP Pre-Login State (via service)
+  get pqpGoogleDriveLoggedIn(): boolean {
+    return this.pqpAuthService.googleDriveLoggedIn;
+  }
+  get pqpNetworkLoggedIn(): boolean {
+    return this.pqpAuthService.networkLoggedIn;
+  }
+  get pqpUserEmail(): string | null {
+    return this.pqpAuthService.userEmail;
+  }
+  get pqpReady(): boolean {
+    return this.pqpAuthService.isReady;
+  }
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -100,6 +115,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private pqpAuthService: PqpAuthService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -108,12 +124,19 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     // Emit the initial state
     this.registrationStartStateChange.emit(this.state);
 
+    // Check PqP login status
+    await this.checkPqpStatus();
+
     this.listenForQueryParamChanges();
 
     /**
      * If the user has a login email, set the email field to the login email.
      */
     this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
+      // If we already have a PqP email, don't overwrite it
+      if (this.pqpUserEmail) {
+        return;
+      }
       if (email) {
         this.formGroup.patchValue({ email });
       }
@@ -206,6 +229,29 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       },
     });
     this.registrationStartStateChange.emit(this.state);
+  }
+
+  // PqP Pre-Login Methods (using PqpAuthService)
+  private async checkPqpStatus(): Promise<void> {
+    const state = await this.pqpAuthService.checkStatus();
+    // Auto-fill email if available
+    if (state.userEmail && !this.formGroup.controls.email.value) {
+      this.formGroup.controls.email.setValue(state.userEmail);
+    }
+  }
+
+  async handleGoogleDriveLogin(): Promise<void> {
+    const success = await this.pqpAuthService.loginToGoogleDrive();
+    if (success) {
+      const email = this.pqpAuthService.userEmail;
+      if (email) {
+        this.formGroup.controls.email.setValue(email);
+      }
+    }
+  }
+
+  async handlePqpNetworkLogin(): Promise<void> {
+    await this.pqpAuthService.loginToPqpNetwork();
   }
 
   ngOnDestroy(): void {

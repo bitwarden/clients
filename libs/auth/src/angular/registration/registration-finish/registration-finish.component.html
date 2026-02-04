@@ -9,5 +9,6 @@
   [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
   [loading]="submitting"
   [primaryButtonText]="{ key: 'createAccount' }"
+  [initialPassword]="pqpDerivedPassword"
   (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
 ></auth-input-password>

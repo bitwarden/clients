@@ -24,6 +24,7 @@ import {
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "../../../common";
+import { PqpAuthService } from "../../../common/services/pqp-auth";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
@@ -80,6 +81,18 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
+  // PqP Integration (via service)
+  get pqpReady(): boolean {
+    return this.pqpAuthService.isReady;
+  }
+  get pqpDerivedPassword(): string | null {
+    const pqpEmail = this.pqpAuthService.userEmail;
+    if (this.email && pqpEmail && this.email.toLowerCase() === pqpEmail.toLowerCase()) {
+      return this.pqpAuthService.derivedPassword;
+    }
+    return null;
+  }
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -93,6 +106,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private premiumInterestStateService: PremiumInterestStateService,
+    private pqpAuthService: PqpAuthService,
   ) {}
 
   async ngOnInit() {
@@ -115,7 +129,14 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
     }
 
+    // Check PqP status and derive password
+    await this.checkPqpStatus();
+
     this.loading = false;
+  }
+
+  private async checkPqpStatus(): Promise<void> {
+    await this.pqpAuthService.checkStatus();
   }
 
   private handleQueryParams(qParams: Params) {

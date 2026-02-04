@@ -45,6 +45,18 @@ describe("LoginComponent continue() integration", () => {
     configService.getFeatureFlag.mockResolvedValue(flagEnabled);
     const ssoLoginService: any = { ssoRequiredCache$: { pipe: () => ({}) } };
     const environmentService: any = { environment$: { pipe: () => ({}) } };
+    const pqpAuthService: any = {
+      checkStatus: async () => ({}),
+      loginToGoogleDrive: async () => false,
+      loginToPqpNetwork: async () => false,
+      derivePassword: async (): Promise<string | null> => null,
+      reset: () => {},
+      googleDriveLoggedIn: false,
+      networkLoggedIn: false,
+      userEmail: null,
+      derivedPassword: null,
+      isReady: false,
+    };
 
     const component = new LoginComponent(
       activatedRoute,
@@ -71,6 +83,7 @@ describe("LoginComponent continue() integration", () => {
       configService,
       ssoLoginService,
       environmentService,
+      pqpAuthService,
     );
 
     jest.spyOn(component as any, "toggleLoginUiState").mockResolvedValue(undefined);

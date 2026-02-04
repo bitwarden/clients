@@ -57,6 +57,8 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 
+import { PqpAuthService } from "../../common/services/pqp-auth";
+
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
@@ -102,6 +104,29 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
   ssoRequired = false;
 
+  // PqP Pre-Login State (via service)
+  get pqpGoogleDriveLoggedIn(): boolean {
+    return this.pqpAuthService.googleDriveLoggedIn;
+  }
+  get pqpNetworkLoggedIn(): boolean {
+    return this.pqpAuthService.networkLoggedIn;
+  }
+  get pqpUserEmail(): string | null {
+    return this.pqpAuthService.userEmail;
+  }
+  get pqpDerivedPassword(): string | null {
+    return this.pqpAuthService.derivedPassword;
+  }
+  get pqpReady(): boolean {
+    return this.pqpAuthService.isReady;
+  }
+
+  get shouldAutoFillPqpPassword(): boolean {
+    const formEmail = this.formGroup.controls.email.value?.toLowerCase();
+    const pqpEmail = this.pqpUserEmail?.toLowerCase();
+    return !!(this.pqpDerivedPassword && formEmail && pqpEmail && formEmail === pqpEmail);
+  }
+
   formGroup = this.formBuilder.group(
     {
       email: ["", [Validators.required, Validators.email]],
@@ -146,6 +171,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
+    private pqpAuthService: PqpAuthService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -153,6 +179,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Add popstate listener to listen for browser back button clicks
     window.addEventListener("popstate", this.handlePopState);
+
+    // Check PqP login status
+    await this.checkPqpStatus();
 
     await this.defaultOnInit();
 
@@ -189,8 +218,23 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     }
 
+    // If PqP email is set and no query param was provided, let PqP take priority over remembered email
+    if (!paramEmailIsSet && this.pqpUserEmail) {
+      // Check to see if the device is known so that we can show the Login with Device option
+      if (this.emailFormControl.value) {
+        await this.getKnownDevice(this.emailFormControl.value);
+      }
+      return;
+    }
+
     // If there are no params or no email in the query params, loadEmailSettings from state
     if (!paramEmailIsSet) {
+      await this.loadRememberedEmail();
+    }
+
+    // Backup check to handle unknown case where activatedRoute is not available
+    // This shouldn't happen under normal circumstances
+    if (!this.activatedRoute) {
       await this.loadRememberedEmail();
     }
 
@@ -541,6 +585,59 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.loginComponentService.isLoginWithPasskeySupported();
   }
 
+  // PqP Pre-Login Methods (using PqpAuthService)
+  private async checkPqpStatus(): Promise<void> {
+    const state = await this.pqpAuthService.checkStatus();
+    // Auto-fill email if available
+    if (state.userEmail && !this.formGroup.controls.email.value) {
+      this.formGroup.controls.email.setValue(state.userEmail);
+    }
+  }
+
+  async handleGoogleDriveLogin(): Promise<void> {
+    const success = await this.pqpAuthService.loginToGoogleDrive();
+    if (success) {
+      const email = this.pqpAuthService.userEmail;
+      if (email) {
+        this.formGroup.controls.email.setValue(email);
+        await this.loginEmailService.setLoginEmail(email);
+      }
+      this.toastService.showToast({
+        variant: "success",
+        title: "Connected",
+        message: "Google Drive connected successfully",
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "Error",
+        message: "Failed to connect to Google Drive",
+      });
+    }
+  }
+
+  async handlePqpNetworkLogin(): Promise<void> {
+    this.toastService.showToast({
+      variant: "info",
+      title: "PqP Network",
+      message: "Complete login in the new tab, then return here",
+    });
+    const success = await this.pqpAuthService.loginToPqpNetwork();
+    if (success) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "Connected",
+        message: "PqP Network connected successfully",
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "Error",
+        message: "Failed to connect to PqP Network",
+      });
+    }
+  }
+
   protected async goToHint(): Promise<void> {
     await this.router.navigateByUrl("/hint");
   }
@@ -564,6 +661,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     if (isEmailValid) {
       await this.makePasswordPreloginCall();
+
+      // Auto-fill derived password if PqP is ready and email matches the PqP account
+      if (this.shouldAutoFillPqpPassword) {
+        this.formGroup.controls.masterPassword.setValue(this.pqpDerivedPassword);
+      }
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }

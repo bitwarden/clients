@@ -12,6 +12,50 @@
 
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
+    <!-- PqP Pre-Login Section -->
+    <div
+      class="tw-mb-4 tw-p-3 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background-alt"
+      *ngIf="!pqpReady"
+    >
+      <p class="tw-text-sm tw-font-medium tw-mb-2 tw-text-main">Connect to PqP Network</p>
+      <div class="tw-grid tw-gap-2">
+        <button
+          type="button"
+          bitButton
+          block
+          [buttonType]="pqpGoogleDriveLoggedIn ? 'secondary' : 'primary'"
+          (click)="handleGoogleDriveLogin()"
+          [disabled]="pqpGoogleDriveLoggedIn"
+        >
+          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpGoogleDriveLoggedIn" aria-hidden="true"></i>
+          {{
+            pqpGoogleDriveLoggedIn
+              ? pqpUserEmail || "Google Drive Connected"
+              : "Login to Google Drive"
+          }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          block
+          [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
+          (click)="handlePqpNetworkLogin()"
+          [disabled]="pqpNetworkLoggedIn"
+        >
+          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
+          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Login to PqP Network" }}
+        </button>
+      </div>
+    </div>
+
+    <!-- PqP Ready Indicator -->
+    <div class="tw-mb-4 tw-p-2 tw-bg-success-100 tw-rounded-lg tw-text-center" *ngIf="pqpReady">
+      <span class="tw-text-success-700 tw-text-sm tw-font-medium">
+        <i class="bwi bwi-check-circle tw-mr-1" aria-hidden="true"></i>
+        PqP Connected: {{ pqpUserEmail }}
+      </span>
+    </div>
+
     <!-- Email Address input -->
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
@@ -22,6 +66,7 @@
         appAutofocus
         (input)="onEmailInput($event)"
         (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
+        [class.tw-pointer-events-none]="pqpUserEmail"
       />
     </bit-form-field>
 
@@ -88,7 +133,13 @@
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <input
+        type="password"
+        formControlName="masterPassword"
+        bitInput
+        #masterPasswordInputRef
+        [class.tw-pointer-events-none]="shouldAutoFillPqpPassword"
+      />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
