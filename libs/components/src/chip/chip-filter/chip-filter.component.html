@@ -1,48 +1,39 @@
-<div bitBaseChip startIcon="{{ icon }}" [disabled]="disabled()">
-  <!-- Primary button -->
-  <button
-    type="button"
-    class="tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-ps-3 last:tw-pe-3 [&:not(:last-child)]:tw-pe-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
-    data-fvw-target
-    [ngClass]="{
-      'tw-cursor-not-allowed': disabled(),
-      'group-hover/chip-select:tw-text-secondary-700': !selectedOption && !disabled(),
-    }"
-    [bitMenuTriggerFor]="menu"
-    [disabled]="disabled()"
-    [title]="label"
-    #menuTrigger="menuTrigger"
-    (click)="setMenuWidth()"
-    #chipSelectButton
-  >
-    <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
-      <i class="bwi !tw-text-[inherit]" [ngClass]="icon" aria-hidden="true"></i>
-      <span class="tw-truncate">{{ label }}</span>
-    </span>
-    @if (!selectedOption) {
-      <i
-        class="bwi tw-mt-0.5"
-        [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
-        aria-hidden="true"
-      ></i>
-    }
-  </button>
-
-  <!-- Close button -->
-  @if (selectedOption) {
+<div class="!tw-ps-0" bitBaseChip [variant]="!selectedOption ? 'subtle' : 'primary'">
+  <bit-chip-content>
+    <!-- Primary button -->
     <button
+      bitChipContent
+      [startIcon]="icon"
+      [endIcon]="
+        !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
+      "
       type="button"
-      [attr.aria-label]="'removeItem' | i18n: label"
+      class="tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
+      [class.tw-ps-1.5]="size() === 'small'"
+      [class.tw-ps-2]="size() === 'large'"
+      [class.tw-cursor-not-allowed]="disabled()"
+      data-fvw-target
+      [bitMenuTriggerFor]="menu"
       [disabled]="disabled()"
-      class="tw-bg-transparent hover:tw-bg-hover-contrast tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-me-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast hover:disabled:tw-bg-transparent"
-      [ngClass]="{
-        'tw-cursor-not-allowed': disabled(),
-      }"
-      (click)="clear()"
+      [title]="label"
+      #menuTrigger="menuTrigger"
+      (click)="setMenuWidth()"
+      #chipSelectButton
     >
-      <i class="bwi bwi-close tw-text-xs" aria-hidden="true"></i>
+      <span class="tw-truncate">{{ label }}</span>
     </button>
-  }
+    @if (selectedOption) {
+      <!-- Close button -->
+      <button
+        bitChipDismissButton
+        chipEnd
+        type="button"
+        [attr.aria-label]="'removeItem' | i18n: label"
+        [disabled]="disabled()"
+        (click)="clear()"
+      ></button>
+    }
+  </bit-chip-content>
 </div>
 
 <bit-menu #menu (closed)="handleMenuClosed()">
@@ -97,3 +88,13 @@
     </div>
   }
 </bit-menu>
+
+<!-- <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
+  <i class="bwi !tw-text-[inherit]" [ngClass]="icon" aria-hidden="true"></i>
+  <span class="tw-truncate">{{ label }}</span>
+</span> -->
+
+<!-- @if (!selectedOption) {
+<i class="bwi tw-mt-0.5" [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'" aria-hidden="true"
+  chipEnd></i>
+} -->

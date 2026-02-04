@@ -9,7 +9,7 @@ import { ChipSize, ChipSizes } from "./base-chip.directive";
  * and layout with support for icons, custom content slots, and dismiss functionality.
  */
 @Component({
-  selector: "bit-chip-content",
+  selector: "bit-chip-content, [bitChipContent]",
   standalone: true,
   templateUrl: "./chip-content.component.html",
   imports: [IconComponent],
