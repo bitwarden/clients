@@ -444,10 +444,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     try {
-      const result = await this.memberActionsService.bulkReinvite(
-        organization,
-        filteredUsers.map((user) => user.id as UserId),
-      );
+      const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
+
+      if (result.canceled) {
+        return;
+      }
 
       if (!result.successful) {
         throw new Error();

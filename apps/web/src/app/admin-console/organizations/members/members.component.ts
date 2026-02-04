@@ -407,10 +407,11 @@ export class vNextMembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(
-      organization,
-      filteredUsers.map((user) => user.id as UserId),
-    );
+    const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
+
+    if (result.canceled) {
+      return;
+    }
 
     if (!result.successful) {
       this.validationService.showError(result.failed);
@@ -447,6 +448,8 @@ export class vNextMembersComponent {
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
+
+    this.dataSource().uncheckAllUsers();
   }
 
   async bulkConfirm(organization: Organization) {
