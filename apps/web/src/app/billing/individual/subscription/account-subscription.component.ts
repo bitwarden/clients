@@ -1,9 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  resource,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
@@ -39,6 +47,12 @@ import {
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
 
+import {
+  PremiumOrgUpgradeDialogComponent,
+  PremiumOrgUpgradeDialogParams,
+  PremiumOrgUpgradeDialogResult,
+} from "../upgrade/premium-org-upgrade-dialog/premium-org-upgrade-dialog.component";
+
 @Component({
   templateUrl: "./account-subscription.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +78,8 @@ export class AccountSubscriptionComponent {
   private router = inject(Router);
   private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private toastService = inject(ToastService);
+  private apiService = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   readonly subscription = resource({
     loader: async () => {
@@ -209,7 +225,7 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
       case SubscriptionCardActions.UpgradePlan:
-        // TODO: Implement upgrade plan navigation
+        await this.openUpgradeDialog();
         break;
     }
   };
@@ -287,5 +303,29 @@ export class AccountSubscriptionComponent {
         break;
       }
     }
+  };
+
+  openUpgradeDialog = async (): Promise<PremiumOrgUpgradeDialogResult> => {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      return null;
+    }
+    const hasPremiumPersonally = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+    );
+
+    if (!hasPremiumPersonally) {
+      return null;
+    }
+
+    const dialogParams: PremiumOrgUpgradeDialogParams = {
+      account,
+      redirectOnCompletion: true,
+    };
+
+    const dialogRef = PremiumOrgUpgradeDialogComponent.open(this.dialogService, {
+      data: dialogParams,
+    });
+    return await firstValueFrom(dialogRef.closed);
   };
 }
