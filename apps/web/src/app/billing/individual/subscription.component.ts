@@ -23,7 +23,7 @@ export class SubscriptionComponent implements OnInit {
     accountService: AccountService,
   ) {
     this.hasPremium$ = accountService.activeAccount$.pipe(
-      switchMap((account) => billingAccountProfileStateService.hasPremiumPersonally$(account.id)),
+      switchMap((account) => billingAccountProfileStateService.canViewSubscription$(account.id)),
     );
   }
 
