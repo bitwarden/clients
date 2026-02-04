@@ -2315,7 +2315,7 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["pendingShadowDomCheck"] = false;
 
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest.spyOn(collectAutofillContentService as any, "checkForNewShadowRoots");
+      jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
@@ -2325,7 +2325,7 @@ describe("CollectAutofillContentService", () => {
       // Fast-forward time to trigger the debounced check
       jest.advanceTimersByTime(500);
 
-      expect(collectAutofillContentService["checkForNewShadowRoots"]).toHaveBeenCalled();
+      expect(domQueryService.checkForNewShadowRoots).toHaveBeenCalled();
       expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
 
       jest.useRealTimers();
