@@ -1,26 +1,11 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  Inject,
-  OnInit,
-  signal,
-} from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import {
-  BusinessSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
@@ -32,11 +17,6 @@ import {
 
 import { AccountBillingClient, PreviewInvoiceClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
-import { PremiumOrgUpgradeComponent } from "../premium-org-upgrade/premium-org-upgrade.component";
-import {
-  PremiumOrgUpgradePaymentComponent,
-  PremiumOrgUpgradePaymentResult,
-} from "../premium-org-upgrade-payment/premium-org-upgrade-payment.component";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
 import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {
@@ -48,8 +28,6 @@ export const UnifiedUpgradeDialogStatus = {
   Closed: "closed",
   UpgradedToPremium: "upgradedToPremium",
   UpgradedToFamilies: "upgradedToFamilies",
-  UpgradedToTeams: "upgradedToTeams",
-  UpgradedToEnterprise: "upgradedToEnterprise",
 } as const;
 
 export const UnifiedUpgradeDialogStep = {
@@ -79,7 +57,7 @@ export type UnifiedUpgradeDialogResult = {
 export type UnifiedUpgradeDialogParams = {
   account: Account;
   initialStep?: UnifiedUpgradeDialogStep | null;
-  selectedPlan?: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId | null;
+  selectedPlan?: PersonalSubscriptionPricingTierId | null;
   planSelectionStepTitleOverride?: string | null;
   hideContinueWithoutUpgradingButton?: boolean;
   redirectOnCompletion?: boolean;
@@ -95,8 +73,6 @@ export type UnifiedUpgradeDialogParams = {
     UpgradeAccountComponent,
     UpgradePaymentComponent,
     BillingServicesModule,
-    PremiumOrgUpgradeComponent,
-    PremiumOrgUpgradePaymentComponent,
   ],
   providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./unified-upgrade-dialog.component.html",
@@ -106,43 +82,11 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected readonly step = signal<UnifiedUpgradeDialogStep>(
     UnifiedUpgradeDialogStep.PlanSelection,
   );
-  protected readonly selectedPlan = signal<
-    PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId | null
-  >(null);
+  protected readonly selectedPlan = signal<PersonalSubscriptionPricingTierId | null>(null);
   protected readonly account = signal<Account | null>(null);
   protected readonly planSelectionStepTitleOverride = signal<string | null>(null);
   protected readonly hideContinueWithoutUpgradingButton = signal<boolean>(false);
   protected readonly hasPremiumInterest = signal(false);
-  protected readonly hasPremiumPersonally = toSignal(
-    this.billingAccountProfileStateService.hasPremiumPersonally$(this.params.account.id),
-    { initialValue: false },
-  );
-  protected readonly premiumToOrganizationUpgradeEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
-    { initialValue: false },
-  );
-  protected readonly showPremiumOrgFlow = computed(
-    () => this.hasPremiumPersonally() && this.premiumToOrganizationUpgradeEnabled(),
-  );
-  /**
-   * Type-safe computed signal for app-upgrade-payment component.
-   * Returns the selected plan only when it's a personal plan (Premium or Families).
-   * When showPremiumOrgFlow is true, this will be null since business plans are handled separately.
-   */
-  protected readonly selectedPersonalPlanId = computed<PersonalSubscriptionPricingTierId | null>(
-    () => {
-      const plan = this.selectedPlan();
-      // When showing premium org flow, user is selecting business plans (Teams/Enterprise)
-      // Standard flow uses personal plans (Premium/Families)
-      if (
-        plan === PersonalSubscriptionPricingTierIds.Premium ||
-        plan === PersonalSubscriptionPricingTierIds.Families
-      ) {
-        return plan;
-      }
-      return null;
-    },
-  );
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
@@ -152,8 +96,6 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
     private router: Router,
     private premiumInterestStateService: PremiumInterestStateService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -179,9 +121,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     }
   }
 
-  protected onPlanSelected(
-    planId: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId,
-  ): void {
+  protected onPlanSelected(planId: PersonalSubscriptionPricingTierId): void {
     this.selectedPlan.set(planId);
     this.nextStep();
   }
@@ -210,17 +150,9 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     }
   }
 
-  protected async onComplete(
-    result: UpgradePaymentResult | PremiumOrgUpgradePaymentResult,
-  ): Promise<void> {
+  protected async onComplete(result: UpgradePaymentResult): Promise<void> {
     let status: UnifiedUpgradeDialogStatus;
     switch (result.status) {
-      case "upgradedToTeams":
-        status = UnifiedUpgradeDialogStatus.UpgradedToTeams;
-        break;
-      case "upgradedToEnterprise":
-        status = UnifiedUpgradeDialogStatus.UpgradedToEnterprise;
-        break;
       case "upgradedToPremium":
         status = UnifiedUpgradeDialogStatus.UpgradedToPremium;
         break;
@@ -248,14 +180,10 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     if (
       this.params.redirectOnCompletion &&
       (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToEnterprise ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToTeams)
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies)
     ) {
       const redirectUrl =
-        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToEnterprise ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToTeams
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
           ? `/organizations/${result.organizationId}/vault`
           : "/settings/subscription/user-subscription";
       await this.router.navigate([redirectUrl]);
