@@ -10,7 +10,6 @@ import {
   SendAccessToken,
   emailRequired,
   emailAndOtpRequiredEmailSent,
-  emailInvalid,
   otpInvalid,
   passwordHashB64Required,
   passwordHashB64Invalid,
@@ -218,7 +217,6 @@ export class SendReceiveCommand extends DownloadCommand {
     options: OptionValues,
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
-    let email: string | null = null;
 
     const currentResponse = await this.getTokenWithRetry(id);
 
@@ -239,7 +237,17 @@ export class SendReceiveCommand extends DownloadCommand {
     } else if (currentResponse.kind === "unexpected_server") {
       return Response.error("Server error: " + JSON.stringify(currentResponse.error));
     } else if (currentResponse.kind === "unknown") {
-      return Response.error("Unknown error: " + currentResponse.error);
+      return Response.error("Error: " + currentResponse.error);
+    }
+
+    // Handle authentication based on type
+    if (authType === AuthType.Email) {
+      if (!this.canInteract) {
+        return Response.badRequest("Email verification required. Run in interactive mode.");
+      }
+      return await this.handleEmailOtpAuth(id, keyArray, apiUrl, options);
+    } else if (authType === AuthType.Password) {
+      return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
     }
 
     // The auth layer will immediately return a token for Sends with AuthType.None
@@ -248,85 +256,62 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.error("Could not determine authentication requirements");
     }
 
-    while (true) {
-      if (authType === AuthType.Email) {
-        const result = await this.handleEmailOtpAuth(id, email);
-        if (result instanceof Response) {
-          return result;
-        }
-        if (result instanceof SendAccessToken) {
-          return await this.accessSendWithToken(result, keyArray, apiUrl, options);
-        }
-        if (typeof result === "string") {
-          email = result;
-        }
-      } else if (authType === AuthType.Password) {
-        return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
-      } else {
-        break;
-      }
-    }
-
     return Response.error("Authentication failed");
+  }
+
+  private async promptForEmail(): Promise<string> {
+    const emailAnswer = await inquirer.createPromptModule({ output: process.stderr })({
+      type: "input",
+      name: "email",
+      message: "Enter your email address:",
+      validate: (input: string) => {
+        if (!input || !input.includes("@")) {
+          return "Please enter a valid email address";
+        }
+        return true;
+      },
+    });
+    return emailAnswer.email;
   }
 
   private async handleEmailOtpAuth(
     sendId: string,
-    existingEmail: string | null,
-  ): Promise<SendAccessToken | Response | string> {
-    if (!this.canInteract) {
-      return Response.badRequest("Email verification required. Run in interactive mode.");
-    }
+    keyArray: Uint8Array,
+    apiUrl: string,
+    options: OptionValues,
+  ): Promise<Response> {
+    const email = await this.promptForEmail();
 
-    let email = existingEmail;
-    if (!email) {
-      const emailAnswer = await inquirer.createPromptModule({ output: process.stderr })({
-        type: "input",
-        name: "email",
-        message: "Enter your email address:",
-        validate: (input: string) => {
-          if (!input || !input.includes("@")) {
-            return "Please enter a valid email address";
-          }
-          return true;
-        },
-      });
-      email = emailAnswer.email;
-    }
-
-    // Use retry helper for expired token handling
     const emailResponse = await this.getTokenWithRetry(sendId, {
       kind: "email",
       email: email,
     });
 
     if (emailResponse instanceof SendAccessToken) {
-      return emailResponse;
+      return await this.accessSendWithToken(emailResponse, keyArray, apiUrl, options);
     }
 
     if (emailResponse.kind === "expected_server") {
       const error = emailResponse.error;
 
       if (emailAndOtpRequiredEmailSent(error)) {
-        return await this.promptForOtp(sendId, email);
-      } else if (emailInvalid(error)) {
-        // Match web client behavior: transition to OTP prompt even with invalid email
-        return await this.promptForOtp(sendId, email);
+        const promptResponse = await this.promptForOtp(sendId, email);
+        if (promptResponse instanceof SendAccessToken) {
+          return await this.accessSendWithToken(promptResponse, keyArray, apiUrl, options);
+        } else {
+          return promptResponse;
+        }
       }
     } else if (emailResponse.kind === "unexpected_server") {
       return Response.error("Server error: " + JSON.stringify(emailResponse.error));
     } else if (emailResponse.kind === "unknown") {
-      return Response.error("Unknown error: " + emailResponse.error);
+      return Response.error("Error: " + emailResponse.error);
     }
 
     return Response.error("Failed to verify email");
   }
 
   private async promptForOtp(sendId: string, email: string): Promise<SendAccessToken | Response> {
-    if (!this.canInteract) {
-      return Response.badRequest("Email verification required. Run in interactive mode");
-    }
-
     const otpAnswer = await inquirer.createPromptModule({ output: process.stderr })({
       type: "input",
       name: "otp",
@@ -353,7 +338,7 @@ export class SendReceiveCommand extends DownloadCommand {
     } else if (otpResponse.kind === "unexpected_server") {
       return Response.error("Server error: " + JSON.stringify(otpResponse.error));
     } else if (otpResponse.kind === "unknown") {
-      return Response.error("Unknown error: " + otpResponse.error);
+      return Response.error("Error: " + otpResponse.error);
     }
 
     return Response.error("Failed to verify OTP");
@@ -409,7 +394,7 @@ export class SendReceiveCommand extends DownloadCommand {
     } else if (response.kind === "unexpected_server") {
       return Response.error("Server error: " + JSON.stringify(response.error));
     } else if (response.kind === "unknown") {
-      return Response.error("Unknown error: " + response.error);
+      return Response.error("Error: " + response.error);
     }
 
     return Response.error("Authentication failed");
