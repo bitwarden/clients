@@ -31,11 +31,7 @@
         (click)="markAppsAsCritical()"
       >
         <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
-        @if (selectedUrls().size > 0) {
-          {{ "markAppAsCriticalWithCount" | i18n: selectedUrls().size }}
-        } @else {
-          {{ "markAppAsCritical" | i18n }}
-        }
+        {{ "markAppAsCritical" | i18n }}
       </button>
     </div>
 
