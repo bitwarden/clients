@@ -32,12 +32,13 @@ import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils"
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { MemberAccessLoadingComponent } from "./components/member-access-loading.component";
-import { MemberAccessProgress, MemberAccessProgressState } from "./model/member-access-progress";
-import { userReportItemHeaders } from "./model/view/member-access-export.view";
-import { MemberAccessReportView } from "./model/view/member-access-report.view";
-import { MemberAccessReportServiceAbstraction } from "./services/member-access-report.abstraction";
-import { MemberAccessReportService } from "./services/member-access-report.service";
+import { MemberAccessProgress, MemberAccessProgressState } from "../model/member-access-progress";
+import { userReportItemHeaders } from "../model/view/member-access-export.view";
+import { MemberAccessReportView } from "../model/view/member-access-report.view";
+import { MemberAccessReportServiceAbstraction } from "../services/member-access-report.abstraction";
+import { MemberAccessReportService } from "../services/member-access-report.service";
+
+import { MemberAccessLoadingComponent } from "./member-access-loading.component";
 
 /** Minimum time (ms) to display each progress step for smooth UX */
 const STEP_DISPLAY_DELAY_MS = 250;

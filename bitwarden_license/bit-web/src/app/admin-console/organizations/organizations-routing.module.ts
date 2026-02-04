@@ -70,7 +70,7 @@ const routes: Routes = [
           {
             path: "member-access-report",
             loadComponent: () =>
-              import("../../dirt/reports/member-access-report/member-access-report.component").then(
+              import("../../dirt/reports/member-access-report/components/member-access-report.component").then(
                 (mod) => mod.MemberAccessReportComponent,
               ),
             data: {
