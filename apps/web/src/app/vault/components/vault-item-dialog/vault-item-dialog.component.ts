@@ -230,6 +230,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   /**
