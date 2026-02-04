@@ -10,6 +10,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -146,6 +147,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   const mockAccountBillingClient = mock<AccountBillingClient>();
   const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
+  const mockOrganizationService = mock<OrganizationService>();
   const mockI18nService = { t: jest.fn((key: string, ...params: any[]) => key) };
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
@@ -188,6 +190,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       credit: 10.0,
       newPlanProratedMonths: 1,
     });
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
       of([mockTeamsPlan]),
@@ -219,6 +222,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           provide: SyncService,
           useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
         },
+        { provide: OrganizationService, useValue: mockOrganizationService },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
