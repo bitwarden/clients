@@ -396,6 +396,35 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
     });
   });
 
+  describe("Premium and Feature Flag Requirements", () => {
+    it("should close dialog immediately if user does not have premium", async () => {
+      mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(false));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      await createComponentWithDialogData(defaultDialogData, true);
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
+    });
+
+    it("should close dialog immediately if feature flag is not enabled", async () => {
+      mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await createComponentWithDialogData(defaultDialogData, true);
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
+    });
+
+    it("should close dialog immediately if user does not have premium and feature flag is not enabled", async () => {
+      mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(false));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await createComponentWithDialogData(defaultDialogData, true);
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
+    });
+  });
+
   describe("Child Component Display Logic", () => {
     describe("Plan Selection Step", () => {
       it("should display app-premium-org-upgrade on plan selection step", async () => {
