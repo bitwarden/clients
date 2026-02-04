@@ -363,7 +363,7 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "focusOnHeader");
+      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "handleAutofocus");
 
       await component["changeMode"]("view");
 
