@@ -14,13 +14,12 @@
         </div>
         <div class="tw-pb-8 !tw-mx-0">
           <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
-          <app-enter-payment-method
-            [showBankAccount]="true"
-            [showAccountCredit]="false"
-            [group]="formGroup.controls.paymentForm"
-            [includeBillingAddress]="false"
-            #paymentComponent
-          ></app-enter-payment-method>
+          <app-display-payment-method
+            [subscriber]="subscriber()"
+            [paymentMethod]="paymentMethod()"
+            [hideHeader]="true"
+          >
+          </app-display-payment-method>
           <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
           <app-enter-billing-address
             [group]="formGroup.controls.billingAddress"
@@ -40,7 +39,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="loading() || !isFormValid()"
+        [disabled]="loading() || !formGroup.valid"
         type="submit"
       >
         {{ "upgrade" | i18n }}

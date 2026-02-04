@@ -23,9 +23,11 @@ import {
   Observable,
   from,
   defer,
+  map,
+  tap,
 } from "rxjs";
 
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   BusinessSubscriptionPricingTier,
@@ -41,11 +43,14 @@ import { LogService } from "@bitwarden/logging";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
 import {
   EnterBillingAddressComponent,
-  EnterPaymentMethodComponent,
+  DisplayPaymentMethodComponent,
   getBillingAddressFromForm,
 } from "../../../payment/components";
+import { MaskedPaymentMethod } from "../../../payment/types";
+import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
 
 import {
   PremiumOrgUpgradeService,
@@ -75,7 +80,7 @@ export type PremiumOrgUpgradePaymentResult = {
     SharedModule,
     CartSummaryComponent,
     ButtonModule,
-    EnterPaymentMethodComponent,
+    DisplayPaymentMethodComponent,
     EnterBillingAddressComponent,
   ],
   providers: [PremiumOrgUpgradeService],
@@ -108,18 +113,20 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected goBack = output<void>();
   protected complete = output<PremiumOrgUpgradePaymentResult>();
 
-  readonly paymentComponent = viewChild.required(EnterPaymentMethodComponent);
   readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
 
   protected formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),
-    paymentForm: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
   protected readonly selectedPlan = signal<PremiumOrgUpgradePlanDetails | null>(null);
   protected readonly loading = signal(true);
   protected readonly upgradeToMessage = signal("");
+
+  // Signals for payment method
+  protected readonly paymentMethod = signal<MaskedPaymentMethod | null>(null);
+  protected readonly subscriber = signal<BitwardenSubscriber | null>(null);
 
   protected readonly planMembershipMessage = computed<string>(
     () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
@@ -143,6 +150,15 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
     initialValue: this.getEmptyInvoicePreview(),
   });
+
+  private readonly i18nService = inject(I18nService);
+  private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
+  private readonly subscriberBillingClient = inject(SubscriberBillingClient);
+  private readonly accountService = inject(AccountService);
 
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
@@ -179,13 +195,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       },
     };
   });
-
-  private readonly i18nService = inject(I18nService);
-  private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
-  private readonly toastService = inject(ToastService);
-  private readonly logService = inject(LogService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
 
   async ngOnInit(): Promise<void> {
     // If the selected plan is Personal Premium, no upgrade is needed
@@ -231,6 +240,22 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         }
       });
 
+    this.accountService.activeAccount$
+      .pipe(
+        mapAccountToSubscriber,
+        switchMap((subscriber) =>
+          from(this.subscriberBillingClient.getPaymentMethod(subscriber)).pipe(
+            map((paymentMethod) => ({ subscriber, paymentMethod })),
+          ),
+        ),
+        tap(({ subscriber, paymentMethod }) => {
+          this.subscriber.set(subscriber);
+          this.paymentMethod.set(paymentMethod);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     this.loading.set(false);
   }
 
@@ -240,7 +265,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   protected submit = async (): Promise<void> => {
-    if (!this.isFormValid()) {
+    if (!this.formGroup.valid) {
       this.formGroup.markAllAsTouched();
       return;
     }
@@ -265,10 +290,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
   };
 
-  protected isFormValid(): boolean {
-    return this.formGroup.valid && this.paymentComponent().validate();
-  }
-
   private async processUpgrade(): Promise<PremiumOrgUpgradePaymentResult> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
     const organizationName = this.formGroup.value?.organizationName;
@@ -279,12 +300,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
     if (!organizationName) {
       throw new Error("Organization name is required");
-    }
-
-    const paymentMethod = await this.paymentComponent().tokenize();
-
-    if (!paymentMethod) {
-      throw new Error("Payment method is required");
     }
 
     const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
