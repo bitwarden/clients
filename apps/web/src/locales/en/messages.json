@@ -241,6 +241,15 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
+  "markAppAsCriticalWithCount": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "markAsCritical": {
     "message": "Mark as critical"
   },
