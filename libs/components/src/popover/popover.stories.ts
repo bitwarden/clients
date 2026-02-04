@@ -9,7 +9,7 @@ import { LinkModule } from "../link";
 import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { PopoverTriggerForDirective } from "./popover-trigger-for.directive";
+import { PopoverAnchorDirective } from "./popover-anchor.directive";
 import { PopoverModule } from "./popover.module";
 
 export default {
@@ -64,7 +64,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<PopoverTriggerForDirective>;
+type Story = StoryObj<PopoverAnchorDirective>;
 
 const popoverContent = /*html*/ `
   <bit-popover [title]="'Example Title'" #myPopover>
@@ -542,4 +542,37 @@ export const AboveEnd: Story = {
 
     await userEvent.click(button);
   },
+};
+
+export const ProgrammaticControl: Story = {
+  render: () => ({
+    props: {
+      isOpen: false,
+      openPopover() {
+        this.isOpen = true;
+      },
+    },
+    template: /*html*/ `
+      <div class="tw-h-[400px] tw-mt-44">
+        <div
+          class="tw-p-4 tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-bg-background tw-mb-4"
+          [bitPopoverAnchor]="tourPopover"
+          [(popoverOpen)]="isOpen"
+          #anchorRef="popoverAnchor"
+        >
+          This element can be highlighted in a guided tour
+        </div>
+
+        <button type="button" bitButton buttonType="primary" (click)="openPopover()">
+          Show Tour Step
+        </button>
+      </div>
+
+      <bit-popover [title]="'Tour Step 1'" #tourPopover>
+        <div>This demonstrates programmatic popover control for guided tours.</div>
+        <p class="tw-mt-2 tw-mb-0">The popover can be attached to any element without requiring click interaction.</p>
+        <button type="button" bitButton class="tw-mt-4" (click)="anchorRef.closePopover()">Close</button>
+      </bit-popover>
+      `,
+  }),
 };
