@@ -204,12 +204,15 @@ export class ItemMoreOptionsComponent {
     }
 
     const uris = cipher.login?.uris ?? [];
-    const cipherHasAllExactMatchLoginUris =
-      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
-
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
-    if (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact) {
+    const showExactMatchDialog =
+      uris.length === 0
+        ? uriMatchStrategy === UriMatchStrategy.Exact
+        : // all saved URIs are exact match
+          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
+
+    if (showExactMatchDialog) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
@@ -274,8 +277,7 @@ export class ItemMoreOptionsComponent {
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     )) as UserId;
 
-    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
-    await this.cipherService.updateWithServer(encryptedCipher);
+    await this.cipherService.updateWithServer(cipher, activeUserId);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
@@ -373,7 +375,8 @@ export class ItemMoreOptionsComponent {
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 

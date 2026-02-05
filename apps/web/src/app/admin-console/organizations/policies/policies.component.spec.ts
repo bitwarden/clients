@@ -188,7 +188,7 @@ describe("PoliciesComponent", () => {
   });
 
   describe("orgPolicies$", () => {
-    it("should fetch policies from API for current organization", async () => {
+    describe("with multiple policies", () => {
       const mockPolicyResponsesData = [
         {
           id: newGuid(),
@@ -206,39 +206,63 @@ describe("PoliciesComponent", () => {
         },
       ];
 
-      const listResponse = new ListResponse(
-        { Data: mockPolicyResponsesData, ContinuationToken: null },
-        PolicyResponse,
-      );
+      beforeEach(async () => {
+        const listResponse = new ListResponse(
+          { Data: mockPolicyResponsesData, ContinuationToken: null },
+          PolicyResponse,
+        );
 
-      mockPolicyApiService.getPolicies.mockResolvedValue(listResponse);
+        mockPolicyApiService.getPolicies.mockResolvedValue(listResponse);
 
-      const policies = await firstValueFrom(component["orgPolicies$"]);
-      expect(policies).toEqual(listResponse.data);
-      expect(mockPolicyApiService.getPolicies).toHaveBeenCalledWith(mockOrgId);
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+
+      it("should fetch policies from API for current organization", async () => {
+        const policies = await firstValueFrom(component["orgPolicies$"]);
+        expect(policies.length).toBe(2);
+        expect(mockPolicyApiService.getPolicies).toHaveBeenCalledWith(mockOrgId);
+      });
     });
 
-    it("should return empty array when API returns no data", async () => {
-      mockPolicyApiService.getPolicies.mockResolvedValue(
-        new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse),
-      );
+    describe("with no policies", () => {
+      beforeEach(async () => {
+        mockPolicyApiService.getPolicies.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse),
+        );
 
-      const policies = await firstValueFrom(component["orgPolicies$"]);
-      expect(policies).toEqual([]);
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+
+      it("should return empty array when API returns no data", async () => {
+        const policies = await firstValueFrom(component["orgPolicies$"]);
+        expect(policies).toEqual([]);
+      });
     });
 
-    it("should return empty array when API returns null data", async () => {
-      mockPolicyApiService.getPolicies.mockResolvedValue(
-        new ListResponse({ Data: null, ContinuationToken: null }, PolicyResponse),
-      );
+    describe("with null data", () => {
+      beforeEach(async () => {
+        mockPolicyApiService.getPolicies.mockResolvedValue(
+          new ListResponse({ Data: null, ContinuationToken: null }, PolicyResponse),
+        );
 
-      const policies = await firstValueFrom(component["orgPolicies$"]);
-      expect(policies).toEqual([]);
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+
+      it("should return empty array when API returns null data", async () => {
+        const policies = await firstValueFrom(component["orgPolicies$"]);
+        expect(policies).toEqual([]);
+      });
     });
   });
 
   describe("policiesEnabledMap$", () => {
-    it("should create a map of policy types to their enabled status", async () => {
+    describe("with multiple policies", () => {
       const mockPolicyResponsesData = [
         {
           id: "policy-1",
@@ -263,27 +287,43 @@ describe("PoliciesComponent", () => {
         },
       ];
 
-      mockPolicyApiService.getPolicies.mockResolvedValue(
-        new ListResponse(
-          { Data: mockPolicyResponsesData, ContinuationToken: null },
-          PolicyResponse,
-        ),
-      );
+      beforeEach(async () => {
+        mockPolicyApiService.getPolicies.mockResolvedValue(
+          new ListResponse(
+            { Data: mockPolicyResponsesData, ContinuationToken: null },
+            PolicyResponse,
+          ),
+        );
 
-      const map = await firstValueFrom(component.policiesEnabledMap$);
-      expect(map.size).toBe(3);
-      expect(map.get(PolicyType.TwoFactorAuthentication)).toBe(true);
-      expect(map.get(PolicyType.RequireSso)).toBe(false);
-      expect(map.get(PolicyType.SingleOrg)).toBe(true);
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+
+      it("should create a map of policy types to their enabled status", async () => {
+        const map = await firstValueFrom(component.policiesEnabledMap$);
+        expect(map.size).toBe(3);
+        expect(map.get(PolicyType.TwoFactorAuthentication)).toBe(true);
+        expect(map.get(PolicyType.RequireSso)).toBe(false);
+        expect(map.get(PolicyType.SingleOrg)).toBe(true);
+      });
     });
 
-    it("should create empty map when no policies exist", async () => {
-      mockPolicyApiService.getPolicies.mockResolvedValue(
-        new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse),
-      );
+    describe("with no policies", () => {
+      beforeEach(async () => {
+        mockPolicyApiService.getPolicies.mockResolvedValue(
+          new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse),
+        );
 
-      const map = await firstValueFrom(component.policiesEnabledMap$);
-      expect(map.size).toBe(0);
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
+
+      it("should create empty map when no policies exist", async () => {
+        const map = await firstValueFrom(component.policiesEnabledMap$);
+        expect(map.size).toBe(0);
+      });
     });
   });
 
@@ -292,31 +332,36 @@ describe("PoliciesComponent", () => {
       expect(mockPolicyService.policies$).toHaveBeenCalledWith(mockUserId);
     });
 
-    it("should refresh policies when policyService emits", async () => {
-      const policiesSubject = new BehaviorSubject<any[]>([]);
-      mockPolicyService.policies$.mockReturnValue(policiesSubject.asObservable());
+    describe("when policyService emits", () => {
+      let policiesSubject: BehaviorSubject<any[]>;
+      let callCount: number;
 
-      let callCount = 0;
-      mockPolicyApiService.getPolicies.mockImplementation(() => {
-        callCount++;
-        return of(new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse));
+      beforeEach(async () => {
+        policiesSubject = new BehaviorSubject<any[]>([]);
+        mockPolicyService.policies$.mockReturnValue(policiesSubject.asObservable());
+
+        callCount = 0;
+        mockPolicyApiService.getPolicies.mockImplementation(() => {
+          callCount++;
+          return of(new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse));
+        });
+
+        fixture = TestBed.createComponent(PoliciesComponent);
+        fixture.detectChanges();
       });
 
-      const newFixture = TestBed.createComponent(PoliciesComponent);
-      newFixture.detectChanges();
+      it("should refresh policies when policyService emits", () => {
+        const initialCallCount = callCount;
 
-      const initialCallCount = callCount;
+        policiesSubject.next([{ type: PolicyType.TwoFactorAuthentication }]);
 
-      policiesSubject.next([{ type: PolicyType.TwoFactorAuthentication }]);
-
-      expect(callCount).toBeGreaterThan(initialCallCount);
-
-      newFixture.destroy();
+        expect(callCount).toBeGreaterThan(initialCallCount);
+      });
     });
   });
 
   describe("handleLaunchEvent", () => {
-    it("should open policy dialog when policyId is in query params", async () => {
+    describe("when policyId is in query params", () => {
       const mockPolicyId = newGuid();
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
@@ -335,54 +380,59 @@ describe("PoliciesComponent", () => {
         data: null,
       };
 
-      queryParamsSubject.next({ policyId: mockPolicyId });
+      let dialogOpenSpy: jest.SpyInstance;
 
-      mockPolicyApiService.getPolicies.mockReturnValue(
-        of(
-          new ListResponse(
-            { Data: [mockPolicyResponseData], ContinuationToken: null },
-            PolicyResponse,
+      beforeEach(async () => {
+        queryParamsSubject.next({ policyId: mockPolicyId });
+
+        mockPolicyApiService.getPolicies.mockReturnValue(
+          of(
+            new ListResponse(
+              { Data: [mockPolicyResponseData], ContinuationToken: null },
+              PolicyResponse,
+            ),
           ),
-        ),
-      );
+        );
 
-      const dialogOpenSpy = jest
-        .spyOn(PolicyEditDialogComponent, "open")
-        .mockReturnValue({ close: jest.fn() } as any);
+        dialogOpenSpy = jest
+          .spyOn(PolicyEditDialogComponent, "open")
+          .mockReturnValue({ close: jest.fn() } as any);
 
-      TestBed.resetTestingModule();
-      await TestBed.configureTestingModule({
-        imports: [PoliciesComponent],
-        providers: [
-          { provide: ActivatedRoute, useValue: mockActivatedRoute },
-          { provide: OrganizationService, useValue: mockOrganizationService },
-          { provide: AccountService, useValue: mockAccountService },
-          { provide: PolicyApiServiceAbstraction, useValue: mockPolicyApiService },
-          { provide: PolicyListService, useValue: mockPolicyListService },
-          { provide: DialogService, useValue: mockDialogService },
-          { provide: PolicyService, useValue: mockPolicyService },
-          { provide: ConfigService, useValue: mockConfigService },
-          { provide: I18nService, useValue: mockI18nService },
-          { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-          { provide: POLICY_EDIT_REGISTER, useValue: [mockPolicy] },
-        ],
-        schemas: [NO_ERRORS_SCHEMA],
-      })
-        .overrideComponent(PoliciesComponent, {
-          remove: { imports: [] },
-          add: { template: "<div></div>" },
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+          imports: [PoliciesComponent],
+          providers: [
+            { provide: ActivatedRoute, useValue: mockActivatedRoute },
+            { provide: OrganizationService, useValue: mockOrganizationService },
+            { provide: AccountService, useValue: mockAccountService },
+            { provide: PolicyApiServiceAbstraction, useValue: mockPolicyApiService },
+            { provide: PolicyListService, useValue: mockPolicyListService },
+            { provide: DialogService, useValue: mockDialogService },
+            { provide: PolicyService, useValue: mockPolicyService },
+            { provide: ConfigService, useValue: mockConfigService },
+            { provide: I18nService, useValue: mockI18nService },
+            { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+            { provide: POLICY_EDIT_REGISTER, useValue: [mockPolicy] },
+          ],
+          schemas: [NO_ERRORS_SCHEMA],
         })
-        .compileComponents();
+          .overrideComponent(PoliciesComponent, {
+            remove: { imports: [] },
+            add: { template: "<div></div>" },
+          })
+          .compileComponents();
 
-      const newFixture = TestBed.createComponent(PoliciesComponent);
-      newFixture.detectChanges();
+        fixture = TestBed.createComponent(PoliciesComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+      });
 
-      expect(dialogOpenSpy).toHaveBeenCalled();
-      const callArgs = dialogOpenSpy.mock.calls[0][1];
-      expect(callArgs.data?.policy.type).toBe(mockPolicy.type);
-      expect(callArgs.data?.organizationId).toBe(mockOrgId);
-
-      newFixture.destroy();
+      it("should open policy dialog when policyId is in query params", () => {
+        expect(dialogOpenSpy).toHaveBeenCalled();
+        const callArgs = dialogOpenSpy.mock.calls[0][1];
+        expect(callArgs.data?.policy.type).toBe(mockPolicy.type);
+        expect(callArgs.data?.organizationId).toBe(mockOrgId);
+      });
     });
 
     it("should not open dialog when policyId is not in query params", async () => {

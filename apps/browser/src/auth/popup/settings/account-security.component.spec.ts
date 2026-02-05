@@ -8,6 +8,7 @@ import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
 import { LockService } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -124,6 +125,12 @@ describe("AccountSecurityComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
         { provide: ValidationService, useValue: validationService },
+        { provide: LockService, useValue: lockService },
+        {
+          provide: AutomaticUserConfirmationService,
+          useValue: mock<AutomaticUserConfirmationService>(),
+        },
+        { provide: ConfigService, useValue: configService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
       ],
     })

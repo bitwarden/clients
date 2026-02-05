@@ -73,7 +73,6 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           A random password
           <button
             bitLink
-            linkType="primary"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             type="button"

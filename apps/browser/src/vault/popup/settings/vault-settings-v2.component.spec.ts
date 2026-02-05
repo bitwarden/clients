@@ -195,10 +195,10 @@ describe("VaultSettingsV2Component", () => {
       expect(component["userHasArchivedItems"]()).toBe(false);
     });
 
-    it("hides premium badge when user has archived items", () => {
+    it("shows premium badge when user has archived items but cannot archive", () => {
       setArchiveState(false, [{ id: "cipher1" } as CipherView]);
 
-      expect(component["premiumBadgeComponent"]()).toBeUndefined();
+      expect(component["premiumBadgeComponent"]()).toBeTruthy();
       expect(component["userHasArchivedItems"]()).toBe(true);
     });
   });

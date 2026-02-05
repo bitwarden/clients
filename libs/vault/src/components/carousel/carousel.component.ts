@@ -22,7 +22,6 @@ import { take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, IconButtonModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
@@ -41,7 +40,6 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
     ButtonModule,
     VaultCarouselContentComponent,
     VaultCarouselButtonComponent,
-    I18nPipe,
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {

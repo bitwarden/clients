@@ -16,7 +16,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
-import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
 describe("LoginApprovalDialogComponent", () => {
@@ -69,10 +68,6 @@ describe("LoginApprovalDialogComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
-        {
-          provide: LoginApprovalDialogComponentServiceAbstraction,
-          useValue: mock<LoginApprovalDialogComponentServiceAbstraction>(),
-        },
       ],
     }).compileComponents();
 

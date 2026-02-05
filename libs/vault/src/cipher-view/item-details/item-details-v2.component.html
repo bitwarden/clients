@@ -1,7 +1,7 @@
 <section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-card>
     <div
-      class="tw-flex tw-place-items-center"
+      class="tw-flex tw-place-items-center tw-w-full"
       [ngClass]="{
         'tw-mb-2': allItems.length > 0,
       }"
@@ -10,9 +10,16 @@
       <div class="tw-flex tw-items-center tw-justify-center" style="width: 40px; height: 40px">
         <app-vault-icon [cipher]="cipher()" [coloredIcon]="true"></app-vault-icon>
       </div>
-      <h2 bitTypography="h4" class="tw-ml-2 tw-mt-2 tw-select-auto" data-testid="item-name">
+      <h2
+        bitTypography="h4"
+        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1"
+        data-testid="item-name"
+      >
         {{ cipher().name }}
       </h2>
+      @if (showArchiveBadge()) {
+        <span bitBadge> {{ "archived" | i18n }} </span>
+      }
     </div>
     <ng-container>
       <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">
