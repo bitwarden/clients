@@ -1,29 +1,29 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { ChipComponent } from "./chip.component";
+import { ChipActionComponent } from "./chip-action.component";
 
 export default {
-  title: "Component Library/Chip",
-  component: ChipComponent,
+  title: "Component Library/Chip Action",
+  component: ChipActionComponent,
   decorators: [
     moduleMetadata({
-      imports: [ChipComponent],
+      imports: [ChipActionComponent],
     }),
   ],
   args: {
     disabled: false,
     dismissible: false,
   },
-} as Meta<ChipComponent>;
+} as Meta<ChipActionComponent>;
 
-type Story = StoryObj<ChipComponent>;
+type Story = StoryObj<ChipActionComponent>;
 
 export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
       <button 
-        bitChip
+        bitChipAction
         [disabled]="disabled"
         [dismissible]="dismissible"
       >
@@ -40,7 +40,7 @@ export const WithStartIcon: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <button bitChip [startIcon]="startIcon">
+      <button bitChipAction [startIcon]="startIcon">
         Status
       </button>
     `,
@@ -54,7 +54,7 @@ export const WithEndIcon: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <button bitChip [endIcon]="endIcon">
+      <button bitChipAction [endIcon]="endIcon">
         Status
       </button>
     `,
@@ -68,7 +68,7 @@ export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <button bitChip
+      <button bitChipAction
         [disabled]="disabled"
         [startIcon]="startIcon">
         Inactive Chip
@@ -87,22 +87,22 @@ export const AllVariants: Story = {
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Primary</h3>
-          <button bitChip variant="primary" startIcon="bwi-check">Default</button>
+          <button bitChipAction variant="primary" startIcon="bwi-check">Default</button>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Subtle</h3>
-          <button bitChip variant="subtle" startIcon="bwi-folder">Default</button>
+          <button bitChipAction variant="subtle" startIcon="bwi-folder">Default</button>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary</h3>
-          <button bitChip variant="accent-primary" startIcon="bwi-info-circle">Default</button>
+          <button bitChipAction variant="accent-primary" startIcon="bwi-info-circle">Default</button>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Secondary</h3>
-          <button bitChip variant="accent-secondary" startIcon="bwi-exclamation-triangle">Default</button>
+          <button bitChipAction variant="accent-secondary" startIcon="bwi-exclamation-triangle">Default</button>
         </div>
       </div>
     `,
@@ -116,20 +116,20 @@ export const AllSizes: Story = {
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Small</h3>
           <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
-            <button bitChip size="small" variant="primary" startIcon="bwi-tag">Primary</button>
-            <button bitChip size="small" variant="subtle" startIcon="bwi-tag">Subtle</button>
-            <button bitChip size="small" variant="accent-primary" startIcon="bwi-tag">Accent Primary</button>
-            <button bitChip size="small" variant="accent-secondary" startIcon="bwi-tag">Accent Secondary</button>
+            <button bitChipAction size="small" variant="primary" startIcon="bwi-tag">Primary</button>
+            <button bitChipAction size="small" variant="subtle" startIcon="bwi-tag">Subtle</button>
+            <button bitChipAction size="small" variant="accent-primary" startIcon="bwi-tag">Accent Primary</button>
+            <button bitChipAction size="small" variant="accent-secondary" startIcon="bwi-tag">Accent Secondary</button>
           </div>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Large</h3>
           <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
-            <button bitChip size="large" variant="primary" startIcon="bwi-tag">Primary</button>
-            <button bitChip size="large" variant="subtle" startIcon="bwi-tag">Subtle</button>
-            <button bitChip size="large" variant="accent-primary" startIcon="bwi-tag">Accent Primary</button>
-            <button bitChip size="large" variant="accent-secondary" startIcon="bwi-tag">Accent Secondary</button>
+            <button bitChipAction size="large" variant="primary" startIcon="bwi-tag">Primary</button>
+            <button bitChipAction size="large" variant="subtle" startIcon="bwi-tag">Subtle</button>
+            <button bitChipAction size="large" variant="accent-primary" startIcon="bwi-tag">Accent Primary</button>
+            <button bitChipAction size="large" variant="accent-secondary" startIcon="bwi-tag">Accent Secondary</button>
           </div>
         </div>
       </div>

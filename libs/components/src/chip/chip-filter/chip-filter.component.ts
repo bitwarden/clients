@@ -29,9 +29,9 @@ import { ChipContentComponent } from "../chip-content.component";
 import { ChipDismissButtonComponent } from "../chip-dismiss-button.component";
 
 /** An option that will be showed in the overlay menu of `ChipFilterComponent` */
-export type ChipSelectOption<T> = Option<T> & {
+export type ChipFilterOption<T> = Option<T> & {
   /** The options that will be nested under this option */
-  children?: ChipSelectOption<T>[];
+  children?: ChipFilterOption<T>[];
 };
 
 /**
@@ -75,7 +75,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly placeholderIcon = input<string>();
 
   /** The select options to render */
-  readonly options = input.required<ChipSelectOption<T>[]>();
+  readonly options = input.required<ChipFilterOption<T>[]>();
 
   /** Disables the entire chip (template input) */
   protected readonly disabledInput = input<boolean, unknown>(false, {
@@ -111,7 +111,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /** Tree constructed from `this.options` */
-  private rootTree?: ChipSelectOption<T> | null;
+  private rootTree?: ChipFilterOption<T> | null;
 
   /** Store the pending value when writeValue is called before options are initialized */
   private pendingValue?: T;
@@ -146,10 +146,10 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /** Options that are currently displayed in the menu */
-  protected renderedOptions?: ChipSelectOption<T> | null;
+  protected renderedOptions?: ChipFilterOption<T> | null;
 
   /** The option that is currently selected by the user */
-  protected selectedOption?: ChipSelectOption<T> | null;
+  protected selectedOption?: ChipFilterOption<T> | null;
 
   /**
    * The initial calculated width of the menu when it opens, which is used to
@@ -185,12 +185,12 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
     this.menuWidth = null;
   }
 
-  protected selectOption(option: ChipSelectOption<T>, _event: MouseEvent) {
+  protected selectOption(option: ChipFilterOption<T>, _event: MouseEvent) {
     this.selectedOption = option;
     this.onChange(option);
   }
 
-  protected viewOption(option: ChipSelectOption<T>, event: MouseEvent) {
+  protected viewOption(option: ChipFilterOption<T>, event: MouseEvent) {
     this.renderedOptions = option;
 
     /** We don't want the menu to close */
@@ -206,15 +206,15 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /**
-   * Find a `ChipSelectOption` by its value
+   * Find a `ChipFilterOption` by its value
    * @param tree the root tree to search
    * @param value the option value to look for
-   * @returns the `ChipSelectOption` associated with the provided value, or null if not found
+   * @returns the `ChipFilterOption` associated with the provided value, or null if not found
    */
   private findOption(
-    tree: ChipSelectOption<T> | null | undefined,
+    tree: ChipFilterOption<T> | null | undefined,
     value: T,
-  ): ChipSelectOption<T> | null {
+  ): ChipFilterOption<T> | null {
     if (!tree) {
       return null;
     }
@@ -234,23 +234,23 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /** Maps child options to their parent, to enable navigating up the tree */
-  private childParentMap = new Map<ChipSelectOption<T>, ChipSelectOption<T>>();
+  private childParentMap = new Map<ChipFilterOption<T>, ChipFilterOption<T>>();
 
   /** For each descendant in the provided `tree`, update `_parent` to be a refrence to the parent node. This allows us to navigate back in the menu. */
-  private markParents(tree: ChipSelectOption<T>) {
+  private markParents(tree: ChipFilterOption<T>) {
     tree.children?.forEach((child) => {
       this.childParentMap.set(child, tree);
       this.markParents(child);
     });
   }
 
-  protected getParent(option: ChipSelectOption<T>): ChipSelectOption<T> | null | undefined {
+  protected getParent(option: ChipFilterOption<T>): ChipFilterOption<T> | null | undefined {
     return this.childParentMap.get(option);
   }
 
-  private initializeRootTree(options: ChipSelectOption<T>[]) {
+  private initializeRootTree(options: ChipFilterOption<T>[]) {
     /** Since the component is just initialized with an array of options, we need to construct the root tree. */
-    const root: ChipSelectOption<T> = {
+    const root: ChipFilterOption<T> = {
       children: options,
       value: null,
     };

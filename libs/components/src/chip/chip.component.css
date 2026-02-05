@@ -1,9 +1,0 @@
-/* Minimal base styling - Tailwind classes are primary, this is just for structure */
-.bit-chip-content {
-  @apply tw-flex tw-items-center tw-gap-1.5 tw-px-3 tw-py-1;
-}
-
-.bit-chip-dismiss-button {
-  @apply tw-rounded-full tw-w-5 tw-h-5 tw-min-w-5 tw-min-h-5 tw-flex tw-items-center tw-justify-center;
-  @apply tw-bg-transparent tw-border-transparent;
-}
