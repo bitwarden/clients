@@ -77,7 +77,6 @@ import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/pop
 import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
 
-
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
  * extension ContextMenu. See context-menu-clicked-handler.ts for more information.
@@ -356,9 +355,13 @@ export class ViewV2Component {
       return;
     }
 
-    const cipher = this.cipher;
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
+      return;
+    }
 
-    const uris = cipher.login?.uris ?? [];
+    const uris = this.cipher.login?.uris ?? [];
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
     const showExactMatchDialog =
@@ -390,14 +393,14 @@ export class ViewV2Component {
     }
 
     if (await this._domainMatched()) {
-      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
       return;
     }
 
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUrls: this.cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });
@@ -408,13 +411,10 @@ export class ViewV2Component {
       case AutofillConfirmationDialogResult.Canceled:
         return;
       case AutofillConfirmationDialogResult.AutofilledOnly:
-        await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+        await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
         return;
       case AutofillConfirmationDialogResult.AutofillAndUrlAdded:
-        await this.vaultPopupAutofillService.doAutofillAndSave(cipher, true, true);
-        // await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
-        //if we keep the extension open when autofilling and saving, the uri doesn't show up and it doesn't add to the autofill container in the view
-        //closing when autofilling fixes both of these.
+        await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, true, true);
         return;
     }
   }
