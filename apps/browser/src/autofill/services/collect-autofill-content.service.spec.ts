@@ -2635,6 +2635,219 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("cache validation", () => {
+    describe("validateCachedElement", () => {
+      it("returns false and removes element from cache for disconnected elements", () => {
+        const element = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+        const autofillField = createAutofillFieldMock({ opid: "__0" });
+        collectAutofillContentService["autofillFieldElements"].set(element, autofillField);
+
+        const result = collectAutofillContentService["validateCachedElement"](element);
+
+        expect(result).toBe(false);
+        expect(collectAutofillContentService["autofillFieldElements"].has(element)).toBe(false);
+      });
+
+      it("returns true for connected elements", () => {
+        const element = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+        document.body.appendChild(element);
+        const autofillField = createAutofillFieldMock({ opid: "__0" });
+        collectAutofillContentService["autofillFieldElements"].set(element, autofillField);
+
+        const result = collectAutofillContentService["validateCachedElement"](element);
+
+        expect(result).toBe(true);
+        expect(collectAutofillContentService["autofillFieldElements"].has(element)).toBe(true);
+
+        element.remove();
+      });
+    });
+
+    describe("validateCache", () => {
+      it("removes disconnected form elements from cache", () => {
+        const form = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+        const autofillForm = createAutofillFormMock({ opid: "__form__0" });
+        collectAutofillContentService["_autofillFormElements"].set(form, autofillForm);
+
+        const removed = collectAutofillContentService["validateCache"]();
+
+        expect(removed).toBe(1);
+        expect(collectAutofillContentService["_autofillFormElements"].size).toBe(0);
+      });
+
+      it("removes disconnected field elements from cache", () => {
+        const input = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+        const autofillField = createAutofillFieldMock({ opid: "__0" });
+        collectAutofillContentService["autofillFieldElements"].set(input, autofillField);
+
+        const removed = collectAutofillContentService["validateCache"]();
+
+        expect(removed).toBe(1);
+        expect(collectAutofillContentService["autofillFieldElements"].size).toBe(0);
+      });
+
+      it("removes both form and field elements in single pass", () => {
+        const form = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+        const input = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+        const autofillForm = createAutofillFormMock({ opid: "__form__0" });
+        const autofillField = createAutofillFieldMock({ opid: "__0" });
+
+        collectAutofillContentService["_autofillFormElements"].set(form, autofillForm);
+        collectAutofillContentService["autofillFieldElements"].set(input, autofillField);
+
+        const removed = collectAutofillContentService["validateCache"]();
+
+        expect(removed).toBe(2);
+        expect(collectAutofillContentService["_autofillFormElements"].size).toBe(0);
+        expect(collectAutofillContentService["autofillFieldElements"].size).toBe(0);
+      });
+
+      it("does not remove connected elements", () => {
+        const form = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+        const input = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+        document.body.appendChild(form);
+        document.body.appendChild(input);
+
+        const autofillForm = createAutofillFormMock({ opid: "__form__0" });
+        const autofillField = createAutofillFieldMock({ opid: "__0" });
+
+        collectAutofillContentService["_autofillFormElements"].set(form, autofillForm);
+        collectAutofillContentService["autofillFieldElements"].set(input, autofillField);
+
+        const removed = collectAutofillContentService["validateCache"]();
+
+        expect(removed).toBe(0);
+        expect(collectAutofillContentService["_autofillFormElements"].size).toBe(1);
+        expect(collectAutofillContentService["autofillFieldElements"].size).toBe(1);
+
+        form.remove();
+        input.remove();
+      });
+    });
+
+    describe("processMutations", () => {
+      it("calls validateCache before processing mutations", async () => {
+        jest
+          .spyOn(collectAutofillContentService as any, "setupMutationObserver")
+          .mockImplementationOnce(() => {
+            collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
+          });
+        const validateCacheSpy = jest.spyOn(collectAutofillContentService as any, "validateCache");
+
+        await collectAutofillContentService.getPageDetails();
+
+        // Simulate a mutation
+        const mockMutation = mock<MutationRecord>();
+        collectAutofillContentService["mutationsQueue"] = [[mockMutation]];
+        collectAutofillContentService["processMutations"]();
+
+        expect(validateCacheSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("listener cleanup", () => {
+    describe("setupTopLayerCandidateListener", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(collectAutofillContentService as any, "setupMutationObserver")
+          .mockImplementationOnce(() => {
+            collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
+          });
+      });
+
+      it("tracks listeners with AbortController in WeakMap", async () => {
+        const dialog = document.createElement("dialog");
+        document.body.appendChild(dialog);
+
+        await collectAutofillContentService.getPageDetails();
+        collectAutofillContentService["setupTopLayerCandidateListener"](dialog);
+
+        expect(collectAutofillContentService["topLayerListeners"].has(dialog)).toBe(true);
+
+        dialog.remove();
+      });
+
+      it("does not add duplicate listeners", async () => {
+        const dialog = document.createElement("dialog");
+        document.body.appendChild(dialog);
+
+        await collectAutofillContentService.getPageDetails();
+        collectAutofillContentService["setupTopLayerCandidateListener"](dialog);
+        const firstController = collectAutofillContentService["topLayerListeners"].get(dialog);
+
+        collectAutofillContentService["setupTopLayerCandidateListener"](dialog);
+        const secondController = collectAutofillContentService["topLayerListeners"].get(dialog);
+
+        expect(firstController).toBe(secondController);
+
+        dialog.remove();
+      });
+    });
+
+    describe("deleteCachedAutofillElement", () => {
+      it("aborts event listeners when element is deleted from cache", () => {
+        const dialog = document.createElement("dialog") as ElementWithOpId<HTMLElement>;
+        const controller = new AbortController();
+        const abortSpy = jest.spyOn(controller, "abort");
+
+        collectAutofillContentService["topLayerListeners"].set(dialog, controller);
+        collectAutofillContentService["autofillFieldElements"].set(
+          dialog as any,
+          createAutofillFieldMock({ opid: "__0" }),
+        );
+
+        collectAutofillContentService["deleteCachedAutofillElement"](dialog as any);
+
+        expect(abortSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("processMutationRecord", () => {
+    it("skips processing for disconnected mutation targets", () => {
+      const element = document.createElement("div");
+      const mutation = {
+        target: element,
+        type: "attributes",
+        attributeName: "class",
+      } as MutationRecord;
+
+      const handleTopLayerChangesSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "handleTopLayerChanges",
+      );
+
+      collectAutofillContentService["processMutationRecord"](mutation);
+
+      // Should exit early, not call handleTopLayerChanges
+      expect(handleTopLayerChangesSpy).not.toHaveBeenCalled();
+    });
+
+    it("processes mutations for connected elements", () => {
+      const element = document.createElement("div");
+      document.body.appendChild(element);
+
+      const mutation = {
+        target: element,
+        type: "attributes",
+        attributeName: "class",
+      } as MutationRecord;
+
+      const handleTopLayerChangesSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "handleTopLayerChanges",
+      );
+
+      collectAutofillContentService["processMutationRecord"](mutation);
+
+      // Should process mutation
+      expect(handleTopLayerChangesSpy).toHaveBeenCalledWith(mutation);
+
+      element.remove();
+    });
+  });
+
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");

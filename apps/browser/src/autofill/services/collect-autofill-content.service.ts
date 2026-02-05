@@ -48,6 +48,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private currentLocationHref = "";
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
+  private topLayerListeners: WeakMap<Element, AbortController> = new WeakMap();
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
@@ -1007,6 +1008,20 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.noFieldsFound = false;
 
+    // Abort all top-layer listeners before clearing caches
+    for (const [element] of this._autofillFormElements) {
+      const controller = this.topLayerListeners.get(element);
+      if (controller) {
+        controller.abort();
+      }
+    }
+    for (const [element] of this.autofillFieldElements) {
+      const controller = this.topLayerListeners.get(element);
+      if (controller) {
+        controller.abort();
+      }
+    }
+
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
 
@@ -1018,6 +1033,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
+    // Clean stale entries BEFORE processing
+    this.validateCache();
+
     const queueLength = this.mutationsQueue.length;
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
@@ -1067,6 +1085,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private processMutationRecord(mutation: MutationRecord) {
+    // Early exit: skip if mutation target no longer in DOM
+    if (mutation.target instanceof Element && !mutation.target.isConnected) {
+      return; // Target removed, no need to process
+    }
+
     this.handleTopLayerChanges(mutation);
 
     if (
@@ -1089,13 +1112,26 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.ownedExperienceTagNames = ownedTags;
 
       if (!ownedTags.includes(element.tagName)) {
-        element.addEventListener("toggle", (event: ToggleEvent) => {
-          if (event.newState === "open") {
-            // Add a slight delay (but faster than a user's reaction), to ensure the layer
-            // positioning happens after any triggered toggle has completed.
-            setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
-          }
-        });
+        // Check if listener already exists
+        if (this.topLayerListeners.has(element)) {
+          return; // Already listening
+        }
+
+        // Create AbortController for cleanup
+        const controller = new AbortController();
+        this.topLayerListeners.set(element, controller);
+
+        element.addEventListener(
+          "toggle",
+          (event: ToggleEvent) => {
+            if (event.newState === "open") {
+              // Add a slight delay (but faster than a user's reaction), to ensure the layer
+              // positioning happens after any triggered toggle has completed.
+              setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+            }
+          },
+          { signal: controller.signal },
+        ); // Auto-cleanup when aborted
 
         this.autofillOverlayContentService.refreshMenuLayerPosition();
       }
@@ -1238,6 +1274,52 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Validates if a cached element still exists in the document.
+   * Removes stale cache entries for disconnected elements.
+   *
+   * @param element - Element to validate
+   * @returns true if element is connected to DOM, false if stale
+   */
+  private validateCachedElement(element: HTMLElement): boolean {
+    // Fast path: element.isConnected is instant
+    if (!element.isConnected) {
+      this.deleteCachedAutofillElement(
+        element as ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Validates all cached elements and removes stale entries.
+   * Called before processing mutations to clean up disconnected elements.
+   *
+   * @returns Count of stale entries removed
+   */
+  private validateCache(): number {
+    let removedCount = 0;
+
+    // Validate form elements
+    for (const [element] of this._autofillFormElements) {
+      if (!element.isConnected) {
+        this._autofillFormElements.delete(element);
+        removedCount++;
+      }
+    }
+
+    // Validate field elements
+    for (const [element] of this.autofillFieldElements) {
+      if (!element.isConnected) {
+        this.autofillFieldElements.delete(element);
+        removedCount++;
+      }
+    }
+
+    return removedCount;
+  }
+
+  /**
    * Deletes any cached autofill elements that have been
    * removed from the DOM.
    * @param {ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>} element
@@ -1246,6 +1328,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private deleteCachedAutofillElement(
     element: ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>,
   ) {
+    // Abort any event listeners attached to this element
+    const controller = this.topLayerListeners.get(element);
+    if (controller) {
+      controller.abort();
+      // WeakMap will auto-cleanup when element GC'd
+    }
+
     if (elementIsFormElement(element) && this._autofillFormElements.has(element)) {
       this._autofillFormElements.delete(element);
       return;
