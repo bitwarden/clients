@@ -48,6 +48,7 @@ import {
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 
+import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
@@ -56,7 +57,6 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
-import { AccountSwitcherV2Component } from "./layout/account-switcher/account-switcher-v2.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
 import { SendV2Component } from "./tools/send-v2/send-v2.component";

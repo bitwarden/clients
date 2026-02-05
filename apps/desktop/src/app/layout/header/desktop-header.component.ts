@@ -8,7 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
-import { AccountSwitcherV2Component } from "../account-switcher/account-switcher-v2.component";
+import { AccountSwitcherV2Component } from "../../../auth/components/account-switcher/account-switcher-v2.component";
 
 @Component({
   selector: "app-header",
