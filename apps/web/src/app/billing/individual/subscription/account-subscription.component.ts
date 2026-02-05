@@ -81,7 +81,7 @@ export class AccountSubscriptionComponent {
         return await redirectToPremiumPage();
       }
       const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+        this.billingAccountProfileStateService.canViewSubscription$(account.id),
       );
       if (!hasPremiumPersonally) {
         return await redirectToPremiumPage();
