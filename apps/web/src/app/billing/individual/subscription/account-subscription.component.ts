@@ -80,13 +80,11 @@ export class AccountSubscriptionComponent {
       if (!account) {
         return await redirectToPremiumPage();
       }
-      const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.canViewSubscription$(account.id),
-      );
-      if (!hasPremiumPersonally) {
+      const subscription = await this.accountBillingClient.getSubscription();
+      if (!subscription) {
         return await redirectToPremiumPage();
       }
-      return await this.accountBillingClient.getSubscription();
+      return subscription;
     },
   });
 
