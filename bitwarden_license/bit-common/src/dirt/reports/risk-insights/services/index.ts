@@ -4,6 +4,7 @@ export * from "./api/risk-insights-api.service";
 export * from "./api/security-tasks-api.service";
 export * from "./domain/critical-apps.service";
 export * from "./domain/password-health.service";
+export * from "./domain/risk-insights-compression.service";
 export * from "./domain/risk-insights-encryption.service";
 export * from "./domain/risk-insights-orchestrator.service";
 export * from "./domain/risk-insights-report.service";
