@@ -62,10 +62,8 @@ export type PremiumOrgUpgradeDialogResult = {
  * In order to open the dialog to a specific step, you must provide the `initialStep` parameter and a `selectedPlan` if the step is `Payment`.
  *
  * @property {Account} account - The user account information.
- * @property {PremiumOrgUpgradeDialogStep | null} PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan (Families, Teams, or Enterprise)y.
- * @property {BusinessSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
- * @property {string | null} [dialogTitleMessageOverride] - Optional custom i18n key to override the default dialog title.
- * @property {boolean} [hideContinueWithoutUpgradingButton] - Whether to hide the "Continue without upgrading" button.
+ * @property {PremiumOrgUpgradeDialogStep | null} [initialStep] - The initial step to open the dialog to, if any.
+ * @property {BusinessSubscriptionPricingTierId | PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
  * @property {boolean} [redirectOnCompletion] - Whether to redirect after successful upgrade to organization vault.
  */
 export type PremiumOrgUpgradeDialogParams = {
