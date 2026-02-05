@@ -89,7 +89,7 @@
                   *ngIf="showBulkReinviteUsers"
                 >
                   <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                  {{ "reinviteSelected" | i18n }}
+                  {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
                 </button>
                 <button
                   type="button"
