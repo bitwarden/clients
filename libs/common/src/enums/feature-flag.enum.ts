@@ -20,6 +20,7 @@ export enum FeatureFlag {
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
+  PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -142,6 +143,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
+  [FeatureFlag.ChangeEmailNewAuthenticationApis]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
