@@ -1,6 +1,8 @@
-import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
+import { catchError, EMPTY, from, iif, map, Observable, of, switchMap, throwError } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   CipherId,
   OrganizationId,
@@ -31,6 +33,7 @@ export class RiskInsightsReportService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
     private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private configService: ConfigService,
   ) {}
 
   filterApplicationsByCritical(
@@ -152,59 +155,68 @@ export class RiskInsightsReportService {
     organizationId: OrganizationId,
     userId: UserId,
   ): Observable<RiskInsightsData | null> {
-    return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
-      switchMap((response) => {
-        if (!response) {
-          // Return an empty report and summary if response is falsy
-          return of(null as unknown as RiskInsightsData);
-        }
-        if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
-          return throwError(() => new Error("Report key not found"));
-        }
-        if (!response.reportData) {
-          return throwError(() => new Error("Report data not found"));
-        }
-        if (!response.summaryData) {
-          return throwError(() => new Error("Summary data not found"));
-        }
-        if (!response.applicationData) {
-          return throwError(() => new Error("Application data not found"));
-        }
-
-        return from(
-          this.riskInsightsEncryptionService.decryptRiskInsightsReport(
-            {
-              organizationId,
-              userId,
-            },
-            {
-              encryptedReportData: response.reportData,
-              encryptedSummaryData: response.summaryData,
-              encryptedApplicationData: response.applicationData,
-            },
-            response.contentEncryptionKey,
+    return this.configService
+      .getFeatureFlag$(FeatureFlag.PM31747_RiskInsightsDownloadEndpoint)
+      .pipe(
+        switchMap((useDownloadEndpoint) =>
+          iif(
+            () => useDownloadEndpoint,
+            this.riskInsightsApiService.downloadRiskInsightsReport$(organizationId),
+            this.riskInsightsApiService.getRiskInsightsReport$(organizationId),
           ),
-        ).pipe(
-          map((decryptedData) => {
-            const newReport: RiskInsightsData = {
-              id: response.id as OrganizationReportId,
-              reportData: decryptedData.reportData,
-              summaryData: decryptedData.summaryData,
-              applicationData: decryptedData.applicationData,
-              creationDate: response.creationDate,
-              contentEncryptionKey: response.contentEncryptionKey,
-            };
-            return newReport;
-          }),
-          catchError((error: unknown) => {
-            return throwError(() => error);
-          }),
-        );
-      }),
-      catchError((error: unknown) => {
-        return throwError(() => error);
-      }),
-    );
+        ),
+        switchMap((response) => {
+          if (!response) {
+            // Return an empty report and summary if response is falsy
+            return of(null as unknown as RiskInsightsData);
+          }
+          if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
+            return throwError(() => new Error("Report key not found"));
+          }
+          if (!response.reportData) {
+            return throwError(() => new Error("Report data not found"));
+          }
+          if (!response.summaryData) {
+            return throwError(() => new Error("Summary data not found"));
+          }
+          if (!response.applicationData) {
+            return throwError(() => new Error("Application data not found"));
+          }
+
+          return from(
+            this.riskInsightsEncryptionService.decryptRiskInsightsReport(
+              {
+                organizationId,
+                userId,
+              },
+              {
+                encryptedReportData: response.reportData,
+                encryptedSummaryData: response.summaryData,
+                encryptedApplicationData: response.applicationData,
+              },
+              response.contentEncryptionKey,
+            ),
+          ).pipe(
+            map((decryptedData) => {
+              const newReport: RiskInsightsData = {
+                id: response.id as OrganizationReportId,
+                reportData: decryptedData.reportData,
+                summaryData: decryptedData.summaryData,
+                applicationData: decryptedData.applicationData,
+                creationDate: response.creationDate,
+                contentEncryptionKey: response.contentEncryptionKey,
+              };
+              return newReport;
+            }),
+            catchError((error: unknown) => {
+              return throwError(() => error);
+            }),
+          );
+        }),
+        catchError((error: unknown) => {
+          return throwError(() => error);
+        }),
+      );
   }
 
   isCriticalApplication(
@@ -244,6 +256,7 @@ export class RiskInsightsReportService {
           summaryData: summary,
           applicationData: applications,
         },
+        undefined, // wrappedKey
       ),
     ).pipe(
       map(
@@ -252,32 +265,36 @@ export class RiskInsightsReportService {
           encryptedSummaryData,
           encryptedApplicationData,
           contentEncryptionKey,
-        }) => ({
-          requestPayload: {
-            data: {
-              organizationId: encryptionParameters.organizationId,
-              creationDate: new Date().toISOString(),
-              reportData: encryptedReportData.toSdk(),
-              summaryData: encryptedSummaryData.toSdk(),
-              applicationData: encryptedApplicationData.toSdk(),
-              contentEncryptionKey: contentEncryptionKey.toSdk(),
-              metrics: metrics.toRiskInsightsMetricsData(),
+        }) => {
+          const payload = {
+            requestPayload: {
+              data: {
+                organizationId: encryptionParameters.organizationId,
+                creationDate: new Date().toISOString(),
+                reportData: encryptedReportData.toSdk(),
+                summaryData: encryptedSummaryData.toSdk(),
+                applicationData: encryptedApplicationData.toSdk(),
+                contentEncryptionKey: contentEncryptionKey.toSdk(),
+                metrics: metrics.toRiskInsightsMetricsData(),
+              },
             },
-          },
-          // Keep the original EncString alongside the SDK payload so downstream can return the EncString type.
-          contentEncryptionKey,
-        }),
+            // Keep the original EncString alongside the SDK payload so downstream can return the EncString type.
+            contentEncryptionKey,
+          };
+
+          return payload;
+        },
       ),
-      switchMap(({ requestPayload, contentEncryptionKey }) =>
-        this.riskInsightsApiService
+      switchMap(({ requestPayload, contentEncryptionKey }) => {
+        return this.riskInsightsApiService
           .saveRiskInsightsReport$(requestPayload, encryptionParameters.organizationId)
           .pipe(
             map((response) => ({
               response,
               contentEncryptionKey,
             })),
-          ),
-      ),
+          );
+      }),
       catchError((error: unknown) => {
         return EMPTY;
       }),
