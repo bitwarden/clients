@@ -1,9 +1,9 @@
-import { catchError, from, map, Observable, of, throwError } from "rxjs";
+import { from, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { enrichError, handle404AsNull, timeoutAndEnrichError } from "../../helpers";
 import {
   UpdateRiskInsightsApplicationDataRequest,
   UpdateRiskInsightsApplicationDataResponse,
@@ -29,15 +29,24 @@ export class RiskInsightsApiService {
       true,
     );
     return from(dbResponse).pipe(
-      // As of this change, the server doesn't return a 404 if a report is not found
-      // Handle null response if server returns nothing
+      handle404AsNull(),
       map((response) => (response ? new GetRiskInsightsReportResponse(response) : null)),
-      catchError((error: unknown) => {
-        if (error instanceof ErrorResponse && error.statusCode === 404) {
-          return of(null); // Handle 404 by returning null or an appropriate default value
-        }
-        return throwError(() => error); // Re-throw other errors
-      }),
+    );
+  }
+
+  downloadRiskInsightsReport$(
+    orgId: OrganizationId,
+  ): Observable<GetRiskInsightsReportResponse | null> {
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId.toString()}/latest/download`,
+      null,
+      true,
+      true,
+    );
+    return from(dbResponse).pipe(
+      handle404AsNull(),
+      map((response) => (response ? new GetRiskInsightsReportResponse(response) : null)),
     );
   }
 
@@ -53,7 +62,14 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse).pipe(map((response) => new SaveRiskInsightsReportResponse(response)));
+    return from(dbResponse).pipe(
+      timeoutAndEnrichError(
+        120000,
+        "Request timeout: The server did not respond within 2 minutes. The report may be too large.",
+        "Failed to save risk insights report",
+      ),
+      map((response) => new SaveRiskInsightsReportResponse(response)),
+    );
   }
 
   getRiskInsightsSummary$(
@@ -71,7 +87,10 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse).pipe(map((response) => new GetRiskInsightsSummaryResponse(response)));
+    return from(dbResponse).pipe(
+      enrichError("Failed to get risk insights summary"),
+      map((response) => new GetRiskInsightsSummaryResponse(response)),
+    );
   }
 
   updateRiskInsightsSummary$(
@@ -87,7 +106,9 @@ export class RiskInsightsApiService {
       true,
     );
 
-    return from(dbResponse as Promise<void>);
+    return from(dbResponse as Promise<void>).pipe(
+      enrichError("Failed to update risk insights summary"),
+    );
   }
 
   getRiskInsightsApplicationData$(
@@ -103,6 +124,7 @@ export class RiskInsightsApiService {
     );
 
     return from(dbResponse).pipe(
+      enrichError("Failed to get risk insights application data"),
       map((response) => new GetRiskInsightsApplicationDataResponse(response)),
     );
   }
@@ -121,7 +143,33 @@ export class RiskInsightsApiService {
     );
 
     return from(dbResponse).pipe(
+      enrichError("Failed to update risk insights application data"),
       map((response) => new UpdateRiskInsightsApplicationDataResponse(response)),
+    );
+  }
+
+  getOrganizationGroups$(
+    organizationId: OrganizationId,
+  ): Observable<{ id: string; name: string }[]> {
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/organizations/${organizationId.toString()}/groups`,
+      null,
+      true,
+      true,
+    );
+
+    return from(dbResponse).pipe(
+      enrichError("Failed to get organization groups"),
+      map((response) => {
+        if (response?.data && Array.isArray(response.data)) {
+          return response.data.map((g: { id: string; name: string }) => ({
+            id: g.id,
+            name: g.name,
+          }));
+        }
+        return [];
+      }),
     );
   }
 }
