@@ -68,7 +68,7 @@ export class Fido2AuthenticatorError extends Error {
 }
 
 export interface PublicKeyCredentialDescriptor {
-  id: ArrayBuffer;
+  id: BufferSource;
   transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
   type: "public-key";
 }
