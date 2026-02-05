@@ -33,6 +33,15 @@
         <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
         {{ "markAppAsCritical" | i18n }}
       </button>
+
+      <button
+        type="button"
+        bitIconButton="bwi-download"
+        buttonType="main"
+        [label]="'downloadCSV' | i18n"
+        [disabled]="!dataSource.filteredData.length"
+        (click)="downloadApplicationsCSV()"
+      ></button>
     </div>
 
     <app-table-row-scrollable-m11
