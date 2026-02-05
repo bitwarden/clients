@@ -1,10 +1,10 @@
 import { LogService } from "@bitwarden/logging";
+import { BitwardenClient } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { PolicyService } from "../admin-console/abstractions/policy/policy.service.abstraction";
 import { ConfigService } from "../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
-import { SdkService } from "../platform/abstractions/sdk/sdk.service";
 
 import { LegacyEncryptorProvider } from "./cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "./extension/extension-registry.abstraction";
@@ -29,7 +29,7 @@ export type SystemServiceProvider = {
   readonly environment: PlatformUtilsService;
 
   /** SDK Service */
-  readonly sdk: SdkService;
+  readonly sdk?: BitwardenClient;
 };
 
 /** Constructs a system service provider. */
@@ -41,7 +41,6 @@ export function createSystemServiceProvider(
   logger: LogService,
   environment: PlatformUtilsService,
   configService: ConfigService,
-  sdk: SdkService,
 ): SystemServiceProvider {
   let log: LogProvider;
   if (environment.isDev()) {
@@ -63,6 +62,5 @@ export function createSystemServiceProvider(
     log,
     configService,
     environment,
-    sdk,
   };
 }

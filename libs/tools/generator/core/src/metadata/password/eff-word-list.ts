@@ -3,7 +3,7 @@ import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
-import { SdkPasswordRandomizer } from "../../engine";
+import { PasswordRandomizer, SdkPasswordRandomizer } from "../../engine";
 import { passphraseLeastPrivilege, PassphrasePolicyConstraints } from "../../policies";
 import { GeneratorDependencyProvider } from "../../providers";
 import { CredentialGenerator, PassphraseGenerationOptions } from "../../types";
@@ -30,6 +30,9 @@ const passphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PassphraseGenerationOptions> {
+      if (dependencies.sdk == undefined) {
+        return new PasswordRandomizer(dependencies.randomizer, dependencies.now);
+      }
       return new SdkPasswordRandomizer(dependencies.sdk, dependencies.now);
     },
   },

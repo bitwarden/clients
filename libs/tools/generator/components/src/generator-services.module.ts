@@ -1,10 +1,12 @@
 import { NgModule } from "@angular/core";
+import { from, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -124,7 +126,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     }),
     safeProvider({
       provide: GENERATOR_SERVICE_PROVIDER,
-      useFactory: async (
+      useFactory: (
         system: SystemServiceProvider,
         random: Randomizer,
         encryptor: LegacyEncryptorProvider,
@@ -139,19 +141,25 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           now: Date.now,
         } satisfies UserStateSubjectDependencyProvider;
 
+        const featureFlagObs$ = from(
+          system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
+        );
+        let featureFlag: boolean = false;
+        featureFlagObs$.pipe(take(1)).subscribe((ff) => (featureFlag = ff));
         const metadata = new providers.GeneratorMetadataProvider(
           userStateDeps,
           system,
           Object.values(BuiltIn),
         );
 
+        const sdkService = featureFlag ? system.sdk : undefined;
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
           randomizer: random,
           client: new RestClient(api, i18n),
           i18nService: i18n,
-          sdk: system.sdk,
+          sdk: sdkService,
           now: Date.now,
         };
 

@@ -1110,7 +1110,6 @@ export default class MainBackground {
         this.logService,
         this.platformUtilsService,
         this.configService,
-        this.sdkService,
       ),
     );
 
