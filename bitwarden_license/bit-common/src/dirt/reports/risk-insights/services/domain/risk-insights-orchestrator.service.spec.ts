@@ -1,9 +1,16 @@
 import { mock } from "jest-mock-extended";
 import { of, throwError } from "rxjs";
 
+import {
+  CollectionAdminService,
+  OrganizationUserApiService,
+  OrganizationUserUserDetailsResponse,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -12,7 +19,6 @@ import { LogService } from "@bitwarden/logging";
 import { createNewSummaryData } from "../../helpers";
 import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
 import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
-import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
   mockApplicationData,
   mockEnrichedReportData,
@@ -54,7 +60,9 @@ describe("RiskInsightsOrchestratorService", () => {
   const mockCriticalAppsService = mock<CriticalAppsService>({
     criticalAppsList$: of([]),
   });
+  const mockCollectionAdminService = mock<CollectionAdminService>();
   const mockOrganizationService = mock<OrganizationService>();
+  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
   const mockCipherService = mock<CipherService>();
   const mockMemberCipherDetailsApiService = mock<MemberCipherDetailsApiService>();
   let mockPasswordHealthService: PasswordHealthService;
@@ -62,6 +70,36 @@ describe("RiskInsightsOrchestratorService", () => {
   let mockReportService: RiskInsightsReportService;
   const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>();
   const mockLogService = mock<LogService>();
+
+  // Mock data for V2 dependencies
+  const mockCollectionAdminViews: CollectionAdminView[] = [
+    {
+      id: "coll-1",
+      name: "Collection 1",
+      users: [],
+      groups: [],
+      assigned: false,
+      readOnly: false,
+    } as unknown as CollectionAdminView,
+    {
+      id: "coll-2",
+      name: "Collection 2",
+      users: [],
+      groups: [],
+      assigned: false,
+      readOnly: false,
+    } as unknown as CollectionAdminView,
+  ];
+  const mockOrgUsers: ListResponse<OrganizationUserUserDetailsResponse> = {
+    data: [
+      { id: "user-1", email: "user1@test.com", groups: ["group-1"] },
+      { id: "user-2", email: "user2@test.com", groups: [] },
+    ],
+  } as unknown as ListResponse<OrganizationUserUserDetailsResponse>;
+  const mockGroups: Array<{ id: string; name: string }> = [
+    { id: "group-1", name: "Group 1" },
+    { id: "group-2", name: "Group 2" },
+  ];
 
   beforeEach(() => {
     // Mock pipes from constructor
@@ -77,10 +115,11 @@ describe("RiskInsightsOrchestratorService", () => {
         }),
       ),
     });
-    // Arrange mocks for new flow
-    mockMemberCipherDetailsApiService.getMemberCipherDetails.mockResolvedValue(
-      mockMemberCipherDetailsResponse,
-    );
+
+    // Arrange mocks for V2 flow
+    mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of(mockCollectionAdminViews));
+    mockOrganizationUserApiService.getAllUsers.mockResolvedValue(mockOrgUsers);
+    mockReportApiService.getOrganizationGroups$.mockReturnValue(of(mockGroups));
 
     mockPasswordHealthService = mock<PasswordHealthService>({
       auditPasswordLeaks$: jest.fn(() => of([])),
@@ -93,10 +132,12 @@ describe("RiskInsightsOrchestratorService", () => {
     service = new RiskInsightsOrchestratorService(
       mockAccountService,
       mockCipherService,
+      mockCollectionAdminService,
       mockCriticalAppsService,
       mockLogService,
       mockMemberCipherDetailsApiService,
       mockOrganizationService,
+      mockOrganizationUserApiService,
       mockPasswordHealthService,
       mockReportApiService,
       mockReportService,
@@ -113,10 +154,12 @@ describe("RiskInsightsOrchestratorService", () => {
       const testService = new RiskInsightsOrchestratorService(
         mockAccountService,
         mockCipherService,
+        mockCollectionAdminService,
         mockCriticalAppsService,
         mockLogService,
         mockMemberCipherDetailsApiService,
         mockOrganizationService,
+        mockOrganizationUserApiService,
         mockPasswordHealthService,
         mockReportApiService,
         mockReportService,
@@ -140,7 +183,7 @@ describe("RiskInsightsOrchestratorService", () => {
   });
 
   describe("generateReport", () => {
-    it("should generate report using member ciphers and password health, then save and emit ReportState", (done) => {
+    it("should generate report using V2 frontend mapping, then save and emit ReportState", (done) => {
       const privateOrganizationDetailsSubject = service["_organizationDetailsSubject"];
       const privateUserIdSubject = service["_userIdSubject"];
 
@@ -171,9 +214,16 @@ describe("RiskInsightsOrchestratorService", () => {
       // Assert
       service.rawReportData$.subscribe((state) => {
         if (state.status != ReportStatus.Loading && state.data) {
-          expect(mockMemberCipherDetailsApiService.getMemberCipherDetails).toHaveBeenCalledWith(
+          // V2 uses frontend mapping instead of getMemberCipherDetails
+          expect(mockCollectionAdminService.collectionAdminViews$).toHaveBeenCalledWith(
             mockOrgId,
+            mockUserId,
           );
+          expect(mockOrganizationUserApiService.getAllUsers).toHaveBeenCalledWith(mockOrgId, {
+            includeGroups: true,
+          });
+          expect(mockReportApiService.getOrganizationGroups$).toHaveBeenCalledWith(mockOrgId);
+
           expect(mockReportService.generateApplicationsReport).toHaveBeenCalled();
           expect(mockReportService.saveRiskInsightsReport$).toHaveBeenCalledWith(
             mockEnrichedReportData,

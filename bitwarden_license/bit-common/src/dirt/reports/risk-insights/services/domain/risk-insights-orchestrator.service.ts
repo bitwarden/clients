@@ -27,9 +27,14 @@ import {
 } from "rxjs/operators";
 
 import {
+  CollectionAdminService,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
+import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -66,13 +71,36 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { PerformanceTracker } from "./performance-tracker";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
+/**
+ * Internal interface for organization data needed for V2 member mapping
+ */
+interface OrganizationDataV2 {
+  collectionMap: Map<string, CollectionAdminView>;
+  groupMemberMap: Map<string, { groupName: string; memberIds: string[] }>;
+  userEmailMap: Map<string, string>;
+}
+
+/**
+ * Internal interface for member access info (V2)
+ */
+interface CipherMemberAccessInfoV2 {
+  userId: string;
+  email: string | null;
+  accessType: "direct" | "group";
+  collectionId: string;
+  collectionName: string;
+  canEdit: boolean;
+  canViewPasswords: boolean;
+  canManage: boolean;
+  groupId?: string;
+  groupName?: string;
+}
+
 export class RiskInsightsOrchestratorService {
   private _destroy$ = new Subject<void>();
-  private _performanceTracker = new PerformanceTracker();
 
   // -------------------------- Context state --------------------------
   // Current user viewing risk insights
@@ -158,10 +186,12 @@ export class RiskInsightsOrchestratorService {
   constructor(
     private accountService: AccountService,
     private cipherService: CipherService,
+    private collectionAdminService: CollectionAdminService,
     private criticalAppsService: CriticalAppsService,
     private logService: LogService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
     private organizationService: OrganizationService,
+    private organizationUserApiService: OrganizationUserApiService,
     private passwordHealthService: PasswordHealthService,
     private reportApiService: RiskInsightsApiService,
     private reportService: RiskInsightsReportService,
@@ -663,39 +693,35 @@ export class RiskInsightsOrchestratorService {
     );
   }
 
+  // ==================== V1 METHODS - DEPRECATED ====================
+  // These methods are kept for rollback purposes only and will be removed after V2 is verified stable.
+  // DO NOT use these methods - see V2 methods below instead.
+
+  /**
+   * @deprecated V1 implementation kept for rollback only. Use _generateNewApplicationsReportV2$ instead.
+   * This version uses backend getMemberCipherDetails which causes timeouts on large organizations.
+   * Will be removed after V2 is verified stable in production.
+   */
   private _generateNewApplicationsReport$(
     organizationId: OrganizationId,
     userId: UserId,
   ): Observable<ReportState> {
     // Reset progress and performance tracking
     this._reportProgressSubject.next(null);
-    this._performanceTracker.reset();
-    this._performanceTracker.mark("report-generation-total");
 
     this.logService.debug("[RiskInsightsOrchestratorService] Fetching member cipher details");
     this._reportProgressSubject.next(ReportProgress.FetchingMembers);
-    this._performanceTracker.mark("fetch-member-ciphers");
 
     // Generate the report - fetch member ciphers and org ciphers in parallel
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
     ).pipe(
-      tap((memberCiphers) => {
-        this._performanceTracker.measure("fetch-member-ciphers");
-        this._performanceTracker.logDataSize("Raw Member Ciphers", memberCiphers?.length ?? 0);
-        this._performanceTracker.mark("flatten-member-details");
-      }),
       map((memberCiphers) => flattenMemberDetails(memberCiphers)),
-      tap((flattenedMembers) => {
-        this._performanceTracker.measure("flatten-member-details");
-        this._performanceTracker.logDataSize("Flattened Member Details", flattenedMembers.length);
-      }),
       catchError((error: unknown) => {
         this.logService.error(
           "[RiskInsightsOrchestratorService] Failed to fetch member cipher details - this is likely a timeout or backend cartesian product issue",
           error,
         );
-        this._performanceTracker.measure("fetch-member-ciphers");
         // Re-throw to trigger the outer catchError and show proper error state
         return throwError(
           () =>
@@ -709,9 +735,9 @@ export class RiskInsightsOrchestratorService {
     // Start the generation pipeline
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
       tap(([ciphers, memberCiphers]) => {
-        this._performanceTracker.logDataSize("Organization Ciphers", ciphers?.length ?? 0);
-        this._performanceTracker.logDataSize("Member Cipher Relationships", memberCiphers.length);
-        this._performanceTracker.mark("analyze-password-health");
+        this.logService.debug(
+          `[RiskInsightsOrchestratorService] Data fetch complete - Ciphers: ${ciphers?.length ?? 0}, Members: ${memberCiphers.length}`,
+        );
       }),
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
@@ -721,38 +747,27 @@ export class RiskInsightsOrchestratorService {
           cipherHealthReports: this._getCipherHealth(ciphers ?? [], memberCiphers),
         }).pipe(
           tap(({ cipherHealthReports }) => {
-            this._performanceTracker.measure("analyze-password-health");
-            this._performanceTracker.logDataSize(
-              "Cipher Health Reports",
-              cipherHealthReports.length,
+            this.logService.debug(
+              `[RiskInsightsOrchestratorService] Password analysis complete - Health reports: ${cipherHealthReports.length}`,
             );
-            this._performanceTracker.mark("get-unique-members");
           }),
           map(({ memberDetails, cipherHealthReports }) => {
             const uniqueMembers = getUniqueMembers(memberDetails);
             const totalMemberCount = uniqueMembers.length;
-            this._performanceTracker.measure("get-unique-members");
-            this._performanceTracker.logDataSize("Unique Members", totalMemberCount);
 
             return { cipherHealthReports, totalMemberCount };
           }),
         );
       }),
-      tap(() => {
-        this._performanceTracker.mark("calculate-risk-scores");
-      }),
       map(({ cipherHealthReports, totalMemberCount }) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Calculating risk scores");
         this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
         const report = this.reportService.generateApplicationsReport(cipherHealthReports);
-        this._performanceTracker.measure("calculate-risk-scores");
-        this._performanceTracker.logDataSize("Application Reports Generated", report.length);
         return { report, totalMemberCount };
       }),
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Generating report data");
         this._reportProgressSubject.next(ReportProgress.GeneratingReport);
-        this._performanceTracker.mark("enrich-and-summarize");
       }),
       withLatestFrom(this.rawReportData$),
       map(([{ report, totalMemberCount }, previousReport]) => {
@@ -783,12 +798,6 @@ export class RiskInsightsOrchestratorService {
         // and the class will expose getCriticalApplications
         const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummary);
 
-        this._performanceTracker.measure("enrich-and-summarize");
-        this._performanceTracker.logDataSize(
-          "Updated Application Data",
-          updatedApplicationData.length,
-        );
-
         return {
           report,
           summary: updatedSummary,
@@ -796,12 +805,11 @@ export class RiskInsightsOrchestratorService {
           metrics,
         };
       }),
-      tap(() => {
-        this._performanceTracker.mark("save-report");
-      }),
       switchMap(({ report, summary, applications, metrics }) => {
-        this.logService.debug("[RiskInsightsOrchestratorService] Saving report");
-        this._reportProgressSubject.next(ReportProgress.Saving);
+        this.logService.debug(
+          "[RiskInsightsOrchestratorService] Encrypting and compressing report data",
+        );
+        this._reportProgressSubject.next(ReportProgress.EncryptingData);
         return this.reportService
           .saveRiskInsightsReport$(report, summary, applications, metrics, {
             organizationId,
@@ -809,7 +817,8 @@ export class RiskInsightsOrchestratorService {
           })
           .pipe(
             tap(() => {
-              this._performanceTracker.measure("save-report");
+              this.logService.debug("[RiskInsightsOrchestratorService] Uploading report");
+              this._reportProgressSubject.next(ReportProgress.Saving);
             }),
             map((result) => ({
               report,
@@ -824,8 +833,6 @@ export class RiskInsightsOrchestratorService {
       tap(() => {
         this.logService.debug("[RiskInsightsOrchestratorService] Report generation complete");
         this._reportProgressSubject.next(ReportProgress.Complete);
-        this._performanceTracker.measure("report-generation-total");
-        this._performanceTracker.logSummary();
       }),
       map((mappedResult): ReportState => {
         const { id, report, summary, applications, contentEncryptionKey } = mappedResult;
@@ -844,7 +851,6 @@ export class RiskInsightsOrchestratorService {
       }),
       catchError((error: unknown): Observable<ReportState> => {
         this.logService.error("[RiskInsightsOrchestratorService] Report generation failed", error);
-        this._performanceTracker.logSummary();
 
         const errorMessage =
           error instanceof Error ? error.message : "Failed to generate or save report";
@@ -865,10 +871,13 @@ export class RiskInsightsOrchestratorService {
     return reportGeneration$;
   }
 
-  // Calculates the metrics for a report
-  // This function will be moved to the RiskInsightsReportService after the
-  // ApplicationHealthReportDetail and ApplicationHealthReportDetailEnriched types
-  // are consolidated into one
+  /**
+   * Calculates the metrics for a report
+   *
+   * @remarks
+   * This function will be moved to RiskInsightsReportService after
+   * ApplicationHealthReportDetail and ApplicationHealthReportDetailEnriched types are consolidated
+   */
   _getReportMetrics(
     reports: ApplicationHealthReportDetailEnriched[],
     summary: OrganizationReportSummary,
@@ -909,44 +918,42 @@ export class RiskInsightsOrchestratorService {
 
     return metrics;
   }
+
   /**
-   * Associates the members with the ciphers they have access to. Calculates the password health.
-   * Finds the trimmed uris.
-   * @param ciphers Org ciphers
-   * @param memberDetails Org members
-   * @returns Cipher password health data with trimmed uris and associated members
+   * Associates members with ciphers they have access to and calculates password health
+   *
+   * @param ciphers Organization ciphers
+   * @param memberDetails Organization member details
+   * @returns Cipher password health data with trimmed URIs and associated members
    */
   private _getCipherHealth(
     ciphers: CipherView[],
     memberDetails: MemberDetails[],
   ): Observable<CipherHealthReport[]> {
-    this._performanceTracker.mark("filter-valid-ciphers");
     const validCiphers = ciphers.filter((cipher) =>
       this.passwordHealthService.isValidCipher(cipher),
     );
-    this._performanceTracker.measure("filter-valid-ciphers");
-    this._performanceTracker.logDataSize("Valid Ciphers", validCiphers.length, {
-      totalCiphers: ciphers.length,
-      filteredOut: ciphers.length - validCiphers.length,
-    });
 
-    this._performanceTracker.mark("build-password-use-map");
     const passwordUseMap = buildPasswordUseMap(validCiphers);
-    this._performanceTracker.measure("build-password-use-map");
-    this._performanceTracker.logDataSize("Password Use Map", passwordUseMap.size);
 
     // Check for exposed passwords and map to cipher health report
-    this._performanceTracker.mark("audit-password-leaks");
     return this.passwordHealthService.auditPasswordLeaks$(validCiphers).pipe(
-      tap((exposedDetails) => {
-        this._performanceTracker.measure("audit-password-leaks");
-        this._performanceTracker.logDataSize("Exposed Password Details", exposedDetails.length);
-        this._performanceTracker.mark("build-cipher-health-reports");
-      }),
       map((exposedDetails) => {
+        // Pre-build a map of cipherId → members to avoid O(n²) filter loop
+        // This reduces 10,000 × 50,000 filter operations to a single O(n) grouping pass
+        const cipherMembersMap = new Map<string, MemberDetails[]>();
+        for (const member of memberDetails) {
+          const existing = cipherMembersMap.get(member.cipherId);
+          if (existing) {
+            existing.push(member);
+          } else {
+            cipherMembersMap.set(member.cipherId, [member]);
+          }
+        }
+
         return validCiphers.map((cipher) => {
           const exposedPasswordDetail = exposedDetails.find((x) => x?.cipherId === cipher.id);
-          const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
+          const cipherMembers = cipherMembersMap.get(cipher.id) ?? []; // O(1) lookup instead of O(n) filter
           const applications = getTrimmedCipherUris(cipher);
           const weakPasswordDetail = this.passwordHealthService.findWeakPasswordDetails(cipher);
           const reusedPasswordCount = passwordUseMap.get(cipher.login.password!) ?? 0;
@@ -962,14 +969,13 @@ export class RiskInsightsOrchestratorService {
           } as CipherHealthReport;
         });
       }),
-      tap(() => {
-        this._performanceTracker.measure("build-cipher-health-reports");
-      }),
     );
   }
 
-  // Updates the existing application data to include critical applications
-  // Does not remove critical applications not in the set
+  /**
+   * Updates existing application data to include critical applications
+   * Does not remove critical applications that are not in the update set
+   */
   private _updateApplicationData(
     existingApplications: OrganizationReportApplication[],
     updatedApplications: (Partial<OrganizationReportApplication> & { applicationName: string })[],
@@ -1006,7 +1012,9 @@ export class RiskInsightsOrchestratorService {
     return updatedApps.concat(newElements);
   }
 
-  // Toggles the isCritical flag on applications via criticalApplicationName
+  /**
+   * Toggles the isCritical flag off for a specific application
+   */
   private _removeCriticalApplication(
     applicationData: OrganizationReportApplication[],
     criticalApplication: string,
@@ -1020,6 +1028,10 @@ export class RiskInsightsOrchestratorService {
     return updatedApplicationData;
   }
 
+  /**
+   * Migrates legacy critical apps from old storage to new report-based storage
+   * Cleans up old critical apps after successful migration
+   */
   private _runMigrationAndCleanup$(criticalApps: PasswordHealthReportApplicationsResponse[]) {
     return of(criticalApps).pipe(
       withLatestFrom(this.organizationDetails$),
@@ -1060,7 +1072,9 @@ export class RiskInsightsOrchestratorService {
     );
   }
 
-  // Setup the pipeline to load critical applications when organization or user changes
+  /**
+   * Sets up the pipeline to load critical applications when organization or user changes
+   */
   private _setupCriticalApplicationContext() {
     this.organizationDetails$
       .pipe(
@@ -1079,7 +1093,9 @@ export class RiskInsightsOrchestratorService {
       .subscribe();
   }
 
-  // Setup the pipeline to create a report view filtered to only critical applications
+  /**
+   * Sets up the pipeline to create a report view filtered to only critical applications
+   */
   private _setupCriticalApplicationReport() {
     const criticalReportResultsPipeline$ = this.enrichedReportData$.pipe(
       filter((state) => !!state && !!state.summaryData),
@@ -1142,7 +1158,9 @@ export class RiskInsightsOrchestratorService {
     });
   }
 
-  // Setup the pipeline to initialize organization context
+  /**
+   * Sets up the pipeline to initialize organization context when organization changes
+   */
   private _setupInitializationPipeline() {
     this._initializeOrganizationTriggerSubject
       .pipe(
@@ -1168,6 +1186,10 @@ export class RiskInsightsOrchestratorService {
       .subscribe((orgDetails) => this._organizationDetailsSubject.next(orgDetails));
   }
 
+  /**
+   * Sets up migration pipeline for legacy critical apps
+   * Runs once when both critical apps and report data are available
+   */
   private _setupMigrationAndCleanup() {
     const criticalApps$ = this.criticalAppsService.criticalAppsList$.pipe(
       filter((criticalApps) => criticalApps.length > 0),
@@ -1203,7 +1225,10 @@ export class RiskInsightsOrchestratorService {
       .subscribe();
   }
 
-  // Setup the report state management pipeline
+  /**
+   * Sets up the report state management pipeline
+   * Combines report fetching, generation, and updates into a single state stream
+   */
   private _setupReportState() {
     // Dependencies needed for report state
     const reportDependencies$ = combineLatest([
@@ -1226,7 +1251,7 @@ export class RiskInsightsOrchestratorService {
       filter((isRunning) => isRunning),
       withLatestFrom(reportDependencies$),
       exhaustMap(([_, [orgDetails, userId]]) =>
-        this._generateNewApplicationsReport$(orgDetails!.organizationId, userId!),
+        this._generateNewApplicationsReportV2$(orgDetails!.organizationId, userId!),
       ),
       startWith<ReportState>({
         status: ReportStatus.Loading,
@@ -1300,7 +1325,9 @@ export class RiskInsightsOrchestratorService {
       });
   }
 
-  // Gets the unique cipher IDs that are marked at risk in critical applications
+  /**
+   * Gets the unique cipher IDs that are marked at risk in critical applications
+   */
   private _getCriticalApplicationCipherIds(
     applications: ApplicationHealthReportDetail[],
     applicationData: OrganizationReportApplication[],
@@ -1321,7 +1348,9 @@ export class RiskInsightsOrchestratorService {
     return [...uniqueCipherIds];
   }
 
-  // Setup the user ID observable to track the current user
+  /**
+   * Sets up the user ID observable to track the current active user
+   */
   private _setupUserId() {
     // Watch userId changes
     this.accountService.activeAccount$
@@ -1329,5 +1358,406 @@ export class RiskInsightsOrchestratorService {
       .subscribe((userId) => {
         this._userIdSubject.next(userId);
       });
+  }
+
+  // ==================== V2 METHODS - Frontend Member Mapping ====================
+  // These methods implement the Access Intelligence pattern to avoid backend timeout issues.
+  // V2 performs member-to-cipher mapping on the frontend using collection relationships,
+  // eliminating the need for the problematic backend getMemberCipherDetails endpoint.
+
+  /**
+   * Fetches organization users and groups in a single optimized call (V2)
+   *
+   * @returns Observable containing group membership and user email maps
+   */
+  private _fetchOrganizationUsersAndGroupsV2$(organizationId: OrganizationId): Observable<{
+    groupMemberMap: Map<string, { groupName: string; memberIds: string[] }>;
+    userEmailMap: Map<string, string>;
+  }> {
+    // Fetch users and groups in parallel
+    return forkJoin({
+      orgUsersResponse: from(
+        this.organizationUserApiService.getAllUsers(organizationId, { includeGroups: true }),
+      ),
+      groupsResponse: this.reportApiService.getOrganizationGroups$(organizationId),
+    }).pipe(
+      map(({ orgUsersResponse, groupsResponse }) => {
+        // Build group name lookup
+        const groupNameMap = new Map<string, string>();
+        for (const group of groupsResponse) {
+          groupNameMap.set(group.id, group.name);
+        }
+
+        // Build both maps from the same response
+        const groupMemberMap = new Map<string, { groupName: string; memberIds: string[] }>();
+        const userEmailMap = new Map<string, string>();
+
+        for (const orgUser of orgUsersResponse.data) {
+          // Build email map
+          if (orgUser.id && orgUser.email) {
+            userEmailMap.set(orgUser.id, orgUser.email);
+          }
+
+          // Build group member map
+          if (orgUser.groups && orgUser.groups.length > 0) {
+            for (const groupId of orgUser.groups) {
+              let groupData = groupMemberMap.get(groupId);
+              if (!groupData) {
+                const groupName = groupNameMap.get(groupId) ?? "";
+                groupData = { groupName, memberIds: [] };
+                groupMemberMap.set(groupId, groupData);
+              }
+              groupData.memberIds.push(orgUser.id);
+            }
+          }
+        }
+
+        return { groupMemberMap, userEmailMap };
+      }),
+    );
+  }
+
+  /**
+   * Loads organization data (collections, users, groups) for V2 member mapping
+   *
+   * @returns Observable containing collection map, group member map, and user email map
+   */
+  private _loadOrganizationDataV2$(
+    organizationId: OrganizationId,
+    currentUserId: UserId,
+  ): Observable<OrganizationDataV2> {
+    // Fetch collections and users in parallel
+    const collections$ = this.collectionAdminService
+      .collectionAdminViews$(organizationId, currentUserId)
+      .pipe(take(1));
+
+    const usersAndGroups$ = this._fetchOrganizationUsersAndGroupsV2$(organizationId);
+
+    return forkJoin([collections$, usersAndGroups$]).pipe(
+      map(([collections, { groupMemberMap, userEmailMap }]) => {
+        const collectionMap = new Map<string, CollectionAdminView>();
+        collections.forEach((c) => collectionMap.set(c.id, c));
+
+        return { collectionMap, groupMemberMap, userEmailMap };
+      }),
+    );
+  }
+
+  /**
+   * Gets all members with access to a cipher using V2 collection-based mapping
+   *
+   * @returns Array of member access information including permissions and access type
+   */
+  private _getCipherMembersV2(
+    cipher: CipherView,
+    orgData: OrganizationDataV2,
+  ): CipherMemberAccessInfoV2[] {
+    const memberMap = new Map<string, CipherMemberAccessInfoV2>();
+
+    if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+      return [];
+    }
+
+    for (const collectionId of cipher.collectionIds) {
+      const collection = orgData.collectionMap.get(collectionId);
+      if (!collection) {
+        continue;
+      }
+
+      // Process direct user assignments
+      for (const userAccess of collection.users) {
+        const userId = userAccess.id;
+        const existing = memberMap.get(userId);
+
+        if (!existing) {
+          memberMap.set(userId, {
+            userId,
+            email: orgData.userEmailMap.get(userId) ?? null,
+            accessType: "direct",
+            collectionId: collection.id,
+            collectionName: collection.name || "Unknown",
+            canEdit: !userAccess.readOnly,
+            canViewPasswords: !userAccess.hidePasswords,
+            canManage: userAccess.manage,
+          });
+        } else {
+          // Update to most permissive
+          if (!userAccess.readOnly) {
+            existing.canEdit = true;
+          }
+          if (!userAccess.hidePasswords) {
+            existing.canViewPasswords = true;
+          }
+          if (userAccess.manage) {
+            existing.canManage = true;
+          }
+        }
+      }
+
+      // Process group assignments
+      for (const groupAccess of collection.groups) {
+        const groupId = groupAccess.id;
+        const groupData = orgData.groupMemberMap.get(groupId);
+
+        if (!groupData || groupData.memberIds.length === 0) {
+          continue;
+        }
+
+        for (const userId of groupData.memberIds) {
+          const existing = memberMap.get(userId);
+
+          if (!existing) {
+            memberMap.set(userId, {
+              userId,
+              email: orgData.userEmailMap.get(userId) ?? null,
+              accessType: "group",
+              collectionId: collection.id,
+              collectionName: collection.name || "Unknown",
+              groupId,
+              groupName: groupData.groupName,
+              canEdit: !groupAccess.readOnly,
+              canViewPasswords: !groupAccess.hidePasswords,
+              canManage: groupAccess.manage,
+            });
+          } else {
+            // Update to most permissive
+            if (!groupAccess.readOnly) {
+              existing.canEdit = true;
+            }
+            if (!groupAccess.hidePasswords) {
+              existing.canViewPasswords = true;
+            }
+            if (groupAccess.manage) {
+              existing.canManage = true;
+            }
+          }
+        }
+      }
+    }
+
+    return Array.from(memberMap.values());
+  }
+
+  /**
+   * Map ciphers to members using frontend collection mapping (V2)
+   */
+  private _mapCiphersToMembersV2(
+    ciphers: CipherView[],
+    orgData: OrganizationDataV2,
+  ): Map<string, CipherMemberAccessInfoV2[]> {
+    const memberMap = new Map<string, CipherMemberAccessInfoV2[]>();
+
+    for (const cipher of ciphers) {
+      const members = this._getCipherMembersV2(cipher, orgData);
+      memberMap.set(cipher.id, members);
+    }
+
+    return memberMap;
+  }
+
+  /**
+   * Convert CipherMemberAccessInfoV2 to MemberDetails format
+   */
+  private _convertToMemberDetails(
+    cipherId: string,
+    members: CipherMemberAccessInfoV2[],
+  ): MemberDetails[] {
+    return members.map(
+      (member): MemberDetails => ({
+        cipherId,
+        userGuid: member.userId,
+        email: member.email ?? "",
+        userName: null, // Not available in V2, set to null for now
+      }),
+    );
+  }
+
+  /**
+   * Generate a new report using V2 approach (frontend member mapping)
+   * This avoids the backend timeout issue with getMemberCipherDetails
+   */
+  private _generateNewApplicationsReportV2$(
+    organizationId: OrganizationId,
+    userId: UserId,
+  ): Observable<ReportState> {
+    // Reset progress and performance tracking
+    this._reportProgressSubject.next(null);
+
+    this.logService.debug(
+      "[RiskInsightsOrchestratorService V2] Starting report generation with frontend mapping",
+    );
+
+    // Step 1: Load organization data (users, groups, collections) in parallel with ciphers
+    this._reportProgressSubject.next(ReportProgress.FetchingMembers);
+
+    const orgData$ = this._loadOrganizationDataV2$(organizationId, userId).pipe(
+      tap(() => {
+        this.logService.debug("[RiskInsightsOrchestratorService V2] Organization data loaded");
+      }),
+      catchError((error: unknown) => {
+        this.logService.error(
+          "[RiskInsightsOrchestratorService V2] Failed to load organization data",
+          error,
+        );
+        return throwError(
+          () => new Error("Failed to load organization data (users/groups/collections)"),
+        );
+      }),
+    );
+
+    // Step 2: Get ciphers and map to members on frontend
+    const memberDetails$ = forkJoin([this._ciphers$.pipe(take(1)), orgData$]).pipe(
+      tap(([ciphers, orgData]) => {
+        this.logService.debug(
+          `[RiskInsightsOrchestratorService V2] Data fetch complete - Ciphers: ${ciphers?.length ?? 0}, Collections: ${orgData.collectionMap.size}, Users: ${orgData.userEmailMap.size}`,
+        );
+      }),
+      map(([ciphers, orgData]) => {
+        // Map ciphers to members using collection relationships
+        const memberMap = this._mapCiphersToMembersV2(ciphers ?? [], orgData);
+
+        // Convert to MemberDetails format (flatten)
+        const allMemberDetails: MemberDetails[] = [];
+        for (const [cipherId, members] of memberMap.entries()) {
+          const memberDetails = this._convertToMemberDetails(cipherId, members);
+          allMemberDetails.push(...memberDetails);
+        }
+
+        return { ciphers: ciphers ?? [], memberDetails: allMemberDetails };
+      }),
+    );
+
+    // Step 3: Continue with existing password health pipeline
+    const reportGeneration$ = memberDetails$.pipe(
+      switchMap(({ ciphers, memberDetails }) => {
+        this.logService.debug("[RiskInsightsOrchestratorService V2] Analyzing password health");
+        this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
+        return forkJoin({
+          memberDetails: of(memberDetails),
+          cipherHealthReports: this._getCipherHealth(ciphers, memberDetails),
+        }).pipe(
+          tap(({ cipherHealthReports }) => {
+            this.logService.debug(
+              `[RiskInsightsOrchestratorService V2] Password analysis complete - Health reports: ${cipherHealthReports.length}`,
+            );
+          }),
+          map(({ memberDetails, cipherHealthReports }) => {
+            const uniqueMembers = getUniqueMembers(memberDetails);
+            const totalMemberCount = uniqueMembers.length;
+
+            return { cipherHealthReports, totalMemberCount };
+          }),
+        );
+      }),
+      map(({ cipherHealthReports, totalMemberCount }) => {
+        this.logService.debug("[RiskInsightsOrchestratorService V2] Calculating risk scores");
+        this._reportProgressSubject.next(ReportProgress.CalculatingRisks);
+        const report = this.reportService.generateApplicationsReport(cipherHealthReports);
+        return { report, totalMemberCount };
+      }),
+      tap(() => {
+        this.logService.debug("[RiskInsightsOrchestratorService V2] Generating report data");
+        this._reportProgressSubject.next(ReportProgress.GeneratingReport);
+      }),
+      withLatestFrom(this.rawReportData$),
+      map(([{ report, totalMemberCount }, previousReport]) => {
+        // Update the application data
+        const updatedApplicationData = this.reportService.getOrganizationApplications(
+          report,
+          previousReport?.data?.applicationData ?? [],
+        );
+
+        const manualEnrichedApplications = report.map(
+          (application): ApplicationHealthReportDetailEnriched => ({
+            ...application,
+            isMarkedAsCritical: this.reportService.isCriticalApplication(
+              application,
+              updatedApplicationData,
+            ),
+          }),
+        );
+
+        const updatedSummary = this.reportService.getApplicationsSummary(
+          report,
+          updatedApplicationData,
+          totalMemberCount,
+        );
+
+        const metrics = this._getReportMetrics(manualEnrichedApplications, updatedSummary);
+
+        return {
+          report,
+          summary: updatedSummary,
+          applications: updatedApplicationData,
+          metrics,
+        };
+      }),
+      switchMap(({ report, summary, applications, metrics }) => {
+        this.logService.debug(
+          "[RiskInsightsOrchestratorService V2] Encrypting and compressing report data",
+        );
+        this._reportProgressSubject.next(ReportProgress.EncryptingData);
+        return this.reportService
+          .saveRiskInsightsReport$(report, summary, applications, metrics, {
+            organizationId,
+            userId,
+          })
+          .pipe(
+            tap(() => {
+              this.logService.debug("[RiskInsightsOrchestratorService V2] Uploading report");
+              this._reportProgressSubject.next(ReportProgress.Saving);
+            }),
+            map((result) => ({
+              report,
+              summary,
+              applications,
+              id: result.response.id,
+              contentEncryptionKey: result.contentEncryptionKey,
+            })),
+          );
+      }),
+      // Update the running state
+      tap(() => {
+        this.logService.debug("[RiskInsightsOrchestratorService V2] Report generation complete");
+        this._reportProgressSubject.next(ReportProgress.Complete);
+      }),
+      map((mappedResult): ReportState => {
+        const { id, report, summary, applications, contentEncryptionKey } = mappedResult;
+        return {
+          status: ReportStatus.Complete,
+          error: null,
+          data: {
+            id,
+            reportData: report,
+            summaryData: summary,
+            applicationData: applications,
+            creationDate: new Date(),
+            contentEncryptionKey,
+          },
+        };
+      }),
+      catchError((error: unknown): Observable<ReportState> => {
+        this.logService.error(
+          "[RiskInsightsOrchestratorService V2] Report generation failed",
+          error,
+        );
+
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to generate or save report (V2)";
+
+        return of({
+          status: ReportStatus.Error,
+          error: errorMessage,
+          data: null,
+        });
+      }),
+      startWith<ReportState>({
+        status: ReportStatus.Loading,
+        error: null,
+        data: null,
+      }),
+    ) as Observable<ReportState>;
+
+    return reportGeneration$;
   }
 }
