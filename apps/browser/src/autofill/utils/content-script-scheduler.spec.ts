@@ -379,46 +379,8 @@ describe("ContentScriptScheduler", () => {
     });
   });
 
-  describe("conditional timeout optimization", () => {
-    beforeEach(() => {
-      // Reset document.hidden to default
-      Object.defineProperty(document, "hidden", {
-        configurable: true,
-        writable: true,
-        value: false,
-      });
-    });
-
-    it("should not create timeout in normal conditions (active tab, small queue)", async () => {
-      const callback = jest.fn();
-
-      // Mock clearTimeout to track if timeout was created
-      const originalClearTimeout = global.clearTimeout;
-      const clearTimeoutSpy = jest.fn(originalClearTimeout);
-      global.clearTimeout = clearTimeoutSpy as any;
-
-      scheduler.schedule(callback, { timeout: 1000 });
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // Task should execute via MessageChannel
-      expect(callback).toHaveBeenCalledTimes(1);
-
-      // clearTimeout should NOT be called (no timeout was created)
-      expect(clearTimeoutSpy).not.toHaveBeenCalled();
-
-      // Restore
-      global.clearTimeout = originalClearTimeout;
-    });
-
-    it("should create timeout when page is in background", async () => {
-      // Simulate background tab
-      Object.defineProperty(document, "hidden", {
-        configurable: true,
-        writable: true,
-        value: true,
-      });
-
+  describe("extended timeout optimization", () => {
+    it("should always create timeout as safety valve", async () => {
       const callback = jest.fn();
 
       // Mock clearTimeout to verify timeout was created
@@ -426,41 +388,15 @@ describe("ContentScriptScheduler", () => {
       const clearTimeoutSpy = jest.fn(originalClearTimeout);
       global.clearTimeout = clearTimeoutSpy as any;
 
-      scheduler.schedule(callback, { timeout: 1000 });
+      scheduler.schedule(callback, { timeout: 500 });
 
       await new Promise((resolve) => setTimeout(resolve, 50));
 
+      // Task should execute via MessageChannel
       expect(callback).toHaveBeenCalledTimes(1);
 
-      // clearTimeout SHOULD be called (timeout was created and cleared)
+      // clearTimeout SHOULD be called (timeout was created and cleared by MessageChannel)
       expect(clearTimeoutSpy).toHaveBeenCalled();
-
-      // Restore
-      global.clearTimeout = originalClearTimeout;
-    });
-
-    it("should not create timeout for heavy queue load (MessageChannel handles it)", async () => {
-      const callback = jest.fn();
-
-      // Mock clearTimeout to verify timeout was NOT created
-      const originalClearTimeout = global.clearTimeout;
-      const clearTimeoutSpy = jest.fn(originalClearTimeout);
-      global.clearTimeout = clearTimeoutSpy as any;
-
-      // Schedule many tasks (queue size check removed - MessageChannel handles heavy load)
-      for (let i = 0; i < 101; i++) {
-        scheduler.schedule(() => {}, { timeout: 10000 });
-      }
-
-      // Schedule test task (should NOT have timeout - MessageChannel handles heavy load)
-      scheduler.schedule(callback, { timeout: 10000 });
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      expect(callback).toHaveBeenCalledTimes(1);
-
-      // clearTimeout should NOT be called (no timeout was created)
-      expect(clearTimeoutSpy).not.toHaveBeenCalled();
 
       // Restore
       global.clearTimeout = originalClearTimeout;
