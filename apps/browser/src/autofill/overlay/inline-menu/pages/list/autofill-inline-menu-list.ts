@@ -228,7 +228,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles the click event for the unlock button.
    * Sends a message to the parent window to unlock the vault.
    */
-  private handleUnlockButtonClick = () => {
+  private handleUnlockButtonClick = (event: MouseEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     this.postMessageToParent({ command: "unlockVault" });
   };
 
@@ -351,7 +358,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles the click event for the fill generated password button. Triggers
    * a message to the background script to fill the generated password.
    */
-  private handleFillGeneratedPasswordClick = () => {
+  private handleFillGeneratedPasswordClick = (event?: MouseEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (event && !EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     this.postMessageToParent({ command: "fillGeneratedPassword" });
   };
 
@@ -396,6 +410,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param event - The click event.
    */
   private handleRefreshGeneratedPasswordClick = (event?: MouseEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (event && !EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     if (event) {
       (event.target as HTMLElement)
         .closest(".password-generator-actions")
@@ -637,7 +658,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles the click event for the new item button.
    * Sends a message to the parent window to add a new vault item.
    */
-  private handleNewLoginVaultItemAction = () => {
+  private handleNewLoginVaultItemAction = (event: MouseEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     let addNewCipherType = this.inlineMenuFillType;
 
     if (this.showInlineMenuAccountCreation) {
@@ -968,7 +996,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
     const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
-      () => this.triggerFillCipherClickEvent(cipher, usePasskey),
+      (event: MouseEvent) => {
+        /**
+         * Reject synthetic events (not originating from the user agent)
+         */
+        if (!EventSecurity.isEventTrusted(event)) {
+          return;
+        }
+
+        this.triggerFillCipherClickEvent(cipher, usePasskey);
+      },
       `${cipher.id}-fill-cipher-button-click-handler-${usePasskey ? "passkey" : ""}`,
     );
   };
@@ -1087,11 +1124,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to view.
    */
   private handleViewCipherClickEvent = (cipher: InlineMenuCipherData) => {
-    return this.useEventHandlersMemo(
-      () =>
-        this.postMessageToParent({ command: "viewSelectedCipher", inlineMenuCipherId: cipher.id }),
-      `${cipher.id}-view-cipher-button-click-handler`,
-    );
+    return this.useEventHandlersMemo((event: MouseEvent) => {
+      /**
+       * Reject synthetic events (not originating from the user agent)
+       */
+      if (!EventSecurity.isEventTrusted(event)) {
+        return;
+      }
+
+      this.postMessageToParent({ command: "viewSelectedCipher", inlineMenuCipherId: cipher.id });
+    }, `${cipher.id}-view-cipher-button-click-handler`);
   };
 
   /**
