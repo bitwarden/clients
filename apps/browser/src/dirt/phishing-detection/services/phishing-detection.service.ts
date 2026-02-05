@@ -1,21 +1,6 @@
-import {
-  combineLatest,
-  concatMap,
-  distinctUntilChanged,
-  EMPTY,
-  filter,
-  map,
-  merge,
-  of,
-  Subject,
-  switchMap,
-  tap,
-} from "rxjs";
+import { distinctUntilChanged, EMPTY, filter, map, merge, Subject, switchMap, tap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
@@ -50,11 +35,9 @@ export class PhishingDetectionService {
   private static _didInit = false;
 
   static initialize(
-    accountService: AccountService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
-    configService: ConfigService,
     logService: LogService,
     phishingDataService: PhishingDataService,
+    phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
@@ -70,7 +53,7 @@ export class PhishingDetectionService {
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
-      concatMap(async (message) => {
+      switchMap(async (message) => {
         const url = new URL(message.url);
         this._ignoredHostnames.add(url.hostname);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
@@ -95,13 +78,15 @@ export class PhishingDetectionService {
           prev.ignored === curr.ignored,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      concatMap(async ({ tabId, url, ignored }) => {
+      // Use switchMap to cancel any in-progress check when navigating to a new URL
+      // This prevents race conditions where a stale check redirects the user incorrectly
+      switchMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
           this._ignoredHostnames.delete(url.hostname);
           return;
         }
-        const isPhishing = await phishingDataService.isPhishingDomain(url);
+        const isPhishing = await phishingDataService.isPhishingWebAddress(url);
         if (!isPhishing) {
           return;
         }
@@ -118,22 +103,9 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
-    const activeAccountHasAccess$ = combineLatest([
-      accountService.activeAccount$,
-      configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
-    ]).pipe(
-      switchMap(([account, featureEnabled]) => {
-        if (!account) {
-          logService.debug("[PhishingDetectionService] No active account.");
-          return of(false);
-        }
-        return billingAccountProfileStateService
-          .hasPremiumFromAnySource$(account.id)
-          .pipe(map((hasPremium) => hasPremium && featureEnabled));
-      }),
-    );
+    const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = activeAccountHasAccess$
+    const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
@@ -157,6 +129,9 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      // Dispose phishing data service resources
+      phishingDataService.dispose();
+
       initSub.unsubscribe();
       this._didInit = false;
 

@@ -153,7 +153,7 @@ fn add_authenticator() -> std::result::Result<(), String> {
     }
 }
 
-type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "cdecl" fn(
+type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "C" fn(
     pPluginAddAuthenticatorOptions: *const webauthn::ExperimentalWebAuthnPluginAddAuthenticatorOptions,
     ppPluginAddAuthenticatorResponse: *mut *mut webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse,
 ) -> HRESULT;

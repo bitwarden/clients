@@ -1,12 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
-import { SendType } from "../../enums/send-type";
 import { SendTextApi } from "../../models/api/send-text.api";
 import { SendTextData } from "../../models/data/send-text.data";
 import { SendData } from "../../models/data/send.data";
 import { Send } from "../../models/domain/send";
 import { SendView } from "../../models/view/send.view";
+import { SendType } from "../../types/send-type";
 
 export function testSendViewData(id: string, name: string) {
   const data = new SendView({} as any);
@@ -20,6 +20,7 @@ export function testSendViewData(id: string, name: string) {
   data.deletionDate = null;
   data.notes = "Notes!!";
   data.key = null;
+  data.emails = [];
   return data;
 }
 
@@ -39,6 +40,8 @@ export function createSendData(value: Partial<SendData> = {}) {
     expirationDate: "2024-09-04",
     deletionDate: "2024-09-04",
     password: "password",
+    emails: "",
+    emailHashes: "",
     disabled: false,
     hideEmail: false,
   };
@@ -62,6 +65,8 @@ export function testSendData(id: string, name: string) {
   data.deletionDate = null;
   data.notes = "Notes!!";
   data.key = null;
+  data.emails = "";
+  data.emailHashes = "";
   return data;
 }
 
@@ -77,5 +82,7 @@ export function testSend(id: string, name: string) {
   data.deletionDate = null;
   data.notes = new EncString("Notes!!");
   data.key = null;
+  data.emails = null;
+  data.emailHashes = "";
   return data;
 }

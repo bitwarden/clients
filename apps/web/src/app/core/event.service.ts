@@ -452,6 +452,12 @@ export class EventService {
           this.getShortId(ev.organizationId),
         );
         break;
+      case EventType.Organization_ItemOrganization_Accepted:
+        msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
+        break;
+      case EventType.Organization_ItemOrganization_Declined:
+        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        break;
 
       // Policies
       case EventType.Policy_Updated: {
@@ -516,16 +522,25 @@ export class EventService {
         break;
       // Org Domain claiming events
       case EventType.OrganizationDomain_Added:
-        msg = humanReadableMsg = this.i18nService.t("addedDomain", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t("addedDomain", this.escapeHtml(ev.domainName));
         break;
       case EventType.OrganizationDomain_Removed:
-        msg = humanReadableMsg = this.i18nService.t("removedDomain", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "removedDomain",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       case EventType.OrganizationDomain_Verified:
-        msg = humanReadableMsg = this.i18nService.t("domainClaimedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "domainClaimedEvent",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       case EventType.OrganizationDomain_NotVerified:
-        msg = humanReadableMsg = this.i18nService.t("domainNotClaimedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "domainNotClaimedEvent",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
@@ -707,6 +722,8 @@ export class EventService {
         return ["bwi-browser", this.i18nService.t("webVault") + " - Edge"];
       case DeviceType.IEBrowser:
         return ["bwi-browser", this.i18nService.t("webVault") + " - IE"];
+      case DeviceType.DuckDuckGoBrowser:
+        return ["bwi-browser", this.i18nService.t("webVault") + " - DuckDuckGo"];
       case DeviceType.Server:
         return ["bwi-user-monitor", this.i18nService.t("server")];
       case DeviceType.WindowsCLI:
@@ -885,6 +902,15 @@ export class EventService {
 
   private getShortId(id: string) {
     return id?.substring(0, 8);
+  }
+
+  private escapeHtml(unsafe: string): string {
+    if (!unsafe) {
+      return unsafe;
+    }
+    const div = document.createElement("div");
+    div.textContent = unsafe;
+    return div.innerHTML;
   }
 
   private toDateTimeLocalString(date: Date) {

@@ -7,12 +7,13 @@ import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/sa
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "@bitwarden/common/tools/extension/extension-registry.abstraction";
@@ -71,6 +72,7 @@ export const ImporterProviders: SafeProvider[] = [
       LogService,
       PlatformUtilsService,
       ConfigService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -84,7 +86,7 @@ export const ImporterProviders: SafeProvider[] = [
       CollectionService,
       KeyService,
       EncryptService,
-      PinServiceAbstraction,
+      KeyGenerationService,
       AccountService,
       RestrictedItemTypesService,
     ],

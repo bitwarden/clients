@@ -81,10 +81,10 @@ export const Small: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'dangerPrimary'" [size]="size" [block]="block">Danger Primary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Primary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Secondary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Danger small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerPrimary" [size]="size" [block]="block">Danger Primary small</button>
     </div>
     `,
   }),
@@ -152,15 +152,13 @@ export const WithIcon: Story = {
     template: /*html*/ `
       <span class="tw-flex tw-gap-8">
         <div>
-          <button type="button" bitButton [buttonType]="buttonType" [block]="block">
-            <i class="bwi bwi-plus tw-me-2"></i>
+          <button type="button" startIcon="bwi-plus" bitButton [buttonType]="buttonType" [block]="block">
             Button label
           </button>
         </div>
         <div>
-          <button type="button" bitButton [buttonType]="buttonType" [block]="block">
+          <button type="button" endIcon="bwi-plus" bitButton [buttonType]="buttonType" [block]="block">
             Button label
-            <i class="bwi bwi-plus tw-ms-2"></i>
           </button>
         </div>
       </span>

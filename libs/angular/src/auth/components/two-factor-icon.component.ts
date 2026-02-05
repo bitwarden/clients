@@ -3,7 +3,7 @@
 import { Component, Input } from "@angular/core";
 
 import {
-  Icon,
+  BitSvg,
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthEmailIcon,
   TwoFactorAuthWebAuthnIcon,
@@ -24,7 +24,7 @@ export class TwoFactorIconComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() name: string;
 
-  protected readonly IconProviderMap: { [key: number | string]: Icon } = {
+  protected readonly IconProviderMap: { [key: number | string]: BitSvg } = {
     0: TwoFactorAuthAuthenticatorIcon,
     1: TwoFactorAuthEmailIcon,
     7: TwoFactorAuthWebAuthnIcon,

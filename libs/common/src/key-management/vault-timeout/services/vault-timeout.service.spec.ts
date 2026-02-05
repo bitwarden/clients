@@ -7,7 +7,7 @@ import { BehaviorSubject, from, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { LockService, LogoutService } from "@bitwarden/auth/common";
 
-import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
+import { FakeAccountService, mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -109,19 +109,19 @@ describe("VaultTimeoutService", () => {
     if (globalSetups?.userId) {
       accountService.activeAccountSubject.next({
         id: globalSetups.userId as UserId,
-        email: null,
-        emailVerified: false,
-        name: null,
+        ...mockAccountInfoWith({
+          email: null,
+          name: null,
+        }),
       });
     }
     accountService.accounts$ = of(
       Object.entries(accounts).reduce(
         (agg, [id]) => {
-          agg[id] = {
+          agg[id] = mockAccountInfoWith({
             email: "",
-            emailVerified: true,
             name: "",
-          };
+          });
           return agg;
         },
         {} as Record<string, AccountInfo>,

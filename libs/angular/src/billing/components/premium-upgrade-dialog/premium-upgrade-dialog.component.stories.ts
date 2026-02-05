@@ -42,6 +42,23 @@ const mockPremiumTier: PersonalSubscriptionPricingTier = {
   },
 };
 
+const mockPremiumTierNoPricingData: PersonalSubscriptionPricingTier = {
+  id: PersonalSubscriptionPricingTierIds.Premium,
+  name: "Premium",
+  description: "Complete online security",
+  availableCadences: [SubscriptionCadenceIds.Annually],
+  passwordManager: {
+    type: "standalone",
+    features: [
+      { key: "builtInAuthenticator", value: "Built-in authenticator" },
+      { key: "secureFileStorage", value: "Secure file storage" },
+      { key: "emergencyAccess", value: "Emergency access" },
+      { key: "breachMonitoring", value: "Breach monitoring" },
+      { key: "andMoreFeatures", value: "And more!" },
+    ],
+  },
+};
+
 export default {
   title: "Billing/Premium Upgrade Dialog",
   component: PremiumUpgradeDialogComponent,
@@ -86,11 +103,11 @@ export default {
             t: (key: string) => {
               switch (key) {
                 case "upgradeNow":
-                  return "Upgrade Now";
+                  return "Upgrade now";
                 case "month":
                   return "month";
                 case "upgradeToPremium":
-                  return "Upgrade To Premium";
+                  return "Upgrade to Premium";
                 default:
                   return key;
               }
@@ -116,3 +133,18 @@ export default {
 
 type Story = StoryObj<PremiumUpgradeDialogComponent>;
 export const Default: Story = {};
+
+export const NoPricingData: Story = {
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: SubscriptionPricingServiceAbstraction,
+          useValue: {
+            getPersonalSubscriptionPricingTiers$: () => of([mockPremiumTierNoPricingData]),
+          },
+        },
+      ],
+    }),
+  ],
+};

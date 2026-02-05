@@ -1,12 +1,14 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
+import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavItemComponent } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
@@ -31,8 +33,17 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -90,20 +101,20 @@ export const WithChildButtons: Story = {
     template: /*html*/ `
       <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'nav-contrast'"
+          bitIconButton="bwi-pencil-square"
+          buttonType="nav-contrast"
           size="small"
           label="Edit"
         ></button>
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-check'"
-          [buttonType]="'nav-contrast'"
+          bitIconButton="bwi-check"
+          buttonType="nav-contrast"
           size="small"
           label="Confirm"
         ></button>

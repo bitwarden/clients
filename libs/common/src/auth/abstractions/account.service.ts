@@ -3,35 +3,24 @@ import { Observable } from "rxjs";
 import { UserId } from "../../types/guid";
 
 /**
- * Holds information about an account for use in the AccountService
- * if more information is added, be sure to update the equality method.
+ * Holds state that represents a user's account with Bitwarden.
+ * Any additions here should be added to the equality check in the AccountService
+ * to ensure that emissions are done on every change.
+ *
+ * @property email - User's email address.
+ * @property emailVerified - Whether the email has been verified.
+ * @property name - User's display name (optional).
+ * @property creationDate - Date when the account was created.
+ *   Will be undefined immediately after login until the first sync completes.
  */
 export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
+  creationDate: Date | undefined;
 };
 
 export type Account = { id: UserId } & AccountInfo;
-
-export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
-  if (a == null && b == null) {
-    return true;
-  }
-
-  if (a == null || b == null) {
-    return false;
-  }
-
-  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
-  for (const key of keys) {
-    if (a[key] !== b[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export abstract class AccountService {
   abstract accounts$: Observable<Record<UserId, AccountInfo>>;
 
@@ -75,6 +64,12 @@ export abstract class AccountService {
    * @param emailVerified
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
+  /**
+   * updates the `accounts$` observable with the creation date for the account.
+   * @param userId
+   * @param creationDate
+   */
+  abstract setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void>;
   /**
    * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
    * @param userId

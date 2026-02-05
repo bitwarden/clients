@@ -18,7 +18,7 @@ use crate::{
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
-        data_dir: &[".config/google-chrome"],
+        data_dir: &[".config/google-chrome", "snap/chromium/common/chromium"],
     },
     BrowserConfig {
         name: "Chromium",

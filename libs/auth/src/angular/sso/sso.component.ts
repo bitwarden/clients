@@ -478,7 +478,7 @@ export class SsoComponent implements OnInit {
         !userDecryptionOpts.hasMasterPassword &&
         userDecryptionOpts.keyConnectorOption === undefined;
 
-      if (requireSetPassword || authResult.resetMasterPassword) {
+      if (requireSetPassword) {
         // Change implies going no password -> password in this case
         return await this.handleChangePasswordRequired(orgSsoIdentifier);
       }

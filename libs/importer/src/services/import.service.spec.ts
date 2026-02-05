@@ -2,14 +2,14 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionTypes,
   CollectionView,
-} from "@bitwarden/admin-console/common";
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -36,7 +36,7 @@ describe("ImportService", () => {
   let collectionService: MockProxy<CollectionService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
@@ -48,7 +48,7 @@ describe("ImportService", () => {
     collectionService = mock<CollectionService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
@@ -59,7 +59,7 @@ describe("ImportService", () => {
       collectionService,
       keyService,
       encryptService,
-      pinService,
+      keyGenerationService,
       accountService,
       restrictedItemTypesService,
     );

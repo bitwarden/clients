@@ -19,6 +19,7 @@ describe("RemovePasswordComponent", () => {
   let component: RemovePasswordComponent;
 
   const userId = "test-user-id" as UserId;
+  const expectedHostName = "key-connector-url.com";
   const organization = {
     id: "test-organization-id",
     name: "test-organization-name",
@@ -62,6 +63,7 @@ describe("RemovePasswordComponent", () => {
       expect(component["activeUserId"]).toBe("test-user-id");
       expect(component.organization).toEqual(organization);
       expect(component.loading).toEqual(false);
+      expect(component.keyConnectorHostName).toBe(expectedHostName);
 
       expect(mockKeyConnectorService.getManagingOrganization).toHaveBeenCalledWith(userId);
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);

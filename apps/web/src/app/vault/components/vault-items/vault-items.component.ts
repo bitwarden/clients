@@ -3,9 +3,21 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -19,6 +31,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -152,6 +165,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherArchiveService: CipherArchiveService,
+    protected routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -219,6 +233,22 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         );
       }),
     );
+
+    this.routedVaultFilterService.filter$
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.organizationId === curr.organizationId &&
+            prev.collectionId === curr.collectionId &&
+            prev.folderId === curr.folderId &&
+            prev.type === curr.type &&
+            prev.organizationIdParamType === curr.organizationIdParamType,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.clearSelection();
+      });
   }
 
   clearSelection() {
@@ -246,7 +276,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
+    if (
+      this.selection.selected.length === 0 ||
+      !this.userCanArchive ||
+      hasCollectionsSelected ||
+      this.showBulkTrashOptions
+    ) {
       return false;
     }
 
@@ -260,7 +296,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0) {
+    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
       return false;
     }
 

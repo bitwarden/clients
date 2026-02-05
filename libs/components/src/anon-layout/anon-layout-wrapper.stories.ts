@@ -130,6 +130,15 @@ export class DefaultSecondaryOutletExampleComponent {}
 })
 export class DefaultEnvSelectorOutletExampleComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "bit-header-actions-outlet-example-component",
+  template: "<p>Header Actions Outlet Example: <br> your header actions component goes here</p>",
+  standalone: false,
+})
+export class DefaultHeaderActionsOutletExampleComponent {}
+
 export const DefaultContentExample: Story = {
   render: (args) => ({
     props: args,
@@ -170,6 +179,11 @@ export const DefaultContentExample: Story = {
                 path: "",
                 component: DefaultEnvSelectorOutletExampleComponent,
                 outlet: "environment-selector",
+              },
+              {
+                path: "",
+                component: DefaultHeaderActionsOutletExampleComponent,
+                outlet: "header-actions",
               },
             ],
           },

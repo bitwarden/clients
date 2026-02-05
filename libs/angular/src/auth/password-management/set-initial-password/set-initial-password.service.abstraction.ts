@@ -1,4 +1,5 @@
-import { UserId } from "@bitwarden/common/types/guid";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
@@ -50,12 +51,32 @@ export interface SetInitialPasswordCredentials {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+  newPassword: string;
+  salt: MasterPasswordSalt;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
   newPasswordHint: string;
+}
+
+/**
+ * Credentials required to initialize a just-in-time (JIT) provisioned user with a master password.
+ */
+export interface InitializeJitPasswordCredentials {
+  /** Hint for the new master password */
+  newPasswordHint: string;
+  /** SSO identifier for the organization */
+  orgSsoIdentifier: string;
+  /** Organization ID */
+  orgId: OrganizationId;
+  /** Whether to auto-enroll the user in account recovery (reset password) */
+  resetPasswordAutoEnroll: boolean;
+  /** The new master password */
+  newPassword: string;
+  /** Master password salt (typically the user's email) */
+  salt: MasterPasswordSalt;
 }
 
 /**
@@ -66,6 +87,8 @@ export interface SetInitialPasswordTdeOffboardingCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -92,4 +115,14 @@ export abstract class SetInitialPasswordService {
     credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) => Promise<void>;
+
+  /**
+   * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
+   * @param credentials The credentials needed to initialize the JIT password user
+   * @param userId The account userId
+   */
+  abstract initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void>;
 }

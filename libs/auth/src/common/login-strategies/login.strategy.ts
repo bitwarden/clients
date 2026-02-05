@@ -13,10 +13,12 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -49,7 +51,8 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 type IdentityResponse =
   | IdentityTokenResponse
   | IdentityTwoFactorResponse
-  | IdentityDeviceVerificationResponse;
+  | IdentityDeviceVerificationResponse
+  | IdentitySsoRequiredResponse;
 
 export abstract class LoginStrategyData {
   tokenRequest:
@@ -87,6 +90,7 @@ export abstract class LoginStrategy {
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -128,6 +132,8 @@ export abstract class LoginStrategy {
       return [await this.processTokenResponse(response), response];
     } else if (response instanceof IdentityDeviceVerificationResponse) {
       return [await this.processDeviceVerificationResponse(response), response];
+    } else if (response instanceof IdentitySsoRequiredResponse) {
+      return [await this.processSsoRequiredResponse(response), response];
     }
 
     throw new Error("Invalid response object.");
@@ -185,6 +191,7 @@ export abstract class LoginStrategy {
       name: accountInformation.name,
       email: accountInformation.email ?? "",
       emailVerified: accountInformation.email_verified ?? false,
+      creationDate: undefined, // We don't get a creation date in the token. See https://bitwarden.atlassian.net/browse/PM-29551 for consolidation plans.
     });
 
     // User env must be seeded from currently set env before switching to the account
@@ -248,8 +255,6 @@ export abstract class LoginStrategy {
     // Must come before setting keys, user key needs email to update additional keys.
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
-
-    result.resetMasterPassword = response.resetMasterPassword;
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -396,6 +401,21 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult> {
     const result = new AuthResult();
     result.requiresDeviceVerification = true;
+    return result;
+  }
+
+  /**
+   * Handles the response from the server when a SSO Authentication is required.
+   * It hydrates the AuthResult with the SSO organization identifier.
+   *
+   * @param {IdentitySsoRequiredResponse} response - The response from the server indicating that SSO is required.
+   * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
+   */
+  protected async processSsoRequiredResponse(
+    response: IdentitySsoRequiredResponse,
+  ): Promise<AuthResult> {
+    const result = new AuthResult();
+    result.ssoOrganizationIdentifier = response.ssoOrganizationIdentifier;
     return result;
   }
 }
