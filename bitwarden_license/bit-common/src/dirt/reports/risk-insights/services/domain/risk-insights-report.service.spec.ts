@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -37,6 +38,7 @@ describe("RiskInsightsReportService", () => {
   const memberCipherDetailsService = mock<MemberCipherDetailsApiService>();
   const mockPasswordHealthService = mock<PasswordHealthService>();
   const mockRiskInsightsApiService = mock<RiskInsightsApiService>();
+  const mockConfigService = mock<ConfigService>();
   const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
     decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
@@ -82,9 +84,13 @@ describe("RiskInsightsReportService", () => {
       return of(exposedDetails);
     });
 
+    // Mock configService with feature flag on by default
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
     service = new RiskInsightsReportService(
       mockRiskInsightsApiService,
       mockRiskInsightsEncryptionService,
+      mockConfigService,
     );
 
     mockDecryptedData = {
@@ -154,63 +160,11 @@ describe("RiskInsightsReportService", () => {
 
   describe("getRiskInsightsReport$", () => {
     beforeEach(() => {
-      // Reset the mocks before each test
       jest.clearAllMocks();
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
     });
 
-    it("should call with the correct organizationId", async () => {
-      // we need to ensure that the api is invoked with the specified organizationId
-      // here it doesn't matter what the Api returns
-      const apiResponse = new GetRiskInsightsReportResponse({
-        id: "reportId",
-        date: new Date(),
-        organizationId: mockOrganizationId,
-        reportData: mockReportEnc.encryptedString,
-        summaryData: mockSummaryEnc.encryptedString,
-        applicationData: mockApplicationsEnc.encryptedString,
-        contentEncryptionKey: mockEncryptedKey.encryptedString,
-      });
-
-      const decryptedResponse: DecryptedReportData = {
-        reportData: [],
-        summaryData: {
-          totalMemberCount: 1,
-          totalAtRiskMemberCount: 1,
-          totalApplicationCount: 1,
-          totalAtRiskApplicationCount: 1,
-          totalCriticalMemberCount: 1,
-          totalCriticalAtRiskMemberCount: 1,
-          totalCriticalApplicationCount: 1,
-          totalCriticalAtRiskApplicationCount: 1,
-        },
-        applicationData: [],
-      };
-
-      const userId = "userId" as UserId;
-
-      // Mock api returned encrypted data
-      mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
-
-      // Mock decrypted data
-      mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockReturnValue(
-        Promise.resolve(decryptedResponse),
-      );
-
-      await firstValueFrom(service.getRiskInsightsReport$(mockOrganizationId, userId));
-
-      expect(mockRiskInsightsApiService.getRiskInsightsReport$).toHaveBeenCalledWith(
-        mockOrganizationId,
-      );
-      expect(mockRiskInsightsEncryptionService.decryptRiskInsightsReport).toHaveBeenCalledWith(
-        { organizationId: mockOrganizationId, userId },
-        expect.anything(),
-        expect.anything(),
-      );
-    });
-
-    it("should decrypt report and update subjects if response is present", async () => {
-      // Arrange: setup a mock response from the API
-      // and ensure the decryption service is called with the correct parameters
+    it("should decrypt report and return data", async () => {
       const organizationId = "orgId" as OrganizationId;
       const userId = "userId" as UserId;
 
@@ -224,7 +178,7 @@ describe("RiskInsightsReportService", () => {
         contentEncryptionKey: mockEncryptedKey.encryptedString,
       });
 
-      mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(mockResponse));
+      mockRiskInsightsApiService.downloadRiskInsightsReport$.mockReturnValue(of(mockResponse));
       mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockResolvedValue(
         mockDecryptedData,
       );
@@ -242,6 +196,62 @@ describe("RiskInsightsReportService", () => {
         creationDate: mockResponse.creationDate,
         contentEncryptionKey: mockEncryptedKey,
       });
+    });
+
+    it("should use download endpoint when feature flag is true", async () => {
+      const organizationId = "orgId" as OrganizationId;
+      const userId = "userId" as UserId;
+
+      const mockResponse = new GetRiskInsightsReportResponse({
+        id: "reportId",
+        creationDate: new Date(),
+        organizationId: organizationId,
+        reportData: mockReportEnc.encryptedString,
+        summaryData: mockSummaryEnc.encryptedString,
+        applicationData: mockApplicationsEnc.encryptedString,
+        contentEncryptionKey: mockEncryptedKey.encryptedString,
+      });
+
+      mockRiskInsightsApiService.downloadRiskInsightsReport$.mockReturnValue(of(mockResponse));
+      mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockResolvedValue(
+        mockDecryptedData,
+      );
+
+      await firstValueFrom(service.getRiskInsightsReport$(organizationId, userId));
+
+      expect(mockRiskInsightsApiService.downloadRiskInsightsReport$).toHaveBeenCalledWith(
+        organizationId,
+      );
+      expect(mockRiskInsightsApiService.getRiskInsightsReport$).not.toHaveBeenCalled();
+    });
+
+    it("should use regular get endpoint when feature flag is false", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      const organizationId = "orgId" as OrganizationId;
+      const userId = "userId" as UserId;
+
+      const mockResponse = new GetRiskInsightsReportResponse({
+        id: "reportId",
+        creationDate: new Date(),
+        organizationId: organizationId,
+        reportData: mockReportEnc.encryptedString,
+        summaryData: mockSummaryEnc.encryptedString,
+        applicationData: mockApplicationsEnc.encryptedString,
+        contentEncryptionKey: mockEncryptedKey.encryptedString,
+      });
+
+      mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(mockResponse));
+      mockRiskInsightsEncryptionService.decryptRiskInsightsReport.mockResolvedValue(
+        mockDecryptedData,
+      );
+
+      await firstValueFrom(service.getRiskInsightsReport$(organizationId, userId));
+
+      expect(mockRiskInsightsApiService.getRiskInsightsReport$).toHaveBeenCalledWith(
+        organizationId,
+      );
+      expect(mockRiskInsightsApiService.downloadRiskInsightsReport$).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { catchError, EMPTY, from, iif, map, Observable, of, switchMap, throwError } from "rxjs";
+import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -159,11 +159,9 @@ export class RiskInsightsReportService {
       .getFeatureFlag$(FeatureFlag.PM31747_RiskInsightsDownloadEndpoint)
       .pipe(
         switchMap((useDownloadEndpoint) =>
-          iif(
-            () => useDownloadEndpoint,
-            this.riskInsightsApiService.downloadRiskInsightsReport$(organizationId),
-            this.riskInsightsApiService.getRiskInsightsReport$(organizationId),
-          ),
+          useDownloadEndpoint
+            ? this.riskInsightsApiService.downloadRiskInsightsReport$(organizationId)
+            : this.riskInsightsApiService.getRiskInsightsReport$(organizationId),
         ),
         switchMap((response) => {
           if (!response) {
