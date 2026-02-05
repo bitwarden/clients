@@ -104,7 +104,7 @@ export class CloudHostedPremiumComponent {
     this.hasPremiumPersonally$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
-          ? this.billingAccountProfileStateService.hasPremiumPersonally$(account.id)
+          ? this.billingAccountProfileStateService.canViewSubscription$(account.id)
           : of(false),
       ),
     );

@@ -81,7 +81,7 @@ export class UserSubscriptionComponent implements OnInit {
 
     const userId = await firstValueFrom(this.accountService.activeAccount$);
     if (
-      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
+      await firstValueFrom(this.billingAccountProfileStateService.canViewSubscription$(userId.id))
     ) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
