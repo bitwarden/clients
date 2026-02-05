@@ -5,7 +5,6 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   signal,
   viewChild,
@@ -142,15 +141,6 @@ export class SendV2Component {
   );
 
   constructor() {
-    // WORKAROUND: Force change detection when data updates
-    // This is needed because SendSearchComponent (shared lib) hasn't migrated to OnPush yet
-    // and doesn't trigger CD properly when search/add operations complete
-    // TODO: Remove this once SendSearchComponent migrates to OnPush (tracked in CL-764)
-    effect(() => {
-      this.filteredSends();
-      this.cdr.markForCheck();
-    });
-
     this.destroyRef.onDestroy(() => {
       this.activeDrawerRef?.close();
     });
@@ -180,8 +170,6 @@ export class SendV2Component {
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
-
-      this.cdr.detectChanges();
       void this.addEditComponent()?.resetAndLoad();
     }
   }
