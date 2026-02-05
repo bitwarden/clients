@@ -29,7 +29,7 @@
     "message": "使用通行密钥登录"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "使用通行密钥解锁"
   },
   "useSingleSignOn": {
     "message": "使用单点登录"
@@ -990,6 +990,12 @@
   "no": {
     "message": "否"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "位置"
   },
@@ -1846,7 +1852,7 @@
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
   "experimentalFeature": {
-    "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
+    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "进一步了解风险"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "电子邮箱"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "电话"
   },
@@ -2243,7 +2252,7 @@
     }
   },
   "passwordSafe": {
-    "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
+    "message": "在任何已知的数据泄露中均未发现此密码。它暂时比较安全。"
   },
   "baseDomain": {
     "message": "基础域名",
@@ -3054,11 +3063,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
-    "message": "在接下来的 1 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHours": {
-    "message": "在接下来的 $HOURS$ 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $HOURS$ 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "hours": {
@@ -3068,11 +3077,11 @@
     }
   },
   "sendExpiresInDaysSingle": {
-    "message": "在接下来的 1 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInDays": {
-    "message": "在接下来的 $DAYS$ 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $DAYS$ 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -3371,10 +3380,10 @@
     "message": "错误"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "使用通行密钥解锁失败。请重试或使用其他解锁方式。"
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "没有可用于解锁的 PRF 通行密钥。请先使用通行密钥登录。"
   },
   "decryptionError": {
     "message": "解密错误"
@@ -5001,6 +5010,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "下载附件"
+  },
   "downloadBitwarden": {
     "message": "下载 Bitwarden"
   },
@@ -6117,5 +6129,20 @@
   },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

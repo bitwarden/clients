@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom } from "rxjs";
+import { lastValueFrom, firstValueFrom, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -10,13 +10,15 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
-  OrganizationUserType,
   OrganizationUserStatusType,
+  OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -43,6 +45,7 @@ export interface BulkActionResult {
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
+  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
@@ -116,7 +119,21 @@ export class MemberActionsService {
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.restoreOrganizationUser(organization.id, userId);
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore).pipe(
+          switchMap((enabled) => {
+            if (enabled) {
+              return this.organizationUserService.restoreUser(organization, userId);
+            } else {
+              return this.organizationUserApiService.restoreOrganizationUser(
+                organization.id,
+                userId,
+              );
+            }
+          }),
+        ),
+      );
+
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {

@@ -22,6 +22,8 @@ import { FocusableElement } from "../shared/focusable-element";
  *
  * If the component provides the `FocusableElement` interface, the `focus`
  * method will be called. Otherwise, the native element will be focused.
+ *
+ * If selector changes, `dialog.component.ts` must also be updated
  */
 @Directive({
   selector: "[appAutofocus], [bitAutofocus]",
