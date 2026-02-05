@@ -20,13 +20,13 @@ import { ChipSize, ChipSizes } from "./base-chip.directive";
   },
 })
 export class ChipContentComponent {
-  /** Icon class to show at start (e.g., 'bwi-folder') */
   readonly startIcon = input<BitwardenIcon>();
 
-  /** Icon class to show at end (e.g., 'bwi-angle-down') */
   readonly endIcon = input<BitwardenIcon>();
 
   readonly size = input<ChipSize>(ChipSizes.Large);
+
+  readonly dismissible = input<boolean>(false);
 
   protected readonly classList = computed(() => {
     const gapClass = this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1";

@@ -1,0 +1,19 @@
+<bit-chip-content
+  [dismissible]="dismissible()"
+  [startIcon]="startIcon()"
+  [endIcon]="endIcon()"
+  [size]="size()"
+>
+  <ng-content></ng-content>
+  @if (dismissible()) {
+    <!-- Close button -->
+    <button
+      bitChipDismissButton
+      chipEnd
+      type="button"
+      [attr.aria-label]="'removeItem' | i18n: label"
+      [disabled]="disabled()"
+      (click)="handleDismiss($event)"
+    ></button>
+  }
+</bit-chip-content>

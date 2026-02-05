@@ -10,6 +10,6 @@
 
 <ng-content select="[chipEnd]"></ng-content>
 
-@if (endIcon()) {
+@if (endIcon() && !dismissible()) {
   <bit-icon [name]="endIcon()" class="tw-text-base/5" />
 }
