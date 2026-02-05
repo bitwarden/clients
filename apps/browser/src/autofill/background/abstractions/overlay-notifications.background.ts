@@ -2,6 +2,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { NotificationTypes } from "../../notification/abstractions/notification-bar";
 
 export type NotificationTypeData = {
   isVaultLocked?: boolean;
@@ -17,10 +18,26 @@ export type LoginSecurityTaskInfo = {
   uri: ModifyLoginCipherFormData["uri"];
 };
 
+/**
+ * Distinguished from `NotificationTypes` in that this represents the
+ * pre-resolved notification scenario, vs the notification component
+ * (e.g. "Add" and "Change" will be removed
+ * post-`useUndeterminedCipherScenarioTriggeringLogic` migration)
+ */
+export const NotificationScenarios = {
+  ...NotificationTypes,
+  /** represents scenarios handling saving new and updated ciphers after form submit */
+  Cipher: "cipher",
+} as const;
+
+export type NotificationScenario =
+  (typeof NotificationScenarios)[keyof typeof NotificationScenarios];
+
 export type WebsiteOriginsWithFields = Map<chrome.tabs.Tab["id"], Set<string>>;
 
 export type ActiveFormSubmissionRequests = Set<chrome.webRequest.WebRequestDetails["requestId"]>;
 
+/** This type represents an expectation of nullish values being represented as empty strings */
 export type ModifyLoginCipherFormData = {
   uri: string;
   username: string;
