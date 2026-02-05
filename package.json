@@ -146,7 +146,7 @@
     "url": "0.11.4",
     "util": "0.12.5",
     "wait-on": "9.0.3",
-    "webpack": "5.103.0",
+    "webpack": "5.104.1",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.2",
     "webpack-node-externals": "3.0.0"
