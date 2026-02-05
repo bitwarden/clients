@@ -5,6 +5,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
 import {
@@ -95,6 +96,8 @@ const SomePolicyService = mock<PolicyService>();
 
 const SomeExtensionService = mock<ExtensionService>();
 
+const SomeConfigService = mock<ConfigService>;
+
 const SomeSdkService = mock<BitwardenClient>;
 
 const ApplicationProvider = {
@@ -106,6 +109,9 @@ const ApplicationProvider = {
 
   /** Event monitoring and diagnostic interfaces */
   log: disabledSemanticLoggerProvider,
+
+  /** Feature flag retrieval */
+  configService: SomeConfigService,
 
   /** SDK access for password generation */
   sdk: SomeSdkService,

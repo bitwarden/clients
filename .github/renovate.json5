@@ -79,7 +79,6 @@
       matchPackageNames: [
         "@emotion/css",
         "@webcomponents/custom-elements",
-        "bitwarden-russh",
         "concurrently",
         "cross-env",
         "del",
@@ -562,5 +561,6 @@
     "node-ipc",
     "@bitwarden/sdk-internal",
     "@bitwarden/commercial-sdk-internal",
+    "bitwarden-russh",
   ],
 }
