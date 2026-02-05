@@ -597,6 +597,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
 
+  get selectedInvitedCount(): number {
+    return this.dataSource
+      .getCheckedUsers()
+      .filter((member) => member.status === this.userStatusType.Invited).length;
+  }
+
+  get isSingleInvite(): boolean {
+    return this.selectedInvitedCount === 1;
+  }
+
   exportMembers = () => {
     const result = this.memberExportService.getMemberExport(this.dataSource.data);
     if (result.success) {
