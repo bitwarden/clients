@@ -34,11 +34,11 @@
   <h2 [ngClass]="{ 'mt-5': !organizationId }">
     {{ "providers" | i18n }}
     <small *ngIf="loading">
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-fw tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin bwi-fw tw-text-muted"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </small>
   </h2>
@@ -59,11 +59,11 @@
             {{ p.name }}
           </div>
           <ng-container *ngIf="p.enabled">
-            <i
-              class="bwi bwi-check tw-text-success-600 bwi-fw tw-ml-2"
-              title="{{ 'enabled' | i18n }}"
-              aria-hidden="true"
-            ></i>
+            <bit-icon
+              name="bwi-check"
+              class="tw-text-success-600 bwi-fw tw-ml-2"
+              [ariaLabel]="'enabled' | i18n"
+            ></bit-icon>
             <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
           </ng-container>
           <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
