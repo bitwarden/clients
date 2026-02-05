@@ -83,10 +83,6 @@ export class ReportsHomeComponent implements OnInit {
             ? ReportVariant.Enabled
             : ReportVariant.RequiresEnterprise,
       },
-      {
-        ...reports[ReportType.AccessIntelligencePrototype],
-        variant: reportRequiresUpgrade,
-      },
     ];
 
     return reportsArray;
