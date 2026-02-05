@@ -13,32 +13,14 @@ export type extractTUpType<T> = T extends SceneTemplate<infer U, any> ? U : neve
  */
 export abstract class SceneTemplate<TUp, TReturns = void> {
   abstract template: string;
-  private seedId?: string;
-
-  get currentSeedId(): string {
-    if (!this.seedId) {
-      throw new Error("Scene has not been seeded yet");
-    }
-    return this.seedId;
-  }
 
   constructor(public upArgs: TUp) {}
   async up(): Promise<SceneTemplateResult<TReturns>> {
     const result = await sceneUp<TUp, TReturns>(this.template, this.upArgs);
-    this.seedId = result.seedId;
     return {
       mangleMap: result.mangleMap,
       result: result.result,
     };
-  }
-
-  async down(): Promise<void> {
-    if (!this.seedId) {
-      return;
-    }
-
-    await sceneDown(this.seedId);
-    this.seedId = undefined;
   }
 }
 
@@ -62,16 +44,6 @@ async function sceneUp<TUp, TReturns>(
   }
 
   return (await response.json()) as SeederApiResult<TReturns>;
-}
-
-async function sceneDown(seedId: string): Promise<void> {
-  const url = new URL(`${seedId}`, seedApiUrl).toString();
-  const response = await fetch(url, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to delete scene: ${response.statusText}`);
-  }
 }
 
 export interface SeederApiResult<TReturns> {
