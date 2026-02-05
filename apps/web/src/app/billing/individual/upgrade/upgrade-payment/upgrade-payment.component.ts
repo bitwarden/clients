@@ -142,7 +142,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     if (!this.selectedPlan()) {
       return {
         passwordManager: {
-          seats: { name: "", cost: 0, quantity: 0 },
+          seats: { translationKey: "", cost: 0, quantity: 0 },
         },
         cadence: "annually",
         estimatedTax: 0,
@@ -152,7 +152,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     return {
       passwordManager: {
         seats: {
-          name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+          translationKey: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
           cost: this.selectedPlan()!.details.passwordManager.annualPrice ?? 0,
           quantity: 1,
         },

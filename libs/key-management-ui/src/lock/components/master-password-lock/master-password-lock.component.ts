@@ -36,6 +36,7 @@ import {
   UnlockOptions,
   UnlockOptionValue,
 } from "../../services/lock-component.service";
+import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -49,6 +50,7 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
   ],
 })
 export class MasterPasswordLockComponent implements OnInit, OnDestroy {
@@ -76,6 +78,7 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   });
 
   successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
+  prfUnlockSuccess = output<UserKey>();
   logOut = output<void>();
 
   protected showPassword = false;
@@ -142,5 +145,9 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("invalidMasterPassword"),
       });
     }
+  }
+
+  onPrfUnlockSuccess(userKey: UserKey): void {
+    this.prfUnlockSuccess.emit(userKey);
   }
 }

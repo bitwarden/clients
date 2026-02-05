@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
@@ -573,14 +576,23 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "No"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Location"
@@ -1536,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
@@ -2027,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Phone"
   },
@@ -2454,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Restore item"
@@ -3002,10 +3035,6 @@
   "custom": {
     "message": "Custom"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "New Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3345,6 +3374,12 @@
   },
   "error": {
     "message": "Error"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Decryption error"
@@ -4580,11 +4615,11 @@
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
-   "regExAdvancedOptionWarning": {
+  "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
-   "startsWithAdvancedOptionWarning": {
+  "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
@@ -4592,7 +4627,7 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
-  "uriAdvancedOption":{
+  "uriAdvancedOption": {
     "message": "Advanced options",
     "description": "Advanced option placeholder for uri option component"
   },
@@ -4721,6 +4756,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "More options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4779,7 +4817,7 @@
       }
     }
   },
- "copyFieldCipherName": {
+  "copyFieldCipherName": {
     "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
@@ -4811,7 +4849,7 @@
   "adminConsole": {
     "message": "Admin Console"
   },
-  "admin" :{
+  "admin": {
     "message": "Admin"
   },
   "automaticUserConfirmation": {
@@ -4820,7 +4858,7 @@
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
   },
-  "autoConfirmOnboardingCallout":{
+  "autoConfirmOnboardingCallout": {
     "message": "Save time with automatic user confirmation"
   },
   "autoConfirmWarning": {
@@ -4828,6 +4866,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Account security"
@@ -4952,6 +5005,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
   },
   "downloadBitwarden": {
     "message": "Download Bitwarden"
@@ -5092,14 +5148,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
@@ -5637,6 +5690,9 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
   },
@@ -5742,7 +5798,7 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "phishingPageTitleV2":{
+  "phishingPageTitleV2": {
     "message": "Phishing attempt detected"
   },
   "phishingPageSummary": {
@@ -5762,7 +5818,7 @@
     "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
-  "phishingPageLearnMore" : {
+  "phishingPageLearnMore": {
     "message": "Learn more about phishing detection"
   },
   "protectedBy": {
@@ -5930,7 +5986,7 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
-  "removeMasterPasswordForOrgUserKeyConnector":{
+  "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
@@ -5948,10 +6004,10 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
-  "organizationVerified":{
+  "organizationVerified": {
     "message": "Organization verified"
   },
-  "domainVerified":{
+  "domainVerified": {
     "message": "Domain verified"
   },
   "leaveOrganizationContent": {
@@ -6067,7 +6123,32 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

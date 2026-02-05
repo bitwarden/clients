@@ -1,10 +1,11 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Observable, combineLatest, from, map, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { StateProvider } from "@bitwarden/state";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
@@ -18,8 +19,13 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
   providedIn: "root",
 })
 export class NewAccountNudgeService extends DefaultSingleNudgeService {
-  vaultProfileService = inject(VaultProfileService);
-  logService = inject(LogService);
+  constructor(
+    stateProvider: StateProvider,
+    private vaultProfileService: VaultProfileService,
+    private logService: LogService,
+  ) {
+    super(stateProvider);
+  }
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(

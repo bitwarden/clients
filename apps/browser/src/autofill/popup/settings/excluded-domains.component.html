@@ -8,7 +8,9 @@
   <div class="tw-bg-background-alt">
     <p>
       {{
-        accountSwitcherEnabled ? ("excludedDomainsDescAlt" | i18n) : ("excludedDomainsDesc" | i18n)
+        (accountSwitcherEnabled$ | async)
+          ? ("excludedDomainsDescAlt" | i18n)
+          : ("excludedDomainsDesc" | i18n)
       }}
     </p>
     <bit-section *ngIf="!isLoading">

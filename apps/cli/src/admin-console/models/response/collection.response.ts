@@ -1,4 +1,4 @@
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { CollectionWithIdExport } from "@bitwarden/common/models/export/collection-with-id.export";
 
 import { BaseResponse } from "../../../models/response/base.response";
