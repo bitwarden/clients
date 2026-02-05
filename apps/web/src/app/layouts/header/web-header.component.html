@@ -13,11 +13,11 @@
         bitTypography="h1"
         noMargin
         class="tw-m-0 tw-mr-2 tw-leading-10 tw-flex tw-gap-1"
-        [title]="title || (routeData.titleId | i18n)"
+        [title]="title() || (routeData.titleId | i18n)"
       >
         <div class="tw-truncate">
-          <i *ngIf="icon" class="bwi {{ icon }}" aria-hidden="true"></i>
-          {{ title || (routeData.titleId | i18n) }}
+          <i *ngIf="icon" class="bwi {{ icon() }}" aria-hidden="true"></i>
+          {{ title() || (routeData.titleId | i18n) }}
         </div>
         <div><ng-content select="[slot=title-suffix]"></ng-content></div>
       </h1>
