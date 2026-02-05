@@ -227,7 +227,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: normalizePosition(request.clientWindow.position) },
           controller,
         );
 
@@ -293,7 +293,7 @@ export class DesktopAutofillService implements OnDestroy {
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
-            { windowXy: normalizePosition(request.windowXy) },
+            { windowXy: normalizePosition(request.clientWindow.position) },
             controller,
           );
 
@@ -321,7 +321,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: normalizePosition(request.clientWindow.position) },
           controller,
         );
 
