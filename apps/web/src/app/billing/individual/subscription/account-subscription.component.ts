@@ -86,7 +86,6 @@ export class AccountSubscriptionComponent {
       if (!hasPremiumPersonally) {
         return await redirectToPremiumPage();
       }
-
       return await this.accountBillingClient.getSubscription();
     },
   });
