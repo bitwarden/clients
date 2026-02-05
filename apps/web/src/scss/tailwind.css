@@ -93,13 +93,6 @@
     -webkit-appearance: none;
     appearance: none;
   }
-
-  /* Wrapper for datetime input to ensure proper positioning */
-  bit-form-field .tw-relative {
-    display: flex;
-    align-items: stretch;
-  }
-
   /* Ensure datetime inputs have proper padding and alignment */
   .datetime-input {
     padding-right: 2.5rem !important;
