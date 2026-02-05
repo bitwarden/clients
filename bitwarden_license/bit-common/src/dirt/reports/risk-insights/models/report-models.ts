@@ -112,8 +112,9 @@ export const ReportProgress = Object.freeze({
   AnalyzingPasswords: 2,
   CalculatingRisks: 3,
   GeneratingReport: 4,
-  Saving: 5,
-  Complete: 6,
+  EncryptingData: 5,
+  Saving: 6,
+  Complete: 7,
 } as const);
 
 export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
