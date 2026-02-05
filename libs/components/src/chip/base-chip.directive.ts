@@ -1,4 +1,4 @@
-import { Directive, computed, input } from "@angular/core";
+import { Directive, booleanAttribute, computed, input } from "@angular/core";
 
 export const ChipVariants = {
   Primary: "primary",
@@ -85,7 +85,6 @@ const commonStyles = [
   "tw-border",
   "tw-font-medium",
   "tw-transition-colors",
-  "tw-max-w-52",
 
   // Button-specific resets (when applied to button elements)
   "[&:is(button)]:tw-appearance-none",
@@ -114,16 +113,23 @@ export class BaseChipDirective {
   readonly size = input<ChipSize>(ChipSizes.Large);
 
   /**
-   * Whether the chip is in selected state (shows focus ring)
+   * Whether the chip is in selected state
    */
   readonly selected = input<boolean>(false);
+
+  /** Chip will stretch to full width of its container */
+  readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   /**
    * Computed class list based on variant, size, and state
    */
   protected readonly classList = computed(() => {
     // Add size classes
-    const classes = [...commonStyles, ...sizeStyles[this.size()]];
+    const classes = [
+      ...commonStyles,
+      ...sizeStyles[this.size()],
+      this.fullWidth() ? "tw-w-full" : "tw-max-w-52",
+    ];
 
     // Add variant classes (selected state adds focus ring)
     if (this.selected()) {
