@@ -50,9 +50,15 @@
           <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
         </bit-label>
       </bit-form-control>
-      <bit-form-control disableMargin>
+      <bit-form-control>
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
         <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control disableMargin>
+        <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
+        <bit-label>
+          {{ "clickToAutofill" | i18n }}
+        </bit-label>
       </bit-form-control>
     </bit-card>
   </form>

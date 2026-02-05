@@ -30,6 +30,7 @@
         showToast
         bitIconButton="bwi-clone"
         [appCopyClick]="sendLink"
+        [valueLabel]="'sendLink' | i18n"
         [label]="'copySendLink' | i18n"
       ></button>
     </bit-form-field>
@@ -59,6 +60,9 @@
       </bit-select>
       @if (sendDetailsForm.get("authType").value === AuthType.Email) {
         <bit-hint class="tw-mt-2">{{ "emailVerificationDesc" | i18n }}</bit-hint>
+      }
+      @if (sendDetailsForm.get("authType").value === AuthType.Password) {
+        <bit-hint class="tw-mt-2">{{ "sendPasswordHelperText" | i18n }}</bit-hint>
       }
     </bit-form-field>
 
@@ -107,7 +111,6 @@
             ></button>
           }
         </div>
-        <bit-hint>{{ "sendPasswordDescV3" | i18n }}</bit-hint>
       </bit-form-field>
     }
 
