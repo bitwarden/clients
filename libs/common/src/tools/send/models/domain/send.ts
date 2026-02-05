@@ -97,7 +97,9 @@ export class Send extends Domain {
     model.notes =
       this.notes != null ? await encryptService.decryptString(this.notes, model.cryptoKey) : null;
 
-    if (this.emails == null) {
+    if (this.emails != null) {
+      model.emails = this.emails ? this.emails.split(",").map((e) => e.trim()) : [];
+    } else {
       model.emails = [];
     }
 

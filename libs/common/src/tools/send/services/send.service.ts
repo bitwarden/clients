@@ -89,8 +89,10 @@ export class SendService implements InternalSendServiceAbstraction {
     const hasEmails = (model.emails?.length ?? 0) > 0;
 
     if (sendEmailOTPEnabled && hasEmails) {
-      const plaintextEmails = model.emails.join(",");
-      send.emails = plaintextEmails;
+      send.emails = model.emails
+        .map((e) => e.trim())
+        .join(",")
+        .toLocaleLowerCase();
       send.password = null;
     } else {
       send.emails = null;
