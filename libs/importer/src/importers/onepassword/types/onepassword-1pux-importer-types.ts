@@ -49,6 +49,7 @@ export const Category = Object.freeze({
   EmailAccount: "111",
   API_Credential: "112",
   MedicalRecord: "113",
+  SSH_Key: "114",
 } as const);
 
 /**
@@ -133,6 +134,7 @@ export interface Value {
   creditCardType?: string | null;
   creditCardNumber?: string | null;
   reference?: string | null;
+  sshKey?: SSHKey | null;
 }
 
 export interface Email {
@@ -147,6 +149,19 @@ export interface Address {
   zip: string;
   state: string;
 }
+
+export interface SSHKey {
+  privateKey: string;
+  metadata: SSHKeyMetadata;
+}
+
+export interface SSHKeyMetadata {
+  privateKey: string;
+  publicKey: string;
+  fingerprint: string;
+  keyType: string;
+}
+
 export interface InputTraits {
   keyboard: string;
   correction: string;

@@ -14,6 +14,24 @@
   "noCriticalAppsAtRisk": {
     "message": "Никакие критичные приложения не подвергаются риску"
   },
+  "critical": {
+    "message": "Критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Не критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -249,6 +267,9 @@
   },
   "application": {
     "message": "Приложение"
+  },
+  "applications": {
+    "message": "Приложения"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
@@ -585,6 +606,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Телефон"
@@ -1364,6 +1388,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -3280,6 +3310,9 @@
   },
   "nextChargeHeader": {
     "message": "Следующий платеж"
+  },
+  "nextChargeDate": {
+    "message": "Дата следующего платежа"
   },
   "plan": {
     "message": "План"
@@ -5418,6 +5451,12 @@
   "restoreSelected": {
     "message": "Восстановить выбранные"
   },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
+  "archivedItemsRestored": {
+    "message": "Архивированные элементы восстановлены"
+  },
   "restoredItem": {
     "message": "Элемент восстановлен"
   },
@@ -5620,13 +5659,13 @@
     "message": "Send успешно создана!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в следующие $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5947,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Централизация ответственности за организацию"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Все элементы пользователя будут принадлежать и управляться организацией. Администраторы и владельцы не участвуют в этом процессе. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Узнайте больше о централизованном владении",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Преимущества"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Получите полную информацию о состоянии учетных данных, включая общие и частные элементы."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Легко перемещайте элементы во время увольнения участников и их наследования, гарантируя отсутствие пробелов в доступе."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Предоставьте всем пользователям выделенное пространство \"Мои элементы\" для управления их собственными логинами."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Предложите пользователям перенести их элементы"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Если у участников есть какие-либо элементы в их личном хранилище, им будет предложено либо передать их организации, либо покинуть ее. После выхода из организации их доступ будет аннулирован, но может быть восстановлен в любое время."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Узнайте больше о передаче"
   },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
@@ -6888,16 +6958,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Одна или несколько политик организации запрещают вам экспортировать личное хранилище."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Активировать автозаполнение"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Включить автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых участников."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Взломанные или недоверенные сайты могут внедрить вредоносный код во время автозаполнения при загрузке страницы."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Узнать больше об автозаполнении"
   },
   "selectType": {
@@ -10395,6 +10465,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Отправляйте данные о событиях хранилища в ваш экземпляр Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Отправлять данные о событиях в ваш инстанс Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
@@ -10505,6 +10578,12 @@
   },
   "index": {
     "message": "Индекс"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL коллектора событий HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Токен коллектора событий HTTP"
   },
   "selectAPlan": {
     "message": "Выберите план"
@@ -11320,6 +11399,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden попытается зарегистрировать домен 3 раза в течение первых 72 часов. Если домен не удастся зарегистрировать, проверьте запись DNS на вашем хосте и зарегистрируйте вручную. Домен будет удален из вашей организации через 7 дней, если он не будет зарегистрирован."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden попытается заявить права на домен в течение 72 часов. Если домен не может быть заявлен, проверьте свою запись в DNS и подайте заявку вручную. Невостребованные домены удаляются через 7 дней."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "После подачи заявки существующим участникам с заявленными доменами будет отправлено электронное письмо с информацией об "
+  },
+  "accountOwnershipChange": {
+    "message": "изменении владельца аккаунта"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ не зарегистрирован. Проверьте записи DNS.",
     "placeholders": {
@@ -11332,8 +11423,8 @@
   "domainStatusClaimed": {
     "message": "Зарегистрирован"
   },
-  "domainStatusUnderVerification": {
-    "message": "Проверяется"
+  "domainStatusPending": {
+    "message": "Ожидание"
   },
   "claimedDomainsDescription": {
     "message": "Заявите права на домен, чтобы владеть аккаунтами членов. Страница идентификатора SSO будет пропущена при пользователей с заявленными доменами, а администраторы смогут удалять заявленные аккаунты."
@@ -11701,8 +11792,8 @@
     "message": "Архивировать элемент",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
   },
   "archiveBulkItems": {
     "message": "Архивировать элементы",
@@ -12054,6 +12145,15 @@
   },
   "verifyNow": {
     "message": "Подтвердить сейчас."
+  },
+  "unlockWithPasskey": {
+    "message": "Разблокировать при помощи passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF."
   },
   "additionalStorageGB": {
     "message": "Дополнительные ГБ хранилища"
@@ -12621,6 +12721,21 @@
   "storageFullDescription": {
     "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
   },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
   },
@@ -12629,5 +12744,8 @@
   },
   "emailProtected": {
     "message": "Email защищен"
+  },
+  "invalidSendPassword": {
+    "message": "Неверный пароль Send"
   }
 }
