@@ -69,6 +69,7 @@ describe("ImportService", () => {
         {
           name: "Sarah Johnson",
           email: "sjohnson@email.com",
+          avatarColor: "",
           collectionsCount: 3,
           groupsCount: 1,
           itemsCount: 0,
@@ -78,6 +79,7 @@ describe("ImportService", () => {
         {
           name: "James Lull",
           email: "jlull@email.com",
+          avatarColor: "",
           collectionsCount: 2,
           groupsCount: 1,
           itemsCount: 0,
@@ -87,6 +89,7 @@ describe("ImportService", () => {
         {
           name: "Beth Williams",
           email: "bwilliams@email.com",
+          avatarColor: "",
           collectionsCount: 2,
           groupsCount: 1,
           itemsCount: 0,
@@ -96,6 +99,7 @@ describe("ImportService", () => {
         {
           name: "Ray Williams",
           email: "rwilliams@email.com",
+          avatarColor: "",
           collectionsCount: 3,
           groupsCount: 3,
           itemsCount: 0,
