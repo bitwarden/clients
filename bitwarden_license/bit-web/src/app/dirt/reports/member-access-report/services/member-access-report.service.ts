@@ -36,14 +36,15 @@ import { MemberAccessReportApiService } from "./member-access-report-api.service
  */
 interface MemberAccessDataV2 {
   collectionMap: Map<string, CollectionAdminView>;
-  userMetadataMap: Map<string, UserMetadata>;
+  organizationUserDataMap: Map<string, OrganizationUserData>;
   groupMemberMap: Map<string, { groupName: string; memberIds: string[] }>;
 }
 
-interface UserMetadata {
+interface OrganizationUserData {
   userId: string;
   name: string;
   email: string;
+  avatarColor: string;
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
   resetPasswordEnrolled: boolean;
@@ -79,7 +80,7 @@ export class MemberAccessReportService {
   /**
    * Transforms user data into a MemberAccessReportView.
    *
-   * @deprecated V1 implementation - causes timeout for large orgs (5K+ members).
+   * @deprecated Times out for large orgs
    * Use generateMemberAccessReportViewV2 instead. Will be removed after V2 rollout is complete.
    *
    * @param {UserData} userData - The user data to aggregate.
@@ -119,6 +120,7 @@ export class MemberAccessReportService {
         userGuid: userGuid,
         name: userDataArray[0].userName,
         email: userDataArray[0].email,
+        avatarColor: "", // V1 API doesn't provide avatarColor
         collectionsCount: collectionCount,
         groupsCount: groupCount,
         itemsCount: itemsCount,
@@ -236,16 +238,17 @@ export class MemberAccessReportService {
     collections.forEach((c) => collectionMap.set(c.id, c));
 
     // Build user metadata and group member maps
-    const userMetadataMap = new Map<string, UserMetadata>();
+    const organizationUserDataMap = new Map<string, OrganizationUserData>();
     const groupMemberMap = new Map<string, { groupName: string; memberIds: string[] }>();
 
     for (const orgUser of orgUsersResponse.data) {
       // Build user metadata map
       if (orgUser.id) {
-        userMetadataMap.set(orgUser.id, {
+        organizationUserDataMap.set(orgUser.id, {
           userId: orgUser.id,
           name: orgUser.name || orgUser.email,
           email: orgUser.email,
+          avatarColor: orgUser.avatarColor,
           twoFactorEnabled: orgUser.twoFactorEnabled || false,
           usesKeyConnector: orgUser.usesKeyConnector || false,
           resetPasswordEnrolled: orgUser.resetPasswordEnrolled || false,
@@ -266,10 +269,10 @@ export class MemberAccessReportService {
     }
 
     this.logService.debug(
-      `[MemberAccessReportService V2] Loaded ${collections.length} collections, ${userMetadataMap.size} users, ${groupMemberMap.size} groups`,
+      `[MemberAccessReportService V2] Loaded ${collections.length} collections, ${organizationUserDataMap.size} users, ${groupMemberMap.size} groups`,
     );
 
-    return { collectionMap, userMetadataMap, groupMemberMap };
+    return { collectionMap, organizationUserDataMap, groupMemberMap };
   }
 
   /**
@@ -394,7 +397,7 @@ export class MemberAccessReportService {
     // Build report views
     const reportViews: MemberAccessReportView[] = [];
     for (const [userId, data] of userAccessMap.entries()) {
-      const metadata = orgData.userMetadataMap.get(userId);
+      const metadata = orgData.organizationUserDataMap.get(userId);
       if (!metadata) {
         continue;
       }
@@ -403,6 +406,7 @@ export class MemberAccessReportService {
         userGuid: userId as Guid,
         name: metadata.name,
         email: metadata.email,
+        avatarColor: metadata.avatarColor,
         collectionsCount: data.collections.size,
         groupsCount: data.groups.size,
         itemsCount: data.items.size,
@@ -432,7 +436,7 @@ export class MemberAccessReportService {
 
     // Build export items
     const exportItems: MemberAccessExportItem[] = accessList.map((access) => {
-      const metadata = orgData.userMetadataMap.get(access.userId);
+      const metadata = orgData.organizationUserDataMap.get(access.userId);
       const permissionText = this._getPermissionTextV2(access);
 
       return {
