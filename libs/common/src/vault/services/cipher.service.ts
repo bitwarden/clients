@@ -934,12 +934,17 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
+    // Clear the cache before creating the cipher. The SDK internally updates the encrypted storage
+    // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
+    // `createWithServer` can cause race conditions where the cache is cleared after the
+    // encrypted storage has already been updated and thus downstream consumers not getting updated data.
+    await this.clearCache(userId);
+
     const resultCipherView = await this.cipherSdkService.createWithServer(
       cipherView,
       userId,
       orgAdmin,
     );
-    await this.clearCache(userId);
     return resultCipherView;
   }
 
@@ -993,13 +998,18 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
+    // Clear the cache before updating the cipher. The SDK internally updates the encrypted storage
+    // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
+    // `updateWithServer` can cause race conditions where the cache is cleared after the
+    // encrypted storage has already been updated and thus downstream consumers not getting updated data.
+    await this.clearCache(userId);
+
     const resultCipherView = await this.cipherSdkService.updateWithServer(
       cipher,
       userId,
       originalCipherView,
       orgAdmin,
     );
-    await this.clearCache(userId);
     return resultCipherView;
   }
 
