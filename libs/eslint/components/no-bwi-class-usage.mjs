@@ -1,6 +1,21 @@
 export const errorMessage =
   "Use <bit-icon> component instead of applying 'bwi' classes directly. Example: <bit-icon name=\"bwi-lock\"></bit-icon>";
 
+// Helper classes from libs/angular/src/scss/bwicons/styles/style.scss
+// These are utility classes that can be used independently
+const ALLOWED_BWI_HELPER_CLASSES = new Set([
+  "bwi-fw", // Fixed width
+  "bwi-sm", // Small
+  "bwi-lg", // Large
+  "bwi-2x", // 2x size
+  "bwi-3x", // 3x size
+  "bwi-4x", // 4x size
+  "bwi-spin", // Spin animation
+  "bwi-ul", // List
+  "bwi-li", // List item
+  "bwi-rotate-270", // Rotation
+]);
+
 export default {
   meta: {
     type: "suggestion",
@@ -25,12 +40,23 @@ export default {
         for (const classAttr of classAttrs) {
           const classValue = classAttr.value || "";
 
-          // Check if the class value contains 'bwi' or 'bwi-'
-          // This handles both string literals and template expressions
-          const hasBwiClass =
-            typeof classValue === "string" && /\bbwi(?:-[\w-]+)?\b/.test(classValue);
+          if (typeof classValue !== "string") {
+            continue;
+          }
 
-          if (hasBwiClass) {
+          // Extract all bwi classes from the class string
+          const bwiClassMatches = classValue.match(/\bbwi(?:-[\w-]+)?\b/g);
+
+          if (!bwiClassMatches) {
+            continue;
+          }
+
+          // Check if any bwi class is NOT in the allowed helper classes list
+          const hasDisallowedBwiClass = bwiClassMatches.some(
+            (cls) => !ALLOWED_BWI_HELPER_CLASSES.has(cls),
+          );
+
+          if (hasDisallowedBwiClass) {
             context.report({
               node,
               message: errorMessage,
