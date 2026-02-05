@@ -1,6 +1,3 @@
-import { firstValueFrom } from "rxjs";
-
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   BitwardenClient,
   PassphraseGeneratorRequest,
@@ -23,11 +20,11 @@ export class SdkPasswordRandomizer
     CredentialGenerator<PasswordGenerationOptions>
 {
   /** Instantiates the password randomizer
-   *  @param service access to SDK client to call upon password/passphrase generation
+   *  @param client access to SDK client to call upon password/passphrase generation
    *  @param currentTime gets the current datetime in epoch time
    */
   constructor(
-    private service: SdkService,
+    private client: BitwardenClient,
     private currentTime: () => number,
   ) {}
 
@@ -43,9 +40,8 @@ export class SdkPasswordRandomizer
     request: GenerateRequest,
     settings: PasswordGenerationOptions | PassphraseGenerationOptions,
   ) {
-    const sdk: BitwardenClient = await firstValueFrom(this.service.client$);
     if (isPasswordGenerationOptions(settings)) {
-      const password = await sdk.generator().password(convertPasswordRequest(settings));
+      const password = await this.client.generator().password(convertPasswordRequest(settings));
 
       return new GeneratedCredential(
         password,
@@ -55,7 +51,9 @@ export class SdkPasswordRandomizer
         request.website,
       );
     } else if (isPassphraseGenerationOptions(settings)) {
-      const passphrase = await sdk.generator().passphrase(convertPassphraseRequest(settings));
+      const passphrase = await this.client
+        .generator()
+        .passphrase(convertPassphraseRequest(settings));
 
       return new GeneratedCredential(
         passphrase,
