@@ -6,15 +6,23 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
 
+import {
+  CollectionAdminService,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
@@ -44,7 +52,18 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
       useClass: MemberAccessReportService,
-      deps: [MemberAccessReportApiService, I18nService, EncryptService, KeyService, AccountService],
+      deps: [
+        MemberAccessReportApiService,
+        I18nService,
+        EncryptService,
+        KeyService,
+        AccountService,
+        // V2 dependencies
+        CollectionAdminService,
+        OrganizationUserApiService,
+        CipherService,
+        LogService,
+      ],
     }),
   ],
 })
@@ -57,6 +76,7 @@ export class MemberAccessReportComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private configService: ConfigService,
     protected reportService: MemberAccessReportService,
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
@@ -88,18 +108,30 @@ export class MemberAccessReportComponent implements OnInit {
   }
 
   async load() {
-    this.dataSource.data = await this.reportService.generateMemberAccessReportView(
-      this.organizationId,
-    );
+    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.MemberAccessReportV2);
+
+    if (useV2) {
+      this.dataSource.data = await this.reportService.generateMemberAccessReportViewV2(
+        this.organizationId,
+      );
+    } else {
+      // V1 - deprecated, will be removed after V2 rollout
+      this.dataSource.data = await this.reportService.generateMemberAccessReportView(
+        this.organizationId,
+      );
+    }
   }
 
   exportReportAction = async (): Promise<void> => {
+    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.MemberAccessReportV2);
+
+    const exportItems = useV2
+      ? await this.reportService.generateUserReportExportItemsV2(this.organizationId)
+      : await this.reportService.generateUserReportExportItems(this.organizationId);
+
     this.fileDownloadService.download({
       fileName: ExportHelper.getFileName("member-access"),
-      blobData: exportToCSV(
-        await this.reportService.generateUserReportExportItems(this.organizationId),
-        userReportItemHeaders,
-      ),
+      blobData: exportToCSV(exportItems, userReportItemHeaders),
       blobOptions: { type: "text/plain" },
     });
   };
