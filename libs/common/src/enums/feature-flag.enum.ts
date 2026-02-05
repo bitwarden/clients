@@ -51,7 +51,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  PM27044_UpdateRegistrationApis = "pm-27044-update-registration-apis",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
@@ -141,7 +140,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
-  [FeatureFlag.PM27044_UpdateRegistrationApis]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
 

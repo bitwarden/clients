@@ -90,7 +90,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     );
 
     const useNewApi = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27044_UpdateRegistrationApis,
+      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
     );
 
     if (useNewApi) {

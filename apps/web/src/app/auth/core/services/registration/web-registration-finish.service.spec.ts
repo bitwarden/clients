@@ -257,7 +257,7 @@ describe("WebRegistrationFinishService", () => {
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
         expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM27044_UpdateRegistrationApis,
+          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
         );
         expect(accountApiService.registerFinish).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -394,7 +394,7 @@ describe("WebRegistrationFinishService", () => {
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
         expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM27044_UpdateRegistrationApis,
+          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
         );
         expect(accountApiService.registerFinish).toHaveBeenCalledWith(
           expect.objectContaining({
