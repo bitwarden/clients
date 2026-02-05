@@ -1,3 +1,5 @@
+import { COMPRESSION_FORMAT, COMPRESSION_MARKER } from "../../constants";
+
 /**
  * Service for compressing/decompressing Risk Insights report data.
  * Uses browser-native CompressionStream API (gzip) with chunking for large payloads.
@@ -10,9 +12,9 @@
  */
 export class RiskInsightsCompressionService {
   /**
-   * Compression format version identifier.
+   * Compression format version identifier (V2C).
    */
-  private readonly COMPRESSION_FORMAT_VERSION = "V2C" as const;
+  private readonly COMPRESSION_FORMAT_VERSION = COMPRESSION_MARKER.replace(":", "");
 
   // Chunk size: 5MB per chunk to avoid memory issues with large payloads
   private readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
@@ -63,13 +65,12 @@ export class RiskInsightsCompressionService {
    */
   async decompressString(compressedData: string): Promise<string> {
     // Check for V2C: marker
-    const marker = `${this.COMPRESSION_FORMAT_VERSION}:`;
-    if (!compressedData.startsWith(marker)) {
-      throw new Error(`Invalid compressed data format - missing ${marker} marker`);
+    if (!compressedData.startsWith(COMPRESSION_MARKER)) {
+      throw new Error(`Invalid compressed data format - missing ${COMPRESSION_MARKER} marker`);
     }
 
     // Extract payload
-    const payloadJson = compressedData.substring(marker.length);
+    const payloadJson = compressedData.substring(COMPRESSION_MARKER.length);
     const payload = JSON.parse(payloadJson);
 
     if (payload.version !== this.COMPRESSION_FORMAT_VERSION) {
@@ -93,7 +94,7 @@ export class RiskInsightsCompressionService {
    * Check if data is compressed (has V2C: marker).
    */
   isCompressed(data: string): boolean {
-    return data.startsWith("V2C:");
+    return data.startsWith(COMPRESSION_MARKER);
   }
 
   /**
@@ -105,7 +106,7 @@ export class RiskInsightsCompressionService {
     const uint8Array = encoder.encode(chunk);
 
     // Compress with gzip using browser-native API
-    const compressionStream = new CompressionStream("gzip");
+    const compressionStream = new CompressionStream(COMPRESSION_FORMAT);
     const compressedStream = new Blob([uint8Array]).stream().pipeThrough(compressionStream);
 
     const compressedResponse = new Response(compressedStream);
@@ -123,7 +124,7 @@ export class RiskInsightsCompressionService {
     const compressed = this._base64ToArrayBuffer(base64);
 
     // Decompress with gzip using browser-native API
-    const decompressionStream = new DecompressionStream("gzip");
+    const decompressionStream = new DecompressionStream(COMPRESSION_FORMAT);
     const decompressedStream = new Blob([compressed]).stream().pipeThrough(decompressionStream);
 
     const decompressedResponse = new Response(decompressedStream);
