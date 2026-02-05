@@ -4560,6 +4560,9 @@
   "generatingReportData": {
     "message": "Generating report data..."
   },
+  "encryptingReportData": {
+    "message": "Encrypting report data..."
+  },
   "savingReport": {
     "message": "Saving report..."
   },

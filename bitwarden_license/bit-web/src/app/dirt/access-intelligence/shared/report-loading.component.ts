@@ -10,6 +10,7 @@ const ProgressStepConfig = Object.freeze({
   [ReportProgress.AnalyzingPasswords]: { message: "analyzingPasswordHealth", progress: 40 },
   [ReportProgress.CalculatingRisks]: { message: "calculatingRiskScores", progress: 60 },
   [ReportProgress.GeneratingReport]: { message: "generatingReportData", progress: 80 },
+  [ReportProgress.EncryptingData]: { message: "encryptingReportData", progress: 90 },
   [ReportProgress.Saving]: { message: "savingReport", progress: 95 },
   [ReportProgress.Complete]: { message: "compilingInsights", progress: 100 },
 } as const);
