@@ -307,7 +307,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         recordIdentifier: passkeyIdentity.recordIdentifier,
                         clientDataHash: request.clientDataHash,
                         userVerification: userVerification,
-                        windowXy: windowPosition
+                        windowXy: windowPosition,
+                        clientWindowHandle: nil,
+                        context: nil,
                     )
                     
                     let client = await getClient()
@@ -403,7 +405,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userVerification: userVerification,
                         supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
                         windowXy: windowPosition,
-                        excludedCredentials: excludedCredentialIds
+                        excludedCredentials: excludedCredentialIds,
+                        clientWindowHandle: nil,
+                        context: nil,
                     )
                     
                     let client = await getClient()
@@ -470,7 +474,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 clientDataHash: requestParameters.clientDataHash,
                 userVerification: userVerification,
                 allowedCredentials: requestParameters.allowedCredentials,
-                windowXy: windowPosition
+                windowXy: windowPosition,
+                clientWindowHandle: nil,
+                context: nil,
                 //extensionInput: requestParameters.extensionInput, // We don't support extensions yet
             )
             
