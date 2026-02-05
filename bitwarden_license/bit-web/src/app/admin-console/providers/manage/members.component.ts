@@ -104,6 +104,14 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.providerActionsService.isProcessing;
 
   constructor() {
