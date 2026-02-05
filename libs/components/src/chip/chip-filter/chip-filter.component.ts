@@ -23,6 +23,7 @@ import { IconButtonModule } from "../../icon-button";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
 import { SharedModule } from "../../shared";
+import { BitwardenIcon } from "../../shared/icon";
 import { TypographyModule } from "../../typography";
 import { BaseChipDirective, ChipSize, ChipSizes } from "../base-chip.directive";
 import { ChipContentComponent } from "../chip-content.component";
@@ -49,7 +50,7 @@ export type ChipFilterOption<T> = Option<T> & {
     BaseChipDirective,
     ChipContentComponent,
     ChipDismissButtonComponent,
-],
+  ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -67,7 +68,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
   readonly menuTrigger = viewChild(MenuTriggerForDirective);
   readonly size = input<ChipSize>(ChipSizes.Large);
-  
+
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
 
@@ -163,8 +164,8 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /** The icon to show in the chip button */
-  protected get icon(): string | undefined {
-    return this.selectedOption?.icon || this.placeholderIcon();
+  protected get icon(): BitwardenIcon | undefined {
+    return (this.selectedOption?.icon || this.placeholderIcon()) as BitwardenIcon | undefined;
   }
 
   /**
