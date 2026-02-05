@@ -62,9 +62,9 @@ export declare namespace autofill {
     /** The allowed credential ID for the request. */
     credentialId: Array<number>
     /** The user name for the credential that was previously given to the OS. */
-    userName: string
+    userName?: string
     /** The user ID for the credential that was previously given to the OS. */
-    userHandle: Array<number>
+    userHandle?: Array<number>
     /**
      * The app-specific local identifier for the credential, in our case, the
      * cipher ID.

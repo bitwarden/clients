@@ -88,16 +88,13 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     pub credential_id: Vec<u8>,
 
     /// The user name for the credential that was previously given to the OS.
-    #[cfg(target_os = "macos")]
-    pub user_name: String,
+    pub user_name: Option<String>,
 
     /// The user ID for the credential that was previously given to the OS.
-    #[cfg(target_os = "macos")]
-    pub user_handle: Vec<u8>,
+    pub user_handle: Option<Vec<u8>>,
 
     /// The app-specific local identifier for the credential, in our case, the
     /// cipher ID.
-    #[cfg(target_os = "macos")]
     pub record_identifier: Option<String>,
 
     /// Native context required for callbacks to the OS. Format differs on the OS.
