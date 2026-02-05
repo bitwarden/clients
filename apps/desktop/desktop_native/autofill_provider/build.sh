@@ -25,7 +25,7 @@ lipo -create ../target/aarch64-apple-darwin/release/libautofill_provider.a \
 
 # Generate swift bindings
 cargo run --bin uniffi-bindgen --features uniffi/cli generate \
-  ../target/aarch64-apple-darwin/release/libautofill_provider.dylib \
+  ../target/aarch64-apple-darwin/release/libautofill_provider.a \
   --library \
   --language swift \
   --no-format \
