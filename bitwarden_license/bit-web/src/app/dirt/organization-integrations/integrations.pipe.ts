@@ -7,7 +7,10 @@ import { IntegrationType } from "@bitwarden/common/enums";
   name: "filterIntegrations",
 })
 export class FilterIntegrationsPipe implements PipeTransform {
-  transform(integrations: Integration[], type: IntegrationType): Integration[] {
+  transform(integrations: Integration[] | null | undefined, type: IntegrationType): Integration[] {
+    if (!integrations) {
+      return [];
+    }
     return integrations.filter((integration) => integration.type === type);
   }
 }
