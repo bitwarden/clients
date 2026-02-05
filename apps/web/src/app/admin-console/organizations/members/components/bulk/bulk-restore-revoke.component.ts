@@ -88,12 +88,9 @@ export class BulkRestoreRevokeComponent {
       const bulkMessage = this.isRevoking ? "bulkRevokedMessage" : "bulkRestoredMessage";
 
       response.data.forEach(async (entry) => {
-        const error =
-          entry.error !== ""
-            ? this.i18nService.t("cannotRestoreAccessError")
-            : this.i18nService.t(bulkMessage);
-        this.statuses.set(entry.id, error);
-        if (entry.error !== "") {
+        const status = entry.error !== "" ? entry.error : this.i18nService.t(bulkMessage);
+        this.statuses.set(entry.id, status);
+        if (entry.error !== "" && !this.isRevoking) {
           this.nonCompliantMembers = true;
         }
       });
