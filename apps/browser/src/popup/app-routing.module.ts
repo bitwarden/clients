@@ -69,7 +69,7 @@ import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
-import { firefoxPopoutGuard } from "../tools/popup/guards/firefox-popout.guard";
+import { filePickerPopoutGuard } from "../tools/popup/guards/file-picker-popout.guard";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -248,7 +248,7 @@ const routes: Routes = [
   {
     path: "attachments",
     component: AttachmentsV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, filePickerPopoutGuard()],
     data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
@@ -266,7 +266,7 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard, firefoxPopoutGuard()],
+    canActivate: [authGuard, filePickerPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -350,13 +350,13 @@ const routes: Routes = [
   {
     path: "add-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard, firefoxPopoutGuard()],
+    canActivate: [authGuard, filePickerPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard, firefoxPopoutGuard()],
+    canActivate: [authGuard, filePickerPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

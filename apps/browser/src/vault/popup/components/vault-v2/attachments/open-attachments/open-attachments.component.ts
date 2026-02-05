@@ -23,9 +23,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { CipherFormContainer } from "@bitwarden/vault";
 
-import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
-import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -46,9 +43,6 @@ export class OpenAttachmentsComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipherId: CipherId;
 
-  /** True when the attachments window should be opened in a popout */
-  openAttachmentsInPopout: boolean;
-
   /** True when the user has access to premium or h  */
   canAccessAttachments: boolean;
 
@@ -65,7 +59,6 @@ export class OpenAttachmentsComponent implements OnInit {
     private organizationService: OrganizationService,
     private toastService: ToastService,
     private i18nService: I18nService,
-    private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
     private cipherFormContainer: CipherFormContainer,
     private premiumUpgradeService: PremiumUpgradePromptService,
@@ -87,8 +80,6 @@ export class OpenAttachmentsComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.openAttachmentsInPopout = this.filePopoutUtilsService.showFilePopoutMessage(window);
-
     if (!this.cipherId) {
       return;
     }
@@ -131,12 +122,5 @@ export class OpenAttachmentsComponent implements OnInit {
     }
 
     await this.router.navigate(["/attachments"], { queryParams: { cipherId: this.cipherId } });
-
-    // Open the attachments page in a popout
-    // This is done after the router navigation to ensure that the navigation
-    // is included in the `PopupRouterCacheService` history
-    if (this.openAttachmentsInPopout) {
-      await BrowserPopupUtils.openCurrentPagePopout(window);
-    }
   }
 }

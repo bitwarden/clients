@@ -33,7 +33,6 @@ import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.comp
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
-import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -67,7 +66,6 @@ import "../platform/popup/locales";
     ScrollingModule,
     ServicesModule,
     DialogModule,
-    FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
     ButtonModule,

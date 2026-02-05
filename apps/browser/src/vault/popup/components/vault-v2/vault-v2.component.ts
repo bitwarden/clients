@@ -56,8 +56,6 @@ import {
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
-import { BrowserApi } from "../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -370,9 +368,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   async navigateToImport() {
     await this.router.navigate(["/import"]);
-    if (await BrowserApi.isPopupOpen()) {
-      await BrowserPopupUtils.openCurrentPagePopout(window);
-    }
   }
 
   async dismissVaultNudgeSpotlight(type: NudgeType) {
