@@ -17,32 +17,10 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     /** User verification preference. */
     userVerification: UserVerification
+    /** Details about the window of the WebAuthn client. */
+    clientWindow: WindowDetails
     /** List of allowed credential IDs. */
     allowedCredentials: Array<Array<number>>
-    /**
-     * Coordinates of the center of the WebAuthn client's window, relative to
-     * the top-left point on the screen.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Note that macOS APIs gives points relative to the bottom-left point on the
-     * screen by default, so the y-coordinate will be flipped.
-     *
-     * ## Windows
-     * On Windows, this must be logical pixels, not physical pixels.
-     */
-    windowXy: Position
-    /**
-     * Byte string representing the native OS window handle for the WebAuthn client.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Unused.
-     *
-     * ## Windows
-     * On Windows, this is a HWND.
-     */
-    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs on the OS.
      * # Operating System Differences
@@ -75,6 +53,12 @@ export declare namespace autofill {
   export interface PasskeyAssertionWithoutUserInterfaceRequest {
     /** Relying Party ID. */
     rpId: string
+    /** SHA-256 hash of the `clientDataJSON` for the assertion request. */
+    clientDataHash: Array<number>
+    /** User verification preference. */
+    userVerification: UserVerification
+    /** Details about the window of the WebAuthn client. */
+    clientWindow: WindowDetails
     /** The allowed credential ID for the request. */
     credentialId: Array<number>
     /** The user name for the credential that was previously given to the OS. */
@@ -86,34 +70,6 @@ export declare namespace autofill {
      * cipher ID.
      */
     recordIdentifier?: string
-    /** SHA-256 hash of the `clientDataJSON` for the assertion request. */
-    clientDataHash: Array<number>
-    /** User verification preference. */
-    userVerification: UserVerification
-    /**
-     * Coordinates of the center of the WebAuthn client's window, relative to
-     * the top-left point on the screen.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Note that macOS APIs gives points relative to the bottom-left point on the
-     * screen by default, so the y-coordinate will be flipped.
-     *
-     * ## Windows
-     * On Windows, this must be logical pixels, not physical pixels.
-     */
-    windowXy: Position
-    /**
-     * Byte string representing the native OS window handle for the WebAuthn client.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Unused.
-     *
-     * ## Windows
-     * On Windows, this is a HWND.
-     */
-    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs on the OS.
      * # Operating System Differences
@@ -130,42 +86,20 @@ export declare namespace autofill {
   export interface PasskeyRegistrationRequest {
     /** Relying Party ID for the request. */
     rpId: string
-    /** The user name for the credential that was previously given to the OS. */
-    userName: string
-    /** The user ID for the credential that was previously given to the OS. */
-    userHandle: Array<number>
     /** SHA-256 hash of the `clientDataJSON` for the registration request. */
     clientDataHash: Array<number>
     /** User verification preference. */
     userVerification: UserVerification
+    /** Details about the window of the WebAuthn client. */
+    clientWindow: WindowDetails
+    /** The user name for the credential that was previously given to the OS. */
+    userName: string
+    /** The user ID for the credential that was previously given to the OS. */
+    userHandle: Array<number>
     /** Supported key algorithms in COSE format. */
     supportedAlgorithms: Array<number>
-    /**
-     * Coordinates of the center of the WebAuthn client's window, relative to
-     * the top-left point on the screen.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Note that macOS APIs gives points relative to the bottom-left point on the
-     * screen by default, so the y-coordinate will be flipped.
-     *
-     * ## Windows
-     * On Windows, this must be logical pixels, not physical pixels.
-     */
-    windowXy: Position
     /** List of excluded credential IDs. */
     excludedCredentials: Array<Array<number>>
-    /**
-     * Byte string representing the native OS window handle for the WebAuthn client.
-     * # Operating System Differences
-     *
-     * ## macOS
-     * Unused.
-     *
-     * ## Windows
-     * On Windows, this is a HWND.
-     */
-    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs by OS.
      * # Operating System Differences
@@ -200,6 +134,33 @@ export declare namespace autofill {
     Preferred = 'preferred',
     Required = 'required',
     Discouraged = 'discouraged'
+  }
+  /** Details about a native window. */
+  export interface WindowDetails {
+    /**
+     * Coordinates of the center of the window, relative to
+     * the top-left point on the screen.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * Note that macOS APIs gives points relative to the bottom-left point on the
+     * screen by default, so the y-coordinate will be flipped.
+     *
+     * ## Windows
+     * On Windows, this must be logical pixels, not physical pixels.
+     */
+    position: Position
+    /**
+     * Byte string representing the native OS window handle.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * Unused.
+     *
+     * ## Windows
+     * On Windows, this is a HWND.
+     */
+    handle?: Array<number>
   }
 }
 export declare namespace autofill {

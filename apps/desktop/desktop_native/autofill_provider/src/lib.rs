@@ -198,6 +198,35 @@ pub enum UserVerification {
     Discouraged,
 }
 
+/// Details about a native window.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WindowDetails {
+    /// Coordinates of the center of the window, relative to
+    /// the top-left point on the screen.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Note that macOS APIs gives points relative to the bottom-left point on the
+    /// screen by default, so the y-coordinate will be flipped.
+    ///
+    /// ## Windows
+    /// On Windows, this must be logical pixels, not physical pixels.
+    pub position: Position,
+
+    /// Byte string representing the native OS window handle.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Unused.
+    ///
+    /// ## Windows
+    /// On Windows, this is a HWND.
+    pub handle: Option<Vec<u8>>,
+}
+
 // In our callback management, 0 is a reserved sequence number indicating that a message does not
 // have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
