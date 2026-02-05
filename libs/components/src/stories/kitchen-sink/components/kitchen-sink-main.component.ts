@@ -4,10 +4,6 @@ import { Component, signal, WritableSignal } from "@angular/core";
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
-import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
-import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -83,7 +79,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
     </bit-dialog>
   `,
 })
-class KitchenSinkDialogComponent {
+export class KitchenSinkDialogComponent {
   constructor(public dialogRef: DialogRef) {}
 }
 
@@ -91,12 +87,7 @@ class KitchenSinkDialogComponent {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-main",
-  imports: [
-    KitchenSinkSharedModule,
-    KitchenSinkTableComponent,
-    KitchenSinkToggleListComponent,
-    KitchenSinkFormComponent,
-  ],
+  imports: [KitchenSinkSharedModule],
   template: `
     <bit-header title="Kitchen Sink" icon="bwi-collection">
       <bit-breadcrumbs slot="breadcrumbs">
@@ -126,43 +117,11 @@ class KitchenSinkDialogComponent {
       <bit-avatar text="BW"></bit-avatar>
       <bit-tab-nav-bar slot="tabs">
         <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
-        <bit-tab-link [route]="['virtual-scroll']">Virtual Scroll</bit-tab-link>
+        <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
       </bit-tab-nav-bar>
     </bit-header>
 
-    <bit-section>
-      <h2 bitTypography="h2" class="tw-mb-6">Table Example</h2>
-      <bit-kitchen-sink-table></bit-kitchen-sink-table>
-
-      <button
-        type="button"
-        bitButton
-        (click)="openDialog()"
-        [bitPopoverAnchor]="tourStep2"
-        [popoverOpen]="tourStep() === 2"
-        [spotlight]="true"
-        [spotlightPadding]="12"
-        [position]="'below-start'"
-      >
-        Open Dialog
-      </button>
-      <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
-      <button bitButton type="button" (click)="startTour()">Start Tour</button>
-    </bit-section>
-    <bit-section>
-      <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
-      <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
-    </bit-section>
-    <bit-section
-      [bitPopoverAnchor]="tourStep3"
-      [popoverOpen]="tourStep() === 3"
-      [spotlight]="true"
-      [spotlightPadding]="12"
-      [position]="'right-center'"
-    >
-      <h2 bitTypography="h2" class="tw-mb-6">Survey Form</h2>
-      <bit-kitchen-sink-form></bit-kitchen-sink-form>
-    </bit-section>
+    <router-outlet></router-outlet>
 
     <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>

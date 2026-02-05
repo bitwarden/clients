@@ -11,35 +11,39 @@ import {
   getAllByLabelText,
 } from "storybook/test";
 
-import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
-import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
+import { KitchenSinkAppComponent } from "./components/kitchen-sink-app.component";
+import { KitchenSinkEmptyComponent } from "./components/kitchen-sink-empty.component";
 import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkVaultComponent } from "./components/kitchen-sink-vault.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
   title: "Documentation / Kitchen Sink",
-  component: LayoutComponent,
+  component: KitchenSinkAppComponent,
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
+        KitchenSinkAppComponent,
+        KitchenSinkEmptyComponent,
         KitchenSinkFormComponent,
         KitchenSinkMainComponent,
         KitchenSinkTableComponent,
         KitchenSinkToggleListComponent,
+        KitchenSinkVaultComponent,
       ],
     }),
     applicationConfig({
@@ -48,9 +52,16 @@ export default {
         importProvidersFrom(
           RouterModule.forRoot(
             [
-              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
-              { path: "bitwarden", component: KitchenSinkMainComponent },
-              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+              {
+                path: "",
+                component: KitchenSinkMainComponent,
+                children: [
+                  { path: "", redirectTo: "bitwarden", pathMatch: "full" },
+                  { path: "bitwarden", component: KitchenSinkVaultComponent },
+                  { path: "empty", component: KitchenSinkEmptyComponent },
+                  { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+                ],
+              },
             ],
             { useHash: true },
           ),
@@ -61,6 +72,7 @@ export default {
             return new I18nMockService({
               close: "Close",
               search: "Search",
+              selectPlaceholder: "-- Select --",
               skipToContent: "Skip to content",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
@@ -88,37 +100,9 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<LayoutComponent>;
+type Story = StoryObj<KitchenSinkAppComponent>;
 
 export const Default: Story = {
-  render: (args) => {
-    return {
-      props: {
-        ...args,
-        logo: PasswordManagerLogo,
-      },
-      template: /* HTML */ `<bit-layout>
-        <bit-side-nav>
-          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
-          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
-            <bit-nav-item text="Child B" route="b"></bit-nav-item>
-            <bit-nav-item
-              text="Virtual Scroll"
-              route="virtual-scroll"
-              icon="bwi-filter"
-            ></bit-nav-item>
-          </bit-nav-group>
-          <bit-nav-group text="Favorites" icon="bwi-filter">
-            <bit-nav-item text="Favorites Child A" icon="bwi-filter"></bit-nav-item>
-            <bit-nav-item text="Favorites Child B"></bit-nav-item>
-            <bit-nav-item text="Favorites Child C" icon="bwi-filter"></bit-nav-item>
-          </bit-nav-group>
-        </bit-side-nav>
-        <router-outlet></router-outlet>
-      </bit-layout>`,
-    };
-  },
   parameters: {
     chromatic: {
       viewports: [640, 1280],
@@ -127,11 +111,14 @@ export const Default: Story = {
 };
 
 export const MenuOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const table = getByRole(canvas, "table");
 
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
+    const table = getByRole(canvas, "table");
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
@@ -141,9 +128,13 @@ export const MenuOpen: Story = {
 };
 
 export const DialogOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
     const dialogButton = getByRole(canvas, "button", {
       name: "Open Dialog",
     });
@@ -154,9 +145,13 @@ export const DialogOpen: Story = {
 };
 
 export const DrawerOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
     const drawerButton = getByRole(canvas, "button", {
       name: "Open Drawer",
     });
@@ -167,9 +162,13 @@ export const DrawerOpen: Story = {
 };
 
 export const PopoverOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
     const popoverLink = getByRole(canvas, "button", {
       name: "Popover trigger link",
     });
@@ -179,9 +178,13 @@ export const PopoverOpen: Story = {
 };
 
 export const SimpleDialogOpen: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
     const submitButton = getByRole(canvas, "button", {
       name: "Submit",
     });
@@ -192,16 +195,14 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
+    const emptyTab = getByText(canvas, "Empty");
     await userEvent.click(emptyTab);
   },
 };
 
 export const VirtualScrollBlockingDialog: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const navItem = getByText(canvas, "Virtual Scroll");
@@ -217,7 +218,6 @@ export const VirtualScrollBlockingDialog: Story = {
 };
 
 export const ResponsiveSidebar: Story = {
-  render: Default.render,
   parameters: {
     chromatic: {
       viewports: [640, 1280],
@@ -226,9 +226,13 @@ export const ResponsiveSidebar: Story = {
 };
 
 export const GuidedTour: Story = {
-  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    // Ensure we're on the Vault tab
+    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
+    await userEvent.click(vaultTab);
+
     const tourButton = getByRole(canvas, "button", {
       name: "Start Tour",
     });
