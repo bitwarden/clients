@@ -79,12 +79,10 @@ pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
     secure_memory: Arc<Mutex<crate::secure_memory::dpapi::DpapiSecretKVStore>>,
-    // Cache the availability of Windows Hello to avoid excessive event logging.
-    // We only want to cache positive availability, as negative availability may change
-    // (e.g. user enrolling into Windows Hello).
-    // Gets set to false on: process restart, settings changes (via unenroll), and authentication
-    // failures.
-    availability_cache: Arc<Mutex<bool>>,
+    // Cache whether a keychain entry exists to avoid excessive keychain lookups.
+    // Only caches when entry is found; if not found, we check again next time in case
+    // the user enrolls in biometric unlock. Gets cleared on process restart and unenroll.
+    has_keychain_entry_cache: Arc<Mutex<bool>>,
 }
 
 impl BiometricLockSystem {
@@ -93,7 +91,7 @@ impl BiometricLockSystem {
             secure_memory: Arc::new(Mutex::new(
                 crate::secure_memory::dpapi::DpapiSecretKVStore::new(),
             )),
-            availability_cache: Arc::new(Mutex::new(false)),
+            has_keychain_entry_cache: Arc::new(Mutex::new(false)),
         }
     }
 }
@@ -106,40 +104,22 @@ impl Default for BiometricLockSystem {
 
 impl super::BiometricTrait for BiometricLockSystem {
     async fn authenticate(&self, _hwnd: Vec<u8>, message: String) -> Result<bool> {
-        let result = windows_hello_authenticate(message).await;
-
-        // If authentication fails (either error or false result), clear the cache
-        // as availability may have changed (e.g., Windows Hello was disabled, device removed, etc.)
-        if result.as_ref().map_or(true, |&success| !success) {
-            *self.availability_cache.lock().await = false;
-        }
-
-        result
+        windows_hello_authenticate(message).await
     }
 
     async fn authenticate_available(&self) -> Result<bool> {
-        let availability = *self.availability_cache.lock().await;
-        if availability {
-            return Ok(true);
-        }
-
-        let availability = match UserConsentVerifier::CheckAvailabilityAsync()?.await? {
+        match UserConsentVerifier::CheckAvailabilityAsync()?.await? {
             UserConsentVerifierAvailability::Available
             | UserConsentVerifierAvailability::DeviceBusy => Ok(true),
             _ => Ok(false),
-        };
-
-        if let Ok(true) = availability {
-            *self.availability_cache.lock().await = true;
         }
-        availability
     }
 
     async fn unenroll(&self, user_id: &String) -> Result<()> {
         self.secure_memory.lock().await.remove(user_id);
         delete_keychain_entry(user_id).await?;
 
-        *self.availability_cache.lock().await = false;
+        *self.has_keychain_entry_cache.lock().await = false;
 
         Ok(())
     }
@@ -167,7 +147,10 @@ impl super::BiometricTrait for BiometricLockSystem {
                 wrapped_key,
             },
         )
-        .await
+        .await?;
+
+        *self.has_keychain_entry_cache.lock().await = true;
+        Ok(())
     }
 
     async fn provide_key(&self, user_id: &str, key: &[u8]) {
@@ -191,13 +174,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         // If the key is held ephemerally, always use UV API. Only use signing API if the key is not
         // held ephemerally but the keychain holds it persistently.
         if secure_memory.has(user_id) {
-            let authenticated = windows_hello_authenticate("Unlock your vault".to_string()).await;
-            if authenticated.is_err() || authenticated.as_ref().is_ok_and(|&success| !success) {
-                *self.availability_cache.lock().await = false;
-            }
-            let authenticated = authenticated?;
-
-            if authenticated {
+            if windows_hello_authenticate("Unlock your vault".to_string()).await? {
                 secure_memory
                     .get(user_id)?
                     .ok_or_else(|| anyhow!("No key found for user"))
@@ -207,12 +184,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         } else {
             let keychain_entry = get_keychain_entry(user_id).await?;
             let windows_hello_key =
-                windows_hello_authenticate_with_crypto(&keychain_entry.challenge).await;
-            if windows_hello_key.is_err() {
-                *self.availability_cache.lock().await = false;
-            }
-            let windows_hello_key = windows_hello_key?;
-
+                windows_hello_authenticate_with_crypto(&keychain_entry.challenge).await?;
             let decrypted_key = decrypt_data(
                 &windows_hello_key,
                 &keychain_entry.wrapped_key,
@@ -228,12 +200,21 @@ impl super::BiometricTrait for BiometricLockSystem {
     async fn unlock_available(&self, user_id: &String) -> Result<bool> {
         let secure_memory = self.secure_memory.lock().await;
         let has_key =
-            secure_memory.has(user_id) || has_keychain_entry(user_id).await.unwrap_or(false);
+            secure_memory.has(user_id) || self.has_persistent(user_id).await.unwrap_or(false);
         Ok(has_key && self.authenticate_available().await.unwrap_or(false))
     }
 
     async fn has_persistent(&self, user_id: &str) -> Result<bool> {
-        Ok(get_keychain_entry(user_id).await.is_ok())
+        let has_entry = *self.has_keychain_entry_cache.lock().await;
+        if has_entry {
+            return Ok(true);
+        }
+
+        let has_entry = get_keychain_entry(user_id).await.is_ok();
+        if has_entry {
+            *self.has_keychain_entry_cache.lock().await = true;
+        }
+        Ok(has_entry)
     }
 }
 
