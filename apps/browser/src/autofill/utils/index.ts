@@ -2,6 +2,14 @@ import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
+import { getScheduler, type TaskPriority } from "./content-script-scheduler";
+
+/**
+ * Feature flag for MessageChannel-based scheduler.
+ * Set to false to revert to old requestIdleCallback/setTimeout behavior.
+ */
+export const USE_MESSAGE_CHANNEL_SCHEDULER = true;
+
 /**
  * Generates a random string of characters.
  *
@@ -22,33 +30,54 @@ export function generateRandomChars(length: number): string {
 }
 
 /**
- * Polyfills the requestIdleCallback API with a setTimeout fallback.
+ * Polyfills the requestIdleCallback API with a MessageChannel-based scheduler
+ * or setTimeout fallback.
+ *
+ * When USE_MESSAGE_CHANNEL_SCHEDULER is enabled, uses a cooperative scheduler
+ * that avoids contention with host page scripts (e.g., ag-Grid) that heavily
+ * use requestIdleCallback. Falls back to old behavior when disabled.
  *
  * @param callback - The callback function to run when the browser is idle.
  * @param options - The options to pass to the requestIdleCallback function.
  */
 export function requestIdleCallbackPolyfill(
   callback: () => void,
-  options?: Record<string, any>,
+  options?: { timeout?: number; priority?: TaskPriority } & Record<string, any>,
 ): number | NodeJS.Timeout {
-  if ("requestIdleCallback" in globalThis) {
-    return globalThis.requestIdleCallback(() => callback(), options);
+  if (!USE_MESSAGE_CHANNEL_SCHEDULER) {
+    // Old implementation: use native requestIdleCallback or setTimeout fallback
+    if ("requestIdleCallback" in globalThis) {
+      return globalThis.requestIdleCallback(() => callback(), options);
+    }
+    return globalThis.setTimeout(() => callback(), 1);
   }
 
-  return globalThis.setTimeout(() => callback(), 1);
+  // New implementation: use MessageChannel-based scheduler
+  const scheduler = getScheduler();
+  return scheduler.schedule(callback, {
+    timeout: options?.timeout || 1000,
+    priority: options?.priority || "normal",
+  });
 }
 
 /**
- * Polyfills the cancelIdleCallback API with a clearTimeout fallback.
+ * Polyfills the cancelIdleCallback API with MessageChannel scheduler cancel
+ * or clearTimeout fallback.
  *
  * @param id - The ID of the idle callback to cancel.
  */
 export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
-  if ("cancelIdleCallback" in globalThis) {
-    return globalThis.cancelIdleCallback(id as number);
+  if (!USE_MESSAGE_CHANNEL_SCHEDULER) {
+    // Old implementation
+    if ("cancelIdleCallback" in globalThis) {
+      return globalThis.cancelIdleCallback(id as number);
+    }
+    return globalThis.clearTimeout(id);
   }
 
-  return globalThis.clearTimeout(id);
+  // New implementation: use MessageChannel scheduler
+  const scheduler = getScheduler();
+  scheduler.cancel(id as number);
 }
 
 /**
@@ -580,6 +609,18 @@ export function rectHasSize(rect: FieldRect): boolean {
 
   return false;
 }
+
+/**
+ * Re-export scheduler utilities for accessing metrics and control.
+ *
+ * Example usage:
+ * ```
+ * import { getScheduler } from "./utils";
+ * const metrics = getScheduler().getMetrics();
+ * console.log(`Timeout execution rate: ${metrics.timeoutExecutionRate}`);
+ * ```
+ */
+export { getScheduler, type TaskPriority } from "./content-script-scheduler";
 
 /**
  * Checks if all the values corresponding to the specified keys in an object are null.
