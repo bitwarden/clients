@@ -6,6 +6,7 @@ import {
   OnDestroy,
   ViewContainerRef,
   effect,
+  inject,
   input,
   model,
 } from "@angular/core";
@@ -13,6 +14,7 @@ import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
 import { defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
+import { SpotlightService } from "./spotlight.service";
 
 /**
  * Directive that anchors a popover to any element for programmatic control.
@@ -20,11 +22,23 @@ import { PopoverComponent } from "./popover.component";
  * Use `[(popoverOpen)]` for two-way binding to control visibility.
  *
  * @example
+ * Basic usage:
  * ```html
  * <div [bitPopoverAnchor]="tourStep" [(popoverOpen)]="showTour">
  *   Element to highlight
  * </div>
  * <bit-popover #tourStep>Tour content</bit-popover>
+ * ```
+ *
+ * @example
+ * With spotlight effect for guided tours:
+ * ```html
+ * <div [bitPopoverAnchor]="tourStep"
+ *      [(popoverOpen)]="showTour"
+ *      [spotlight]="true"
+ *      [spotlightPadding]="12">
+ *   Element to highlight
+ * </div>
  * ```
  *
  * Use `PopoverTriggerForDirective` instead if the popover is meant to be manually opened by the user clicking a button.
@@ -43,12 +57,19 @@ export class PopoverAnchorDirective implements OnDestroy {
   /** Preferred popover position (e.g., "right-start", "below-center") */
   readonly position = input<string>();
 
+  /** Enable spotlight effect that dims everything except the anchor element */
+  readonly spotlight = input<boolean>(false);
+
+  /** Padding around the spotlight cutout in pixels */
+  readonly spotlightPadding = input<number>(0);
+
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private hasInitialized = false;
   private rafId1: number | null = null;
   private rafId2: number | null = null;
   private isDestroyed = false;
+  private spotlightService = inject(SpotlightService);
 
   get positions() {
     if (!this.position()) {
@@ -66,9 +87,11 @@ export class PopoverAnchorDirective implements OnDestroy {
 
   get defaultPopoverConfig(): OverlayConfig {
     return {
-      hasBackdrop: true,
+      hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
       backdropClass: "cdk-overlay-transparent-backdrop",
-      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      scrollStrategy: this.spotlight()
+        ? this.overlay.scrollStrategies.block()
+        : this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay
         .position()
         .flexibleConnectedTo(this.elementRef)
@@ -132,6 +155,11 @@ export class PopoverAnchorDirective implements OnDestroy {
       return;
     }
 
+    // If spotlight is enabled, automatically close other spotlight popovers
+    if (this.spotlight()) {
+      this.spotlightService.register(this);
+    }
+
     this.popoverOpen.set(true);
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
@@ -141,6 +169,10 @@ export class PopoverAnchorDirective implements OnDestroy {
     this.closedEventsSub = this.getClosedEvents().subscribe(() => {
       this.destroyPopover();
     });
+
+    if (this.spotlight()) {
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+    }
   }
 
   private getClosedEvents(): Observable<any> {
@@ -152,7 +184,7 @@ export class PopoverAnchorDirective implements OnDestroy {
     const escKey = this.overlayRef
       .keydownEvents()
       .pipe(filter((event: KeyboardEvent) => event.key === "Escape"));
-    const backdrop = this.overlayRef.backdropClick();
+    const backdrop = this.overlayRef.backdropClick().pipe(filter(() => !this.spotlight()));
     const popoverClosed = this.popover().closed;
 
     return detachments.pipe(mergeWith(escKey, backdrop, popoverClosed));
@@ -164,6 +196,12 @@ export class PopoverAnchorDirective implements OnDestroy {
     }
 
     this.popoverOpen.set(false);
+
+    // Unregister from spotlight
+    if (this.spotlight()) {
+      this.spotlightService.unregister(this);
+    }
+
     this.disposeAll();
   }
 
@@ -180,6 +218,10 @@ export class PopoverAnchorDirective implements OnDestroy {
     if (this.rafId2 !== null) {
       cancelAnimationFrame(this.rafId2);
       this.rafId2 = null;
+    }
+
+    if (this.spotlight()) {
+      this.spotlightService.hideSpotlight();
     }
   }
 

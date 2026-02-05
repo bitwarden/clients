@@ -1,5 +1,5 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component, signal } from "@angular/core";
+import { Component, signal, WritableSignal } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -98,78 +98,71 @@ class KitchenSinkDialogComponent {
     KitchenSinkFormComponent,
   ],
   template: `
-    <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
-
-    <p class="tw-mt-4">
-      <bit-breadcrumbs>
+    <bit-header title="Kitchen Sink" icon="bwi-collection">
+      <bit-breadcrumbs slot="breadcrumbs">
         @for (item of navItems; track item) {
           <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
             {{ item.name }}
           </bit-breadcrumb>
         }
       </bit-breadcrumbs>
-    </p>
-
-    <div class="tw-my-6">
-      <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink href="#">This is a link</a>
-      <p bitTypography="body1" class="tw-inline">
-        &nbsp;and this is a link button popover trigger:&nbsp;
-      </p>
+      <bit-search
+        [bitPopoverAnchor]="tourStep1"
+        [popoverOpen]="tourStep() === 1"
+        [spotlight]="true"
+        [spotlightPadding]="12"
+        [position]="'below-center'"
+      />
       <button
         bitLink
         [bitPopoverTriggerFor]="myPopover"
         #triggerRef="popoverTrigger"
         type="button"
-        slot="end"
         aria-label="Popover trigger link"
+        slot="secondary"
       >
-        <i class="bwi bwi-question-circle"></i>
+        <bit-icon name="bwi-question-circle" />
       </button>
-    </div>
+      <bit-avatar text="BW"></bit-avatar>
+      <bit-tab-nav-bar slot="tabs">
+        <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
+        <bit-tab-link [route]="['virtual-scroll']">Virtual Scroll</bit-tab-link>
+      </bit-tab-nav-bar>
+    </bit-header>
 
-    <bit-callout type="info" title="About the Kitchen Sink">
-      <p bitTypography="body1">
-        The purpose of this story is to compose together all of our components. When snapshot tests
-        run, we'll be able to spot-check visual changes in a more app-like environment than just the
-        isolated stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI
-        tests.
-      </p>
-    </bit-callout>
+    <bit-section>
+      <h2 bitTypography="h2" class="tw-mb-6">Table Example</h2>
+      <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
-    <bit-tab-group label="Main content tabs" class="tw-text-main">
-      <bit-tab label="Evaluation">
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">About</h2>
-          <bit-kitchen-sink-table></bit-kitchen-sink-table>
-
-          <button type="button" bitButton (click)="openDialog()">Open Dialog</button>
-          <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
-        </bit-section>
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
-          <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
-        </bit-section>
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Survey</h2>
-          <bit-kitchen-sink-form></bit-kitchen-sink-form>
-        </bit-section>
-      </bit-tab>
-
-      <bit-tab label="Empty tab" data-testid="empty-tab">
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Tab Number 2</h2>
-          <bit-no-items class="tw-text-main">
-            <ng-container slot="title">This tab is empty</ng-container>
-            <ng-container slot="description">
-              <p bitTypography="body2">Try searching for what you are looking for:</p>
-              <bit-search></bit-search>
-              <p bitTypography="helper">Note that the search bar is not functional</p>
-            </ng-container>
-          </bit-no-items>
-        </bit-section>
-      </bit-tab>
-    </bit-tab-group>
+      <button
+        type="button"
+        bitButton
+        (click)="openDialog()"
+        [bitPopoverAnchor]="tourStep2"
+        [popoverOpen]="tourStep() === 2"
+        [spotlight]="true"
+        [spotlightPadding]="12"
+        [position]="'below-start'"
+      >
+        Open Dialog
+      </button>
+      <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
+      <button bitButton type="button" (click)="startTour()">Start Tour</button>
+    </bit-section>
+    <bit-section>
+      <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
+      <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
+    </bit-section>
+    <bit-section
+      [bitPopoverAnchor]="tourStep3"
+      [popoverOpen]="tourStep() === 3"
+      [spotlight]="true"
+      [spotlightPadding]="12"
+      [position]="'right-center'"
+    >
+      <h2 bitTypography="h2" class="tw-mb-6">Survey Form</h2>
+      <bit-kitchen-sink-form></bit-kitchen-sink-form>
+    </bit-section>
 
     <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
@@ -178,6 +171,48 @@ class KitchenSinkDialogComponent {
         <li>Support</li>
       </ul>
     </bit-popover>
+
+    <!-- Tour Popovers -->
+    <bit-popover [title]="'Step 1: Search'" #tourStep1>
+      <div>Use the <strong>search bar</strong> to quickly find any item in your vault.</div>
+      <p class="tw-mt-2 tw-mb-0">
+        Search works across all fields including usernames, URLs, and notes.
+      </p>
+      <div class="tw-flex tw-gap-2 tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
+        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+          Skip Tour
+        </button>
+      </div>
+    </bit-popover>
+
+    <bit-popover [title]="'Step 2: Dialogs'" #tourStep2>
+      <div>Click buttons to <strong>open dialogs</strong> for important actions and forms.</div>
+      <p class="tw-mt-2 tw-mb-0">
+        Dialogs help focus user attention and collect input for critical operations.
+      </p>
+      <div class="tw-flex tw-gap-2 tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
+        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+          Skip Tour
+        </button>
+      </div>
+    </bit-popover>
+
+    <bit-popover [title]="'Step 3: Forms'" #tourStep3>
+      <div>Fill out <strong>forms</strong> to collect and manage user information.</div>
+      <p class="tw-mt-2 tw-mb-0">
+        Our form components provide consistent styling and validation patterns.
+      </p>
+      <div class="tw-flex tw-gap-2 tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">
+          Finish Tour
+        </button>
+        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+          Skip Tour
+        </button>
+      </div>
+    </bit-popover>
   `,
 })
 export class KitchenSinkMainComponent {
@@ -185,12 +220,27 @@ export class KitchenSinkMainComponent {
 
   protected readonly drawerOpen = signal(false);
 
+  // Tour state
+  protected readonly tourStep: WritableSignal<0 | 1 | 2 | 3> = signal(0);
+
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
   }
 
   openDrawer() {
     this.dialogService.openDrawer(KitchenSinkDialogComponent);
+  }
+
+  protected startTour() {
+    this.tourStep.set(1);
+  }
+
+  protected nextTourStep() {
+    this.tourStep.update((prev) => (prev < 3 ? ((prev + 1) as 3) : 0));
+  }
+
+  protected skipTour() {
+    this.tourStep.set(0);
   }
 
   navItems = [
