@@ -14,24 +14,70 @@
   <div class="tw-mt-4 tw-flex tw-items-center">
     <bit-form-field>
       <bit-label>{{ "from" | i18n }}</bit-label>
-      <input
-        bitInput
-        type="datetime-local"
-        placeholder="{{ 'startDate' | i18n }}"
-        formControlName="start"
-        (change)="dirtyDates = true"
-      />
+      <div class="tw-relative">
+        <input
+          #startInput
+          bitInput
+          type="datetime-local"
+          placeholder="{{ 'startDate' | i18n }}"
+          formControlName="start"
+          (change)="dirtyDates = true"
+          class="datetime-input"
+        />
+        <svg
+          class="datetime-calendar-icon"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="Open date picker"
+          role="button"
+          tabindex="0"
+          (click)="startInput.showPicker()"
+          (keydown.enter)="startInput.showPicker()"
+          (keydown.space)="startInput.showPicker()"
+        >
+          <path
+            d="M14 2h-1V1a1 1 0 00-2 0v1H5V1a1 1 0 00-2 0v1H2a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zM2 14V6h12v8H2z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
     </bit-form-field>
     <span class="tw-mx-2">-</span>
     <bit-form-field>
       <bit-label>{{ "to" | i18n }}</bit-label>
-      <input
-        bitInput
-        type="datetime-local"
-        placeholder="{{ 'endDate' | i18n }}"
-        formControlName="end"
-        (change)="dirtyDates = true"
-      />
+      <div class="tw-relative">
+        <input
+          #endInput
+          bitInput
+          type="datetime-local"
+          placeholder="{{ 'endDate' | i18n }}"
+          formControlName="end"
+          (change)="dirtyDates = true"
+          class="datetime-input"
+        />
+        <svg
+          class="datetime-calendar-icon"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="Open date picker"
+          role="button"
+          tabindex="0"
+          (click)="endInput.showPicker()"
+          (keydown.enter)="endInput.showPicker()"
+          (keydown.space)="endInput.showPicker()"
+        >
+          <path
+            d="M14 2h-1V1a1 1 0 00-2 0v1H5V1a1 1 0 00-2 0v1H2a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zM2 14V6h12v8H2z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
     </bit-form-field>
     <form>
       <button

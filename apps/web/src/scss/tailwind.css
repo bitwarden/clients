@@ -79,6 +79,70 @@
   .theme_dark img.new-logo-themed {
     content: url("../images/logo-white.svg");
   }
+
+  /**
+   * Custom calendar icon for date/datetime inputs
+   * Hides native macOS picker and uses custom SVG calendar icon
+   */
+
+  /* Hide the native calendar picker indicator completely */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Wrapper for datetime input to ensure proper positioning */
+  bit-form-field .tw-relative {
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Ensure datetime inputs have proper padding and alignment */
+  .datetime-input {
+    padding-right: 2.5rem !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Position and style for custom datetime calendar icon */
+  .datetime-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Light mode calendar icon color - dark for visibility */
+  .theme_light .datetime-calendar-icon {
+    color: #333333;
+  }
+
+  /* Dark mode calendar icon color - light for visibility */
+  .theme_dark .datetime-calendar-icon {
+    color: #cccccc;
+  }
+
+  /* Hover effect for calendar icon */
+  .datetime-calendar-icon:hover {
+    opacity: 0.7;
+  }
+
+  /* Focus styling for accessibility */
+  .datetime-calendar-icon:focus {
+    outline: 2px solid rgba(var(--color-primary-600));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 /**
