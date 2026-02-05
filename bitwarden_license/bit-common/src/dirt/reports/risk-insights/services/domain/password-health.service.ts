@@ -27,10 +27,12 @@ export class PasswordHealthService {
   auditPasswordLeaks$(ciphers: CipherView[]): Observable<ExposedPasswordDetail[]> {
     return from(ciphers).pipe(
       filter((cipher) => this.isValidCipher(cipher)),
-      mergeMap((cipher) =>
-        this.auditService
-          .passwordLeaked(cipher.login.password!)
-          .then((exposedCount) => ({ cipher, exposedCount })),
+      mergeMap(
+        (cipher) =>
+          this.auditService
+            .passwordLeaked(cipher.login.password!)
+            .then((exposedCount) => ({ cipher, exposedCount })),
+        10, // Limit concurrent HIBP API
       ),
       // [FIXME] ExposedDetails is can still return a null
       filter(({ exposedCount }) => exposedCount > 0),
