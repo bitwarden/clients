@@ -28,7 +28,7 @@ export const TOOLTIP_DELAY_MS = 800;
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
-    "(focus)": "handleFocus()",
+    "(focus)": "showTooltip()",
     "(blur)": "hideTooltip()",
     "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
@@ -49,12 +49,6 @@ export class TooltipDirective implements OnInit, OnDestroy {
    * Input so the consumer can choose to add the tooltip id to the aria-describedby attribute of the host element.
    */
   readonly addTooltipToDescribedby = input<boolean>(false);
-
-  /**
-   * Controls whether the tooltip should be shown on focus events.
-   * @default true
-   */
-  readonly showTooltipOnFocus = input<boolean>(true);
 
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
@@ -125,12 +119,6 @@ export class TooltipDirective implements OnInit, OnDestroy {
       this.isVisible.set(true);
       this.showTimeoutId = undefined;
     }, TOOLTIP_DELAY_MS);
-  };
-
-  protected handleFocus = () => {
-    if (this.showTooltipOnFocus()) {
-      this.showTooltip();
-    }
   };
 
   protected hideTooltip = () => {
