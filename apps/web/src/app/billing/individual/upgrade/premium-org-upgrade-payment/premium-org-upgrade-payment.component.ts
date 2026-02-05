@@ -203,6 +203,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         status: PremiumOrgUpgradePaymentStatus.Closed,
         organizationId: null,
       });
+      return;
     }
 
     combineLatest([
