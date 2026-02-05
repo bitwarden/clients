@@ -36,6 +36,7 @@ type BulkConfirmDialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
+  selector: "member-bulk-comfirm-dialog",
   standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {

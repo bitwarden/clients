@@ -1,18 +1,17 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { map, Observable, ReplaySubject, Subject } from "rxjs";
 
-import { CollectionAdminView, CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-
-import { VaultFilterService as BaseVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/vault-filter.service";
-import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
+import { VaultFilterService as BaseVaultFilterService, CollectionFilter } from "@bitwarden/vault";
 
 @Injectable()
 export class VaultFilterService extends BaseVaultFilterService implements OnDestroy {

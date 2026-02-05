@@ -1,7 +1,7 @@
-import { CdkVirtualScrollableElement } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
@@ -9,7 +9,6 @@ import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
@@ -45,6 +44,7 @@ import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.s
 import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
@@ -175,17 +175,23 @@ describe("VaultV2Component", () => {
     showDeactivatedOrg$: new BehaviorSubject<boolean>(false),
     favoriteCiphers$: new BehaviorSubject<any[]>([]),
     remainingCiphers$: new BehaviorSubject<any[]>([]),
+    filteredCiphers$: new BehaviorSubject<any[]>([]),
     cipherCount$: new BehaviorSubject<number>(0),
-    loading$: new BehaviorSubject<boolean>(true),
+    hasSearchText$: new BehaviorSubject<boolean>(false),
   } as Partial<VaultPopupItemsService>;
 
-  const filtersSvc = {
+  const filtersSvc: any = {
     allFilters$: new Subject<any>(),
     filters$: new BehaviorSubject<any>({}),
     filterVisibilityState$: new BehaviorSubject<any>({}),
-  } as Partial<VaultPopupListFiltersService>;
+    numberOfAppliedFilters$: new BehaviorSubject<number>(0),
+  };
 
-  const accountActive$ = new BehaviorSubject<FakeAccount | null>({ id: "user-1" });
+  const loadingSvc: any = {
+    loading$: new BehaviorSubject<boolean>(false),
+  };
+
+  const activeAccount$ = new BehaviorSubject<FakeAccount | null>({ id: "user-1" });
 
   const cipherSvc = {
     failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
@@ -222,12 +228,6 @@ describe("VaultV2Component", () => {
     hasPremiumFromAnySource$: (_: string) => hasPremiumFromAnySource$,
   };
 
-  const vaultProfileSvc = {
-    getProfileCreationDate: jest
-      .fn()
-      .mockResolvedValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)), // 8 days ago
-  };
-
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
@@ -244,21 +244,19 @@ describe("VaultV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [VaultV2Component, RouterTestingModule],
       providers: [
+        provideNoopAnimations(),
         { provide: VaultPopupItemsService, useValue: itemsSvc },
         { provide: VaultPopupListFiltersService, useValue: filtersSvc },
+        { provide: VaultPopupLoadingService, useValue: loadingSvc },
         { provide: VaultPopupScrollPositionService, useValue: scrollSvc },
         {
           provide: AccountService,
-          useValue: { activeAccount$: accountActive$ },
+          useValue: { activeAccount$ },
         },
         { provide: CipherService, useValue: cipherSvc },
         { provide: DialogService, useValue: dialogSvc },
         { provide: IntroCarouselService, useValue: introSvc },
         { provide: NudgesService, useValue: nudgesSvc },
-        {
-          provide: VaultProfileService,
-          useValue: vaultProfileSvc,
-        },
         {
           provide: VaultPopupCopyButtonsService,
           useValue: { showQuickCopyActions$: new BehaviorSubject<boolean>(false) },
@@ -376,39 +374,46 @@ describe("VaultV2Component", () => {
   });
 
   it("loading$ is true when items loading or filters missing; false when both ready", () => {
-    const itemsLoading$ = itemsSvc.loading$ as unknown as BehaviorSubject<boolean>;
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
     const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
 
     const values: boolean[] = [];
     getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
 
-    itemsLoading$.next(true);
+    vaultLoading$.next(true);
 
     allFilters$.next({});
 
-    itemsLoading$.next(false);
+    vaultLoading$.next(false);
 
     readySubject$.next(true);
 
     expect(values[values.length - 1]).toBe(false);
   });
 
-  it("ngAfterViewInit waits for allFilters$ then starts scroll position service", fakeAsync(() => {
+  it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
+    const fixture = TestBed.createComponent(VaultV2Component);
+    const component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
+    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
 
-    (component as any).virtualScrollElement = {} as CdkVirtualScrollableElement;
-
-    component.ngAfterViewInit();
-    expect(scrollSvc.start).not.toHaveBeenCalled();
-
-    allFilters$.next({ any: true });
+    fixture.detectChanges();
     tick();
 
-    expect(scrollSvc.start).toHaveBeenCalledTimes(1);
-    expect(scrollSvc.start).toHaveBeenCalledWith((component as any).virtualScrollElement);
+    const scrollRegion = fixture.nativeElement.querySelector(
+      '[data-testid="popup-layout-scroll-region"]',
+    ) as HTMLElement;
 
-    flush();
+    // Unblock loading
+    vaultLoading$.next(false);
+    readySubject$.next(true);
+    allFilters$.next({});
+    tick();
+
+    expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
   }));
 
   it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
@@ -465,7 +470,7 @@ describe("VaultV2Component", () => {
   it("dismissVaultNudgeSpotlight forwards to NudgesService with active user id", fakeAsync(() => {
     const spy = jest.spyOn(nudgesSvc, "dismissNudge").mockResolvedValue(undefined);
 
-    accountActive$.next({ id: "user-xyz" });
+    activeAccount$.next({ id: "user-xyz" });
 
     void component.ngOnInit();
     tick();
@@ -477,6 +482,10 @@ describe("VaultV2Component", () => {
   }));
 
   it("accountAgeInDays$ computes integer days since creation", (done) => {
+    activeAccount$.next({
+      id: "user-123",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+    } as any);
     getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
       if (days !== null) {
         expect(days).toBeGreaterThanOrEqual(7);
@@ -562,10 +571,6 @@ describe("VaultV2Component", () => {
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
 
-    vaultProfileSvc.getProfileCreationDate = jest
-      .fn()
-      .mockResolvedValue(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)); // 3 days ago
-
     (nudgesSvc.showNudgeSpotlight$ as jest.Mock).mockImplementation((type: NudgeType) => {
       return of(type === NudgeType.PremiumUpgrade);
     });
@@ -608,6 +613,127 @@ describe("VaultV2Component", () => {
 
     const spotlights = queryAllSpotlights(fixture);
     expect(spotlights.length).toBe(0);
+  }));
+
+  it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", () => {
+    itemsSvc.hasSearchText$.next(true);
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
+    expect(autofillElement).toBeFalsy();
+
+    const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
+    expect(favoritesElement).toBeFalsy();
+  });
+
+  it("does render app-autofill-vault-list-items and favorites item container when hasSearchText$ is false", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
+    expect(autofillElement).toBeTruthy();
+
+    const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
+    expect(favoritesElement).toBeTruthy();
+  });
+
+  it("does set the title for allItems container to allItems when hasSearchText$ and numberOfAppliedFilters$ are false and 0 respectively", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    filtersSvc.numberOfAppliedFilters$.next(0);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("allItems");
+  });
+
+  it("does set the title for allItems container to searchResults when hasSearchText$ is true", () => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(true);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("searchResults");
+  });
+
+  it("does set the title for allItems container to items when numberOfAppliedFilters$ is > 0", fakeAsync(() => {
+    // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
+    itemsSvc.hasSearchText$.next(false);
+    filtersSvc.numberOfAppliedFilters$.next(1);
+    loadingSvc.loading$.next(false);
+
+    const fixture = TestBed.createComponent(VaultV2Component);
+    component = fixture.componentInstance;
+
+    const readySubject$ = component["readySubject"];
+    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+
+    // Unblock loading
+    readySubject$.next(true);
+    allFilters$.next({});
+    fixture.detectChanges();
+
+    const allItemsElement = fixture.debugElement.query(By.css("#allItems"));
+    const allItemsTitle = allItemsElement.componentInstance.title();
+    expect(allItemsTitle).toBe("items");
   }));
 
   describe("AutoConfirmExtensionSetupDialog", () => {

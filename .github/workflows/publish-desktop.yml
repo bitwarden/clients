@@ -331,7 +331,7 @@ jobs:
         run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/macos-build-number.json"
 
       - name: Setup Ruby and Install Fastlane
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        uses: ruby/setup-ruby@708024e6c902387ab41de36e1669e43b5ee7085e # v1.283.0
         with:
           ruby-version: '3.4.7'
           bundler-cache: false
