@@ -42,7 +42,7 @@ export declare namespace autofill {
      * ## Windows
      * On Windows, this is a HWND.
      */
-    clientWindowHandle: Array<number>
+    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs on the OS.
      * # Operating System Differences
@@ -54,7 +54,7 @@ export declare namespace autofill {
      * On Windows, this is a base64-string representing the following data:
      * `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
      */
-    context: string
+    context?: string
   }
   /** Response for a passkey assertion request. */
   export interface PasskeyAssertionResponse {
@@ -113,7 +113,7 @@ export declare namespace autofill {
      * ## Windows
      * On Windows, this is a HWND.
      */
-    clientWindowHandle: Array<number>
+    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs on the OS.
      * # Operating System Differences
@@ -124,7 +124,7 @@ export declare namespace autofill {
      * ## Windows
      * On Windows, this is `request transaction id () || SHA-256(pluginOperationRequest)`.
      */
-    context: string
+    context?: string
   }
   /** Request to create a credential. */
   export interface PasskeyRegistrationRequest {
@@ -165,7 +165,7 @@ export declare namespace autofill {
      * ## Windows
      * On Windows, this is a HWND.
      */
-    clientWindowHandle: Array<number>
+    clientWindowHandle?: Array<number>
     /**
      * Native context required for callbacks to the OS. Format differs by OS.
      * # Operating System Differences
@@ -177,7 +177,7 @@ export declare namespace autofill {
      * On Windows, this is a base64-string representing the following data:
      * `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
      */
-    context: string
+    context?: string
   }
   /** Response for a passkey registration request. */
   export interface PasskeyRegistrationResponse {

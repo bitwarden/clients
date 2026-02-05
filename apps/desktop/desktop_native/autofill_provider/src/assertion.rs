@@ -46,8 +46,7 @@ pub struct PasskeyAssertionRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
-    // #[cfg(not(target_os = "macos"))]
-    pub client_window_handle: Vec<u8>,
+    pub client_window_handle: Option<Vec<u8>>,
 
     /// Native context required for callbacks to the OS. Format differs on the OS.
     /// # Operating System Differences
@@ -58,8 +57,7 @@ pub struct PasskeyAssertionRequest {
     /// ## Windows
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
-    // #[cfg(not(target_os = "macos"))]
-    pub context: String,
+    pub context: Option<String>,
     //  TODO(PM-30510): Implement support for extensions
     // pub extension_input: Vec<u8>,
 }
@@ -140,9 +138,7 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
-    // TODO: See if we can drop this for macOS, or convert to Option
-    // #[cfg(not(target_os = "macos"))]
-    pub client_window_handle: Vec<u8>,
+    pub client_window_handle: Option<Vec<u8>>,
 
     /// Native context required for callbacks to the OS. Format differs on the OS.
     /// # Operating System Differences
@@ -152,9 +148,7 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     ///
     /// ## Windows
     /// On Windows, this is `request transaction id () || SHA-256(pluginOperationRequest)`.
-    // TODO: See if we can drop this for macOS, or convert to Option
-    // #[cfg(not(target_os = "macos"))]
-    pub context: String,
+    pub context: Option<String>,
 }
 
 /// Callback to process a response to passkey assertion request.
