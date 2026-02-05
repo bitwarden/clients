@@ -157,6 +157,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
+import { DefaultSyncInitService } from "@bitwarden/common/platform/services/default-sync-init.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -471,6 +472,7 @@ export default class MainBackground {
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   decentralizedInitService: DefaultDecentralizedInitService;
+  syncInitService: DefaultSyncInitService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -1574,12 +1576,31 @@ export default class MainBackground {
       initServiceTokens,
       backgroundInjector,
     );
+
+    // Setup synchronous initialization for Chrome API event listeners
+    // These run BEFORE async init to ensure listeners are registered
+    // before the service worker can be terminated (Manifest V3 requirement)
+    const syncBackgroundInjector = new BackgroundInjector();
+
+    // Register services that need sync init (Chrome API listeners)
+    syncBackgroundInjector.register(CommandsBackground, this.commandsBackground);
+
+    const syncInitServiceTokens: Dependency[] = [CommandsBackground];
+
+    this.syncInitService = new DefaultSyncInitService(
+      syncInitServiceTokens,
+      syncBackgroundInjector,
+    );
   }
 
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    // Initialize services registered with DecentralizedInitService
+    // CRITICAL: Synchronous initialization MUST happen first
+    // Registers all Chrome API event listeners before service worker termination
+    this.syncInitService.init();
+
+    // Now safe to do async initialization
     await this.decentralizedInitService.init();
 
     // Only the "true" background should run migrations
