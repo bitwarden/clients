@@ -13,7 +13,7 @@
       </a>
     </bit-item>
     <bit-item>
-      <button type="button" bit-item-content (click)="import()">
+      <button type="button" bit-item-content (click)="import()" [title]="'popOutNewWindow' | i18n">
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
           <p>{{ "importNoun" | i18n }}</p>
           <span
@@ -25,7 +25,10 @@
             1
           </span>
         </div>
-        <i slot="end" class="bwi bwi-popout" aria-hidden="true"></i>
+        <ng-container slot="end">
+          <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
+          <i class="bwi bwi-popout tw-text-muted" aria-hidden="true"></i>
+        </ng-container>
       </button>
     </bit-item>
     <bit-item>

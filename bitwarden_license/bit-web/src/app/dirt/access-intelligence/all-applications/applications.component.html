@@ -3,12 +3,10 @@
 } @else {
   @let drawerDetails = dataService.drawerDetails$ | async;
   <div class="tw-mt-4 tw-flex tw-flex-col">
-    <h2 class="tw-mb-6" bitTypography="h2">{{ "allApplications" | i18n }}</h2>
-
     <div class="tw-flex tw-mb-4 tw-gap-4 tw-items-center">
       <bit-search
         [placeholder]="'searchApps' | i18n"
-        class="tw-w-1/2"
+        class="tw-min-w-96 tw-w-1/2"
         [formControl]="searchControl"
       ></bit-search>
 
@@ -19,7 +17,9 @@
         [ngModel]="selectedFilter()"
         (ngModelChange)="setFilterApplicationsByStatus($event)"
         fullWidth="false"
-      ></bit-chip-select>
+        class="tw-min-w-48"
+      >
+      </bit-chip-select>
 
       <button
         type="button"
@@ -37,12 +37,17 @@
 
     <app-table-row-scrollable-m11
       [dataSource]="dataSource"
-      [showRowCheckBox]="true"
       [showRowMenuForCriticalApps]="false"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
     ></app-table-row-scrollable-m11>
+
+    @if (emptyTableExplanation()) {
+      <div class="tw-flex tw-mt-10 tw-justify-center">
+        <span bitTypography="body2">{{ emptyTableExplanation() }}</span>
+      </div>
+    }
   </div>
 }
