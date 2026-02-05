@@ -15,9 +15,7 @@ import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -76,7 +74,6 @@ export class MemberAccessReportComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private configService: ConfigService,
     protected reportService: MemberAccessReportService,
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
@@ -108,26 +105,15 @@ export class MemberAccessReportComponent implements OnInit {
   }
 
   async load() {
-    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.MemberAccessReportV2);
-
-    if (useV2) {
-      this.dataSource.data = await this.reportService.generateMemberAccessReportViewV2(
-        this.organizationId,
-      );
-    } else {
-      // V1 - deprecated, will be removed after V2 rollout
-      this.dataSource.data = await this.reportService.generateMemberAccessReportView(
-        this.organizationId,
-      );
-    }
+    this.dataSource.data = await this.reportService.generateMemberAccessReportViewV2(
+      this.organizationId,
+    );
   }
 
   exportReportAction = async (): Promise<void> => {
-    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.MemberAccessReportV2);
-
-    const exportItems = useV2
-      ? await this.reportService.generateUserReportExportItemsV2(this.organizationId)
-      : await this.reportService.generateUserReportExportItems(this.organizationId);
+    const exportItems = await this.reportService.generateUserReportExportItemsV2(
+      this.organizationId,
+    );
 
     this.fileDownloadService.download({
       fileName: ExportHelper.getFileName("member-access"),

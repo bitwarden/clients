@@ -7,7 +7,10 @@ import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -30,10 +33,9 @@ import { MemberAccessReportApiService } from "./member-access-report-api.service
 
 /**
  * V2 data structures for frontend member-to-cipher mapping
- * These interfaces support the Access Intelligence V2 pattern
  */
 interface MemberAccessDataV2 {
-  collectionMap: Map<string, any>; // CollectionAdminView
+  collectionMap: Map<string, CollectionAdminView>;
   userMetadataMap: Map<string, UserMetadata>;
   groupMemberMap: Map<string, { groupName: string; memberIds: string[] }>;
 }
@@ -341,7 +343,7 @@ export class MemberAccessReportService {
 
   /**
    * Generate member access report using V2 frontend mapping
-   * This avoids backend timeout for large organizations
+   *
    * @param organizationId - The organization ID
    * @returns Promise of MemberAccessReportView array
    */
