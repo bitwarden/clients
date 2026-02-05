@@ -33,13 +33,11 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
 export class ChipComponent {
   readonly variant = input<ChipVariant>(ChipVariants.Primary);
   readonly size = input<ChipSize>(ChipSizes.Large);
-  readonly dismissible = input<boolean>(false);
-
+  readonly label = input<string>("");
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
   readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   readonly startIcon = input<BitwardenIcon | undefined>();
-  readonly endIcon = input<BitwardenIcon | undefined>();
 
   readonly chipDismissed = output<void>();
 
