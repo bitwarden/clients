@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { getByRole, userEvent } from "storybook/test";
 
@@ -547,33 +548,15 @@ export const AboveEnd: Story = {
 export const SpotlightTour: Story = {
   render: () => ({
     props: {
-      currentStep: 0,
-      step1Open: false,
-      step2Open: false,
-      step3Open: false,
+      tourStep: signal<0 | 1 | 2 | 3>(0),
       startTour() {
-        this.currentStep = 1;
-        this.step1Open = true;
+        this.tourStep.set(1);
       },
-      nextStep() {
-        if (this.currentStep === 1) {
-          this.step1Open = false;
-          this.currentStep = 2;
-          this.step2Open = true;
-        } else if (this.currentStep === 2) {
-          this.step2Open = false;
-          this.currentStep = 3;
-          this.step3Open = true;
-        } else if (this.currentStep === 3) {
-          this.step3Open = false;
-          this.currentStep = 0;
-        }
+      nextTourStep() {
+        this.tourStep.update((prev: 0 | 1 | 2 | 3) => (prev < 3 ? ((prev + 1) as 3) : 0));
       },
       skipTour() {
-        this.step1Open = false;
-        this.step2Open = false;
-        this.step3Open = false;
-        this.currentStep = 0;
+        this.tourStep.set(0);
       },
     },
     template: /*html*/ `
@@ -594,9 +577,8 @@ export const SpotlightTour: Story = {
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
             [bitPopoverAnchor]="step1Popover"
-            [(popoverOpen)]="step1Open"
+            [popoverOpen]="tourStep() === 1"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
             #step1Ref="popoverAnchor"
           >
@@ -609,9 +591,8 @@ export const SpotlightTour: Story = {
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
             [bitPopoverAnchor]="step2Popover"
-            [(popoverOpen)]="step2Open"
+            [popoverOpen]="tourStep() === 2"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
             #step2Ref="popoverAnchor"
           >
@@ -624,9 +605,8 @@ export const SpotlightTour: Story = {
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
             [bitPopoverAnchor]="step3Popover"
-            [(popoverOpen)]="step3Open"
+            [popoverOpen]="tourStep() === 3"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
             #step3Ref="popoverAnchor"
           >
@@ -638,31 +618,31 @@ export const SpotlightTour: Story = {
       </div>
 
       <!-- Tour Step 1 -->
-      <bit-popover [title]="'Step 1: Create Items'" #step1Popover>
+      <bit-popover [title]="'Step 1: Create Items'" (closed)="skipTour()" #step1Popover>
         <div>Click the <strong>Create</strong> button to add new items to your vault.</div>
         <p class="tw-mt-2 tw-mb-0">This is the primary action for adding passwords, notes, and other secure items.</p>
         <div class="tw-flex tw-gap-2 tw-mt-4">
-          <button type="button" bitButton buttonType="primary" (click)="nextStep()">Next</button>
+          <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
           <button type="button" bitButton buttonType="secondary" (click)="skipTour()">Skip Tour</button>
         </div>
       </bit-popover>
 
       <!-- Tour Step 2 -->
-      <bit-popover [title]="'Step 2: Search'" #step2Popover>
+      <bit-popover [title]="'Step 2: Search'" (closed)="skipTour()" #step2Popover>
         <div>Use the <strong>Search</strong> feature to quickly find any item in your vault.</div>
         <p class="tw-mt-2 tw-mb-0">Search works across all your items, folders, and collections.</p>
         <div class="tw-flex tw-gap-2 tw-mt-4">
-          <button type="button" bitButton buttonType="primary" (click)="nextStep()">Next</button>
+          <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
           <button type="button" bitButton buttonType="secondary" (click)="skipTour()">Skip Tour</button>
         </div>
       </bit-popover>
 
       <!-- Tour Step 3 -->
-      <bit-popover [title]="'Step 3: Settings'" #step3Popover>
+      <bit-popover [title]="'Step 3: Settings'" (closed)="skipTour()" #step3Popover>
         <div>Access <strong>Settings</strong> to customize your experience and manage your account.</div>
         <p class="tw-mt-2 tw-mb-0">You can update preferences, security options, and more.</p>
         <div class="tw-flex tw-gap-2 tw-mt-4">
-          <button type="button" bitButton buttonType="primary" (click)="nextStep()">Finish Tour</button>
+          <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Finish Tour</button>
           <button type="button" bitButton buttonType="secondary" (click)="skipTour()">Skip Tour</button>
         </div>
       </bit-popover>

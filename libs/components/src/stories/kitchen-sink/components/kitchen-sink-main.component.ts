@@ -173,7 +173,7 @@ class KitchenSinkDialogComponent {
     </bit-popover>
 
     <!-- Tour Popovers -->
-    <bit-popover [title]="'Step 1: Search'" #tourStep1>
+    <bit-popover [title]="'Step 1: Search'" (closed)="skipTour()" #tourStep1>
       <div>Use the <strong>search bar</strong> to quickly find any item in your vault.</div>
       <p class="tw-mt-2 tw-mb-0">
         Search works across all fields including usernames, URLs, and notes.
@@ -186,7 +186,7 @@ class KitchenSinkDialogComponent {
       </div>
     </bit-popover>
 
-    <bit-popover [title]="'Step 2: Dialogs'" #tourStep2>
+    <bit-popover [title]="'Step 2: Dialogs'" (closed)="skipTour()" #tourStep2>
       <div>Click buttons to <strong>open dialogs</strong> for important actions and forms.</div>
       <p class="tw-mt-2 tw-mb-0">
         Dialogs help focus user attention and collect input for critical operations.
@@ -199,7 +199,7 @@ class KitchenSinkDialogComponent {
       </div>
     </bit-popover>
 
-    <bit-popover [title]="'Step 3: Forms'" #tourStep3>
+    <bit-popover [title]="'Step 3: Forms'" (closed)="skipTour()" #tourStep3>
       <div>Fill out <strong>forms</strong> to collect and manage user information.</div>
       <p class="tw-mt-2 tw-mb-0">
         Our form components provide consistent styling and validation patterns.
