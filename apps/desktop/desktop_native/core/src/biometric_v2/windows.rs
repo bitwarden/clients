@@ -28,7 +28,10 @@
 //! userspace processes. Therefore, to circumvent the security measure, the attacker would need to
 //! create a fake Windows-Hello prompt, and get the user to confirm it.
 
-use std::sync::{atomic::AtomicBool, Arc};
+use std::{
+    collections::HashMap,
+    sync::{atomic::AtomicBool, Arc},
+};
 
 use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
@@ -79,10 +82,10 @@ pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
     secure_memory: Arc<Mutex<crate::secure_memory::dpapi::DpapiSecretKVStore>>,
-    // Cache whether a keychain entry exists to avoid excessive keychain lookups.
-    // Only caches when entry is found; if not found, we check again next time in case
-    // the user enrolls in biometric unlock. Gets cleared on process restart and unenroll.
-    has_keychain_entry_cache: Arc<Mutex<bool>>,
+    // Cache whether a keychain entry exists for a user to avoid excessive keychain lookups.
+    // Key = user_id, Value = true (entry exists) or false (no entry).
+    // If user_id not in map = cache miss. Updated on enroll (true) and unenroll (false).
+    has_keychain_entry_cache: Arc<Mutex<HashMap<String, bool>>>,
 }
 
 impl BiometricLockSystem {
@@ -91,7 +94,7 @@ impl BiometricLockSystem {
             secure_memory: Arc::new(Mutex::new(
                 crate::secure_memory::dpapi::DpapiSecretKVStore::new(),
             )),
-            has_keychain_entry_cache: Arc::new(Mutex::new(false)),
+            has_keychain_entry_cache: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 }
@@ -119,7 +122,10 @@ impl super::BiometricTrait for BiometricLockSystem {
         self.secure_memory.lock().await.remove(user_id);
         delete_keychain_entry(user_id).await?;
 
-        *self.has_keychain_entry_cache.lock().await = false;
+        self.has_keychain_entry_cache
+            .lock()
+            .await
+            .insert(user_id.clone(), false);
 
         Ok(())
     }
@@ -149,7 +155,10 @@ impl super::BiometricTrait for BiometricLockSystem {
         )
         .await?;
 
-        *self.has_keychain_entry_cache.lock().await = true;
+        self.has_keychain_entry_cache
+            .lock()
+            .await
+            .insert(user_id.to_string(), true);
         Ok(())
     }
 
@@ -205,15 +214,15 @@ impl super::BiometricTrait for BiometricLockSystem {
     }
 
     async fn has_persistent(&self, user_id: &str) -> Result<bool> {
-        let has_entry = *self.has_keychain_entry_cache.lock().await;
-        if has_entry {
-            return Ok(true);
+        // Check if we have a cached value for this user (either true or false)
+        let mut cache = self.has_keychain_entry_cache.lock().await;
+        if let Some(&has_entry) = cache.get(user_id) {
+            return Ok(has_entry);
         }
 
-        let has_entry = get_keychain_entry(user_id).await.is_ok();
-        if has_entry {
-            *self.has_keychain_entry_cache.lock().await = true;
-        }
+        // Cache miss: check keychain and cache the result for this user
+        let has_entry = has_keychain_entry(user_id).await.unwrap_or(false);
+        cache.insert(user_id.to_string(), has_entry);
         Ok(has_entry)
     }
 }
