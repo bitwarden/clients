@@ -9,22 +9,21 @@ import {
   inject,
 } from "@angular/core";
 
-import { BitwardenIcon } from "../shared/icon";
-
+import { BitwardenIcon } from "../../shared/icon";
 import {
   BaseChipDirective,
   type ChipVariant,
   type ChipSize,
   ChipVariants,
   ChipSizes,
-} from "./base-chip.directive";
-import { ChipContentComponent } from "./chip-content.component";
+} from "../base-chip.directive";
+import { ChipContentComponent } from "../chip-content.component";
 
 @Component({
-  selector: "a[bitChip], button[bitChip]",
+  selector: "a[bitChipAction], button[bitChipAction]",
   standalone: true,
   imports: [ChipContentComponent],
-  templateUrl: "./chip.component.html",
+  templateUrl: "./chip-action.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [
     {
@@ -42,7 +41,7 @@ import { ChipContentComponent } from "./chip-content.component";
     "(focusout)": "onFocusOut()",
   },
 })
-export class ChipComponent {
+export class ChipActionComponent {
   readonly variant = input<ChipVariant>(ChipVariants.Primary);
   readonly size = input<ChipSize>(ChipSizes.Large);
 
