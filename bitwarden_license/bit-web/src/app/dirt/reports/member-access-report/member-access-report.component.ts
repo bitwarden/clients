@@ -21,7 +21,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
+import { DialogService, SearchModule, TableDataSource, IconModule } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
@@ -45,7 +45,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule],
+  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, IconModule],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
