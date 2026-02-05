@@ -928,6 +928,7 @@ export class ServiceContainer {
         this.logService,
         this.platformUtilsService,
         this.configService,
+        this.sdkService,
       ),
     );
 
