@@ -1,13 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ElementRef,
-  booleanAttribute,
-  input,
-  output,
-  signal,
-  inject,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, booleanAttribute, input } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
 import {
@@ -48,41 +39,9 @@ export class ChipActionComponent {
   // Behavioral inputs
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
   readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
-  readonly dismissible = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   // Content inputs
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
-
-  // Outputs
-  readonly chipClick = output<MouseEvent>();
-  readonly dismissed = output<void>();
-
-  // Internal state
-  protected readonly focusVisibleWithin = signal(false);
-  private elementRef = inject(ElementRef<HTMLElement>);
-
-  protected onFocusIn() {
-    this.focusVisibleWithin.set(
-      this.elementRef.nativeElement.matches(":focus-visible") ||
-        this.elementRef.nativeElement.querySelector(":focus-visible") !== null,
-    );
-  }
-
-  protected onFocusOut() {
-    this.focusVisibleWithin.set(false);
-  }
-
-  protected handleClick(event: MouseEvent) {
-    if (!this.disabled()) {
-      this.chipClick.emit(event);
-    }
-  }
-
-  protected handleDismiss(event: MouseEvent) {
-    event.stopPropagation();
-    if (!this.disabled()) {
-      this.dismissed.emit();
-    }
-  }
+  readonly label = input<string>("");
 }

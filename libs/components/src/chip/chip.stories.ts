@@ -31,6 +31,7 @@ export default {
   args: {
     disabled: false,
     dismissible: false,
+    label: "Chip Label",
   },
   argTypes: {
     ...sharedArgTypes,
@@ -52,8 +53,8 @@ export const Default: Story = {
         [dismissible]="dismissible"
         [startIcon]="startIcon"
         [endIcon]="endIcon"
+        [label]="label"
       >
-        Default Chip
       </bit-chip>
     `,
   }),
