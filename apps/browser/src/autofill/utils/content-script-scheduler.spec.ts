@@ -439,28 +439,28 @@ describe("ContentScriptScheduler", () => {
       global.clearTimeout = originalClearTimeout;
     });
 
-    it("should create timeout when queue is heavily loaded (>100 tasks)", async () => {
+    it("should not create timeout for heavy queue load (MessageChannel handles it)", async () => {
       const callback = jest.fn();
 
-      // Mock clearTimeout to verify timeout was created
+      // Mock clearTimeout to verify timeout was NOT created
       const originalClearTimeout = global.clearTimeout;
       const clearTimeoutSpy = jest.fn(originalClearTimeout);
       global.clearTimeout = clearTimeoutSpy as any;
 
-      // Schedule 101 tasks to exceed HEAVY_LOAD_THRESHOLD
+      // Schedule many tasks (queue size check removed - MessageChannel handles heavy load)
       for (let i = 0; i < 101; i++) {
         scheduler.schedule(() => {}, { timeout: 10000 });
       }
 
-      // Schedule test task (should have timeout due to heavy load)
+      // Schedule test task (should NOT have timeout - MessageChannel handles heavy load)
       scheduler.schedule(callback, { timeout: 10000 });
 
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       expect(callback).toHaveBeenCalledTimes(1);
 
-      // clearTimeout SHOULD be called (timeout was created due to heavy load)
-      expect(clearTimeoutSpy).toHaveBeenCalled();
+      // clearTimeout should NOT be called (no timeout was created)
+      expect(clearTimeoutSpy).not.toHaveBeenCalled();
 
       // Restore
       global.clearTimeout = originalClearTimeout;
