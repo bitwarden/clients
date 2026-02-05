@@ -7,9 +7,11 @@ import {
   OrganizationReportSummary,
 } from "./report-models";
 
-/*
- * After data is encrypted, it is returned with the
- * encryption key used to encrypt the data.
+/**
+ * Encrypted report data with its encryption key.
+ *
+ * V2C format (current): All data is compressed then encrypted as EncStrings.
+ * V1 format (legacy): Data encrypted without compression.
  */
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
