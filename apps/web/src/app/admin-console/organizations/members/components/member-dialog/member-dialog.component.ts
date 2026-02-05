@@ -124,6 +124,7 @@ export class MemberDialogComponent implements OnDestroy {
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
   remainingSeats$: Observable<number>;
+  emailBatchLimit$: Observable<number>;
   editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
@@ -339,6 +340,12 @@ export class MemberDialogComponent implements OnDestroy {
         }
 
         return organization.seats;
+      }),
+    );
+
+    this.emailBatchLimit$ = this.organization$.pipe(
+      map((organization) => {
+        return organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
       }),
     );
   }
