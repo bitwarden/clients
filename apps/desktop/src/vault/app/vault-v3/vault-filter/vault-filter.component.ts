@@ -80,6 +80,7 @@ export class VaultFilterComponent implements OnInit {
   protected readonly showCollectionsFilter = computed<boolean>(() => {
     return (
       this.organizations() != null &&
+      this.nonIndividualVaultOrganizations().length > 0 &&
       !this.activeFilter()?.isMyVaultSelected &&
       !this.allOrganizationsDisabled()
     );
@@ -89,9 +90,13 @@ export class VaultFilterComponent implements OnInit {
     if (!this.organizations()) {
       return false;
     }
-    const orgs = this.organizations().children.filter((org) => org.node.id !== "MyVault");
+    const orgs = this.nonIndividualVaultOrganizations();
     return orgs.length > 0 && orgs.every((org) => !org.node.enabled);
   });
+
+  private nonIndividualVaultOrganizations() {
+    return this.organizations().children.filter((org) => org.node.id !== "MyVault");
+  }
 
   private async setActivePolicies() {
     this.activeOrganizationDataOwnershipPolicy = await firstValueFrom(
