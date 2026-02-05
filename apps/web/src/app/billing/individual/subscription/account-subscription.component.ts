@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, map } from "rxjs";
+import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -76,15 +76,18 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = this.activeAccount();
+      const account = await firstValueFrom(this.accountService.activeAccount$);
       if (!account) {
         return await redirectToPremiumPage();
       }
-      const subscription = await this.accountBillingClient.getSubscription();
-      if (!subscription) {
+      const hasPremiumPersonally = await firstValueFrom(
+        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+      );
+      if (!hasPremiumPersonally) {
         return await redirectToPremiumPage();
       }
-      return subscription;
+
+      return await this.accountBillingClient.getSubscription();
     },
   });
 
