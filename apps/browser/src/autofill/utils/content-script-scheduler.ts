@@ -78,10 +78,12 @@ class ContentScriptScheduler {
    * - Baseline: 5ms for small workloads (allows quick yields)
    * - Maximum: 16ms for large workloads (one frame budget)
    * - Threshold: Switch to max budget when queue has 10+ tasks
+   * - Max tasks: Process at most N tasks per flush to ensure interleaving
    */
   private readonly MIN_FRAME_BUDGET_MS = 5;
   private readonly MAX_FRAME_BUDGET_MS = 16;
   private readonly ADAPTIVE_THRESHOLD = 10;
+  private readonly MAX_TASKS_PER_FLUSH = 10;
 
   /**
    * Metrics tracking for timeout optimization:
@@ -176,7 +178,12 @@ class ContentScriptScheduler {
    * - Small queue (< 10 tasks): 5ms budget (quick yield)
    * - Large queue (>= 10 tasks): 16ms budget (one frame)
    *
-   * If work remains after budget expires, reschedules via MessageChannel.
+   * Enforces task count limit to guarantee interleaving:
+   * - Maximum 10 tasks per flush
+   * - Prevents slow individual tasks from blocking main thread
+   * - Ensures cooperative yielding even if time budget remains
+   *
+   * If work remains after budget/limit, reschedules via MessageChannel.
    */
   private flush(): void {
     this.flushScheduled = false;
@@ -191,12 +198,17 @@ class ContentScriptScheduler {
       totalTasks > this.ADAPTIVE_THRESHOLD ? this.MAX_FRAME_BUDGET_MS : this.MIN_FRAME_BUDGET_MS;
 
     const deadline = performance.now() + budget;
+    let tasksProcessed = 0;
 
     // Process tasks in priority order: high → normal → low
     const queues = [this.highPriorityQueue, this.normalPriorityQueue, this.lowPriorityQueue];
 
     for (const queue of queues) {
-      while (queue.length > 0 && performance.now() < deadline) {
+      while (
+        queue.length > 0 &&
+        performance.now() < deadline &&
+        tasksProcessed < this.MAX_TASKS_PER_FLUSH
+      ) {
         const task = queue.shift()!;
 
         // Track MessageChannel execution (timeout was not needed)
@@ -207,6 +219,7 @@ class ContentScriptScheduler {
 
         try {
           task.callback();
+          tasksProcessed++;
         } catch (error) {
           // Isolate errors to prevent one task from breaking the scheduler
           // eslint-disable-next-line no-console
@@ -214,8 +227,8 @@ class ContentScriptScheduler {
         }
       }
 
-      // If budget exhausted, stop processing (resume in next flush)
-      if (performance.now() >= deadline) {
+      // If budget exhausted or task limit reached, stop processing
+      if (performance.now() >= deadline || tasksProcessed >= this.MAX_TASKS_PER_FLUSH) {
         break;
       }
     }
