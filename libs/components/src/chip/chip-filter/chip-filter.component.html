@@ -1,5 +1,10 @@
 <!-- removing padding here and adding it to the button for proper menu alignment -->
-<div class="!tw-ps-0 !tw-pb-0" bitBaseChip [variant]="!selectedOption ? 'subtle' : 'primary'">
+<div
+  class="!tw-ps-0 !tw-pb-0"
+  bitBaseChip
+  [fullWidth]="fullWidth()"
+  [variant]="!selectedOption ? 'subtle' : 'primary'"
+>
   <bit-chip-content [size]="size()">
     <!-- Primary button -->
     <button

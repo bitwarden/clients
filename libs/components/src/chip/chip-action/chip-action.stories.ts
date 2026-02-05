@@ -1,9 +1,11 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { sharedArgTypes } from "../shared-story-arg-types";
+
 import { ChipActionComponent } from "./chip-action.component";
 
 export default {
-  title: "Component Library/Chip Action",
+  title: "Component Library/Chip/Chip Action",
   component: ChipActionComponent,
   decorators: [
     moduleMetadata({
@@ -33,6 +35,9 @@ export const Default: Story = {
   }),
   args: {
     startIcon: "bwi-filter",
+  },
+  argTypes: {
+    ...sharedArgTypes,
   },
 };
 
