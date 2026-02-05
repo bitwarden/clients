@@ -604,7 +604,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemsWereSentToArchive"),
+        message: this.i18nService.t("itemWasSentToArchive"),
       });
     } catch {
       this.toastService.showToast({
@@ -703,7 +703,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.dialogContent().nativeElement.parentElement.scrollTop = 0;
 
     // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
-    this.dialogComponent().focusOnHeader();
+    this.dialogComponent().handleAutofocus();
 
     // Update the URL query params to reflect the new mode.
     await this.router.navigate([], {
