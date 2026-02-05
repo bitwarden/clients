@@ -350,23 +350,12 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
-    let encryptStartTime: number;
-
     const sdkEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM22136_SdkCipherEncryption,
     );
 
     if (sdkEncryptionEnabled) {
-      encryptStartTime = performance.now();
-      const result = await this.cipherEncryptionService.encryptMany(models, userId);
-      this.logService.measure(
-        encryptStartTime,
-        "Vault",
-        "CipherService",
-        "batch encrypt complete",
-        [["Items", models.length]],
-      );
-      return result;
+      return await this.cipherEncryptionService.encryptMany(models, userId);
     }
 
     // Fallback to sequential encryption if SDK disabled
