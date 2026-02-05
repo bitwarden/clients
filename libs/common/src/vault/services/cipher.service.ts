@@ -193,7 +193,7 @@ export class CipherService implements CipherServiceAbstraction {
         );
       }),
     );
-  });
+  }, this.clearCipherViewsForUser$);
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
