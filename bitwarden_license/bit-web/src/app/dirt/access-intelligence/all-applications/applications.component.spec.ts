@@ -18,7 +18,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherId } from "@bitwarden/common/types/guid";
 import { TableDataSource, ToastService } from "@bitwarden/components";
 
+import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
+
 import { ApplicationsComponent } from "./applications.component";
+
+// Helper type to access protected members in tests
+type ComponentWithProtectedMembers = ApplicationsComponent & {
+  dataSource: TableDataSource<ApplicationTableDataSource>;
+};
 
 describe("ApplicationsComponent", () => {
   let component: ApplicationsComponent;
@@ -87,7 +94,7 @@ describe("ApplicationsComponent", () => {
   });
 
   describe("downloadApplicationsCSV", () => {
-    const mockApplicationData = [
+    const mockApplicationData: ApplicationTableDataSource[] = [
       {
         applicationName: "GitHub",
         passwordCount: 10,
@@ -99,6 +106,7 @@ describe("ApplicationsComponent", () => {
         memberDetails: [] as MemberDetails[],
         atRiskMemberDetails: [] as MemberDetails[],
         cipherIds: ["cipher1" as CipherId],
+        iconCipher: undefined,
       },
       {
         applicationName: "Slack",
@@ -111,6 +119,7 @@ describe("ApplicationsComponent", () => {
         memberDetails: [] as MemberDetails[],
         atRiskMemberDetails: [] as MemberDetails[],
         cipherIds: ["cipher2" as CipherId],
+        iconCipher: undefined,
       },
     ];
 
@@ -120,8 +129,8 @@ describe("ApplicationsComponent", () => {
 
     it("should download CSV with correct data when filteredData has items", () => {
       // Set up the data source with mock data
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = mockApplicationData;
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = mockApplicationData;
 
       component.downloadApplicationsCSV();
 
@@ -134,8 +143,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should not download when filteredData is empty", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = [];
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = [];
 
       component.downloadApplicationsCSV();
 
@@ -143,8 +152,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should use translated column headers in CSV", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = mockApplicationData;
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = mockApplicationData;
 
       component.downloadApplicationsCSV();
 
@@ -157,8 +166,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should translate isMarkedAsCritical to 'yes' when true", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = [mockApplicationData[0]]; // Critical app
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = [mockApplicationData[0]]; // Critical app
 
       component.downloadApplicationsCSV();
 
@@ -166,8 +175,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should translate isMarkedAsCritical to 'no' when false", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = [mockApplicationData[1]]; // Non-critical app
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = [mockApplicationData[1]]; // Non-critical app
 
       component.downloadApplicationsCSV();
 
@@ -175,8 +184,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should include correct application data in CSV export", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = [mockApplicationData[0]];
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = [mockApplicationData[0]];
 
       let capturedBlobData: string = "";
       mockFileDownloadService.download.mockImplementation((options) => {
@@ -194,8 +203,8 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should log error when download fails", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = mockApplicationData;
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = mockApplicationData;
 
       const testError = new Error("Download failed");
       mockFileDownloadService.download.mockImplementation(() => {
@@ -211,11 +220,12 @@ describe("ApplicationsComponent", () => {
     });
 
     it("should only export filtered data when filter is applied", () => {
-      (component as any).dataSource = new TableDataSource();
-      (component as any).dataSource.data = mockApplicationData;
+      (component as ComponentWithProtectedMembers).dataSource = new TableDataSource();
+      (component as ComponentWithProtectedMembers).dataSource.data = mockApplicationData;
       // Apply a filter that only matches "GitHub"
-      (component as any).dataSource.filter = (app: (typeof mockApplicationData)[0]) =>
-        app.applicationName === "GitHub";
+      (component as ComponentWithProtectedMembers).dataSource.filter = (
+        app: (typeof mockApplicationData)[0],
+      ) => app.applicationName === "GitHub";
 
       let capturedBlobData: string = "";
       mockFileDownloadService.download.mockImplementation((options) => {
