@@ -54,12 +54,14 @@ export const Default: Story = {
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
+        [disabled]="disabled"
       ></bit-chip-filter>
       <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         [ngModel]="value"
+        [disabled]="disabled"
       ></bit-chip-filter>
     `,
   }),
@@ -220,7 +222,7 @@ export const TextOverflow: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: {
       ...args,

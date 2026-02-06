@@ -1,4 +1,7 @@
-import { Directive, booleanAttribute, computed, input } from "@angular/core";
+import { Directive, ElementRef, booleanAttribute, computed, inject, input } from "@angular/core";
+
+import { AriaDisableDirective } from "../a11y/aria-disable.directive";
+import { ariaDisableElement } from "../utils/aria-disable-element";
 
 export const ChipVariants = {
   Primary: "primary",
@@ -100,6 +103,7 @@ const commonStyles = [
   host: {
     "[class]": "classList()",
   },
+  hostDirectives: [AriaDisableDirective],
 })
 export class BaseChipDirective {
   /**
@@ -119,6 +123,8 @@ export class BaseChipDirective {
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
+
+  readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   /**
    * Computed class list based on variant, size, and state
@@ -140,4 +146,10 @@ export class BaseChipDirective {
 
     return classes.join(" ");
   });
+
+  private el = inject(ElementRef<HTMLElement>);
+
+  constructor() {
+    ariaDisableElement(this.el.nativeElement, this.disabled);
+  }
 }

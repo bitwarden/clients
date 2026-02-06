@@ -1,15 +1,6 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  booleanAttribute,
-  input,
-  inject,
-  ElementRef,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, booleanAttribute, input } from "@angular/core";
 
-import { AriaDisableDirective } from "../../a11y";
 import { BitwardenIcon } from "../../shared/icon";
-import { ariaDisableElement } from "../../utils/aria-disable-element";
 import {
   BaseChipDirective,
   type ChipVariant,
@@ -28,27 +19,18 @@ import { ChipContentComponent } from "../chip-content.component";
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["variant", "size"],
+      inputs: ["variant", "size", "disabled"],
     },
-    AriaDisableDirective,
   ],
 })
 export class ChipActionComponent {
   readonly variant = input<ChipVariant>(ChipVariants.Primary);
   readonly size = input<ChipSize>(ChipSizes.Large);
 
-  // Behavioral inputs
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
   readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
 
-  // Content inputs
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
   readonly label = input<string>("");
-
-  private el = inject(ElementRef<HTMLButtonElement>);
-
-  constructor() {
-    ariaDisableElement(this.el.nativeElement, this.disabled);
-  }
 }
