@@ -49,7 +49,7 @@ export class BerryComponent {
     return this.count()?.toString().length > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
-  protected readonly berryClasses = computed(() => {
+  protected readonly containerClasses = computed(() => {
     const baseClasses = [
       "tw-inline-flex",
       "tw-items-center",
@@ -79,6 +79,6 @@ export class BerryComponent {
       ...sizeClasses[this.computedSize()],
       variantClass[this.variant()],
       this.textColor(),
-    ];
+    ].join(" ");
   });
 }
