@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { MenuTriggerForDirective } from "../../menu";
 
-import { ChipFilterComponent, ChipSelectOption } from "./chip-filter.component";
+import { ChipFilterComponent, ChipFilterOption } from "./chip-filter.component";
 
 const mockI18nService = {
   t: (key: string, ...args: string[]) => {
@@ -29,7 +29,7 @@ describe("ChipFilterComponent", () => {
   let component: ChipFilterComponent<string>;
   let fixture: ComponentFixture<TestAppComponent>;
 
-  const testOptions: ChipSelectOption<string>[] = [
+  const testOptions: ChipFilterOption<string>[] = [
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
     { label: "Option 2", value: "opt2" },
     {
@@ -97,7 +97,7 @@ describe("ChipFilterComponent", () => {
     });
 
     it("should update available options when they change", () => {
-      const newOptions: ChipSelectOption<string>[] = [
+      const newOptions: ChipFilterOption<string>[] = [
         { label: "New Option 1", value: "new1" },
         { label: "New Option 2", value: "new2" },
       ];
@@ -475,7 +475,7 @@ describe("ChipFilterComponent", () => {
 @Component({
   selector: "test-app",
   template: `
-    <bit-chip-select
+    <bit-chip-filter
       placeholderText="Select an option"
       placeholderIcon="bwi-filter"
       [options]="options()"
@@ -487,7 +487,7 @@ describe("ChipFilterComponent", () => {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestAppComponent {
-  readonly options = signal<ChipSelectOption<string>[]>([
+  readonly options = signal<ChipFilterOption<string>[]>([
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
     { label: "Option 2", value: "opt2" },
     {
