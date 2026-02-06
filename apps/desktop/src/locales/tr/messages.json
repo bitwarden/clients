@@ -137,10 +137,6 @@
     "message": "Send ayrıntıları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Paylaşılacak metin"
   },
@@ -4587,5 +4583,9 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
