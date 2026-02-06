@@ -11,10 +11,21 @@ export default {
     }),
   ],
   args: {
+    type: "count",
     variant: "primary",
-    count: undefined,
+    value: 5,
   },
   argTypes: {
+    type: {
+      control: "select",
+      options: ["status", "count"],
+      description: "The type of the berry, which determines its size and content",
+      table: {
+        category: "Inputs",
+        type: { summary: '"status" | "count"' },
+        defaultValue: { summary: '"count"' },
+      },
+    },
     variant: {
       control: "select",
       options: ["primary", "subtle", "success", "warning", "danger", "accentPrimary", "contrast"],
@@ -25,10 +36,10 @@ export default {
         defaultValue: { summary: "primary" },
       },
     },
-    count: {
+    value: {
       control: "number",
       description:
-        "Optional count to display. Maximum displayed is 999, values above show '999+'. If undefined, a small small berry is shown. If 0 or negative, the berry is hidden.",
+        "Optional value to display for berries with type 'count'. Maximum displayed is 999, values above show '999+'. If undefined, a small small berry is shown. If 0 or negative, the berry is hidden.",
       table: {
         category: "Inputs",
         type: { summary: "number | undefined" },
@@ -49,20 +60,36 @@ type Story = StoryObj<BerryComponent>;
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `<bit-berry [variant]="variant" [count]="count"></bit-berry>`,
+    template: `<bit-berry [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
   }),
 };
 
-export const sizing: Story = {
+export const statusType: Story = {
   render: (args) => ({
     props: args,
     template: `
         <div class="tw-flex tw-items-center tw-gap-4">
-            <bit-berry></bit-berry>
-            <bit-berry [count]="5"></bit-berry>
-            <bit-berry [count]="50"></bit-berry>
-            <bit-berry [count]="500"></bit-berry>
-            <bit-berry [count]="5000"></bit-berry>
+            <bit-berry [type]="'status'" variant="primary"></bit-berry>
+            <bit-berry [type]="'status'" variant="subtle"></bit-berry>
+            <bit-berry [type]="'status'" variant="success"></bit-berry>
+            <bit-berry [type]="'status'" variant="warning"></bit-berry>
+            <bit-berry [type]="'status'" variant="danger"></bit-berry>
+            <bit-berry [type]="'status'" variant="accentPrimary"></bit-berry>
+            <bit-berry [type]="'status'" variant="contrast"></bit-berry>
+        </div>
+    `,
+  }),
+};
+
+export const countType: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+        <div class="tw-flex tw-items-center tw-gap-4">
+            <bit-berry [value]="5"></bit-berry>
+            <bit-berry [value]="50"></bit-berry>
+            <bit-berry [value]="500"></bit-berry>
+            <bit-berry [value]="5000"></bit-berry>
         </div>
     `,
   }),
@@ -74,65 +101,65 @@ export const AllVariants: Story = {
     <div class="tw-flex tw-flex-col tw-gap-4">
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Primary:</span>
-            <bit-berry variant="primary"></bit-berry>
-            <bit-berry variant="primary" [count]="5"></bit-berry>
-            <bit-berry variant="primary" [count]="50"></bit-berry>
-            <bit-berry variant="primary" [count]="500"></bit-berry>
-            <bit-berry variant="primary" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="primary"></bit-berry>
+            <bit-berry variant="primary" [value]="5"></bit-berry>
+            <bit-berry variant="primary" [value]="50"></bit-berry>
+            <bit-berry variant="primary" [value]="500"></bit-berry>
+            <bit-berry variant="primary" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Subtle:</span>
-            <bit-berry variant="subtle"></bit-berry>
-            <bit-berry variant="subtle" [count]="5"></bit-berry>
-            <bit-berry variant="subtle" [count]="50"></bit-berry>
-            <bit-berry variant="subtle" [count]="500"></bit-berry>
-            <bit-berry variant="subtle" [count]="5000"></bit-berry>
+            <bit-berry type="status"variant="subtle"></bit-berry>
+            <bit-berry variant="subtle" [value]="5"></bit-berry>
+            <bit-berry variant="subtle" [value]="50"></bit-berry>
+            <bit-berry variant="subtle" [value]="500"></bit-berry>
+            <bit-berry variant="subtle" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Success:</span>
-            <bit-berry variant="success"></bit-berry>
-            <bit-berry variant="success" [count]="5"></bit-berry>
-            <bit-berry variant="success" [count]="50"></bit-berry>
-            <bit-berry variant="success" [count]="500"></bit-berry>
-            <bit-berry variant="success" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="success"></bit-berry>
+            <bit-berry variant="success" [value]="5"></bit-berry>
+            <bit-berry variant="success" [value]="50"></bit-berry>
+            <bit-berry variant="success" [value]="500"></bit-berry>
+            <bit-berry variant="success" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Warning:</span>
-            <bit-berry variant="warning"></bit-berry>
-            <bit-berry variant="warning" [count]="5"></bit-berry>
-            <bit-berry variant="warning" [count]="50"></bit-berry>
-            <bit-berry variant="warning" [count]="500"></bit-berry>
-            <bit-berry variant="warning" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="warning"></bit-berry>
+            <bit-berry variant="warning" [value]="5"></bit-berry>
+            <bit-berry variant="warning" [value]="50"></bit-berry>
+            <bit-berry variant="warning" [value]="500"></bit-berry>
+            <bit-berry variant="warning" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Danger:</span>
-            <bit-berry variant="danger"></bit-berry>
-            <bit-berry variant="danger" [count]="5"></bit-berry>
-            <bit-berry variant="danger" [count]="50"></bit-berry>
-            <bit-berry variant="danger" [count]="500"></bit-berry>
-            <bit-berry variant="danger" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="danger"></bit-berry>
+            <bit-berry variant="danger" [value]="5"></bit-berry>
+            <bit-berry variant="danger" [value]="50"></bit-berry>
+            <bit-berry variant="danger" [value]="500"></bit-berry>
+            <bit-berry variant="danger" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4">
             <span class="tw-w-20">Accent primary:</span>
-            <bit-berry variant="accentPrimary"></bit-berry>
-            <bit-berry variant="accentPrimary" [count]="5"></bit-berry>
-            <bit-berry variant="accentPrimary" [count]="50"></bit-berry>
-            <bit-berry variant="accentPrimary" [count]="500"></bit-berry>
-            <bit-berry variant="accentPrimary" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="accentPrimary"></bit-berry>
+            <bit-berry variant="accentPrimary" [value]="5"></bit-berry>
+            <bit-berry variant="accentPrimary" [value]="50"></bit-berry>
+            <bit-berry variant="accentPrimary" [value]="500"></bit-berry>
+            <bit-berry variant="accentPrimary" [value]="5000"></bit-berry>
         </div>
 
         <div class="tw-flex tw-items-center tw-gap-4 tw-bg-bg-dark">
             <span class="tw-w-20 tw-text-fg-white">Contrast:</span>
-            <bit-berry variant="contrast"></bit-berry>
-            <bit-berry variant="contrast" [count]="5"></bit-berry>
-            <bit-berry variant="contrast" [count]="50"></bit-berry>
-            <bit-berry variant="contrast" [count]="500"></bit-berry>
-            <bit-berry variant="contrast" [count]="5000"></bit-berry>
+            <bit-berry type="status" variant="contrast"></bit-berry>
+            <bit-berry variant="contrast" [value]="5"></bit-berry>
+            <bit-berry variant="contrast" [value]="50"></bit-berry>
+            <bit-berry variant="contrast" [value]="500"></bit-berry>
+            <bit-berry variant="contrast" [value]="5000"></bit-berry>
         </div>
     </div>
     `,

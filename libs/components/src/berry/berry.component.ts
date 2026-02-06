@@ -15,7 +15,7 @@ export type BerryVariant =
  * like a navigation item, button, or icon button.
  * They draw users’ attention to status changes or new notifications.
  *
- * > `NOTE:` The maximum displayed count is 999. If the count is over 999, a “+” character is appended to indicate more.
+ * > `NOTE:` The maximum displayed value is 999. If the value is over 999, a “+” character is appended to indicate more.
  */
 @Component({
   selector: "bit-berry",
@@ -24,24 +24,17 @@ export type BerryVariant =
 })
 export class BerryComponent {
   protected readonly variant = input<BerryVariant>("primary");
-  protected readonly count = input<number>();
-
-  protected readonly showBerry = computed(() => {
-    const count = this.count();
-    return count === undefined || count > 0 ? true : false;
-  });
+  protected readonly value = input<number>();
+  protected readonly type = input<"status" | "count">("count");
 
   protected readonly content = computed(() => {
-    const count = this.count();
-    if (!count || count < 0) {
+    const value = this.value();
+    const type = this.type();
+
+    if (type === "status" || !value || value < 0) {
       return undefined;
     }
-    return count > 999 ? "999+" : `${count}`;
-  });
-
-  protected readonly computedSize = computed<"small" | "large">(() => {
-    const count = this.count();
-    return count && count > 0 ? "large" : "small";
+    return value > 999 ? "999+" : `${value}`;
   });
 
   protected readonly textColor = computed(() => {
@@ -49,7 +42,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return this.count()?.toString().length > 2 ? "tw-px-1.5 tw-py-0.5" : "";
+    return this.value()?.toString().length > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly containerClasses = computed(() => {
@@ -62,9 +55,9 @@ export class BerryComponent {
       "tw-rounded-full",
     ];
 
-    const sizeClasses = {
-      small: ["tw-h-2", "tw-w-2"],
-      large: ["tw-h-4", "tw-min-w-4", this.padding()],
+    const typeClasses = {
+      status: ["tw-h-2", "tw-w-2"],
+      count: ["tw-h-4", "tw-min-w-4", this.padding()],
     };
 
     const variantClass = {
@@ -79,7 +72,7 @@ export class BerryComponent {
 
     return [
       ...baseClasses,
-      ...sizeClasses[this.computedSize()],
+      ...typeClasses[this.type()],
       variantClass[this.variant()],
       this.textColor(),
     ].join(" ");

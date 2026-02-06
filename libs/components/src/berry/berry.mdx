@@ -16,13 +16,18 @@ import { BerryComponent } from "@bitwarden/components";
 
 ## Usage
 
-- Use a small badge to indicate a new notification of a status change that is not related to a
+### Status
+
+- Use a status berry to indicate a new notification of a status change that is not related to a
   specific count.
-- Use a large badge to indicate item count information for multiple new notifications.
 
-Berries are automatically size based on whether a count is provided
+<Canvas of={stories.statusType} />
 
-<Canvas of={stories.sizing} />
+### Count
+
+- Use a count berry with text to indicate item count information for multiple new notifications.
+
+<Canvas of={stories.countType} />
 
 ### All Variants
 
