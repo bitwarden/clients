@@ -97,7 +97,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes.cipher) {
+    if (changes.cipher || changes.action) {
       await this.checkArchiveState();
     }
   }
@@ -229,12 +229,20 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   protected async archive() {
-    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher);
+    /**
+     * When the Archive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher, true);
     this.onArchiveToggle.emit();
   }
 
   protected async unarchive() {
-    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher);
+    /**
+     * When the Unarchive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher, true);
     this.onArchiveToggle.emit();
   }
 
@@ -255,12 +263,15 @@ export class ItemFooterComponent implements OnInit, OnChanges {
     this.userCanArchive = userCanArchive;
 
     this.showArchiveButton =
-      cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
+      cipherCanBeArchived &&
+      userCanArchive &&
+      (this.action === "view" || this.action === "edit") &&
+      !this.cipher.isArchived;
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
       hasArchiveFlagEnabled &&
-      this.action === "view" &&
+      (this.action === "view" || this.action === "edit") &&
       this.cipher.isArchived &&
       !this.cipher.isDeleted;
   }

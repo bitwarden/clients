@@ -22,7 +22,11 @@
       ></button>
     }
     @for (childFolder of folder().children; track childFolder.node.id) {
-      <app-folder-filter [folder]="childFolder" [activeFilter]="activeFilter()" />
+      <app-folder-filter
+        [folder]="childFolder"
+        [activeFilter]="activeFilter()"
+        (onEditFolder)="editFolder($event)"
+      />
     }
   </bit-nav-group>
 } @else {
