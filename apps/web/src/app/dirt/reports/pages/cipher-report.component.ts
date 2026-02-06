@@ -186,13 +186,10 @@ export abstract class CipherReportComponent implements OnDestroy {
     cipher: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const disableForm = cipher ? !cipher.edit && !this.organization?.canEditAllCiphers : false;
-
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
       formConfig,
       activeCollectionId,
-      disableForm,
       isAdminConsoleAction: this.organization != null,
     });
 
