@@ -112,7 +112,7 @@
       <a bit-item-content routerLink="/download-bitwarden" [truncate]="false">
         <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center">
-          <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
+          <p class="tw-pr-2">{{ "downloadBitwardenApps" | i18n }}</p>
           @if (showDownloadBitwardenNudge$ | async) {
             <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
               >1
