@@ -4572,6 +4572,24 @@
   "thisMightTakeFewMinutes": {
     "message": "This might take a few minutes."
   },
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
