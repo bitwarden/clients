@@ -1,13 +1,6 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  Inject,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, Inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 
@@ -30,11 +23,11 @@ import {
 
 import { AccountBillingClient, PreviewInvoiceClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
-import { PremiumOrgUpgradeComponent } from "../premium-org-upgrade/premium-org-upgrade.component";
 import {
   PremiumOrgUpgradePaymentComponent,
   PremiumOrgUpgradePaymentResult,
 } from "../premium-org-upgrade-payment/premium-org-upgrade-payment.component";
+import { PremiumOrgUpgradePlanSelectionComponent } from "../premium-org-upgrade-plan-selection/premium-org-upgrade-plan-selection.component";
 import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 
 export const PremiumOrgUpgradeDialogStatus = {
@@ -81,13 +74,13 @@ export type PremiumOrgUpgradeDialogParams = {
     DialogModule,
     ButtonModule,
     BillingServicesModule,
-    PremiumOrgUpgradeComponent,
+    PremiumOrgUpgradePlanSelectionComponent,
     PremiumOrgUpgradePaymentComponent,
   ],
   providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./premium-org-upgrade-dialog.component.html",
 })
-export class PremiumOrgUpgradeDialogComponent implements OnInit {
+export class PremiumOrgUpgradeDialogComponent {
   // Use signals for dialog state because inputs depend on parent component
   protected readonly step = signal<PremiumOrgUpgradeDialogStep>(
     PremiumOrgUpgradeDialogStep.PlanSelection,
@@ -117,9 +110,7 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
+  ) {
     if (!this.showPremiumToOrganizationUpgrade()) {
       // If the premium to organization upgrade feature is not enabled or user does not have premium personally, close the dialog
       this.close({ status: PremiumOrgUpgradeDialogStatus.Closed });

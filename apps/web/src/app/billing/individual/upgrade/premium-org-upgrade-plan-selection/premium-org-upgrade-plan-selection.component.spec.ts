@@ -17,11 +17,11 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { BillingServicesModule } from "../../../services";
 
-import { PremiumOrgUpgradeComponent } from "./premium-org-upgrade.component";
+import { PremiumOrgUpgradePlanSelectionComponent } from "./premium-org-upgrade-plan-selection.component";
 
-describe("PremiumOrgUpgradeComponent", () => {
-  let sut: PremiumOrgUpgradeComponent;
-  let fixture: ComponentFixture<PremiumOrgUpgradeComponent>;
+describe("PremiumOrgUpgradePlanSelectionComponent", () => {
+  let sut: PremiumOrgUpgradePlanSelectionComponent;
+  let fixture: ComponentFixture<PremiumOrgUpgradePlanSelectionComponent>;
   const mockI18nService = mock<I18nService>();
   const mockSubscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
   const mockToastService = mock<ToastService>();
@@ -88,7 +88,7 @@ describe("PremiumOrgUpgradeComponent", () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [PremiumOrgUpgradeComponent, PricingCardComponent, CdkTrapFocus],
+      imports: [PremiumOrgUpgradePlanSelectionComponent, PricingCardComponent, CdkTrapFocus],
       providers: [
         { provide: I18nService, useValue: mockI18nService },
         {
@@ -98,12 +98,12 @@ describe("PremiumOrgUpgradeComponent", () => {
         { provide: ToastService, useValue: mockToastService },
       ],
     })
-      .overrideComponent(PremiumOrgUpgradeComponent, {
+      .overrideComponent(PremiumOrgUpgradePlanSelectionComponent, {
         remove: { imports: [BillingServicesModule] },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(PremiumOrgUpgradeComponent);
+    fixture = TestBed.createComponent(PremiumOrgUpgradePlanSelectionComponent);
     sut = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -203,7 +203,7 @@ describe("PremiumOrgUpgradeComponent", () => {
         of(mockBusinessPricingTiers),
       );
 
-      fixture = TestBed.createComponent(PremiumOrgUpgradeComponent);
+      fixture = TestBed.createComponent(PremiumOrgUpgradePlanSelectionComponent);
       sut = fixture.componentInstance;
       fixture.detectChanges();
 

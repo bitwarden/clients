@@ -16,12 +16,12 @@ import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
-import { PremiumOrgUpgradeComponent } from "../premium-org-upgrade/premium-org-upgrade.component";
 import {
   PremiumOrgUpgradePaymentComponent,
   PremiumOrgUpgradePaymentResult,
   PremiumOrgUpgradePaymentStatus,
 } from "../premium-org-upgrade-payment/premium-org-upgrade-payment.component";
+import { PremiumOrgUpgradePlanSelectionComponent } from "../premium-org-upgrade-plan-selection/premium-org-upgrade-plan-selection.component";
 
 import {
   PremiumOrgUpgradeDialogComponent,
@@ -30,13 +30,13 @@ import {
 } from "./premium-org-upgrade-dialog.component";
 
 @Component({
-  selector: "app-premium-org-upgrade",
+  selector: "app-premium-org-upgrade-plan-selection",
   template: "",
   standalone: true,
-  providers: [PremiumOrgUpgradeComponent],
+  providers: [PremiumOrgUpgradePlanSelectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MockPremiumOrgUpgradeComponent {
+class MockPremiumOrgUpgradePlanSelectionComponent {
   readonly dialogTitleMessageOverride = input<string | null>(null);
   readonly hideContinueWithoutUpgradingButton = input<boolean>(false);
   planSelected = output<BusinessSubscriptionPricingTierId>();
@@ -108,10 +108,13 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
     })
       .overrideComponent(PremiumOrgUpgradeDialogComponent, {
         remove: {
-          imports: [PremiumOrgUpgradeComponent, PremiumOrgUpgradePaymentComponent],
+          imports: [PremiumOrgUpgradePlanSelectionComponent, PremiumOrgUpgradePaymentComponent],
         },
         add: {
-          imports: [MockPremiumOrgUpgradeComponent, MockPremiumOrgUpgradePaymentComponent],
+          imports: [
+            MockPremiumOrgUpgradePlanSelectionComponent,
+            MockPremiumOrgUpgradePaymentComponent,
+          ],
         },
       })
       .compileComponents();
@@ -149,10 +152,13 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
     })
       .overrideComponent(PremiumOrgUpgradeDialogComponent, {
         remove: {
-          imports: [PremiumOrgUpgradeComponent, PremiumOrgUpgradePaymentComponent],
+          imports: [PremiumOrgUpgradePlanSelectionComponent, PremiumOrgUpgradePaymentComponent],
         },
         add: {
-          imports: [MockPremiumOrgUpgradeComponent, MockPremiumOrgUpgradePaymentComponent],
+          imports: [
+            MockPremiumOrgUpgradePlanSelectionComponent,
+            MockPremiumOrgUpgradePaymentComponent,
+          ],
         },
       })
       .compileComponents();
@@ -426,11 +432,12 @@ describe("PremiumOrgUpgradeDialogComponent", () => {
 
   describe("Child Component Display Logic", () => {
     describe("Plan Selection Step", () => {
-      it("should display app-premium-org-upgrade on plan selection step", async () => {
+      it("should display app-premium-org-upgrade-plan-selection on plan selection step", async () => {
         const { fixture } = await createComponentWithDialogData(defaultDialogData);
 
-        const premiumOrgUpgradeElement =
-          fixture.nativeElement.querySelector("app-premium-org-upgrade");
+        const premiumOrgUpgradeElement = fixture.nativeElement.querySelector(
+          "app-premium-org-upgrade-plan-selection",
+        );
 
         expect(premiumOrgUpgradeElement).toBeTruthy();
       });

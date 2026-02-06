@@ -37,7 +37,7 @@ export type PremiumOrgUpgradeStatus = UnionOfValues<typeof PremiumOrgUpgradeStat
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-premium-org-upgrade",
+  selector: "app-premium-org-upgrade-plan-selection",
   imports: [
     CommonModule,
     DialogModule,
@@ -46,9 +46,9 @@ export type PremiumOrgUpgradeStatus = UnionOfValues<typeof PremiumOrgUpgradeStat
     PricingCardComponent,
     CdkTrapFocus,
   ],
-  templateUrl: "./premium-org-upgrade.component.html",
+  templateUrl: "./premium-org-upgrade-plan-selection.component.html",
 })
-export class PremiumOrgUpgradeComponent implements OnInit {
+export class PremiumOrgUpgradePlanSelectionComponent implements OnInit {
   planSelected = output<PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId>();
   closeClicked = output<PremiumOrgUpgradeStatus>();
   protected closedStatus = PremiumOrgUpgradeStatus.Closed;
@@ -69,7 +69,7 @@ export class PremiumOrgUpgradeComponent implements OnInit {
     private destroyRef: DestroyRef,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     combineLatest([
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$(),
       this.subscriptionPricingService.getBusinessSubscriptionPricingTiers$(),
