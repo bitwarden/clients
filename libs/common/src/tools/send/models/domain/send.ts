@@ -20,7 +20,6 @@ export class Send extends Domain {
   id: string;
   accessId: string;
   type: SendType;
-  authType: AuthType;
   name: EncString;
   notes: EncString;
   file: SendFile;
@@ -32,9 +31,11 @@ export class Send extends Domain {
   expirationDate: Date;
   deletionDate: Date;
   password: string;
-  emails: string;
+  emails: EncString;
+  emailHashes: string;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(obj?: SendData) {
     super();
@@ -51,6 +52,7 @@ export class Send extends Domain {
         name: null,
         notes: null,
         key: null,
+        emails: null,
       },
       ["id", "accessId"],
     );
@@ -60,12 +62,13 @@ export class Send extends Domain {
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;
-    this.emails = obj.emails;
+    this.emailHashes = obj.emailHashes;
     this.disabled = obj.disabled;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
     this.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
     this.hideEmail = obj.hideEmail;
+    this.authType = obj.authType;
 
     switch (this.type) {
       case SendType.Text:
@@ -91,8 +94,17 @@ export class Send extends Domain {
     // model.key is a seed used to derive a key, not a SymmetricCryptoKey
     model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
     model.cryptoKey = await keyService.makeSendKey(model.key);
+    model.name =
+      this.name != null ? await encryptService.decryptString(this.name, model.cryptoKey) : null;
+    model.notes =
+      this.notes != null ? await encryptService.decryptString(this.notes, model.cryptoKey) : null;
 
-    await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], model.cryptoKey);
+    if (this.emails != null) {
+      const decryptedEmails = await encryptService.decryptString(this.emails, model.cryptoKey);
+      model.emails = decryptedEmails ? decryptedEmails.split(",").map((e) => e.trim()) : [];
+    } else {
+      model.emails = [];
+    }
 
     switch (this.type) {
       case SendType.File:
@@ -121,6 +133,7 @@ export class Send extends Domain {
       key: EncString.fromJSON(obj.key),
       name: EncString.fromJSON(obj.name),
       notes: EncString.fromJSON(obj.notes),
+      emails: EncString.fromJSON(obj.emails),
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
       revisionDate,
