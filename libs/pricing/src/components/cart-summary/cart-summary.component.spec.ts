@@ -245,13 +245,50 @@ describe("CartSummaryComponent", () => {
 
     it("should display term (month/year) in default header", () => {
       // Arrange / Act
-      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-main"));
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
       // Find the span that contains the term
       const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
 
       // Assert
       expect(termElement).toBeTruthy();
       expect(termElement!.nativeElement.textContent.trim()).toBe("/ month");
+    });
+
+    it("should hide term when hidePricingTerm is true", () => {
+      // Arrange
+      const cartWithHiddenTerm: Cart = {
+        ...mockCart,
+        hidePricingTerm: true,
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenTerm);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(true);
+      expect(termElement).toBeFalsy();
+    });
+
+    it("should show term when hidePricingTerm is false", () => {
+      // Arrange
+      const cartWithVisibleTerm: Cart = {
+        ...mockCart,
+        hidePricingTerm: false,
+      };
+      fixture.componentRef.setInput("cart", cartWithVisibleTerm);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(false);
+      expect(termElement).toBeTruthy();
+      expect(termElement!.nativeElement.textContent).toContain("/ month");
     });
   });
 
