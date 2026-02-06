@@ -3,12 +3,13 @@
     <app-pop-out slot="end" />
   </popup-header>
 
-  <app-cipher-attachments
-    *ngIf="cipherId"
-    [cipherId]="cipherId"
-    [submitBtn]="submitButton"
-    (onUploadSuccess)="navigateBack()"
-  ></app-cipher-attachments>
+  @if (cipherId) {
+    <app-cipher-attachments
+      [cipherId]="cipherId"
+      [submitBtn]="submitButton"
+      (onUploadSuccess)="navigateBack()"
+    ></app-cipher-attachments>
+  }
 
   <popup-footer slot="footer">
     <button
