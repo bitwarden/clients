@@ -991,10 +991,10 @@
     "message": "Nein"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Alle mit dem Link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Alle mit einem von dir festgelegtem Passwort"
   },
   "location": {
     "message": "Standort"
@@ -2055,7 +2055,7 @@
     "message": "E-Mail"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-Mails"
   },
   "phone": {
     "message": "Telefon"
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Benutzerdefiniert"
   },
-  "sendPasswordDescV3": {
-    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Neues Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Send gespeichert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Erweiterung in einem neuen Fenster öffnen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Um ein Datei-Send zu erstellen, musst du die Erweiterung in einem neuen Fenster öffnen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Um eine Datei auszuwählen, öffne die Erweiterung in der Sidebar (falls möglich) oder öffne sie in einem neuem Fenster, indem du auf dieses Banner klickst."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Um eine Datei mit Firefox auszuwählen, öffne die Erweiterung in der Sidebar oder öffne ein neues Fenster, indem du auf dieses Banner klickst."
-  },
-  "sendSafariFileWarning": {
-    "message": "Um eine Datei mit Safari auszuwählen, öffne ein neues Fenster, indem du auf dieses Banner klickst."
-  },
   "popOut": {
     "message": "Abkoppeln"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Bevor du beginnst"
   },
   "expirationDateIsInvalid": {
     "message": "Das angegebene Verfallsdatum ist nicht gültig."
@@ -6127,22 +6103,32 @@
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Wer kann das sehen"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Bestimmte Personen"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Nach dem Teilen dieses Send-Links müssen Einzelpersonen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
