@@ -14,15 +14,15 @@ import { MemberDetailsData } from "./member-details.data";
  * - See {@link RiskInsightsReportView} from View Model
  */
 export class RiskInsightsReportData {
-  applicationName: string;
-  passwordCount: number;
-  atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
-  memberCount: number;
-  atRiskMemberCount: number;
-  memberDetails: MemberDetailsData[];
-  atRiskMemberDetails: MemberDetailsData[];
-  cipherIds: string[];
+  applicationName: string = "";
+  passwordCount: number = 0;
+  atRiskPasswordCount: number = 0;
+  atRiskCipherIds: string[] = [];
+  memberCount: number = 0;
+  atRiskMemberCount: number = 0;
+  memberDetails: MemberDetailsData[] = [];
+  atRiskMemberDetails: MemberDetailsData[] = [];
+  cipherIds: string[] = [];
 
   constructor(data?: RiskInsightsReportApi) {
     if (data == null) {

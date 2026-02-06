@@ -14,14 +14,14 @@ import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
  * - See {@link RiskInsightsSummaryView} from View Model
  */
 export class RiskInsightsSummary extends Domain {
-  totalMemberCount: number;
-  totalApplicationCount: number;
-  totalAtRiskMemberCount: number;
-  totalAtRiskApplicationCount: number;
-  totalCriticalApplicationCount: number;
-  totalCriticalMemberCount: number;
-  totalCriticalAtRiskMemberCount: number;
-  totalCriticalAtRiskApplicationCount: number;
+  totalMemberCount: number = 0;
+  totalApplicationCount: number = 0;
+  totalAtRiskMemberCount: number = 0;
+  totalAtRiskApplicationCount: number = 0;
+  totalCriticalApplicationCount: number = 0;
+  totalCriticalMemberCount: number = 0;
+  totalCriticalAtRiskMemberCount: number = 0;
+  totalCriticalAtRiskApplicationCount: number = 0;
 
   constructor(obj?: RiskInsightsSummaryData) {
     super();

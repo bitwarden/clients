@@ -13,8 +13,8 @@ import { RiskInsightsApplicationView } from "../view/risk-insights-application.v
  */
 
 export class RiskInsightsApplicationData {
-  applicationName: string;
-  isCritical: boolean;
+  applicationName: string = "";
+  isCritical: boolean = false;
   reviewedDate: string | undefined;
 
   constructor(data?: RiskInsightsApplicationApi) {

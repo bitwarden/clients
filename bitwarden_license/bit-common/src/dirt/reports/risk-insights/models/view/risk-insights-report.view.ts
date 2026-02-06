@@ -46,9 +46,14 @@ export class RiskInsightsReportView implements View {
 
     const view = Object.assign(new RiskInsightsReportView(), obj) as RiskInsightsReportView;
 
-    view.memberDetails = obj.memberDetails?.map((m: any) => MemberDetailsView.fromJSON(m)) ?? [];
+    view.memberDetails =
+      obj.memberDetails
+        ?.map((m: any) => MemberDetailsView.fromJSON(m))
+        .filter((m): m is MemberDetailsView => m !== undefined) ?? [];
     view.atRiskMemberDetails =
-      obj.atRiskMemberDetails?.map((m: any) => MemberDetailsView.fromJSON(m)) ?? [];
+      obj.atRiskMemberDetails
+        ?.map((m: any) => MemberDetailsView.fromJSON(m))
+        .filter((m): m is MemberDetailsView => m !== undefined) ?? [];
 
     return view;
   }

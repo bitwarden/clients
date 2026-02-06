@@ -16,13 +16,13 @@ import { RiskInsightsView } from "../view/risk-insights.view";
  */
 // [TODO] To replace GetRiskInsightsReportResponse
 export class RiskInsightsApi extends BaseResponse {
-  id: string;
-  organizationId: string;
-  reports: string;
-  applications: string;
-  summary: string;
-  creationDate: string;
-  contentEncryptionKey: string;
+  id: string = "";
+  organizationId: string = "";
+  reports: string = "";
+  applications: string = "";
+  summary: string = "";
+  creationDate: string = "";
+  contentEncryptionKey: string = "";
 
   constructor(data: any = null) {
     super(data);

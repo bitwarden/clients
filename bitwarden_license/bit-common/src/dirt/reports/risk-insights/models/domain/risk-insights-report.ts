@@ -17,15 +17,15 @@ import { MemberDetails } from "./member-details";
  * - See {@link RiskInsightsReportView} from View Model
  */
 export class RiskInsightsReport extends Domain {
-  applicationName: EncString;
-  passwordCount: EncString;
-  atRiskPasswordCount: EncString;
-  atRiskCipherIds: string[];
-  memberCount: EncString;
-  atRiskMemberCount: EncString;
-  memberDetails: MemberDetails[];
-  atRiskMemberDetails: MemberDetails[];
-  cipherIds: string[];
+  applicationName: EncString = new EncString("");
+  passwordCount: EncString = new EncString("");
+  atRiskPasswordCount: EncString = new EncString("");
+  atRiskCipherIds: string[] = [];
+  memberCount: EncString = new EncString("");
+  atRiskMemberCount: EncString = new EncString("");
+  memberDetails: MemberDetails[] = [];
+  atRiskMemberDetails: MemberDetails[] = [];
+  cipherIds: string[] = [];
 
   constructor(obj?: RiskInsightsReportData) {
     super();

@@ -15,7 +15,7 @@ import { RiskInsightsApplicationView } from "../view/risk-insights-application.v
  * - See {@link RiskInsightsApplicationView} from View Model
  */
 export class RiskInsightsApplicationApi extends BaseResponse {
-  applicationName: string;
+  applicationName: string = "";
   isCritical: boolean = false;
   reviewedDate: string | undefined;
 

@@ -26,6 +26,6 @@ export class RiskInsightsApplication extends Domain {
 
     this.applicationName = obj.applicationName;
     this.isCritical = obj.isCritical;
-    this.reviewedDate = new Date(obj.reviewedDate);
+    this.reviewedDate = obj.reviewedDate ? new Date(obj.reviewedDate) : undefined;
   }
 }
