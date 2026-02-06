@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { A11yModule } from "@angular/cdk/a11y";
 import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
