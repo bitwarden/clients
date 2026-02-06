@@ -6133,8 +6133,5 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "paymentMethodUpdateError": {
-    "message": "There was an error updating your payment method."
   }
 }
