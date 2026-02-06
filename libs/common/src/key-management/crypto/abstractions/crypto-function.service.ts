@@ -7,7 +7,7 @@ import { CsprngArray } from "../../../types/csprng";
 
 export abstract class CryptoFunctionService {
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract pbkdf2(
@@ -17,7 +17,7 @@ export abstract class CryptoFunctionService {
     iterations: number,
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract hkdf(
@@ -28,7 +28,7 @@ export abstract class CryptoFunctionService {
     algorithm: "sha256" | "sha512",
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract hkdfExpand(
@@ -38,7 +38,7 @@ export abstract class CryptoFunctionService {
     algorithm: "sha256" | "sha512",
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract hash(
@@ -46,7 +46,7 @@ export abstract class CryptoFunctionService {
     algorithm: "sha1" | "sha256" | "sha512" | "md5",
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract hmacFast(
@@ -56,7 +56,7 @@ export abstract class CryptoFunctionService {
   ): Promise<Uint8Array | string>;
   abstract compareFast(a: Uint8Array | string, b: Uint8Array | string): Promise<boolean>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract aesDecryptFastParameters(
@@ -66,7 +66,7 @@ export abstract class CryptoFunctionService {
     key: SymmetricCryptoKey,
   ): CbcDecryptParameters<Uint8Array | string>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract aesDecryptFast({
@@ -76,7 +76,7 @@ export abstract class CryptoFunctionService {
     | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array | string> }
     | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array | string> }): Promise<string>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Only used by DDG integration until DDG uses PKCS#7 padding, and by lastpass importer.
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Only used by DDG integration until DDG uses PKCS#7 padding, and by lastpass importer.
    */
   abstract aesDecrypt(
     data: Uint8Array,
@@ -85,7 +85,7 @@ export abstract class CryptoFunctionService {
     mode: "cbc" | "ecb",
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract rsaEncrypt(
@@ -94,7 +94,7 @@ export abstract class CryptoFunctionService {
     algorithm: "sha1",
   ): Promise<Uint8Array>;
   /**
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. Implement low-level crypto operations
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
   abstract rsaDecrypt(

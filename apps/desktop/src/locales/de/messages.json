@@ -137,10 +137,6 @@
     "message": "Send-Details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Zu teilender Text"
   },
@@ -4587,5 +4583,9 @@
   },
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
