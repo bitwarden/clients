@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Tùy chỉnh"
   },
-  "sendPasswordDescV3": {
-    "message": "Thêm mật khẩu tùy chọn cho người nhận để có thể truy cập vào Send này.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Tạo Send mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Đã lưu Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Mở rộng tiện ích ra cửa sổ mới?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Để tạo Send tập tin, bạn cần mở phần mở rộng trong cửa sổ mới.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Để chọn tập tin, mở tiện ích mở rộng trong thanh bên (nếu có thể) hoặc mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Để chọn tập tin bằng Firefox, mở tiện ích mở rộng trong thanh bên hoặc mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
-  "sendSafariFileWarning": {
-    "message": "Để chọn tập tin bằng Safari, mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
   "popOut": {
     "message": "Mở rộng"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Trước khi bạn bắt đầu"
   },
   "expirationDateIsInvalid": {
     "message": "Ngày hết hạn bạn nhập không hợp lệ."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Tại sao tôi thấy điều này?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Thay đổi kích thước thanh bên"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
