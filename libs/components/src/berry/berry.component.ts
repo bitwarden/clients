@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 export type BerryVariant =
@@ -20,7 +19,6 @@ export type BerryVariant =
  */
 @Component({
   selector: "bit-berry",
-  imports: [NgClass],
   templateUrl: "berry.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
