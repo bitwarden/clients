@@ -60,8 +60,10 @@
               @if (!passwordManagerSeats.hideBreakdown) {
                 x
                 {{ passwordManagerSeats.cost | currency: "USD" : "symbol" }}
-                /
-                {{ term }}
+                @if (!hideTerm) {
+                  /
+                  {{ term }}
+                }
               }
             </div>
           </div>
@@ -88,8 +90,11 @@
                   )
                 }}
                 @if (!additionalStorage.hideBreakdown) {
-                  x {{ additionalStorage.cost | currency: "USD" : "symbol" }} /
-                  {{ term }}
+                  x {{ additionalStorage.cost | currency: "USD" : "symbol" }}
+                  @if (!hideTerm) {
+                    /
+                    {{ term }}
+                  }
                 }
               </div>
             </div>
@@ -127,7 +132,10 @@
               @if (!secretsManagerSeats.hideBreakdown) {
                 x
                 {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
-                / {{ term }}
+                @if (!hideTerm) {
+                  /
+                  {{ term }}
+                }
               }
             </div>
             <div
@@ -154,8 +162,10 @@
                 @if (!additionalServiceAccounts.hideBreakdown) {
                   x
                   {{ additionalServiceAccounts.cost | currency: "USD" : "symbol" }}
-                  /
-                  {{ term }}
+                  @if (!hideTerm) {
+                    /
+                    {{ term }}
+                  }
                 }
               </div>
               <div
