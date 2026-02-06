@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -70,20 +70,30 @@ export class AccountSubscriptionComponent {
   private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private toastService = inject(ToastService);
 
+  readonly account = toSignal(this.accountService.activeAccount$);
+
+  readonly hasPremiumPersonally = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return this.billingAccountProfileStateService.hasPremiumPersonally$(account.id);
+      }),
+    ),
+    { initialValue: false },
+  );
+
   readonly subscription = resource({
     loader: async () => {
       const redirectToPremiumPage = async (): Promise<null> => {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      if (!account) {
+      if (!this.account()) {
         return await redirectToPremiumPage();
       }
-      const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
-      );
-      if (!hasPremiumPersonally) {
+      if (!this.hasPremiumPersonally()) {
         return await redirectToPremiumPage();
       }
       return await this.accountBillingClient.getSubscription();
@@ -181,6 +191,13 @@ export class AccountSubscriptionComponent {
     this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
     { initialValue: false },
   );
+
+  readonly canUpgradeFromPremium = computed<boolean>(() => {
+    // Since account is checked in hasPremiumPersonally, no need to check again here
+    const hasPremiumPersonally = this.hasPremiumPersonally();
+    const upgradeEnabled = this.premiumToOrganizationUpgradeEnabled();
+    return hasPremiumPersonally && upgradeEnabled;
+  });
 
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
@@ -295,15 +312,8 @@ export class AccountSubscriptionComponent {
   };
 
   openUpgradeDialog = async (): Promise<void> => {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const account = this.account();
     if (!account) {
-      return;
-    }
-    const hasPremiumPersonally = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
-    );
-
-    if (!hasPremiumPersonally) {
       return;
     }
 
