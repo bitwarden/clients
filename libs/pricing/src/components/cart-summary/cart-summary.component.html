@@ -16,7 +16,9 @@
           {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
         </h2>
         <span bitTypography="h3">&nbsp;</span>
-        <span bitTypography="body1" class="tw-text-main tw-font-normal">/ {{ term }}</span>
+        @if (!hidePricingTerm()) {
+          <span bitTypography="body1" class="tw-text-muted tw-ms-2"> / {{ term | i18n }} </span>
+        }
       }
     </div>
     <button
@@ -219,7 +221,10 @@
       <div id="total-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
         <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">{{ "total" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted" data-testid="final-total">
-          {{ total() | currency: "USD" : "symbol" }} / {{ term | i18n }}
+          {{ total() | currency: "USD" : "symbol" }}
+          @if (!hidePricingTerm()) {
+            / {{ term | i18n }}
+          }
         </div>
       </div>
     </div>

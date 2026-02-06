@@ -154,6 +154,11 @@ export class CartSummaryComponent {
   });
 
   /**
+   * Whether to hide the pricing term (e.g., "/ month" or "/ year")
+   */
+  readonly hidePricingTerm = computed<boolean>(() => this.cart().hidePricingTerm ?? false);
+
+  /**
    * Calculates the total of all line items including discount and tax
    */
   readonly total = computed<number>(

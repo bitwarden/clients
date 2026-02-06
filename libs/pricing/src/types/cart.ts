@@ -24,4 +24,5 @@ export type Cart = {
   discount?: Discount;
   credit?: Credit;
   estimatedTax: number;
+  hidePricingTerm?: boolean;
 };
