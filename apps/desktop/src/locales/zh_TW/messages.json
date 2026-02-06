@@ -137,10 +137,6 @@
     "message": "Send 詳細資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "新增一個用於收件人存取此 Send 的可選密碼。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "要分享的文字"
   },
@@ -4587,5 +4583,9 @@
   },
   "whyAmISeeingThis": {
     "message": "為什麼我會看到此訊息？"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
