@@ -51,7 +51,6 @@ export class Send extends Domain {
         name: null,
         notes: null,
         key: null,
-        emails: null,
       },
       ["id", "accessId"],
     );
