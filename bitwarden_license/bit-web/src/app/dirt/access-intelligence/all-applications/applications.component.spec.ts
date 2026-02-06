@@ -28,7 +28,7 @@ describe("ApplicationsComponent", () => {
   let mockToastService: MockProxy<ToastService>;
   let mockDataService: MockProxy<RiskInsightsDataService>;
 
-  const reportStatus$ = new BehaviorSubject<ReportStatus>(ReportStatus.Loaded);
+  const reportStatus$ = new BehaviorSubject<ReportStatus>(ReportStatus.Complete);
   const enrichedReportData$ = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   const criticalReportResults$ = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
   const drawerDetails$ = new BehaviorSubject<DrawerDetails>({
@@ -49,10 +49,14 @@ describe("ApplicationsComponent", () => {
 
     mockI18nService.t.mockImplementation((key: string) => key);
 
-    mockDataService.reportStatus$ = reportStatus$;
-    mockDataService.enrichedReportData$ = enrichedReportData$;
-    mockDataService.criticalReportResults$ = criticalReportResults$;
-    mockDataService.drawerDetails$ = drawerDetails$;
+    Object.defineProperty(mockDataService, "reportStatus$", { get: () => reportStatus$ });
+    Object.defineProperty(mockDataService, "enrichedReportData$", {
+      get: () => enrichedReportData$,
+    });
+    Object.defineProperty(mockDataService, "criticalReportResults$", {
+      get: () => criticalReportResults$,
+    });
+    Object.defineProperty(mockDataService, "drawerDetails$", { get: () => drawerDetails$ });
 
     await TestBed.configureTestingModule({
       imports: [ApplicationsComponent, ReactiveFormsModule],
