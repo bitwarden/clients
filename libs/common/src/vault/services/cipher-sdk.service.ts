@@ -37,7 +37,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             result = await sdkCiphersClient.create(sdkCreateRequest);
           }
 
-          return CipherView.fromSdkCipherView(result);
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create cipher: ${error}`);
@@ -76,7 +76,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
           }
 
-          return CipherView.fromSdkCipherView(result);
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher: ${error}`);
