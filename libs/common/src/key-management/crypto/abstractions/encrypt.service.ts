@@ -16,7 +16,7 @@ export abstract class EncryptService {
   /**
    * Encrypts bytes to an EncString
    * 
-   * @deprecated NOTE: You probably do not want to encrypt raw bytes. Please contact KM if you think
+   * @deprecated NOTE: You probably do not want to encrypt raw bytes. Please contact the Key-Management team if you think
    * you need to.
    * 
    * @param plainValue - The value to encrypt
@@ -138,7 +138,7 @@ export abstract class EncryptService {
    * Note: This does not establish sender authenticity
    * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
    * 
-   * @deprecated NOTE: You probably do not want to use this. Please contact KM if you think you need to.
+   * @deprecated NOTE: You probably do not want to use this. Please contact the Key-Management team if you think you need to.
    * 
    * @param sharedKey - The symmetric key that is to be shared
    * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
