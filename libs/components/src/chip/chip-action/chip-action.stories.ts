@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { sharedArgTypes } from "../shared-story-arg-types";
+import { sharedArgTypes, variantArgType, endIconArgType } from "../shared-story-arg-types";
 
 import { ChipActionComponent } from "./chip-action.component";
 
@@ -15,6 +15,11 @@ export default {
   args: {
     disabled: false,
     label: "Chip Label",
+  },
+  argTypes: {
+    ...sharedArgTypes,
+    ...variantArgType,
+    ...endIconArgType,
   },
 } as Meta<ChipActionComponent>;
 
@@ -33,9 +38,6 @@ export const Default: Story = {
       ></button>
     `,
   }),
-  argTypes: {
-    ...sharedArgTypes,
-  },
 };
 
 export const WithStartIcon: Story = {
