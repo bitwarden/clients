@@ -12,24 +12,19 @@
       <bit-label>{{ "notes" | i18n }}</bit-label>
       <textarea bitInput rows="5" formControlName="notes"></textarea>
     </bit-form-field>
-    <bit-form-control
-      *ngIf="passwordRepromptEnabled$ | async"
-      [disableMargin]="hasCustomFields || isPartialEdit"
-    >
-      <input type="checkbox" bitCheckbox formControlName="reprompt" />
-      <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
-    </bit-form-control>
+    @if (passwordRepromptEnabled$ | async) {
+      <bit-form-control [disableMargin]="hasCustomFields || isPartialEdit">
+        <input type="checkbox" bitCheckbox formControlName="reprompt" />
+        <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
+      </bit-form-control>
+    }
 
-    <button
-      bitLink
-      type="button"
-      linkType="primary"
-      *ngIf="!hasCustomFields && !isPartialEdit && allowNewField"
-      (click)="addCustomField()"
-    >
-      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
-      {{ "addField" | i18n }}
-    </button>
+    @if (!hasCustomFields && !isPartialEdit && allowNewField) {
+      <button bitLink type="button" linkType="primary" (click)="addCustomField()">
+        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
+        {{ "addField" | i18n }}
+      </button>
+    }
   </bit-card>
 </section>
 
