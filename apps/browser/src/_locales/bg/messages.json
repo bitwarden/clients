@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "По избор"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавете незадължителна парола, с която получателите да имат достъп до това Изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Създаване на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Редактирано изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Отваряне на разширението в нов прозорец?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "За да създадете файлово Изпращане, трябва да отворите разширението в нов прозорец.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "За да изберете файл, отворете разширението в страничната лента (ако е възможно) или в нов прозорец, като натиснете това съобщение."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "За да изберете файл във Firefox, отворете разширението в страничната лента или в нов прозорец, като натиснете това съобщение."
-  },
-  "sendSafariFileWarning": {
-    "message": "За да изберете файл в Safari, отворете разширението в нов прозорец, като натиснете това съобщение."
-  },
   "popOut": {
     "message": "Отваряне в прозорец"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Преди да почнете"
   },
   "expirationDateIsInvalid": {
     "message": "Неправилна дата на валидност."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
   },
+  "items": {
+    "message": "Елементи"
+  },
+  "searchResults": {
+    "message": "Резултати от търсенето"
+  },
   "resizeSideNavigation": {
     "message": "Преоразмеряване на страничната навигация"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

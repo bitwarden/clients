@@ -96,12 +96,15 @@ export class ApplicationsComponent implements OnInit {
     {
       label: this.i18nService.t("critical", this.criticalApplicationsCount()),
       value: ApplicationFilterOption.Critical,
+      icon: " ",
     },
     {
       label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
       value: ApplicationFilterOption.NonCritical,
+      icon: " ",
     },
   ]);
+  protected readonly emptyTableExplanation = signal("");
 
   constructor(
     protected i18nService: I18nService,
@@ -162,6 +165,12 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
+
+        if (this.dataSource?.filteredData?.length === 0) {
+          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
+        } else {
+          this.emptyTableExplanation.set("");
+        }
       });
   }
 
