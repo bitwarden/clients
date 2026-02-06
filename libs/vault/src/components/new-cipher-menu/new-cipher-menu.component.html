@@ -1,37 +1,40 @@
-<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
-  <div>
-    <button
-      bitButton
-      buttonType="primary"
-      type="button"
-      [bitMenuTriggerFor]="addOptions"
-      id="newItemDropdown"
-      [appA11yTitle]="'new' | i18n"
-    >
-      <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
-      {{ "new" | i18n }}
-    </button>
-    <bit-menu #addOptions aria-labelledby="newItemDropdown">
-      @for (item of cipherMenuItems$ | async; track item.type) {
-        <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
-          <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
-          {{ item.labelKey | i18n }}
-        </button>
-      }
-      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
-      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
-        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-        {{ "folder" | i18n }}
-      </button>
+@if (canCreateCipher() || canCreateCollection() || canCreateFolder()) {
+  <ng-container>
+    <div>
       <button
-        *ngIf="canCreateCollection()"
+        bitButton
+        buttonType="primary"
         type="button"
-        bitMenuItem
-        (click)="collectionAdded.emit()"
+        [bitMenuTriggerFor]="addOptions"
+        id="newItemDropdown"
+        [appA11yTitle]="'new' | i18n"
       >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-        {{ "collection" | i18n }}
+        <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+        {{ "new" | i18n }}
       </button>
-    </bit-menu>
-  </div>
-</ng-container>
+      <bit-menu #addOptions aria-labelledby="newItemDropdown">
+        @for (item of cipherMenuItems$ | async; track item.type) {
+          <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
+            <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+            {{ item.labelKey | i18n }}
+          </button>
+        }
+        @if (canCreateCipher()) {
+          <bit-menu-divider></bit-menu-divider>
+        }
+        @if (canCreateFolder()) {
+          <button type="button" bitMenuItem (click)="folderAdded.emit()">
+            <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+            {{ "folder" | i18n }}
+          </button>
+        }
+        @if (canCreateCollection()) {
+          <button type="button" bitMenuItem (click)="collectionAdded.emit()">
+            <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+            {{ "collection" | i18n }}
+          </button>
+        }
+      </bit-menu>
+    </div>
+  </ng-container>
+}
