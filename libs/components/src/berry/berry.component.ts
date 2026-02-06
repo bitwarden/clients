@@ -30,7 +30,7 @@ export class BerryComponent {
 
   protected readonly content = computed(() => {
     const count = this.count();
-    if (count == null || count <= 0) {
+    if (!count || count < 0) {
       return undefined;
     }
     return count > 999 ? "999+" : `${count}`;
