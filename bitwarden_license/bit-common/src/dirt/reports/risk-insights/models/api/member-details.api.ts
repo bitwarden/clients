@@ -15,10 +15,10 @@ import { MemberDetailsView } from "../view/member-details.view";
  * - See {@link MemberDetailsView} from View Model
  */
 export class MemberDetailsApi extends BaseResponse {
-  userGuid: string;
-  userName: string;
-  email: string;
-  cipherId: string;
+  userGuid: string = "";
+  userName: string = "";
+  email: string = "";
+  cipherId: string = "";
 
   constructor(data: any = null) {
     super(data);

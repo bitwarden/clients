@@ -12,17 +12,17 @@ import { RiskInsightsView } from "../view/risk-insights.view";
  * - See {@link RiskInsightsView} from View Model
  */
 export class RiskInsightsData {
-  id: string;
-  organizationId: string;
-  reports: string;
-  applications: string;
-  summary: string;
+  id: string = "";
+  organizationId: string = "";
+  reports: string = "";
+  applications: string = "";
+  summary: string = "";
   //  [TODO] Update types when individual values are encrypted instead of the entire object
   //  reports: RiskInsightsReportData[]; // Previously ApplicationHealthReportDetail Data type
   //  applications: RiskInsightsApplicationsData[]; // Previously OrganizationReportApplication Data type
   //  summary: RiskInsightsSummaryData; // Previously OrganizationReportSummary Data type
-  creationDate: string;
-  contentEncryptionKey: string;
+  creationDate: string = "";
+  contentEncryptionKey: string = "";
 
   constructor(response?: RiskInsightsApi) {
     if (response == null) {

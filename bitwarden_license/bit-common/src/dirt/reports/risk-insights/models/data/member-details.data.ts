@@ -12,10 +12,10 @@ import { MemberDetailsView } from "../view/member-details.view";
  * - See {@link MemberDetailsView} from View Model
  */
 export class MemberDetailsData {
-  userGuid: string;
-  userName: string;
-  email: string;
-  cipherId: string;
+  userGuid: string = "";
+  userName: string = "";
+  email: string = "";
+  cipherId: string = "";
 
   constructor(data?: MemberDetailsApi) {
     if (data == null) {

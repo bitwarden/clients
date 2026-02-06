@@ -21,9 +21,9 @@ export class RiskInsights extends Domain {
     }
     this.id = obj.id;
     this.organizationId = obj.organizationId;
-    this.reports = conditionalEncString(obj.reports);
-    this.applications = conditionalEncString(obj.applications);
-    this.summary = conditionalEncString(obj.summary);
+    this.reports = conditionalEncString(obj.reports) ?? new EncString("");
+    this.applications = conditionalEncString(obj.applications) ?? new EncString("");
+    this.summary = conditionalEncString(obj.summary) ?? new EncString("");
     this.creationDate = new Date(obj.creationDate);
     this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
 

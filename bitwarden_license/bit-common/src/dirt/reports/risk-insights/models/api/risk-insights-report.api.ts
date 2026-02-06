@@ -17,15 +17,15 @@ import { MemberDetailsApi } from "./member-details.api";
  * - See {@link RiskInsightsReportView} from View Model
  */
 export class RiskInsightsReportApi extends BaseResponse {
-  applicationName: string;
-  passwordCount: number;
-  atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
-  memberCount: number;
-  atRiskMemberCount: number;
-  memberDetails: MemberDetailsApi[];
-  atRiskMemberDetails: MemberDetailsApi[];
-  cipherIds: string[];
+  applicationName: string = "";
+  passwordCount: number = 0;
+  atRiskPasswordCount: number = 0;
+  atRiskCipherIds: string[] = [];
+  memberCount: number = 0;
+  atRiskMemberCount: number = 0;
+  memberDetails: MemberDetailsApi[] = [];
+  atRiskMemberDetails: MemberDetailsApi[] = [];
+  cipherIds: string[] = [];
 
   constructor(data: any) {
     super(data);

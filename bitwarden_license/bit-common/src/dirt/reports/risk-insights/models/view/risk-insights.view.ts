@@ -54,7 +54,7 @@ export class RiskInsightsView implements View {
 
     view.reports = obj.reports?.map((report) => RiskInsightsReportView.fromJSON(report)) ?? [];
     view.applications = obj.applications?.map((a) => RiskInsightsApplicationView.fromJSON(a)) ?? [];
-    view.summary = RiskInsightsSummaryView.fromJSON(obj.summary);
+    view.summary = RiskInsightsSummaryView.fromJSON(obj.summary ?? {});
 
     return view;
   }
