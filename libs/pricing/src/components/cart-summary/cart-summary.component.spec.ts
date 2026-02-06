@@ -192,7 +192,7 @@ describe("CartSummaryComponent", () => {
     it("should display correct secrets manager information", () => {
       // Arrange
       const smSection = fixture.debugElement.query(By.css('[id="secrets-manager"]'));
-      const smHeading = smSection.query(By.css("h3"));
+      const smHeading = smSection?.query(By.css('div[bitTypography="h5"]'));
       const sectionText = fixture.debugElement.query(By.css('[id="secrets-manager-members"]'))
         .nativeElement.textContent;
       const additionalSA = fixture.debugElement.query(By.css('[id="additional-service-accounts"]'))
@@ -200,7 +200,8 @@ describe("CartSummaryComponent", () => {
 
       // Act/ Assert
       expect(smSection).toBeTruthy();
-      expect(smHeading.nativeElement.textContent.trim()).toBe("Secrets Manager");
+      expect(smHeading).toBeTruthy();
+      expect(smHeading!.nativeElement.textContent.trim()).toBe("Secrets Manager");
 
       // Check seats line item
       expect(sectionText).toContain("3 Secrets Manager seats");
@@ -438,7 +439,7 @@ describe("CartSummaryComponent", () => {
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
       );
-      const discountLabel = discountSection.query(By.css("h3"));
+      const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
       const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
 
       // Act / Assert
@@ -463,7 +464,7 @@ describe("CartSummaryComponent", () => {
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
       );
-      const discountLabel = discountSection.query(By.css("h3"));
+      const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
       const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
 
       // Act / Assert
@@ -518,7 +519,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
-      const creditLabel = creditSection.query(By.css("h3"));
+      const creditLabel = creditSection.query(By.css('div[bitTypography="body1"]'));
       const creditAmount = creditSection.query(By.css('[data-testid="credit-amount"]'));
 
       // Act / Assert
