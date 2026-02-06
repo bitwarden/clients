@@ -24,7 +24,7 @@
     "message": "पहिचान"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "नोट"
   },
   "typeSecureNote": {
     "message": "सुरक्षित नोट"
@@ -42,7 +42,7 @@
     "message": "भल्टमा खोज्नुहोस्"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "खोजी रिसेट गर्नुहोस्"
   },
   "addItem": {
     "message": "आइटम थप्नुहोस्"
@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "तपाईंसँग यस वस्तुलाई सम्पादन गर्न अनुमति छैन"
   },
   "welcomeBack": {
     "message": "Welcome back"
@@ -135,10 +135,6 @@
   },
   "sendDetails": {
     "message": "Send details",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -4587,5 +4583,9 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
