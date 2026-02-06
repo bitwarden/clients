@@ -39,7 +39,6 @@
         class="bwi-spin bwi-fw tw-text-muted"
         [ariaLabel]="'loading' | i18n"
       ></bit-icon>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </small>
   </h2>
   <bit-callout type="warning" *ngIf="showPolicyWarning">
@@ -64,7 +63,6 @@
               class="tw-text-success-600 bwi-fw tw-ml-2"
               [ariaLabel]="'enabled' | i18n"
             ></bit-icon>
-            <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
           </ng-container>
           <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
         </h3>
