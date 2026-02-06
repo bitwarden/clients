@@ -38,7 +38,7 @@ export class BerryComponent {
 
   protected readonly computedSize = computed<"small" | "large">(() => {
     const count = this.count();
-    return count !== undefined && count > 0 ? "large" : "small";
+    return count && count > 0 ? "large" : "small";
   });
 
   protected readonly textColor = computed(() => {
