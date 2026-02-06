@@ -14,15 +14,6 @@ const sharedArgTypes = {
       defaultValue: { summary: ChipSizes.Large },
     },
   },
-  variant: {
-    options: Object.values(ChipVariants),
-    control: { type: "select" },
-    description: "Sets the visual variant of the chip.",
-    table: {
-      type: { summary: Object.values(ChipVariants).join(" | ") },
-      defaultValue: { summary: ChipVariants.Primary },
-    },
-  },
   fullWidth: {
     control: "boolean",
     description: "Whether the chip takes full width",
@@ -32,6 +23,13 @@ const sharedArgTypes = {
     options: BITWARDEN_ICONS,
     description: "Icon to display at the start of the chip",
   },
+  disabled: {
+    control: "boolean",
+    description: "Disables the chip",
+  },
+} satisfies Partial<ArgTypes>;
+
+const endIconArgType = {
   endIcon: {
     control: "select",
     options: BITWARDEN_ICONS,
@@ -39,4 +37,16 @@ const sharedArgTypes = {
   },
 } satisfies Partial<ArgTypes>;
 
-export { sharedArgTypes };
+const variantArgType = {
+  variant: {
+    options: Object.values(ChipVariants),
+    control: { type: "select" },
+    description: "Sets the visual variant of the chip.",
+    table: {
+      type: { summary: Object.values(ChipVariants).join(" | ") },
+      defaultValue: { summary: ChipVariants.Primary },
+    },
+  },
+} satisfies Partial<ArgTypes>;
+
+export { sharedArgTypes, variantArgType, endIconArgType };

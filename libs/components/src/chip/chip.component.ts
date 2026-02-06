@@ -4,13 +4,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenIcon } from "../shared/icon";
 
-import {
-  BaseChipDirective,
-  type ChipVariant,
-  type ChipSize,
-  ChipVariants,
-  ChipSizes,
-} from "./base-chip.directive";
+import { BaseChipDirective, type ChipSize, ChipSizes } from "./base-chip.directive";
 import { ChipContentComponent } from "./chip-content.component";
 import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
 
@@ -23,15 +17,14 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["variant", "size"],
+      inputs: ["size"],
     },
   ],
   host: {
-    "[attr.disabled]": "disabled() ? true : null",
+    "[attr.aria-disabled]": "disabled() ? true : null",
   },
 })
 export class ChipComponent {
-  readonly variant = input<ChipVariant>(ChipVariants.Primary);
   readonly size = input<ChipSize>(ChipSizes.Large);
   readonly label = input<string>("");
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });

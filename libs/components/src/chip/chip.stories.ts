@@ -18,9 +18,6 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
-              viewItemsIn: (name) => `View items in ${name}`,
-              back: "Back",
-              backTo: (name) => `Back to ${name}`,
               removeItem: (name) => `Remove ${name}`,
             });
           },
@@ -29,16 +26,11 @@ export default {
     }),
   ],
   args: {
-    disabled: false,
-    dismissible: false,
+    disabled: true,
     label: "Chip Label",
   },
   argTypes: {
     ...sharedArgTypes,
-    dismissible: {
-      control: "boolean",
-      description: "Whether the chip can be dismissed",
-    },
   },
 } as Meta<ChipComponent>;
 
@@ -50,9 +42,7 @@ export const Default: Story = {
     template: `
       <bit-chip 
         [disabled]="disabled"
-        [dismissible]="dismissible"
         [startIcon]="startIcon"
-        [endIcon]="endIcon"
         [label]="label"
       >
       </bit-chip>
