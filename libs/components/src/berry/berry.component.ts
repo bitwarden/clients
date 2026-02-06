@@ -36,7 +36,7 @@ export class BerryComponent {
     return count > 999 ? "999+" : `${count}`;
   });
 
-  protected readonly effectiveSize = computed<"small" | "large">(() => {
+  protected readonly computedSize = computed<"small" | "large">(() => {
     const count = this.count();
     return count !== undefined && count > 0 ? "large" : "small";
   });
@@ -76,7 +76,7 @@ export class BerryComponent {
 
     return [
       ...baseClasses,
-      ...sizeClasses[this.effectiveSize()],
+      ...sizeClasses[this.computedSize()],
       variantClass[this.variant()],
       this.textColor(),
     ];
