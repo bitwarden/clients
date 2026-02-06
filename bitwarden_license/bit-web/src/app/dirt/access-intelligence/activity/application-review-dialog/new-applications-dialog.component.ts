@@ -10,13 +10,14 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { from, switchMap, take } from "rxjs";
+import { catchError, EMPTY, from, switchMap, take } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { getUniqueMembers } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -289,18 +290,18 @@ export class NewApplicationsDialogComponent {
             ),
           );
         }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            variant: "success",
-            title: this.i18nService.t("applicationReviewSaved"),
-            message: this.i18nService.t("newApplicationsReviewed"),
-          });
-          this.saving.set(false);
-          this.handleAssigningCompleted();
-        },
-        error: (error: unknown) => {
+        catchError((error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+
+            this.saving.set(false);
+            return EMPTY;
+          }
+
           this.logService.error(
             "[NewApplicationsDialog] Failed to save application review or assign tasks",
             error,
@@ -311,7 +312,19 @@ export class NewApplicationsDialogComponent {
             title: this.i18nService.t("errorSavingReviewStatus"),
             message: this.i18nService.t("pleaseTryAgain"),
           });
-        },
+
+          this.saving.set(false);
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("applicationReviewSaved"),
+          message: this.i18nService.t("newApplicationsReviewed"),
+        });
+        this.saving.set(false);
+        this.handleAssigningCompleted();
       });
   }
 
