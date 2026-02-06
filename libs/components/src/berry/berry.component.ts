@@ -70,7 +70,7 @@ export class BerryComponent {
       success: "tw-bg-bg-success",
       warning: "tw-bg-bg-warning",
       danger: "tw-bg-bg-danger",
-      accentPrimary: "tw-bg-bg-accent-primary",
+      accentPrimary: "tw-bg-fg-accent-primary-strong",
       contrast: "tw-bg-bg-white",
     };
 
