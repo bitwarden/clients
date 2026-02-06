@@ -172,6 +172,15 @@ export class ApplicationsComponent implements OnInit {
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
 
+        // filter selectedUrls down to only applications showing with active filters
+        const filteredUrls = new Set<string>();
+        this.dataSource.filteredData?.forEach((row) => {
+          if (this.selectedUrls().has(row.applicationName)) {
+            filteredUrls.add(row.applicationName);
+          }
+        });
+        this.selectedUrls.set(filteredUrls);
+
         if (this.dataSource?.filteredData?.length === 0) {
           this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
         } else {
