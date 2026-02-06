@@ -26,9 +26,8 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-
-          // Create the request
           const sdkCiphersClient = ref.value.vault().ciphers();
+
           const sdkCreateRequest = cipherView.toSdkCreateCipherRequest(sdkCiphersClient);
 
           let result: SdkCipherView;
@@ -63,7 +62,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          // Create the update request
           const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest(sdkCiphersClient);
 
           let result: SdkCipherView;
