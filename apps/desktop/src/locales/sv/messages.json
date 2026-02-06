@@ -137,10 +137,6 @@
     "message": "Send-detaljer",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Lägg till ett valfritt lösenord för att mottagarna ska få åtkomst till denna Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Text att dela"
   },
@@ -4587,5 +4583,9 @@
   },
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individer måste ange lösenordet för att visa denna Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
