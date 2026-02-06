@@ -80,7 +80,6 @@ export type PremiumOrgUpgradePaymentResult = {
     SharedModule,
     CartSummaryComponent,
     ButtonModule,
-    DisplayPaymentMethodInlineComponent,
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
   ],
