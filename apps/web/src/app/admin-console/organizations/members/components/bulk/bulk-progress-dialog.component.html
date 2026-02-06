@@ -11,10 +11,12 @@
       </div>
     </div>
     <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-6">
-      <strong>
+      <h3 class="tw-font-semibold">
         {{ "bulkReinviteProgressTitle" | i18n: progressCount() : allCount }}
-      </strong>
-      {{ "bulkReinviteProgressSubtitle" | i18n }}
+      </h3>
+      <span class="tw-text-sm">
+        {{ "bulkReinviteProgressSubtitle" | i18n }}
+      </span>
     </div>
   </div>
 </bit-simple-dialog>

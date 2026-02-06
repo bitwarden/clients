@@ -6660,7 +6660,7 @@
       }
     }
   },
-  "bulkReinviteProgressTitle":{
+  "bulkReinviteProgressTitle": {
     "message": "$COUNT$ of $TOTAL$ invitations sent...",
     "placeholders": {
       "count": {
@@ -6673,10 +6673,10 @@
       }
     }
   },
-  "bulkReinviteProgressSubtitle":{
-    "message": "Don’t leave this page until all are sent."
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
   },
-  "bulkReinviteFailuresTitle":{
+  "bulkReinviteFailuresTitle": {
     "message": "$COUNT$ invitations didn't send",
     "placeholders": {
       "count": {
@@ -6685,7 +6685,7 @@
       }
     }
   },
-  "bulkReinviteFailureTitle":{
+  "bulkReinviteFailureTitle": {
     "message": "1 invitation didn't send"
   },
   "bulkReinviteFailureDescription":{
