@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import {
   DrawerDetails,
   DrawerType,
+  MemberDetails,
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -66,7 +67,10 @@ describe("ApplicationsComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: ToastService, useValue: mockToastService },
         { provide: RiskInsightsDataService, useValue: mockDataService },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null } } } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: (): string | null => null } } },
+        },
       ],
     }).compileComponents();
 
@@ -92,8 +96,8 @@ describe("ApplicationsComponent", () => {
         atRiskMemberCount: 2,
         isMarkedAsCritical: true,
         atRiskCipherIds: ["cipher1" as CipherId],
-        memberDetails: [],
-        atRiskMemberDetails: [],
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
         cipherIds: ["cipher1" as CipherId],
       },
       {
@@ -104,8 +108,8 @@ describe("ApplicationsComponent", () => {
         atRiskMemberCount: 1,
         isMarkedAsCritical: false,
         atRiskCipherIds: ["cipher2" as CipherId],
-        memberDetails: [],
-        atRiskMemberDetails: [],
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
         cipherIds: ["cipher2" as CipherId],
       },
     ];
