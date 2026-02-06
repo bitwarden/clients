@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Personalizado"
   },
-  "sendPasswordDescV3": {
-    "message": "Añade una contraseña opcional para que los destinatarios accedan a este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Crear Envío nuevo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Envío editado",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "To create a file Send, you need to pop out the extension to a new window.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Para elegir un archivo, abra la extensión en la barra lateral (si es posible) o salga a una nueva ventana haciendo clic en este anouncio."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Para elegir un archivo usando Firefox, abra la extensión en la barra lateral o salga a una nueva ventana haciendo clic en este anouncio."
-  },
-  "sendSafariFileWarning": {
-    "message": "Para elegir un archivo usando Safari, salga a una nueva ventana haciendo clic en este anouncio."
-  },
   "popOut": {
     "message": "Salir"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Antes de empezar"
   },
   "expirationDateIsInvalid": {
     "message": "La fecha de caducidad proporcionada no es válida."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
