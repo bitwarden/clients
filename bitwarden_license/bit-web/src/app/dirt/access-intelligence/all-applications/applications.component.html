@@ -31,6 +31,7 @@
               class="tw-ml-auto"
               [loading]="updatingCriticalApps()"
               (click)="unmarkAppsAsCritical()"
+              data-testid="unmark-critical-button"
             >
               {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
             </button>
@@ -42,6 +43,7 @@
               class="tw-ml-auto"
               [loading]="updatingCriticalApps()"
               (click)="markAppsAsCritical()"
+              data-testid="mark-critical-button"
             >
               {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}
             </button>
@@ -56,6 +58,7 @@
           [bitTooltip]="!enableRequestPasswordChange() ? ('allTasksAssigned' | i18n) : null"
           [addTooltipToDescribedby]="!enableRequestPasswordChange()"
           (click)="requestPasswordChange()"
+          data-testid="assign-tasks-button"
         >
           <bit-icon class="tw-mr-2" name="bwi-envelope" />
           {{ "assignTasks" | i18n }}

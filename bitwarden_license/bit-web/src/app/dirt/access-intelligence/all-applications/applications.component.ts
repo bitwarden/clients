@@ -264,7 +264,7 @@ export class ApplicationsComponent implements OnInit {
     const appsToUnmark = this.selectedUrls();
 
     this.dataService
-      .removeCriticalApplication(appsToUnmark)
+      .removeCriticalApplications(appsToUnmark)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

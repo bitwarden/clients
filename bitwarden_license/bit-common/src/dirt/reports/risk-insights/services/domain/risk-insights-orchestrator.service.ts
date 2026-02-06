@@ -228,7 +228,7 @@ export class RiskInsightsOrchestratorService {
    * @param criticalApplication Application name of the critical application to remove
    * @returns
    */
-  removeCriticalApplication$(applicationsToUnmark: Set<string>): Observable<ReportState> {
+  removeCriticalApplications$(applicationsToUnmark: Set<string>): Observable<ReportState> {
     this.logService.info(
       "[RiskInsightsOrchestratorService] Removing critical applications from report",
     );
