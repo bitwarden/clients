@@ -29,13 +29,13 @@
     "message": "Σύνδεση με κλειδί πρόσβασης"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Ξεκλείδωμα με passkey"
   },
   "useSingleSignOn": {
     "message": "Χρήση ενιαίας σύνδεσης"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ο οργανισμός σας απαιτεί single sign-on (SSO)."
   },
   "welcomeBack": {
     "message": "Καλώς ήρθατε"
@@ -440,7 +440,7 @@
     "message": "Συγχρονισμός"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Συγχρονισμός τώρα"
   },
   "lastSync": {
     "message": "Τελευταίος συγχρονισμός:"
@@ -574,31 +574,31 @@
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Το στοιχείο στάλθηκε στην αρχειοθήκη"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Το στοιχείο επαναφέρθηκε από την αρχειοθήκη"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Το στοιχείο επαναφέρθηκε από την αρχειοθήκη"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Αρχειοθέτηση στοιχείου"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Μόλις αρχειοθετηθεί, αυτό το στοιχείο θα εξαιρεθεί από τα αποτελέσματα αναζήτησης και τις προτάσεις αυτόματης συμπλήρωσης."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Αρχειοθετημένο"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Κατάργηση αρχειοθέτησης και αποθήκευση"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Για να χρησιμοποιήσετε την αρχειοθήκη απαιτείται η έκδοση Premium."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Το στοιχείο έχει αποκατασταθεί"
   },
   "edit": {
     "message": "Επεξεργασία"
@@ -607,13 +607,13 @@
     "message": "Προβολή"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Προβολή όλων"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Εμφάνιση όλων"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Προβολή λιγότερων"
   },
   "viewLogin": {
     "message": "Προβολή σύνδεσης"
@@ -761,7 +761,7 @@
     "message": "Μη έγκυρος κύριος κωδικός πρόσβασης"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Μη έγκυρος κύριος κωδικός πρόσβασης. Επιβεβαιώστε ότι το email σας είναι σωστό και ότι ο λογαριασμός σας δημιουργήθηκε στο $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -818,10 +818,10 @@
     "message": "Κατά το Κλείδωμα Συστήματος"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Κατά την αδράνεια του συστήματος"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "Κατά την αναμονή του συστήματος"
   },
   "onRestart": {
     "message": "Κατά την Επανεκκίνηση του Browser"
@@ -991,7 +991,7 @@
     "message": "Όχι"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Οποιοσδήποτε/οποιαδήποτε έχει το σύνδεσμο"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
@@ -1068,10 +1068,10 @@
     "message": "Το αντικείμενο αποθηκεύτηκε"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Αποθηκευμένος ιστοχώρος"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Αποθηκευμένοι ιστοχώροι ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1199,7 +1199,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "Επιλογή $ITEMTYPE$, $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1268,14 +1268,14 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Ωχ όχι! Δεν μπορέσαμε να το αποθηκεύσουμε. Προσπαθήστε να εισάγετε τις λεπτομέρειες χειροκίνητα.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Αφού αλλάξετε τον κωδικό πρόσβασής σας, θα πρέπει να συνδεθείτε με το νέο σας κωδικό. Ενεργές συνεδρίες σε άλλες συσκευές θα αποσυνδεθούν εντός μίας ώρας."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Αλλάξτε τον κύριο κωδικό πρόσβασης για να ολοκληρώσετε την ανάκτηση του λογαριασμού."
   },
   "enableChangedPasswordNotification": {
     "message": "Ζητήστε να ενημερώσετε την υπάρχουσα σύνδεση"
@@ -1344,19 +1344,19 @@
     "message": "Εξαγωγή από"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1438,25 +1438,25 @@
     "message": "Μάθετε περισσότερα"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Παρουσιάστηκε σφάλμα κατά την ενημέρωση των ρυθμίσεων κρυπτογράφησης."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Ενημέρωση ρυθμίσεων κρυπτογράφησης"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Οι νέες προτεινόμενες ρυθμίσεις κρυπτογράφησης θα βελτιώσουν την ασφάλεια του λογαριασμού σας. Εισάγετε τον κύριο κωδικό πρόσβασής σας για ενημέρωση τώρα."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Επιβεβαιώστε την ταυτότητά σας για να συνεχίσετε"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Εισάγετε τον κύριο κωδικό πρόσβασης"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Ενημέρωση ρυθμίσεων"
   },
   "later": {
-    "message": "Later"
+    "message": "Αργότερα"
   },
   "authenticatorKeyTotp": {
     "message": "Κλειδί επαλήθευσης (TOTP)"
@@ -1489,13 +1489,13 @@
     "message": "Το συνημμένο αποθηκεύτηκε"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Επιδιόρθωση κρυπτογράφησης"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Αυτό το αρχείο χρησιμοποιεί μια παρωχημένη μέθοδο κρυπτογράφησης"
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Το συνημμένο ενημερώθηκε"
   },
   "file": {
     "message": "Αρχείο"
@@ -1507,7 +1507,7 @@
     "message": "Επιλέξτε αρχείο"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Μεταβιβασθέντα στοιχεία"
   },
   "maxFileSize": {
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB."
@@ -1516,7 +1516,7 @@
     "message": "Μη διαθέσιμη λειτουργία"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Η παλαιού τύπου κρυπτογράφηση δεν υποστηρίζεται πλέον. Επικοινωνήστε με την υποστήριξη για να ανακτήσετε το λογαριασμό σας."
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -1540,7 +1540,7 @@
     "message": "1 GB κρυπτογραφημένο αποθηκευτικό χώρο για συνημμένα αρχεία."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ κρυπτογραφημένου αποθηκευτικού χώρου για συνημμένα αρχεία.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1555,13 +1555,13 @@
     "message": "Πρόσθετες επιλογές σύνδεσης δύο βημάτων, όπως το YubiKey και το Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Η Premium συνδρομή σας τελείωσε."
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Για να ξανα-αποκτήσετε πρόσβαση στην αρχειοθήκη σας, επανεκκινήστε τη Premium συνδρομή σας. Αν επεξεργαστείτε λεπτομέρειες ενός αρχειοθετημένου στοιχείου πριν την επανεκκίνηση, αυτό θα μεταφερθεί πίσω στο θησαυροφυλάκιο σας."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Επανεκκίνηση Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Ασφάλεια κωδικών, υγεία λογαριασμού και αναφορές παραβίασης δεδομένων για να διατηρήσετε ασφαλές το vault σας."
@@ -1636,14 +1636,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Να μην ερωτηθώ ξανά σε αυτήν τη συσκευή για 30 ημέρες"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Επιλέξτε μια άλλη μέθοδο",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Χρησιμοποιήστε τον κωδικό ανάκτησης"
   },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
@@ -1655,19 +1655,19 @@
     "message": "Ταυτοποίηση WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Διάβασε το κλειδί ασφαλείας\n"
   },
   "readingPasskeyLoading": {
     "message": "Ανάγνωση κλειδιού πρόσβασης..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Αποτυχία ταυτοποίησης passkey"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Χρήση διαφορετικής μεθόδου σύνδεσης"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Σε αναμονή αλληλεπίδρασης με κλειδί ασφαλείας"
   },
   "loginUnavailable": {
     "message": "Μη διαθέσιμη σύνδεση"
@@ -1682,7 +1682,7 @@
     "message": "Επιλογές σύνδεσης δύο βημάτων"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Επιλογή μεθόδου δύο παραγόντων για σύνδεση"
   },
   "recoveryCodeTitle": {
     "message": "Κωδικός ανάκτησης"
@@ -1733,7 +1733,7 @@
     "message": "Πρέπει να προσθέσετε είτε το βασικό URL του διακομιστή ή τουλάχιστον ένα προσαρμοσμένο περιβάλλον."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Οι διευθύνσεις URL πρέπει να χρησιμοποιούν HTTPS."
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
@@ -1774,10 +1774,10 @@
     "message": "Easily find autofill suggestions"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "Απενεργοποιήστε τις ρυθμίσεις αυτόματης συμπλήρωσης του προγράμματος περιήγησής σας, έτσι ώστε να μη συγκρούονται με αυτές του Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Απενεργοποίηση αυτόματης συμπλήρωσης του $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1789,7 +1789,7 @@
     "message": "Απενεργοποίηση αυτόματης συμπλήρωσης"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Επιβεβαίωση αυτόματης συμπλήρωσης"
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
@@ -1798,19 +1798,19 @@
     "message": "Εμφάνιση μενού αυτόματης συμπλήρωσης στα πεδία της φόρμας"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Πώς προστατεύει το Bitwarden τα δεδομένα σας από phishing (ψάρεμα);"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Τρέχων ιστότοπος"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Αυτόματη συμπλήρωση και προσθήκη αυτού του ιστότοπου"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Αυτόματη συμπλήρωση χωρίς προσθήκη"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Χωρίς αυτόματη συμπλήρωση"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Εμφάνιση ταυτοτήτων ως προτάσεις"
@@ -2648,7 +2648,7 @@
     "message": "Ξεκινήστε την εφαρμογή Bitwarden Επιφάνεια εργασίας"
   },
   "startDesktopDesc": {
-    "message": "Η εφαρμογή Bitwarden Desktop πρέπει να ξεκινήσει για να μπορεί να χρησιμοποιηθεί αυτή η λειτουργία."
+    "message": "Η εφαρμογή Bitwarden Desktop πρέπει να εκκινηθεί για να χρησιμοποιηθεί αυτή η λειτουργία."
   },
   "errorEnableBiometricTitle": {
     "message": "Αδυναμία ενεργοποίησης βιομετρικών στοιχείων"
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Προσαρμοσμένο"
   },
-  "sendPasswordDescV3": {
-    "message": "Προσθέστε έναν προαιρετικό κωδικό πρόσβασης για τους παραλήπτες για πρόσβαση σε αυτήν την αποστολή.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Νέο Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Το Send αποθηκεύτηκε",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Άνοιγμα επέκτασης σε αναδυόμενο παράθυρο;",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Για να δημιουργήσετε ένα Send αρχείου, θα πρέπει να ανοίξετε την επέκταση σε νέο αναδυόμενο παράθυρο.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Για να επιλέξετε ένα αρχείο, ανοίξτε την επέκταση στην πλαϊνή μπάρα (αν είναι δυνατόν) ή βγείτε σε ένα νέο παράθυρο κάνοντας κλικ σε αυτή τη διαφήμιση."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Για να επιλέξετε ένα αρχείο χρησιμοποιώντας τον Firefox, ανοίξτε την επέκταση στην πλαϊνή μπάρα ή βγείτε σε ένα νέο παράθυρο κάνοντας κλικ σε αυτή τη διαφήμιση."
-  },
-  "sendSafariFileWarning": {
-    "message": "Για να επιλέξετε ένα αρχείο χρησιμοποιώντας το Safari, βγαίνετε σε ένα νέο παράθυρο κάνοντας κλικ σε αυτή τη διαφήμιση."
-  },
   "popOut": {
     "message": "Άνοιγμα σε αναδυόμενο παράθυρο"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Πριν ξεκινήσετε"
   },
   "expirationDateIsInvalid": {
     "message": "Η ημερομηνία λήξης που δόθηκε δεν είναι έγκυρη."
@@ -3693,13 +3669,13 @@
     "message": "Μια ειδοποίηση έχει σταλεί στη συσκευή σας."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Ξεκλειδώστε το Bitwarden στη συσκευή σας ή στην"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "εφαρμογή web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Πριν εγκρίνετε σιγουρευτείτε ότι η φράση δακτυλικού αποτυπώματος ταιριάζει με αυτήν που ακολουθεί."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Μια ειδοποίηση στάλθηκε στη συσκευή σας"
@@ -3714,7 +3690,7 @@
     "message": "Η σύνδεση ξεκίνησε"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Το αίτημα στάλθηκε"
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Login request approved for $EMAIL$ on $DEVICE$",
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
