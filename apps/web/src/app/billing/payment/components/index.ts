@@ -2,6 +2,7 @@ export * from "./add-account-credit-dialog.component";
 export * from "./change-payment-method-dialog.component";
 export * from "./display-account-credit.component";
 export * from "./display-billing-address.component";
+export * from "./display-payment-method-inline.component";
 export * from "./display-payment-method.component";
 export * from "./edit-billing-address-dialog.component";
 export * from "./enter-billing-address.component";
