@@ -686,12 +686,10 @@ describe("MemberActionsService", () => {
         expect(result.failed.length).toBeGreaterThan(0);
       });
 
-      it("should show warning dialog when exceeding REQUESTS_PER_BATCH", async () => {
+      it("should process batches when exceeding REQUESTS_PER_BATCH", async () => {
         const totalUsers = REQUESTS_PER_BATCH + 100;
         const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
         const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
-
-        mockDialogService.openSimpleDialog.mockResolvedValue(true);
 
         const mockDialogRef = { closed: of(undefined) };
         memberDialogManager.openBulkProgressDialog.mockReturnValue(mockDialogRef as any);
@@ -724,24 +722,9 @@ describe("MemberActionsService", () => {
 
         await service.bulkReinvite(mockOrganization, users);
 
-        expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: "bulkReinviteWarningTitle",
-          content: "bulkReinviteWarningDescription",
-          type: "warning",
-        });
-      });
-
-      it("should cancel operation when warning dialog is declined", async () => {
-        const totalUsers = REQUESTS_PER_BATCH + 100;
-        const userIdsBatch = Array.from({ length: totalUsers }, () => newGuid() as UserId);
-        const users = userIdsBatch.map((id) => ({ id }) as OrganizationUserView);
-
-        mockDialogService.openSimpleDialog.mockResolvedValue(false);
-
-        const result = await service.bulkReinvite(mockOrganization, users);
-
-        expect(result.canceled).toBe(true);
-        expect(organizationUserApiService.postManyOrganizationUserReinvite).not.toHaveBeenCalled();
+        expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(
+          2,
+        );
       });
     });
   });

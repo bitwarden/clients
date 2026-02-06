@@ -19,7 +19,6 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -40,12 +39,10 @@ export interface MemberActionResult {
 export class BulkActionResult {
   constructor() {
     this.failed = [];
-    this.canceled = false;
   }
 
   successful?: OrganizationUserBulkResponse[];
   failed: { id: string; error: string }[] = [];
-  canceled: boolean = false;
 }
 
 @Injectable()
@@ -61,7 +58,6 @@ export class MemberActionsService {
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
   private memberDialogManager = inject(MemberDialogManagerService);
-  private i18nService = inject(I18nService);
 
   readonly isProcessing = signal(false);
 
@@ -214,19 +210,6 @@ export class MemberActionsService {
       this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
     );
 
-    if (bulkReinviteUIEnabled && users.length > REQUESTS_PER_BATCH) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: this.i18nService.t("bulkReinviteWarningTitle", users.length.toString()),
-        content: this.i18nService.t("bulkReinviteWarningDescription"),
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        result.canceled = true;
-        return result;
-      }
-    }
-
     if (bulkReinviteUIEnabled) {
       this.startProcessing(users.length);
     } else {
@@ -335,7 +318,6 @@ export class MemberActionsService {
     return {
       successful: allSuccessful.length > 0 ? allSuccessful : undefined,
       failed: allFailed,
-      canceled: false,
     };
   }
 

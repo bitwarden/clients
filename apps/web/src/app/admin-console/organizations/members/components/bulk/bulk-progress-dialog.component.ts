@@ -22,8 +22,8 @@ export interface BulkProgressDialogParams {
   standalone: false,
 })
 export class BulkProgressDialogComponent {
-  protected allCount: number;
-  protected readonly progressCount: Signal<number>;
+  protected allCount: string;
+  protected readonly progressCount: Signal<string>;
   protected readonly progressPercentage: Signal<number>;
   private readonly progressEffect = effect(() => {
     if (this.progressPercentage() >= 100) {
@@ -35,9 +35,9 @@ export class BulkProgressDialogComponent {
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) data: BulkProgressDialogParams,
   ) {
-    this.progressCount = data.progress;
-    this.allCount = data.allCount;
-    this.progressPercentage = computed(() => (this.progressCount() / this.allCount) * 100);
+    this.progressCount = computed(() => data.progress().toLocaleString());
+    this.allCount = data.allCount.toLocaleString();
+    this.progressPercentage = computed(() => (data.progress() / data.allCount) * 100);
   }
 
   static open(dialogService: DialogService, config: DialogConfig<BulkProgressDialogParams>) {

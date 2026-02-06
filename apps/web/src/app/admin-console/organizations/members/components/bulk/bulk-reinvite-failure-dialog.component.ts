@@ -26,7 +26,7 @@ export interface BulkReinviteFailureDialogParams {
 })
 export class BulkReinviteFailureDialogComponent {
   private organization: Organization;
-  protected successfulMembers: number;
+  protected totalCount: string;
   protected readonly dataSource: WritableSignal<MembersTableDataSource>;
 
   constructor(
@@ -36,7 +36,7 @@ export class BulkReinviteFailureDialogComponent {
     environmentService: EnvironmentService,
   ) {
     this.organization = data.organization;
-    this.successfulMembers = data.result.successful?.length ?? 0;
+    this.totalCount = (data.users.length ?? 0).toLocaleString();
     this.dataSource = signal(new MembersTableDataSource(environmentService));
     this.dataSource().data = data.result.failed.map((failedUser) => {
       const user = data.users.find((u) => u.id === failedUser.id);

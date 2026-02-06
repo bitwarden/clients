@@ -9,21 +9,10 @@
   </div>
 
   <div bitDialogContent>
-    @if (successfulMembers > 1) {
-      {{ "bulkReinviteSuccesses" | i18n: successfulMembers }}
-    } @else {
-      {{ "bulkReinviteSuccess" | i18n }}
-    }
+    {{ "bulkReinviteFailureDescription" | i18n: failCount : totalCount }}
 
-    @if (failCount > 1) {
-      {{ "bulkReinviteFailures" | i18n: failCount }}
-    } @else {
-      {{ "bulkReinviteFailure" | i18n }}
-    }
-
-    {{ "bulkReinviteFailureDescription" | i18n }}
     <a bitLink href="https://bitwarden.com/contact/" target="_blank" rel="noopener noreferrer">
-      {{ "contactSupportShort" | i18n }}
+      {{ "contactSupportShort" | i18n | lowercase }}
       <bit-icon name="bwi-external-link"></bit-icon>
     </a>
 

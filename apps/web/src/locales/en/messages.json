@@ -6619,23 +6619,23 @@
   "bulkConfirmMessage": {
     "message": "Confirmed successfully"
   },
-  "bulkReinviteWarningTitle": {
-    "message": "Resend invitations to $AMOUNT$ members?",
-    "placeholders": {
-      "amount": {
-	"content": "$1",
-	"example": "100"
-      }
-    }
-  },
-  "bulkReinviteWarningDescription": {
-    "message": "This may take a few minutes to complete. If you wish to continue, do not close this window, or the process will be interrupted."
-  },
   "bulkReinviteMessage": {
     "message": "Reinvited successfully"
   },
   "bulkReinviteSuccessToast": {
     "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "reinviteSuccessToast":{
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6660,8 +6660,8 @@
       }
     }
   },
-  "bulkReinviteProgress":{
-    "message": "Sending $COUNT$ of $TOTAL$ invites...",
+  "bulkReinviteProgressTitle":{
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
     "placeholders": {
       "count": {
 	"content": "$1",
@@ -6673,8 +6673,11 @@
       }
     }
   },
+  "bulkReinviteProgressSubtitle":{
+    "message": "Don’t leave this page until all are sent."
+  },
   "bulkReinviteFailuresTitle":{
-    "message": "$COUNT$ invitations need attention",
+    "message": "$COUNT$ invitations didn't send",
     "placeholders": {
       "count": {
 	"content": "$1",
@@ -6683,38 +6686,23 @@
     }
   },
   "bulkReinviteFailureTitle":{
-    "message": "1 invitation needs attention"
+    "message": "1 invitation didn't send"
   },
-  "bulkReinviteSuccess":{
-    "message": "Successfully re-invited 1 member."
-  },
-  "bulkReinviteSuccesses":{
-    "message": "Successfully re-invited $SUCCESS$ members.",
+  "bulkReinviteFailureDescription":{
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
     "placeholders": {
-      "success": {
+      "count": {
 	"content": "$1",
-	"example": "4,000"
-      }
-  }
-  },
-  "bulkReinviteFailure":{
-    "message": "1 invitation could not be delivered."
-  },
-  "bulkReinviteFailures":{
-    "message": "$FAIL$ invitations could not be delivered.",
-    "placeholders":{
-      "fail": {
-	"content": "$1",
+	"example": "1,000"
+      },
+      "total": {
+	"content": "$2",
 	"example": "2,000"
       }
     }
   },
-  "bulkReinviteFailureDescription": {
-    "message": "If you continue to run into issues, ",
-    "description": "This is part of a larger sentence. The full sentence will read 'If you continue to run into issues, contact support'"
-  },
   "bulkResendInvitations": {
-    "message": "Resend invitations"
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Removed successfully"
