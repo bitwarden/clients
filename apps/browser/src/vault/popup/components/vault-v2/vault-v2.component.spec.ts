@@ -421,29 +421,13 @@ describe("VaultV2Component", () => {
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
   });
 
-  it("navigateToImport navigates and opens popout if popup is open", fakeAsync(async () => {
-    (BrowserApi.isPopupOpen as jest.Mock).mockResolvedValueOnce(true);
-
+  it("navigateToImport navigates to import route", fakeAsync(async () => {
     const ngRouter = TestBed.inject(Router);
     jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
 
     await component["navigateToImport"]();
 
     expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
-
-    expect(BrowserPopupUtils.openCurrentPagePopout).toHaveBeenCalled();
-  }));
-
-  it("navigateToImport does not popout when popup is not open", fakeAsync(async () => {
-    (BrowserApi.isPopupOpen as jest.Mock).mockResolvedValueOnce(false);
-
-    const ngRouter = TestBed.inject(Router);
-    jest.spyOn(ngRouter, "navigate").mockResolvedValue(true as any);
-
-    await component["navigateToImport"]();
-
-    expect(ngRouter.navigate).toHaveBeenCalledWith(["/import"]);
-    expect(BrowserPopupUtils.openCurrentPagePopout).not.toHaveBeenCalled();
   }));
 
   it("ngOnInit dismisses intro carousel and opens decryption dialog for non-deleted failures", fakeAsync(() => {
