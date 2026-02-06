@@ -27,7 +27,8 @@ export default {
     },
     count: {
       control: "number",
-      description: "Optional count to display. Maximum displayed is 999, values above show '999+'",
+      description:
+        "Optional count to display. Maximum displayed is 999, values above show '999+'. If undefined, a small small berry is shown. If 0 or negative, the berry is hidden.",
       table: {
         category: "Inputs",
         type: { summary: "number | undefined" },

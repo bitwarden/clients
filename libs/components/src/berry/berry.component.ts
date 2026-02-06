@@ -26,6 +26,11 @@ export class BerryComponent {
   protected readonly variant = input<BerryVariant>("primary");
   protected readonly count = input<number>();
 
+  protected readonly showBerry = computed(() => {
+    const count = this.count();
+    return count === undefined || count > 0 ? true : false;
+  });
+
   protected readonly content = computed(() => {
     const count = this.count();
     if (!count || count < 0) {
