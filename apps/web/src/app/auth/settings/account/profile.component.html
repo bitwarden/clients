@@ -33,7 +33,7 @@
           [bitAction]="openChangeAvatar"
         >
           <bit-icon name="bwi-pencil-square" class="bwi-lg"></bit-icon>
-          Customize
+          {{ "customize" | i18n }}
         </button>
       </div>
       <div *ngIf="managingOrganization$ | async as managingOrganization">
