@@ -89,6 +89,7 @@ export type Cart = {
   discount?: Discount; // Optional cart-level discount
   credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
+  hidePricingTerm?: boolean; // Optional: hide term (e.g., "/ month") in header
 };
 
 export type Credit = {
