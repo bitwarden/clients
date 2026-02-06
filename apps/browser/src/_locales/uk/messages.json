@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Власний"
   },
-  "sendPasswordDescV3": {
-    "message": "За бажання додайте пароль для отримувачів цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Нове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Відправлення збережено",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Відкріпити розширення?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Щоб створити відправлення файлу, необхідно відкріпити розширення в окреме вікно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Щоб вибрати файл, відкрийте розширення в бічній панелі (якщо можливо) або в новому вікні, натиснувши цей банер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Щоб вибрати файл з використанням Firefox, відкрийте розширення в бічній панелі або в новому вікні, натиснувши цей банер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Щоб вибрати файл з використанням Safari, відкрийте розширення в новому вікні, натиснувши на цей банер."
-  },
   "popOut": {
     "message": "Відкріпити"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед початком"
   },
   "expirationDateIsInvalid": {
     "message": "Вказано недійсний термін дії."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Чому я це бачу?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
