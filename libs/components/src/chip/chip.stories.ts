@@ -26,7 +26,7 @@ export default {
     }),
   ],
   args: {
-    disabled: true,
+    disabled: false,
     label: "Chip Label",
   },
   argTypes: {
