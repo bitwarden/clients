@@ -4588,6 +4588,18 @@
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "Emails"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "whoCanView": {
     "message": "Who can view"
   },
@@ -4602,14 +4614,5 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
-  },
-  "noAuth": {
-    "message": "Anyone with the link"
-  },
-  "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
-  },
-  "emails": {
-    "message": "Emails"
   }
 }
