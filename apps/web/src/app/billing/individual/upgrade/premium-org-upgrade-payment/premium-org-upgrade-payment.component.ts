@@ -46,8 +46,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
 import {
   EnterBillingAddressComponent,
-  DisplayPaymentMethodComponent,
   getBillingAddressFromForm,
+  DisplayPaymentMethodInlineComponent,
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
@@ -80,8 +80,9 @@ export type PremiumOrgUpgradePaymentResult = {
     SharedModule,
     CartSummaryComponent,
     ButtonModule,
-    DisplayPaymentMethodComponent,
+    DisplayPaymentMethodInlineComponent,
     EnterBillingAddressComponent,
+    DisplayPaymentMethodInlineComponent,
   ],
   providers: [PremiumOrgUpgradeService],
   templateUrl: "./premium-org-upgrade-payment.component.html",
@@ -127,6 +128,12 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   // Signals for payment method
   protected readonly paymentMethod = signal<MaskedPaymentMethod | null>(null);
   protected readonly subscriber = signal<BitwardenSubscriber | null>(null);
+  /**
+   * Indicates whether the payment method is currently being changed.
+   * This is used to disable the submit button while a payment method change is in progress.
+   * or to hide other UI elements as needed.
+   */
+  protected readonly isChangingPaymentMethod = signal(false);
 
   protected readonly planMembershipMessage = computed<string>(
     () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
@@ -252,17 +259,32 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         tap(({ subscriber, paymentMethod }) => {
           this.subscriber.set(subscriber);
           this.paymentMethod.set(paymentMethod);
+          this.loading.set(false);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-
-    this.loading.set(false);
   }
 
   ngAfterViewInit(): void {
     const cartSummaryComponent = this.cartSummaryComponent();
     cartSummaryComponent.isExpanded.set(false);
+  }
+
+  /**
+   * Updates the payment method when changed through the DisplayPaymentMethodComponent.
+   * @param newPaymentMethod The updated payment method details
+   */
+  handlePaymentMethodUpdate(newPaymentMethod: MaskedPaymentMethod) {
+    this.paymentMethod.set(newPaymentMethod);
+  }
+
+  /**
+   * Handles changes to the payment method changing state.
+   * @param isChanging Whether the payment method is currently being changed
+   */
+  handlePaymentMethodChangingStateChange(isChanging: boolean) {
+    this.isChangingPaymentMethod.set(isChanging);
   }
 
   protected submit = async (): Promise<void> => {

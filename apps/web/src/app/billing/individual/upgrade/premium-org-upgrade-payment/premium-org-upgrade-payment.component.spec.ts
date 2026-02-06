@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   CUSTOM_ELEMENTS_SCHEMA,
   signal,
+  output,
 } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -32,7 +33,7 @@ import { PreviewInvoiceClient } from "../../../clients/preview-invoice.client";
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
 import {
   EnterBillingAddressComponent,
-  DisplayPaymentMethodComponent,
+  DisplayPaymentMethodInlineComponent,
 } from "../../../payment/components";
 
 import {
@@ -56,19 +57,20 @@ class MockCartSummaryComponent {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-display-payment-method",
+  selector: "app-display-payment-method-inline",
   template: `<h1>Mock Display Payment Method</h1>`,
   providers: [
     {
-      provide: DisplayPaymentMethodComponent,
-      useClass: MockDisplayPaymentMethodComponent,
+      provide: DisplayPaymentMethodInlineComponent,
+      useClass: MockDisplayPaymentMethodInlineComponent,
     },
   ],
 })
-class MockDisplayPaymentMethodComponent {
+class MockDisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<any>();
   readonly paymentMethod = input<any>();
-  readonly hideHeader = input<boolean>();
+  readonly updated = output<any>();
+  readonly changePaymentMethodClicked = output<void>();
 }
 
 @Component({
@@ -224,14 +226,14 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         add: {
           imports: [
             MockEnterBillingAddressComponent,
-            MockDisplayPaymentMethodComponent,
+            MockDisplayPaymentMethodInlineComponent,
             MockCartSummaryComponent,
           ],
         },
         remove: {
           imports: [
             EnterBillingAddressComponent,
-            DisplayPaymentMethodComponent,
+            DisplayPaymentMethodInlineComponent,
             CartSummaryComponent,
           ],
         },
