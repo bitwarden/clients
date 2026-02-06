@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "사용자 지정"
   },
-  "sendPasswordDescV3": {
-    "message": "수신자가 이 Send에 액세스할 수 있도록 비밀번호 옵션를 추가합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "새 Send 생성",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Send 수정됨",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "확장자를 새 창에서 열까요?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "파일 Send를 만들려면, 새 창으로 확장자를 열어야 합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "파일을 선택하려면 이 배너를 클릭하여 확장 프로그램을 사이드바에서 열거나, 불가능한 경우 새 창에서 여세요."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox에서 파일을 선택할 경우, 이 배너를 클릭하여 확장 프로그램을 사이드바 혹은 새 창에서 여세요."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari에서 파일을 선택할 경우, 이 배너를 클릭하여 확장 프로그램을 새 창에서 여세요."
-  },
   "popOut": {
     "message": "새 창에서 열기"
-  },
-  "sendFileCalloutHeader": {
-    "message": "시작하기 전에"
   },
   "expirationDateIsInvalid": {
     "message": "제공된 만료 날짜가 유효하지 않습니다."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

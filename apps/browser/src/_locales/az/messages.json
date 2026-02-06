@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Özəl"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu \"Send\"ə erişməsi üçün ixtiyari bir parol əlavə edin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni \"Send\"",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "\"Send\" saxlanıldı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Uzantı yeni pəncərədə açılsın?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Bir fayl \"Send\"i yaratmaq üçün uzantını yeni bir pəncərədə açmalısınız.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Bir fayl seçmək üçün (mümkünsə) yan çubuqdakı uzantını açın və ya bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox istifadə edərək bir fayl seçmək üçün yan çubuqdakı uzantını açın və ya bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari istifadə edərək bir fayl seçmək üçün bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
   "popOut": {
     "message": "Pəncərədə aç"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Başlamazdan əvvəl"
   },
   "expirationDateIsInvalid": {
     "message": "Göstərilən son istifadə tarixi yararsızdır."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

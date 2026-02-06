@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Пользовательский"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Открепить расширение?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Чтобы создать файл Send, необходимо открыть расширение в новом окне.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Для выбора файла откройте расширение в боковой панели (если возможно) или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Для выбора файла с помощью Firefox, откройте расширение в боковой панели или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Для выбора файла с помощью Safari, перейдите в новое окно, нажав на этот баннер."
-  },
   "popOut": {
     "message": "Открепить"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед тем, как начать"
   },
   "expirationDateIsInvalid": {
     "message": "Срок истечения указан некорректно."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
   },
+  "items": {
+    "message": "Элементы"
+  },
+  "searchResults": {
+    "message": "Результаты поиска"
+  },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

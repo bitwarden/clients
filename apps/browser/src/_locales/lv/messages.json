@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Pielāgots"
   },
-  "sendPasswordDescV3": {
-    "message": "Pēc izvēles var pievienot paroli, lai saņēmēji varētu piekļūt šim Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Jauns Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Atvērt paplašinājumu atsevišķi?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Lai izveidotu datņu Send, nepieciešams atvērt paplašinājumu atsevišķā logā.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Lai izvēlētos datni, paplašinājums ir jāatver sānjoslā (ja iespējams) vai atsevišķā logā, klikšķinot uz šī paziņojuma."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Lai izvēlētos datni, ja tiek izmantots Firefox, paplašinājums ir jāatver sānjoslā vai atsevišķā logā, klikšķinot uz šī paziņojuma."
-  },
-  "sendSafariFileWarning": {
-    "message": "Lai izvēlētos datni, ja tiek izmantots Safari, paplašinājums ir jāatver jaunā logā, klikšķinot uz šī paziņojuma."
-  },
   "popOut": {
     "message": "Atvērt atsevišķi"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Pirms sākšanas"
   },
   "expirationDateIsInvalid": {
     "message": "Norādītais derīguma beigu datums nav derīgs."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Vienumi"
+  },
+  "searchResults": {
+    "message": "Meklēšanas iznākums"
+  },
   "resizeSideNavigation": {
     "message": "Mainīt sānu pārvietošanās joslas izmēru"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Cilvēkiem būs jāievada parole, lai apskatītu šo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

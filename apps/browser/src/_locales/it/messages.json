@@ -29,7 +29,7 @@
     "message": "Accedi con passkey"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Sblocca con passkey"
   },
   "useSingleSignOn": {
     "message": "Usa il Single Sign-On"
@@ -991,10 +991,10 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Chiunque abbia il link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Chiunque abbia una password impostata da te"
   },
   "location": {
     "message": "Luogo"
@@ -2055,7 +2055,7 @@
     "message": "Email"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Indirizzi email"
   },
   "phone": {
     "message": "Telefono"
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Personalizzato"
   },
-  "sendPasswordDescV3": {
-    "message": "Richiedi ai destinatari una password opzionale per aprire questo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nuovo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "Send salvato",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Scollegare estensione?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Per creare un file Send, devi scollegare l'estensione in una nuova finestra.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Per scegliere un file, apri l'estensione nella barra laterale (se possibile) o apri una nuova finestra cliccando questo banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Per scegliere un file usando Firefox, apri l'estensione nella barra laterale o apri una nuova finestra cliccando questo banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "Per scegliere un file usando Safari, apri una nuova finestra cliccando questo banner."
-  },
   "popOut": {
     "message": "Scollega"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Prima di iniziare"
   },
   "expirationDateIsInvalid": {
     "message": "La data di scadenza fornita non è valida."
@@ -3380,10 +3356,10 @@
     "message": "Errore"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Impossibile sbloccare con passkey. Riprova o utilizza un altro metodo."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Non ci sono password abilitate con PRF per lo sblocco. Accedi prima con una passkey."
   },
   "decryptionError": {
     "message": "Errore di decifrazione"
@@ -5011,7 +4987,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Scarica allegato"
   },
   "downloadBitwarden": {
     "message": "Scarica Bitwarden"
@@ -6127,22 +6103,32 @@
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Chi può visualizzare"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Persone specifiche"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Inserisci più indirizzi email separandoli con virgole."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
