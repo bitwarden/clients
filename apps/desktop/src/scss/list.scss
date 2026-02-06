@@ -122,11 +122,17 @@
     display: block;
     overflow-x: hidden;
     .item-title {
-      display: block;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: flex;
+      gap: 5px;
+      .title-text {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .title-badges {
+        display: flex;
+        align-items: center;
+        gap: 5px;
         @include themify($themes) {
           color: themed("mutedColor");
         }

@@ -73,11 +73,14 @@
           class="flex-list-item"
         >
           <span class="item-icon" aria-hidden="true">
-            <i class="bwi bwi-fw bwi-lg" [ngClass]="s.type == 0 ? 'bwi-file-text' : 'bwi-file'"></i>
+            <i
+              class="bwi bwi-fw bwi-lg tw-text-muted"
+              [ngClass]="s.type == 0 ? 'bwi-file-text' : 'bwi-file'"
+            ></i>
           </span>
           <span class="item-content">
             <span class="item-title">
-              {{ s.name }}
+              <span class="title-text">{{ s.name }}</span>
               <span class="title-badges">
                 <ng-container *ngIf="s.disabled">
                   <i
@@ -88,15 +91,17 @@
                   ></i>
                   <span class="sr-only">{{ "disabled" | i18n }}</span>
                 </ng-container>
-                <ng-container *ngIf="s.password">
+                @if (s.authType !== authType.None) {
+                  @let titleKey =
+                    s.authType === authType.Email ? "emailProtected" : "passwordProtected";
                   <i
-                    class="bwi bwi-key"
+                    class="bwi bwi-lock"
                     appStopProp
-                    title="{{ 'password' | i18n }}"
+                    title="{{ titleKey | i18n }}"
                     aria-hidden="true"
                   ></i>
-                  <span class="sr-only">{{ "password" | i18n }}</span>
-                </ng-container>
+                  <span class="tw-sr-only">{{ titleKey | i18n }}</span>
+                }
                 <ng-container *ngIf="s.maxAccessCountReached">
                   <i
                     class="bwi bwi-exclamation-triangle"

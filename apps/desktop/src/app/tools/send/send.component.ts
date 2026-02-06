@@ -16,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -52,6 +53,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   sendId: string;
   action: Action = Action.None;
+
+  authType = AuthType;
 
   constructor(
     sendService: SendService,
