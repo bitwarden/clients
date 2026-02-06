@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "ಕಸ್ಟಮ್"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "ಹೊಸ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ರಚಿಸಿ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3094,8 @@
     "message": "ಕಳುಹಿಸಿದ ಸಂಪಾದನೆ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "To create a file Send, you need to pop out the extension to a new window.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "ಫೈಲ್ ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಲು, ಸೈಡ್‌ಬಾರ್‌ನಲ್ಲಿ ವಿಸ್ತರಣೆಯನ್ನು ತೆರೆಯಿರಿ (ಸಾಧ್ಯವಾದರೆ) ಅಥವಾ ಈ ಬ್ಯಾನರ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ಹೊಸ ವಿಂಡೋಗೆ ಪಾಪ್ಔಟ್ ಮಾಡಿ."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "ಫೈರ್‌ಫಾಕ್ಸ್ ಬಳಸಿ ಫೈಲ್ ಆಯ್ಕೆ ಮಾಡಲು, ಸೈಡ್‌ಬಾರ್‌ನಲ್ಲಿ ವಿಸ್ತರಣೆಯನ್ನು ತೆರೆಯಿರಿ ಅಥವಾ ಈ ಬ್ಯಾನರ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ಹೊಸ ವಿಂಡೋಗೆ ಪಾಪ್ಔಟ್ ಮಾಡಿ."
-  },
-  "sendSafariFileWarning": {
-    "message": "ಸಫಾರಿ ಬಳಸಿ ಫೈಲ್ ಆಯ್ಕೆ ಮಾಡಲು, ಈ ಬ್ಯಾನರ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ಹೊಸ ವಿಂಡೋಗೆ ಪಾಪ್ಔಟ್ ಮಾಡಿ."
-  },
   "popOut": {
     "message": "Pop out"
-  },
-  "sendFileCalloutHeader": {
-    "message": "ನೀವು ಪ್ರಾರಂಭಿಸುವ ಮೊದಲು"
   },
   "expirationDateIsInvalid": {
     "message": "ಒದಗಿಸಿದ ಮುಕ್ತಾಯ ದಿನಾಂಕವು ಮಾನ್ಯವಾಗಿಲ್ಲ."
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
