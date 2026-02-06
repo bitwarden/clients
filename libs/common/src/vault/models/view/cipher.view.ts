@@ -21,13 +21,13 @@ import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";
+import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
-import { Fido2CredentialView } from "./fido2-credential.view";
 
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
@@ -373,7 +373,7 @@ export class CipherView implements View, InitializerMetadata {
     // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
     // separately due to restrictions in how the SDK handles them.
     if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
-      let sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
+      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
       sdkCipherCreateRequest.type = { login: sdkCipherView.login! };
     }
 
@@ -405,7 +405,7 @@ export class CipherView implements View, InitializerMetadata {
     // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
     // separately due to restrictions in how the SDK handles them.
     if (this.type === CipherType.Login && this.login?.hasFido2Credentials) {
-      let sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
+      const sdkCipherView: SdkCipherView = this.toSdkCipherView(sdk);
       sdkCipherEditRequest.type = { login: sdkCipherView.login! };
     }
 
