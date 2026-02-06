@@ -12840,5 +12840,8 @@
         "example": "Families"
       }
     }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }
