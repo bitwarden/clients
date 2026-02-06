@@ -19,7 +19,9 @@ import {
   OrganizationReportSummary,
   ReportStatus,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
@@ -34,6 +36,8 @@ import {
   ChipSelectComponent,
   IconComponent,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -76,6 +80,8 @@ export type ApplicationFilterOption =
 })
 export class ApplicationsComponent implements OnInit {
   destroyRef = inject(DestroyRef);
+  private fileDownloadService = inject(FileDownloadService);
+  private logService = inject(LogService);
 
   protected ReportStatusEnum = ReportStatus;
   protected noItemsIcon = Security;
@@ -103,12 +109,15 @@ export class ApplicationsComponent implements OnInit {
     {
       label: this.i18nService.t("critical", this.criticalApplicationsCount()),
       value: ApplicationFilterOption.Critical,
+      icon: " ",
     },
     {
       label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
       value: ApplicationFilterOption.NonCritical,
+      icon: " ",
     },
   ]);
+  protected readonly emptyTableExplanation = signal("");
 
   readonly allSelectedAppsAreCritical = computed(() => {
     if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
@@ -210,6 +219,12 @@ export class ApplicationsComponent implements OnInit {
           }
         });
         this.selectedUrls.set(filteredUrls);
+
+        if (this.dataSource?.filteredData?.length === 0) {
+          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
+        } else {
+          this.emptyTableExplanation.set("");
+        }
       });
   }
 
@@ -320,5 +335,40 @@ export class ApplicationsComponent implements OnInit {
       }
       return nextSelected;
     });
+  };
+
+  downloadApplicationsCSV = () => {
+    try {
+      const data = this.dataSource.filteredData;
+      if (!data || data.length === 0) {
+        return;
+      }
+
+      const exportData = data.map((app) => ({
+        applicationName: app.applicationName,
+        atRiskPasswordCount: app.atRiskPasswordCount,
+        passwordCount: app.passwordCount,
+        atRiskMemberCount: app.atRiskMemberCount,
+        memberCount: app.memberCount,
+        isMarkedAsCritical: app.isMarkedAsCritical
+          ? this.i18nService.t("yes")
+          : this.i18nService.t("no"),
+      }));
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("applications"),
+        blobData: exportToCSV(exportData, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+          passwordCount: this.i18nService.t("totalPasswords"),
+          atRiskMemberCount: this.i18nService.t("atRiskMembers"),
+          memberCount: this.i18nService.t("totalMembers"),
+          isMarkedAsCritical: this.i18nService.t("criticalBadge"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      this.logService.error("Failed to download applications CSV", error);
+    }
   };
 }

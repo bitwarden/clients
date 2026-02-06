@@ -27,7 +27,6 @@ import { ApplicationTableDataSource } from "./app-table-row-scrollable.component
 })
 export class AppTableRowScrollableM11Component {
   readonly dataSource = input<TableDataSource<ApplicationTableDataSource>>();
-  readonly showRowMenuForCriticalApps = input<boolean>(false);
   readonly selectedUrls = input<Set<string>>();
   readonly openApplication = input<string>("");
   readonly showAppAtRiskMembers = input<(applicationName: string) => void>();
