@@ -28,8 +28,8 @@ export const TOOLTIP_DELAY_MS = 800;
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
-    "(focus)": "showTooltip()",
-    "(blur)": "hideTooltip()",
+    "(focusin)": "onFocusIn($event)",
+    "(focusout)": "onFocusOut()",
     "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
 })
@@ -124,6 +124,20 @@ export class TooltipDirective implements OnInit, OnDestroy {
   protected hideTooltip = () => {
     this.destroyTooltip();
   };
+
+  /**
+   * Show tooltip on focus-visible (keyboard navigation) but not on regular focus (mouse click).
+   */
+  protected onFocusIn(event: FocusEvent) {
+    const target = event.target as HTMLElement;
+    if (target.matches(":focus-visible")) {
+      this.showTooltip();
+    }
+  }
+
+  protected onFocusOut() {
+    this.hideTooltip();
+  }
 
   protected readonly resolvedDescribedByIds = computed(() => {
     if (this.addTooltipToDescribedby()) {
