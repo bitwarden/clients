@@ -1247,6 +1247,9 @@
   "selectAll": {
     "message": "Select all"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Unselect all"
   },
