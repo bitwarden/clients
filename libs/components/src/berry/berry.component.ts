@@ -46,7 +46,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return this.count() > 9 ? "tw-px-1.5 tw-py-0.5" : "";
+    return this.count()?.toString().length > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly berryClasses = computed(() => {
