@@ -141,14 +141,8 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
   // Use defer to lazily create the observable when subscribed to
   protected estimatedInvoice$ = defer(() =>
-    combineLatest([
-      this.formGroup.controls.billingAddress.valueChanges,
-      this.formGroup.controls.organizationName.valueChanges,
-    ]).pipe(
-      startWith(
-        this.formGroup.controls.billingAddress.value,
-        this.formGroup.controls.organizationName.value,
-      ),
+    combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
+      startWith(this.formGroup.controls.billingAddress.value),
       debounceTime(1000),
       switchMap(() => this.refreshInvoicePreview$()),
     ),
@@ -167,10 +161,12 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly accountService = inject(AccountService);
 
+  constructor() {}
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
     if (!this.selectedPlan()) {
       return {
+        hidePricingTerm: true,
         passwordManager: {
           seats: {
             translationKey: this.planMembershipMessage(),
@@ -185,6 +181,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
 
     return {
+      hidePricingTerm: true,
       passwordManager: {
         seats: {
           translationKey: this.getMembershipTranslationKey(),
