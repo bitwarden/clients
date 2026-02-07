@@ -96,7 +96,7 @@
             buttonType="secondary"
             [disabled]="!biometricsAvailable"
             block
-            (click)="activeUnlockOption = UnlockOption.Biometrics"
+            (click)="swapUnlockOption(UnlockOption.Biometrics)"
           >
             <span> {{ biometricUnlockBtnText | i18n }}</span>
           </button>
@@ -134,6 +134,7 @@
       [unlockOptions]="unlockOptions"
       [biometricUnlockBtnText]="biometricUnlockBtnText"
       (successfulUnlock)="successfulMasterPasswordUnlock($event)"
+      (swapToBiometrics)="swapUnlockOption(UnlockOption.Biometrics)"
       (prfUnlockSuccess)="onPrfUnlockSuccess($event)"
       (logOut)="logOut()"
     ></bit-master-password-lock>
