@@ -232,7 +232,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      const key = !this.currentUriIsBlocked() ? "autofillTitle" : "viewItemTitle";
+      const key = this.shouldAutofillOnSelect() ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
