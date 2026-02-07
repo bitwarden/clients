@@ -80,6 +80,6 @@ export function testSend(id: string, name: string) {
   data.deletionDate = null;
   data.notes = new EncString("Notes!!");
   data.key = null;
-  data.emails = null;
+  data.emails = "";
   return data;
 }

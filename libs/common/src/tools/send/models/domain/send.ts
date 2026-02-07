@@ -66,6 +66,7 @@ export class Send extends Domain {
     this.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
     this.hideEmail = obj.hideEmail;
     this.authType = obj.authType;
+    this.emails = obj.emails;
 
     switch (this.type) {
       case SendType.Text:

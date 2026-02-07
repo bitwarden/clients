@@ -69,7 +69,7 @@ describe("Send", () => {
       expirationDate: null,
       deletionDate: null,
       password: undefined,
-      emails: null,
+      emails: undefined,
       disabled: undefined,
       hideEmail: undefined,
     });
@@ -95,7 +95,7 @@ describe("Send", () => {
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       deletionDate: new Date("2022-01-31T12:00:00.000Z"),
       password: "password",
-      emails: null,
+      emails: "",
       disabled: false,
       hideEmail: true,
       authType: AuthType.None,
