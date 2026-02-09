@@ -178,7 +178,7 @@ export class MemberAccessReportService {
           ? collectionName
           : this.i18nService.t("memberAccessReportNoCollection"),
         collectionPermission: report.collectionId
-          ? this.getPermissionText(report)
+          ? this.getPermissionTextFromAccess(report)
           : this.i18nService.t("memberAccessReportNoCollectionPermission"),
         totalItems: report.cipherIds
           .filter((_) => _ != "00000000-0000-0000-0000-000000000000")
@@ -188,13 +188,23 @@ export class MemberAccessReportService {
     return exportItems.flat();
   }
 
-  private getPermissionText(accessDetails: MemberAccessResponse): string {
+  /**
+   * Shared logic for getting permission text from access details
+   * @private
+   */
+  private getPermissionTextFromAccess(access: {
+    groupId?: string;
+    collectionId: string;
+    readOnly: boolean;
+    hidePasswords: boolean;
+    manage: boolean;
+  }): string {
     const permissionList = getPermissionList();
     const collectionSelectionView = new CollectionAccessSelectionView({
-      id: accessDetails.groupId ?? accessDetails.collectionId,
-      readOnly: accessDetails.readOnly,
-      hidePasswords: accessDetails.hidePasswords,
-      manage: accessDetails.manage,
+      id: access.groupId ?? access.collectionId,
+      readOnly: access.readOnly,
+      hidePasswords: access.hidePasswords,
+      manage: access.manage,
     });
     return this.i18nService.t(
       permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
@@ -288,7 +298,13 @@ export class MemberAccessReportService {
     const accessList: MemberCipherAccess[] = [];
 
     for (const cipher of ciphers) {
-      if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+      // Skip ciphers without collections or with placeholder/invalid IDs (matches V1 behavior)
+      if (
+        !cipher.collectionIds ||
+        cipher.collectionIds.length === 0 ||
+        !cipher.id ||
+        cipher.id === "00000000-0000-0000-0000-000000000000"
+      ) {
         continue;
       }
 
@@ -304,7 +320,7 @@ export class MemberAccessReportService {
             userId: userAccess.id,
             cipherId: cipher.id,
             collectionId: collection.id,
-            collectionName: collection.name || "Unknown",
+            collectionName: collection.name,
             accessType: "direct",
             readOnly: userAccess.readOnly,
             hidePasswords: userAccess.hidePasswords,
@@ -324,7 +340,7 @@ export class MemberAccessReportService {
               userId,
               cipherId: cipher.id,
               collectionId: collection.id,
-              collectionName: collection.name || "Unknown",
+              collectionName: collection.name,
               groupId: groupAccess.id,
               groupName: groupData.groupName,
               accessType: "group",
@@ -423,7 +439,8 @@ export class MemberAccessReportService {
 
   /**
    * Generate export items using V2 frontend mapping
-   * @param organizationId - The organization ID
+   *
+   * @param organizationId  The organization ID
    * @returns Promise of MemberAccessExportItem array
    */
   async generateUserReportExportItemsV2(
@@ -434,45 +451,52 @@ export class MemberAccessReportService {
     const ciphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
     const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
 
-    // Build export items
-    const exportItems: MemberAccessExportItem[] = accessList.map((access) => {
-      const metadata = orgData.organizationUserDataMap.get(access.userId);
-      const permissionText = this._getPermissionTextV2(access);
+    // Group access records by (userId, collectionId, groupId)
+    const groupedAccess = new Map<string, MemberCipherAccess[]>();
+    for (const access of accessList) {
+      // Use groupId if present, otherwise use "direct" to distinguish direct access
+      const key = `${access.userId}|${access.collectionId}|${access.groupId ?? "direct"}`;
+      if (!groupedAccess.has(key)) {
+        groupedAccess.set(key, []);
+      }
+      groupedAccess.get(key).push(access);
+    }
 
-      return {
+    // Pre-fetch i18n strings to avoid repeated lookups
+    const twoFactorEnabledTrue = this.i18nService.t("memberAccessReportTwoFactorEnabledTrue");
+    const twoFactorEnabledFalse = this.i18nService.t("memberAccessReportTwoFactorEnabledFalse");
+    const accountRecoveryEnabledTrue = this.i18nService.t(
+      "memberAccessReportAuthenticationEnabledTrue",
+    );
+    const accountRecoveryEnabledFalse = this.i18nService.t(
+      "memberAccessReportAuthenticationEnabledFalse",
+    );
+    const noGroup = this.i18nService.t("memberAccessReportNoGroup");
+    const noCollection = this.i18nService.t("memberAccessReportNoCollection");
+    const noCollectionPermission = this.i18nService.t("memberAccessReportNoCollectionPermission");
+
+    const exportItems: MemberAccessExportItem[] = [];
+    for (const accesses of groupedAccess.values()) {
+      // All records in this group share the same user/collection/group, so use the first for metadata
+      const access = accesses[0];
+      const metadata = orgData.organizationUserDataMap.get(access.userId);
+
+      exportItems.push({
         email: metadata?.email ?? "",
         name: metadata?.name ?? "",
-        twoStepLogin: metadata?.twoFactorEnabled
-          ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-          : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+        twoStepLogin: metadata?.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
         accountRecovery: metadata?.resetPasswordEnrolled
-          ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-          : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
-        group: access.groupName ?? this.i18nService.t("memberAccessReportNoGroup"),
-        collection: access.collectionName,
-        collectionPermission: permissionText,
-        totalItems: "1",
-      };
-    });
+          ? accountRecoveryEnabledTrue
+          : accountRecoveryEnabledFalse,
+        group: access.groupName || noGroup,
+        collection: access.collectionName || noCollection,
+        collectionPermission: access.collectionId
+          ? this.getPermissionTextFromAccess(access)
+          : noCollectionPermission,
+        totalItems: accesses.length.toString(), // Count of ciphers in this access path
+      });
+    }
 
     return exportItems;
-  }
-
-  /**
-   * Get permission text for V2 access record
-   * @param access - Member cipher access record
-   * @returns Translated permission text
-   */
-  private _getPermissionTextV2(access: MemberCipherAccess): string {
-    const permissionList = getPermissionList();
-    const collectionSelectionView = new CollectionAccessSelectionView({
-      id: access.groupId ?? access.collectionId,
-      readOnly: access.readOnly,
-      hidePasswords: access.hidePasswords,
-      manage: access.manage,
-    });
-    return this.i18nService.t(
-      permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
-    );
   }
 }
