@@ -28,7 +28,7 @@ export class MenuItemComponent implements FocusableOption {
     "focus-visible:tw-ring-2",
     "focus-visible:tw-rounded-lg",
     "focus-visible:tw-ring-inset",
-    "focus-visible:tw-ring-primary-600",
+    "focus-visible:tw-ring-border-focus",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
     "disabled:!tw-text-muted",
