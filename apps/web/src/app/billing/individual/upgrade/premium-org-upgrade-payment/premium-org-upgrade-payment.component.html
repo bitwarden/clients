@@ -34,7 +34,11 @@
         </div>
       </section>
       <section>
-        <billing-cart-summary #cartSummaryComponent [cart]="cart()"></billing-cart-summary>
+        <billing-cart-summary
+          #cartSummaryComponent
+          [cart]="cart()"
+          [hidePricingTerm]="true"
+        ></billing-cart-summary>
       </section>
     </ng-container>
     <ng-container bitDialogFooter>
