@@ -90,6 +90,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -230,7 +231,6 @@ import {
   isNotificationsSupported,
 } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
@@ -315,6 +315,7 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
+      accountCryptographicStateService: AccountCryptographicStateService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -327,6 +328,7 @@ const safeProviders: SafeProvider[] = [
         accountService,
         stateProvider,
         kdfConfigService,
+        accountCryptographicStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -342,6 +344,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -499,13 +502,6 @@ const safeProviders: SafeProvider[] = [
       } else {
         return AngularThemingService.createSystemThemeFromWindow(window);
       }
-    },
-    deps: [PlatformUtilsService],
-  }),
-  safeProvider({
-    provide: FilePopoutUtilsService,
-    useFactory: (platformUtilsService: PlatformUtilsService) => {
-      return new FilePopoutUtilsService(platformUtilsService);
     },
     deps: [PlatformUtilsService],
   }),

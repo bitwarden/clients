@@ -38,6 +38,9 @@
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
+  },
   "passwordRisk": {
     "message": "Password Risk"
   },
@@ -1243,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Select all"
+  },
+  "deselectAll": {
+    "message": "Deselect all"
   },
   "unselectAll": {
     "message": "Unselect all"
@@ -10492,6 +10498,9 @@
   },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
