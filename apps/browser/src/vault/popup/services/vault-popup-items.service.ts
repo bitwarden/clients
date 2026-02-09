@@ -247,7 +247,7 @@ export class VaultPopupItemsService {
    */
   loading$: Observable<boolean> = merge(
     this._ciphersLoading$.pipe(map(() => true)),
-    this.filteredCiphers$.pipe(map(() => false)),
+    this.favoriteCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.
