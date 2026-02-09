@@ -199,11 +199,11 @@
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "מילוי",
+    "message": "השלם",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "מילוי אוטומטי"
+    "message": "השלמה אוטומטית"
   },
   "autoFillLogin": {
     "message": "מילוי כניסה אוטומטי"
@@ -291,7 +291,7 @@
     "message": "קוד אימות"
   },
   "confirmIdentity": {
-    "message": "יש לאשר את זהותך כדי להמשיך."
+    "message": "אשר את זהותך כדי להמשיך."
   },
   "changeMasterPassword": {
     "message": "החלף סיסמה ראשית"
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",

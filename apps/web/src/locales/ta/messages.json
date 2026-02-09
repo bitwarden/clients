@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "அணுகல் நுண்ணறிவு"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "கடவுச்சொல் ஆபத்து"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "அனைத்தையும் தேர்ந்தெடு"
+  },
+  "deselectAll": {
+    "message": "Deselect all"
   },
   "unselectAll": {
     "message": "தேர்ந்தெடுத்ததை நீக்கு"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "சேகரிப்பைத் திருத்து"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "சேகரிப்பு தகவல்"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "உரை"
   },
-  "sendPasswordDescV3": {
-    "message": "பெறுநர்கள் இந்த Send-ஐ அணுகுவதற்கு ஒரு விருப்ப கடவுச்சொல்லைச் சேர்க்கவும்.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "புதிய Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "You have Premium"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }
