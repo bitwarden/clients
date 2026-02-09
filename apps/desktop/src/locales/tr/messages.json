@@ -4587,5 +4587,32 @@
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-posta korumalı"
+  },
+  "emails": {
+    "message": "E-postalar"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send bağlantısını paylaştığınızda kullanıcıların bu Send'i görüntülemeleri için e-posta adreslerini bir kodla doğrulamaları gerekecektir."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
   }
 }

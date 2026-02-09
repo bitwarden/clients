@@ -6104,10 +6104,10 @@
     "message": "Porque é que estou a ver isto?"
   },
   "items": {
-    "message": "Items"
+    "message": "Itens"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Resultados da pesquisa"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
   },
   "sendPasswordHelperText": {
     "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",

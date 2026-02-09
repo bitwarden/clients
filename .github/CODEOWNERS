@@ -4,6 +4,10 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+## Global styles are owned by UIF
+*.scss @bitwarden/team-ui-foundation
+*.css @bitwarden/team-ui-foundation
+
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
