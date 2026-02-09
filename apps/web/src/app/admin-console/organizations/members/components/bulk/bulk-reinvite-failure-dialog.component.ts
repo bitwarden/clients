@@ -41,7 +41,7 @@ export class BulkReinviteFailureDialogComponent {
     this.dataSource().data = data.result.failed.map((failedUser) => {
       const user = data.users.find((u) => u.id === failedUser.id);
       if (user == null) {
-        throw new Error("Failed user not found in re-invited list of users");
+        throw new Error("Member not found");
       }
       return user;
     });
