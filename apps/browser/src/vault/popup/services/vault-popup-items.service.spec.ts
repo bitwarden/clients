@@ -462,7 +462,7 @@ describe("VaultPopupItemsService", () => {
       // Start tracking loading$ emissions
       tracked = new ObservableTracker(service.loading$);
 
-      // Track filteredCiphers$ to make cipher observables active
+      // Track favoriteCiphers$ to make cipher observables active
       trackedCiphers = new ObservableTracker(service.favoriteCiphers$);
     });
 
