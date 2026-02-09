@@ -50,7 +50,8 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { UnsignedSharedKey ,
+import {
+  UnsignedSharedKey,
   AuthClient,
   BitwardenClient,
   WrappedAccountCryptographicState,
