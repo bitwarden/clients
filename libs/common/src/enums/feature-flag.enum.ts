@@ -143,7 +143,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
-  [FeatureFlag.ChangeEmailNewAuthenticationApis]: FALSE,
+  [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
