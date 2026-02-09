@@ -442,7 +442,13 @@ export class ServiceContainer {
       this.derivedStateProvider,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
+    this.securityStateService = new DefaultSecurityStateService(
+      this.accountCryptographicStateService,
+    );
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
@@ -496,6 +502,7 @@ export class ServiceContainer {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     const pinStateService = new PinStateService(this.stateProvider);
@@ -638,10 +645,6 @@ export class ServiceContainer {
       this.policyService,
       this.apiService,
       this.accountService,
-    );
-
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
