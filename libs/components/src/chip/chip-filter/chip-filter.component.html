@@ -7,7 +7,6 @@
   [disabled]="disabled()"
 >
   <bit-chip-content [size]="size()">
-    <!-- Primary button -->
     <button
       bitChipContent
       [startIcon]="icon"
@@ -32,10 +31,11 @@
       <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
     </button>
     @if (selectedOption) {
-      <!-- Close button -->
+      <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
       <button
         bitChipDismissButton
         chipEnd
+        class="tw-relative tw-bottom-0.5"
         type="button"
         [attr.aria-label]="'removeItem' | i18n: label"
         [disabled]="disabled()"
