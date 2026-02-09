@@ -1,12 +1,11 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
@@ -446,6 +445,13 @@ export abstract class ApiService {
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
+  /**
+   * Retrieves the bearer access token for the user.
+   * If the access token is expired or within 5 minutes of expiration, attempts to refresh the token
+   * and persists the refresh token to state before returning it.
+   * @param userId The user for whom we're retrieving the access token
+   * @returns The access token, or an Error if no access token exists.
+   */
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;

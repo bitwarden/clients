@@ -43,7 +43,9 @@
           <div>
             {{ "premiumSubscriptionEndedDesc" | i18n }}
           </div>
-          <a bitLink (click)="navigateToGetPremium()"> {{ "restartPremium" | i18n }} </a>
+          <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+            {{ "restartPremium" | i18n }}
+          </a>
         </ng-container>
       </bit-callout>
     }
@@ -81,7 +83,7 @@
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
     <div
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1"
       *ngIf="isEmpty && !performingInitialLoad"
     >
       <bit-no-items [icon]="(emptyState$ | async)?.icon">

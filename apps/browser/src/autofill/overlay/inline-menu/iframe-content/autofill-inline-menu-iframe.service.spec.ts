@@ -752,4 +752,164 @@ describe("AutofillInlineMenuIframeService", () => {
       expect(autofillInlineMenuIframeService["iframe"].title).toBe("title");
     });
   });
+
+  describe("destroy", () => {
+    beforeEach(() => {
+      autofillInlineMenuIframeService.initMenuIframe();
+      autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+      portSpy = autofillInlineMenuIframeService["port"];
+    });
+
+    it("removes the LOAD event listener from the iframe", () => {
+      const removeEventListenerSpy = jest.spyOn(
+        autofillInlineMenuIframeService["iframe"],
+        "removeEventListener",
+      );
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        EVENTS.LOAD,
+        autofillInlineMenuIframeService["setupPortMessageListener"],
+      );
+    });
+
+    it("clears the aria alert timeout", () => {
+      jest.spyOn(autofillInlineMenuIframeService, "clearAriaAlert");
+      autofillInlineMenuIframeService["ariaAlertTimeout"] = setTimeout(jest.fn(), 1000);
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(autofillInlineMenuIframeService.clearAriaAlert).toHaveBeenCalled();
+    });
+
+    it("clears the fade in timeout", () => {
+      jest.useFakeTimers();
+      jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuIframeService["fadeInTimeout"] = setTimeout(jest.fn(), 1000);
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(globalThis.clearTimeout).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["fadeInTimeout"]).toBeNull();
+    });
+
+    it("clears the delayed close timeout", () => {
+      jest.useFakeTimers();
+      jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuIframeService["delayedCloseTimeout"] = setTimeout(jest.fn(), 1000);
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(globalThis.clearTimeout).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["delayedCloseTimeout"]).toBeNull();
+    });
+
+    it("clears the mutation observer iterations reset timeout", () => {
+      jest.useFakeTimers();
+      jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuIframeService["mutationObserverIterationsResetTimeout"] = setTimeout(
+        jest.fn(),
+        1000,
+      );
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(globalThis.clearTimeout).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["mutationObserverIterationsResetTimeout"]).toBeNull();
+    });
+
+    it("unobserves the iframe mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuIframeService["iframeMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuIframeService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("removes the port message listeners and disconnects the port", () => {
+      autofillInlineMenuIframeService.destroy();
+
+      expect(portSpy.onMessage.removeListener).toHaveBeenCalledWith(handlePortMessageSpy);
+      expect(portSpy.onDisconnect.removeListener).toHaveBeenCalledWith(handlePortDisconnectSpy);
+      expect(portSpy.disconnect).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["port"]).toBeNull();
+    });
+
+    it("handles the case when the port is null", () => {
+      autofillInlineMenuIframeService["port"] = null;
+
+      expect(() => autofillInlineMenuIframeService.destroy()).not.toThrow();
+    });
+
+    it("handles the case when the iframe is undefined", () => {
+      autofillInlineMenuIframeService["iframe"] = undefined as any;
+
+      expect(() => autofillInlineMenuIframeService.destroy()).not.toThrow();
+    });
+  });
+
+  describe("clearAriaAlert", () => {
+    it("clears the aria alert timeout when it exists", () => {
+      jest.useFakeTimers();
+      jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuIframeService["ariaAlertTimeout"] = setTimeout(jest.fn(), 1000);
+
+      autofillInlineMenuIframeService.clearAriaAlert();
+
+      expect(globalThis.clearTimeout).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["ariaAlertTimeout"]).toBeNull();
+    });
+
+    it("does nothing when the aria alert timeout is null", () => {
+      jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuIframeService["ariaAlertTimeout"] = null;
+
+      autofillInlineMenuIframeService.clearAriaAlert();
+
+      expect(globalThis.clearTimeout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unobserveIframe", () => {
+    it("disconnects the iframe mutation observer", () => {
+      autofillInlineMenuIframeService.initMenuIframe();
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuIframeService["iframeMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuIframeService["unobserveIframe"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("handles the case when the mutation observer is undefined", () => {
+      autofillInlineMenuIframeService["iframeMutationObserver"] = undefined as any;
+
+      expect(() => autofillInlineMenuIframeService["unobserveIframe"]()).not.toThrow();
+    });
+  });
+
+  describe("observeIframe", () => {
+    beforeEach(() => {
+      autofillInlineMenuIframeService.initMenuIframe();
+    });
+
+    it("observes the iframe for attribute mutations", () => {
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuIframeService["iframeMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuIframeService["observeIframe"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(autofillInlineMenuIframeService["iframe"], {
+        attributes: true,
+      });
+    });
+  });
 });

@@ -51,6 +51,37 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
+  async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
+    if (!models || models.length === 0) {
+      return [];
+    }
+
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+
+          return ref.value
+            .vault()
+            .ciphers()
+            .encrypt_list(models.map((model) => this.toSdkCipherView(model, ref.value)))
+            .map((encryptionContext) => ({
+              cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+              encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            }));
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
   async moveToOrganization(
     model: CipherView,
     organizationId: OrganizationId,

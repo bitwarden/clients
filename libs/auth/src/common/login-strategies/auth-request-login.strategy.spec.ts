@@ -168,7 +168,10 @@ describe("AuthRequestLoginStrategy", () => {
       mockUserId,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(decUserKey, mockUserId);
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, mockUserId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      mockUserId,
+    );
 
     // trustDeviceIfRequired should be called
     expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();

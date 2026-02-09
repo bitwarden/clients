@@ -1,3 +1,7 @@
+/**
+ * include structuredClone in test environment.
+ * @jest-environment ../../../../shared/test.environment.ts
+ */
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom, BehaviorSubject } from "rxjs";
 
@@ -165,6 +169,7 @@ describe("DefaultCipherArchiveService", () => {
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
 

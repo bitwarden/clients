@@ -20,9 +20,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 import { CipherFormContainer } from "@bitwarden/vault";
 
-import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
-import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
-
 import { OpenAttachmentsComponent } from "./open-attachments.component";
 
 describe("OpenAttachmentsComponent", () => {
@@ -31,9 +28,6 @@ describe("OpenAttachmentsComponent", () => {
   let router: Router;
   const showToast = jest.fn();
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(true);
-  const openCurrentPagePopout = jest
-    .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
-    .mockResolvedValue(null);
   const cipherView = {
     id: "5555-444-3333",
     type: CipherType.Login,
@@ -55,7 +49,6 @@ describe("OpenAttachmentsComponent", () => {
 
   const getCipher = jest.fn().mockResolvedValue(cipherDomain);
   const organizations$ = jest.fn().mockReturnValue(of([org]));
-  const showFilePopoutMessage = jest.fn().mockReturnValue(false);
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService = {
@@ -70,11 +63,9 @@ describe("OpenAttachmentsComponent", () => {
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
-    openCurrentPagePopout.mockClear();
     getCipher.mockClear();
     showToast.mockClear();
     organizations$.mockClear();
-    showFilePopoutMessage.mockClear();
     hasPremiumFromAnySource$.next(true);
     formStatusChange$.next("enabled");
 
@@ -104,10 +95,6 @@ describe("OpenAttachmentsComponent", () => {
           useValue: { organizations$ },
         },
         {
-          provide: FilePopoutUtilsService,
-          useValue: { showFilePopoutMessage },
-        },
-        {
           provide: AccountService,
           useValue: accountService,
         },
@@ -130,27 +117,12 @@ describe("OpenAttachmentsComponent", () => {
     fixture.detectChanges();
   });
 
-  it("opens attachments in new popout", async () => {
-    showFilePopoutMessage.mockReturnValue(true);
+  it("navigates to attachments route", async () => {
     component.canAccessAttachments = true;
     await component.ngOnInit();
 
     await component.openAttachments();
 
-    expect(router.navigate).toHaveBeenCalledWith(["/attachments"], {
-      queryParams: { cipherId: "5555-444-3333" },
-    });
-    expect(openCurrentPagePopout).toHaveBeenCalledWith(window);
-  });
-
-  it("opens attachments in same window", async () => {
-    showFilePopoutMessage.mockReturnValue(false);
-    component.canAccessAttachments = true;
-    await component.ngOnInit();
-
-    await component.openAttachments();
-
-    expect(openCurrentPagePopout).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(["/attachments"], {
       queryParams: { cipherId: "5555-444-3333" },
     });

@@ -6,7 +6,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 import { LogoutReason } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -42,7 +42,7 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
 
@@ -72,7 +72,7 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
-    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
     policyService = mock<InternalPolicyService>();
 
@@ -469,6 +469,42 @@ describe("NotificationsService", () => {
             enabled: mockPolicy.enabled,
           }),
         );
+      });
+    });
+
+    describe("NotificationType.AuthRequest", () => {
+      it("should call receivedPendingAuthRequest when it exists (Extension/Desktop)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest!.mockResolvedValue(undefined as any);
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+          mockUser1,
+          "auth-request-123",
+        );
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should call messagingService.send when receivedPendingAuthRequest does not exist (Web)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest = undefined as any;
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-456" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+          notificationId: "auth-request-456",
+        });
       });
     });
   });
