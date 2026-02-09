@@ -29,9 +29,9 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
+import { RiskInsightsSaveService } from "./risk-insights-save.service";
 
 describe("RiskInsightsOrchestratorService", () => {
   let service: RiskInsightsOrchestratorService;
@@ -68,8 +68,8 @@ describe("RiskInsightsOrchestratorService", () => {
   let mockPasswordHealthService: PasswordHealthService;
   const mockReportApiService = mock<RiskInsightsApiService>();
   let mockReportService: RiskInsightsReportService;
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>();
   const mockLogService = mock<LogService>();
+  const mockSaveService = mock<RiskInsightsSaveService>();
 
   // Mock data for V2 dependencies
   const mockCollectionAdminViews: CollectionAdminView[] = [
@@ -141,7 +141,7 @@ describe("RiskInsightsOrchestratorService", () => {
       mockPasswordHealthService,
       mockReportApiService,
       mockReportService,
-      mockRiskInsightsEncryptionService,
+      mockSaveService,
     );
   });
 
@@ -151,6 +151,7 @@ describe("RiskInsightsOrchestratorService", () => {
       mockReportService.getRiskInsightsReport$ = jest
         .fn()
         .mockReturnValue(throwError(() => new Error("API error")));
+
       const testService = new RiskInsightsOrchestratorService(
         mockAccountService,
         mockCipherService,
@@ -163,7 +164,7 @@ describe("RiskInsightsOrchestratorService", () => {
         mockPasswordHealthService,
         mockReportApiService,
         mockReportService,
-        mockRiskInsightsEncryptionService,
+        mockSaveService,
       );
 
       const { _organizationDetailsSubject, _userIdSubject } = testService as any;

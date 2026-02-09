@@ -12,6 +12,7 @@ import {
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
+import { ApplicationHealthReportDetailEnriched } from "../../models";
 import {
   isSaveRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -142,6 +143,56 @@ export class RiskInsightsReportService {
         reviewedDate: null,
       }),
     );
+  }
+
+  /**
+   * Calculates internal metrics from enriched applications and summary data.
+   *
+   * This method aggregates summary statistics and computes password-level metrics
+   * including counts for total, at-risk, critical, and critical at-risk passwords.
+   *
+   * @param reports Array of enriched application health reports with critical marking
+   * @param summary Organization report summary with pre-calculated counts
+   * @returns Calculated risk insights for internal metrics
+   */
+  getReportMetrics(
+    reports: ApplicationHealthReportDetailEnriched[],
+    summary: OrganizationReportSummary,
+  ): RiskInsightsMetrics {
+    const metrics = new RiskInsightsMetrics();
+
+    // Copy summary information
+    metrics.totalApplicationCount = summary.totalApplicationCount;
+    metrics.totalAtRiskApplicationCount = summary.totalAtRiskApplicationCount;
+    metrics.totalCriticalApplicationCount = summary.totalCriticalApplicationCount;
+    metrics.totalCriticalAtRiskApplicationCount = summary.totalCriticalAtRiskApplicationCount;
+    metrics.totalMemberCount = summary.totalMemberCount;
+    metrics.totalAtRiskMemberCount = summary.totalAtRiskMemberCount;
+    metrics.totalCriticalMemberCount = summary.totalCriticalMemberCount;
+    metrics.totalCriticalAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
+
+    // Calculate password metrics
+    let totalPasswordCount = 0;
+    let totalAtRiskPasswordCount = 0;
+    let totalCriticalPasswordCount = 0;
+    let totalCriticalAtRiskPasswordCount = 0;
+
+    reports.forEach((report) => {
+      totalPasswordCount += report.cipherIds.length;
+      totalAtRiskPasswordCount += report.atRiskCipherIds.length;
+
+      if (report.isMarkedAsCritical) {
+        totalCriticalPasswordCount += report.cipherIds.length;
+        totalCriticalAtRiskPasswordCount += report.atRiskCipherIds.length;
+      }
+    });
+
+    metrics.totalPasswordCount = totalPasswordCount;
+    metrics.totalAtRiskPasswordCount = totalAtRiskPasswordCount;
+    metrics.totalCriticalPasswordCount = totalCriticalPasswordCount;
+    metrics.totalCriticalAtRiskPasswordCount = totalCriticalAtRiskPasswordCount;
+
+    return metrics;
   }
 
   /**

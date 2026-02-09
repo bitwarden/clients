@@ -15,6 +15,7 @@ import {
   RiskInsightsCompressionService,
   RiskInsightsDataService,
   RiskInsightsReportService,
+  RiskInsightsSaveService,
   SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-encryption.service";
@@ -78,6 +79,16 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       deps: [RiskInsightsApiService, RiskInsightsEncryptionService, ConfigService],
     }),
     safeProvider({
+      provide: RiskInsightsSaveService,
+      useClass: RiskInsightsSaveService,
+      deps: [
+        RiskInsightsApiService,
+        RiskInsightsEncryptionService,
+        RiskInsightsReportService,
+        LogService,
+      ],
+    }),
+    safeProvider({
       provide: RiskInsightsOrchestratorService,
       deps: [
         AccountServiceAbstraction,
@@ -91,7 +102,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
         PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsReportService,
-        RiskInsightsEncryptionService,
+        RiskInsightsSaveService,
       ],
     }),
     safeProvider({
