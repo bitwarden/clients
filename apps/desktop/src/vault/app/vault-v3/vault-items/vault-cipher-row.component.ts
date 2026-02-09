@@ -15,7 +15,6 @@ import {
 import {
   AriaDisableDirective,
   BitIconButtonComponent,
-  ButtonLinkDirective,
   MenuModule,
   MenuTriggerForDirective,
   TooltipDirective,
@@ -46,7 +45,6 @@ interface CopyFieldConfig {
     JslibModule,
     TableModule,
     AriaDisableDirective,
-    ButtonLinkDirective,
     OrganizationNameBadgeComponent,
     TooltipDirective,
     BitIconButtonComponent,

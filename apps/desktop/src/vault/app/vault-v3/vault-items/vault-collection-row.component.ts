@@ -10,7 +10,7 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AriaDisableDirective, TableModule, ButtonLinkDirective } from "@bitwarden/components";
+import { TableModule } from "@bitwarden/components";
 import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -21,8 +21,6 @@ import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden
   imports: [
     TableModule,
     NgClass,
-    AriaDisableDirective,
-    ButtonLinkDirective,
     JslibModule,
     RouterLink,
     OrganizationNameBadgeComponent,
