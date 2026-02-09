@@ -143,17 +143,44 @@ describe("DefaultSdkService", () => {
         });
 
         it("destroys the internal SDK client when all subscriptions are closed", async () => {
+          jest.useFakeTimers();
           const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
           const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
           const subscription_1 = service.userClient$(userId).subscribe(subject_1);
           const subscription_2 = service.userClient$(userId).subscribe(subject_2);
-          await new Promise(process.nextTick);
+          await jest.advanceTimersByTimeAsync(0);
 
           subscription_1.unsubscribe();
           subscription_2.unsubscribe();
 
-          await new Promise(process.nextTick);
+          await jest.advanceTimersByTimeAsync(0);
+          expect(mockClient.free).not.toHaveBeenCalled();
+
+          await jest.advanceTimersByTimeAsync(1000);
           expect(mockClient.free).toHaveBeenCalledTimes(1);
+          jest.useRealTimers();
+        });
+
+        it("does not destroy the internal SDK client if resubscribed within 1 second", async () => {
+          jest.useFakeTimers();
+          const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
+          const subscription_1 = service.userClient$(userId).subscribe(subject_1);
+          await jest.advanceTimersByTimeAsync(0);
+
+          subscription_1.unsubscribe();
+          await jest.advanceTimersByTimeAsync(500);
+          expect(mockClient.free).not.toHaveBeenCalled();
+
+          // Resubscribe before the 1 second delay
+          const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
+          const subscription_2 = service.userClient$(userId).subscribe(subject_2);
+          await jest.advanceTimersByTimeAsync(1000);
+
+          // Client should not be freed since we resubscribed
+          expect(mockClient.free).not.toHaveBeenCalled();
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
+          subscription_2.unsubscribe();
+          jest.useRealTimers();
         });
 
         it("destroys the internal SDK client when the userKey is unset (i.e. lock or logout)", async () => {
@@ -218,6 +245,7 @@ describe("DefaultSdkService", () => {
         });
 
         it("destroys the internal client when an override is set", async () => {
+          jest.useFakeTimers();
           const mockInternalClient = createMockClient();
           const mockOverrideClient = createMockClient();
           sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
@@ -227,7 +255,10 @@ describe("DefaultSdkService", () => {
           service.setClient(userId, mockOverrideClient);
           await userClientTracker.pauseUntilReceived(2);
 
+          expect(mockInternalClient.free).not.toHaveBeenCalled();
+          await jest.advanceTimersByTimeAsync(1000);
           expect(mockInternalClient.free).toHaveBeenCalled();
+          jest.useRealTimers();
         });
 
         it("destroys the override client when explicitly setting the client to undefined", async () => {
