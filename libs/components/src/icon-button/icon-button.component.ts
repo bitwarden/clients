@@ -3,14 +3,13 @@ import { Component, computed, effect, ElementRef, inject, input, model } from "@
 
 import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
-import { BaseButtonDirective } from "../shared/base-button.directive";
+import { BaseButtonDirective, getIconButtonSizeStyles } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
 import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
-export type IconButtonSize = "default" | "small" | "large";
 /**
   * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
@@ -54,8 +53,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly icon = model.required<string>({ alias: "bitIconButton" });
 
-  readonly size = model<IconButtonSize>("default");
-
   /**
    * label input will be used to set the `aria-label` attributes on the button.
    * This is for accessibility purposes, as it provides a text alternative for the icon button.
@@ -67,34 +64,25 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
   readonly loading = this.baseButton.loading;
   readonly disabled = this.baseButton.disabled;
+  readonly size = this.baseButton.size;
 
   readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
   protected get showLoadingStyle() {
-    return this.baseButton.showLoadingStyle;
+    return this.baseButton.showLoadingStyle();
   }
 
   protected readonly classList = computed(() => {
     const classes: string[] = [];
 
     // Icon-button specific layout styles
-    classes.push("tw-relative", "tw-rounded-md");
+    classes.push("tw-relative", "tw-rounded-md", "tw-inline-block");
 
     // Add icon-button specific size styles (color styles are applied by BaseButtonDirective)
-    classes.push(...this.getIconButtonSizeStyles());
+    classes.push(...getIconButtonSizeStyles(this.baseButton.size()));
 
     return classes.join(" ");
   });
-
-  private getIconButtonSizeStyles(): string[] {
-    const size = this.size();
-    const iconButtonSizes: Record<string, string[]> = {
-      small: ["tw-text-xs", "tw-size-8"],
-      default: ["tw-text-base", "tw-size-10"],
-      large: ["tw-text-lg", "tw-size-11"],
-    };
-    return iconButtonSizes[size] || iconButtonSizes.default;
-  }
 
   getFocusTarget() {
     return this.elementRef.nativeElement;

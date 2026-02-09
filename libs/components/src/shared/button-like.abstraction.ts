@@ -20,6 +20,7 @@ export const ButtonTypes = {
   Contrast: "contrast",
   ContrastOutline: "contrastOutline",
   ContrastGhost: "contrastGhost",
+  NavContrast: "nav-contrast",
   Unstyled: "unstyled",
 } as const;
 

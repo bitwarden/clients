@@ -8,8 +8,18 @@ export const focusRing = [
   "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-1",
   "focus-visible:tw-ring-border-focus",
+  "!focus-visible:tw-border-[transparent]",
   "focus-visible:tw-z-10",
 ];
+
+export const getIconButtonSizeStyles = (size: ButtonSize): string[] => {
+    const iconButtonSizes: Record<string, string[]> = {
+      small: ["tw-text-xl", "tw-size-8"],
+      default: ["tw-text-2xl", "tw-size-10"],
+      large: ["tw-text-[2rem]", "tw-size-11"],
+    };
+    return iconButtonSizes[size] || iconButtonSizes.default;
+  }
 
 export const getButtonSizeStyles = (size: ButtonSize): string[] => {
   const buttonSizeStyles: Record<ButtonSize, string[]> = {
@@ -30,8 +40,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-bg-brand",
       "hover:tw-bg-bg-brand-strong",
       "hover:tw-border-bg-brand-strong",
-      "focus:tw-bg-bg-brand-strong",
-      "focus:tw-border-bg-brand-strong",
       "focus-visible:tw-bg-bg-brand-strong",
       "focus-visible:tw-border-bg-brand-strong",
     ],
@@ -40,15 +48,12 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-brand",
       "hover:tw-border-bg-brand-strong",
       "hover:tw-text-fg-brand-strong",
-      "focus:tw-border-bg-brand-strong",
-      "focus:tw-text-fg-brand-strong",
       "focus-visible:tw-border-bg-brand-strong",
       "focus-visible:tw-text-fg-brand-strong",
     ],
     primaryGhost: [
       "tw-text-fg-heading",
       "hover:tw-text-fg-brand",
-      "focus:tw-text-fg-brand",
       "focus-visible:tw-text-fg-brand",
     ],
     secondary: [
@@ -57,8 +62,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-heading",
       "hover:tw-bg-bg-quaternary",
       "hover:tw-text-fg-brand-strong",
-      "focus:tw-bg-bg-quaternary",
-      "focus:tw-text-fg-brand-strong",
       "focus-visible:tw-text-fg-brand-strong",
       "focus-visible:tw-bg-bg-quaternary",
     ],
@@ -67,8 +70,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-bg-contrast",
       "hover:tw-bg-bg-contrast-strong",
       "hover:tw-border-border-contrast-strong",
-      "focus:tw-bg-bg-contrast-strong",
-      "focus:tw-border-border-contrast-strong",
       "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-bg-bg-contrast-strong",
     ],
@@ -77,15 +78,12 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-heading",
       "hover:tw-border-border-contrast-strong",
       "hover:tw-text-fg-heading",
-      "focus:tw-border-border-contrast-strong",
-      "focus:tw-text-fg-heading",
       "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-text-fg-heading",
     ],
     subtleGhost: [
       "tw-text-fg-heading",
       "hover:tw-text-fg-heading",
-      "focus:tw-text-fg-heading",
       "focus-visible:tw-text-fg-heading",
     ],
     danger: [
@@ -94,9 +92,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-bg-bg-danger-strong",
       "hover:tw-border-border-danger-strong",
       "hover:tw-text-fg-contrast",
-      "focus:tw-border-border-danger-strong",
-      "focus:tw-bg-bg-danger-strong",
-      "focus:tw-text-fg-contrast",
       "focus-visible:tw-border-border-danger-strong",
       "focus-visible:tw-text-fg-contrast",
       "focus-visible:tw-bg-bg-danger-strong",
@@ -106,15 +101,12 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-danger",
       "hover:tw-border-bg-danger-strong",
       "hover:!tw-text-fg-danger-strong",
-      "focus:tw-border-bg-danger-strong",
-      "focus:!tw-text-fg-danger-strong",
       "focus-visible:tw-border-bg-danger-strong",
       "focus-visible:!tw-text-fg-danger-strong",
     ],
     dangerGhost: [
       "tw-text-fg-danger",
       "hover:tw-text-fg-danger",
-      "focus:tw-text-fg-danger",
       "focus-visible:tw-text-fg-danger",
     ],
     warning: [
@@ -122,8 +114,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-border-warning",
       "hover:tw-bg-bg-warning-strong",
       "hover:tw-border-border-warning-strong",
-      "focus:tw-bg-bg-warning-strong",
-      "focus:tw-border-border-warning-strong",
       "focus-visible:tw-bg-bg-warning-strong",
       "focus-visible:tw-border-border-warning-strong",
     ],
@@ -132,15 +122,12 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-warning",
       "hover:tw-border-border-warning-strong",
       "hover:!tw-text-fg-warning-strong",
-      "focus:tw-border-border-warning-strong",
-      "focus:!tw-text-fg-warning-strong",
       "focus-visible:tw-border-border-warning-strong",
       "focus-visible:!tw-text-fg-warning-strong",
     ],
     warningGhost: [
       "tw-text-fg-warning",
       "hover:tw-text-fg-warning-strong",
-      "focus:tw-text-fg-warning-strong",
       "focus-visible:tw-text-fg-warning-strong",
     ],
     success: [
@@ -148,8 +135,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-border-success",
       "hover:tw-bg-bg-success-strong",
       "hover:tw-border-border-success-strong",
-      "focus:tw-bg-bg-success-strong",
-      "focus:tw-border-border-success-strong",
       "focus-visible:tw-bg-bg-success-strong",
       "focus-visible:tw-border-border-success-strong",
     ],
@@ -158,15 +143,12 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-success",
       "hover:tw-border-border-success-strong",
       "hover:tw-text-fg-success-strong",
-      "focus:tw-border-border-success-strong",
-      "focus:tw-text-fg-success-strong",
       "focus-visible:tw-border-border-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
     successGhost: [
       "tw-text-fg-success",
       "hover:tw-text-fg-success-strong",
-      "focus:tw-text-fg-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
     contrast: [
@@ -176,7 +158,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-bg-bg-quaternary",
       "hover:tw-text-fg-heading",
       "hover:tw-border-bg-quaternary",
-      "focus:tw-text-fg-heading",
       "focus-visible:tw-text-fg-heading",
     ],
     contrastOutline: [
@@ -186,8 +167,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-text-fg-contrast-strong",
       "hover:tw-bg-bg-hover-contrast",
       "focus:tw-border-border-contrast-strong",
-      "focus:tw-text-fg-contrast-strong",
-      "focus:tw-bg-bg-hover-contrast",
       "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-text-fg-contrast-strong",
       "focus-visible:tw-bg-bg-hover-contrast",
@@ -196,19 +175,30 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-contrast",
       "hover:tw-text-fg-contrast-strong",
       "hover:tw-bg-bg-hover-contrast",
-      "focus:tw-text-fg-contrast-strong",
-      "focus:tw-bg-bg-hover-contrast",
       "focus-visible:tw-text-fg-contrast-strong",
       "focus-visible:tw-bg-bg-hover-contrast",
-      "hover:tw-border-bg-hover-contrast",
-      "focus:tw-border-bg-hover-contrast",
       "focus-visible:tw-border-bg-hover-contrast",
+      "hover:tw-border-bg-hover-contrast",
+    ],
+    "nav-contrast": [
+      "!tw-text-fg-sidenav-text",
+      "tw-border-transparent",
+      "tw-bg-transparent",
+      "hover:!tw-text-fg-sidenav-text",
+      "hover:tw-bg-hover-contrast",
+      "focus-visible:!tw-ring-fg-sidenav-text",
+      "focus-visible:!tw-ring-offset-bg-sidenav",
+      "focus-visible:!tw-text-fg-sidenav-text",
+      "focus-visible:tw-bg-hover-contrast",
+      "focus-visible:tw-border-transparent",
+      ...focusRing,
     ],
     unstyled: [],
   };
 
   const baseStyles = [
     "tw-font-medium",
+    "tw-outline-none",
     "tw-tracking-wide",
     "tw-rounded-xl",
     "tw-transition",
@@ -217,7 +207,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     "tw-text-center",
     "tw-no-underline",
     "hover:tw-no-underline",
-    "focus:tw-outline-none",
+    "focus-visible:tw-outline-none",
     ...focusRing,
   ];
 
@@ -230,9 +220,10 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   if (isOutline || isGhost) {
     baseStyles.push(
       "tw-bg-transparent",
+      "tw-bg-clip-padding",
       "hover:tw-bg-bg-hover",
-      "focus:tw-bg-bg-hover",
       "focus-visible:tw-bg-bg-hover",
+      "focus-visible:tw-border-transparent",
     );
   }
 
@@ -243,7 +234,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   if (isGhost) {
     baseStyles.push(
       "tw-border-transparent",
-      "tw-bg-clip-padding",
       "hover:tw-border-bg-hover",
       "focus:tw-border-bg-hover",
       "focus-visible:tw-border-bg-hover",
@@ -276,7 +266,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
 export class BaseButtonDirective {
   readonly buttonType = input<ButtonType>("secondary");
 
-  readonly size = input<string>("default");
+  readonly size = model<ButtonSize>("default");
 
   readonly block = input(false, { transform: booleanAttribute });
 
