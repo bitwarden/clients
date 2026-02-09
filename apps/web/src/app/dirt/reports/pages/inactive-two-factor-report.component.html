@@ -58,7 +58,7 @@
             <td bitCell>
               <app-vault-icon [cipher]="row"></app-vault-icon>
             </td>
-            <td bitCell>
+            <td bitCell class="tw-truncate tw-max-w-0">
               @if (!organization || canManageCipher(row)) {
                 <ng-container>
                   <a
@@ -72,7 +72,7 @@
                 </ng-container>
               } @else {
                 <ng-template>
-                  <span>{{ row.name }}</span>
+                  <span title="{{ row.name }}">{{ row.name }}</span>
                 </ng-template>
               }
               @if (!organization && row.organizationId) {
