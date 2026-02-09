@@ -37,6 +37,9 @@ export class CartSummaryComponent {
   // Optional inputs
   readonly header = input<TemplateRef<{ total: number }>>();
 
+  // Hide pricing term (e.g., "/ month" or "/ year") if true
+  readonly hidePricingTerm = input<boolean>(false);
+
   // UI state
   readonly isExpanded = signal(true);
 
@@ -152,11 +155,6 @@ export class CartSummaryComponent {
     }
     return credit.value;
   });
-
-  /**
-   * Whether to hide the pricing term (e.g., "/ month" or "/ year")
-   */
-  readonly hidePricingTerm = computed<boolean>(() => this.cart().hidePricingTerm ?? false);
 
   /**
    * Calculates the total of all line items including discount and tax
