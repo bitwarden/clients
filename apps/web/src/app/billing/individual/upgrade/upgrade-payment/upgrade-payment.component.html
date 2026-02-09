@@ -24,10 +24,10 @@
             <bit-form-field class="!tw-mb-0">
               <bit-label>{{ "organizationName" | i18n }}</bit-label>
               <input bitInput type="text" formControlName="organizationName" required />
+              <bit-hint bitTypography="helper" class="tw-text-muted">
+                {{ "organizationNameDescription" | i18n }}
+              </bit-hint>
             </bit-form-field>
-            <p bitTypography="helper" class="tw-text-muted tw-pt-1 tw-pl-1">
-              {{ "organizationNameDescription" | i18n }}
-            </p>
           </div>
         }
         <div class="tw-pb-8 !tw-mx-0">

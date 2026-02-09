@@ -1,0 +1,65 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  @let changingPayment = isChangingPaymentMethod();
+  <bit-dialog dialogSize="large" [loading]="loading()">
+    <span bitDialogTitle class="tw-font-medium">{{ upgradeToMessage() }}</span>
+
+    <ng-container bitDialogContent>
+      <section>
+        <div class="tw-pb-4">
+          <bit-form-field class="!tw-mb-0">
+            <bit-label>{{ "organizationName" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="organizationName" required />
+            <bit-hint bitTypography="helper" class="tw-text-muted">
+              {{ "organizationNameDescription" | i18n }}
+            </bit-hint>
+          </bit-form-field>
+        </div>
+
+        <div class="tw-pb-8 !tw-mx-0">
+          <app-display-payment-method-inline
+            [subscriber]="subscriber()"
+            [paymentMethod]="paymentMethod()"
+            (updated)="handlePaymentMethodUpdate($event)"
+            (changingStateChanged)="handlePaymentMethodChangingStateChange($event)"
+          >
+          </app-display-payment-method-inline>
+          @if (!changingPayment) {
+            <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
+            <app-enter-billing-address
+              [group]="formGroup.controls.billingAddress"
+              [scenario]="{ type: 'checkout', supportsTaxId: false }"
+            >
+            </app-enter-billing-address>
+          }
+        </div>
+      </section>
+      <section>
+        <billing-cart-summary
+          #cartSummaryComponent
+          [cart]="cart()"
+          [hidePricingTerm]="true"
+        ></billing-cart-summary>
+      </section>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="loading() || !formGroup.valid"
+        type="submit"
+      >
+        {{ "upgrade" | i18n }}
+      </button>
+      <button
+        bitButton
+        type="button"
+        buttonType="secondary"
+        (click)="goBack.emit()"
+        [disabled]="loading()"
+      >
+        {{ "back" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

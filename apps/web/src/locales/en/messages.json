@@ -12794,5 +12794,54 @@
   },
   "perUser": {
     "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade to Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgrade to Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview." 
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "You've upgraded to $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }

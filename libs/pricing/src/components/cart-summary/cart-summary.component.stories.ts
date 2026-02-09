@@ -432,3 +432,21 @@ export const WithDiscountAndCredit: Story = {
     } satisfies Cart,
   },
 };
+
+export const HiddenPricingTerm: Story = {
+  name: "Hidden Pricing Term",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    } satisfies Cart,
+    hidePricingTerm: true,
+  },
+};
