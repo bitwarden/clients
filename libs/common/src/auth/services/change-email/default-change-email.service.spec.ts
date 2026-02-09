@@ -600,7 +600,7 @@ describe("DefaultChangeEmailService", () => {
       /**
        * The legacy master key MUST be set AFTER the API call succeeds.
        * If set before and the API fails, local state would be inconsistent with the server,
-       * making the operation non-retriable without logging out.
+       * making the operation non-retry-able without logging out.
        */
       it("should set legacy master key AFTER the API call succeeds", async () => {
         // Arrange
@@ -679,7 +679,7 @@ describe("DefaultChangeEmailService", () => {
           sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId),
         ).rejects.toThrow("Server error");
 
-        // Legacy key should NOT have been set (preserves retriability)
+        // Legacy key should NOT have been set (preserves retry-ability)
         expect(masterPasswordService.mock.setLegacyMasterKeyFromUnlockData).not.toHaveBeenCalled();
       });
     });
