@@ -463,7 +463,7 @@ describe("VaultPopupItemsService", () => {
       tracked = new ObservableTracker(service.loading$);
 
       // Track filteredCiphers$ to make cipher observables active
-      trackedCiphers = new ObservableTracker(service.filteredCiphers$);
+      trackedCiphers = new ObservableTracker(service.favoriteCiphers$);
     });
 
     it("should initialize with true first", async () => {
