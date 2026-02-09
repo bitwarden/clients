@@ -98,16 +98,15 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
         </app-enter-payment-method>
         <div class="tw-mt-4 tw-flex tw-gap-2">
           <button
-            bitButton
-            bitFormButton
-            buttonType="primary"
+            bitLink
+            linkType="default"
             type="button"
-            [bitAction]="submit"
+            (click)="submit()"
             [disabled]="formGroup.invalid"
           >
             {{ "save" | i18n }}
           </button>
-          <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          <button bitLink linkType="subtle" type="button" (click)="cancel()">
             {{ "cancel" | i18n }}
           </button>
         </div>
