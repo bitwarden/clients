@@ -1511,7 +1511,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
+    deps: [BillingApiServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,
