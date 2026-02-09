@@ -29,7 +29,7 @@
     "message": "使用通行密钥登录"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "使用通行密钥解锁"
   },
   "useSingleSignOn": {
     "message": "使用单点登录"
@@ -990,6 +990,12 @@
   "no": {
     "message": "否"
   },
+  "noAuth": {
+    "message": "拥有此链接的任何人"
+  },
+  "anyOneWithPassword": {
+    "message": "拥有您设置的密码的任何人"
+  },
   "location": {
     "message": "位置"
   },
@@ -1846,7 +1852,7 @@
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
   "experimentalFeature": {
-    "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
+    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "进一步了解风险"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "电子邮箱"
   },
+  "emails": {
+    "message": "电子邮箱"
+  },
   "phone": {
     "message": "电话"
   },
@@ -2243,7 +2252,7 @@
     }
   },
   "passwordSafe": {
-    "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
+    "message": "在任何已知的数据泄露中均未发现此密码。它暂时比较安全。"
   },
   "baseDomain": {
     "message": "基础域名",
@@ -2836,7 +2845,7 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "尽快更改有风险的密码"
+    "message": "尽快更改存在风险的密码"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "更新您的设置，以便您可以快速自动填充密码并生成新的密码"
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "自定义"
   },
-  "sendPasswordDescV3": {
-    "message": "添加一个用于接收者访问此 Send 的可选密码。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3054,11 +3059,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
-    "message": "在接下来的 1 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHours": {
-    "message": "在接下来的 $HOURS$ 小时内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $HOURS$ 小时内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "hours": {
@@ -3068,11 +3073,11 @@
     }
   },
   "sendExpiresInDaysSingle": {
-    "message": "在接下来的 1 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 1 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInDays": {
-    "message": "在接下来的 $DAYS$ 天内，任何人都可以通过链接访问此 Send。",
+    "message": "在接下来的 $DAYS$ 天内，拥有此链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -3089,28 +3094,8 @@
     "message": "Send 已保存",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "弹出扩展吗？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "要创建文件 Send，您需要弹出扩展到一个新窗口。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "要选择文件，请在侧边栏中打开扩展（如果可以），或者点击此横幅来弹出一个新窗口。"
-  },
-  "sendFirefoxFileWarning": {
-    "message": "要在 Firefox 中选择文件，请在侧边栏中打开本扩展，或者点击此横幅来弹出一个新窗口。"
-  },
-  "sendSafariFileWarning": {
-    "message": "要在 Safari 中选择文件，请点击此横幅来弹出一个新窗口。"
-  },
   "popOut": {
     "message": "弹出"
-  },
-  "sendFileCalloutHeader": {
-    "message": "在开始之前"
   },
   "expirationDateIsInvalid": {
     "message": "所提供的过期日期无效。"
@@ -3371,10 +3356,10 @@
     "message": "错误"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "使用通行密钥解锁失败。请重试或使用其他解锁方式。"
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "没有可用于解锁的 PRF 通行密钥。请先使用通行密钥登录。"
   },
   "decryptionError": {
     "message": "解密错误"
@@ -4957,7 +4942,7 @@
     "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "additionalInformation": {
-    "message": "更多信息"
+    "message": "附加信息"
   },
   "itemHistory": {
     "message": "项目历史记录"
@@ -5000,6 +4985,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "下载附件"
   },
   "downloadBitwarden": {
     "message": "下载 Bitwarden"
@@ -5234,7 +5222,7 @@
     "message": "如果您想自动勾选表单复选框（例如记住电子邮箱），请使用复选框型字段"
   },
   "linkedHelpText": {
-    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段"
+    "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
   "linkedLabelHelpText": {
     "message": "输入字段的 html id、名称、aria-label 或占位符。"
@@ -5728,7 +5716,7 @@
     "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
   },
   "changeAtRiskPassword": {
-    "message": "更改有风险的密码"
+    "message": "更改存在风险的密码"
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
   },
+  "items": {
+    "message": "项目"
+  },
+  "searchResults": {
+    "message": "搜索结果"
+  },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
+  },
+  "whoCanView": {
+    "message": "谁可以查看"
+  },
+  "specificPeople": {
+    "message": "指定人员"
+  },
+  "emailVerificationDesc": {
+    "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "输入多个电子邮箱（使用逗号分隔）。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "emailProtected": {
+    "message": "电子邮件受保护"
+  },
+  "sendPasswordHelperText": {
+    "message": "个人需要输入密码才能查看此 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

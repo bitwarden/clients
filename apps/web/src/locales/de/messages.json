@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Keine kritischen Anwendungen gefährdet"
   },
+  "critical": {
+    "message": "Kritisch ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Nicht kritisch ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Kritisch"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Es gibt keine Anwendungen, die diesen Filtern entsprechen"
   },
   "passwordRisk": {
     "message": "Passwort-Risiko"
@@ -249,6 +273,9 @@
   },
   "application": {
     "message": "Anwendung"
+  },
+  "applications": {
+    "message": "Anwendungen"
   },
   "atRiskPasswords": {
     "message": "Gefährdete Passwörter"
@@ -585,6 +612,9 @@
   },
   "email": {
     "message": "E-Mail"
+  },
+  "emails": {
+    "message": "E-Mails"
   },
   "phone": {
     "message": "Telefon"
@@ -1217,6 +1247,9 @@
   "selectAll": {
     "message": "Alle auswählen"
   },
+  "deselectAll": {
+    "message": "Alles abwählen"
+  },
   "unselectAll": {
     "message": "Alle abwählen"
   },
@@ -1364,6 +1397,12 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "noAuth": {
+    "message": "Alle mit dem Link"
+  },
+  "anyOneWithPassword": {
+    "message": "Alle mit einem von dir festgelegtem Passwort"
   },
   "location": {
     "message": "Standort"
@@ -3281,6 +3320,9 @@
   "nextChargeHeader": {
     "message": "Nächste Abbuchung"
   },
+  "nextChargeDate": {
+    "message": "Nächstes Zahlungsdatum"
+  },
   "plan": {
     "message": "Tarif"
   },
@@ -3768,6 +3810,9 @@
   },
   "editCollection": {
     "message": "Sammlung bearbeiten"
+  },
+  "viewCollection": {
+    "message": "Sammlung anzeigen"
   },
   "collectionInfo": {
     "message": "Sammlungsinformationen"
@@ -5606,10 +5651,6 @@
   "sendTypeText": {
     "message": "Text"
   },
-  "sendPasswordDescV3": {
-    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Neues Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5628,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link und dem von dir festgelegten Passwort für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopiere und teile diesen Send-Link. Er kann von den von dir angegebenen Personen für die nächsten $TIME$ angesehen werden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6925,16 +6986,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Eine oder mehrere Unternehmensrichtlinien verhindern es, dass du deinen persönlichen Tresor exportieren kannst."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Auto-Ausfüllen aktivieren"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Aktiviere die Einstellung \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Kompromittierte oder nicht vertrauenswürdige Websites können Auto-Ausfüllen beim Laden der Seite ausnutzen."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Erfahre mehr über Auto-Ausfüllen"
   },
   "selectType": {
@@ -10438,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Du musst der Besitzer oder Administrator der Organisation sein, um diese Aktion ausführen zu können."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Du musst der Besitzer der Organisation sein, um diese Aktion auszuführen."
   },
@@ -11366,6 +11430,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden wird in den ersten 72 Stunden 3 Mal versuchen, die Domain zu beanspruchen. Wenn die Domain nicht beansprucht werden kann, überprüfe den DNS-Eintrag auf deinem Host und beanspruche sie manuell. Die Domain wird in 7 Tagen aus deiner Organisation entfernt, wenn sie nicht beansprucht ist."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden wird versuchen, die Domain innerhalb von 72 Stunden zu beanspruchen. Wenn die Domain nicht beansprucht werden kann, überprüfe deinen DNS-Eintrag und beanspruche die Domain manuell. Nicht beanspruchte Domains werden nach 7 Tagen entfernt."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Einmal beansprucht, werden bestehende Mitglieder mit beanspruchten Domains per E-Mail über die "
+  },
+  "accountOwnershipChange": {
+    "message": "Änderung des Kontoeigentums"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "informiert."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nicht beansprucht. Überprüfe deine DNS-Einträge.",
     "placeholders": {
@@ -11378,8 +11454,8 @@
   "domainStatusClaimed": {
     "message": "Beansprucht"
   },
-  "domainStatusUnderVerification": {
-    "message": "In Verifizierung"
+  "domainStatusPending": {
+    "message": "Ausstehend"
   },
   "claimedDomainsDescription": {
     "message": "Beanspruche eine Domain für eigene Mitgliederkonten. Die SSO-Kennungsseite wird beim Anmelden für Mitglieder mit beanspruchten Domains übersprungen und Administratoren werden in der Lage sein, beanspruchte Konten zu löschen."
@@ -12102,13 +12178,13 @@
     "message": "Jetzt verifizieren."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Mit Passkey entsperren"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Entsperren mit Passkey fehlgeschlagen. Bitte versuche es erneut oder verwende eine andere Entsperrmethode."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Es sind keine PRF-fähigen Passkeys zum Entsperren verfügbar."
   },
   "additionalStorageGB": {
     "message": "Zusätzlicher Speicher GB"
@@ -12676,13 +12752,47 @@
   "storageFullDescription": {
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   },
+  "whoCanView": {
+    "message": "Wer kann das sehen"
+  },
+  "specificPeople": {
+    "message": "Bestimmte Personen"
+  },
+  "emailVerificationDesc": {
+    "message": "Nach dem Teilen dieses Send-Links müssen Einzelpersonen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
+  },
+  "emailPlaceholder": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Eigentümer, $OWNER$, alle Einträge anzeigen, die $OWNER$ gehören",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Du hast Premium"
   },
   "emailProtected": {
     "message": "E-Mail-Adresse geschützt"
+  },
+  "invalidSendPassword": {
+    "message": "Ungültiges Send-Passwort"
+  },
+  "sendPasswordHelperText": {
+    "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "pro Benutzer"
   }
 }

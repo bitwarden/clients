@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "முக்கியமான பயன்பாடுகளில் ஆபத்து ஏதும் இல்லை"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "அணுகல் நுண்ணறிவு"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "கடவுச்சொல் ஆபத்து"
@@ -249,6 +273,9 @@
   },
   "application": {
     "message": "பயன்பாடு"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "ஆபத்தான கடவுச்சொற்கள்"
@@ -585,6 +612,9 @@
   },
   "email": {
     "message": "மின்னஞ்சல்"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "தொலைபேசி"
@@ -1217,6 +1247,9 @@
   "selectAll": {
     "message": "அனைத்தையும் தேர்ந்தெடு"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "தேர்ந்தெடுத்ததை நீக்கு"
   },
@@ -1364,6 +1397,12 @@
   },
   "no": {
     "message": "இல்லை"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "இடம்"
@@ -3281,6 +3320,9 @@
   "nextChargeHeader": {
     "message": "Next Charge"
   },
+  "nextChargeDate": {
+    "message": "Next charge date"
+  },
   "plan": {
     "message": "Plan"
   },
@@ -3768,6 +3810,9 @@
   },
   "editCollection": {
     "message": "சேகரிப்பைத் திருத்து"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "சேகரிப்பு தகவல்"
@@ -5606,10 +5651,6 @@
   "sendTypeText": {
     "message": "உரை"
   },
-  "sendPasswordDescV3": {
-    "message": "பெறுநர்கள் இந்த Send-ஐ அணுகுவதற்கு ஒரு விருப்ப கடவுச்சொல்லைச் சேர்க்கவும்.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "புதிய Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5628,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6925,17 +6986,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவன கொள்கைகள் உங்கள் தனிப்பட்ட பெட்டகத்தை ஏற்றுமதி செய்வதைத் தடுக்கின்றன."
   },
-  "activateAutofill": {
-    "message": "தானாக நிரப்புவதை செயல்படுத்து"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "ஏற்கனவே உள்ள மற்றும் புதிய அனைத்து உறுப்பினர்களுக்கும் உலாவி நீட்டிப்பில் பக்கம் ஏற்றப்படும்போது தானாக நிரப்பும் அமைப்பைச் செயல்படுத்து."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "சந்தேகத்திற்குரிய அல்லது நம்பத்தகாத வலைத்தளங்கள் பக்கம் ஏற்றப்படும்போது தானாக நிரப்புவதைப் பயன்படுத்திக் கொள்ளலாம்."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "தானாக நிரப்புதல் பற்றி மேலும் அறிக"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "SSO வகையைத் தேர்ந்தெடுக்கவும்"
@@ -10438,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
   },
@@ -11366,6 +11430,18 @@
   "automaticDomainClaimProcess": {
     "message": "முதல் 72 மணிநேரத்திற்குள் 3 முறை டொமைனைக் கோர Bitwarden முயற்சிக்கும். டொமைனைக் கோர முடியவில்லையெனில், உங்கள் ஹோஸ்டில் உள்ள DNS பதிவைச் சரிபார்த்து, கைமுறையாகக் கோரவும். டொமைன் கோரப்படாவிட்டால் 7 நாட்களில் உங்கள் அமைப்பிலிருந்து அகற்றப்படும்."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ கோரப்படவில்லை. உங்கள் DNS பதிவுகளைச் சரிபார்க்கவும்.",
     "placeholders": {
@@ -11378,8 +11454,8 @@
   "domainStatusClaimed": {
     "message": "கோரப்பட்டது"
   },
-  "domainStatusUnderVerification": {
-    "message": "சரிபார்ப்பில் உள்ளது"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "உறுப்பினர் கணக்குகளைச் சொந்தமாக்க ஒரு டொமைனைக் கோரவும். கோரப்பட்ட டொமைன்கள் கொண்ட உறுப்பினர்களுக்காக உள்நுழையும் போது SSO அடையாளங்காட்டி பக்கம் தவிர்க்கப்படும், மேலும் நிர்வாகிகள் கோரப்பட்ட கணக்குகளை நீக்க முடியும்."
@@ -12676,13 +12752,47 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "You have Premium"
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }

@@ -63,6 +63,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected registerSdkService: RegisterSdkService,
   ) {}
 
+  /**
+   * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
+   * in this default service that are now un-used and can also be removed.
+   */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
@@ -194,7 +198,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       if (!keyPair[1].encryptedString) {
         throw new Error("encrypted private key not found. Could not set private key in state.");
       }
-      await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
       await this.accountCryptographicStateService.setAccountCryptographicState(
         {
           V1: {
@@ -333,6 +336,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
   }
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
     userId: UserId,
@@ -410,6 +416,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
    * Without this, immediately locking/unlocking the vault with the new password _may_ still fail

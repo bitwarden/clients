@@ -137,10 +137,6 @@
     "message": "Send detalları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu \"Send\"ə erişməsi üçün ixtiyari bir parol əlavə edin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Paylaşılacaq mətn"
   },
@@ -2093,7 +2089,7 @@
     "message": "Element birdəfəlik silindi"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arxivlənmiş element bərpa edildi"
   },
   "restoredItem": {
     "message": "Element bərpa edildi"
@@ -4587,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-poçt qorunur"
+  },
+  "emails": {
+    "message": "E-poçtlar"
+  },
+  "noAuth": {
+    "message": "Keçidə sahib olan hər kəs"
+  },
+  "anyOneWithPassword": {
+    "message": "Təyin etdiyiniz parola sahib hər kəs"
+  },
+  "whoCanView": {
+    "message": "Kimlər baxa bilər"
+  },
+  "specificPeople": {
+    "message": "Xüsusi insanlar"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send keçidini paylaşdıqdan sonra, bu \"Send\"ə baxması üçün insanlar e-poçtlarını bir kodla doğrulamalıdırlar."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
