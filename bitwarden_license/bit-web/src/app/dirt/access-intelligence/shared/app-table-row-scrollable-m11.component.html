@@ -64,7 +64,9 @@
             {{ row.applicationName }}
           </div>
           @if (row.isMarkedAsCritical) {
-            <span bitBadge>{{ "criticalBadge" | i18n }}</span>
+            <span bitBadge [attr.aria-label]="'criticalBadge' | i18n">{{
+              "criticalBadge" | i18n
+            }}</span>
           }
         </div>
       </td>
