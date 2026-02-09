@@ -4,9 +4,8 @@ import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, ElementRef, inject, input, viewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { DrawerHostDirective } from "../drawer/drawer-host.directive";
-import { DrawerService } from "../drawer/drawer.service";
-import { LinkModule } from "../link";
+import { DrawerService } from "../dialog/drawer.service";
+import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
 
@@ -31,7 +30,6 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
     "(document:keydown.tab)": "handleKeydown($event)",
     class: "tw-block tw-h-screen",
   },
-  hostDirectives: [DrawerHostDirective],
 })
 export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
@@ -54,11 +52,11 @@ export class LayoutComponent {
    *
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
    **/
-  private readonly skipLink = viewChild.required<ElementRef<HTMLElement>>("skipLink");
+  private readonly skipLink = viewChild.required<LinkComponent>("skipLink");
   handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
-      this.skipLink().nativeElement.focus();
+      this.skipLink().el.nativeElement.focus();
     }
   }
 }

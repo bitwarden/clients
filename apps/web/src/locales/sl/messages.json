@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "No critical applications at risk"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Analiza dostopa"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Varnostno tveganje gesla"
@@ -250,6 +274,9 @@
   "application": {
     "message": "Application"
   },
+  "applications": {
+    "message": "Applications"
+  },
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
@@ -332,7 +359,7 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Skupaj članov"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
@@ -456,10 +483,10 @@
     "message": "Zapisek"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privaten zapisek"
   },
   "note": {
-    "message": "Note"
+    "message": "Zapisek"
   },
   "customFields": {
     "message": "Polja po meri"
@@ -585,6 +612,9 @@
   },
   "email": {
     "message": "E-pošta"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefon"
@@ -893,7 +923,7 @@
     "message": "Zavarovan zapisek"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Zapisek"
   },
   "typeSshKey": {
     "message": "SSH key"
@@ -986,7 +1016,7 @@
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nov zapisek",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
@@ -1014,7 +1044,7 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Uredi zapisek",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -1042,7 +1072,7 @@
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Poglej zapisek",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
@@ -1132,7 +1162,7 @@
     "message": "Copy website"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopiraj zapisek"
   },
   "copyAddress": {
     "message": "Copy address"
@@ -1216,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Izberi vse"
+  },
+  "deselectAll": {
+    "message": "Deselect all"
   },
   "unselectAll": {
     "message": "Odizberi vse"
@@ -1364,6 +1397,12 @@
   },
   "no": {
     "message": "Ne"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Location"
@@ -2306,11 +2345,11 @@
     "message": "Orodja"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Uvozi",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Uvozi",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2325,7 +2364,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
+    "message": "nova prijava",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -3281,6 +3320,9 @@
   "nextChargeHeader": {
     "message": "Next Charge"
   },
+  "nextChargeDate": {
+    "message": "Next charge date"
+  },
   "plan": {
     "message": "Plan"
   },
@@ -3444,7 +3486,7 @@
     "message": "General information"
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Naziv organizacije"
   },
   "accountOwnedBusiness": {
     "message": "This account is owned by a business."
@@ -3769,6 +3811,9 @@
   "editCollection": {
     "message": "Edit collection"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "Collection info"
   },
@@ -3821,7 +3866,7 @@
     "message": "Client owner email"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Lastnik"
   },
   "ownerDesc": {
     "message": "Manage all aspects of your organization, including billing and subscriptions"
@@ -4685,7 +4730,7 @@
     "message": "My organization"
   },
   "organizationInfo": {
-    "message": "Organization info"
+    "message": "Organizacija"
   },
   "deleteOrganization": {
     "message": "Delete organization"
@@ -5606,10 +5651,6 @@
   "sendTypeText": {
     "message": "Besedilo"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nova pošiljka",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5628,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6268,7 +6329,7 @@
     "message": "Send request"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Dodaj zapisek"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -6925,17 +6986,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofill": {
-    "message": "Activate auto-fill"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activate the auto-fill on page load setting on the browser extension for all existing and new members."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit auto-fill on page load."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Več o samodejnem izpolnjevanju"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Select SSO type"
@@ -8119,7 +8180,7 @@
     "message": "Members"
   },
   "reporting": {
-    "message": "Reporting"
+    "message": "Poročanje"
   },
   "numberOfUsers": {
     "message": "Number of users"
@@ -9723,7 +9784,7 @@
     "message": "Secrets Manager plan price"
   },
   "passwordManager": {
-    "message": "Password Manager"
+    "message": "Upravitelj gesel"
   },
   "freeOrganization": {
     "message": "Free Organization"
@@ -10011,7 +10072,7 @@
     "message": "Read release blog"
   },
   "adminConsole": {
-    "message": "Admin Console"
+    "message": "Nadzorna plošča"
   },
   "providerPortal": {
     "message": "Provider Portal"
@@ -10437,6 +10498,9 @@
   },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
@@ -11366,6 +11430,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ not claimed. Check your DNS records.",
     "placeholders": {
@@ -11378,8 +11454,8 @@
   "domainStatusClaimed": {
     "message": "Claimed"
   },
-  "domainStatusUnderVerification": {
-    "message": "Under verification"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
@@ -11437,7 +11513,7 @@
     "message": "Item removed from favorites"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopiraj zapisek"
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
@@ -11775,7 +11851,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Hitro ustvarite gesla"
   },
   "generatorNudgeBodyOne": {
     "message": "Easily create strong and unique passwords by clicking on",
@@ -12676,13 +12752,47 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "You have Premium"
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }

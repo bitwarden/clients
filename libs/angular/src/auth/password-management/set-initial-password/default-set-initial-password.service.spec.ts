@@ -124,6 +124,10 @@ describe("DefaultSetInitialPasswordService", () => {
     expect(sut).not.toBeFalsy();
   });
 
+  /**
+   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
+   */
   describe("setInitialPassword(...)", () => {
     // Mock function parameters
     let credentials: SetInitialPasswordCredentials;
@@ -420,7 +424,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(keyService.setPrivateKey).toHaveBeenCalledWith(keyPair[1].encryptedString, userId);
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
           ).toHaveBeenCalledWith(
@@ -663,7 +666,9 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).not.toHaveBeenCalled();
         });
 
         it("should set the local master key hash to state", async () => {
