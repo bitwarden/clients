@@ -61,13 +61,13 @@ export type AtRiskPasswordQueueMessage = NotificationQueueMessage<
   AtRiskPasswordNotificationData
 >;
 
-type NotificationQueueMessageItem =
+export type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordNotificationQueueMessage
   | AddUnlockVaultQueueMessage
   | AtRiskPasswordQueueMessage;
 
-type LockedVaultPendingNotificationsData = {
+export type LockedVaultPendingNotificationsData = {
   commandToRetry: {
     message: {
       command: string;
@@ -80,26 +80,26 @@ type LockedVaultPendingNotificationsData = {
   target: string;
 };
 
-type AdjustNotificationBarMessageData = {
+export type AdjustNotificationBarMessageData = {
   height: number;
 };
 
-type AddLoginMessageData = {
+export type AddLoginMessageData = {
   username: string;
   password: string;
   url: string;
 };
 
-type UnlockVaultMessageData = {
+export type UnlockVaultMessageData = {
   skipNotification?: boolean;
 };
 
 /**
- * @todo Extend generics to this type, see Standard_NotificationQueueMessage
+ * @todo Extend generics to this type, see NotificationQueueMessage
  * - use new `data` types as generic
  * - eliminate optional status of properties as needed per Notification Type
  */
-type NotificationBackgroundExtensionMessage = {
+export type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
   data?: Partial<LockedVaultPendingNotificationsData> &
@@ -119,7 +119,7 @@ type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage 
 type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
 type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
 
-type NotificationBackgroundExtensionMessageHandlers = {
+export type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
@@ -149,14 +149,4 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgGetExcludedDomains: () => Promise<NeverDomains>;
   bgGetActiveUserServerConfig: () => Promise<ServerConfig | null>;
   getWebVaultUrlForNotification: () => Promise<string>;
-};
-
-export {
-  NotificationQueueMessageItem,
-  LockedVaultPendingNotificationsData,
-  AdjustNotificationBarMessageData,
-  UnlockVaultMessageData,
-  AddLoginMessageData,
-  NotificationBackgroundExtensionMessage,
-  NotificationBackgroundExtensionMessageHandlers,
 };
