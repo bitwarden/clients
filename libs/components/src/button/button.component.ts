@@ -1,9 +1,10 @@
 import { NgClass } from "@angular/common";
-import { Component, inject, ElementRef, computed } from "@angular/core";
+import { Component, inject, ElementRef, computed, input } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { BaseButtonDirective, getButtonSizeStyles } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction, ButtonSize } from "../shared/button-like.abstraction";
+import { BitwardenIcon } from "../shared/icon";
 import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
@@ -32,6 +33,18 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
   readonly loading = this.baseButton.loading;
   readonly disabled = this.baseButton.disabled;
+
+  readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+
+  readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+
+  readonly startIconClasses = computed(() => {
+    return ["bwi", this.startIcon()];
+  });
+
+  readonly endIconClasses = computed(() => {
+    return ["bwi", this.endIcon()];
+  });
 
   protected get showLoadingStyle() {
     return this.baseButton.showLoadingStyle;

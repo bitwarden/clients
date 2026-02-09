@@ -285,6 +285,8 @@ export class BaseButtonDirective {
   readonly disabled = model<boolean>(false);
 
   readonly disabledAttr = computed(() => {
+    // This check handles both boolean values and empty strings from HTML attributes
+    // Empty string "" from <button disabled> is truthy for != null and !== false
     const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading();
   });
@@ -314,7 +316,7 @@ export class BaseButtonDirective {
     const classes = getButtonColorStyles(this.buttonType() || "secondary");
 
     // Add disabled styles when button is disabled or loading
-    if (this.showLoadingStyle() || this.disabled()) {
+    if (this.showLoadingStyle() || this.disabledAttr()) {
       classes.push(
         "aria-disabled:!tw-bg-bg-disabled",
         "hover:tw-bg-bg-hover",
