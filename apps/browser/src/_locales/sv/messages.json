@@ -6104,10 +6104,10 @@
     "message": "Varför ser jag det här?"
   },
   "items": {
-    "message": "Items"
+    "message": "Objekt"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Sökresultat"
   },
   "resizeSideNavigation": {
     "message": "Ändra storlek på sidnavigering"
@@ -6127,8 +6127,11 @@
   "emailPlaceholder": {
     "message": "användare@bitwarden.com , användare@acme.com"
   },
+  "emailProtected": {
+    "message": "Email protected"
+  },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Individer måste ange lösenordet för att visa denna Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
