@@ -11,7 +11,38 @@ export type AutofillKeywordsMap = WeakMap<
 
 export type SubmitButtonKeywordsMap = WeakMap<HTMLElement, string>;
 
+export type AutofillVector =
+  | "inline-menu"
+  | "popup-autofill"
+  | "context-menu"
+  | "keyboard-shortcut"
+  | "page-load";
+
+export type QualificationCondition = {
+  name: string;
+  functionSource?: string;
+};
+
+export type QualificationMeta = {
+  timestamp: number;
+  vector: AutofillVector;
+  fieldSnapshot: AutofillField;
+  pageSnapshot?: Partial<AutofillPageDetails>;
+  preconditions?: QualificationResult[];
+  tracingDepth?: number;
+};
+
+export type QualificationResult = {
+  result: boolean;
+  conditions: {
+    pass: QualificationCondition[];
+    fail: QualificationCondition[];
+  };
+  meta?: QualificationMeta;
+};
+
 export interface InlineMenuFieldQualificationService {
+  setCurrentVector(vector: AutofillVector): void;
   isUsernameField(field: AutofillField): boolean;
   isCurrentPasswordField(field: AutofillField): boolean;
   isUpdateCurrentPasswordField(field: AutofillField): boolean;

@@ -56,6 +56,7 @@ import { DomElementVisibilityService } from "./abstractions/dom-element-visibili
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { AutofillDebugService } from "./autofill-debug.service";
 
 export type QualificationCriteria = {
   formFieldElement: ElementWithOpId<FormFieldElement>;
@@ -186,6 +187,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     private domElementVisibilityService: DomElementVisibilityService,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private inlineMenuContentService?: AutofillInlineMenuContentService,
+    private debugService?: AutofillDebugService,
   ) {}
 
   /**
@@ -225,11 +227,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
+    if (this.debugService?.isDebugEnabled() && !this.debugService.hasCurrentSession()) {
+      this.debugService.startSession(globalThis.location.href);
+      this.inlineMenuFieldQualificationService.setCurrentVector("inline-menu");
+    }
+
     const qualification = this.isQualifiedField({
       formFieldElement,
       autofillFieldData,
       pageDetails,
     });
+
     if (!qualification) {
       return;
     }
@@ -314,19 +322,51 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   isQualifiedField(criteria: QualificationCriteria) {
+    const debugEnabled = this.debugService?.isDebugEnabled() ?? false;
     const responses: QualificationResponse[] = [];
+
     for (const definition of this.qualifiers) {
       const response = this.qualify(definition, criteria);
       responses.push(response);
+
       if (response.result === false && definition?.blocking !== false) {
-        console.log({ element: criteria.formFieldElement, responses });
+        if (debugEnabled) {
+          console.group(
+            `%c❌ Field Rejected: ${criteria.autofillFieldData.opid}`,
+            "color: #ef4444; font-weight: bold",
+          );
+          console.log("Field:", criteria.formFieldElement);
+          console.log("Blocking condition failed:", response.alias);
+          console.log("Message:", response.message);
+          console.log("All responses:", responses);
+          console.groupEnd();
+        } else {
+          console.log({ element: criteria.formFieldElement, responses });
+        }
         return false;
       }
+
       if (response.result === true && definition.effect) {
         void definition.effect(criteria);
       }
     }
-    console.log({ element: criteria.formFieldElement, responses });
+
+    if (debugEnabled) {
+      console.group(
+        `%c✅ Field Qualified: ${criteria.autofillFieldData.opid}`,
+        "color: #10b981; font-weight: bold",
+      );
+      console.log("Field:", criteria.formFieldElement);
+      console.log(
+        "Passed conditions:",
+        responses.filter((r) => r.result).map((r) => r.alias),
+      );
+      console.log("All responses:", responses);
+      console.groupEnd();
+    } else {
+      console.log({ element: criteria.formFieldElement, responses });
+    }
+
     return true;
   }
 

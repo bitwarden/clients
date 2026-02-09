@@ -4,7 +4,9 @@ import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
 
 import {
   AutofillKeywordsMap,
+  AutofillVector,
   InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface,
+  QualificationResult,
   SubmitButtonKeywordsMap,
 } from "./abstractions/inline-menu-field-qualifications.service";
 import {
@@ -15,6 +17,7 @@ import {
   SubmitLoginButtonNames,
 } from "./autofill-constants";
 import AutofillService from "./autofill.service";
+import { AutofillDebugService } from "./autofill-debug.service";
 
 export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
@@ -149,6 +152,66 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
   private premiumEnabled = false;
+  private currentVector: AutofillVector = "inline-menu";
+  private debugService?: AutofillDebugService;
+
+  private get debugEnabled(): boolean {
+    return this.debugService?.isDebugEnabled() ?? false;
+  }
+
+  setCurrentVector(vector: AutofillVector): void {
+    this.currentVector = vector;
+  }
+
+  setDebugService(debugService: AutofillDebugService): void {
+    this.debugService = debugService;
+  }
+
+  /**
+   * Wraps a qualification function to return QualificationResult with debug metadata.
+   *
+   * @param name - Human-readable name for the condition
+   * @param fn - The qualification function to wrap
+   * @param field - The field being qualified
+   * @param pageDetails - Optional page details
+   * @param currentDepth - Current depth for precondition tracing
+   */
+  private wrapQualifier(
+    name: string,
+    fn: (field: AutofillField, pageDetails?: AutofillPageDetails) => boolean,
+    field: AutofillField,
+    pageDetails?: AutofillPageDetails,
+    currentDepth = 0,
+  ): QualificationResult {
+    const result = fn.call(this, field, pageDetails);
+
+    if (!this.debugEnabled) {
+      return { result, conditions: { pass: [], fail: [] } };
+    }
+
+    const maxDepth = this.debugService?.getTracingDepth() ?? 1;
+    const shouldTrace = currentDepth < maxDepth;
+
+    const condition = {
+      name,
+      functionSource: shouldTrace ? fn.toString() : undefined,
+    };
+
+    return {
+      result,
+      conditions: {
+        pass: result ? [condition] : [],
+        fail: result ? [] : [condition],
+      },
+      meta: {
+        timestamp: Date.now(),
+        vector: this.currentVector,
+        fieldSnapshot: this.debugService?.captureFieldSnapshot(field) ?? field,
+        pageSnapshot: pageDetails ? this.debugService?.capturePageSnapshot(pageDetails) : undefined,
+        tracingDepth: currentDepth,
+      },
+    };
+  }
 
   /**
    * Validates the provided field to indicate if the field is a new email field used for account creation/registration.
@@ -207,7 +270,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     return false;
   }
 
-  constructor() {
+  constructor(debugService?: AutofillDebugService) {
+    this.debugService = debugService;
     void sendExtensionMessage("getUserPremiumStatus").then((premiumStatus) => {
       this.premiumEnabled = !!premiumStatus?.result;
     });
@@ -938,6 +1002,16 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isUsernameField = (field: AutofillField): boolean => {
+    return this.isUsernameFieldWithResult(field).result;
+  };
+
+  /**
+   * Validates the provided field as a username field with debug metadata.
+   *
+   * @param field - The field to validate
+   * @param depth - Current depth for precondition tracing
+   */
+  isUsernameFieldWithResult(field: AutofillField, depth = 0): QualificationResult {
     const fieldType = field.type;
     if (
       !fieldType ||
@@ -946,11 +1020,12 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       this.fieldHasDisqualifyingAttributeValue(field) ||
       this.isTotpField(field)
     ) {
-      return false;
+      return this.wrapQualifier("isUsernameField", () => false, field, undefined, depth);
     }
 
-    return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
-  };
+    const result = this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
+    return this.wrapQualifier("isUsernameField", () => result, field, undefined, depth);
+  }
 
   /**
    * Validates the provided field as an email field.
@@ -974,15 +1049,44 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isCurrentPasswordField = (field: AutofillField): boolean => {
+    return this.isCurrentPasswordFieldWithResult(field).result;
+  };
+
+  /**
+   * Validates the provided field as a current password field with debug metadata.
+   *
+   * @param field - The field to validate
+   * @param depth - Current depth for precondition tracing
+   */
+  isCurrentPasswordFieldWithResult(field: AutofillField, depth = 0): QualificationResult {
+    const maxDepth = this.debugService?.getTracingDepth() ?? 1;
+
     if (
       this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue) ||
       this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
     ) {
-      return false;
+      return this.wrapQualifier("isCurrentPasswordField", () => false, field, undefined, depth);
     }
 
-    return this.isPasswordField(field);
-  };
+    const passwordCheck =
+      depth < maxDepth
+        ? this.isPasswordFieldWithResult(field, depth + 1)
+        : this.wrapQualifier("isPasswordField", this.isPasswordField, field, undefined, depth);
+
+    if (!passwordCheck.result) {
+      return {
+        result: false,
+        conditions: passwordCheck.conditions,
+        meta: {
+          ...passwordCheck.meta,
+          preconditions: [passwordCheck],
+          tracingDepth: depth,
+        },
+      };
+    }
+
+    return this.wrapQualifier("isCurrentPasswordField", () => true, field, undefined, depth);
+  }
 
   /**
    * Validates the provided field as a current password field for an update password form.
@@ -1006,15 +1110,46 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isNewPasswordField = (field: AutofillField): boolean => {
+    return this.isNewPasswordFieldWithResult(field).result;
+  };
+
+  /**
+   * Validates the provided field as a new password field with debug metadata.
+   *
+   * @param field - The field to validate
+   * @param depth - Current depth for precondition tracing
+   */
+  isNewPasswordFieldWithResult(field: AutofillField, depth = 0): QualificationResult {
+    const maxDepth = this.debugService?.getTracingDepth() ?? 1;
+
     if (this.fieldContainsAutocompleteValues(field, this.currentPasswordAutocompleteValue)) {
-      return false;
+      return this.wrapQualifier("isNewPasswordField", () => false, field, undefined, depth);
     }
 
-    return (
-      this.isPasswordField(field) &&
-      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-    );
-  };
+    const passwordCheck =
+      depth < maxDepth
+        ? this.isPasswordFieldWithResult(field, depth + 1)
+        : this.wrapQualifier("isPasswordField", this.isPasswordField, field, undefined, depth);
+
+    if (!passwordCheck.result) {
+      return {
+        result: false,
+        conditions: passwordCheck.conditions,
+        meta: {
+          ...passwordCheck.meta,
+          preconditions: [passwordCheck],
+          tracingDepth: depth,
+        },
+      };
+    }
+
+    const keywordCheck = this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords);
+    if (!keywordCheck) {
+      return this.wrapQualifier("isNewPasswordField", () => false, field, undefined, depth);
+    }
+
+    return this.wrapQualifier("isNewPasswordField", () => true, field, undefined, depth);
+  }
 
   /**
    * Validates the provided field as a password field.
@@ -1022,6 +1157,16 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   private isPasswordField = (field: AutofillField): boolean => {
+    return this.isPasswordFieldWithResult(field).result;
+  };
+
+  /**
+   * Validates the provided field as a password field with debug metadata.
+   *
+   * @param field - The field to validate
+   * @param depth - Current depth for precondition tracing
+   */
+  private isPasswordFieldWithResult(field: AutofillField, depth = 0): QualificationResult {
     const isInputPasswordType = field.type === "password";
     if (
       (!isInputPasswordType &&
@@ -1029,11 +1174,12 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       this.fieldHasDisqualifyingAttributeValue(field) ||
       this.isTotpField(field)
     ) {
-      return false;
+      return this.wrapQualifier("isPasswordField", () => false, field, undefined, depth);
     }
 
-    return isInputPasswordType || this.isLikePasswordField(field);
-  };
+    const result = isInputPasswordType || this.isLikePasswordField(field);
+    return this.wrapQualifier("isPasswordField", () => result, field, undefined, depth);
+  }
 
   /**
    * Validates the provided field as a field to indicate if the

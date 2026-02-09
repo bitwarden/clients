@@ -1,4 +1,5 @@
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
+import { AutofillDebugService } from "../services/autofill-debug.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import { DomQueryService } from "../services/dom-query.service";
@@ -16,12 +17,21 @@ import AutofillInit from "./autofill-init";
 
     const domQueryService = new DomQueryService();
     const domElementVisibilityService = new DomElementVisibilityService(inlineMenuContentService);
-    const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+
+    const debugService = new AutofillDebugService();
+    const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService(
+      debugService.isDebugEnabled() ? debugService : undefined,
+    );
+    if (debugService.isDebugEnabled()) {
+      inlineMenuFieldQualificationService.setDebugService(debugService);
+    }
+
     const autofillOverlayContentService = new AutofillOverlayContentService(
       domQueryService,
       domElementVisibilityService,
       inlineMenuFieldQualificationService,
       inlineMenuContentService,
+      debugService.isDebugEnabled() ? debugService : undefined,
     );
 
     windowContext.bitwardenAutofillInit = new AutofillInit(

@@ -14,6 +14,7 @@ export type Flags = SharedFlags;
 // required to avoid linting errors when there are no flags
 export type DevFlags = {
   managedEnvironment?: GroupPolicyEnvironment;
+  autofillDebugMode?: boolean;
 } & SharedDevFlags;
 
 export function flagEnabled(flag: keyof Flags): boolean {
