@@ -1,0 +1,59 @@
+import { CommonModule } from "@angular/common";
+import { Component, ChangeDetectionStrategy, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
+import {
+  ButtonModule,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  IconComponent,
+} from "@bitwarden/components";
+import { StateProvider, UserKeyDefinition, WELCOME_EXTENSION_DIALOG_DISK } from "@bitwarden/state";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+export const WELCOME_EXTENSION_DIALOG_DISMISSED = new UserKeyDefinition<boolean>(
+  WELCOME_EXTENSION_DIALOG_DISK,
+  "vaultWelcomeExtensionDialogDismissed",
+  {
+    deserializer: (dismissed) => dismissed,
+    clearOn: [],
+  },
+);
+
+@Component({
+  selector: "web-welcome-extension-prompt-dialog",
+  templateUrl: "./web-welcome-extension-prompt-dialog.component.html",
+  imports: [CommonModule, ButtonModule, DialogModule, I18nPipe, IconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class WebWelcomeExtensionPromptDialogComponent implements OnInit {
+  constructor(
+    private platformUtilsService: PlatformUtilsService,
+    private stateProvider: StateProvider,
+    private accountService: AccountService,
+    private dialogRef: DialogRef<void>,
+  ) {}
+
+  /** Download Url for the extension based on the browser */
+  protected webStoreUrl: string = "";
+
+  ngOnInit(): void {
+    this.webStoreUrl = getWebStoreUrl(this.platformUtilsService.getDevice());
+  }
+
+  async dismissPrompt() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.stateProvider.getUser(userId, WELCOME_EXTENSION_DIALOG_DISMISSED).update(() => true);
+    this.dialogRef.close();
+  }
+
+  /** Opens the web extension prompt generator dialog. */
+  static open(dialogService: DialogService) {
+    return dialogService.open(WebWelcomeExtensionPromptDialogComponent);
+  }
+}

@@ -12,6 +12,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
@@ -19,6 +21,12 @@ import {
   AutoConfirmPolicy,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
+import {
+  WebWelcomeExtensionPromptDialogComponent,
+  WELCOME_EXTENSION_DIALOG_DISMISSED,
+} from "../components/web-welcome-extension-prompt/web-welcome-extension-prompt-dialog.component";
+
+import { WebBrowserInteractionService } from "./web-browser-interaction.service";
 
 @Injectable()
 export class WebVaultPromptService {
@@ -31,6 +39,8 @@ export class WebVaultPromptService {
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
+  private stateProvider = inject(StateProvider);
+  private webBrowserInteractionService = inject(WebBrowserInteractionService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -46,7 +56,11 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
-    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+
+    if (await this.showWelcomeExtensionDialog(userId)) {
+      WebWelcomeExtensionPromptDialogComponent.open(this.dialogService);
+    }
 
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
@@ -109,5 +123,43 @@ export class WebVaultPromptService {
       .subscribe({
         error: (err: unknown) => this.logService.error("Failed to update auto-confirm state", err),
       });
+  }
+
+  private async showWelcomeExtensionDialog(userId: UserId) {
+    // Extension check takes time, trigger it early
+    const hasExtensionInstalled = firstValueFrom(
+      this.webBrowserInteractionService.extensionInstalled$,
+    );
+
+    const hasDismissedExtensionPrompt = await firstValueFrom(
+      this.stateProvider
+        .getUser(userId, WELCOME_EXTENSION_DIALOG_DISMISSED)
+        .state$.pipe(map((dismissed) => dismissed ?? false)),
+    );
+
+    if (hasDismissedExtensionPrompt) {
+      return false;
+    }
+
+    const profileIsOlderThan30Days = await this.profileIsOlderThan30Days();
+
+    if (profileIsOlderThan30Days) {
+      return false;
+    }
+
+    return !(await hasExtensionInstalled);
+  }
+
+  private async profileIsOlderThan30Days() {
+    return firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((account) => {
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+          return account?.creationDate ? account.creationDate < thirtyDaysAgo : true;
+        }),
+      ),
+    );
   }
 }
