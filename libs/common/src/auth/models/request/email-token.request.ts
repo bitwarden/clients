@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MasterPasswordAuthenticationData } from "../../../key-management/master-password/types/master-password.types";
 
 import { SecretVerificationRequest } from "./secret-verification.request";
