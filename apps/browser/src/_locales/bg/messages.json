@@ -6127,6 +6127,9 @@
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
+  "emailProtected": {
+    "message": "Е-пощата е защитена"
+  },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

@@ -29,7 +29,7 @@
     "message": "Iniciar sesión con clave de acceso"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Desbloquear con clave de acceso"
   },
   "useSingleSignOn": {
     "message": "Usar inicio de sesión único"
@@ -440,7 +440,7 @@
     "message": "Sincronizar"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sincronizar ahora"
   },
   "lastSync": {
     "message": "Última sincronización:"
@@ -554,51 +554,51 @@
     "message": "Restablecer búsqueda"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archivo",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivar",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Desarchivar"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elementos archivados"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "No hay elementos archivados"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Los elementos archivados aparecerán aquí y se excluirán de los resultados de búsqueda generales y de sugerencias de autocompletado."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "El elemento fue archivado"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "El elemento fue desarchivado"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "El elemento fue desarchivado"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archivar elemento"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Una vez archivado, este elemento se excluirá de los resultados de búsqueda y de sugerencias de autocompletado."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archivados"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Desarchivar y guardar"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Se requiere una membresía premium para usar el Archivo."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "El elemento se ha restaurado"
   },
   "edit": {
     "message": "Editar"
@@ -607,16 +607,16 @@
     "message": "Ver"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Ver todo"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Mostrar todo"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Ver menos"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Ver inicio de sesión"
   },
   "noItemsInList": {
     "message": "No hay elementos que listar."
@@ -991,7 +991,7 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Cualquiera con el enlace"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
@@ -1071,7 +1071,7 @@
     "message": "Saved website"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Sitios web guardados ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1272,10 +1272,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Tras cambiar tu contraseña tendrás que iniciar sesión con tu nueva contraseña. Las sesiones activas en otros dispositivos se cerrarán en una hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Cambia tu contraseña maestra para completar la recuperación de la cuenta."
   },
   "enableChangedPasswordNotification": {
     "message": "Solicitar la actualización de los datos de inicio de sesión existentes"
@@ -1344,19 +1344,19 @@
     "message": "Exportar desde"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Exportar",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Exportación",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importación",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importar",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1438,25 +1438,25 @@
     "message": "Más información"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Se ha producido un error al actualizar la configuración de cifrado."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Actualiza tu configuración de cifrado"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "La nueva configuración recomendada de cifrado mejorará la seguridad de tu cuenta. Introduce tu contraseña maestra para actualizarla ahora."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Confirma tu identidad para continuar"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Introduce tu contraseña maestra"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Actualizar ajustes"
   },
   "later": {
-    "message": "Later"
+    "message": "Más tarde"
   },
   "authenticatorKeyTotp": {
     "message": "Clave de autenticación (TOTP)"
@@ -1489,13 +1489,13 @@
     "message": "El adjunto se ha guardado."
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Corregir cifrado"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Este archivo está utilizando un método de cifrado obsoleto."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Adjunto actualizado"
   },
   "file": {
     "message": "Archivo"
@@ -1507,7 +1507,7 @@
     "message": "Selecciona un archivo."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elementos transferidos"
   },
   "maxFileSize": {
     "message": "El tamaño máximo de archivo es de 500MB."
@@ -1540,7 +1540,7 @@
     "message": "1 GB de espacio cifrado en disco para adjuntos."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ de almacenamiento cifrado para archivos adjuntos.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1555,13 +1555,13 @@
     "message": "Opciones de inicio de sesión con autenticación de dos pasos propietarios como YubiKey y Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Tu suscripción Premium ha terminado"
   },
   "archivePremiumRestart": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Reiniciar Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de contraseña, salud de la cuenta e informes de violaciones de datos para mantener su caja fuerte segura."
@@ -1658,13 +1658,13 @@
     "message": "Leer clave de seguridad"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Leyendo clave de acceso..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Autenticación con Passkey fallida"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Utilizar otro método de inicio de sesión"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Esperando interacción de la clave de seguridad..."
@@ -1733,7 +1733,7 @@
     "message": "Debes añadir la dirección URL del servidor base o al menos un entorno personalizado."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Las URLs deben usar HTTPS."
   },
   "customEnvironment": {
     "message": "Entorno personalizado"
@@ -1789,7 +1789,7 @@
     "message": "Desactivar autocompletado"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Confirmar autocompletado"
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
@@ -2001,7 +2001,7 @@
     "message": "Código de seguridad"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "número de tarjeta"
   },
   "ex": {
     "message": "ej."
@@ -2055,7 +2055,7 @@
     "message": "Correo electrónico"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Correos electrónicos"
   },
   "phone": {
     "message": "Teléfono"
@@ -2109,79 +2109,79 @@
     "message": "Nota"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nuevo Inicio de Sesión",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nueva Tarjeta",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nueva Identidad",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nueva Nota",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nueva clave SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Nuevo Send de Texto",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Nuevo Send de Archivo",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Editar Inicio de Sesión",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Editar Tarjeta",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Editar Identidad",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Editar Nota",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Editar clave SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Editar Send de Texto",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Editar Send de Archivo",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Ver Inicio de Sesión",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Ver Tarjeta",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Ver Identidad",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Ver Nota",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Ver clave SSH",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -2486,7 +2486,7 @@
     "message": "Elemento eliminado de forma permanente"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Elemento archivado restaurado"
   },
   "restoreItem": {
     "message": "Restaurar elemento"
@@ -2782,7 +2782,7 @@
     "message": "Contraseñas de riesgo"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ te está pidiendo que cambies una contraseña porque está en riesgo.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2791,7 +2791,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ te está pidiendo que cambies las $COUNT$ contraseñas porque están en riesgo.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3712,7 +3712,7 @@
     "message": "Dispositivo"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Estado del inicio de sesión"
   },
   "masterPasswordChanged": {
     "message": "Contraseña maestra guardada"
@@ -3884,7 +3884,7 @@
     "message": "Login request has already expired."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Justo ahora"
   },
   "requestedXMinutesAgo": {
     "message": "Requested $MINUTES$ minutes ago",
@@ -4608,7 +4608,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opciones avanzadas",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4830,7 +4830,7 @@
     "message": "Consola de administrador"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Administrador"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4860,7 +4860,7 @@
     "message": "Turned on automatic confirmation"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Disponible ahora"
   },
   "accountSecurity": {
     "message": "Seguridad de la cuenta"
@@ -4869,7 +4869,7 @@
     "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Detección de phishing"
   },
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
@@ -4987,7 +4987,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Descargar Adjunto"
   },
   "downloadBitwarden": {
     "message": "Descargar Bitwarden"
@@ -5368,10 +5368,10 @@
     "message": "Ubicación del elemento"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Sends de Archivo"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Sends de Texto"
   },
   "accountActions": {
     "message": "Acciones de cuenta"
@@ -5431,7 +5431,7 @@
     "message": "El tiempo de espera mínimo personalizado es de 1 minuto."
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "Archivo guardado en el dispositivo. Administra desde las descargas de tu dispositivo."
   },
   "showCharacterCount": {
     "message": "Mostrar número de caracteres"
@@ -5722,10 +5722,10 @@
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Contraseña vulnerable."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Cambiar ahora"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -5782,27 +5782,27 @@
     "message": "Phishing attempt detected"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "El sitio que intentas visitar es un sitio malicioso conocido y un riesgo de seguridad."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Cerrar esta pestaña"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Continuar a este sitio (no recomendado)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Este sitio fue encontrado en ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", una lista de código abierto de sitios de phishing conocidos utilizados para robar información personal y sensible.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Más información sobre la detección de phishing"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Protegido por $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5811,19 +5811,19 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Autocompletar elementos para la página actual"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Guarda en favoritos elementos para un fácil acceso"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Busca en tu caja fuerte alguna otra cosa"
   },
   "newLoginNudgeTitle": {
     "message": "Ahorra tiempo con el autocompletado"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Incluir un",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5886,7 +5886,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Acerca de este ajuste"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -5899,13 +5899,13 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostrar más"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostrar menos"
   },
   "next": {
-    "message": "Next"
+    "message": "Siguiente"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -5918,83 +5918,83 @@
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Actualizar ahora"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Auntenticador integrado"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Almacenamiento de archivo seguro"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Acceso de emergencia"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Monitoreo de brechas"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "¡Y más!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Seguridad en línea avanzada"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Actualizar a Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Desbloquea características de seguridad avanzadas"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "Una suscripción Premium te ofrece más herramientas para mantenerte seguro y en control"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Explorar Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Cargando caja fuerte"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "Caja fuerte cargada"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Esta configuración está deshabilitada por la política de tu organización.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "ZIP / Código postal"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Número de tarjeta"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Continuar con el inicio de sesión"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "No continuar"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Dominio"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica tu organización para iniciar sesión"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organización verificada"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Dominio verificado"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Si no verificas tu organización, tu acceso a la organización será revocado."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Salir ahora"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -6009,7 +6009,7 @@
     "message": "Timeout action"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Esta configuración está administrada por tu organización."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -6047,25 +6047,25 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "Al reiniciar el navegador"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Actualizar"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "¿Estás seguro de que quieres salir?"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Contacta con tu administrador para recuperar el acceso."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Abandonar $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6077,7 +6077,7 @@
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Transferir elementos a $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6095,40 +6095,43 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Aceptar transferencia"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Rechazar y salir"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "¿Por qué veo esto?"
   },
   "items": {
-    "message": "Items"
+    "message": "Elementos"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Resultados de búsqueda"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Quien puede ver"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Personas específicas"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Introduce varios correos electrónicos separándolos con una coma."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailProtected": {
+    "message": "Email protected"
+  },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Los individuos tendrán que introducir la contraseña para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
