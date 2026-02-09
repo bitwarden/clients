@@ -8,7 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { AvatarModule, IconModule, ItemModule } from "@bitwarden/components";
+import { AvatarModule, IconModule, ItemModule, type BitwardenIcon } from "@bitwarden/components";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
@@ -60,7 +60,7 @@ export class AccountComponent {
     this.loading.emit(false);
   }
 
-  get status() {
+  get status(): { text: string; icon: BitwardenIcon } {
     if (this.account.isActive) {
       return { text: this.i18nService.t("active"), icon: "bwi-check-circle" };
     }
