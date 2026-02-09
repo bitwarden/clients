@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { Response } from "../../models/response";
 
@@ -55,7 +56,7 @@ describe("ConfirmCommand", () => {
     keyService.orgKeys$ = jest.fn().mockReturnValue(of({ [organizationId]: mockOrgKey }));
     i18nService.t.mockReturnValue("My Items");
     encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
-    encryptService.encapsulateKeyUnsigned.mockResolvedValue({ encryptedString: "key" } as any);
+    encryptService.encapsulateKeyUnsigned.mockResolvedValue("key" as UnsignedSharedKey);
     apiService.getUserPublicKey.mockResolvedValue({ publicKey: mockPublicKey } as any);
     organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue();
   });
