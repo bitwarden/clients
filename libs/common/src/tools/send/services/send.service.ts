@@ -9,7 +9,6 @@ import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeyGenerationService } from "../../../key-management/crypto";
-import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -54,7 +53,6 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
     private configService: ConfigService,
   ) {}
 
@@ -91,13 +89,13 @@ export class SendService implements InternalSendServiceAbstraction {
     const hasEmails = (model.emails?.length ?? 0) > 0;
 
     if (sendEmailOTPEnabled && hasEmails) {
-      const plaintextEmails = model.emails.join(",");
-      send.emails = await this.encryptService.encryptString(plaintextEmails, model.cryptoKey);
-      send.emailHashes = await this.hashEmails(plaintextEmails);
+      send.emails = model.emails
+        .map((e) => e.trim())
+        .join(",")
+        .toLocaleLowerCase();
       send.password = null;
     } else {
       send.emails = null;
-      send.emailHashes = "";
 
       if (password != null) {
         // Note: Despite being called key, the passwordKey is not used for encryption.
@@ -392,20 +390,5 @@ export class SendService implements InternalSendServiceAbstraction {
 
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));
     return decryptedSends;
-  }
-
-  private async hashEmails(emails: string): Promise<string> {
-    if (!emails) {
-      return "";
-    }
-
-    const emailArray = emails.split(",").map((e) => e.trim().toLowerCase());
-    const hashPromises = emailArray.map(async (email) => {
-      const hash: Uint8Array = await this.cryptoFunctionService.hash(email, "sha256");
-      return Utils.fromBufferToHex(hash).toUpperCase();
-    });
-
-    const hashes = await Promise.all(hashPromises);
-    return hashes.join(",");
   }
 }
