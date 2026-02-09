@@ -15,7 +15,7 @@
     "message": "Nessuna applicazione critica a rischio"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Rilevanza critica ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +24,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Rilevanza standard ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Intelligence sugli accessi"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Rischio password"
@@ -269,7 +275,7 @@
     "message": "Applicazione"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Applicazioni"
   },
   "atRiskPasswords": {
     "message": "Password a rischio"
@@ -608,7 +614,7 @@
     "message": "Email"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Indirizzi email"
   },
   "phone": {
     "message": "Telefono"
@@ -1241,6 +1247,9 @@
   "selectAll": {
     "message": "Seleziona tutto"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Deseleziona tutto"
   },
@@ -1390,10 +1399,10 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Chiunque abbia il link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Chiunque abbia una password impostata da te"
   },
   "location": {
     "message": "Luogo"
@@ -3312,7 +3321,7 @@
     "message": "Prossimo addebito"
   },
   "nextChargeDate": {
-    "message": "Next charge date"
+    "message": "Data del prossimo addebito"
   },
   "plan": {
     "message": "Piano"
@@ -3801,6 +3810,9 @@
   },
   "editCollection": {
     "message": "Modifica raccolta"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "Informazioni raccolta"
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Testo"
   },
-  "sendPasswordDescV3": {
-    "message": "Richiedi ai destinatari una parola d'accesso opzionale per aprire questo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nuovo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copia e condividi questo link di invio. Sarà disponibile a chiunque ne sia a disposizione la prossima $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6959,16 +6987,16 @@
     "message": "Una o più politiche dell'organizzazione ti impediscono di esportare la tua cassaforte personale."
   },
   "activateAutofillPolicy": {
-    "message": "Activate autofill"
+    "message": "Attiva riempimento automatico"
   },
   "activateAutofillPolicyDescription": {
     "message": "Attiva il completamento automatico sulla pagina di caricamento delle impostazioni dell'estensione browser per tutti i membri nuovi ed esistenti."
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "Siti compromessi o inaffidabili possono sfruttare il riempimento automatico al caricamento della pagina."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "Ulteriori informazioni sul riempimento automatico"
   },
   "selectType": {
     "message": "Seleziona tipo di SSO"
@@ -10466,10 +10494,13 @@
     "message": "Invia i dati dell'evento della cassaforte all'istanza di Datadog"
   },
   "huntressEventIntegrationDesc": {
-    "message": "Send event data to your Huntress SIEM instance"
+    "message": "Invia i dati dell'evento all'istanza di Huntress SIEM"
   },
   "failedToSaveIntegration": {
     "message": "Impossibile salvare l'integrazione. Riprova più tardi."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Devi essere il proprietario dell'organizzazione per eseguire questa azione."
@@ -12153,7 +12184,7 @@
     "message": "Impossibile sbloccare con passkey. Riprova o utilizza un altro metodo."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Non sono disponibili chiavi PRF abilitate per lo sblocco."
   },
   "additionalStorageGB": {
     "message": "Spazio di archiviazione aggiuntivo (GB)"
@@ -12722,22 +12753,31 @@
     "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Chi può visualizzare"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Persone specifiche"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Inserisci più indirizzi email separandoli con virgole."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Sei un utente Premium"
@@ -12746,6 +12786,13 @@
     "message": "Email protetta"
   },
   "invalidSendPassword": {
-    "message": "Invalid Send password"
+    "message": "Password del Send non valida"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }
