@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -13,7 +12,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
@@ -39,13 +37,10 @@ export class ChangeEmailComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private apiService: ApiService,
     private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
-    private keyService: KeyService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
-    private kdfConfigService: KdfConfigService,
     private toastService: ToastService,
     private changeEmailService: ChangeEmailService,
   ) {}
