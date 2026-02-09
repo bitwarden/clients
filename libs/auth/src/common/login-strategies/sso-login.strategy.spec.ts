@@ -196,13 +196,14 @@ describe("SsoLoginStrategy", () => {
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.key = null;
     tokenResponse.privateKey = null;
+    tokenResponse.accountKeysResponseModel = null;
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
     await ssoLoginStrategy.logIn(credentials);
 
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("sets master key encrypted user key for existing SSO users", async () => {

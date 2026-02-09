@@ -1,4 +1,5 @@
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -33,6 +34,7 @@ export class ElectronKeyService extends DefaultKeyService {
     private biometricStateService: BiometricStateService,
     kdfConfigService: KdfConfigService,
     private biometricService: DesktopBiometricsService,
+    accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
       masterPasswordService,
@@ -45,6 +47,7 @@ export class ElectronKeyService extends DefaultKeyService {
       accountService,
       stateProvider,
       kdfConfigService,
+      accountCryptographicStateService,
     );
   }
 

@@ -14,6 +14,7 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -251,29 +252,15 @@ export class DefaultSyncService extends CoreSyncService {
         response.accountKeys.toWrappedAccountCryptographicState(),
         response.id,
       );
-
-      // V1 and V2 users
-      await this.keyService.setPrivateKey(
-        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+    } else {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: response.privateKey as SdkEncString,
+          },
+        },
         response.id,
       );
-      // V2 users only
-      if (response.accountKeys.isV2Encryption()) {
-        await this.keyService.setUserSigningKey(
-          response.accountKeys.signatureKeyPair.wrappedSigningKey,
-          response.id,
-        );
-        await this.securityStateService.setAccountSecurityState(
-          response.accountKeys.securityState.securityState,
-          response.id,
-        );
-        await this.keyService.setSignedPublicKey(
-          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
-          response.id,
-        );
-      }
-    } else {
-      await this.keyService.setPrivateKey(response.privateKey, response.id);
     }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(

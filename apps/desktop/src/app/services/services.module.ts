@@ -357,6 +357,7 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       KdfConfigService,
       DesktopBiometricsService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({

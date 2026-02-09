@@ -90,6 +90,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -314,6 +315,7 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
+      accountCryptographicStateService: AccountCryptographicStateService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -326,6 +328,7 @@ const safeProviders: SafeProvider[] = [
         accountService,
         stateProvider,
         kdfConfigService,
+        accountCryptographicStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -341,6 +344,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({

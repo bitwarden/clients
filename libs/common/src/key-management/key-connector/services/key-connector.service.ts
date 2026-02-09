@@ -38,7 +38,6 @@ import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
-import { SignedPublicKey, SignedSecurityState, WrappedSigningKey } from "../../types";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
@@ -246,22 +245,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       result.account_cryptographic_state,
       userId,
     );
-    // Legacy states
-    await this.keyService.setPrivateKey(result.account_cryptographic_state.V2.private_key, userId);
-    await this.keyService.setUserSigningKey(
-      result.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
-      userId,
-    );
-    await this.securityStateService.setAccountSecurityState(
-      result.account_cryptographic_state.V2.security_state as SignedSecurityState,
-      userId,
-    );
-    if (result.account_cryptographic_state.V2.signed_public_key != null) {
-      await this.keyService.setSignedPublicKey(
-        result.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
-        userId,
-      );
-    }
   }
 
   async convertNewSsoUserToKeyConnectorV1(

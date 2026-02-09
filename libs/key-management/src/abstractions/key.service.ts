@@ -69,20 +69,6 @@ export abstract class KeyService {
    */
   abstract setUserKey(key: UserKey, userId: UserId): Promise<void>;
   /**
-   * Sets the provided user keys and stores any other necessary versions
-   * (such as auto, biometrics, or pin).
-   * Also sets the user's encrypted private key in storage and
-   * clears the decrypted private key from memory
-   * Note: does not clear the private key if null is provided
-   *
-   * @throws Error when userKey, encPrivateKey or userId is null
-   * @throws UserPrivateKeyDecryptionFailedError when the userKey cannot decrypt encPrivateKey
-   * @param userKey The user key to set
-   * @param encPrivateKey An encrypted private key
-   * @param userId The desired user
-   */
-  abstract setUserKeys(userKey: UserKey, encPrivateKey: string, userId: UserId): Promise<void>;
-  /**
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
@@ -258,21 +244,6 @@ export abstract class KeyService {
    * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
   abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
-  /**
-   * Sets the user's encrypted private key in storage and
-   * clears the decrypted private key from memory
-   * Note: does not clear the private key if null is provided
-   * @param encPrivateKey An encrypted private key
-   */
-  abstract setPrivateKey(encPrivateKey: string, userId: UserId): Promise<void>;
-  /**
-   * Sets the user's encrypted signing key in storage
-   * In contrast to the private key, the decrypted signing key
-   * is not stored in memory outside of the SDK.
-   * @param encryptedSigningKey An encrypted signing key
-   * @param userId The user id of the user to set the signing key for
-   */
-  abstract setUserSigningKey(encryptedSigningKey: WrappedSigningKey, userId: UserId): Promise<void>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user
@@ -424,8 +395,6 @@ export abstract class KeyService {
    * @param userId The user id for the key
    */
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
-
-  abstract setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void>;
 
   abstract userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null>;
 }

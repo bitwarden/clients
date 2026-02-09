@@ -180,7 +180,10 @@ describe("AuthRequestLoginStrategy", () => {
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, mockUserId);
     expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, mockUserId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      mockUserId,
+    );
   });
 
   it("sets keys after a successful authentication when only userKey provided in login credentials", async () => {
@@ -207,7 +210,10 @@ describe("AuthRequestLoginStrategy", () => {
       mockUserId,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(decUserKey, mockUserId);
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, mockUserId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      mockUserId,
+    );
 
     // trustDeviceIfRequired should be called
     expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();

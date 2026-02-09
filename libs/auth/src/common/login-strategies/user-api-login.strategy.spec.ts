@@ -188,7 +188,10 @@ describe("UserApiLoginStrategy", () => {
       tokenResponse.key,
       userId,
     );
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      userId,
+    );
   });
 
   it("gets and sets the master key if Key Connector is enabled", async () => {
