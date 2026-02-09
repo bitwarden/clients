@@ -53,6 +53,7 @@ class MockCartSummaryComponent {
   readonly cart = input.required<any>();
   readonly header = input<any>();
   readonly isExpanded = signal(false);
+  readonly hidePricingTerm = input<boolean>(false);
 }
 
 @Component({
