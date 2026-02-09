@@ -445,8 +445,8 @@ export const HiddenPricingTerm: Story = {
         },
       },
       cadence: "monthly",
-      hidePricingTerm: true,
       estimatedTax: 9.6,
     } satisfies Cart,
+    hidePricingTerm: true,
   },
 };

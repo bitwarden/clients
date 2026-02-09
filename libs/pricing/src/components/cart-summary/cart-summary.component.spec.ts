@@ -259,9 +259,9 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithHiddenTerm: Cart = {
         ...mockCart,
-        hidePricingTerm: true,
       };
       fixture.componentRef.setInput("cart", cartWithHiddenTerm);
+      fixture.componentRef.setInput("hidePricingTerm", true);
       fixture.detectChanges();
 
       // Act
@@ -277,7 +277,6 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithVisibleTerm: Cart = {
         ...mockCart,
-        hidePricingTerm: false,
       };
       fixture.componentRef.setInput("cart", cartWithVisibleTerm);
       fixture.detectChanges();
