@@ -116,6 +116,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("opens welcome extension dialog when conditions are met", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(true));
       // Extension not installed
       extensionInstalled$.next(false);
       // Dialog not dismissed
@@ -126,6 +127,20 @@ describe("WebVaultPromptService", () => {
       await service.conditionallyPromptUser();
 
       expect(openSpy).toHaveBeenCalledWith(expect.anything());
+    });
+
+    it("does not open welcome extension dialog when feature flag is disabled", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(false));
+      // Extension not installed
+      extensionInstalled$.next(false);
+      // Dialog not dismissed
+      mockStateSubject.next(false);
+
+      const openSpy = jest.spyOn(WebWelcomeExtensionPromptDialogComponent, "open");
+
+      await service.conditionallyPromptUser();
+
+      expect(openSpy).not.toHaveBeenCalled();
     });
 
     it("does not open welcome extension dialog when extension is installed", async () => {
@@ -157,7 +172,7 @@ describe("WebVaultPromptService", () => {
 
   describe("setupAutoConfirm", () => {
     it("shows dialog when all conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
+      getFeatureFlag$.mockReturnValue(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
@@ -304,7 +319,18 @@ describe("WebVaultPromptService", () => {
   });
 
   describe("showWelcomeExtensionDialog", () => {
+    it("returns false when feature flag is disabled", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(false));
+      extensionInstalled$.next(false);
+      mockStateSubject.next(false);
+
+      const result = await service["showWelcomeExtensionDialog"](mockUserId);
+
+      expect(result).toBe(false);
+    });
+
     it("returns true when all conditions are met", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(true));
       extensionInstalled$.next(false);
       mockStateSubject.next(false);
 
@@ -314,6 +340,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("returns false when extension is installed", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(true));
       extensionInstalled$.next(true);
       mockStateSubject.next(false);
 
@@ -323,6 +350,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("returns false when dialog has been dismissed", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(true));
       extensionInstalled$.next(false);
       mockStateSubject.next(true);
 
@@ -332,6 +360,7 @@ describe("WebVaultPromptService", () => {
     });
 
     it("returns false when account is older than 30 days", async () => {
+      getFeatureFlag$.mockReturnValueOnce(of(true));
       extensionInstalled$.next(false);
       mockStateSubject.next(false);
       const oldAccountDate = new Date("2025-12-01");

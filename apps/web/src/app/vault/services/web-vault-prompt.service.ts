@@ -126,6 +126,16 @@ export class WebVaultPromptService {
   }
 
   private async showWelcomeExtensionDialog(userId: UserId) {
+    const featureFlagEnabled = await firstValueFrom(
+      await this.configService.getFeatureFlag$(
+        FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
+      ),
+    );
+
+    if (!featureFlagEnabled) {
+      return false;
+    }
+
     // Extension check takes time, trigger it early
     const hasExtensionInstalled = firstValueFrom(
       this.webBrowserInteractionService.extensionInstalled$,
