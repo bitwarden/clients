@@ -44,6 +44,7 @@ export class DeleteAccountComponent {
   private accountApiService = inject(AccountApiService);
   private toastService = inject(ToastService);
   private configService = inject(ConfigService);
+  private dialogRef = inject(DialogRef);
 
   deleteForm = this.formBuilder.group({
     verification: undefined as VerificationWithSecret | undefined,
@@ -91,6 +92,7 @@ export class DeleteAccountComponent {
         title: this.i18nService.t("accountDeleted"),
         message: this.i18nService.t("accountDeletedDesc"),
       });
+      this.dialogRef.close();
     } catch {
       this.invalidSecret.set(true);
       this.toastService.showToast({

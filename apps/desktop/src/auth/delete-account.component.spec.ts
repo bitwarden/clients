@@ -8,7 +8,7 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogRef, ToastService } from "@bitwarden/components";
 
 import { DeleteAccountComponent } from "./delete-account.component";
 
@@ -20,6 +20,7 @@ describe("DeleteAccountComponent", () => {
   let accountApiService: MockProxy<AccountApiService>;
   let toastService: MockProxy<ToastService>;
   let configService: MockProxy<ConfigService>;
+  let dialogRef: MockProxy<DialogRef>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -29,6 +30,7 @@ describe("DeleteAccountComponent", () => {
     accountApiService = mock<AccountApiService>();
     toastService = mock<ToastService>();
     configService = mock<ConfigService>();
+    dialogRef = mock<DialogRef>();
 
     i18nService.t.mockImplementation((key: any) => key);
 
@@ -41,6 +43,7 @@ describe("DeleteAccountComponent", () => {
         { provide: AccountApiService, useValue: accountApiService },
         { provide: ToastService, useValue: toastService },
         { provide: ConfigService, useValue: configService },
+        { provide: DialogRef, useValue: dialogRef },
       ],
     }).compileComponents();
   });
@@ -73,6 +76,7 @@ describe("DeleteAccountComponent", () => {
           message: "accountDeletedDesc",
         });
         expect(component["invalidSecret"]()).toBe(false);
+        expect(dialogRef.close).toHaveBeenCalled();
       });
 
       it("should set invalidSecret to true and show error toast when deletion fails", async () => {
@@ -87,6 +91,7 @@ describe("DeleteAccountComponent", () => {
           message: "userVerificationFailed",
         });
         expect(component["invalidSecret"]()).toBe(true);
+        expect(dialogRef.close).not.toHaveBeenCalled();
       });
 
       it("should reset invalidSecret to false before attempting deletion", async () => {
@@ -120,6 +125,7 @@ describe("DeleteAccountComponent", () => {
           title: "accountDeleted",
           message: "accountDeletedDesc",
         });
+        expect(dialogRef.close).not.toHaveBeenCalled();
       });
 
       it("should not set invalidSecret when deletion fails", async () => {
