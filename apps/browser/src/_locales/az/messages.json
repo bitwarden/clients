@@ -6104,10 +6104,10 @@
     "message": "Bunu niyə görürəm?"
   },
   "items": {
-    "message": "Items"
+    "message": "Elementlər"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Axtarış nəticələri"
   },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
@@ -6127,8 +6127,11 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailProtected": {
+    "message": "E-poçt qorunur"
+  },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

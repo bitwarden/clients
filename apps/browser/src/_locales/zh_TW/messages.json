@@ -1123,13 +1123,13 @@
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
   "showCardsInVaultViewV2": {
-    "message": "一律在密碼庫介面中顯示支付卡自動填入建議"
+    "message": "一律在密碼庫介面中顯示付款卡自動填入建議"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示卡片"
   },
   "showCardsCurrentTabDesc": {
-    "message": "於分頁頁面顯示信用卡以便於自動填入。"
+    "message": "於分頁頁面顯示付款卡以便於自動填入。"
   },
   "showIdentitiesInVaultViewV2": {
     "message": "一律在密碼庫介面中顯示身分自動填入建議"
@@ -2097,7 +2097,7 @@
     "message": "安全筆記"
   },
   "typeCard": {
-    "message": "支付卡"
+    "message": "付款卡"
   },
   "typeIdentity": {
     "message": "身分"
@@ -2113,7 +2113,7 @@
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "新增支付卡",
+    "message": "新增付款卡",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
@@ -2141,7 +2141,7 @@
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "編輯支付卡",
+    "message": "編輯付款卡",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
@@ -2169,7 +2169,7 @@
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "檢視支付卡",
+    "message": "檢視付款卡",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
@@ -2370,10 +2370,10 @@
     "message": "主密碼強度不足"
   },
   "weakMasterPasswordDesc": {
-    "message": "您設定的主密碼很脆弱。您應該使用高強度的密碼（或密碼短語）來正確保護您的 bitwarden 帳戶。仍要使用這組主密碼嗎？"
+    "message": "您選擇的主密碼強度過弱。請使用高強度的主密碼（或密碼短語），以妥善保護您的 Bitwarden 帳戶。您確定要使用此主密碼嗎？"
   },
   "pin": {
-    "message": "PIN",
+    "message": "PIN 碼",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "unlockWithPin": {
@@ -2386,40 +2386,40 @@
     "message": "設定 PIN 碼"
   },
   "setYourPinCode": {
-    "message": "設定您用來解鎖 Bitwarden 的 PIN 碼。您的 PIN 設定將在您完全登出本應用程式時被重設。"
+    "message": "設定用於解鎖 Bitwarden 的 PIN 碼。若您完全登出應用程式，PIN 碼設定將會重設。"
   },
   "setPinCode": {
     "message": "你可以使用此 PIN 來解鎖 Bitwarden。若你完全登出應用程式，PIN 將會被重設。"
   },
   "pinRequired": {
-    "message": "必須填入 PIN 碼。"
+    "message": "必須輸入 PIN 碼。"
   },
   "invalidPin": {
-    "message": "無效的 PIN 碼。"
+    "message": "PIN 碼無效。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
     "message": "輸入太多無效 PIN 碼。 登出。"
   },
   "unlockWithBiometrics": {
-    "message": "使用生物特徵辨識解鎖"
+    "message": "使用生物辨識解鎖"
   },
   "unlockWithMasterPassword": {
     "message": "使用主密碼解鎖"
   },
   "awaitDesktop": {
-    "message": "等待來自桌面應用程式的確認"
+    "message": "正在等待桌面應用程式確認"
   },
   "awaitDesktopDesc": {
-    "message": "請確認在 Bitwarden 桌面應用程式中使用了生物特徵辨識，以啟用瀏覽器的生物特徵辨識功能。"
+    "message": "請在 Bitwarden 桌面應用程式中使用生物辨識進行確認，以設定瀏覽器的生物辨識功能。"
   },
   "lockWithMasterPassOnRestart": {
-    "message": "瀏覽器重啟後使用主密碼鎖定"
+    "message": "瀏覽器重新啟動時使用主密碼鎖定"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "瀏覽器重啟後使用主密碼鎖定"
   },
   "selectOneCollection": {
-    "message": "您必須至少選擇一個集合。"
+    "message": "必須選取至少一個集合。"
   },
   "cloneItem": {
     "message": "複製項目"
@@ -2498,7 +2498,7 @@
     "message": "已經有帳號了嗎？"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "選擇登出將會在密碼庫逾時後移除對密碼庫的所有存取權限，若要重新驗證則需連線網路。確定要使用此設定嗎？"
+    "message": "登出後將移除對密碼庫的所有存取權限，並在逾時後需要進行線上驗證。您確定要使用此設定嗎？"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "逾時動作確認"
@@ -2516,7 +2516,7 @@
     "message": "項目已自動填入 "
   },
   "insecurePageWarning": {
-    "message": "警告：這是不安全的 HTTP 頁面，任何您送出的資訊均可能被其他人看見和更改。此登入資訊原先是在安全的 (HTTPS) 頁面儲存的。"
+    "message": "警告：此為不安全的 HTTP 頁面，您送出的任何資訊都可能被他人查看並修改。此登入資料原本儲存在安全的（HTTPS）頁面上。"
   },
   "insecurePageWarningFillPrompt": {
     "message": "您仍要填入此登入資訊嗎？"
@@ -2543,13 +2543,13 @@
     "message": "目前的主密碼"
   },
   "newMasterPass": {
-    "message": "新的主密碼"
+    "message": "新主密碼"
   },
   "confirmNewMasterPass": {
-    "message": "確認新的主密碼"
+    "message": "確認新主密碼"
   },
   "masterPasswordPolicyInEffect": {
-    "message": "一個或多個組織原則要求您的主密碼須符合下列條件："
+    "message": "一或多個組織的政策要求您的主密碼必須符合以下條件："
   },
   "policyInEffectMinComplexity": {
     "message": "最小複雜度為 $SCORE$",
@@ -2561,7 +2561,7 @@
     }
   },
   "policyInEffectMinLength": {
-    "message": "最小長度為 $LENGTH$",
+    "message": "最短長度為 $LENGTH$",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2588,7 +2588,7 @@
     }
   },
   "masterPasswordPolicyRequirementsNotMet": {
-    "message": "您新的主密碼不符合原則要求。"
+    "message": "您的新主密碼未符合政策要求。"
   },
   "receiveMarketingEmailsV2": {
     "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
@@ -2606,10 +2606,10 @@
     "message": "和"
   },
   "acceptPolicies": {
-    "message": "選中此選取框，即表示您同意下列條款："
+    "message": "勾選此核取方塊即表示您同意以下內容："
   },
   "acceptPoliciesRequired": {
-    "message": "尚未接受服務條款與隱私權政策。"
+    "message": "尚未同意服務條款與隱私權政策。"
   },
   "termsOfService": {
     "message": "服務條款"
@@ -2621,7 +2621,7 @@
     "message": "你的新密碼不能與目前的密碼相同。"
   },
   "hintEqualsPassword": {
-    "message": "密碼提示不能與您的密碼相同。"
+    "message": "密碼提示不可與密碼相同。"
   },
   "ok": {
     "message": "確定"
@@ -2633,22 +2633,22 @@
     "message": "未找到存取權杖或 API 密鑰。請重試登出再登入。"
   },
   "desktopSyncVerificationTitle": {
-    "message": "桌面同步驗證"
+    "message": "桌面應用程式同步驗證"
   },
   "desktopIntegrationVerificationText": {
-    "message": "請驗證桌面應用程式顯示的指紋為： "
+    "message": "請確認桌面應用程式顯示以下指紋："
   },
   "desktopIntegrationDisabledTitle": {
-    "message": "瀏覽器整合未設定"
+    "message": "瀏覽器整合尚未設定"
   },
   "desktopIntegrationDisabledDesc": {
-    "message": "瀏覽器整合在桌面應用程式中未設定，請在桌面應用程式的設定中設定它。"
+    "message": "Bitwarden 桌面應用程式尚未設定瀏覽器整合。請在桌面應用程式的設定中完成設定。"
   },
   "startDesktopTitle": {
     "message": "啟動 Bitwarden 桌面應用程式"
   },
   "startDesktopDesc": {
-    "message": "Bitwarden 桌面應用程式需要在啟動狀態才能使用生物特徵辨識解鎖功能。"
+    "message": "在使用生物辨識解鎖前，必須先啟動 Bitwarden 桌面應用程式。"
   },
   "errorEnableBiometricTitle": {
     "message": "無法啟用生物特徵辨識"
@@ -2663,7 +2663,7 @@
     "message": "桌面通訊已中斷"
   },
   "nativeMessagingWrongUserDesc": {
-    "message": "桌面應用程式登入了不同的帳戶。請確保兩個應用程式登入的是同一個帳戶。"
+    "message": "桌面應用程式目前登入的是不同的帳戶。請確認兩個應用程式皆登入相同的帳戶。"
   },
   "nativeMessagingWrongUserTitle": {
     "message": "帳戶不相符"
@@ -2675,16 +2675,16 @@
     "message": "生物辨識解鎖失敗。生物辨識金鑰解鎖密碼庫失敗。請嘗試重新設定生物辨識。"
   },
   "biometricsNotEnabledTitle": {
-    "message": "生物特徵辨識未設定"
+    "message": "尚未設定生物辨識"
   },
   "biometricsNotEnabledDesc": {
-    "message": "需先在桌面應用程式設定中設定生物特徵辨識，才能使用瀏覽器的生物特徵辨識功能。"
+    "message": "瀏覽器生物辨識功能需要先在設定中完成桌面應用程式的生物辨識設定。"
   },
   "biometricsNotSupportedTitle": {
-    "message": "不支援生物特徵辨識"
+    "message": "不支援生物辨識"
   },
   "biometricsNotSupportedDesc": {
-    "message": "此裝置不支援瀏覽器生物特徵辨識。"
+    "message": "此裝置不支援瀏覽器生物辨識。"
   },
   "biometricsNotUnlockedTitle": {
     "message": "使用者已鎖定或登出"
@@ -2708,19 +2708,19 @@
     "message": "未提供權限"
   },
   "nativeMessaginPermissionErrorDesc": {
-    "message": "沒有與 Bitwarden 桌面應用程式通訊的權限，我們無法在瀏覽器擴充套件中提供生物特徵辨識功能。請再試一次。"
+    "message": "若未取得與 Bitwarden 桌面應用程式通訊的權限，無法在瀏覽器擴充套件中提供生物辨識。請再試一次。"
   },
   "nativeMessaginPermissionSidebarTitle": {
     "message": "權限要求錯誤"
   },
   "nativeMessaginPermissionSidebarDesc": {
-    "message": "此動作無法在側邊欄中完成，請在彈出式視窗中再試一次。"
+    "message": "此動作無法在側邊欄中執行，請在快顯視窗或彈出視窗中重試此動作。"
   },
   "personalOwnershipSubmitError": {
-    "message": "由於某個企業原則，您被限制為儲存項目到您的個人密碼庫。將擁有權變更為組織，並從可用的集合中選擇。"
+    "message": "由於企業政策限制，您無法將項目儲存至個人密碼庫。請將「所有權」選項變更為組織，並從可用的集合中選擇。"
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "組織原則正在影響您的擁有權選項。"
+    "message": "組織政策正在影響您的所有權選項。"
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "某個組織原則已禁止您將項目匯入至您的個人密碼庫。"
@@ -2729,7 +2729,7 @@
     "message": "無法匯入卡片項目類別"
   },
   "restrictCardTypeImportDesc": {
-    "message": "由於一或多個組織設有政策，您無法匯入支付卡至您的密碼庫。"
+    "message": "由於一或多個組織設有政策，您無法匯入付款卡至您的密碼庫。"
   },
   "domainsTitle": {
     "message": "網域",
@@ -2745,7 +2745,7 @@
     "message": "排除網域"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden 不會要求儲存這些網域的詳細登入資訊。必須重新整理頁面才能使變更生效。"
+    "message": "Bitwarden 不會在這些網域要求儲存登入資料。您必須重新整理頁面，變更才會生效。"
   },
   "excludedDomainsDescAlt": {
     "message": "對於所有已登入的帳戶，Bitwarden 不會詢問是否儲存這些網域的登入資訊。您必須重新整理頁面變更才會生效。"
@@ -2899,7 +2899,7 @@
     }
   },
   "excludedDomainsInvalidDomain": {
-    "message": "$DOMAIN$ 不是一個有效的網域",
+    "message": "$DOMAIN$ 不是有效的網域",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -2978,7 +2978,7 @@
     "message": "刪除"
   },
   "removedPassword": {
-    "message": "已移除密碼"
+    "message": "密碼已移除"
   },
   "deletedSend": {
     "message": "Send 已刪除",
@@ -3018,7 +3018,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
-    "message": "逾期日期"
+    "message": "到期日期"
   },
   "oneDay": {
     "message": "1 天"
@@ -3047,7 +3047,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "由於企業原則限制，您只能刪除現有的 Send。",
+    "message": "由於企業政策限制，您只能刪除現有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
@@ -3098,19 +3098,19 @@
     "message": "彈出"
   },
   "expirationDateIsInvalid": {
-    "message": "指定的逾期日期無效。"
+    "message": "指定的到期日期無效。"
   },
   "deletionDateIsInvalid": {
     "message": "指定的刪除日期無效。"
   },
   "expirationDateAndTimeRequired": {
-    "message": "要求指定逾期日期和時間。"
+    "message": "需要指定到期日期和時間。"
   },
   "deletionDateAndTimeRequired": {
-    "message": "要求指定刪除日期和時間。"
+    "message": "需要指定刪除日期和時間。"
   },
   "dateParsingError": {
-    "message": "儲存刪除日期和逾期日期時發生錯誤。"
+    "message": "儲存刪除日期和到期日期時發生錯誤。"
   },
   "hideYourEmail": {
     "message": "對查看者隱藏您的電子郵件地址。"
@@ -3122,28 +3122,28 @@
     "message": "確認主密碼"
   },
   "passwordConfirmationDesc": {
-    "message": "此動作受到保護。若要繼續，請重新輸入您的主密碼以驗證您的身份。"
+    "message": "此動作受保護。請重新輸入主密碼以驗證您的身分，才能繼續。"
   },
   "emailVerificationRequired": {
-    "message": "需要驗證電子郵件"
+    "message": "需要電子郵件驗證"
   },
   "emailVerifiedV2": {
     "message": "電子郵件已驗證"
   },
   "emailVerificationRequiredDesc": {
-    "message": "您必須驗證您的電子郵件才能使用此功能。您可以在網頁密碼庫裡驗證您的電子郵件。"
+    "message": "必須驗證電子郵件才能使用此功能。您可以在網頁版密碼庫中驗證電子郵件。"
   },
   "masterPasswordSuccessfullySet": {
     "message": "主密碼設定成功"
   },
   "updatedMasterPassword": {
-    "message": "已更新主密碼"
+    "message": "主密碼已更新"
   },
   "updateMasterPassword": {
     "message": "更新主密碼"
   },
   "updateMasterPasswordWarning": {
-    "message": "您的主密碼最近被您的組織管理者變更過。若要存取密碼庫，您必須立即更新主密碼。繼續操作會登出目前的登入階段，並要求您重新登入。其他裝置上的活動登入階段最多會保持一個小時。"
+    "message": "您的主密碼近期已由所屬組織的管理員變更。若要存取密碼庫，您必須立即更新主密碼。繼續操作將會登出目前的工作階段，並需要您重新登入。其他裝置上的使用中工作階段可能仍會維持最長可達一小時。"
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
@@ -3152,10 +3152,10 @@
     "message": "您的組織停用了信任裝置加密。若要存取您的密碼庫，請設定主密碼。"
   },
   "resetPasswordPolicyAutoEnroll": {
-    "message": "自動註冊"
+    "message": "自動加入"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此組織有一個可以為您自動註冊密碼重設的企業原則。註冊後將允許組織管理員變更您的主密碼。"
+    "message": "此組織有一項企業政策，會自動將您加入密碼重設。加入後，組織管理員將能變更您的主密碼。"
   },
   "selectFolder": {
     "message": "選擇資料夾⋯"
@@ -5964,7 +5964,7 @@
     "message": "郵編 / 郵政代碼"
   },
   "cardNumberLabel": {
-    "message": "支付卡號碼"
+    "message": "付款卡號碼"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
@@ -6104,10 +6104,10 @@
     "message": "為什麼我會看到此訊息？"
   },
   "items": {
-    "message": "Items"
+    "message": "項目"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "搜尋結果"
   },
   "resizeSideNavigation": {
     "message": "調整側邊欄大小"
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "電子郵件已受保護"
   },
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",

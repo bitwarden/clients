@@ -6104,10 +6104,10 @@
     "message": "为什么我会看到这个？"
   },
   "items": {
-    "message": "Items"
+    "message": "项目"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "搜索结果"
   },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
+  },
+  "emailProtected": {
+    "message": "电子邮件受保护"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",

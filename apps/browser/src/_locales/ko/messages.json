@@ -29,13 +29,13 @@
     "message": "패스키를 사용하여 로그인하기"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "패스키로 잠금 해제"
   },
   "useSingleSignOn": {
     "message": "통합인증(SSO) 사용하기"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "귀하의 조직은 단일 로그인(SSO)이 필요합니다."
   },
   "welcomeBack": {
     "message": "돌아온 것을 환영합니다."
@@ -90,7 +90,7 @@
     "message": "마스터 비밀번호 힌트 (선택)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "비밀번호 강도 점수 $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -440,7 +440,7 @@
     "message": "동기화"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "지금 동기화"
   },
   "lastSync": {
     "message": "마지막 동기화:"
@@ -577,7 +577,7 @@
     "message": "항목이 보관함으로 이동되었습니다"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "항목이 보관 해제되었습니다"
   },
   "itemUnarchived": {
     "message": "항목 보관 해제됨"
@@ -586,19 +586,19 @@
     "message": "항목 보관"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "보관하면 이 항목은 검색 결과 및 자동 완성 제안에서 제외됩니다."
   },
   "archived": {
-    "message": "Archived"
+    "message": "보관됨"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "보관 해제하고 저장"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "보관 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "항목이 복원되었습니다."
   },
   "edit": {
     "message": "편집"
@@ -607,13 +607,13 @@
     "message": "보기"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "모두 보기"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "모두 보기"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "접기"
   },
   "viewLogin": {
     "message": "로그인 보기"
@@ -724,10 +724,10 @@
     "message": "신원을 인증하세요"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "이 기기를 인식할 수 없습니다. 신원을 확인하려면 이메일로 전송된 코드를 입력하세요."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "로그인 계속하기"
   },
   "yourVaultIsLocked": {
     "message": "보관함이 잠겨 있습니다. 마스터 비밀번호를 입력하여 계속하세요."
@@ -761,7 +761,7 @@
     "message": "잘못된 마스터 비밀번호"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "마스터 비밀번호가 올바르지 않습니다. 이메일 주소가 정확한지, 그리고 계정이 $HOST$에서 생성되었는지 확인하세요.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -818,10 +818,10 @@
     "message": "시스템 잠금 시"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "시스템이 유휴 상태일 때"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "시스템이 절전 모드로 전환될 때"
   },
   "onRestart": {
     "message": "브라우저 재시작 시"
@@ -952,22 +952,22 @@
     "message": "Bitwarden에 로그인"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "이메일로 전송된 코드를 입력하세요."
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "인증 앱에 표시된 코드를 입력하세요."
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "인증하려면 YubiKey를 누르세요."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "계정 로그인을 위해 Duo 2단계 인증이 필요합니다. 아래 단계를 따라 로그인을 완료하세요."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "아래 단계를 따라 로그인을 완료하세요."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "보안 키로 로그인을 완료하려면 아래 단계를 따라주세요."
   },
   "restartRegistration": {
     "message": "등록 재시작"
@@ -991,13 +991,13 @@
     "message": "아니오"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "링크가 있는 모든 사용자"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "내가 설정한 비밀번호를 아는 모든 사용자"
   },
   "location": {
-    "message": "Location"
+    "message": "위치"
   },
   "unexpectedError": {
     "message": "예기치 못한 오류가 발생했습니다."
@@ -1068,10 +1068,10 @@
     "message": "항목 편집함"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "저장된 웹사이트"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "저장된 웹사이트 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1161,7 +1161,7 @@
     "message": "예, 지금 저장하겠습니다."
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "$ITEMNAME$ 보기, 새 창에서 열림",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1170,18 +1170,18 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "새 항목, 새 창에서 열림",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "저장하기 전에 편집",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "새 알림"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: 새 알림",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1191,15 +1191,15 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "Bitwarden에 저장되었습니다.",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "Bitwarden에서 업데이트되었습니다.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "$ITEMTYPE$ 선택, $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1211,35 +1211,35 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "새 로그인으로 저장",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "로그인 업데이트",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "이 로그인을 저장하려면 잠금을 해제하세요",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "로그인 저장",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "기존 로그인 업데이트",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "로그인이 저장되었습니다",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "로그인이 업데이트되었습니다",
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "잘하셨어요! 보안을 강화하기 위한 단계를 완료하여 사용자와 $ORGANIZATION$의 보안이 더욱 강화되었습니다.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1248,7 +1248,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "$ORGANIZATION$의 보안을 강화해 주셔서 감사합니다. 업데이트해야 할 비밀번호가 $TASK_COUNT$개 남아 있습니다.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1260,15 +1260,15 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "다음 비밀번호 변경",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "저장 중 오류가 발생했습니다",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "앗! 저장하지 못했습니다. 세부 정보를 직접 입력해 보세요.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",

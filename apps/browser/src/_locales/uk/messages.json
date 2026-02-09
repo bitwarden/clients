@@ -6104,10 +6104,10 @@
     "message": "Чому я це бачу?"
   },
   "items": {
-    "message": "Items"
+    "message": "Записи"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Результати пошуку"
   },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
@@ -6127,8 +6127,11 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailProtected": {
+    "message": "Е-пошту захищено"
+  },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Особам необхідно ввести пароль для перегляду цього відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

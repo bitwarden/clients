@@ -6104,10 +6104,10 @@
     "message": "Warum wird mir das angezeigt?"
   },
   "items": {
-    "message": "Items"
+    "message": "Einträge"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Suchergebnisse"
   },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
@@ -6119,7 +6119,7 @@
     "message": "Bestimmte Personen"
   },
   "emailVerificationDesc": {
-    "message": "Nach dem Teilen dieses Send-Links müssen Einzelpersonen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
+    "message": "Nach dem Teilen dieses Send-Links müssen Personen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
@@ -6127,8 +6127,11 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailProtected": {
+    "message": "E-Mail-Adresse geschützt"
+  },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
