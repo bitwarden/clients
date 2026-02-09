@@ -5,12 +5,20 @@ import { EncString } from "../models/enc-string";
 export abstract class EncryptService {
   /**
    * Encrypts a string to an EncString
+   *
+   * @deprecated NOTE: For new use-cases, prefer using the DataEnvelope inside the SDK instead. This
+   * is both safer and more maintainable.
+   *
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    */
   abstract encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString>;
   /**
    * Encrypts bytes to an EncString
+   *
+   * @deprecated NOTE: You probably do not want to encrypt raw bytes. Please contact the Key-Management team if you think
+   * you need to.
+   *
    * @param plainValue - The value to encrypt
    * @param key - The key to encrypt the value with
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
@@ -129,6 +137,9 @@ export abstract class EncryptService {
    * Encapsulates a symmetric key with an asymmetric public key
    * Note: This does not establish sender authenticity
    * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
+   *
+   * @deprecated NOTE: You probably do not want to use this. Please contact the Key-Management team if you think you need to.
+   *
    * @param sharedKey - The symmetric key that is to be shared
    * @param encapsulationKey - The encapsulation key (public key) of the receiver that the key is shared with
    */
