@@ -235,6 +235,25 @@ jobs:
           ls -l ../
           npm link ../sdk-internal
 
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
+
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         id: cache
@@ -398,6 +417,25 @@ jobs:
           ls -l ../
           npm link ../sdk-internal
 
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
+
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         id: cache
@@ -560,6 +598,25 @@ jobs:
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -825,6 +882,25 @@ jobs:
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -1184,6 +1260,25 @@ jobs:
           ls -l ../
           npm link ../sdk-internal
 
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
+
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         id: cache
@@ -1407,6 +1502,25 @@ jobs:
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
@@ -1690,6 +1804,25 @@ jobs:
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2

@@ -199,6 +199,19 @@ jobs:
           path: sdk-internal
           if_no_artifact_found: fail
 
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: commercial-sdk-internal
+          if_no_artifact_found: fail
+
       - name: Check Branch to Publish
         env:
           PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
