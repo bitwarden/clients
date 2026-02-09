@@ -50,7 +50,7 @@ export class WebVaultPromptService {
 
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
-    this.setupAutoConfirm();
+    this.checkForAutoConfirm();
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
@@ -63,7 +63,7 @@ export class WebVaultPromptService {
     });
   }
 
-  private setupAutoConfirm() {
+  private checkForAutoConfirm() {
     // if the policy is enabled, then the user may only belong to one organization at most.
     const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
 
