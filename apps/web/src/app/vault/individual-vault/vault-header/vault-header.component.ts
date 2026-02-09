@@ -228,12 +228,7 @@ export class VaultHeaderComponent {
     return this.collection.node.canDelete(organization);
   }
 
-  get canCreateCipher(): boolean {
-    if (this.activeOrganization?.isProviderUser && !this.activeOrganization?.isMember) {
-      return false;
-    }
-    return true;
-  }
+  return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
 
   deleteCollection() {
     this.onDeleteCollection.emit();
