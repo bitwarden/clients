@@ -4585,7 +4585,34 @@
     "message": "為什麼我會看到此訊息？"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "對方必須輸入密碼才能檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "電子郵件已受保護"
+  },
+  "emails": {
+    "message": "電子郵件"
+  },
+  "noAuth": {
+    "message": "任何持有連結的人"
+  },
+  "anyOneWithPassword": {
+    "message": "任何持有您設定之密碼的人"
+  },
+  "whoCanView": {
+    "message": "誰可以檢視"
+  },
+  "specificPeople": {
+    "message": "特定人員"
+  },
+  "emailVerificationDesc": {
+    "message": "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "請以逗號分隔輸入多個電子郵件地址。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
