@@ -4587,5 +4587,32 @@
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "电子邮件受保护"
+  },
+  "emails": {
+    "message": "电子邮件"
+  },
+  "noAuth": {
+    "message": "任何拥有此链接的人"
+  },
+  "anyOneWithPassword": {
+    "message": "拥有您设置的密码的任何人"
+  },
+  "whoCanView": {
+    "message": "谁可以查看"
+  },
+  "specificPeople": {
+    "message": "指定人员"
+  },
+  "emailVerificationDesc": {
+    "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "输入多个电子邮箱（使用逗号分隔）。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com, user@acme.com"
   }
 }

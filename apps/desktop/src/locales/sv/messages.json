@@ -4587,5 +4587,32 @@
   "sendPasswordHelperText": {
     "message": "Individer måste ange lösenordet för att visa denna Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "E-post"
+  },
+  "noAuth": {
+    "message": "Vem som helst med länken"
+  },
+  "anyOneWithPassword": {
+    "message": "Alla som har ett lösenord inställt av dig"
+  },
+  "whoCanView": {
+    "message": "Vem kan se"
+  },
+  "specificPeople": {
+    "message": "Specifika personer"
+  },
+  "emailVerificationDesc": {
+    "message": "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
+  },
+  "emailPlaceholder": {
+    "message": "användare@bitwarden.com , användare@acme.com"
   }
 }
