@@ -1,6 +1,13 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, Inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 
@@ -80,7 +87,7 @@ export type PremiumOrgUpgradeDialogParams = {
   providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./premium-org-upgrade-dialog.component.html",
 })
-export class PremiumOrgUpgradeDialogComponent {
+export class PremiumOrgUpgradeDialogComponent implements OnInit {
   // Use signals for dialog state because inputs depend on parent component
   protected readonly step = signal<PremiumOrgUpgradeDialogStep>(
     PremiumOrgUpgradeDialogStep.PlanSelection,
@@ -110,7 +117,9 @@ export class PremiumOrgUpgradeDialogComponent {
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
-  ) {
+  ) {}
+
+  async ngOnInit(): Promise<void> {
     if (!this.showPremiumToOrganizationUpgrade()) {
       // If the premium to organization upgrade feature is not enabled or user does not have premium personally, close the dialog
       this.close({ status: PremiumOrgUpgradeDialogStatus.Closed });
