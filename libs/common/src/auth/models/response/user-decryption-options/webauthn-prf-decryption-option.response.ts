@@ -8,19 +8,30 @@ import { BaseResponse } from "../../../../models/response/base.response";
 export interface IWebAuthnPrfDecryptionOptionServerResponse {
   EncryptedPrivateKey: string;
   EncryptedUserKey: string;
+  CredentialId: string;
+  Transports: string[];
 }
 
 export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
   encryptedPrivateKey: EncString;
   encryptedUserKey: UnsignedSharedKey;
+  credentialId: string;
+  transports: string[];
 
   constructor(response: IWebAuthnPrfDecryptionOptionServerResponse) {
     super(response);
-    if (response.EncryptedPrivateKey) {
-      this.encryptedPrivateKey = new EncString(this.getResponseProperty("EncryptedPrivateKey"));
+
+    const encPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
+    if (encPrivateKey) {
+      this.encryptedPrivateKey = new EncString(encPrivateKey);
     }
-    if (response.EncryptedUserKey) {
-      this.encryptedUserKey = this.getResponseProperty("EncryptedUserKey") as UnsignedSharedKey;
+
+    const encUserKey = this.getResponseProperty("EncryptedUserKey");
+    if (encUserKey) {
+      this.encryptedUserKey = encUserKey as UnsignedSharedKey;
     }
+
+    this.credentialId = this.getResponseProperty("CredentialId");
+    this.transports = this.getResponseProperty("Transports") || [];
   }
 }

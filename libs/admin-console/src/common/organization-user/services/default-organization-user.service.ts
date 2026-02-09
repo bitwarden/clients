@@ -1,10 +1,10 @@
 import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import {
-  OrganizationUserConfirmRequest,
-  OrganizationUserBulkConfirmRequest,
   OrganizationUserApiService,
+  OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkResponse,
+  OrganizationUserConfirmRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -15,6 +15,9 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+
+import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
+import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 
 export class DefaultOrganizationUserService implements OrganizationUserService {
   constructor(
@@ -76,6 +79,43 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
         );
 
         return this.organizationUserApiService.postOrganizationUserBulkConfirm(
+          organization.id,
+          request,
+        );
+      }),
+    );
+  }
+
+  buildRestoreUserRequest(organization: Organization): Observable<OrganizationUserRestoreRequest> {
+    return this.getEncryptedDefaultCollectionName$(organization).pipe(
+      map((collectionName) => new OrganizationUserRestoreRequest(collectionName.encryptedString)),
+    );
+  }
+
+  restoreUser(organization: Organization, userId: string): Observable<void> {
+    return this.buildRestoreUserRequest(organization).pipe(
+      switchMap((request) =>
+        this.organizationUserApiService.restoreOrganizationUser_vNext(
+          organization.id,
+          userId,
+          request,
+        ),
+      ),
+    );
+  }
+
+  bulkRestoreUsers(
+    organization: Organization,
+    userIds: string[],
+  ): Observable<ListResponse<OrganizationUserBulkResponse>> {
+    return this.getEncryptedDefaultCollectionName$(organization).pipe(
+      switchMap((collectionName) => {
+        const request = new OrganizationUserBulkRestoreRequest(
+          userIds,
+          collectionName.encryptedString,
+        );
+
+        return this.organizationUserApiService.restoreManyOrganizationUsers_vNext(
           organization.id,
           request,
         );

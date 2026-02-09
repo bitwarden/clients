@@ -8,18 +8,18 @@ import {
   Inject,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -50,6 +50,7 @@ import {
   ItemModule,
   ToastService,
   CenterPositionStrategy,
+  DialogComponent,
 } from "@bitwarden/components";
 import {
   AttachmentDialogCloseResult,
@@ -63,11 +64,11 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
+  RoutedVaultFilterService,
+  RoutedVaultFilterModel,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
-import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
 import { WebVaultPremiumUpgradePromptService } from "../../services/web-premium-upgrade-prompt.service";
 
@@ -85,11 +86,6 @@ export interface VaultItemDialogParams {
    * The configuration object for the dialog and form.
    */
   formConfig: CipherFormConfig;
-
-  /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
 
   /**
    * The ID of the active collection. This is know the collection filter selected by the user.
@@ -163,14 +159,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Reference to the dialog content element. Used to scroll to the top of the dialog when switching modes.
    * @protected
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("dialogContent")
-  protected dialogContent: ElementRef<HTMLElement>;
+  protected readonly dialogContent = viewChild.required<ElementRef<HTMLElement>>("dialogContent");
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
+  private readonly cipherFormComponent = viewChild.required(CipherFormComponent);
+
+  private readonly dialogComponent = viewChild(DialogComponent);
 
   /**
    * Tracks if the cipher was ever modified while the dialog was open. Used to ensure the dialog emits the correct result
@@ -257,7 +250,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showActionButtons() {
-    return this.cipher !== null && this.params.mode === "form" && this.formConfig.mode !== "clone";
+    return this.cipher !== null && this.formConfig.mode !== "clone";
   }
 
   /**
@@ -275,7 +268,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return this.params.disableForm;
+    return !this.canEdit;
   }
 
   protected get showEdit() {
@@ -315,6 +308,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected filter: RoutedVaultFilterModel;
 
   protected canDelete = false;
+
+  protected canEdit = false;
 
   protected attachmentsButtonDisabled = false;
 
@@ -373,6 +368,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           this.params.isAdminConsoleAction,
         ),
       );
+
+      this.canEdit = await firstValueFrom(
+        this.cipherAuthorizationService.canEditCipher$(
+          this.cipher,
+          this.params.isAdminConsoleAction,
+        ),
+      );
+
+      // If user cannot edit and dialog opened in form mode, force to view mode
+      if (!this.canEdit && this.params.mode === "form") {
+        this.params.mode = "view";
+        this.loadForm = false;
+        this.updateTitle();
+      }
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
@@ -536,7 +545,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
       }
 
-      this.cipherFormComponent.patchCipher((currentCipher) => {
+      this.cipherFormComponent().patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;
         currentCipher.revisionDate = updatedCipherView.revisionDate;
 
@@ -574,7 +583,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.cipherFormComponent.patchCipher((current) => {
+    this.cipherFormComponent().patchCipher((current) => {
       current.revisionDate = revisionDate;
       current.archivedDate = archivedDate;
       return current;
@@ -595,7 +604,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemsWereSentToArchive"),
+        message: this.i18nService.t("itemWasSentToArchive"),
       });
     } catch {
       this.toastService.showToast({
@@ -691,7 +700,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.params.mode = mode;
     this.updateTitle();
     // Scroll to the top of the dialog content when switching modes.
-    this.dialogContent.nativeElement.parentElement.scrollTop = 0;
+    this.dialogContent().nativeElement.parentElement.scrollTop = 0;
+
+    // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
+    this.dialogComponent().handleAutofocus();
 
     // Update the URL query params to reflect the new mode.
     await this.router.navigate([], {

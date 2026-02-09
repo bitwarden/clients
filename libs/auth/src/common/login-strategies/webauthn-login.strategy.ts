@@ -72,13 +72,14 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions?.webAuthnPrfOption) {
-      const webAuthnPrfOption = idTokenResponse.userDecryptionOptions?.webAuthnPrfOption;
-
       const credentials = this.cache.value.credentials;
+
       // confirm we still have the prf key
       if (!credentials.prfKey) {
         return;
       }
+
+      const webAuthnPrfOption = userDecryptionOptions.webAuthnPrfOption;
 
       // decrypt prf encrypted private key
       const privateKey = await this.encryptService.unwrapDecapsulationKey(
@@ -98,20 +99,14 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setPrivateKey(
+  protected override async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
       userId,
     );
-    if (response.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
   }
 
   exportCache(): CacheData {

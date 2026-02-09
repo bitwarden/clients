@@ -2,7 +2,6 @@
   @if (breadcrumb.route(); as route) {
     <a
       bitLink
-      linkType="primary"
       class="tw-my-2 tw-inline-block"
       [routerLink]="route"
       [queryParams]="breadcrumb.queryParams()"
@@ -14,7 +13,6 @@
     <button
       type="button"
       bitLink
-      linkType="primary"
       class="tw-my-2 tw-inline-block"
       (click)="breadcrumb.onClick($event)"
     >
@@ -42,7 +40,6 @@
       @if (breadcrumb.route(); as route) {
         <a
           bitMenuItem
-          linkType="primary"
           [routerLink]="route"
           [queryParams]="breadcrumb.queryParams()"
           [queryParamsHandling]="breadcrumb.queryParamsHandling()"
@@ -50,7 +47,7 @@
           <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
         </a>
       } @else {
-        <button type="button" bitMenuItem linkType="primary" (click)="breadcrumb.onClick($event)">
+        <button type="button" bitMenuItem (click)="breadcrumb.onClick($event)">
           <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
         </button>
       }
@@ -61,7 +58,6 @@
     @if (breadcrumb.route(); as route) {
       <a
         bitLink
-        linkType="primary"
         class="tw-my-2 tw-inline-block"
         [routerLink]="route"
         [queryParams]="breadcrumb.queryParams()"
@@ -73,7 +69,6 @@
       <button
         type="button"
         bitLink
-        linkType="primary"
         class="tw-my-2 tw-inline-block"
         (click)="breadcrumb.onClick($event)"
       >

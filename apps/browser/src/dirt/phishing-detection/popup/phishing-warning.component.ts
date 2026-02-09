@@ -10,7 +10,7 @@ import {
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
-  IconModule,
+  SvgModule,
   IconTileComponent,
   LinkModule,
   CalloutComponent,
@@ -31,7 +31,7 @@ import {
   templateUrl: "phishing-warning.component.html",
   imports: [
     CommonModule,
-    IconModule,
+    SvgModule,
     JslibModule,
     LinkModule,
     FormFieldModule,

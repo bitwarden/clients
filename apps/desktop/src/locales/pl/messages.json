@@ -100,6 +100,66 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "W tym dniu wysyłka zostanie trwale usunięta.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Plik wysyłki"
+  },
+  "hideTextByDefault": {
+    "message": "Ukryj domyślnie tekst wysyłki"
+  },
+  "hideYourEmail": {
+    "message": "Ukryj mój adres e-mail przed odbiorcami."
+  },
+  "limitSendViews": {
+    "message": "Maksymalna liczba wyświetleń"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Po osiągnięciu limitu wysyłka będzie niedostępna.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Prywatna notatka"
+  },
+  "sendDetails": {
+    "message": "Szczegóły wysyłki",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Tekst wysyłki"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nowa wysyłka tekstu",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nowa wysyłka pliku",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edytuj tekst wysyłki",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edytuj plik wysyłki",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Czy na pewno chcesz usunąć trwale wysyłkę?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Nowy element",
     "description": "for adding new items"
@@ -2027,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Element został trwale usunięty"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoredItem": {
     "message": "Element został przywrócony"
@@ -4011,6 +4074,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Zmień teraz"
+  },
   "missingWebsite": {
     "message": "Brak strony internetowej"
   },
@@ -4327,8 +4396,8 @@
   "archiveItem": {
     "message": "Archiwizuj element"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
@@ -4514,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "Emails"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

@@ -6,7 +6,7 @@ import {
   BehaviorSubject,
   filter,
   firstValueFrom,
-  interval,
+  timer,
   mergeMap,
   Subject,
   switchMap,
@@ -60,6 +60,7 @@ import {
 } from "../services/lock-component.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -98,6 +99,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
     MasterPasswordLockComponent,
     TooltipDirective,
   ],
@@ -197,7 +199,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnlockOptionsChanges() {
-    interval(1000)
+    timer(0, 1000)
       .pipe(
         mergeMap(async () => {
           if (this.activeAccount?.id != null) {
@@ -458,6 +460,14 @@ export class LockComponent implements OnInit, OnDestroy {
 
       this.unlockingViaBiometrics = false;
     }
+  }
+
+  async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
+    await this.setUserKeyAndContinue(userKey);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   private validatePin(): boolean {

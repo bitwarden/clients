@@ -347,6 +347,18 @@ describe("AutofillInit", () => {
       );
     });
 
+    it("removes the LOAD event listener", () => {
+      jest.spyOn(window, "removeEventListener");
+
+      autofillInit.init();
+      autofillInit.destroy();
+
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        "load",
+        autofillInit["sendCollectDetailsMessage"],
+      );
+    });
+
     it("removes the extension message listeners", () => {
       autofillInit.destroy();
 

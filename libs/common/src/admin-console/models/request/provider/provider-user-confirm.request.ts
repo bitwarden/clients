@@ -1,5 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 export class ProviderUserConfirmRequest {
-  key: string;
+  protected key: string;
+
+  constructor(key: UnsignedSharedKey) {
+    this.key = key;
+  }
 }
