@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 
 import { SendView } from "../../tools/send/models/view/send.view";
 import { IndexedEntityId, UserId } from "../../types/guid";
+import { CipherView } from "../models/view/cipher.view";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class SearchService {
@@ -19,7 +20,7 @@ export abstract class SearchService {
   abstract isSearchable(userId: UserId, query: string | null): Promise<boolean>;
   abstract indexCiphers(
     userId: UserId,
-    ciphersToIndex: CipherViewLike[],
+    ciphersToIndex: CipherView[],
     indexedEntityGuid?: string,
   ): Promise<void>;
   abstract searchCiphers<C extends CipherViewLike>(
