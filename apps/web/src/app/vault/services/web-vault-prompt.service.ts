@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { map, switchMap, combineLatest, zip, first, lastValueFrom, firstValueFrom } from "rxjs";
+import { map, switchMap, combineLatest, zip, first, firstValueFrom } from "rxjs";
 
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,14 +10,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicyDialogComponent,
   AutoConfirmPolicy,
-  PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
@@ -39,8 +38,6 @@ export class WebVaultPromptService {
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  private autoConfirmDialogRef?: DialogRef<PolicyEditDialogResult> | undefined;
-
   /**
    * Conditionally initiates prompts for users.
    * All logic for users should be handled within this method to avoid
@@ -57,20 +54,13 @@ export class WebVaultPromptService {
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
-    if (this.autoConfirmDialogRef) {
-      return;
-    }
-
-    this.autoConfirmDialogRef = AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+    AutoConfirmPolicyDialogComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(),
         organizationId: organization.id,
         firstTimeDialog: true,
       },
     });
-
-    await lastValueFrom(this.autoConfirmDialogRef.closed);
-    this.autoConfirmDialogRef = undefined;
   }
 
   private setupAutoConfirm() {
