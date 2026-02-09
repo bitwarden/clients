@@ -551,7 +551,7 @@ describe("deviceTrustService", () => {
           "mockEncryptedDevicePrivateKey",
         );
 
-        mockEncryptedUserKey = "2.mockEncryptedUserKey" as UnsignedSharedKey;
+        mockEncryptedUserKey = "4.mockEncryptedUserKey" as UnsignedSharedKey;
 
         jest.clearAllMocks();
       });

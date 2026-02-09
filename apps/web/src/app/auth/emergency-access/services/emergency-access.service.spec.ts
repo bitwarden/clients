@@ -145,7 +145,7 @@ describe("EmergencyAccessService", () => {
         const publicKey = new Uint8Array(64);
 
         const mockUserPublicKeyEncryptedUserKey =
-          "2.mockUserPublicKeyEncryptedUserKey" as UnsignedSharedKey;
+          "4.mockUserPublicKeyEncryptedUserKey" as UnsignedSharedKey;
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
 
