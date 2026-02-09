@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Kritikus"
+  },
   "accessIntelligence": {
     "message": "Elérés intelligencia"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Egyetlen alkalmazás sem felel meg ezeknek a szűrőknek."
   },
   "passwordRisk": {
     "message": "Jelszó kockázat"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Összes kijelölése"
+  },
+  "deselectAll": {
+    "message": "Összes kijelölés megszüntetése"
   },
   "unselectAll": {
     "message": "Összes kijelölés megszüntetése"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Gyűjtemény szerkesztése"
   },
+  "viewCollection": {
+    "message": "Gyűjtemény megtekintése"
+  },
   "collectionInfo": {
     "message": "Gyűjtemény adatok"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Szöveg"
   },
-  "sendPasswordDescV3": {
-    "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Új Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással és a jelszóval a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "A művelet végrehajtásához a szervezet tulajdonosának vagy adminisztrátorának kell lenni."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Ennek a műveletnek a végrehajtásához a szervezet tulajdonosának kell lenni."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "A tárhely eltávolításakor arányos számlajóváírást kapunk, amely automatikusan a következő számlára kerül."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Tulajdonos, $OWNER$, összes elem megjelenítése: $OWNER$.",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Prémium felhasználó vagyunk"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Érvénytelen a Send jelszó."
+  },
+  "sendPasswordHelperText": {
+    "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "felhasználónként"
   }
 }

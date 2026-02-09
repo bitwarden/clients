@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Критично"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Нет приложений, соответствующих этим фильтрам"
   },
   "passwordRisk": {
     "message": "Риск пароля"
@@ -425,7 +431,7 @@
     "message": "Обзор приложения сохранен"
   },
   "newApplicationsReviewed": {
-    "message": "Рассмотрены новые заявки"
+    "message": "Рассмотрены новые приложения"
   },
   "errorSavingReviewStatus": {
     "message": "Ошибка сохранения статуса обзора"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Выбрать все"
+  },
+  "deselectAll": {
+    "message": "Отменить выбор"
   },
   "unselectAll": {
     "message": "Отменить выбор"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Редактировать коллекцию"
   },
+  "viewCollection": {
+    "message": "Посмотреть коллекцию"
+  },
   "collectionInfo": {
     "message": "Информация о коллекции"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Текст"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка и пароль в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в течение $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Для выполнения этого действия вы должны быть владельцем организации или администратором."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Для выполнения этого действия вы должны быть владельцем организации."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Владелец, $OWNER$, показать все элементы, принадлежащие $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "У вас Премиум"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Неверный пароль Send"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "на пользователя"
   }
 }

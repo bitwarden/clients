@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Būtiska"
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Neviena lietotne neatbilst šīm atlases vērtībām"
   },
   "passwordRisk": {
     "message": "Paroļu risks"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Atlasīt visu"
+  },
+  "deselectAll": {
+    "message": "Deselect all"
   },
   "unselectAll": {
     "message": "Noņemt atlasi"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Labot krājumu"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "Krājuma informācija"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Teksts"
   },
-  "sendPasswordDescV3": {
-    "message": "Pēc izvēles var pievienot paroli saņēmējiem, lai varētu piekļūt šim Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Jauns Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Jābūt apvienības īpašniekam, lai veiktu šo darbību."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "Kad noņemsi krātuvi, saņemsi konta kredītu noteiktā apjomā, kas tiks automātiski izmantots nākamajā rēķinā."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Tev ir Premium"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Cilvēkiem būs jāievada parole, lai apskatītu šo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "1 lietotājam"
   }
 }

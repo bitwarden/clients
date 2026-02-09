@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "关键"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "没有匹配这些筛选规则的应用程序"
   },
   "passwordRisk": {
     "message": "密码风险"
@@ -1241,6 +1247,9 @@
   "selectAll": {
     "message": "全选"
   },
+  "deselectAll": {
+    "message": "取消全选"
+  },
   "unselectAll": {
     "message": "取消全选"
   },
@@ -2209,7 +2218,7 @@
     "message": "加密密钥设置"
   },
   "kdfIterations": {
-    "message": "KDF 迭代"
+    "message": "KDF 迭代次数"
   },
   "kdfIterationsDesc": {
     "message": "更高的 KDF 迭代可以帮助保护您的主密码免遭攻击者的暴力破解。建议 $VALUE$ 或更高。",
@@ -2221,7 +2230,7 @@
     }
   },
   "kdfIterationsWarning": {
-    "message": "如果将 KDF 迭代设置得太高，可能导致在相对老旧的设备上登录（以及解锁）Bitwarden 时性能不佳。建议您以 $INCREMENT$ 的增量值递增，然后测试您的所有设备。",
+    "message": "如果将 KDF 迭代次数设置得太高，可能导致在相对老旧的设备上登录（以及解锁）Bitwarden 时性能不佳。我们建议您以 $INCREMENT$ 的增量值递增，然后测试您的所有设备。",
     "placeholders": {
       "increment": {
         "content": "$1",
@@ -2234,13 +2243,13 @@
     "description": "Memory refers to computer memory (RAM). MB is short for megabytes."
   },
   "argon2Warning": {
-    "message": "如果将 KDF 迭代、内存占用和并行设置得太高，可能导致在相对老旧的设备上登录（以及解锁）Bitwarden 时性能不佳。我们建议以小量递增的方式更改这些设置，然后测试您的所有设备。"
+    "message": "如果将 KDF 迭代次数、内存和并行线程数设置得太高，可能导致在相对老旧的设备上登录（以及解锁）Bitwarden 时性能不佳。我们建议以小量递增的方式更改这些设置，然后测试您的所有设备。"
   },
   "kdfParallelism": {
-    "message": "KDF 并行性"
+    "message": "KDF 并行线程数"
   },
   "argon2Desc": {
-    "message": "更高的 KDF 迭代、内存占用和并行可以帮助保护您的主密码免遭攻击者的暴力破解。"
+    "message": "更高的 KDF 迭代次数、内存和并行线程数可以帮助保护您的主密码免遭攻击者的暴力破解。"
   },
   "encKeySettingsChanged": {
     "message": "加密密钥设置已保存"
@@ -2500,7 +2509,7 @@
     "message": "新增自定义域名"
   },
   "newCustomDomainDesc": {
-    "message": "输入用逗号分隔的域名列表。只支持「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android App 与其他网站域名关联。"
+    "message": "输入使用逗号分隔的域名列表。只允许「基础」域名，不要输入子域名。例如，输入「google.com」而不是「www.google.com」。您也可以输入「androidapp://package.name」以将 Android App 与其他网站域名关联。"
   },
   "customDomainX": {
     "message": "自定义域名 $INDEX$",
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "编辑集合"
   },
+  "viewCollection": {
+    "message": "查看集合"
+  },
   "collectionInfo": {
     "message": "集合信息"
   },
@@ -3824,7 +3836,7 @@
     "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "inviteMultipleEmailDesc": {
-    "message": "通过逗号分隔，最多输入 $COUNT$ 个电子邮箱。",
+    "message": "最多输入 $COUNT$ 个电子邮箱（使用逗号分隔）。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "文本"
   },
-  "sendPasswordDescV3": {
-    "message": "添加一个用于接收者访问此 Send 的可选密码。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "新增 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，任何拥有此链接以及您设置的密码的人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，您指定的人员可查看此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10038,7 +10066,7 @@
     "message": "免费 1 年"
   },
   "newWebApp": {
-    "message": "欢迎使用全新改进的网页 App。进一步了解有关变更的信息。"
+    "message": "欢迎使用全新改进的网页 App。进一步了解发生了哪些变化。"
   },
   "releaseBlog": {
     "message": "阅读发行博客"
@@ -10470,6 +10498,9 @@
   },
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "您必须是组织所有者或管理员才能执行此操作。"
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "您必须是组织所有者才能执行此操作。"
@@ -11209,7 +11240,7 @@
     "message": "如果您想自动勾选表单复选框（例如记住电子邮箱），请使用复选框型字段"
   },
   "linkedHelpText": {
-    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段"
+    "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
   "linkedLabelHelpText": {
     "message": "输入字段的 html ID、名称、aria-label 或占位符。"
@@ -11706,7 +11737,7 @@
     "message": "未信任的加密密钥"
   },
   "changeAtRiskPassword": {
-    "message": "更改有风险的密码"
+    "message": "更改存在风险的密码"
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
@@ -12369,7 +12400,7 @@
     "message": "卡号"
   },
   "startFreeFamiliesTrial": {
-    "message": "开始免费家庭版试用"
+    "message": "开始家庭版免费试用"
   },
   "blockClaimedDomainAccountCreation": {
     "message": "阻止使用已声明的域名创建账户"
@@ -12725,19 +12756,28 @@
     "message": "谁可以查看"
   },
   "specificPeople": {
-    "message": "指定的人员"
+    "message": "指定人员"
   },
   "emailVerificationDesc": {
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "输入多个电子邮箱（使用英文逗号分隔）。"
+    "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "当您移除存储空间时，您将收到一笔按比例计算的账户信用额度，其将用于自动抵扣您的下一笔费用。"
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "所有者，$OWNER$，显示 $OWNER$ 拥有的所有项目",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "您拥有高级版"
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "无效的 Send 密码"
+  },
+  "sendPasswordHelperText": {
+    "message": "个人需要输入密码才能查看此 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "每位用户"
   }
 }

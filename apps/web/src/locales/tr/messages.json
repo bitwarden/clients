@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Kritik"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Parola Riski"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Tümünü seç"
+  },
+  "deselectAll": {
+    "message": "Tüm seçimi kaldır"
   },
   "unselectAll": {
     "message": "Seçimi iptal et"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Koleksiyonu düzenle"
   },
+  "viewCollection": {
+    "message": "Koleksiyonu görüntüle"
+  },
   "collectionInfo": {
     "message": "Koleksiyon bilgileri"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Metin"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya ve parolaya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Belirlediğiniz kişiler bağlantıyı önümüzdeki $TIME$ boyunca kullanabilir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Bu işlemi gerçekleştirmek için kuruluş sahibi veya yönetici olmalısınız."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Bu işlemi gerçekleştirmek için kuruluş sahibi olmalısınız."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Sahip, $OWNER$, sahibi $OWNER$ olan tüm kayıtları göster",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Premium abonesiniz"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Geçersiz Send parolası"
+  },
+  "sendPasswordHelperText": {
+    "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }

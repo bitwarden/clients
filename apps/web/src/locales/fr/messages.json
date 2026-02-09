@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critique"
+  },
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Aucune application ne correspond à ces filtres"
   },
   "passwordRisk": {
     "message": "Risque du mot de passe"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Tout sélectionner"
+  },
+  "deselectAll": {
+    "message": "Tout désélectionner"
   },
   "unselectAll": {
     "message": "Tout désélectionner"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Modifier la collection"
   },
+  "viewCollection": {
+    "message": "Afficher la Collection"
+  },
   "collectionInfo": {
     "message": "Informations de la collection"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Texte"
   },
-  "sendPasswordDescV3": {
-    "message": "Ajouter un mot de passe facultatif pour que les destinataires puissent accéder à ce Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nouveau Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien pour les prochains $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien et le mot de passe que vous avez configurez pour les prochain(e)s $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copiez et partagez ce lien Send. Il peut être consulté par les personnes que vous avez spécifiées pour les prochain(e)s $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Vous devez être un Propriétaire d'Organisation ou un Administrateur pour effectuer cette action."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Vous devez être le propriétaire de l'organisation pour effectuer cette action."
   },
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Propriétaire, $OWNER$, affiche tous les éléments appartenant à $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Vous avez Premium"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Mot de passe Send invalide"
+  },
+  "sendPasswordHelperText": {
+    "message": "Les personnes devront entrer le mot de passe pour afficher ce Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "par utilisateur"
   }
 }

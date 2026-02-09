@@ -32,20 +32,26 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Управління доступом"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Ризиковані паролі"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Вам не дозволено редагувати цей запис"
   },
   "reviewAtRiskPasswords": {
     "message": "Переглядайте ризиковані паролі в різних програмах (слабкі, викриті, або повторно використані). Виберіть найбільш критичні програми, щоб визначити пріоритети дій щодо безпеки для користувачів, які використовують ризиковані паролі."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "Переглянути записи з ризиком"
   },
   "dataLastUpdated": {
     "message": "Дані востаннє оновлено: $DATE$",
@@ -57,7 +63,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Ви ще не створили звіт"
   },
   "notifiedMembers": {
     "message": "Сповіщення учасників"
@@ -161,7 +167,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "$COUNT$ програм під загрозою",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -170,7 +176,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ паролів під загрозою",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -179,7 +185,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ нових паролів під загрозою",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -203,7 +209,7 @@
     "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Позначити програми як критичні"
   },
   "feature1Description": {
     "message": "This will help you remove risks to your most important applications first."
@@ -239,7 +245,7 @@
     "message": "Позначити програму критичною"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "Позначити як критичне"
   },
   "applicationsSelected": {
     "message": "програм обрано"
@@ -269,7 +275,7 @@
     "message": "Програма"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Програми"
   },
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
@@ -296,7 +302,7 @@
     "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ учасників під загрозою",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -410,7 +416,7 @@
     "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
-    "message": "Review new applications"
+    "message": "Перегляд нових програм"
   },
   "reviewNewAppsDescription": {
     "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
@@ -608,7 +614,7 @@
     "message": "Е-пошта"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Е-пошти"
   },
   "phone": {
     "message": "Телефон"
@@ -998,79 +1004,79 @@
     "message": "Переглянути запис"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Новий запис",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Нова картка",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Нове посвідчення",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Нова нотатка",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Новий ключ SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Нове текстове відправлення",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Нове файлове відправлення",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Редагувати запис",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Редагувати картку",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Редагувати посвідчення",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Редагувати нотатку",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Редагувати ключ SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Редагувати текстове відправлення",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Редагувати файлове відправлення",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Перегляд запису",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Перегляд картки",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Перегляд посвідчення",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Перегляд нотатки",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Перегляд ключа SSH",
     "description": "Header for view SSH key item type"
   },
   "new": {
@@ -1241,6 +1247,9 @@
   "selectAll": {
     "message": "Вибрати все"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Скасувати вибір"
   },
@@ -1390,10 +1399,10 @@
     "message": "Ні"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Будь-хто з посиланням"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Будь-хто зі встановленим вами паролем"
   },
   "location": {
     "message": "Розташування"
@@ -1432,7 +1441,7 @@
     "message": "Використати єдиний вхід"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ваша організація вимагає єдиний вхід (Sso)."
   },
   "welcomeBack": {
     "message": "З поверненням"
@@ -1720,7 +1729,7 @@
     "message": "Неправильний головний пароль"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неправильний головний пароль. Перевірте правильність адреси електронної пошти та розміщення облікового запису на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1738,16 +1747,16 @@
     "message": "Немає записів."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Немає записів у смітнику"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів"
   },
   "noItemsInVault": {
     "message": "No items in the vault"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -1874,7 +1883,7 @@
     "message": "Код відновлення"
   },
   "invalidRecoveryCode": {
-    "message": "Invalid recovery code"
+    "message": "Недійсний код відновлення"
   },
   "authenticatorAppTitle": {
     "message": "Програма автентифікації"
@@ -2003,11 +2012,11 @@
     "message": "Ключі шифрування унікальні для кожного облікового запису користувача Bitwarden, тому ви не можете імпортувати зашифрований експорт до іншого облікового запису."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Експорт",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Експортувати",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2336,11 +2345,11 @@
     "message": "Інструменти"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Імпорт",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2470,7 +2479,7 @@
     "message": "Змінити мову інтерфейсу вебсховища."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
   },
   "default": {
     "message": "Типово"
@@ -2571,7 +2580,7 @@
     "message": "Увімкнено"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Увімкнено"
   },
   "restoreAccess": {
     "message": "Відновити доступ"
@@ -2671,7 +2680,7 @@
     "message": "Ключ"
   },
   "unnamedKey": {
-    "message": "Unnamed key"
+    "message": "Неназваний ключ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код підтвердження"
@@ -3106,7 +3115,7 @@
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ зашифрованого сховища для вкладених файлів.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3177,16 +3186,16 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Ваша передплата Premium завершилася"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Щоб відновити доступ до архіву, поновіть передплату Premium. Якщо ви редагуєте архівований запис перед поновленням, його буде повернуто назад у ваше сховище."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Запис відновлено"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Поновити Premium"
   },
   "additionalStorageGb": {
     "message": "Додаткове сховище (ГБ)"
@@ -3309,10 +3318,10 @@
     "message": "Наступна оплата"
   },
   "nextChargeHeader": {
-    "message": "Next Charge"
+    "message": "Наступна оплата"
   },
   "nextChargeDate": {
-    "message": "Next charge date"
+    "message": "Дата наступної оплати"
   },
   "plan": {
     "message": "Plan"
@@ -3321,7 +3330,7 @@
     "message": "Подробиці"
   },
   "discount": {
-    "message": "discount"
+    "message": "знижка"
   },
   "downloadLicense": {
     "message": "Завантажити ліцензію"
@@ -3801,6 +3810,9 @@
   },
   "editCollection": {
     "message": "Редагувати збірку"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "Інформація про збірку"
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Текст"
   },
-  "sendPasswordDescV3": {
-    "message": "За бажання додайте пароль для отримувачів цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Нове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5669,8 +5677,28 @@
       }
     }
   },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ годин",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5679,11 +5707,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "Нове текстове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "Нове файлове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -6027,14 +6055,14 @@
     "message": "How to turn on automatic user confirmation"
   },
   "autoConfirmExtension1": {
-    "message": "Open your Bitwarden extension"
+    "message": "Відкрийте своє розширення Bitwarden"
   },
   "autoConfirmExtension2": {
-    "message": "Select",
+    "message": "Обрати",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtension3": {
-    "message": " Turn on",
+    "message": " Увімкнути",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
@@ -6838,16 +6866,16 @@
     "message": "Ваша організація оновила параметри дешифрування. Встановіть головний пароль для доступу до сховища."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Session timeout"
+    "message": "Час очікування сеансу"
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
   },
   "maximumAllowedTimeout": {
-    "message": "Maximum allowed timeout"
+    "message": "Максимальний час очікування"
   },
   "maximumAllowedTimeoutRequired": {
-    "message": "Maximum allowed timeout is required."
+    "message": "Необхідний максимальний час очікування."
   },
   "sessionTimeoutPolicyInvalidTime": {
     "message": "Time is invalid. Change at least one value."
@@ -7325,7 +7353,7 @@
     "message": "SSO увімкнено"
   },
   "ssoTurnedOff": {
-    "message": "SSO turned off"
+    "message": "SSO вимкнено"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -7424,7 +7452,7 @@
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "URL-адреси повинні використовувати HTTPS."
   },
   "apiUrl": {
     "message": "URL-адреса сервера API"
@@ -9616,7 +9644,7 @@
     "message": "Потрібно увійти через SSO"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "Е-пошта необхідна для SSO"
   },
   "selectedRegionFlag": {
     "message": "Прапор вибраного регіону"
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
   },
@@ -10577,7 +10608,7 @@
     "message": "Name of the repository to ingest into"
   },
   "index": {
-    "message": "Index"
+    "message": "Індекс"
   },
   "httpEventCollectorUrl": {
     "message": "HTTP Event Collector URL"
@@ -11304,7 +11335,7 @@
     "message": "Користувача вилучено з організації. Всі пов'язані дані користувача видалено."
   },
   "deletedUserIdEventMessage": {
-    "message": "Deleted user $ID$",
+    "message": "Видалений користувач $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11482,7 +11513,7 @@
     "message": "Item removed from favorites"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Копіювати нотатку"
   },
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
@@ -11709,16 +11740,16 @@
     "message": "Змінити ризикований пароль"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Цей запис ризикований і не має адреси вебсайту. Додайте адресу вебсайту та змініть пароль для вдосконалення безпеки."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Вразливий пароль."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Змінити зараз"
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Немає вебсайту"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Вилучити розблокування з PIN-кодом"
@@ -11745,30 +11776,30 @@
     "message": "Search archive"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архів",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архівувати",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Розархівувати"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Архівовано"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Розархівувати та зберегти"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Записи в архіві"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Немає записів у архіві"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
@@ -11789,14 +11820,14 @@
     "message": "Items unarchived"
   },
   "archiveItem": {
-    "message": "Archive item",
+    "message": "Архівувати запис",
     "description": "Verb"
   },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
-    "message": "Archive items",
+    "message": "Архівувати записи",
     "description": "Verb"
   },
   "archiveBulkItemsConfirmDesc": {
@@ -11931,7 +11962,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "openExtensionFromToolbarPart2": {
-    "message": " on the toolbar.",
+    "message": " з панелі інструментів.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
@@ -11968,7 +11999,7 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Про ці налаштування"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -12122,7 +12153,7 @@
     "message": "Check input format for typos."
   },
   "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+    "message": "Приклад формату $CODE$: $EXAMPLE$",
     "placeholders": {
       "code": {
         "content": "$1",
@@ -12147,7 +12178,7 @@
     "message": "Verify now."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Розблокувати з ключем доступу"
   },
   "prfUnlockFailed": {
     "message": "Failed to unlock with passkey. Please try again or use another unlock method."
@@ -12204,13 +12235,13 @@
     "message": "Built-in authenticator"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Моніторинг витоків даних"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "І багато іншого!"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Захищене сховище файлів"
   },
   "familiesUnlimitedSharing": {
     "message": "Unlimited sharing - choose who sees what"
@@ -12243,7 +12274,7 @@
     "message": "Always free"
   },
   "twoSecretsIncluded": {
-    "message": "2 secrets"
+    "message": "2 секрети"
   },
   "projectsIncludedV2": {
     "message": "$COUNT$ project(s)",
@@ -12288,7 +12319,7 @@
     "message": "Seamless integration"
   },
   "families": {
-    "message": "Families"
+    "message": "Родини"
   },
   "upgradeToFamilies": {
     "message": "Upgrade to Families"
@@ -12318,7 +12349,7 @@
     "message": "Continue without upgrading"
   },
   "upgradeYourPlan": {
-    "message": "Upgrade your plan"
+    "message": "Оновити тарифний план"
   },
   "upgradeNow": {
     "message": "Upgrade now"
@@ -12345,7 +12376,7 @@
     "message": "Update your encryption settings"
   },
   "algorithm": {
-    "message": "Algorithm"
+    "message": "Алгоритм"
   },
   "encryptionKeySettingsHowShouldWeEncryptYourData": {
     "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
@@ -12363,10 +12394,10 @@
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Поштовий індекс"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Номер картки"
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
@@ -12418,13 +12449,13 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Перейти до входу"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Не продовжувати"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Домен"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -12433,10 +12464,10 @@
     "message": "Verify your organization to log in"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Організацію підтверджено"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Домен підтверджено"
   },
   "leaveOrganizationContent": {
     "message": "If you don't verify your organization, your access to the organization will be revoked."
@@ -12555,10 +12586,10 @@
     "message": "Ви дійсно хочете покинути?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Відхиливши, ваші особисті записи залишаться у вашому обліковому записі, але ви втратите доступ до спільних записів та функцій організації."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Зверніться до свого адміністратора, щоб відновити доступ."
   },
   "leaveConfirmationDialogConfirmButton": {
     "message": "Покинути $ORGANIZATION$",
@@ -12570,10 +12601,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Як керувати своїм сховищем?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Перемістити записи до $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12591,13 +12622,13 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Схвалити переміщення"
   },
   "declineAndLeave": {
     "message": "Відхилити та покинути"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Чому я це бачу?"
   },
   "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
@@ -12645,7 +12676,7 @@
     "message": "Переглянути всі тарифні плани"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Повна онлайн-безпека"
   },
   "updatePayment": {
     "message": "Update payment"
@@ -12703,7 +12734,7 @@
     "message": "Your subscription was canceled on"
   },
   "storageFull": {
-    "message": "Storage full"
+    "message": "Сховище заповнено"
   },
   "storageUsedDescription": {
     "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
@@ -12722,16 +12753,16 @@
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Хто може переглядати"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Певні люди"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Після того, як ви поділитеся цим посиланням на відправлення, особам необхідно буде підтвердити свої е-пошти за допомогою коду, щоб переглянути це відправлення."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -12739,13 +12770,29 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "You have Premium"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Е-пошту захищено"
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
   }
 }
