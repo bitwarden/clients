@@ -42,7 +42,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return this.value()?.toString().length > 2 ? "tw-px-1.5 tw-py-0.5" : "";
+    return (this.value()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly containerClasses = computed(() => {
