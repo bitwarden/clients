@@ -13,6 +13,7 @@ export class SpotlightService {
   private readonly borderElement: HTMLElement;
   private currentTarget: HTMLElement | null = null;
   private currentPadding = 0;
+  private currentBorderRadius = 0;
   private resizeObserver: ResizeObserver | null = null;
   private scrollListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
@@ -50,18 +51,20 @@ export class SpotlightService {
    * If a spotlight is already active, smoothly transitions to the new target.
    * @param target - The element to highlight
    * @param padding - Padding around the element in pixels
+   * @param borderRadius - Border radius of the spotlight cutout in pixels
    */
-  showSpotlight(target: HTMLElement, padding: number): void {
+  showSpotlight(target: HTMLElement, padding: number, borderRadius: number): void {
     // Cancel any pending hide - we're showing instead
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
     }
 
-    // If targeting the same element, just update padding if needed
+    // If targeting the same element, just update padding/borderRadius if needed
     if (this.currentTarget === target) {
-      if (this.currentPadding !== padding) {
+      if (this.currentPadding !== padding || this.currentBorderRadius !== borderRadius) {
         this.currentPadding = padding;
+        this.currentBorderRadius = borderRadius;
         this.updateBorderPosition();
       }
       return;
@@ -82,9 +85,10 @@ export class SpotlightService {
       this.setupListeners();
     }
 
-    // Update target and padding
+    // Update target, padding, and border radius
     this.currentTarget = target;
     this.currentPadding = padding;
+    this.currentBorderRadius = borderRadius;
 
     // Show elements
     this.backdropElement.style.display = "block";
@@ -146,6 +150,7 @@ export class SpotlightService {
 
       this.currentTarget = null;
       this.currentPadding = 0;
+      this.currentBorderRadius = 0;
       this.hideTimeout = null;
     }, 100);
   }
@@ -160,13 +165,12 @@ export class SpotlightService {
 
     const rect = this.currentTarget.getBoundingClientRect();
     const padding = this.currentPadding;
-    const computedStyle = window.getComputedStyle(this.currentTarget);
 
     this.borderElement.style.left = `${rect.left - padding}px`;
     this.borderElement.style.top = `${rect.top - padding}px`;
     this.borderElement.style.width = `${rect.width + padding * 2}px`;
     this.borderElement.style.height = `${rect.height + padding * 2}px`;
-    this.borderElement.style.borderRadius = computedStyle.borderRadius;
+    this.borderElement.style.borderRadius = `${this.currentBorderRadius}px`;
   }
 
   /**

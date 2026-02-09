@@ -63,12 +63,16 @@ export class PopoverAnchorDirective implements OnDestroy {
   /** Padding around the spotlight cutout in pixels */
   readonly spotlightPadding = input<number>(0);
 
+  /** Border radius of the spotlight cutout in pixels */
+  readonly spotlightBorderRadius = input<number>(0);
+
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private hasInitialized = false;
   private rafId1: number | null = null;
   private rafId2: number | null = null;
   private isDestroyed = false;
+
   private spotlightService = inject(SpotlightService);
 
   get positions() {
@@ -88,7 +92,7 @@ export class PopoverAnchorDirective implements OnDestroy {
   get defaultPopoverConfig(): OverlayConfig {
     return {
       hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
-      backdropClass: "cdk-overlay-transparent-backdrop",
+      backdropClass: "bit-popover-dimmed-backdrop",
       scrollStrategy: this.spotlight()
         ? this.overlay.scrollStrategies.block()
         : this.overlay.scrollStrategies.reposition(),
@@ -171,7 +175,11 @@ export class PopoverAnchorDirective implements OnDestroy {
     });
 
     if (this.spotlight()) {
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(
+        this.elementRef.nativeElement,
+        this.spotlightPadding(),
+        this.spotlightBorderRadius(),
+      );
     }
   }
 
