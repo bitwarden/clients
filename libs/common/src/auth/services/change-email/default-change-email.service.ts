@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // Marked for removal when PM-30811 feature flag is unwound.
 // eslint-disable-next-line no-restricted-imports
@@ -17,9 +18,7 @@ import { assertNonNullish } from "../../utils";
 import { ChangeEmailService } from "./change-email.service";
 
 export class DefaultChangeEmailService implements ChangeEmailService {
-  /**
-   *
-   */
+
   constructor(
     private configService: ConfigService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
@@ -35,7 +34,11 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       await this.configService.getFeatureFlag(FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis)
     ) {
       const saltForUser = await firstValueFrom(this.masterPasswordService.saltForUser$(userId));
+      assertNonNullish(saltForUser, "salt");
+
       const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+      assertNonNullish(kdf, "kdf");
+
       const authenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           masterPassword,
@@ -43,7 +46,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
           saltForUser,
         );
 
-      request = EmailTokenRequest.newConstructor(authenticationData, newEmail);
+      request = EmailTokenRequest.forNewEmail(authenticationData, newEmail);
     } else {
       // Legacy path: marked for removal when PM-30811 flag is unwound.
       // See: https://bitwarden.atlassian.net/browse/PM-30811
@@ -56,7 +59,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       );
     }
 
-    await this.apiService.send("POST", "/accounts/email-token", request, userId, true);
+    await this.apiService.send("POST", "/accounts/email-token", request, userId, false);
   }
 
   async confirmEmailChange(
@@ -66,28 +69,49 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     userId: UserId,
   ): Promise<void> {
     let request: EmailRequest;
+    let unlockDataForLegacyUpdate: MasterPasswordUnlockData | null = null;
 
     if (
       await this.configService.getFeatureFlag(FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis)
     ) {
-      const saltForUser = await firstValueFrom(this.masterPasswordService.saltForUser$(userId));
       const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
-      const authenticationData =
+      assertNonNullish(kdf, "kdf");
+
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      assertNonNullish(userKey, "userKey");
+
+      // Existing salt required for verification
+      const existingSalt = await firstValueFrom(this.masterPasswordService.saltForUser$(userId));
+      assertNonNullish(existingSalt, "salt");
+
+      // Create auth data with existing salt (proves user knows password)
+      const existingAuthData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           masterPassword,
           kdf,
-          saltForUser,
+          existingSalt,
         );
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      assertNonNullish(userKey, "userKey");
-      const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+
+      const newSalt = this.masterPasswordService.emailToSalt(newEmail);
+      const newAuthData = await this.masterPasswordService.makeMasterPasswordAuthenticationData(
         masterPassword,
         kdf,
-        saltForUser,
+        newSalt,
+      );
+      const newUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        kdf,
+        newSalt,
         userKey,
       );
 
-      request = EmailRequest.newConstructor(authenticationData, unlockData);
+      request = EmailRequest.newConstructor(newAuthData, newUnlockData);
+      request.newEmail = newEmail;
+      request.token = token;
+      request.authenticateWith(existingAuthData);
+
+      // Track unlock data for legacy update after successful API call
+      unlockDataForLegacyUpdate = newUnlockData;
     } else {
       // Legacy path: marked for removal when PM-30811 flag is unwound.
       // See: https://bitwarden.atlassian.net/browse/PM-30811
@@ -122,5 +146,16 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     }
 
     await this.apiService.send("POST", "/accounts/email", request, userId, false);
+
+    // Set legacy master key only AFTER successful API call to prevent inconsistent state on failure.
+    // This ensures the operation is retry-able if the server request fails.
+    // Remove in PM-30676.
+    if (unlockDataForLegacyUpdate != null) {
+      await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
+        masterPassword,
+        unlockDataForLegacyUpdate,
+        userId,
+      );
+    }
   }
 }
