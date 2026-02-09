@@ -324,7 +324,7 @@ describe("CartSummaryComponent", () => {
       );
 
       // Assert
-      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00 / month");
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00  / month");
     });
 
     it("should hide cost breakdown for additional storage when hideBreakdown is true", () => {
