@@ -3,7 +3,7 @@
     {{ title }}
   </span>
 
-  @if (isCipherArchived && !params.isAdminConsoleAction) {
+  @if (isCipherArchived && !params.isAdminConsoleAction && (archiveFlagEnabled$ | async)) {
     <span bitBadge bitDialogHeaderEnd> {{ "archived" | i18n }} </span>
   }
 
@@ -86,8 +86,8 @@
 
     @if (showActionButtons) {
       <div class="tw-ml-auto">
-        @if ((userCanArchive$ | async) && !params.isAdminConsoleAction) {
-          @if (isCipherArchived && !cipher?.isDeleted) {
+        @if (showArchiveOptions) {
+          @if (showUnarchiveBtn) {
             <button
               type="button"
               class="tw-mr-1"
@@ -96,7 +96,7 @@
               [label]="'unArchive' | i18n"
             ></button>
           }
-          @if (cipher?.canBeArchived) {
+          @if (showArchiveBtn) {
             <button
               type="button"
               class="tw-mr-1"

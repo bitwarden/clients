@@ -91,21 +91,11 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-    // prevent mutating ciphers$ state
-    const localCiphers = structuredClone(currentCiphers);
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = localCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.upsert(Object.values(localCiphers), userId);
+    await this.cipherService.upsert(responseDataArray, userId);
     return response.data[0];
   }
 
@@ -115,21 +105,11 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-    // prevent mutating ciphers$ state
-    const localCiphers = structuredClone(currentCiphers);
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = localCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.upsert(Object.values(localCiphers), userId);
+    await this.cipherService.upsert(responseDataArray, userId);
     return response.data[0];
   }
 }
