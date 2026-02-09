@@ -183,8 +183,6 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
-      await this.cipherService.clear(response.profile.id);
-
       await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);

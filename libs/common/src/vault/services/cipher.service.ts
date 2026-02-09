@@ -173,14 +173,13 @@ export class CipherService implements CipherServiceAbstraction {
             decryptStartTime = performance.now();
           }),
           switchMap(async (ciphers) => {
-            return await this.decryptCiphersWithSdk(ciphers, userId, false);
+            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
+            void this.setFailedDecryptedCiphers(failures, userId);
+            // Trigger full decryption and indexing in background
+            void this.getAllDecrypted(userId);
+            return decrypted;
           }),
-          tap(([decrypted, failures]) => {
-            void Promise.all([
-              this.setFailedDecryptedCiphers(failures, userId),
-              this.searchService.indexCiphers(userId, decrypted),
-            ]);
-
+          tap((decrypted) => {
             this.logService.measure(
               decryptStartTime,
               "Vault",
@@ -189,11 +188,10 @@ export class CipherService implements CipherServiceAbstraction {
               [["Items", decrypted.length]],
             );
           }),
-          map(([decrypted]) => decrypted),
         );
       }),
     );
-  }, this.clearCipherViewsForUser$);
+  });
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
