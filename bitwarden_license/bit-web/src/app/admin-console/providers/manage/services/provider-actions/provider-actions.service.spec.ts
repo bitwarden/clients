@@ -5,10 +5,10 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { ProviderActionsService } from "./provider-actions.service";
@@ -104,7 +104,7 @@ describe("ProviderActionsService", () => {
       const activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
       accountService.activeAccount$ = activeAccount$;
       keyService.providerKeys$.mockReturnValue(of({ [providerId]: { key: "mock" } as any }));
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue(new EncString("encrypted"));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue("4.encrypted" as UnsignedSharedKey);
       apiService.postProviderUserConfirm.mockResolvedValue(undefined);
 
       const result = await service.confirmProvider(mockProviderUser, providerId, publicKey);

@@ -59,7 +59,7 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {

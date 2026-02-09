@@ -6,6 +6,7 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { KeyConnectorUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/key-connector-user-decryption-option.response";
 import { TrustedDeviceUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
 import { WebAuthnPrfDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/webauthn-prf-decryption-option.response";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 /**
  * Key Connector decryption options. Intended to be sent to the client for use after authentication.
@@ -58,7 +59,7 @@ export class WebAuthnPrfUserDecryptionOption {
   /** The encrypted private key that can be decrypted with the PRF key. */
   encryptedPrivateKey: string;
   /** The encrypted user key that can be decrypted with the private key. */
-  encryptedUserKey: string;
+  encryptedUserKey: UnsignedSharedKey;
   /** The credential ID for this WebAuthn PRF credential. */
   credentialId: string;
   /** The transports supported by this credential. */
@@ -80,7 +81,7 @@ export class WebAuthnPrfUserDecryptionOption {
     }
     const options = new WebAuthnPrfUserDecryptionOption();
     options.encryptedPrivateKey = response.encryptedPrivateKey.encryptedString;
-    options.encryptedUserKey = response.encryptedUserKey.encryptedString;
+    options.encryptedUserKey = response.encryptedUserKey;
     options.credentialId = response.credentialId;
     options.transports = response.transports || [];
     return options;
