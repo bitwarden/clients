@@ -19,7 +19,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -85,7 +84,6 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
     private providerService: ProviderService,
     private router: Router,
     private accountService: AccountService,
-    private configService: ConfigService,
     private environmentService: EnvironmentService,
   ) {
     super(
@@ -100,7 +98,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       toastService,
     );
 
-    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
+    this.dataSource = new MembersTableDataSource(this.environmentService);
 
     combineLatest([
       this.activatedRoute.parent.params,
@@ -335,4 +333,14 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return { success: false, error: error.message };
     }
   };
+
+  get selectedInvitedCount(): number {
+    return this.dataSource
+      .getCheckedUsers()
+      .filter((member) => member.status === this.userStatusType.Invited).length;
+  }
+
+  get isSingleInvite(): boolean {
+    return this.selectedInvitedCount === 1;
+  }
 }

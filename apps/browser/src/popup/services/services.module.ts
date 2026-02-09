@@ -54,6 +54,7 @@ import {
 } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
+import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -71,6 +72,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
   AutofillSettingsService,
@@ -88,6 +90,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -96,6 +99,7 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeoutService,
@@ -160,12 +164,15 @@ import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
+  BiometricStateService,
   DefaultKeyService,
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
+  WebAuthnPrfUnlockService,
+  DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
@@ -224,7 +231,6 @@ import {
   isNotificationsSupported,
 } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
@@ -309,6 +315,7 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
+      accountCryptographicStateService: AccountCryptographicStateService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -321,6 +328,7 @@ const safeProviders: SafeProvider[] = [
         accountService,
         stateProvider,
         kdfConfigService,
+        accountCryptographicStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -336,6 +344,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -497,13 +506,6 @@ const safeProviders: SafeProvider[] = [
     deps: [PlatformUtilsService],
   }),
   safeProvider({
-    provide: FilePopoutUtilsService,
-    useFactory: (platformUtilsService: PlatformUtilsService) => {
-      return new FilePopoutUtilsService(platformUtilsService);
-    },
-    deps: [PlatformUtilsService],
-  }),
-  safeProvider({
     provide: DerivedStateProvider,
     useClass: InlineDerivedStateProvider,
     deps: [],
@@ -573,15 +575,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: MessageSender,
-    useFactory: (subject: Subject<Message<Record<string, unknown>>>, logService: LogService) =>
-      MessageSender.combine(
-        new SubjectMessageSender(subject), // For sending messages in the same context
-        new ChromeMessageSender(logService), // For sending messages to different contexts
-      ),
-    deps: [INTRAPROCESS_MESSAGING_SUBJECT, LogService],
-  }),
-  safeProvider({
     provide: DISK_BACKUP_LOCAL_STORAGE,
     useFactory: (diskStorage: AbstractStorageService & ObservableStorageService) =>
       new PrimarySecondaryStorageService(diskStorage, new WindowStorageService(self.localStorage)),
@@ -604,7 +597,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: ExtensionLockComponentService,
-    deps: [],
+    deps: [
+      UserDecryptionOptionsServiceAbstraction,
+      BiometricsService,
+      PinServiceAbstraction,
+      BiometricStateService,
+      BrowserRouterService,
+      WebAuthnPrfUnlockService,
+    ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
   safeProvider({
@@ -651,6 +651,21 @@ const safeProviders: SafeProvider[] = [
       UserDecryptionOptionsServiceAbstraction,
       DialogService,
       AccountServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: WebAuthnPrfUnlockService,
+    useClass: DefaultWebAuthnPrfUnlockService,
+    deps: [
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      KeyService,
+      UserDecryptionOptionsServiceAbstraction,
+      EncryptService,
+      EnvironmentService,
+      PlatformUtilsService,
+      WINDOW,
+      LogService,
+      ConfigService,
     ],
   }),
   safeProvider({

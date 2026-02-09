@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { computed, Signal } from "@angular/core";
+import { Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, Subject, map } from "rxjs";
 
@@ -9,8 +9,6 @@ import {
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { TableDataSource } from "@bitwarden/components";
 
@@ -27,8 +25,7 @@ export type ProviderUser = ProviderUserUserDetailsResponse;
 export const MaxCheckedCount = 500;
 
 /**
- * Maximum for bulk reinvite operations when the IncreaseBulkReinviteLimitForCloud
- * feature flag is enabled on cloud environments.
+ * Maximum for bulk reinvite limit in cloud environments.
  */
 export const CloudBulkReinviteLimit = 8000;
 
@@ -78,18 +75,15 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   confirmedUserCount: number;
   revokedUserCount: number;
 
-  /** True when increased bulk limit feature is enabled (feature flag + cloud environment) */
+  /** True when increased bulk limit feature is enabled (cloud environment) */
   readonly isIncreasedBulkLimitEnabled: Signal<boolean>;
 
-  constructor(configService: ConfigService, environmentService: EnvironmentService) {
+  constructor(environmentService: EnvironmentService) {
     super();
 
-    const featureFlagEnabled = toSignal(
-      configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+    this.isIncreasedBulkLimitEnabled = toSignal(
+      environmentService.environment$.pipe(map((env) => env.isCloud())),
     );
-    const isCloud = toSignal(environmentService.environment$.pipe(map((env) => env.isCloud())));
-
-    this.isIncreasedBulkLimitEnabled = computed(() => featureFlagEnabled() && isCloud());
   }
 
   override set data(data: T[]) {
@@ -224,12 +218,9 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   }
 
   /**
-   * Gets checked users with optional limiting based on the IncreaseBulkReinviteLimitForCloud feature flag.
+   * Returns checked users in visible order, optionally limited to the specified count.
    *
-   * When the feature flag is enabled: Returns checked users in visible order, limited to the specified count.
-   * When the feature flag is disabled: Returns all checked users without applying any limit.
-   *
-   * @param limit The maximum number of users to return (only applied when feature flag is enabled)
+   * @param limit The maximum number of users to return
    * @returns The checked users array
    */
   getCheckedUsersWithLimit(limit: number): T[] {
