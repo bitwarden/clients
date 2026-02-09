@@ -158,6 +158,7 @@ export class CardDetailsSectionComponent implements OnInit {
     this.cardDetailsForm.patchValue({
       cardholderName: this.initialValues?.cardholderName ?? existingCard.cardholderName,
       number: this.initialValues?.number ?? existingCard.number,
+      brand: this.initialValues?.brand ?? existingCard.brand,
       expMonth: this.initialValues?.expMonth ?? existingCard.expMonth,
       expYear: this.initialValues?.expYear ?? existingCard.expYear,
       code: this.initialValues?.code ?? existingCard.code,

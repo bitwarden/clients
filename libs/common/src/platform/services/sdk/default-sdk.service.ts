@@ -2,7 +2,10 @@ import {
   combineLatest,
   concatMap,
   Observable,
+  share,
   shareReplay,
+  ReplaySubject,
+  timer,
   map,
   distinctUntilChanged,
   tap,
@@ -80,7 +83,7 @@ export class DefaultSdkService implements SdkService {
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       await SdkLoadService.Ready;
-      const settings = this.toSettings(env);
+      const settings = await this.toSettings(env);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
@@ -194,7 +197,7 @@ export class DefaultSdkService implements SdkService {
               return undefined;
             }
 
-            const settings = this.toSettings(env);
+            const settings = await this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
@@ -228,7 +231,10 @@ export class DefaultSdkService implements SdkService {
         });
       }),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      share({
+        connector: () => new ReplaySubject(1),
+        resetOnRefCountZero: () => timer(1000),
+      }),
     );
 
     this.sdkClientCache.set(userId, client$);
@@ -287,11 +293,12 @@ export class DefaultSdkService implements SdkService {
     client.platform().load_flags(featureFlagMap);
   }
 
-  private toSettings(env: Environment): ClientSettings {
+  private async toSettings(env: Environment): Promise<ClientSettings> {
     return {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
       userAgent: this.userAgent ?? navigator.userAgent,
     };
   }
