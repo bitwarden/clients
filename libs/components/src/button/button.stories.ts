@@ -186,7 +186,7 @@ export const AllVariants: Story = {
             <p class="tw-m-0" bitTypography="helper">successGhost</p>
           </div>
         </div>
-        <div class="tw-flex tw-p-4 tw-gap-4 tw-bg-bg-sidenav">
+        <div class="tw-flex tw-p-4 tw-gap-4 tw-bg-bg-contrast">
           <div class="tw-flex tw-text-fg-contrast tw-flex-col tw-items-center tw-gap-2">
             <button buttonType="contrast" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
             <p class="tw-m-0" bitTypography="helper">contrast</p>

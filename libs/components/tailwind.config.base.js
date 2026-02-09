@@ -190,6 +190,7 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-border-accent-tertiary-soft)",
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
+        "focus-contrast": "var(--color-border-focus-contrast)",
       },
     },
     textColor: () => ({

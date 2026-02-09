@@ -13,13 +13,13 @@ export const focusRing = [
 ];
 
 export const getIconButtonSizeStyles = (size: ButtonSize): string[] => {
-    const iconButtonSizes: Record<string, string[]> = {
-      small: ["tw-text-xl", "tw-size-8"],
-      default: ["tw-text-2xl", "tw-size-10"],
-      large: ["tw-text-[2rem]", "tw-size-11"],
-    };
-    return iconButtonSizes[size] || iconButtonSizes.default;
-  }
+  const iconButtonSizes: Record<string, string[]> = {
+    small: ["tw-text-xl", "tw-size-8"],
+    default: ["tw-text-2xl", "tw-size-10"],
+    large: ["tw-text-[2rem]", "tw-size-11"],
+  };
+  return iconButtonSizes[size] || iconButtonSizes.default;
+};
 
 export const getButtonSizeStyles = (size: ButtonSize): string[] => {
   const buttonSizeStyles: Record<ButtonSize, string[]> = {
@@ -180,7 +180,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "focus-visible:tw-border-bg-hover-contrast",
       "hover:tw-border-bg-hover-contrast",
     ],
-    "nav-contrast": [
+    "side-nav": [
       "!tw-text-fg-sidenav-text",
       "tw-border-transparent",
       "tw-bg-transparent",
@@ -191,7 +191,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "focus-visible:!tw-text-fg-sidenav-text",
       "focus-visible:tw-bg-hover-contrast",
       "focus-visible:tw-border-transparent",
-      ...focusRing,
     ],
     unstyled: [],
   };
@@ -216,6 +215,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   const isSecondary = normalizedType === "secondary";
   const isUnstyled = normalizedType === "unstyled";
   const isSolid = !isOutline && !isGhost && !isUnstyled;
+  const isContrast = normalizedType.includes("contrast");
 
   if (isOutline || isGhost) {
     baseStyles.push(
@@ -235,13 +235,16 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     baseStyles.push(
       "tw-border-transparent",
       "hover:tw-border-bg-hover",
-      "focus:tw-border-bg-hover",
       "focus-visible:tw-border-bg-hover",
     );
   }
 
   if (isUnstyled) {
     baseStyles.push("tw-text-current");
+  }
+
+  if (isContrast) {
+    baseStyles.push("focus-visible:!tw-ring-border-focus-contrast");
   }
 
   return [...baseStyles, ...(buttonStyles[buttonType] || buttonStyles.secondary)];

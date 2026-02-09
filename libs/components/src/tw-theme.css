@@ -354,6 +354,7 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-black);
+  --color-border-focus-contrast: var(--color-white);
 
   /**========================================
    * SIDENAV BACKGROUND COLORS (Light mode)
@@ -557,6 +558,7 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-white);
+  --color-border-focus-contrast: var(--color-black);
 
   /**========================================
     * SIDENAV BACKGROUND COLORS (Dark mode)
