@@ -216,6 +216,13 @@ export class ItemCopyActionsComponent {
     return field.type !== FieldType.Linked && field.value != null && field.value !== "";
   }
 
+  /** Returns the display label for a secure note custom field copy option. */
+  getSecureNoteCustomFieldCopyLabel(field: SecureNoteField): string {
+    return typeof field.name === "string" && field.name.trim().length > 0
+      ? field.name
+      : this.i18nService.t("customField");
+  }
+
   /** Copies a secure note custom field value using the protected copy flow */
   async copyCustomField(field: SecureNoteField) {
     if (field.value == null || field.value === "") {

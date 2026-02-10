@@ -194,7 +194,7 @@
       *ngFor="let field of secureNoteCustomFields"
       (click)="copyCustomField(field)"
     >
-      {{ "copyCustomField" | i18n: field.name }}
+      {{ "copyCustomField" | i18n: getSecureNoteCustomFieldCopyLabel(field) }}
     </button>
   </bit-menu>
 </bit-item-action>

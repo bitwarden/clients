@@ -407,6 +407,21 @@ describe("ItemCopyActionsComponent", () => {
     });
   });
 
+  describe("getSecureNoteCustomFieldCopyLabel", () => {
+    it("returns the field name when it is a non-empty string", () => {
+      const result = component.getSecureNoteCustomFieldCopyLabel({ name: "Checkbox name" });
+
+      expect(result).toBe("Checkbox name");
+    });
+
+    it("falls back to customField translation for non-string names", () => {
+      const result = component.getSecureNoteCustomFieldCopyLabel({ name: true });
+
+      expect(result).toBe("translated-customField");
+      expect(i18nService.t).toHaveBeenCalledWith("customField");
+    });
+  });
+
   describe("has*Values in list view", () => {
     beforeEach(() => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
