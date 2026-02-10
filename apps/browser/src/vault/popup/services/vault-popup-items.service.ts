@@ -119,7 +119,7 @@ export class VaultPopupItemsService {
               this.cipherService
                 .cipherListViews$(userId)
                 .pipe(filter((ciphers) => ciphers != null)),
-              this.cipherService.failedToDecryptCiphers$(userId),
+              this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
               this.restrictedItemTypesService.restricted$,
             ]),
           ),
