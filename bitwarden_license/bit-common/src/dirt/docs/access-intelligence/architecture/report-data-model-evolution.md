@@ -7,6 +7,16 @@
 
 ---
 
+## Table of Contents
+
+1. [Current Storage Model](#1-current-storage-model-still-in-use--plain-interfaces-no-architecture)
+2. [Proposed View Models — Following BW Architecture](#2-proposed-view-models--following-bw-architecture-what-should-be-implemented-next)
+3. [Target Model — With Member Registry](#3-target-model--with-member-registry-what-were-building)
+4. [Storage Structure Comparison](#4-storage-structure-comparison)
+5. [Encryption Approaches (Current vs Future Options)](#5-encryption-approaches-current-vs-future-options)
+
+---
+
 ## 1. Current Storage Model (Still In Use) — Plain interfaces, no architecture
 
 **Status:** This is what's stored in the database today. These are simple TypeScript interfaces/types with no domain/data/view/api layers. No encryption support in the types themselves. Services do all the filtering and transformation.
