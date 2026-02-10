@@ -57,7 +57,7 @@
       <bit-form-field disableMargin>
         <bit-label>{{ "folder" | i18n }}</bit-label>
         <bit-select formControlName="folderId">
-          @for (folder of config.folders; track folder) {
+          @for (folder of config.folders; track folder.id) {
             <bit-option [value]="folder.id" [label]="folder.name"></bit-option>
           }
         </bit-select>

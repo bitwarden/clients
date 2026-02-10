@@ -7,7 +7,7 @@
 
   <bit-card cdkDropList (cdkDropListDropped)="onUriItemDrop($event)">
     <ng-container formArrayName="uris">
-      @for (uri of uriControls; track uri; let i = $index) {
+      @for (uri of uriControls; track $index; let i = $index) {
         <vault-autofill-uri-option
           cdkDrag
           [cdkDragDisabled]="uriControls.length <= 1 || autofillOptionsForm.disabled"

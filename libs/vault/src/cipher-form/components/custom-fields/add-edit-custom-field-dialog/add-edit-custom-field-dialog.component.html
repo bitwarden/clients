@@ -8,7 +8,7 @@
         <bit-form-field>
           <bit-label>{{ "fieldType" | i18n }}</bit-label>
           <bit-select id="fieldType" formControlName="type">
-            @for (type of fieldTypeOptions; track type) {
+            @for (type of fieldTypeOptions; track type.value) {
               <bit-option [value]="type.value" [label]="type.name"></bit-option>
             }
           </bit-select>

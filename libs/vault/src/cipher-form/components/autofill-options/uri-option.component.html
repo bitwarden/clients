@@ -42,7 +42,7 @@
       <bit-form-field class="!tw-mb-5">
         <bit-label>{{ "matchDetection" | i18n }}</bit-label>
         <bit-select formControlName="matchDetection" #matchDetectionSelect>
-          @for (o of uriMatchOptions; track o) {
+          @for (o of uriMatchOptions; track o.value) {
             <bit-option [label]="o.label" [value]="o.value" [disabled]="o.disabled"></bit-option>
           }
         </bit-select>
