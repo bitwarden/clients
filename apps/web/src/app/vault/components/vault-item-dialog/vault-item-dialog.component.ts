@@ -226,6 +226,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   );
 
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+  private _archiveFlagEnabled = false;
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -296,7 +297,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private _userCanArchive = false;
 
   protected get showArchiveOptions(): boolean {
-    return !this.params.isAdminConsoleAction && this.params.mode === "view";
+    return (
+      this._archiveFlagEnabled && !this.params.isAdminConsoleAction && this.params.mode === "view"
+    );
   }
 
   protected get showArchiveBtn(): boolean {
@@ -357,6 +360,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.userCanArchive$.pipe(takeUntilDestroyed()).subscribe((v) => (this._userCanArchive = v));
+    this.archiveFlagEnabled$
+      .pipe(takeUntilDestroyed())
+      .subscribe((v) => (this._archiveFlagEnabled = v));
   }
 
   async ngOnInit() {
