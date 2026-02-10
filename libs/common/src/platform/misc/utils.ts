@@ -42,6 +42,7 @@ export class Utils {
   static readonly validHosts: string[] = ["localhost"];
   static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
+  static readonly maximumPasswordLength = 128;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
   ]);

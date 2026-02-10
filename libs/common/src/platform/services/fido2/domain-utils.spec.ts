@@ -2,6 +2,18 @@ import { isValidRpId } from "./domain-utils";
 
 // Spec: If options.rp.id is not a registrable domain suffix of and is not equal to effectiveDomain, return a DOMException whose name is "SecurityError", and terminate this algorithm.
 describe("validateRpId", () => {
+  it("should not be valid when rpId is null", () => {
+    const origin = "example.com";
+
+    expect(isValidRpId(null, origin)).toBe(false);
+  });
+
+  it("should not be valid when origin is null", () => {
+    const rpId = "example.com";
+
+    expect(isValidRpId(rpId, null)).toBe(false);
+  });
+
   it("should not be valid when rpId is more specific than origin", () => {
     const rpId = "sub.login.bitwarden.com";
     const origin = "https://login.bitwarden.com:1337";
@@ -25,7 +37,7 @@ describe("validateRpId", () => {
 
   it("should not be valid when rpId and origin are both different TLD", () => {
     const rpId = "bitwarden";
-    const origin = "localhost";
+    const origin = "https://localhost";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });
@@ -34,14 +46,14 @@ describe("validateRpId", () => {
   // adding support for ip-addresses and other TLDs
   it("should not be valid when rpId and origin are both the same TLD", () => {
     const rpId = "bitwarden";
-    const origin = "bitwarden";
+    const origin = "https://bitwarden";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });
 
   it("should not be valid when rpId and origin are ip-addresses", () => {
     const rpId = "127.0.0.1";
-    const origin = "127.0.0.1";
+    const origin = "https://127.0.0.1";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });
@@ -79,5 +91,12 @@ describe("validateRpId", () => {
     const origin = "https://sub.login.bitwarden.com:1337";
 
     expect(isValidRpId(rpId, origin)).toBe(true);
+  });
+
+  it("should not be valid for a partial match of a subdomain", () => {
+    const rpId = "accounts.example.com";
+    const origin = "https://evilaccounts.example.com";
+
+    expect(isValidRpId(rpId, origin)).toBe(false);
   });
 });
