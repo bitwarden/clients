@@ -119,7 +119,7 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
@@ -258,19 +258,19 @@ describe("VaultItemDialogComponent", () => {
       expect(archiveButton).toBeFalsy();
     });
 
-    it("should show archive button when the user can archive the item and the item can be archived", () => {
+    it("should show archive button when the user can archive the item, item can be archived, and dialog is in view mode", () => {
       component.setTestCipher({ canBeArchived: true });
       (component as any).userCanArchive$ = of(true);
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeTruthy();
     });
 
-    it("should not show archive button when the user cannot archive the item", () => {
+    it("should not show archive button when the user does not have premium", () => {
       (component as any).userCanArchive$ = of(false);
       component.setTestCipher({});
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
@@ -283,18 +283,35 @@ describe("VaultItemDialogComponent", () => {
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
     });
+
+    it("should not show archive button when dialog is not in view mode", () => {
+      component.setTestCipher({ canBeArchived: true });
+      (component as any).userCanArchive$ = of(true);
+      component.setTestParams({ mode: "form" });
+      fixture.detectChanges();
+      const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
+      expect(archiveButton).toBeFalsy();
+    });
   });
 
   describe("unarchive button", () => {
-    it("should show the unarchive button when the item is archived", () => {
+    it("should show the unarchive button when the item is archived, and dialog in view mode", () => {
       component.setTestCipher({ isArchived: true });
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeTruthy();
     });
 
     it("should not show the unarchive button when the item is not archived", () => {
+      component.setTestCipher({ isArchived: false });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+      const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
+      expect(unarchiveButton).toBeFalsy();
+    });
+
+    it("should not show the unarchive button when dialog is not in view mode", () => {
       component.setTestCipher({ isArchived: false });
       component.setTestParams({ mode: "form" });
       fixture.detectChanges();
