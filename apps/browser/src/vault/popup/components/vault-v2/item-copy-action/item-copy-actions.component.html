@@ -181,9 +181,22 @@
     bitIconButton="bwi-clone"
     size="small"
     [label]="hasSecureNoteValue ? ('copyNoteTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
-    appCopyField="secureNote"
-    [cipher]="cipher"
+    [disabled]="!hasSecureNoteValue"
+    [bitMenuTriggerFor]="secureNoteOptions"
   ></button>
+  <bit-menu #secureNoteOptions>
+    <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher">
+      {{ "copyNote" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitMenuItem
+      *ngFor="let field of secureNoteCustomFields"
+      (click)="copyCustomField(field)"
+    >
+      {{ "copyCustomField" | i18n: field.name }}
+    </button>
+  </bit-menu>
 </bit-item-action>
 
 <bit-item-action *ngIf="CipherViewLikeUtils.getType(cipher) === CipherType.SshKey">

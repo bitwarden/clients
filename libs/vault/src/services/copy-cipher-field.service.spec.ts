@@ -89,6 +89,23 @@ describe("CopyCipherFieldService", () => {
       expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Username");
     });
 
+    it("should use value copied toast text for custom fields", async () => {
+      actionType = "customField";
+      cipher.reprompt = CipherRepromptType.None;
+      i18nService.t.mockReturnValueOnce("Value").mockReturnValueOnce("Value copied");
+
+      const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
+
+      expect(result).toBeTruthy();
+      expect(i18nService.t).toHaveBeenCalledWith("value");
+      expect(i18nService.t).toHaveBeenCalledWith("valueCopied", "Value");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "Value copied",
+        title: "",
+      });
+    });
+
     describe("password reprompt", () => {
       beforeEach(() => {
         actionType = "password";

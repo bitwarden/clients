@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
@@ -11,6 +12,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
+import { CopyCipherFieldService } from "@bitwarden/vault";
 
 import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 
@@ -21,11 +23,15 @@ describe("ItemCopyActionsComponent", () => {
   let component: ItemCopyActionsComponent;
 
   let i18nService: jest.Mocked<I18nService>;
+  let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
 
   beforeEach(async () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+    copyCipherFieldService = {
+      copy: jest.fn(),
+    } as unknown as jest.Mocked<CopyCipherFieldService>;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -38,6 +44,7 @@ describe("ItemCopyActionsComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: i18nService },
+        { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
         {
           provide: VaultPopupCopyButtonsService,
           useValue: {
@@ -69,6 +76,7 @@ describe("ItemCopyActionsComponent", () => {
       },
       notes: null,
       copyableFields: [],
+      fields: [],
     } as unknown as CipherViewLike;
   });
 
@@ -333,6 +341,25 @@ describe("ItemCopyActionsComponent", () => {
       expect(component.hasSecureNoteValue).toBe(false);
     });
 
+    it("computes hasSecureNoteValue from custom fields when note is empty", () => {
+      (component.cipher as CipherView).notes = null as any;
+      (component.cipher as CipherView).fields = [{ name: "API key", value: "abc123" }] as any;
+
+      expect(component.hasSecureNoteValue).toBe(true);
+      expect(component.secureNoteCustomFields).toHaveLength(1);
+    });
+
+    it("excludes linked and empty custom fields from secure note copy items", () => {
+      (component.cipher as CipherView).notes = null as any;
+      (component.cipher as CipherView).fields = [
+        { name: "Linked", value: "ignored", type: FieldType.Linked },
+        { name: "Empty", value: "" },
+        { name: "Valid", value: "value", type: FieldType.Text },
+      ] as any;
+
+      expect(component.secureNoteCustomFields).toHaveLength(1);
+    });
+
     it("computes hasSshKeyValues from sshKey fields", () => {
       (component.cipher as CipherView).sshKey = {
         privateKey: "priv",
@@ -349,6 +376,34 @@ describe("ItemCopyActionsComponent", () => {
       } as any;
 
       expect(component.hasSshKeyValues).toBe(false);
+    });
+  });
+
+  describe("copyCustomField", () => {
+    it("copies non-hidden custom fields through customField action", async () => {
+      await component.copyCustomField({ type: FieldType.Text, value: "abc123" });
+
+      expect(copyCipherFieldService.copy).toHaveBeenCalledWith(
+        "abc123",
+        "customField",
+        component.cipher,
+      );
+    });
+
+    it("copies hidden custom fields through hiddenField action", async () => {
+      await component.copyCustomField({ type: FieldType.Hidden, value: "abc123" });
+
+      expect(copyCipherFieldService.copy).toHaveBeenCalledWith(
+        "abc123",
+        "hiddenField",
+        component.cipher,
+      );
+    });
+
+    it("does nothing when field value is empty", async () => {
+      await component.copyCustomField({ value: "" });
+
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
     });
   });
 
@@ -410,6 +465,17 @@ describe("ItemCopyActionsComponent", () => {
         "LoginUsername",
       ] as CopyableCipherFields[];
       expect(component.hasSecureNoteValue).toBe(false);
+    });
+
+    it("counts custom fields for secure note value in list view", () => {
+      (component.cipher as CipherListView).copyableFields = [
+        "LoginUsername",
+      ] as CopyableCipherFields[];
+      (component.cipher as CipherListView).fields = [
+        { name: "API key", value: "abc123", type: FieldType.Text },
+      ] as any;
+
+      expect(component.hasSecureNoteValue).toBe(true);
     });
 
     it("uses copyableFields for ssh key values", () => {

@@ -3,14 +3,18 @@ import { Component, Input, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CopyableCipherFields } from "@bitwarden/sdk-internal";
-import { CopyFieldAction, CopyCipherFieldDirective } from "@bitwarden/vault";
+import {
+  CopyFieldAction,
+  CopyCipherFieldDirective,
+  CopyCipherFieldService,
+} from "@bitwarden/vault";
 
 import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 
@@ -19,6 +23,12 @@ type CipherItem = {
   key: string;
   /** Property key on `CipherView` to retrieve the copy value */
   field: CopyFieldAction;
+};
+
+type SecureNoteField = {
+  name?: string | null;
+  type?: FieldType;
+  value?: string | null;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -122,7 +132,14 @@ export class ItemCopyActionsComponent {
     return this.getNumberOfSshKeyValues() > 0;
   }
 
-  constructor(private i18nService: I18nService) {}
+  get secureNoteCustomFields(): SecureNoteField[] {
+    return (this.cipher.fields ?? []).filter((field) => this.isCopyableSecureNoteField(field));
+  }
+
+  constructor(
+    private i18nService: I18nService,
+    private copyCipherFieldService: CopyCipherFieldService,
+  ) {}
 
   /** Sets the number of populated login values for the cipher */
   private getNumberOfLoginValues() {
@@ -174,11 +191,11 @@ export class ItemCopyActionsComponent {
   }
   /** Sets the number of populated secure note values for the cipher */
   private getNumberOfSecureNoteValues(): number {
+    const customFieldCount = this.secureNoteCustomFields.length;
     if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
-      return this.cipher.copyableFields.includes("SecureNotes") ? 1 : 0;
+      return (this.cipher.copyableFields.includes("SecureNotes") ? 1 : 0) + customFieldCount;
     }
-
-    return this.cipher.notes ? 1 : 0;
+    return (this.cipher.notes ? 1 : 0) + customFieldCount;
   }
 
   /** Sets the number of populated SSH key values for the cipher */
@@ -192,5 +209,19 @@ export class ItemCopyActionsComponent {
       this.cipher.sshKey.publicKey,
       this.cipher.sshKey.keyFingerprint,
     ].filter(Boolean).length;
+  }
+
+  /** Returns true when a secure note's custom field has a copyable value */
+  private isCopyableSecureNoteField(field: SecureNoteField) {
+    return field.type !== FieldType.Linked && field.value != null && field.value !== "";
+  }
+
+  /** Copies a secure note custom field value using the protected copy flow */
+  async copyCustomField(field: SecureNoteField) {
+    if (field.value == null || field.value === "") {
+      return;
+    }
+    const action = field.type === FieldType.Hidden ? "hiddenField" : "customField";
+    await this.copyCipherFieldService.copy(field.value, action, this.cipher);
   }
 }

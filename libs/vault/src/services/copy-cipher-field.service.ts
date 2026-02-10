@@ -33,13 +33,14 @@ export type CopyAction =
   | "hiddenField"
   | "privateKey"
   | "publicKey"
-  | "keyFingerprint";
+  | "keyFingerprint"
+  | "customField";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
- * Excludes "hiddenField" which requires special handling.
+ * Excludes actions that require special handling.
  */
-export type CopyFieldAction = Exclude<CopyAction, "hiddenField">;
+export type CopyFieldAction = Exclude<CopyAction, "hiddenField" | "customField">;
 
 type CopyActionInfo = {
   /**
@@ -84,6 +85,7 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     protected: true,
     event: EventType.Cipher_ClientCopiedHiddenField,
   },
+  customField: { typeI18nKey: "value", protected: true },
 };
 
 @Injectable({
