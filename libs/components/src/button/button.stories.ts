@@ -152,12 +152,12 @@ export const WithIcon: Story = {
     template: /*html*/ `
       <span class="tw-flex tw-gap-8">
         <div>
-          <button type="button" startIcon="bwi-plus" bitButton [buttonType]="buttonType" [block]="block">
+          <button type="button" startIcon="bwi-add" bitButton [buttonType]="buttonType" [block]="block">
             Button label
           </button>
         </div>
         <div>
-          <button type="button" endIcon="bwi-plus" bitButton [buttonType]="buttonType" [block]="block">
+          <button type="button" endIcon="bwi-add" bitButton [buttonType]="buttonType" [block]="block">
             Button label
           </button>
         </div>

@@ -93,7 +93,9 @@ function migrateIconNames(): void {
         const originalContent = content;
 
         // Count occurrences before replacement
-        const regex = new RegExp(oldPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+        // Use word boundaries to prevent partial matches (e.g., don't match "bwi-star-f" inside "bwi-star-filled")
+        const escapedPattern = oldPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`\\b${escapedPattern}\\b`, "g");
         const matches = content.match(regex);
         const occurrences = matches ? matches.length : 0;
 

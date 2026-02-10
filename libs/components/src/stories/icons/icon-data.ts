@@ -42,10 +42,6 @@ const bitwardenObjects = [
     usage: "Indicates a collection.",
   },
   {
-    id: "bwi-collection",
-    usage: "Indicates a collection.",
-  },
-  {
     id: "bwi-credit-card",
     usage: "Indicates a credit card item type.",
   },

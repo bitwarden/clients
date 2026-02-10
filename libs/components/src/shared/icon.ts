@@ -27,7 +27,6 @@ export const BITWARDEN_ICONS = [
   "bwi-settings",
   "bwi-settings-f",
   "bwi-collection",
-  "bwi-collection-shared",
   "bwi-credit-card",
   "bwi-dashboard",
   "bwi-desktop",
