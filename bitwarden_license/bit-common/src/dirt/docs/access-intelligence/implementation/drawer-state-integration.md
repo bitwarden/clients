@@ -591,7 +591,6 @@ Create GitHub issue with:
 
 ## References
 
-- [Session Log](../sessions/2026-02-10-services-drawer-cipher-health.md) - Design decisions
 - [DrawerStateService Abstract](../../../services/abstractions/drawer-state.service.ts) - Service definition
 - [DefaultDrawerStateService](../../../services/implementations/default-drawer-state.service.ts) - Implementation
 - [Playbook](../playbook.md) - Overall workflow
