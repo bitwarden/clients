@@ -36,7 +36,7 @@ describe("buildCipherIcon", () => {
       expect(iconDetails).toEqual({
         icon: "bwi-login",
         image: "https://icons.example/test.androidapp/icon.png",
-        fallbackImage: "images/bwi-login.png",
+        fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
       });
     });
@@ -63,7 +63,7 @@ describe("buildCipherIcon", () => {
       expect(iconDetails).toEqual({
         icon: "bwi-login",
         image: "https://icons.example/test.iosapp/icon.png",
-        fallbackImage: "images/bwi-login.png",
+        fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
       });
     });
@@ -78,7 +78,7 @@ describe("buildCipherIcon", () => {
       expect(iconDetails).toEqual({
         icon: "bwi-login",
         image: "https://icons.example/test.example/icon.png",
-        fallbackImage: "images/bwi-login.png",
+        fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
       });
     });
@@ -117,7 +117,7 @@ describe("buildCipherIcon", () => {
       expect(iconDetails).toEqual({
         icon: "bwi-login",
         image: null,
-        fallbackImage: "images/bwi-login.png",
+        fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
       });
     });

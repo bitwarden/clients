@@ -930,7 +930,7 @@ describe("OverlayBackground", () => {
             accountCreationFieldType: undefined,
             favorite: loginCipher1.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1068,7 +1068,7 @@ describe("OverlayBackground", () => {
               accountCreationFieldType: "text",
               favorite: loginCipher1.favorite,
               icon: {
-                fallbackImage: "images/bwi-login.png",
+                fallbackImage: "images/bwi-globe.png",
                 icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,
@@ -1190,7 +1190,7 @@ describe("OverlayBackground", () => {
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1212,7 +1212,7 @@ describe("OverlayBackground", () => {
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1231,7 +1231,7 @@ describe("OverlayBackground", () => {
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1279,7 +1279,7 @@ describe("OverlayBackground", () => {
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1298,7 +1298,7 @@ describe("OverlayBackground", () => {
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1346,7 +1346,7 @@ describe("OverlayBackground", () => {
             reprompt: passkeyCipher.reprompt,
             favorite: passkeyCipher.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1365,7 +1365,7 @@ describe("OverlayBackground", () => {
             reprompt: loginCipher1.reprompt,
             favorite: loginCipher1.favorite,
             icon: {
-              fallbackImage: "images/bwi-login.png",
+              fallbackImage: "images/bwi-globe.png",
               icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
@@ -1411,7 +1411,7 @@ describe("OverlayBackground", () => {
               reprompt: loginCipher1.reprompt,
               favorite: loginCipher1.favorite,
               icon: {
-                fallbackImage: "images/bwi-login.png",
+                fallbackImage: "images/bwi-globe.png",
                 icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,
@@ -1430,7 +1430,7 @@ describe("OverlayBackground", () => {
               reprompt: loginCipher2.reprompt,
               favorite: loginCipher2.favorite,
               icon: {
-                fallbackImage: "images/bwi-login.png",
+                fallbackImage: "images/bwi-globe.png",
                 icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,

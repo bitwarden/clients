@@ -69,14 +69,14 @@ export function buildCipherIcon(
 
         if (isWebsite && (hostnameUri.endsWith(".onion") || hostnameUri.endsWith(".i2p"))) {
           image = null;
-          fallbackImage = "images/bwi-login.png";
+          fallbackImage = "images/bwi-globe.png";
           break;
         }
 
         if (showFavicon && isWebsite) {
           try {
             image = `${iconsServerUrl}/${Utils.getHostname(hostnameUri)}/icon.png`;
-            fallbackImage = "images/bwi-login.png";
+            fallbackImage = "images/bwi-globe.png";
           } catch {
             // Ignore error since the fallback icon will be shown if image is null.
           }
