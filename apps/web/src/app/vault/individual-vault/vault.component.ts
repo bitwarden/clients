@@ -1,15 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import {
-  BehaviorSubject,
-  combineLatest,
-  firstValueFrom,
-  lastValueFrom,
-  Observable,
-  of,
-  Subject,
-  zip,
-} from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject, zip } from "rxjs";
 import {
   concatMap,
   debounceTime,
@@ -18,6 +9,7 @@ import {
   first,
   map,
   shareReplay,
+  startWith,
   switchMap,
   take,
   takeUntil,
@@ -201,12 +193,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected refreshing = false;
   protected processingEvent = false;
   protected filter: RoutedVaultFilterModel = {};
-  protected showBulkMove: boolean | null = null;
-  protected canAccessPremium: boolean | null = null;
-  protected allCollections: CollectionView[] | null = null;
+  protected showBulkMove: boolean = false;
+  protected canAccessPremium: boolean = false;
+  protected allCollections: CollectionView[] = [];
   protected allOrganizations: Organization[] = [];
-  protected ciphers: C[] | null = null;
-  protected collections: CollectionView[] | null = null;
+  protected ciphers: C[] = [];
+  protected collections: CollectionView[] = [];
   protected isEmpty: boolean = false;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
@@ -214,7 +206,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((queryParams) => queryParams.search),
   );
   private searchText$ = new Subject<string>();
-  private refresh$ = new BehaviorSubject(undefined);
+  private refresh$ = new Subject<void>();
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
@@ -593,7 +585,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     firstSetup$
       .pipe(
-        switchMap(() => this.refresh$),
+        switchMap(() => this.refresh$.pipe(startWith(undefined))),
         tap(() => (this.refreshing = true)),
         switchMap(() =>
           combineLatest([
@@ -722,7 +714,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async handleUnknownCipher() {
     this.toastService.showToast({
       variant: "error",
-      title: "",
       message: this.i18nService.t("unknownCipher"),
     });
     await this.router.navigate([], {
@@ -1185,7 +1176,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        title: "",
         message: this.i18nService.t("deletedCollectionId", collection.name),
       });
       if (navigateAway) {
@@ -1302,12 +1292,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
       this.toastService.showToast({
         variant: "success",
-        title: "",
         message: toastMessage,
       });
       this.refresh();
     } catch (e) {
       this.logService.error(e);
+      return false;
     }
     return true;
   };
@@ -1333,7 +1323,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1343,7 +1332,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherService.restoreManyWithServer(selectedCipherIds, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      title: "",
       message: toastMessage,
     });
     this.refresh();
@@ -1397,7 +1385,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        title: "",
         message: this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
       });
       this.refresh();
@@ -1414,7 +1401,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (ciphers.length === 0 && collections.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1454,7 +1440,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1522,7 +1507,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.platformUtilsService.copyToClipboard(value, { window: window });
     this.toastService.showToast({
       variant: "info",
-      title: "",
       message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     });
 
@@ -1542,7 +1526,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   showErrorToast() {
     this.toastService.showToast({
       variant: "error",
-      title: "",
       message: this.i18nService.t("unexpectedError"),
     });
   }
@@ -1558,7 +1541,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.toastService.showToast({
       variant: "success",
-      title: "",
       message: this.i18nService.t(
         cipherFullView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
@@ -1606,7 +1588,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private showMissingPermissionsError() {
     this.toastService.showToast({
       variant: "error",
-      title: "",
       message: this.i18nService.t("missingPermissions"),
     });
   }
