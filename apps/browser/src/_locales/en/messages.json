@@ -6127,6 +6127,10 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
   "emailProtected": {
     "message": "Email protected"
   },
