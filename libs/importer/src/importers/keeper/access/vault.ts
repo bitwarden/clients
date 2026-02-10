@@ -75,14 +75,14 @@ interface DecryptedFolderData {
 }
 
 export class Vault {
-  private constructor(
+  constructor(
     private readonly dataKey: Uint8Array,
     public records: Map<string, VaultRecord>,
     public folders: Map<string, VaultFolder>,
     public sharedFolders: Map<string, VaultSharedFolder>,
   ) {}
 
-  private async processSyncDownResponse(response: SyncDownResponse): Promise<void> {
+  async processMergedSyncDownResponse(response: SyncDownResponse): Promise<void> {
     const dataKey = this.dataKey;
 
     const recordMetaMap = new Map<
@@ -283,6 +283,63 @@ export class Vault {
     }
   }
 
+  static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
+    if (pages.length === 1) {
+      return pages[0];
+    }
+
+    const merged = pages[0];
+    for (let i = 1; i < pages.length; i++) {
+      const page = pages[i];
+      merged.userFolders.push(...page.userFolders);
+      merged.sharedFolders.push(...page.sharedFolders);
+      merged.userFolderSharedFolders.push(...page.userFolderSharedFolders);
+      merged.sharedFolderFolders.push(...page.sharedFolderFolders);
+      merged.records.push(...page.records);
+      merged.recordMetaData.push(...page.recordMetaData);
+      merged.nonSharedData.push(...page.nonSharedData);
+      merged.recordLinks.push(...page.recordLinks);
+      merged.userFolderRecords.push(...page.userFolderRecords);
+      merged.sharedFolderRecords.push(...page.sharedFolderRecords);
+      merged.sharedFolderFolderRecords.push(...page.sharedFolderFolderRecords);
+      merged.sharedFolderUsers.push(...page.sharedFolderUsers);
+      merged.sharedFolderTeams.push(...page.sharedFolderTeams);
+      merged.recordAddAuditData.push(...page.recordAddAuditData);
+      merged.teams.push(...page.teams);
+      merged.sharingChanges.push(...page.sharingChanges);
+      merged.pendingTeamMembers.push(...page.pendingTeamMembers);
+      merged.breachWatchRecords.push(...page.breachWatchRecords);
+      merged.userAuths.push(...page.userAuths);
+      merged.breachWatchSecurityData.push(...page.breachWatchSecurityData);
+      merged.removedUserFolders.push(...page.removedUserFolders);
+      merged.removedSharedFolders.push(...page.removedSharedFolders);
+      merged.removedUserFolderSharedFolders.push(...page.removedUserFolderSharedFolders);
+      merged.removedSharedFolderFolders.push(...page.removedSharedFolderFolders);
+      merged.removedRecords.push(...page.removedRecords);
+      merged.removedRecordLinks.push(...page.removedRecordLinks);
+      merged.removedUserFolderRecords.push(...page.removedUserFolderRecords);
+      merged.removedSharedFolderRecords.push(...page.removedSharedFolderRecords);
+      merged.removedSharedFolderFolderRecords.push(...page.removedSharedFolderFolderRecords);
+      merged.removedSharedFolderUsers.push(...page.removedSharedFolderUsers);
+      merged.removedSharedFolderTeams.push(...page.removedSharedFolderTeams);
+      merged.removedTeams.push(...page.removedTeams);
+      merged.ksmAppShares.push(...page.ksmAppShares);
+      merged.ksmAppClients.push(...page.ksmAppClients);
+      merged.shareInvitations.push(...page.shareInvitations);
+      merged.recordRotations.push(...page.recordRotations);
+      merged.users.push(...page.users);
+      merged.removedUsers.push(...page.removedUsers);
+      merged.securityScoreData.push(...page.securityScoreData);
+      merged.notificationSync.push(...page.notificationSync);
+
+      merged.continuationToken = page.continuationToken;
+      merged.hasMore = page.hasMore;
+      merged.cacheStatus = page.cacheStatus;
+    }
+
+    return merged;
+  }
+
   static async open(username: string, password: string, options: ClientOptions): Promise<Vault> {
     const client = new Client(options);
     const loginResult = await client.login(username, password, options);
@@ -292,8 +349,9 @@ export class Vault {
     const folders = new Map<string, VaultFolder>();
     const sharedFolders = new Map<string, VaultSharedFolder>();
     const vault = new Vault(loginResult.dataKey, records, folders, sharedFolders);
-    const syncResponse = await client.syncDown(loginResult.sessionToken);
-    await vault.processSyncDownResponse(syncResponse);
+    const pages = await client.syncDown(loginResult.sessionToken);
+    const merged = Vault.mergeSyncDownPages(pages);
+    await vault.processMergedSyncDownResponse(merged);
 
     return vault;
   }
