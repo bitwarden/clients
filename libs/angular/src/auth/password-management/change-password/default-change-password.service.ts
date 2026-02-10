@@ -153,16 +153,12 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
 
-    // Confirm that the current password + unlock data can decrypt the user key (i.e the current password is valid)
-    const currentUnlockData = await firstValueFrom(
-      this.masterPasswordService.masterPasswordUnlockData$(userId),
-    );
-    const userKey = await this.masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData(
-      passwordInputResult.currentPassword,
-      currentUnlockData,
-    );
-    if (userKey == null) {
-      throw new Error("Could not decrypt user key");
+    // We don't need to verify the currentPassword here because by this point it has already
+    // been verified via proofOfDecryption before being emitted from the InputPasswordComponent.
+    // We can simply get the user key from state and use it.
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      throw new Error("userKey not found. Could not change password.");
     }
 
     // Create new authentication data with the new password (includes a new masterPasswordAuthenticationHash)
