@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { ChangePasswordService } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 
 import { WebChangePasswordService } from "./web-change-password.service";
@@ -15,15 +16,18 @@ describe("WebChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let userKeyRotationService: MockProxy<UserKeyRotationService>;
+  let routerService: MockProxy<RouterService>;
 
-  let sut: ChangePasswordService;
+  let sut: WebChangePasswordService;
 
   const userId = "userId" as UserId;
   const user: Account = {
     id: userId,
-    email: "email",
-    emailVerified: false,
-    name: "name",
+    ...mockAccountInfoWith({
+      email: "email",
+      name: "name",
+      emailVerified: false,
+    }),
   };
 
   const currentPassword = "currentPassword";
@@ -35,12 +39,14 @@ describe("WebChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     userKeyRotationService = mock<UserKeyRotationService>();
+    routerService = mock<RouterService>();
 
     sut = new WebChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
       userKeyRotationService,
+      routerService,
     );
   });
 
