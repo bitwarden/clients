@@ -11,14 +11,17 @@
 
 ---
 
-## 1. Old Model (Pre-PR #17356) — Plain interfaces, no architecture
+## 1. Current Storage Model (Still In Use) — Plain interfaces, no architecture
 
-These were simple TypeScript interfaces/types. No domain/data/view/api layers. No encryption
-support. No `decrypt()` method. Services did all the filtering and transformation.
+**Status:** This is what's stored in the database today. These are simple TypeScript interfaces/types with no domain/data/view/api layers. No encryption support in the types themselves. Services do all the filtering and transformation.
+
+**Note:** While PR #17356 introduced architecture patterns, the actual storage structure still uses these plain types directly. The proposed view models (Section 2) describe the architecture we should migrate to next.
 
 ### ApplicationHealthReportDetail (the old report row)
 
 **Source:** `models/report-models.ts:78-88` (current implementation, still in use)
+
+**Current structure (with arrays):**
 
 ```typescript
 // This is the main report model — one record per application (grouped by URI hostname)
@@ -27,15 +30,37 @@ export type ApplicationHealthReportDetail = {
   applicationName: string; // hostname (e.g. "google.com")
   passwordCount: number; // total ciphers for this app
   atRiskPasswordCount: number; // ciphers with weak/reused/exposed passwords
-  atRiskCipherIds: CipherId[]; // IDs of at-risk ciphers
+  cipherIds: CipherId[]; // IDs of all ciphers in this app - ARRAY
+  atRiskCipherIds: CipherId[]; // IDs of at-risk ciphers - ARRAY (subset of cipherIds)
   memberCount: number; // count of unique members (redundant, = memberDetails.length)
   atRiskMemberCount: number; // count of at-risk members (redundant, = atRiskMemberDetails.length)
-  memberDetails: MemberDetails[]; // ⚠️ FULL member objects repeated per app
-  atRiskMemberDetails: MemberDetails[]; // ⚠️ FULL member objects for at-risk only (subset of memberDetails)
-  cipherIds: CipherId[]; // IDs of all ciphers in this app
+  memberDetails: MemberDetails[]; // ⚠️ FULL member objects repeated per app - ARRAY
+  atRiskMemberDetails: MemberDetails[]; // ⚠️ FULL member objects for at-risk only (subset of memberDetails) - ARRAY
   // Members are deduplicated within a single app but NOT across apps.
 };
 ```
+
+**Proposed structure (with Records for consistency):**
+
+```typescript
+export type ApplicationHealthReportDetail = {
+  applicationName: string;
+  passwordCount: number;
+  atRiskPasswordCount: number;
+  cipherRefs: Record<CipherId, boolean>; // true = at-risk, false = not at-risk (combines cipherIds + atRiskCipherIds)
+  memberCount: number; // could be removed (= Object.keys(memberRefs).length)
+  atRiskMemberCount: number; // could be removed (= count of true values in memberRefs)
+  memberRefs: Record<OrganizationUserId, boolean>; // true = at-risk, false = not at-risk (combines memberDetails + atRiskMemberDetails)
+};
+```
+
+**Benefits of Record pattern for ciphers:**
+
+- ✅ Combines `cipherIds` and `atRiskCipherIds` into single structure
+- ✅ No duplicate IDs (prevents data inconsistency)
+- ✅ O(1) lookup to check if cipher is at-risk
+- ✅ Consistent with `memberRefs` pattern
+- ✅ Saves space (~50 bytes per duplicate cipher ID in large orgs)
 
 ### MemberDetails (the old member model)
 
@@ -56,6 +81,10 @@ export type MemberDetails = {
 
 **Source:** `models/report-models.ts:121-128` (current implementation, still in use)
 
+**Current structure (with arrays):**
+
+**Rename to:** RiskInsights
+
 ```typescript
 // The top-level container that is stored in the database
 // Each field is encrypted separately as an EncString
@@ -65,7 +94,20 @@ export interface RiskInsightsData {
   contentEncryptionKey: EncString; // Key used to encrypt report data
   reportData: ApplicationHealthReportDetail[]; // ⚠️ Main payload - can be 700MB+
   summaryData: OrganizationReportSummary; // Pre-computed aggregates (~1KB)
-  applicationData: OrganizationReportApplication[]; // Per-app settings (~10KB)
+  applicationData: OrganizationReportApplication[]; // Per-app settings (~10KB) - ARRAY with O(n) lookup
+}
+```
+
+**Proposed structure (with Records for O(1) lookup):**
+
+```typescript
+export interface RiskInsights {
+  id: OrganizationReportId;
+  creationDate: Date;
+  contentEncryptionKey: EncString;
+  reportData: ApplicationHealthReportDetail[]; // Array is still needed here for iteration
+  summaryData: OrganizationReportSummary;
+  applicationData: Record<string, { isCritical: boolean; reviewedDate: Date | null }>; // Record for O(1) lookup
 }
 ```
 
@@ -74,6 +116,10 @@ export interface RiskInsightsData {
 ### OrganizationReportApplication (per-app user settings)
 
 **Source:** `models/report-models.ts:64-72` (current implementation, still in use)
+
+**Current (Array):** Stored as array with O(n) lookup (inefficient)
+
+**Rename to:** RiskInsightsApplication (If separate model is needed)
 
 ```typescript
 // User-defined settings per application (critical flag, review date)
@@ -85,9 +131,50 @@ export type OrganizationReportApplication = {
 };
 ```
 
+**Proposed (Record):** Should be stored as Record for O(1) lookup
+
+```typescript
+// Key = applicationName (hostname)
+type ApplicationDataRecord = Record<string, {
+  isCritical: boolean;
+  reviewedDate: Date | null;
+}>;
+
+// Example:
+applicationData: {
+  "google.com": { isCritical: true, reviewedDate: new Date("2026-01-15") },
+  "github.com": { isCritical: false, reviewedDate: null },  // new/unreviewed
+  "slack.com": { isCritical: true, reviewedDate: new Date("2026-02-01") }
+}
+```
+
+**Problem with current array structure:**
+
+```typescript
+// Current inefficient O(n) lookup pattern found in code:
+getCriticalApplications(): RiskInsightsReportView[] {
+  return this.report.filter((app) => {
+    const appMeta = this.applications.find((a) => a.hostname === app.applicationName);  // O(n)!
+    return appMeta?.isCritical === true;
+  });
+}
+```
+
+**With Record (O(1) lookup):**
+
+```typescript
+getCriticalApplications(): RiskInsightsReportView[] {
+  return this.report.filter((app) => {
+    return this.applicationData[app.applicationName]?.isCritical === true;  // O(1)!
+  });
+}
+```
+
 ### OrganizationReportSummary (pre-computed aggregates)
 
 **Source:** `models/report-models.ts:49-58` (current implementation, still in use)
+
+**Rename to:** RiskInsightsSummary
 
 ```typescript
 // Pre-computed aggregates for summary cards and filtering
@@ -130,28 +217,30 @@ This caused:
 
 ---
 
-## 2. Current Model — Follows BW Architecture (Post-PR #17356)
+## 2. Proposed View Models — Following BW Architecture (What Should Be Implemented Next)
 
-**Status:** PR #17356 merged. Models follow Bitwarden's 4-layer pattern: `Api → Data → Domain → View`
+**Status:** PR #17356 laid groundwork for architecture patterns, but storage still uses plain types from Section 1. This section describes the view models that SHOULD be implemented to follow Bitwarden's 4-layer pattern: `Api → Data → Domain → View`
 
-**Storage:** Currently uses `ApplicationHealthReportDetail` type directly (no separate domain/view layers for the report rows yet). The models below describe the structure that exists today and what's actually stored in the database.
+**Important:** These models are NOT currently in use. They represent the target architecture we should migrate to, with query methods replacing facade/orchestrator filtering logic.
 
 ### What's Stored (Current Implementation)
 
 The current implementation stores the **exact types from Section 1** above:
 
-- `ApplicationHealthReportDetail` - report rows (700MB+ for large orgs)
-- `OrganizationReportApplication` - per-app settings (~10KB)
+- `ApplicationHealthReportDetail` - report rows (700MB+ for large orgs) - using ARRAYS
+- `OrganizationReportApplication` - per-app settings (~10KB) - using ARRAY
 - `OrganizationReportSummary` - aggregates (~1KB)
 
 These are stored in `RiskInsightsData` and encrypted as separate EncStrings:
 
 ```typescript
-// What gets stored in the database today:
+// What gets stored in the database today (using arrays):
 RiskInsightsData {
   reportData: ApplicationHealthReportDetail[]    // ← JSON.stringify → EncString
+                                                  // Contains duplicate member objects across apps
+                                                  // Contains duplicate cipher IDs (cipherIds + atRiskCipherIds)
   summaryData: OrganizationReportSummary         // ← JSON.stringify → EncString
-  applicationData: OrganizationReportApplication[] // ← JSON.stringify → EncString
+  applicationData: OrganizationReportApplication[] // ← JSON.stringify → EncString (array with O(n) lookup)
   contentEncryptionKey: EncString
   id: OrganizationReportId
   creationDate: Date
@@ -159,6 +248,12 @@ RiskInsightsData {
 ```
 
 **Encryption approach:** Each field is JSON.stringify'd, optionally compressed (for `reportData` only, to avoid WASM limits), then encrypted with the `contentEncryptionKey`.
+
+**Problems with current structure:**
+
+- Member objects duplicated across applications (576MB for 10K org)
+- Cipher and member IDs duplicated in separate arrays (~70MB wasted)
+- ApplicationData requires O(n) find operations for every lookup
 
 ### Proposed View Models (For Query Logic)
 
@@ -257,10 +352,13 @@ class RiskInsightsReportView {
   reusedPasswordCount: number;
   exposedPasswordCount: number;
 
-  // OLD: memberDetails: MemberDetails[] + atRiskMemberDetails: MemberDetails[] (duplicated)
+  // OLD: memberDetails: MemberDetails[] + atRiskMemberDetails: MemberDetails[] (duplicated arrays)
   // NEW: Single Record with at-risk flag
   memberRefs: Record<OrganizationUserId, boolean>; // { "abc": true, "def": false, ... }
-  cipherIds: CipherId[];
+
+  // OLD: cipherIds: CipherId[] + atRiskCipherIds: CipherId[] (duplicated arrays)
+  // NEW: Single Record with at-risk flag
+  cipherRefs: Record<CipherId, boolean>; // { "cipher-1": true, "cipher-2": false, ... }
 
   // The registry is held by the parent RiskInsightsView
   // View model methods resolve refs → full entries on demand:
@@ -297,7 +395,7 @@ class RiskInsightsReportView {
 ```typescript
 class RiskInsightsView {
   report: RiskInsightsReportView[];
-  applications: RiskInsightsApplicationView[];
+  applications: Record<string, { isCritical: boolean; reviewedDate: Date | null }>;
   summary: RiskInsightsSummaryView;
   memberRegistry: MemberRegistry; // ← shared, deduplicated
   createdDate: Date;
@@ -319,9 +417,10 @@ class RiskInsightsView {
   }
 
   getCriticalApplications(): RiskInsightsReportView[] {
+    // OLD (O(n)): this.applications.find((a) => a.hostname === app.applicationName)
+    // NEW (O(1)): this.applicationData[app.applicationName]
     return this.report.filter((app) => {
-      const appMeta = this.applications.find((a) => a.hostname === app.applicationName);
-      return appMeta?.isCritical === true;
+      return this.applicationData[app.applicationName]?.isCritical === true;
     });
   }
 
@@ -330,9 +429,10 @@ class RiskInsightsView {
   }
 
   getNewApplications(): RiskInsightsReportView[] {
+    // OLD (O(n)): this.applications.find((a) => a.hostname === app.applicationName)
+    // NEW (O(1)): this.applicationData[app.applicationName]
     return this.report.filter((app) => {
-      const appMeta = this.applications.find((a) => a.hostname === app.applicationName);
-      return appMeta?.reviewedDate === undefined;
+      return this.applicationData[app.applicationName]?.reviewedDate === null;
     });
   }
 
@@ -354,24 +454,28 @@ class RiskInsightsView {
 - **Total unencrypted: ~591MB**
 - **After encryption + Base64: ~786MB**
 
-#### Target (With Registry)
+#### Target (With Registry + Record Pattern)
 
 **10K member org:**
 
 - **MemberRegistry**: 10,000 members × 140 bytes (no cipherId) = **1.4MB** (stored once)
 - **memberRefs**: 400 apps × 5,000 refs × 50 bytes (Record entry: `"id": false/true`) = **100MB**
   - No separate atRiskMemberRefs needed - at-risk status is the boolean value
-- Cipher IDs + metadata: **~15MB**
-- **Total unencrypted: ~116MB**
-- **After encryption + Base64: ~154MB**
+- **cipherRefs**: 400 apps × 100 ciphers × 50 bytes (Record entry: `"id": false/true`) = **2MB**
+  - No separate atRiskCipherIds array needed - at-risk status is the boolean value
+- **applicationData** (as Record): 400 apps × 100 bytes = **0.04MB** (negligible)
+- Metadata (counts, applicationName): **~10MB**
+- **Total unencrypted: ~113MB**
+- **After encryption + Base64: ~150MB**
 
-**Reduction: 786MB → 154MB = 80% smaller** 🎉
+**Reduction: 786MB → 150MB = 81% smaller** 🎉
 
-**Design Decision:** Use single `Record<string, boolean>` instead of two separate arrays:
+**Design Decision:** Use single `Record<string, boolean>` for members, ciphers, AND Record for applicationData:
 
-- **Pros:** No duplicate IDs, O(1) lookup, clearer intent, ~60MB saved (no atRiskMemberRefs)
-- **Cons:** Slightly more complex iteration (need to check boolean value)
-- **Trade-off:** Definitely worth it - saves significant space and prevents duplicate storage
+- **memberRefs:** No duplicate member IDs, ~60MB saved (vs separate atRiskMemberDetails)
+- **cipherRefs:** No duplicate cipher IDs, ~10MB saved (vs separate atRiskCipherIds array)
+- **applicationData:** O(1) lookup, no functional size change but better performance
+- **Trade-off:** Definitely worth it - saves ~70MB and prevents duplicate storage
 
 ---
 
@@ -390,14 +494,14 @@ class RiskInsightsView {
   reportData: [
     {
       applicationName: "google.com",
-      cipherIds: ["cipher-id-1", "cipher-id-2", ...],         // ~100 ciphers
-      atRiskCipherIds: ["cipher-id-1", ...],                  // ~50 at-risk
-      memberDetails: [                                         // ~5,000 members
+      cipherIds: ["cipher-id-1", "cipher-id-2", ...],         // ~100 ciphers - ARRAY
+      atRiskCipherIds: ["cipher-id-1", ...],                  // ~50 at-risk - ARRAY (duplicates IDs from cipherIds)
+      memberDetails: [                                         // ~5,000 members - ARRAY
         { userGuid: "abc", userName: "Alice", email: "alice@...", cipherId: "x" },
         { userGuid: "def", userName: "Bob", email: "bob@...", cipherId: "y" },
         // ... FULL member objects, deduplicated per app, duplicated across apps
       ],
-      atRiskMemberDetails: [                                   // ~3,000 at-risk members
+      atRiskMemberDetails: [                                   // ~3,000 at-risk members - ARRAY (duplicates from memberDetails)
         { userGuid: "abc", userName: "Alice", email: "alice@...", cipherId: "x" },
         // ... FULL member objects (subset of memberDetails)
       ],
@@ -409,7 +513,7 @@ class RiskInsightsView {
     // ... 400 applications
   ],
 
-  // ENCRYPTED FIELD 2: applicationData (~10KB)
+  // ENCRYPTED FIELD 2: applicationData (~10KB) - ARRAY with O(n) lookup
   applicationData: [
     { applicationName: "google.com", isCritical: true, reviewedDate: Date | null },
     // ... 400 applications
@@ -454,13 +558,17 @@ class RiskInsightsView {
   reportData: [
     {
       applicationName: "google.com",
-      cipherIds: ["cipher-id-1", "cipher-id-2", ...],         // ~100 ciphers
-      atRiskCipherIds: ["cipher-id-1", ...],                  // ~50 at-risk
-      memberRefs: {                                            // ~5,000 member IDs with at-risk flag
+      cipherRefs: {                                            // ~100 cipher IDs with at-risk flag - RECORD
+        "cipher-id-1": true,   // at-risk
+        "cipher-id-2": false,  // not at-risk
+        "cipher-id-3": true,   // at-risk
+        // ... (no separate atRiskCipherIds array needed)
+      },
+      memberRefs: {                                            // ~5,000 member IDs with at-risk flag - RECORD
         "abc": true,   // at-risk member
         "def": false,  // not at-risk
         "ghi": true,   // at-risk member
-        // ... (no separate atRiskMemberRefs needed)
+        // ... (no separate atRiskMemberRefs array needed)
       },
       passwordCount: 100,
       atRiskPasswordCount: 50,
@@ -470,11 +578,13 @@ class RiskInsightsView {
     // ... 400 applications
   ],
 
-  // ENCRYPTED FIELD 2: applicationData (~10KB - unchanged)
-  applicationData: [
-    { applicationName: "google.com", isCritical: true, reviewedDate: Date | null },
-    // ... 400 applications
-  ],
+  // ENCRYPTED FIELD 2: applicationData (~10KB) - RECORD with O(1) lookup
+  applicationData: {
+    "google.com": { isCritical: true, reviewedDate: new Date("2026-01-15") },
+    "github.com": { isCritical: false, reviewedDate: null },
+    "slack.com": { isCritical: true, reviewedDate: new Date("2026-02-01") }
+    // ... 400 applications as Record entries
+  },
 
   // ENCRYPTED FIELD 3: summaryData (~1KB - unchanged)
   summaryData: {
@@ -490,14 +600,18 @@ class RiskInsightsView {
 }
 ```
 
-**Total size:** ~192MB encrypted for 10K member org (76% reduction)
-**Benefit:** Members stored once, referenced by ID from applications
+**Total size:** ~150MB encrypted for 10K member org (81% reduction)
+**Benefits:**
+
+- Members stored once in registry, referenced by ID from applications
+- Member and cipher IDs stored with at-risk flag (no duplicate arrays)
+- ApplicationData as Record enables O(1) lookup instead of O(n) find operations
 
 ---
 
-### Design Decision: Single Record with Boolean Flag
+### Design Decision: Single Record with Boolean Flag (for Members AND Ciphers)
 
-**Chosen approach:** Use single `Record<string, boolean>` where the boolean indicates at-risk status.
+**Chosen approach:** Use single `Record<string, boolean>` where the boolean indicates at-risk status for BOTH members and ciphers.
 
 ```typescript
 {
@@ -506,17 +620,24 @@ class RiskInsightsView {
     "abc": true,   // at-risk member
     "def": false,  // not at-risk
     "ghi": true    // at-risk member
+  },
+  cipherRefs: {
+    "cipher-1": true,   // at-risk cipher
+    "cipher-2": false,  // not at-risk
+    "cipher-3": true    // at-risk cipher
   }
 }
 ```
 
 **Pros:**
 
-- ✅ No duplicate IDs (previously stored in both memberDetails AND atRiskMemberDetails)
-- ✅ O(1) lookup for both membership and at-risk status
-- ✅ Automatic deduplication
-- ✅ Saves ~60MB compared to two separate Records (no atRiskMemberRefs)
-- ✅ Clear intent - one member, one entry
+- ✅ **Members:** No duplicate IDs (previously stored in both memberDetails AND atRiskMemberDetails)
+- ✅ **Ciphers:** No duplicate IDs (previously stored in both cipherIds AND atRiskCipherIds)
+- ✅ O(1) lookup for both membership/presence and at-risk status
+- ✅ Automatic deduplication (can't have duplicate keys)
+- ✅ Saves ~60MB for members + ~10MB for ciphers = **~70MB saved** compared to separate arrays
+- ✅ Clear intent - one ID, one entry, one flag
+- ✅ Consistent pattern across both members and ciphers
 
 **Cons:**
 
@@ -525,11 +646,13 @@ class RiskInsightsView {
 
 **Trade-off Analysis:**
 
-- Size savings: **~60MB** (400 apps × 3K at-risk IDs × 50 bytes per duplicate entry)
-- Performance: Negligible - `Object.entries().filter()` is still O(n) like array iteration
-- Correctness: Better - impossible to have member in atRiskMemberRefs but not in memberRefs
+- **Member size savings:** ~60MB (400 apps × 3K at-risk IDs × 50 bytes per duplicate entry)
+- **Cipher size savings:** ~10MB (400 apps × 50 at-risk IDs × 50 bytes per duplicate entry)
+- **Total savings:** ~70MB for 10K org
+- **Performance:** Negligible - `Object.entries().filter()` is still O(n) like array iteration
+- **Correctness:** Better - impossible to have ID in at-risk array but not in main array
 
-**Verdict:** Single Record with boolean flag is the clear winner.
+**Verdict:** Single Record with boolean flag is the clear winner for both members AND ciphers.
 
 ---
 
@@ -710,14 +833,17 @@ Compress `reportData` before encrypting. `summaryData` and `applicationData` rem
   - [ ] `getAll(): MemberRegistryEntry[]`
   - [ ] `size(): number`
   - [ ] Serialization/deserialization for storage
-- [ ] Update `ApplicationHealthReportDetail` to use member references
-  - [ ] Replace `memberDetails: MemberDetails[]` AND `atRiskMemberDetails: MemberDetails[]` with single `memberRefs: Record<string, boolean>`
+- [ ] Update `ApplicationHealthReportDetail` to use Record pattern for members AND ciphers
+  - [ ] **Members:** Replace `memberDetails: MemberDetails[]` AND `atRiskMemberDetails: MemberDetails[]` with single `memberRefs: Record<string, boolean>`
+  - [ ] **Ciphers:** Replace `cipherIds: CipherId[]` AND `atRiskCipherIds: CipherId[]` with single `cipherRefs: Record<CipherId, boolean>`
   - [ ] Boolean value indicates at-risk status (true = at-risk, false = not at-risk)
   - [ ] Remove `cipherId` field from `MemberDetails` (rename to `MemberRegistryEntry`)
   - [ ] Note: Using single Record eliminates duplicate IDs and provides O(1) lookup
 - [ ] Update `RiskInsightsData` storage structure
   - [ ] Add `memberRegistry: Record<string, MemberRegistryEntry>` field
+  - [ ] Update `applicationData` from array to `Record<string, { isCritical: boolean; reviewedDate: Date | null }>`
   - [ ] Add encryption/decryption for registry
+  - [ ] Note: applicationData as Record enables O(1) lookup instead of O(n) find operations
 - [ ] Update report generation service
   - [ ] Build `MemberCipherMappingService` to create registry during generation
   - [ ] Modify aggregation logic to store IDs instead of full objects
@@ -729,7 +855,11 @@ Compress `reportData` before encrypting. `summaryData` and `applicationData` rem
   - [ ] `ApplicationHealthReportDetail.getMemberDetails(registry)`
   - [ ] `ApplicationHealthReportDetail.getAtRiskMemberDetails(registry)`
 
-**Target:** Reduce 10K org reports from ~786MB to ~192MB (76% reduction)
+**Target:** Reduce 10K org reports from ~786MB to ~150MB (81% reduction)
+
+- Member registry eliminates duplicate member objects: ~576MB → ~100MB
+- Record pattern eliminates duplicate IDs: additional ~70MB savings
+- ApplicationData as Record: better lookup performance (O(1) vs O(n))
 
 ### 🎯 Phase 2: True Field-Level Encryption (Parallel with Phase 1 or after)
 
