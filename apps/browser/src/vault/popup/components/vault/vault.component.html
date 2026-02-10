@@ -107,20 +107,32 @@
     @if (vaultState === null) {
       <vault-fade-in-out>
         @if (!(loading$ | async)) {
-          <app-autofill-vault-list-items></app-autofill-vault-list-items>
-          <app-vault-list-items-container
-            [title]="'favorites' | i18n"
-            [ciphers]="(favoriteCiphers$ | async) || []"
-            id="favorites"
-            collapsibleKey="favorites"
-          ></app-vault-list-items-container>
-          <app-vault-list-items-container
-            [title]="'allItems' | i18n"
-            [ciphers]="(remainingCiphers$ | async) || []"
-            id="allItems"
-            disableSectionMargin
-            collapsibleKey="allItems"
-          ></app-vault-list-items-container>
+          <!--If there is search text fold all the filtered ciphers into one container-->
+          @if (hasSearchText$ | async) {
+            <app-vault-list-items-container
+              [title]="'searchResults' | i18n"
+              [ciphers]="(filteredCiphers$ | async) || []"
+              id="allItems"
+              disableSectionMargin
+              collapsibleKey="allItems"
+            ></app-vault-list-items-container>
+          } @else {
+            <app-autofill-vault-list-items></app-autofill-vault-list-items>
+            <app-vault-list-items-container
+              [title]="'favorites' | i18n"
+              [ciphers]="(favoriteCiphers$ | async) || []"
+              id="favorites"
+              collapsibleKey="favorites"
+            ></app-vault-list-items-container>
+            <!--Change the title header when a filter is applied-->
+            <app-vault-list-items-container
+              [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
+              [ciphers]="(remainingCiphers$ | async) || []"
+              id="allItems"
+              disableSectionMargin
+              collapsibleKey="allItems"
+            ></app-vault-list-items-container>
+          }
         }
       </vault-fade-in-out>
     }

@@ -28,7 +28,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -86,11 +86,6 @@ export interface VaultItemDialogParams {
    * The configuration object for the dialog and form.
    */
   formConfig: CipherFormConfig;
-
-  /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
 
   /**
    * The ID of the active collection. This is know the collection filter selected by the user.
@@ -273,7 +268,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return this.params.disableForm;
+    return !this.canEdit;
   }
 
   protected get showEdit() {
@@ -298,6 +293,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher?.isArchived;
   }
 
+  private _userCanArchive = false;
+
+  protected get showArchiveOptions(): boolean {
+    return this._userCanArchive && !this.params.isAdminConsoleAction && this.params.mode === "view";
+  }
+
+  protected get showArchiveBtn(): boolean {
+    return this.cipher?.canBeArchived;
+  }
+
+  protected get showUnarchiveBtn(): boolean {
+    return this.isCipherArchived && !this.cipher?.isDeleted;
+  }
+
   /**
    * Flag to initialize/attach the form component.
    */
@@ -313,6 +322,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected filter: RoutedVaultFilterModel;
 
   protected canDelete = false;
+
+  protected canEdit = false;
 
   protected attachmentsButtonDisabled = false;
 
@@ -344,6 +355,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    this.userCanArchive$.pipe(takeUntilDestroyed()).subscribe((v) => (this._userCanArchive = v));
   }
 
   async ngOnInit() {
@@ -371,6 +384,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           this.params.isAdminConsoleAction,
         ),
       );
+
+      this.canEdit = await firstValueFrom(
+        this.cipherAuthorizationService.canEditCipher$(
+          this.cipher,
+          this.params.isAdminConsoleAction,
+        ),
+      );
+
+      // If user cannot edit and dialog opened in form mode, force to view mode
+      if (!this.canEdit && this.params.mode === "form") {
+        this.params.mode = "view";
+        this.loadForm = false;
+        this.updateTitle();
+      }
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
@@ -563,20 +590,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipher.archivedDate = archivedDate;
-    this.cipher.revisionDate = revisionDate;
+  updateCipherFromResponse = async (cipherResponse: CipherData, userId: UserId) => {
+    const cipher: Cipher = new Cipher(cipherResponse);
 
-    // If we're in View mode, we don't need to update the form.
-    if (this.params.mode === "view") {
-      return;
-    }
+    cipher.collectionIds = [...this.cipher.collectionIds];
 
-    this.cipherFormComponent().patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
-    });
+    const cipherView = await this.cipherService.decrypt(cipher, userId);
+
+    await this.onCipherSaved(cipherView);
   };
 
   archive = async () => {
@@ -586,10 +607,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(
-        new Date(cipherResponse.revisionDate),
-        cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
-      );
+
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -610,7 +629,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
+
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemWasUnarchived"),
@@ -620,7 +641,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
-      return;
     }
   };
 
@@ -692,7 +712,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.dialogContent().nativeElement.parentElement.scrollTop = 0;
 
     // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
-    this.dialogComponent().focusOnHeader();
+    this.dialogComponent().handleAutofocus();
 
     // Update the URL query params to reflect the new mode.
     await this.router.navigate([], {
