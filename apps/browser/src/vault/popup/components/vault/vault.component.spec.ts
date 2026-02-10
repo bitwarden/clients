@@ -53,7 +53,7 @@ import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injec
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
-import { VaultComponent } from "./vault.component";
+import { VaultComponent, VaultComponent } from "./vault.component";
 
 @Component({
   selector: "popup-header",
@@ -602,7 +602,7 @@ describe("VaultComponent", () => {
   it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", () => {
     itemsSvc.hasSearchText$.next(true);
 
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"];
@@ -628,7 +628,7 @@ describe("VaultComponent", () => {
     itemsSvc.hasSearchText$.next(false);
     loadingSvc.loading$.next(false);
 
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"];
@@ -655,7 +655,7 @@ describe("VaultComponent", () => {
     filtersSvc.numberOfAppliedFilters$.next(0);
     loadingSvc.loading$.next(false);
 
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"];
@@ -679,7 +679,7 @@ describe("VaultComponent", () => {
     itemsSvc.hasSearchText$.next(true);
     loadingSvc.loading$.next(false);
 
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"];
@@ -704,7 +704,7 @@ describe("VaultComponent", () => {
     filtersSvc.numberOfAppliedFilters$.next(1);
     loadingSvc.loading$.next(false);
 
-    const fixture = TestBed.createComponent(VaultV2Component);
+    const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
 
     const readySubject$ = component["readySubject"];
