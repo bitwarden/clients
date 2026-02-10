@@ -62,7 +62,7 @@ export abstract class BaseAcceptComponent implements OnInit {
 
           if (error) {
             const message =
-              errorMessage != null
+              errorMessage != null && errorMessage !== "Expired token."
                 ? this.i18nService.t(this.failedShortMessage, errorMessage)
                 : this.i18nService.t(this.failedMessage);
             this.platformUtilService.showToast("error", null, message, { timeout: 10000 });
