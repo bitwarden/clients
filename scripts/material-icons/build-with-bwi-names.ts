@@ -60,16 +60,15 @@ function buildIconFont(): void {
       });
 
     const iconCount = entries.length;
-    const iconsMapContent = `// Auto-generated from Figma icons (${iconCount} icons)
-// TypeScript icon list is also auto-generated in \`libs/components/src/shared/icon.ts\`
+    const iconsMapContent = `// Auto-generated - do not edit manually
 $icons: (
 ${entries.join(",\n")}
 );`;
 
     let scssContent = fs.readFileSync(SCSS_PATH, "utf-8");
 
-    // Replace the $icons map
-    const iconsMapRegex = /\/\/ For new icons - add their glyph name[\s\S]*?\$icons: \([\s\S]*?\);/;
+    // Replace the $icons map - matches the pattern with or without comments
+    const iconsMapRegex = /(?:\/\/[^\n]*\n)*\$icons: \([\s\S]*?\);/;
     scssContent = scssContent.replace(iconsMapRegex, iconsMapContent);
 
     fs.writeFileSync(SCSS_PATH, scssContent, "utf-8");
