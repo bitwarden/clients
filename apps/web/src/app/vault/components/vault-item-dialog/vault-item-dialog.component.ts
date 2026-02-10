@@ -296,11 +296,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private _userCanArchive = false;
 
   protected get showArchiveOptions(): boolean {
-    return this._userCanArchive && !this.params.isAdminConsoleAction && this.params.mode === "view";
+    return !this.params.isAdminConsoleAction && this.params.mode === "view";
   }
 
   protected get showArchiveBtn(): boolean {
-    return this.cipher?.canBeArchived;
+    return this._userCanArchive && this.cipher?.canBeArchived;
   }
 
   protected get showUnarchiveBtn(): boolean {
