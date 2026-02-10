@@ -726,7 +726,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -749,7 +749,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -772,7 +772,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -794,7 +794,7 @@ describe("ViewComponent", () => {
       getFeatureFlag$.mockReturnValue(of(false));
 
       // Recreate component to pick up the new feature flag value
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -817,7 +817,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(false);
 
       // Recreate component to pick up the new autofillAllowed value
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -840,7 +840,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -863,7 +863,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -886,7 +886,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -909,7 +909,7 @@ describe("ViewComponent", () => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
-      fixture = TestBed.createComponent(ViewV2Component);
+      fixture = TestBed.createComponent(ViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
