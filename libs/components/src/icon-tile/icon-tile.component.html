@@ -1,7 +1,7 @@
 <div
-  [class]="containerClasses().join(' ')"
+  [class]="containerClasses()"
   [attr.aria-label]="ariaLabel()"
   [attr.role]="ariaLabel() ? 'img' : null"
 >
-  <i [class]="iconClasses().join(' ')" aria-hidden="true"></i>
+  <i [class]="iconClasses()" aria-hidden="true"></i>
 </div>

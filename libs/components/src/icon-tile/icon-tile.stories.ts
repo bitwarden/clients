@@ -11,7 +11,7 @@ export default {
     icon: "bwi-star",
     variant: "primary",
     size: "base",
-    shape: "square",
+    borderRadius: "base",
   },
   argTypes: {
     variant: {
@@ -20,10 +20,6 @@ export default {
     },
     size: {
       options: ["xs", "sm", "base", "lg", "xl"],
-      control: { type: "select" },
-    },
-    shape: {
-      options: ["square", "circle"],
       control: { type: "select" },
     },
     icon: {
@@ -112,23 +108,6 @@ export const AllSizes: Story = {
   }),
 };
 
-export const AllShapes: Story = {
-  render: () => ({
-    template: `
-      <div class="tw-flex tw-gap-4 tw-items-center">
-        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-user" variant="primary" shape="square"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Square</span>
-        </div>
-        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-user" variant="primary" shape="circle"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Circle</span>
-        </div>
-      </div>
-    `,
-  }),
-};
-
 export const AllCombinations: Story = {
   render: () => ({
     template: `
@@ -207,17 +186,6 @@ export const AllCombinations: Story = {
             <bit-icon-tile icon="bwi-star" variant="contrast" size="base"></bit-icon-tile>
             <bit-icon-tile icon="bwi-star" variant="contrast" size="lg"></bit-icon-tile>
             <bit-icon-tile icon="bwi-star" variant="contrast" size="xl"></bit-icon-tile>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Circle Shapes - All Sizes (Primary)</h3>
-          <div class="tw-flex tw-gap-4 tw-items-end">
-            <bit-icon-tile icon="bwi-user" variant="primary" size="xs" shape="circle"></bit-icon-tile>
-            <bit-icon-tile icon="bwi-user" variant="primary" size="sm" shape="circle"></bit-icon-tile>
-            <bit-icon-tile icon="bwi-user" variant="primary" size="base" shape="circle"></bit-icon-tile>
-            <bit-icon-tile icon="bwi-user" variant="primary" size="lg" shape="circle"></bit-icon-tile>
-            <bit-icon-tile icon="bwi-user" variant="primary" size="xl" shape="circle"></bit-icon-tile>
           </div>
         </div>
       </div>

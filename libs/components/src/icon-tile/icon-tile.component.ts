@@ -13,8 +13,6 @@ export type IconTileVariant =
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
-export type IconTileShape = "square" | "circle";
-
 const variantStyles: Record<IconTileVariant, string[]> = {
   primary: ["tw-bg-bg-brand-soft", "tw-border-border-brand-soft", "tw-text-fg-brand"],
   success: ["tw-bg-bg-success-medium", "tw-border-border-success-soft", "tw-text-fg-success"],
@@ -48,21 +46,12 @@ const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> 
   },
 };
 
-const shapeStyles: Record<IconTileShape, Record<IconTileSize, string[]>> = {
-  square: {
-    xs: ["tw-rounded"],
-    sm: ["tw-rounded"],
-    base: ["tw-rounded-lg"],
-    lg: ["tw-rounded-lg"],
-    xl: ["tw-rounded-xl"],
-  },
-  circle: {
-    xs: ["tw-rounded-full"],
-    sm: ["tw-rounded-full"],
-    base: ["tw-rounded-full"],
-    lg: ["tw-rounded-full"],
-    xl: ["tw-rounded-full"],
-  },
+const borderRadius: Record<IconTileSize, string[]> = {
+  xs: ["tw-rounded"],
+  sm: ["tw-rounded"],
+  base: ["tw-rounded-lg"],
+  lg: ["tw-rounded-lg"],
+  xl: ["tw-rounded-xl"],
 };
 
 /**
@@ -98,11 +87,6 @@ export class IconTileComponent {
   readonly size = input<IconTileSize>("base");
 
   /**
-   * The shape of the icon tile
-   */
-  readonly shape = input<IconTileShape>("square");
-
-  /**
    * Optional aria-label for accessibility when the icon has semantic meaning
    */
   readonly ariaLabel = input<string>();
@@ -110,7 +94,6 @@ export class IconTileComponent {
   protected readonly containerClasses = computed(() => {
     const variant = this.variant();
     const size = this.size();
-    const shape = this.shape();
 
     return [
       "tw-inline-flex",
@@ -120,7 +103,7 @@ export class IconTileComponent {
       "tw-border",
       ...variantStyles[variant],
       ...sizeStyles[size].container,
-      ...shapeStyles[shape][size],
+      ...borderRadius[size],
     ];
   });
 

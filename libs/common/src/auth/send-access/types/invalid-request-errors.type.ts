@@ -44,7 +44,8 @@ export type EmailAndOtpRequired = InvalidRequest & {
 };
 
 export function emailAndOtpRequired(e: SendAccessTokenApiErrorResponse): e is EmailAndOtpRequired {
-  return e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required";
+  // return e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required";
+  return e.error === "invalid_request";
 }
 
 export type UnknownInvalidRequest = InvalidRequest & {
