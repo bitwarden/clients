@@ -475,11 +475,11 @@ const safeProviders: SafeProvider[] = [
     provide: LOGOUT_CALLBACK,
     useFactory:
       (messagingService: MessagingServiceAbstraction) =>
-        async (logoutReason: LogoutReason, userId?: string) => {
-          return Promise.resolve(
-            messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
-          );
-        },
+      async (logoutReason: LogoutReason, userId?: string) => {
+        return Promise.resolve(
+          messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
+        );
+      },
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
@@ -1819,7 +1819,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => { },
+    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => {},
     deps: [EncryptedMigrationsSchedulerService],
     multi: true,
   }),
@@ -1886,4 +1886,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class JslibServicesModule { }
+export class JslibServicesModule {}

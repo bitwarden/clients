@@ -35,7 +35,7 @@ export class MasterPasswordUnlockData {
     readonly salt: MasterPasswordSalt,
     readonly kdf: KdfConfig,
     readonly masterKeyWrappedUserKey: MasterKeyWrappedUserKey,
-  ) { }
+  ) {}
 
   static fromSdk(sdkData: SdkMasterPasswordUnlockData): MasterPasswordUnlockData {
     return new MasterPasswordUnlockData(
