@@ -939,7 +939,7 @@ describe("DefaultVaultItemsTransferService", () => {
     });
   });
 
-  describe("promptInFlight", () => {
+  describe("enforcementInFlight", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
@@ -965,7 +965,7 @@ describe("DefaultVaultItemsTransferService", () => {
       mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
     });
 
-    it("prevents re-entry when prompt is already in flight", async () => {
+    it("prevents re-entry when enforcement is already in flight", async () => {
       // Create a dialog that resolves after a delay
       const delayedSubject = new Subject<any>();
       const delayedDialog = {
@@ -978,7 +978,7 @@ describe("DefaultVaultItemsTransferService", () => {
       // Start first call (won't complete immediately)
       const firstCall = service.enforceOrganizationDataOwnership(userId);
 
-      // Flush microtasks to allow first call to set promptInFlight
+      // Flush microtasks to allow first call to set enforcementInFlight
       await Promise.resolve();
 
       // Second call should return immediately without opening dialog
