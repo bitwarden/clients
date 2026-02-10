@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
-import * as koaRouter from "@koa/router";
+import { Router } from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
 
@@ -218,7 +218,7 @@ export class OssServeConfigurator {
     );
   }
 
-  async configureRouter(router: koaRouter) {
+  async configureRouter(router: Router) {
     router.get("/generate", async (ctx, next) => {
       const response = await this.generateCommand.run(ctx.request.query);
       this.processResponse(ctx.response, response);

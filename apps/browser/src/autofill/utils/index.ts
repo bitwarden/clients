@@ -368,20 +368,21 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
 /**
  * Throttles a callback function to run at most once every `limit` milliseconds.
  *
- * @param callback - The callback function to throttle.
+ * @param callback - The callback function to throttle (must return void).
  * @param limit - The time in milliseconds to throttle the callback.
  */
-export function throttle<FunctionType extends (...args: unknown[]) => unknown>(
-  callback: FunctionType,
+export function throttle<TypeContext, Args extends unknown[]>(
+  callback: (this: TypeContext, ...args: Args) => void,
   limit: number,
-): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
+): (this: TypeContext, ...args: Args) => void {
   let waitingDelay = false;
-  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
-    if (!waitingDelay) {
-      callback.apply(this, args);
-      waitingDelay = true;
-      globalThis.setTimeout(() => (waitingDelay = false), limit);
+  return function (this: TypeContext, ...args: Args) {
+    if (waitingDelay) {
+      return;
     }
+    callback.apply(this, args);
+    waitingDelay = true;
+    globalThis.setTimeout(() => (waitingDelay = false), limit);
   };
 }
 

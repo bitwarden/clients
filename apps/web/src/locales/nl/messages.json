@@ -15,7 +15,7 @@
     "message": "Geen kritische applicaties in gevaar"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Kritiek ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +24,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Niet kritiek ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Kritiek"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Er zijn geen applicaties die met deze filters overeenkomen"
   },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
@@ -269,7 +275,7 @@
     "message": "Applicatie"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Applicaties"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
@@ -608,7 +614,7 @@
     "message": "E-mailadres"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefoonnummer"
@@ -1241,6 +1247,9 @@
   "selectAll": {
     "message": "Alles selecteren"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Alles deselecteren"
   },
@@ -1390,10 +1399,10 @@
     "message": "Nee"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Iedereen met de link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
   },
   "location": {
     "message": "Locatie"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Verzameling bewerken"
   },
+  "viewCollection": {
+    "message": "Collectie weergeven"
+  },
   "collectionInfo": {
     "message": "Collectieinformatie"
   },
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Tekst"
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link en het ingestelde wachtwoord voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopieer en deel deze Send-link. Het kan worden bekeken door de mensen die je hebt opgegeven voor de volgende $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6959,16 +6987,16 @@
     "message": "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert."
   },
   "activateAutofillPolicy": {
-    "message": "Activate autofill"
+    "message": "Automatisch invullen activeren"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen tijdens het laden van de pagina misbruiken."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "Lees meer over automatisch invullen"
   },
   "selectType": {
     "message": "Selecteer Type"
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Je moet de eigenaar van de organisatie of beheerder zijn om deze actie uit te voeren."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Je moet de eigenaar van de organisatie zijn om deze actie uit te voeren."
   },
@@ -12722,22 +12753,31 @@
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Wie kan weergeven"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Specifieke mensen"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Eigenaar, $OWNER$, toon alle items in eigendom van $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Je hebt Premium"
@@ -12746,6 +12786,13 @@
     "message": "E-mail beveiligd"
   },
   "invalidSendPassword": {
-    "message": "Invalid Send password"
+    "message": "Ongeldig Send-wachtwoord"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per gebruiker"
   }
 }

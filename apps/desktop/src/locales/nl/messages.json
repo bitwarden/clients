@@ -137,10 +137,6 @@
     "message": "Send-details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Te delen tekst"
   },
@@ -4587,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "emails": {
+    "message": "E-mails"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
