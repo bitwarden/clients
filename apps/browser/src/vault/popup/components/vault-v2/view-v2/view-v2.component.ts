@@ -396,7 +396,7 @@ export class ViewV2Component {
       return;
     }
 
-    if (await this._domainMatched()) {
+    if (await this._domainMatched(currentTab)) {
       await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
       return;
     }
@@ -423,8 +423,7 @@ export class ViewV2Component {
     }
   }
 
-  private async _domainMatched(): Promise<boolean> {
-    const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+  private async _domainMatched(currentTab: chrome.tabs.Tab): Promise<boolean> {
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(currentTab?.url),
     );
@@ -432,12 +431,12 @@ export class ViewV2Component {
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
 
-    if (
-      CipherViewLikeUtils.matchesUri(this.cipher, currentTab?.url, equivalentDomains, defaultMatch)
-    ) {
-      return true;
-    }
-    return false;
+    return CipherViewLikeUtils.matchesUri(
+      this.cipher,
+      currentTab?.url,
+      equivalentDomains,
+      defaultMatch,
+    );
   }
 
   /**
