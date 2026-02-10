@@ -95,7 +95,6 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         encrypt: jest.fn(),
-        encrypt_list: jest.fn(),
         encrypt_cipher_for_rotation: jest.fn(),
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
@@ -281,23 +280,10 @@ describe("DefaultCipherEncryptionService", () => {
         name: "encrypted-name-3",
       } as unknown as Cipher;
 
-      mockSdkClient
-        .vault()
-        .ciphers()
-        .encrypt_list.mockReturnValue([
-          {
-            cipher: sdkCipher,
-            encryptedFor: userId,
-          },
-          {
-            cipher: sdkCipher,
-            encryptedFor: userId,
-          },
-          {
-            cipher: sdkCipher,
-            encryptedFor: userId,
-          },
-        ]);
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
 
       jest
         .spyOn(Cipher, "fromSdkCipher")
@@ -313,8 +299,7 @@ describe("DefaultCipherEncryptionService", () => {
       expect(results[1].cipher).toEqual(expectedCipher2);
       expect(results[2].cipher).toEqual(expectedCipher3);
 
-      expect(mockSdkClient.vault().ciphers().encrypt_list).toHaveBeenCalledTimes(1);
-      expect(mockSdkClient.vault().ciphers().encrypt).not.toHaveBeenCalled();
+      expect(mockSdkClient.vault().ciphers().encrypt).toHaveBeenCalledTimes(3);
 
       expect(results[0].encryptedFor).toBe(userId);
       expect(results[1].encryptedFor).toBe(userId);
@@ -326,7 +311,7 @@ describe("DefaultCipherEncryptionService", () => {
 
       expect(results).toBeDefined();
       expect(results.length).toBe(0);
-      expect(mockSdkClient.vault().ciphers().encrypt_list).not.toHaveBeenCalled();
+      expect(mockSdkClient.vault().ciphers().encrypt).not.toHaveBeenCalled();
     });
   });
 
