@@ -495,6 +495,12 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -562,6 +568,12 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -627,6 +639,12 @@ describe("LoginStrategyService", () => {
         KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -690,6 +708,12 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",

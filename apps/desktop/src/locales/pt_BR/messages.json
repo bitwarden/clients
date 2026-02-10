@@ -137,10 +137,6 @@
     "message": "Detalhes do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Adicione uma senha opcional para que os destinatários acessem este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Texto para compartilhar"
   },
@@ -4587,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Por que estou vendo isso?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Indivíduos precisarão utilizar a senha para ver este Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
+  },
+  "emails": {
+    "message": "E-mails"
+  },
+  "noAuth": {
+    "message": "Qualquer um com o link"
+  },
+  "anyOneWithPassword": {
+    "message": "Qualquer um com uma senha definida por você"
+  },
+  "whoCanView": {
+    "message": "Quem pode visualizar"
+  },
+  "specificPeople": {
+    "message": "Pessoas específicas"
+  },
+  "emailVerificationDesc": {
+    "message": "Após compartilhar este link de Send, indivíduos precisarão verificar seus e-mails com um código para visualizar este Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Insira múltiplos e-mails separando-os com vírgula."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

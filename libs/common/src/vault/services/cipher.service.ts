@@ -173,13 +173,14 @@ export class CipherService implements CipherServiceAbstraction {
             decryptStartTime = performance.now();
           }),
           switchMap(async (ciphers) => {
-            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            void this.setFailedDecryptedCiphers(failures, userId);
-            // Trigger full decryption and indexing in background
-            void this.getAllDecrypted(userId);
-            return decrypted;
+            return await this.decryptCiphersWithSdk(ciphers, userId, false);
           }),
-          tap((decrypted) => {
+          tap(([decrypted, failures]) => {
+            void Promise.all([
+              this.setFailedDecryptedCiphers(failures, userId),
+              this.searchService.indexCiphers(userId, decrypted),
+            ]);
+
             this.logService.measure(
               decryptStartTime,
               "Vault",
@@ -188,10 +189,11 @@ export class CipherService implements CipherServiceAbstraction {
               [["Items", decrypted.length]],
             );
           }),
+          map(([decrypted]) => decrypted),
         );
       }),
     );
-  });
+  }, this.clearCipherViewsForUser$);
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
@@ -934,12 +936,17 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
+    // Clear the cache before creating the cipher. The SDK internally updates the encrypted storage
+    // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
+    // `createWithServer` can cause race conditions where the cache is cleared after the
+    // encrypted storage has already been updated and thus downstream consumers not getting updated data.
+    await this.clearCache(userId);
+
     const resultCipherView = await this.cipherSdkService.createWithServer(
       cipherView,
       userId,
       orgAdmin,
     );
-    await this.clearCache(userId);
     return resultCipherView;
   }
 
@@ -993,13 +1000,18 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
+    // Clear the cache before updating the cipher. The SDK internally updates the encrypted storage
+    // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
+    // `updateWithServer` can cause race conditions where the cache is cleared after the
+    // encrypted storage has already been updated and thus downstream consumers not getting updated data.
+    await this.clearCache(userId);
+
     const resultCipherView = await this.cipherSdkService.updateWithServer(
       cipher,
       userId,
       originalCipherView,
       orgAdmin,
     );
-    await this.clearCache(userId);
     return resultCipherView;
   }
 
