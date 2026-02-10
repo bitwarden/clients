@@ -86,9 +86,14 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         passwordInputResult,
         userId,
       );
-
       const request = PasswordRequest.newConstructor(newAuthenticationData, newUnlockData);
-      await this.masterPasswordApiService.postPassword(request);
+
+      try {
+        await this.masterPasswordApiService.postPassword(request);
+      } catch {
+        throw new Error("Error during change password attempt. Could not change password.");
+      }
+
       return; // EARLY RETURN for flagged logic
     }
 
@@ -118,13 +123,18 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         passwordInputResult,
         userId,
       );
-
       const request = UpdateTempPasswordRequest.newConstructorWithHint(
         newAuthenticationData,
         newUnlockData,
         passwordInputResult.newPasswordHint,
       );
-      await this.masterPasswordApiService.putUpdateTempPassword(request);
+
+      try {
+        await this.masterPasswordApiService.putUpdateTempPassword(request);
+      } catch {
+        throw new Error("Error during change password attempt. Could not change password.");
+      }
+
       return; // EARLY RETURN for flagged logic
     }
 
