@@ -266,11 +266,12 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async promptForOtp(sendId: string, email: string): Promise<SendOtp> {
-    return inquirer.createPromptModule({ output: process.stderr })({
+    const otpAnswer = await inquirer.createPromptModule({ output: process.stderr })({
       type: "input",
       name: "otp",
       message: "Enter the verification code sent to your email:",
     });
+    return otpAnswer.otp;
   }
 
   private async promptForEmail(): Promise<string> {
