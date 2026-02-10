@@ -9,7 +9,6 @@ import {
   lastValueFrom,
   Observable,
   Subject,
-  zip,
 } from "rxjs";
 import {
   concatMap,
@@ -35,7 +34,6 @@ import {
   ItemTypes,
   BitSvg,
 } from "@bitwarden/assets/svg";
-import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -60,9 +58,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -113,15 +109,9 @@ import {
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
-import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import {
-  AutoConfirmPolicy,
-  AutoConfirmPolicyDialogComponent,
-  PolicyEditDialogResult,
-} from "../../admin-console/organizations/policies";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -138,6 +128,7 @@ import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
+import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import {
   BulkDeleteDialogResult,
@@ -183,6 +174,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    WebVaultPromptService,
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
@@ -195,7 +187,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
 
   trashCleanupWarning: string = null;
-  kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
   protected deactivatedOrgIcon = DeactivatedOrg;
@@ -224,7 +215,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
-  private autoConfirmDialogRef?: DialogRef<PolicyEditDialogResult> | undefined;
 
   protected showAddCipherBtn: boolean = false;
 
@@ -346,11 +336,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private cipherArchiveService: CipherArchiveService,
     private organizationWarningsService: OrganizationWarningsService,
     private policyService: PolicyService,
-    private unifiedUpgradePromptService: UnifiedUpgradePromptService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
-    private autoConfirmService: AutomaticUserConfirmationService,
-    private configService: ConfigService,
-    private vaultItemTransferService: VaultItemsTransferService,
+    private webVaultPromptService: WebVaultPromptService,
   ) {}
 
   async ngOnInit() {
@@ -646,11 +633,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
-    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
 
-    this.setupAutoConfirm();
-
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(activeUserId);
+    void this.webVaultPromptService.conditionallyPromptUser();
   }
 
   ngOnDestroy() {
@@ -1607,72 +1591,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
     return cipherView.login?.password;
-  }
-
-  private async openAutoConfirmFeatureDialog(organization: Organization) {
-    if (this.autoConfirmDialogRef) {
-      return;
-    }
-
-    this.autoConfirmDialogRef = AutoConfirmPolicyDialogComponent.open(this.dialogService, {
-      data: {
-        policy: new AutoConfirmPolicy(),
-        organizationId: organization.id,
-        firstTimeDialog: true,
-      },
-    });
-
-    await lastValueFrom(this.autoConfirmDialogRef.closed);
-    this.autoConfirmDialogRef = undefined;
-  }
-
-  private setupAutoConfirm() {
-    // if the policy is enabled, then the user may only belong to one organization at most.
-    const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
-
-    const featureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm);
-
-    const autoConfirmState$ = this.userId$.pipe(
-      switchMap((userId) => this.autoConfirmService.configuration$(userId)),
-    );
-
-    const policyEnabled$ = combineLatest([
-      this.userId$.pipe(
-        switchMap((userId) => this.policyService.policies$(userId)),
-        map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm && p.enabled)),
-      ),
-      organization$,
-    ]).pipe(
-      map(
-        ([policy, organization]) => (policy && policy.organizationId === organization?.id) ?? false,
-      ),
-    );
-
-    zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
-      .pipe(
-        first(),
-        switchMap(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
-          const showDialog =
-            flagEnabled &&
-            !policyEnabled &&
-            autoConfirmState.showSetupDialog &&
-            !!organization &&
-            organization.canEnableAutoConfirmPolicy;
-
-          if (showDialog) {
-            await this.openAutoConfirmFeatureDialog(organization);
-
-            await this.autoConfirmService.upsert(userId, {
-              ...autoConfirmState,
-              showSetupDialog: false,
-            });
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        error: (err: unknown) => this.logService.error("Failed to update auto-confirm state", err),
-      });
   }
 }
 
