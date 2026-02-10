@@ -249,3 +249,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-plat
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
 libs/subscription @bitwarden/team-billing-dev
+libs/unlock @bitwarden/team-key-management-dev

@@ -35,7 +35,7 @@ export class MasterPasswordUnlockData {
     readonly salt: MasterPasswordSalt,
     readonly kdf: KdfConfig,
     readonly masterKeyWrappedUserKey: MasterKeyWrappedUserKey,
-  ) {}
+  ) { }
 
   static fromSdk(sdkData: SdkMasterPasswordUnlockData): MasterPasswordUnlockData {
     return new MasterPasswordUnlockData(
@@ -43,6 +43,14 @@ export class MasterPasswordUnlockData {
       fromSdkKdfConfig(sdkData.kdf),
       sdkData.masterKeyWrappedUserKey as MasterKeyWrappedUserKey,
     );
+  }
+
+  toSdk(): SdkMasterPasswordUnlockData {
+    return {
+      salt: this.salt,
+      kdf: this.kdf.toSdkConfig(),
+      masterKeyWrappedUserKey: this.masterKeyWrappedUserKey,
+    };
   }
 
   toJSON(): any {

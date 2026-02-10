@@ -385,6 +385,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -474,11 +475,11 @@ const safeProviders: SafeProvider[] = [
     provide: LOGOUT_CALLBACK,
     useFactory:
       (messagingService: MessagingServiceAbstraction) =>
-      async (logoutReason: LogoutReason, userId?: string) => {
-        return Promise.resolve(
-          messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
-        );
-      },
+        async (logoutReason: LogoutReason, userId?: string) => {
+          return Promise.resolve(
+            messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
+          );
+        },
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
@@ -915,6 +916,18 @@ const safeProviders: SafeProvider[] = [
     provide: AccountCryptographicStateService,
     useClass: DefaultAccountCryptographicStateService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: UnlockService,
+    useClass: DefaultUnlockService,
+    deps: [
+      RegisterSdkService,
+      AccountCryptographicStateService,
+      PinStateServiceAbstraction,
+      KdfConfigService,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: BroadcasterService,
@@ -1806,7 +1819,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => {},
+    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => { },
     deps: [EncryptedMigrationsSchedulerService],
     multi: true,
   }),
@@ -1873,4 +1886,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class JslibServicesModule {}
+export class JslibServicesModule { }
