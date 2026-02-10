@@ -1,3 +1,6 @@
+// Polyfill for Symbol.dispose required by the service's use of `using` keyword
+import "core-js/proposals/explicit-resource-management";
+
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
