@@ -99,9 +99,8 @@ $icomoon-font-path: "~@bitwarden/angular/src/scss/bwicons/fonts/" !default;
   transform: rotate(270deg);
 }
 
-// For new icons - add their glyph name and value to the map below
-// Also add to `libs/components/src/shared/icon.ts`
 // Auto-generated from Figma icons (111 icons)
+// TypeScript icon list is also auto-generated in `libs/components/src/shared/icon.ts`
 $icons: (
   "accessibility": "\f16f",
   "add": "\f16d",

@@ -35,34 +35,18 @@ This script will:
 
 1. ✅ Generate the icon font files from all SVGs (woff2, woff, ttf, svg)
 2. ✅ Update the SCSS with the new icon mappings
-3. ✅ Clean up temporary build artifacts
+3. ✅ **Automatically update** `libs/components/src/shared/icon.ts` with the new icon
+4. ✅ Clean up temporary build artifacts
 
 **Output files:**
 
 - `libs/angular/src/scss/bwicons/fonts/bwi-font.*` - Font files
 - `libs/angular/src/scss/bwicons/styles/style.scss` - Updated with new icon
+- `libs/components/src/shared/icon.ts` - Auto-generated TypeScript icon list (do not edit manually)
 
-### 3. Add to Icon Component Type
+**Note:** The TypeScript icon array is now auto-generated during the build process. You no longer need to manually add icons to `icon.ts`.
 
-Add your icon to the TypeScript icon array in `libs/components/src/shared/icon.ts`:
-
-```typescript
-// Add your icon to the array in alphabetical order
-export const BITWARDEN_ICONS = [
-  "bwi-add",
-  "bwi-archive",
-  // ... existing icons ...
-  "bwi-your-new-icon", // Add here
-  "bwi-vault",
-] as const;
-
-// Type is automatically derived from the array
-export type BitwardenIcon = (typeof BITWARDEN_ICONS)[number];
-```
-
-This provides type safety when using icons in components.
-
-### 4. Add to Storybook Documentation
+### 3. Add to Storybook Documentation
 
 Add your icon to the appropriate category in `libs/components/src/stories/icons/icon-data.ts`:
 
@@ -91,7 +75,7 @@ const actions = [
 - Mention any variants or related icons
 - Note any accessibility considerations
 
-### 5. Test Your Icon
+### 4. Test Your Icon
 
 1. **Visual verification**: Run Storybook to see your icon
 

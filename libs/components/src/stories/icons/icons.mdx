@@ -93,27 +93,13 @@ This script will:
 1. ✅ Create temporary variant copies (if needed for one-to-many mappings)
 2. ✅ Generate the icon font files (woff2, woff, ttf, svg) using Figma names
 3. ✅ Update the SCSS with the icon mappings
-4. ✅ Clean up temporary files
+4. ✅ **Automatically update** `libs/components/src/shared/icon.ts` with the TypeScript icon list
+5. ✅ Clean up temporary files
 
-**Note**: Icons keep their Figma names throughout the process - no renaming or mapping needed!
+**Note**: Icons keep their Figma names throughout the process - no renaming or mapping needed! The
+TypeScript icon array is now auto-generated, so you don't need to manually edit `icon.ts`.
 
-### 3. Add to Icon Component Type
-
-Add your icon to the `BITWARDEN_ICONS` array in `libs/components/src/shared/icon.ts`:
-
-```typescript
-export const BITWARDEN_ICONS = [
-  "bwi-add",
-  "bwi-archive",
-  // ... existing icons ...
-  "bwi-your-new-icon", // Add here, in alphabetical order
-  "bwi-vault",
-] as const;
-```
-
-The icon name should match your SVG filename with the `bwi-` prefix added.
-
-### 4. Add to Storybook Documentation
+### 3. Add to Storybook Documentation
 
 Add your icon to the appropriate category in `libs/components/src/stories/icons/icon-data.ts`:
 
@@ -142,7 +128,7 @@ const actions = [
 - Mention any variants or related icons
 - Note any accessibility considerations
 
-### 6. Test Your Icon
+### 4. Test Your Icon
 
 **Visual verification**: Run Storybook to see your icon
 
