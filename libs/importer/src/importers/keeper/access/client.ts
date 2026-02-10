@@ -103,7 +103,6 @@ export class Client {
       );
 
       let response = await this.startLogin(username, deviceToken, messageSessionUid);
-      console.log("Initial login response:", LoginState[response.loginState]);
 
       const maxIterations = 10;
       let iterations = 0;
@@ -159,62 +158,13 @@ export class Client {
     }
   }
 
-  async syncDown(sessionToken: Uint8Array): Promise<SyncDownResponse> {
-    let merged: SyncDownResponse | null = null;
+  async syncDown(sessionToken: Uint8Array): Promise<SyncDownResponse[]> {
+    const pages: SyncDownResponse[] = [];
     let token: Uint8Array = new Uint8Array();
 
     while (true) {
       const page = await this.syncDownRequest(sessionToken, token);
-
-      if (!merged) {
-        merged = page;
-      } else {
-        merged.userFolders.push(...page.userFolders);
-        merged.sharedFolders.push(...page.sharedFolders);
-        merged.userFolderSharedFolders.push(...page.userFolderSharedFolders);
-        merged.sharedFolderFolders.push(...page.sharedFolderFolders);
-        merged.records.push(...page.records);
-        merged.recordMetaData.push(...page.recordMetaData);
-        merged.nonSharedData.push(...page.nonSharedData);
-        merged.recordLinks.push(...page.recordLinks);
-        merged.userFolderRecords.push(...page.userFolderRecords);
-        merged.sharedFolderRecords.push(...page.sharedFolderRecords);
-        merged.sharedFolderFolderRecords.push(...page.sharedFolderFolderRecords);
-        merged.sharedFolderUsers.push(...page.sharedFolderUsers);
-        merged.sharedFolderTeams.push(...page.sharedFolderTeams);
-        merged.recordAddAuditData.push(...page.recordAddAuditData);
-        merged.teams.push(...page.teams);
-        merged.sharingChanges.push(...page.sharingChanges);
-        merged.pendingTeamMembers.push(...page.pendingTeamMembers);
-        merged.breachWatchRecords.push(...page.breachWatchRecords);
-        merged.userAuths.push(...page.userAuths);
-        merged.breachWatchSecurityData.push(...page.breachWatchSecurityData);
-        merged.removedUserFolders.push(...page.removedUserFolders);
-        merged.removedSharedFolders.push(...page.removedSharedFolders);
-        merged.removedUserFolderSharedFolders.push(...page.removedUserFolderSharedFolders);
-        merged.removedSharedFolderFolders.push(...page.removedSharedFolderFolders);
-        merged.removedRecords.push(...page.removedRecords);
-        merged.removedRecordLinks.push(...page.removedRecordLinks);
-        merged.removedUserFolderRecords.push(...page.removedUserFolderRecords);
-        merged.removedSharedFolderRecords.push(...page.removedSharedFolderRecords);
-        merged.removedSharedFolderFolderRecords.push(...page.removedSharedFolderFolderRecords);
-        merged.removedSharedFolderUsers.push(...page.removedSharedFolderUsers);
-        merged.removedSharedFolderTeams.push(...page.removedSharedFolderTeams);
-        merged.removedTeams.push(...page.removedTeams);
-        merged.ksmAppShares.push(...page.ksmAppShares);
-        merged.ksmAppClients.push(...page.ksmAppClients);
-        merged.shareInvitations.push(...page.shareInvitations);
-        merged.recordRotations.push(...page.recordRotations);
-        merged.users.push(...page.users);
-        merged.removedUsers.push(...page.removedUsers);
-        merged.securityScoreData.push(...page.securityScoreData);
-        merged.notificationSync.push(...page.notificationSync);
-
-        // Update continuation token and flags from latest page
-        merged.continuationToken = page.continuationToken;
-        merged.hasMore = page.hasMore;
-        merged.cacheStatus = page.cacheStatus;
-      }
+      pages.push(page);
 
       if (!page.hasMore) {
         break;
@@ -223,7 +173,7 @@ export class Client {
       token = page.continuationToken;
     }
 
-    return merged!;
+    return pages;
   }
 
   async loadAccountSummary(sessionToken: Uint8Array): Promise<AccountSummaryElements> {
@@ -380,16 +330,12 @@ export class Client {
       "Device approval",
     );
 
-    console.log(`[Keeper] handleDeviceApproval: method=${method}`);
     switch (method) {
       case DeviceApprovalChannel.Email:
-        console.log(`[Keeper] handleDeviceApproval: sending email verification`);
         await this.requestDeviceVerification(username, deviceToken, messageSessionUid);
         break;
       case DeviceApprovalChannel.KeeperPush:
-        console.log(`[Keeper] handleDeviceApproval: sending Keeper push`);
         await this.send2FAPush(response.encryptedLoginToken, TwoFactorPushType.TWO_FA_PUSH_KEEPER);
-        console.log(`[Keeper] handleDeviceApproval: Keeper push sent`);
         break;
       default:
         throw new Error("Unsupported device approval method selected");
@@ -486,16 +432,12 @@ export class Client {
     encryptedLoginToken: Uint8Array,
     pushType?: TwoFactorPushType,
   ): Promise<void> {
-    console.log(
-      `[Keeper] send2FAPush: pushType=${pushType}, tokenLength=${encryptedLoginToken.length}`,
-    );
     const request = TwoFactorSendPushRequest.create({
       encryptedLoginToken,
       pushType: pushType || TwoFactorPushType.TWO_FA_PUSH_NONE,
     });
 
     await this.apiRequest("authentication/2fa_send_push", request, TwoFactorSendPushRequest);
-    console.log(`[Keeper] send2FAPush: completed successfully`);
   }
 
   private twoFactorMethodToUi = new Map<TwoFactorChannelType, TwoFactorMethod>([
@@ -784,8 +726,6 @@ export class Client {
       ? endpoint
       : `https://${this.server}/api/rest/${endpoint}`;
 
-    console.log(`[Keeper API] >>> ${endpoint} -> ${url}`);
-
     let keyId = this.serverKeyId;
     let lastError: Error | null = null;
 
@@ -806,8 +746,6 @@ export class Client {
         const requestBytes = ApiRequest.toBinary(apiRequest);
         const response = await post(url, new Uint8Array(requestBytes));
 
-        console.log(`[Keeper API] <<< ${endpoint} OK (${response.data?.length || 0} bytes)`);
-
         if (keyId !== this.serverKeyId) {
           this.serverKeyId = keyId;
         }
@@ -820,13 +758,11 @@ export class Client {
         return new Uint8Array();
       } catch (error: unknown) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.log(`[Keeper API] <<< ${endpoint} ERROR: ${lastError.message}`);
 
         if (lastError.message.includes('"error":"key"')) {
           const match = lastError.message.match(/"key_id":(\d+)/);
           if (match) {
             const newKeyId = parseInt(match[1], 10);
-            console.log(`[Keeper API] Retrying with key ID ${newKeyId}`);
             keyId = newKeyId;
             continue;
           }
