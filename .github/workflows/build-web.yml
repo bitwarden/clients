@@ -200,7 +200,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Download Commercial SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
