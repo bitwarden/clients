@@ -524,11 +524,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialogService.open<
       AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId }
+      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
     >(AttachmentsV2Component, {
       data: {
         cipherId: this.formConfig.originalCipher?.id as CipherId,
         organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+        canEditCipher: this.formConfig.originalCipher?.edit,
       },
     });
 
