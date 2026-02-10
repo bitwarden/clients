@@ -36,7 +36,6 @@ export const BWI_TO_FIGMA: Record<string, string> = {
   "down-solid": "arrow-filled-down",
   "up-solid": "arrow-filled-up",
   "drag-and-drop": "drag",
-  filter: "grid",
   "ellipsis-h": "more-horizontal",
   "ellipsis-v": "more-vertical",
   "exclamation-triangle": "warning",

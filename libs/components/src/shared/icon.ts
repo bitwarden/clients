@@ -46,6 +46,7 @@ export const BITWARDEN_ICONS = [
   "bwi-file",
   "bwi-file-text",
   "bwi-duplicate",
+  "bwi-filter",
   "bwi-grid",
   "bwi-folder",
   "bwi-generate",

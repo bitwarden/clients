@@ -276,6 +276,10 @@ const directionalMenuIndicators = [
       "More options. Use the vertical version for menus that effect groups of items, content, or data, or full pages.",
   },
   {
+    id: "bwi-filter",
+    usage: "Opens filter options or indicates filtering functionality.",
+  },
+  {
     id: "bwi-grid",
     usage: "Switch to grid view.",
   },
