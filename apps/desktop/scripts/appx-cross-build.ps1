@@ -177,6 +177,7 @@ $translationMap = @{
     'applicationId' = $builderConfig.appx.applicationId
     'displayName' = $productName
     'executable' = "app\${productName}.exe"
+    'identityName' = $builderConfig.appx.identityName
     'publisher' = $builderConfig.appx.publisher
     'publisherDisplayName' = $builderConfig.appx.publisherDisplayName
     'version' = $version
