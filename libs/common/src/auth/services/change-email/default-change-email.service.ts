@@ -18,7 +18,6 @@ import { assertNonNullish } from "../../utils";
 import { ChangeEmailService } from "./change-email.service";
 
 export class DefaultChangeEmailService implements ChangeEmailService {
-
   constructor(
     private configService: ConfigService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
