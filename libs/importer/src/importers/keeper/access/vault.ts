@@ -75,15 +75,100 @@ interface DecryptedFolderData {
 }
 
 export class Vault {
-  constructor(
-    private readonly dataKey: Uint8Array,
-    public records: Map<string, VaultRecord>,
-    public folders: Map<string, VaultFolder>,
-    public sharedFolders: Map<string, VaultSharedFolder>,
-  ) {}
+  static async open(username: string, password: string, options: ClientOptions): Promise<Vault> {
+    const client = new Client(options);
+    const loginResult = await client.login(username, password, options);
+    await client.loadAccountSummary(loginResult.sessionToken);
 
-  async processMergedSyncDownResponse(response: SyncDownResponse): Promise<void> {
-    const dataKey = this.dataKey;
+    const vault = new Vault(loginResult.dataKey);
+    const pages = await client.syncDown(loginResult.sessionToken);
+    const merged = Vault.mergeSyncDownPages(pages);
+    await vault.processMergedSyncDownResponse(merged);
+
+    return vault;
+  }
+
+  getRecords(): VaultRecord[] {
+    return Array.from(this.records.values());
+  }
+
+  getFolders(): VaultFolder[] {
+    return Array.from(this.folders.values());
+  }
+
+  getSharedFolders(): VaultSharedFolder[] {
+    return Array.from(this.sharedFolders.values());
+  }
+
+  //
+  // Private
+  //
+
+  private readonly records = new Map<string, VaultRecord>();
+  private readonly folders = new Map<string, VaultFolder>();
+  private readonly sharedFolders = new Map<string, VaultSharedFolder>();
+
+  private constructor(private readonly masterKey: Uint8Array) {}
+
+  private static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
+    if (pages.length === 1) {
+      return pages[0];
+    }
+
+    const merged = pages[0];
+    for (let i = 1; i < pages.length; i++) {
+      const page = pages[i];
+      merged.userFolders.push(...page.userFolders);
+      merged.sharedFolders.push(...page.sharedFolders);
+      merged.userFolderSharedFolders.push(...page.userFolderSharedFolders);
+      merged.sharedFolderFolders.push(...page.sharedFolderFolders);
+      merged.records.push(...page.records);
+      merged.recordMetaData.push(...page.recordMetaData);
+      merged.nonSharedData.push(...page.nonSharedData);
+      merged.recordLinks.push(...page.recordLinks);
+      merged.userFolderRecords.push(...page.userFolderRecords);
+      merged.sharedFolderRecords.push(...page.sharedFolderRecords);
+      merged.sharedFolderFolderRecords.push(...page.sharedFolderFolderRecords);
+      merged.sharedFolderUsers.push(...page.sharedFolderUsers);
+      merged.sharedFolderTeams.push(...page.sharedFolderTeams);
+      merged.recordAddAuditData.push(...page.recordAddAuditData);
+      merged.teams.push(...page.teams);
+      merged.sharingChanges.push(...page.sharingChanges);
+      merged.pendingTeamMembers.push(...page.pendingTeamMembers);
+      merged.breachWatchRecords.push(...page.breachWatchRecords);
+      merged.userAuths.push(...page.userAuths);
+      merged.breachWatchSecurityData.push(...page.breachWatchSecurityData);
+      merged.removedUserFolders.push(...page.removedUserFolders);
+      merged.removedSharedFolders.push(...page.removedSharedFolders);
+      merged.removedUserFolderSharedFolders.push(...page.removedUserFolderSharedFolders);
+      merged.removedSharedFolderFolders.push(...page.removedSharedFolderFolders);
+      merged.removedRecords.push(...page.removedRecords);
+      merged.removedRecordLinks.push(...page.removedRecordLinks);
+      merged.removedUserFolderRecords.push(...page.removedUserFolderRecords);
+      merged.removedSharedFolderRecords.push(...page.removedSharedFolderRecords);
+      merged.removedSharedFolderFolderRecords.push(...page.removedSharedFolderFolderRecords);
+      merged.removedSharedFolderUsers.push(...page.removedSharedFolderUsers);
+      merged.removedSharedFolderTeams.push(...page.removedSharedFolderTeams);
+      merged.removedTeams.push(...page.removedTeams);
+      merged.ksmAppShares.push(...page.ksmAppShares);
+      merged.ksmAppClients.push(...page.ksmAppClients);
+      merged.shareInvitations.push(...page.shareInvitations);
+      merged.recordRotations.push(...page.recordRotations);
+      merged.users.push(...page.users);
+      merged.removedUsers.push(...page.removedUsers);
+      merged.securityScoreData.push(...page.securityScoreData);
+      merged.notificationSync.push(...page.notificationSync);
+
+      merged.continuationToken = page.continuationToken;
+      merged.hasMore = page.hasMore;
+      merged.cacheStatus = page.cacheStatus;
+    }
+
+    return merged;
+  }
+
+  private async processMergedSyncDownResponse(response: SyncDownResponse): Promise<void> {
+    const masterKey = this.masterKey;
 
     const recordMetaMap = new Map<
       string,
@@ -95,7 +180,7 @@ export class Vault {
         const recordKey = await decryptKeeperKey(
           new Uint8Array(metadata.recordKey),
           metadata.recordKeyType,
-          dataKey,
+          masterKey,
         );
         recordMetaMap.set(uid, { recordKey, version: 0 }); // Version will be updated from Record
       } catch {
@@ -110,7 +195,7 @@ export class Vault {
         const folderKey = await decryptKeeperKey(
           new Uint8Array(folder.userFolderKey),
           folder.keyType,
-          dataKey,
+          masterKey,
         );
         folderKeyMap.set(uid, folderKey);
       } catch {
@@ -155,7 +240,7 @@ export class Vault {
         const sfKey = await decryptKeeperKey(
           new Uint8Array(sf.sharedFolderKey),
           sf.keyType,
-          dataKey,
+          masterKey,
         );
         sharedFolderKeyMap.set(uid, sfKey);
 
@@ -281,121 +366,5 @@ export class Vault {
         // Failed to decrypt record
       }
     }
-  }
-
-  static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
-    if (pages.length === 1) {
-      return pages[0];
-    }
-
-    const merged = pages[0];
-    for (let i = 1; i < pages.length; i++) {
-      const page = pages[i];
-      merged.userFolders.push(...page.userFolders);
-      merged.sharedFolders.push(...page.sharedFolders);
-      merged.userFolderSharedFolders.push(...page.userFolderSharedFolders);
-      merged.sharedFolderFolders.push(...page.sharedFolderFolders);
-      merged.records.push(...page.records);
-      merged.recordMetaData.push(...page.recordMetaData);
-      merged.nonSharedData.push(...page.nonSharedData);
-      merged.recordLinks.push(...page.recordLinks);
-      merged.userFolderRecords.push(...page.userFolderRecords);
-      merged.sharedFolderRecords.push(...page.sharedFolderRecords);
-      merged.sharedFolderFolderRecords.push(...page.sharedFolderFolderRecords);
-      merged.sharedFolderUsers.push(...page.sharedFolderUsers);
-      merged.sharedFolderTeams.push(...page.sharedFolderTeams);
-      merged.recordAddAuditData.push(...page.recordAddAuditData);
-      merged.teams.push(...page.teams);
-      merged.sharingChanges.push(...page.sharingChanges);
-      merged.pendingTeamMembers.push(...page.pendingTeamMembers);
-      merged.breachWatchRecords.push(...page.breachWatchRecords);
-      merged.userAuths.push(...page.userAuths);
-      merged.breachWatchSecurityData.push(...page.breachWatchSecurityData);
-      merged.removedUserFolders.push(...page.removedUserFolders);
-      merged.removedSharedFolders.push(...page.removedSharedFolders);
-      merged.removedUserFolderSharedFolders.push(...page.removedUserFolderSharedFolders);
-      merged.removedSharedFolderFolders.push(...page.removedSharedFolderFolders);
-      merged.removedRecords.push(...page.removedRecords);
-      merged.removedRecordLinks.push(...page.removedRecordLinks);
-      merged.removedUserFolderRecords.push(...page.removedUserFolderRecords);
-      merged.removedSharedFolderRecords.push(...page.removedSharedFolderRecords);
-      merged.removedSharedFolderFolderRecords.push(...page.removedSharedFolderFolderRecords);
-      merged.removedSharedFolderUsers.push(...page.removedSharedFolderUsers);
-      merged.removedSharedFolderTeams.push(...page.removedSharedFolderTeams);
-      merged.removedTeams.push(...page.removedTeams);
-      merged.ksmAppShares.push(...page.ksmAppShares);
-      merged.ksmAppClients.push(...page.ksmAppClients);
-      merged.shareInvitations.push(...page.shareInvitations);
-      merged.recordRotations.push(...page.recordRotations);
-      merged.users.push(...page.users);
-      merged.removedUsers.push(...page.removedUsers);
-      merged.securityScoreData.push(...page.securityScoreData);
-      merged.notificationSync.push(...page.notificationSync);
-
-      merged.continuationToken = page.continuationToken;
-      merged.hasMore = page.hasMore;
-      merged.cacheStatus = page.cacheStatus;
-    }
-
-    return merged;
-  }
-
-  static async open(username: string, password: string, options: ClientOptions): Promise<Vault> {
-    const client = new Client(options);
-    const loginResult = await client.login(username, password, options);
-    await client.loadAccountSummary(loginResult.sessionToken);
-
-    const records = new Map<string, VaultRecord>();
-    const folders = new Map<string, VaultFolder>();
-    const sharedFolders = new Map<string, VaultSharedFolder>();
-    const vault = new Vault(loginResult.dataKey, records, folders, sharedFolders);
-    const pages = await client.syncDown(loginResult.sessionToken);
-    const merged = Vault.mergeSyncDownPages(pages);
-    await vault.processMergedSyncDownResponse(merged);
-
-    return vault;
-  }
-
-  getRecords(): VaultRecord[] {
-    return Array.from(this.records.values());
-  }
-
-  getRecord(uid: string): VaultRecord | undefined {
-    return this.records.get(uid);
-  }
-
-  searchRecords(query: string): VaultRecord[] {
-    const lowerQuery = query.toLowerCase();
-    return this.getRecords().filter(
-      (record) =>
-        record.title.toLowerCase().includes(lowerQuery) ||
-        record.login?.toLowerCase().includes(lowerQuery) ||
-        record.url?.toLowerCase().includes(lowerQuery),
-    );
-  }
-
-  getFolders(): VaultFolder[] {
-    return Array.from(this.folders.values());
-  }
-
-  getFolder(uid: string): VaultFolder | undefined {
-    return this.folders.get(uid);
-  }
-
-  getSharedFolders(): VaultSharedFolder[] {
-    return Array.from(this.sharedFolders.values());
-  }
-
-  getSharedFolder(uid: string): VaultSharedFolder | undefined {
-    return this.sharedFolders.get(uid);
-  }
-
-  getRecordsInFolder(folderUid: string): VaultRecord[] {
-    return this.getRecords().filter(
-      (record) =>
-        record.sharedFolderUid === folderUid ||
-        // TODO: Implement proper folder assignment
-        false,
-    );
   }
 }
