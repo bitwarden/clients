@@ -9,7 +9,7 @@ import {
   SendTokenService,
   SendAccessToken,
   emailRequired,
-  emailAndOtpRequiredEmailSent,
+  emailAndOtpRequired,
   otpInvalid,
   passwordHashB64Required,
   passwordHashB64Invalid,
@@ -179,6 +179,53 @@ export class SendReceiveCommand extends DownloadCommand {
     }
   }
 
+  private async attemptV2Access(
+    apiUrl: string,
+    id: string,
+    keyArray: Uint8Array,
+    options: OptionValues,
+  ): Promise<Response> {
+    let authType: AuthType = AuthType.None;
+
+    const currentResponse = await this.getTokenWithRetry(id);
+
+    if (currentResponse instanceof SendAccessToken) {
+      return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
+    }
+
+    if (currentResponse.kind === "expected_server") {
+      const error = currentResponse.error;
+
+      if (emailRequired(error)) {
+        authType = AuthType.Email;
+      } else if (passwordHashB64Required(error)) {
+        authType = AuthType.Password;
+      } else if (sendIdInvalid(error)) {
+        return Response.notFound();
+      }
+    } else {
+      return this.handleError(currentResponse);
+    }
+
+    // Handle authentication based on type
+    if (authType === AuthType.Email) {
+      if (!this.canInteract) {
+        return Response.badRequest("Email verification required. Run in interactive mode.");
+      }
+      return await this.handleEmailOtpAuth(id, keyArray, apiUrl, options);
+    } else if (authType === AuthType.Password) {
+      return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
+    }
+
+    // The auth layer will immediately return a token for Sends with AuthType.None
+    // If this code is reached, something has gone wrong
+    if (authType === AuthType.None) {
+      return Response.error("Could not determine authentication requirements");
+    }
+
+    return Response.error("Authentication failed");
+  }
+
   private async getTokenWithRetry(
     sendId: string,
     credentials?: SendAccessDomainCredentials,
@@ -210,53 +257,20 @@ export class SendReceiveCommand extends DownloadCommand {
     };
   }
 
-  private async attemptV2Access(
-    apiUrl: string,
-    id: string,
-    keyArray: Uint8Array,
-    options: OptionValues,
-  ): Promise<Response> {
-    let authType: AuthType = AuthType.None;
-
-    const currentResponse = await this.getTokenWithRetry(id);
-
-    if (currentResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
+  private handleError(error: GetSendAccessTokenError): Response {
+    if (error.kind === "unexpected_server") {
+      return Response.error("Server error: " + JSON.stringify(error.error));
     }
 
-    if (currentResponse.kind === "expected_server") {
-      const error = currentResponse.error;
+    return Response.error("Error: " + error.error);
+  }
 
-      if (emailRequired(error)) {
-        authType = AuthType.Email;
-      } else if (passwordHashB64Required(error)) {
-        authType = AuthType.Password;
-      } else if (sendIdInvalid(error)) {
-        return Response.notFound();
-      }
-    } else if (currentResponse.kind === "unexpected_server") {
-      return Response.error("Server error: " + JSON.stringify(currentResponse.error));
-    } else if (currentResponse.kind === "unknown") {
-      return Response.error("Error: " + currentResponse.error);
-    }
-
-    // Handle authentication based on type
-    if (authType === AuthType.Email) {
-      if (!this.canInteract) {
-        return Response.badRequest("Email verification required. Run in interactive mode.");
-      }
-      return await this.handleEmailOtpAuth(id, keyArray, apiUrl, options);
-    } else if (authType === AuthType.Password) {
-      return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
-    }
-
-    // The auth layer will immediately return a token for Sends with AuthType.None
-    // If this code is reached, something has gone wrong
-    if (authType === AuthType.None) {
-      return Response.error("Could not determine authentication requirements");
-    }
-
-    return Response.error("Authentication failed");
+  private async promptForOtp(sendId: string, email: string): Promise<SendOtp> {
+    return inquirer.createPromptModule({ output: process.stderr })({
+      type: "input",
+      name: "otp",
+      message: "Enter the verification code sent to your email:",
+    });
   }
 
   private async promptForEmail(): Promise<string> {
@@ -288,60 +302,43 @@ export class SendReceiveCommand extends DownloadCommand {
     });
 
     if (emailResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(emailResponse, keyArray, apiUrl, options);
+      /*
+        At this point emailResponse should only be expected to be a GetSendAccessTokenError type,
+        but TS must have a logical branch in case it is a SendAccessToken type. If a valid token is
+        returned by the method above, something has gone wrong.
+       */
+
+      return Response.error("Unexpected server response");
     }
 
     if (emailResponse.kind === "expected_server") {
       const error = emailResponse.error;
 
-      if (emailAndOtpRequiredEmailSent(error)) {
+      if (emailAndOtpRequired(error)) {
         const promptResponse = await this.promptForOtp(sendId, email);
-        if (promptResponse instanceof SendAccessToken) {
-          return await this.accessSendWithToken(promptResponse, keyArray, apiUrl, options);
-        } else {
-          return promptResponse;
+
+        // Use retry helper for expired token handling
+        const otpResponse = await this.getTokenWithRetry(sendId, {
+          kind: "email_otp",
+          email: email,
+          otp: promptResponse,
+        });
+
+        if (otpResponse instanceof SendAccessToken) {
+          return await this.accessSendWithToken(otpResponse, keyArray, apiUrl, options);
         }
+
+        if (otpResponse.kind === "expected_server") {
+          const error = otpResponse.error;
+
+          if (otpInvalid(error)) {
+            return Response.badRequest("Invalid verification code");
+          }
+        }
+        return this.handleError(otpResponse);
       }
-    } else if (emailResponse.kind === "unexpected_server") {
-      return Response.error("Server error: " + JSON.stringify(emailResponse.error));
-    } else if (emailResponse.kind === "unknown") {
-      return Response.error("Error: " + emailResponse.error);
     }
-
-    return Response.error("Failed to verify email");
-  }
-
-  private async promptForOtp(sendId: string, email: string): Promise<SendAccessToken | Response> {
-    const otpAnswer = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "input",
-      name: "otp",
-      message: "Enter the verification code sent to your email:",
-    });
-
-    // Use retry helper for expired token handling
-    const otpResponse = await this.getTokenWithRetry(sendId, {
-      kind: "email_otp",
-      email: email,
-      otp: otpAnswer.otp as SendOtp,
-    });
-
-    if (otpResponse instanceof SendAccessToken) {
-      return otpResponse;
-    }
-
-    if (otpResponse.kind === "expected_server") {
-      const error = otpResponse.error;
-
-      if (otpInvalid(error)) {
-        return Response.badRequest("Invalid verification code");
-      }
-    } else if (otpResponse.kind === "unexpected_server") {
-      return Response.error("Server error: " + JSON.stringify(otpResponse.error));
-    } else if (otpResponse.kind === "unknown") {
-      return Response.error("Error: " + otpResponse.error);
-    }
-
-    return Response.error("Failed to verify OTP");
+    return this.handleError(emailResponse);
   }
 
   private async handlePasswordAuth(
