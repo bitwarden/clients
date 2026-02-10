@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, WritableSignal } from "@angular/core";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -7,7 +7,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../../../manage/entity-events.component";
@@ -18,6 +18,8 @@ import {
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
+import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress-dialog.component";
+import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
@@ -27,6 +29,7 @@ import {
   openUserAddEditDialog,
 } from "../../components/member-dialog";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
+import { BulkActionResult } from "../member-actions/member-actions.service";
 
 @Injectable()
 export class MemberDialogManagerService {
@@ -318,5 +321,34 @@ export class MemberDialogManagerService {
       },
       type: "warning",
     });
+  }
+
+  openBulkProgressDialog(progress: WritableSignal<number>, allCount: number) {
+    return this.dialogService.open<BulkProgressDialogComponent>(BulkProgressDialogComponent, {
+      disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
+      data: {
+        progress,
+        allCount,
+      },
+    });
+  }
+
+  openBulkReinviteFailureDialog(
+    organization: Organization,
+    users: OrganizationUserView[],
+    result: BulkActionResult,
+  ) {
+    return this.dialogService.open<BulkReinviteFailureDialogComponent>(
+      BulkReinviteFailureDialogComponent,
+      {
+        positionStrategy: new CenterPositionStrategy(),
+        data: {
+          organization,
+          users,
+          result,
+        },
+      },
+    );
   }
 }

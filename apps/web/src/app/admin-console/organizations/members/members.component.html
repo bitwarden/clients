@@ -113,25 +113,24 @@
               <th bitCell>{{ "policies" | i18n }}</th>
               <th bitCell class="tw-w-10">
                 @if (showUserManagementControls()) {
-                  <th bitCell>
-                    <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
-                      <button
-                        type="button"
-                        bitIconButton="bwi-download"
-                        size="small"
-                        [bitAction]="exportMembers"
-                        [disabled]="!firstLoaded"
-                        label="{{ 'export' | i18n }}"
-                      ></button>
-                      <button
-                        [bitMenuTriggerFor]="headerMenu"
-                        type="button"
-                        bitIconButton="bwi-ellipsis-v"
-                        size="small"
-                        label="{{ 'options' | i18n }}"
-                      ></button>
-                    </div>
-                  </th>
+                  <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
+                    <button
+                      type="button"
+                      bitIconButton="bwi-download"
+                      size="small"
+                      [bitAction]="exportMembers"
+                      [disabled]="!firstLoaded"
+                      label="{{ 'export' | i18n }}"
+                    ></button>
+                    <button
+                      [bitMenuTriggerFor]="headerMenu"
+                      type="button"
+                      bitIconButton="bwi-ellipsis-v"
+                      size="small"
+                      label="{{ 'options' | i18n }}"
+                      *ngIf="showUserManagementControls()"
+                    ></button>
+                  </div>
                 }
 
                 <bit-menu #headerMenu>

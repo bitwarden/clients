@@ -444,10 +444,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     try {
-      const result = await this.memberActionsService.bulkReinvite(
-        organization,
-        filteredUsers.map((user) => user.id as UserId),
-      );
+      const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
 
       if (!result.successful) {
         throw new Error();
@@ -472,7 +469,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {

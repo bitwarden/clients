@@ -228,7 +228,10 @@ export class vNextMembersComponent {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
