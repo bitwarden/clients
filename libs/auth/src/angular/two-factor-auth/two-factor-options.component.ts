@@ -18,7 +18,7 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
-  IconModule,
+  SvgModule,
   ItemModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -39,7 +39,7 @@ export type TwoFactorOptionsDialogResult = {
     ButtonModule,
     TypographyModule,
     ItemModule,
-    IconModule,
+    SvgModule,
   ],
   providers: [],
 })

@@ -28,8 +28,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
-
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { VaultItemDialogComponent } from "./vault-item-dialog.component";
 
@@ -105,7 +104,7 @@ describe("VaultItemDialogComponent", () => {
             getFeatureFlag$: () => of(false),
           },
         },
-        { provide: Router, useValue: {} },
+        { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: ActivatedRoute, useValue: {} },
         {
           provide: BillingAccountProfileStateService,
@@ -120,7 +119,7 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
@@ -250,19 +249,28 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("archive button", () => {
-    it("should show archive button when the user can archive the item and the item can be archived", () => {
+    it("should not show archive button in admin console", () => {
+      (component as any).userCanArchive$ = of(true);
+      component.setTestCipher({ canBeArchived: true });
+      component.setTestParams({ mode: "form", isAdminConsoleAction: true });
+      fixture.detectChanges();
+      const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
+      expect(archiveButton).toBeFalsy();
+    });
+
+    it("should show archive button when the user can archive the item, item can be archived, and dialog is in view mode", () => {
       component.setTestCipher({ canBeArchived: true });
       (component as any).userCanArchive$ = of(true);
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeTruthy();
     });
 
-    it("should not show archive button when the user cannot archive the item", () => {
+    it("should not show archive button when the user does not have premium", () => {
       (component as any).userCanArchive$ = of(false);
       component.setTestCipher({});
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
@@ -275,12 +283,21 @@ describe("VaultItemDialogComponent", () => {
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
     });
+
+    it("should not show archive button when dialog is not in view mode", () => {
+      component.setTestCipher({ canBeArchived: true });
+      (component as any).userCanArchive$ = of(true);
+      component.setTestParams({ mode: "form" });
+      fixture.detectChanges();
+      const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
+      expect(archiveButton).toBeFalsy();
+    });
   });
 
   describe("unarchive button", () => {
-    it("should show the unarchive button when the item is archived", () => {
+    it("should show the unarchive button when the item is archived, and dialog in view mode", () => {
       component.setTestCipher({ isArchived: true });
-      component.setTestParams({ mode: "form" });
+      component.setTestParams({ mode: "view" });
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeTruthy();
@@ -288,10 +305,37 @@ describe("VaultItemDialogComponent", () => {
 
     it("should not show the unarchive button when the item is not archived", () => {
       component.setTestCipher({ isArchived: false });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+      const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
+      expect(unarchiveButton).toBeFalsy();
+    });
+
+    it("should not show the unarchive button when dialog is not in view mode", () => {
+      component.setTestCipher({ isArchived: false });
       component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeFalsy();
+    });
+  });
+
+  describe("archive badge", () => {
+    it('should show "archived" badge when the item is archived and not an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeTruthy();
+      expect(archivedBadge.nativeElement.textContent.trim()).toBe("archived");
+    });
+
+    it('should not show "archived" badge when the item is archived and is an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view", isAdminConsoleAction: true });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeFalsy();
     });
   });
 
@@ -326,6 +370,78 @@ describe("VaultItemDialogComponent", () => {
       component["submitButtonText$"].subscribe((text) => {
         expect(text).toBe("save");
         done();
+      });
+    });
+  });
+
+  describe("changeMode", () => {
+    beforeEach(() => {
+      component.setTestCipher({ type: CipherType.Login, id: "cipher-id" });
+    });
+
+    it("refocuses the dialog header", async () => {
+      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "handleAutofocus");
+
+      await component["changeMode"]("view");
+
+      expect(focusOnHeaderSpy).toHaveBeenCalled();
+    });
+
+    describe("to view", () => {
+      beforeEach(() => {
+        component.setTestParams({ mode: "form" });
+        fixture.detectChanges();
+      });
+
+      it("sets mode to view", async () => {
+        await component["changeMode"]("view");
+
+        expect(component["params"].mode).toBe("view");
+      });
+
+      it("updates the url", async () => {
+        const router = TestBed.inject(Router);
+
+        await component["changeMode"]("view");
+
+        expect(router.navigate).toHaveBeenCalledWith([], {
+          queryParams: { action: "view", itemId: "cipher-id" },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
+      });
+    });
+
+    describe("to form", () => {
+      const waitForFormReady = async () => {
+        const changeModePromise = component["changeMode"]("form");
+
+        expect(component["loadForm"]).toBe(true);
+
+        component["onFormReady"]();
+        await changeModePromise;
+      };
+
+      beforeEach(() => {
+        component.setTestParams({ mode: "view" });
+        fixture.detectChanges();
+      });
+
+      it("waits for form to be ready when switching to form mode", async () => {
+        await waitForFormReady();
+
+        expect(component["params"].mode).toBe("form");
+      });
+
+      it("updates the url", async () => {
+        const router = TestBed.inject(Router);
+        await waitForFormReady();
+
+        expect(router.navigate).toHaveBeenCalledWith([], {
+          queryParams: { action: "edit", itemId: "cipher-id" },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
       });
     });
   });

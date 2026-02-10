@@ -100,6 +100,66 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "A Send véglegesen törölve lesz ebben az időpontban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Megosztandó fájl"
+  },
+  "hideTextByDefault": {
+    "message": "Szöveg elrejtése alapértelmezetten"
+  },
+  "hideYourEmail": {
+    "message": "Saját email cím elrejtése a megtekintések elől."
+  },
+  "limitSendViews": {
+    "message": "Megtekintések korlátozása"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ megtekintés maradt.",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Senki sem tudja megtekinteni ezt a Send elemet a korlát elérése után.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Személyes jegyzet"
+  },
+  "sendDetails": {
+    "message": "Send részletek",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Megosztandó szöveg"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send szöveg szerkesztése",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send fájl szerkesztése",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Biztosan véglegesen törlésre kerüljön ez a Send elem?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Új",
     "description": "for adding new items"
@@ -2027,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elem végleges törlése"
+  },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
   },
   "restoredItem": {
     "message": "Visszaállított elem"
@@ -4011,6 +4074,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
@@ -4327,8 +4396,8 @@
   "archiveItem": {
     "message": "Elem archiválása"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "unArchiveAndSave": {
     "message": "Archiválás visszavonása és mentés"
@@ -4514,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "sendPasswordHelperText": {
+    "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Védett email cím"
+  },
+  "emails": {
+    "message": "Email címek"
+  },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
+  },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }

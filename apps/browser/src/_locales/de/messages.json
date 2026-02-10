@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
   },
+  "unlockWithPasskey": {
+    "message": "Mit Passkey entsperren"
+  },
   "useSingleSignOn": {
     "message": "Single Sign-On verwenden"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "archived": {
+    "message": "Archiviert"
+  },
+  "unarchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
   },
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
@@ -980,6 +989,12 @@
   },
   "no": {
     "message": "Nein"
+  },
+  "noAuth": {
+    "message": "Alle mit dem Link"
+  },
+  "anyOneWithPassword": {
+    "message": "Alle mit einem von dir festgelegtem Passwort"
   },
   "location": {
     "message": "Standort"
@@ -1539,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "archivePremiumRestart": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
+  },
   "ppremiumSignUpReports": {
     "message": "Berichte über Kennworthygiene, Kontostatus und Datenschutzverletzungen, um deinen Tresor sicher zu halten."
   },
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "E-Mail"
   },
+  "emails": {
+    "message": "E-Mails"
+  },
   "phone": {
     "message": "Telefon"
   },
@@ -2457,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Eintrag dauerhaft gelöscht"
+  },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
   },
   "restoreItem": {
     "message": "Eintrag wiederherstellen"
@@ -3005,10 +3035,6 @@
   "custom": {
     "message": "Benutzerdefiniert"
   },
-  "sendPasswordDescV3": {
-    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Neues Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3068,28 +3094,8 @@
     "message": "Send gespeichert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Erweiterung in einem neuen Fenster öffnen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Um ein Datei-Send zu erstellen, musst du die Erweiterung in einem neuen Fenster öffnen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Um eine Datei auszuwählen, öffne die Erweiterung in der Sidebar (falls möglich) oder öffne sie in einem neuem Fenster, indem du auf dieses Banner klickst."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Um eine Datei mit Firefox auszuwählen, öffne die Erweiterung in der Sidebar oder öffne ein neues Fenster, indem du auf dieses Banner klickst."
-  },
-  "sendSafariFileWarning": {
-    "message": "Um eine Datei mit Safari auszuwählen, öffne ein neues Fenster, indem du auf dieses Banner klickst."
-  },
   "popOut": {
     "message": "Abkoppeln"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Bevor du beginnst"
   },
   "expirationDateIsInvalid": {
     "message": "Das angegebene Verfallsdatum ist nicht gültig."
@@ -3348,6 +3354,12 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "prfUnlockFailed": {
+    "message": "Entsperren mit Passkey fehlgeschlagen. Bitte versuche es erneut oder verwende eine andere Entsperrmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Es sind keine PRF-fähigen Passkeys zum Entsperren verfügbar. Bitte melde dich zuerst mit einem Passkey an."
   },
   "decryptionError": {
     "message": "Entschlüsselungsfehler"
@@ -4724,6 +4736,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Weitere Optionen"
+  },
   "moreOptionsTitle": {
     "message": "Weitere Optionen - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4971,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Anhang herunterladen"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden herunterladen"
   },
@@ -5110,14 +5128,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Übereinstimmungs-Erkennung verstecken $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
   },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
@@ -5655,6 +5670,9 @@
   "extraWide": {
     "message": "Extra breit"
   },
+  "narrow": {
+    "message": "Schmal"
+  },
   "sshKeyWrongPassword": {
     "message": "Dein eingegebenes Passwort ist falsch."
   },
@@ -6085,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
   },
+  "items": {
+    "message": "Einträge"
+  },
+  "searchResults": {
+    "message": "Suchergebnisse"
+  },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
+  },
+  "whoCanView": {
+    "message": "Wer kann das sehen"
+  },
+  "specificPeople": {
+    "message": "Bestimmte Personen"
+  },
+  "emailVerificationDesc": {
+    "message": "Nach dem Teilen dieses Send-Links müssen Personen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
+  },
+  "emailPlaceholder": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "emailProtected": {
+    "message": "E-Mail-Adresse geschützt"
+  },
+  "sendPasswordHelperText": {
+    "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
