@@ -1,6 +1,7 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
@@ -38,7 +39,7 @@ export class DefaultUnlockService implements UnlockService {
           return ref.value.crypto().initialize_user_crypto({
             userId: asUuid(userId),
             kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId),
+            email: await this.getEmail(userId)!,
             accountCryptographicState: await this.getAccountCryptographicState(userId),
             method: {
               pinEnvelope: {
@@ -80,37 +81,49 @@ export class DefaultUnlockService implements UnlockService {
   private async getAccountCryptographicState(
     userId: UserId,
   ): Promise<WrappedAccountCryptographicState> {
-    return firstValueFrom(this.accountCryptographicStateService.accountCryptographicState$(userId));
+    const accountCryptographicState = await firstValueFrom(
+      this.accountCryptographicStateService.accountCryptographicState$(userId),
+    );
+    assertNonNullish(accountCryptographicState, "Account cryptographic state is required");
+    return accountCryptographicState!;
   }
 
   private async getKdfParams(userId: UserId): Promise<Kdf> {
-    return firstValueFrom(
+    const kdfParams = await firstValueFrom(
       this.kdfService.getKdfConfig$(userId).pipe(
-        map((config: KdfConfig) => {
-          return config.toSdkConfig();
+        map((config: KdfConfig | null) => {
+          return config?.toSdkConfig();
         }),
       ),
     );
+    assertNonNullish(kdfParams, "KDF parameters are required");
+    return kdfParams!;
   }
 
-  private async getEmail(userId: UserId): Promise<string | null> {
+  private async getEmail(userId: UserId): Promise<string> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
-    return accounts[userId]?.email;
+    const email = accounts[userId].email;
+    assertNonNullish(email, "Email is required");
+    return email;
   }
 
   private async getPinProtectedUserKeyEnvelope(
     userId: UserId,
-  ): Promise<PasswordProtectedKeyEnvelope | null> {
+  ): Promise<PasswordProtectedKeyEnvelope> {
     const pinLockType = await this.pinStateService.getPinLockType(userId);
-    return this.pinStateService.getPinProtectedUserKeyEnvelope(userId, pinLockType);
+    const pinEnvelope = await this.pinStateService.getPinProtectedUserKeyEnvelope(
+      userId,
+      pinLockType,
+    );
+    assertNonNullish(pinEnvelope, "User is not enrolled in PIN unlock");
+    return pinEnvelope!;
   }
 
-  private async getMasterPasswordUnlockData(
-    userId: UserId,
-  ): Promise<MasterPasswordUnlockData | null> {
+  private async getMasterPasswordUnlockData(userId: UserId): Promise<MasterPasswordUnlockData> {
     const unlockData = await firstValueFrom(
       this.masterPasswordService.masterPasswordUnlockData$(userId),
     );
+    assertNonNullish(unlockData, "Master password unlock data is required");
     return unlockData.toSdk();
   }
 }
