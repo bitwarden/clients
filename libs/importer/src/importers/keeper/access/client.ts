@@ -378,7 +378,7 @@ export class Client {
     } else if (typeof result === "string" && result.length > 0) {
       await this.validateDeviceVerificationCode(username, result);
       return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
-    } else if ("messageType" in result) {
+    } else if (typeof result === "object" && "messageType" in result) {
       const { messageType, message } = result as PushMessage;
       if (
         messageType === MessageType.SESSION &&
