@@ -220,13 +220,29 @@ interface MemberRegistryEntry {
 }
 ```
 
-### MemberRef (new — lightweight reference)
+### Member References (new — Record with at-risk flag)
+
+Instead of duplicating full member objects per application, each application stores member IDs as a `Record<string, boolean>`, where:
+
+- **Key** = member ID (userGuid)
+- **Value** = `true` if at-risk, `false` if not at-risk
+
+This provides:
+
+- **O(1) lookup** for checking membership and at-risk status
+- **Automatic deduplication** (can't have duplicate keys)
+- **Single source** for both member list and at-risk status
+- **No duplicate IDs** (previously stored in both memberDetails and atRiskMemberDetails)
 
 ```typescript
-// Instead of duplicating full member objects per application,
-// each application stores only references
-interface MemberRef {
-  id: OrganizationUserId; // key into MemberRegistry
+// Stored as a Record<string, boolean> where value indicates at-risk status
+type MemberRefs = Record<OrganizationUserId, boolean>;
+
+// Example:
+memberRefs: {
+  "abc-123": true,   // at-risk member
+  "def-456": false,  // not at-risk
+  "ghi-789": true    // at-risk member
 }
 ```
 
@@ -241,25 +257,37 @@ class RiskInsightsReportView {
   reusedPasswordCount: number;
   exposedPasswordCount: number;
 
-  // OLD: memberDetails: MemberDetails[] (full objects, duplicated)
-  // NEW: lightweight references into the shared registry
-  memberRefs: MemberRef[];
-  atRiskMemberRefs: MemberRef[];
+  // OLD: memberDetails: MemberDetails[] + atRiskMemberDetails: MemberDetails[] (duplicated)
+  // NEW: Single Record with at-risk flag
+  memberRefs: Record<OrganizationUserId, boolean>; // { "abc": true, "def": false, ... }
   cipherIds: CipherId[];
 
   // The registry is held by the parent RiskInsightsView
   // View model methods resolve refs → full entries on demand:
 
-  getMemberDetails(registry: MemberRegistry): MemberRegistryEntry[] {
-    return this.memberRefs.map((ref) => registry.get(ref.id)).filter(Boolean);
+  getAllMembers(registry: MemberRegistry): MemberRegistryEntry[] {
+    return Object.keys(this.memberRefs)
+      .map((id) => registry.get(id as OrganizationUserId))
+      .filter(Boolean);
   }
 
-  getAtRiskMemberDetails(registry: MemberRegistry): MemberRegistryEntry[] {
-    return this.atRiskMemberRefs.map((ref) => registry.get(ref.id)).filter(Boolean);
+  getAtRiskMembers(registry: MemberRegistry): MemberRegistryEntry[] {
+    return Object.entries(this.memberRefs)
+      .filter(([_, isAtRisk]) => isAtRisk)
+      .map(([id]) => registry.get(id as OrganizationUserId))
+      .filter(Boolean);
   }
 
   isAtRisk(): boolean {
     return this.atRiskPasswordCount > 0;
+  }
+
+  hasMember(memberId: OrganizationUserId): boolean {
+    return memberId in this.memberRefs; // O(1) lookup
+  }
+
+  isMemberAtRisk(memberId: OrganizationUserId): boolean {
+    return this.memberRefs[memberId] === true; // O(1) lookup
   }
 }
 ```
@@ -281,7 +309,10 @@ class RiskInsightsView {
     const ids = new Set<OrganizationUserId>();
     for (const app of this.report) {
       if (app.isAtRisk()) {
-        app.atRiskMemberRefs.forEach((ref) => ids.add(ref.id));
+        // memberRefs is a Record, iterate entries and filter for at-risk (value === true)
+        Object.entries(app.memberRefs).forEach(([id, isAtRisk]) => {
+          if (isAtRisk) ids.add(id as OrganizationUserId);
+        });
       }
     }
     return [...ids].map((id) => this.memberRegistry.get(id)).filter(Boolean);
@@ -328,13 +359,19 @@ class RiskInsightsView {
 **10K member org:**
 
 - **MemberRegistry**: 10,000 members × 140 bytes (no cipherId) = **1.4MB** (stored once)
-- **memberRefs**: 400 apps × 5,000 refs × 40 bytes (UUID string) = **80MB**
-- **atRiskMemberRefs**: 400 apps × 3,000 refs × 40 bytes = **48MB**
+- **memberRefs**: 400 apps × 5,000 refs × 50 bytes (Record entry: `"id": false/true`) = **100MB**
+  - No separate atRiskMemberRefs needed - at-risk status is the boolean value
 - Cipher IDs + metadata: **~15MB**
-- **Total unencrypted: ~144MB**
-- **After encryption + Base64: ~192MB**
+- **Total unencrypted: ~116MB**
+- **After encryption + Base64: ~154MB**
 
-**Reduction: 786MB → 192MB = 76% smaller** 🎉
+**Reduction: 786MB → 154MB = 80% smaller** 🎉
+
+**Design Decision:** Use single `Record<string, boolean>` instead of two separate arrays:
+
+- **Pros:** No duplicate IDs, O(1) lookup, clearer intent, ~60MB saved (no atRiskMemberRefs)
+- **Cons:** Slightly more complex iteration (need to check boolean value)
+- **Trade-off:** Definitely worth it - saves significant space and prevents duplicate storage
 
 ---
 
@@ -413,14 +450,18 @@ class RiskInsightsView {
     // ... 10,000 members stored ONCE
   },
 
-  // ENCRYPTED FIELD 1: reportData (~144MB for 10K org - 80% reduction!)
+  // ENCRYPTED FIELD 1: reportData (~116MB for 10K org - 80% reduction!)
   reportData: [
     {
       applicationName: "google.com",
       cipherIds: ["cipher-id-1", "cipher-id-2", ...],         // ~100 ciphers
       atRiskCipherIds: ["cipher-id-1", ...],                  // ~50 at-risk
-      memberRefs: ["abc", "def", ...],                        // ~5,000 IDs (not full objects)
-      atRiskMemberRefs: ["abc", ...],                         // ~3,000 IDs (not full objects)
+      memberRefs: {                                            // ~5,000 member IDs with at-risk flag
+        "abc": true,   // at-risk member
+        "def": false,  // not at-risk
+        "ghi": true,   // at-risk member
+        // ... (no separate atRiskMemberRefs needed)
+      },
       passwordCount: 100,
       atRiskPasswordCount: 50,
       memberCount: 5000,
@@ -454,36 +495,41 @@ class RiskInsightsView {
 
 ---
 
-### Alternative: Single Member Array with Flag
+### Design Decision: Single Record with Boolean Flag
 
-Instead of separate `memberRefs` and `atRiskMemberRefs` arrays, we could use:
+**Chosen approach:** Use single `Record<string, boolean>` where the boolean indicates at-risk status.
 
 ```typescript
 {
   applicationName: "google.com",
-  members: [
-    { id: "abc", hasAtRiskAccess: true },
-    { id: "def", hasAtRiskAccess: false },
-    // ...
-  ]
+  memberRefs: {
+    "abc": true,   // at-risk member
+    "def": false,  // not at-risk
+    "ghi": true    // at-risk member
+  }
 }
 ```
 
 **Pros:**
 
-- Single array (simpler)
-- Slightly smaller (1 byte flag vs duplicate ID)
+- ✅ No duplicate IDs (previously stored in both memberDetails AND atRiskMemberDetails)
+- ✅ O(1) lookup for both membership and at-risk status
+- ✅ Automatic deduplication
+- ✅ Saves ~60MB compared to two separate Records (no atRiskMemberRefs)
+- ✅ Clear intent - one member, one entry
 
 **Cons:**
 
-- Harder to recalculate critical app summaries (need to iterate all members)
-- Loses clarity that at-risk is a subset
+- ⚠️ Slightly more complex iteration (need to check boolean value when filtering at-risk)
+- ⚠️ Summary recalculation requires iterating entries instead of just counting keys
 
-**Recommendation:** Keep separate arrays (`memberRefs` and `atRiskMemberRefs`) since:
+**Trade-off Analysis:**
 
-1. Summary recalculation is faster (just count atRiskMemberRefs.length)
-2. Matches current mental model (at-risk is a subset of all members)
-3. Size difference is negligible (~5MB out of 192MB)
+- Size savings: **~60MB** (400 apps × 3K at-risk IDs × 50 bytes per duplicate entry)
+- Performance: Negligible - `Object.entries().filter()` is still O(n) like array iteration
+- Correctness: Better - impossible to have member in atRiskMemberRefs but not in memberRefs
+
+**Verdict:** Single Record with boolean flag is the clear winner.
 
 ---
 
@@ -600,8 +646,8 @@ Encrypt `reportData`, `summaryData`, `applicationData` as separate EncStrings.
 **Size estimate with field-level encryption:**
 
 - Member registry (10K members): ~1.4MB unencrypted → ~2MB encrypted (each field encrypted)
-- Report data: ~144MB unencrypted → ~180MB encrypted (overhead from EncString metadata)
-- **Total: ~182MB** (vs ~192MB with whole-object encryption)
+- Report data: ~116MB unencrypted → ~145MB encrypted (overhead from EncString metadata)
+- **Total: ~147MB** (vs ~154MB with whole-object encryption)
 
 Field-level encryption adds ~10MB overhead but enables partial decryption and avoids WASM limits.
 
@@ -665,9 +711,10 @@ Compress `reportData` before encrypting. `summaryData` and `applicationData` rem
   - [ ] `size(): number`
   - [ ] Serialization/deserialization for storage
 - [ ] Update `ApplicationHealthReportDetail` to use member references
-  - [ ] Replace `memberDetails: MemberDetails[]` with `memberRefs: string[]`
-  - [ ] Replace `atRiskMemberDetails: MemberDetails[]` with `atRiskMemberRefs: string[]`
+  - [ ] Replace `memberDetails: MemberDetails[]` AND `atRiskMemberDetails: MemberDetails[]` with single `memberRefs: Record<string, boolean>`
+  - [ ] Boolean value indicates at-risk status (true = at-risk, false = not at-risk)
   - [ ] Remove `cipherId` field from `MemberDetails` (rename to `MemberRegistryEntry`)
+  - [ ] Note: Using single Record eliminates duplicate IDs and provides O(1) lookup
 - [ ] Update `RiskInsightsData` storage structure
   - [ ] Add `memberRegistry: Record<string, MemberRegistryEntry>` field
   - [ ] Add encryption/decryption for registry
