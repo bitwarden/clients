@@ -1,149 +1,137 @@
 @if (CipherViewLikeUtils.getType(cipher) === CipherType.Login) {
-  <ng-container>
-    @if (showQuickCopyActions$ | async) {
-      <ng-container>
-        <bit-item-action>
+  @if (showQuickCopyActions$ | async) {
+    <bit-item-action>
+      <button
+        type="button"
+        bitIconButton="bwi-user"
+        size="small"
+        appCopyField="username"
+        [cipher]="cipher"
+        [label]="'copyUsername' | i18n"
+      ></button>
+    </bit-item-action>
+    <bit-item-action>
+      @if (cipher.viewPassword) {
+        <button
+          type="button"
+          bitIconButton="bwi-key"
+          size="small"
+          appCopyField="password"
+          [cipher]="cipher"
+          [label]="'copyPassword' | i18n"
+        ></button>
+      }
+    </bit-item-action>
+    <bit-item-action>
+      <button
+        type="button"
+        bitIconButton="bwi-clock"
+        size="small"
+        appCopyField="totp"
+        [cipher]="cipher"
+        [label]="'copyVerificationCode' | i18n"
+      ></button>
+    </bit-item-action>
+  } @else {
+    <bit-item-action>
+      @if (singleCopyableLogin) {
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
+          [appCopyField]="singleCopyableLogin.field"
+          [cipher]="cipher"
+        ></button>
+      } @else {
+        <ng-container>
           <button
             type="button"
-            bitIconButton="bwi-user"
+            bitIconButton="bwi-clone"
             size="small"
-            appCopyField="username"
-            [cipher]="cipher"
-            [label]="'copyUsername' | i18n"
+            [label]="
+              hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+            "
+            [disabled]="!hasLoginValues"
+            [bitMenuTriggerFor]="loginOptions"
           ></button>
-        </bit-item-action>
-        <bit-item-action>
-          @if (cipher.viewPassword) {
-            <button
-              type="button"
-              bitIconButton="bwi-key"
-              size="small"
-              appCopyField="password"
-              [cipher]="cipher"
-              [label]="'copyPassword' | i18n"
-            ></button>
-          }
-        </bit-item-action>
-        <bit-item-action>
-          <button
-            type="button"
-            bitIconButton="bwi-clock"
-            size="small"
-            appCopyField="totp"
-            [cipher]="cipher"
-            [label]="'copyVerificationCode' | i18n"
-          ></button>
-        </bit-item-action>
-      </ng-container>
-    } @else {
-      <ng-template #loginCopyMenu>
-        <bit-item-action>
-          @if (singleCopyableLogin) {
-            <button
-              type="button"
-              bitIconButton="bwi-clone"
-              size="small"
-              [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
-              [appCopyField]="singleCopyableLogin.field"
-              [cipher]="cipher"
-            ></button>
-          } @else {
-            <ng-container>
-              <button
-                type="button"
-                bitIconButton="bwi-clone"
-                size="small"
-                [label]="
-                  hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-                "
-                [disabled]="!hasLoginValues"
-                [bitMenuTriggerFor]="loginOptions"
-              ></button>
-              <bit-menu #loginOptions>
-                <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
-                  {{ "copyUsername" | i18n }}
-                </button>
-                @if (cipher.viewPassword) {
-                  <button type="button" bitMenuItem appCopyField="password" [cipher]="cipher">
-                    {{ "copyPassword" | i18n }}
-                  </button>
-                }
-                <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
-                  {{ "copyVerificationCode" | i18n }}
-                </button>
-              </bit-menu>
-            </ng-container>
-          }
-        </bit-item-action>
-      </ng-template>
-    }
-  </ng-container>
+          <bit-menu #loginOptions>
+            <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+              {{ "copyUsername" | i18n }}
+            </button>
+            @if (cipher.viewPassword) {
+              <button type="button" bitMenuItem appCopyField="password" [cipher]="cipher">
+                {{ "copyPassword" | i18n }}
+              </button>
+            }
+            <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
+              {{ "copyVerificationCode" | i18n }}
+            </button>
+          </bit-menu>
+        </ng-container>
+      }
+    </bit-item-action>
+  }
 }
 
 @if (CipherViewLikeUtils.getType(cipher) === CipherType.Card) {
-  <ng-container>
-    @if (showQuickCopyActions$ | async) {
-      <ng-container>
-        <bit-item-action>
+  @if (showQuickCopyActions$ | async) {
+    <bit-item-action>
+      <button
+        type="button"
+        bitIconButton="bwi-hashtag"
+        size="small"
+        appCopyField="cardNumber"
+        [cipher]="cipher"
+        [label]="'copyNumber' | i18n"
+      ></button>
+    </bit-item-action>
+    <bit-item-action>
+      <button
+        type="button"
+        bitIconButton="bwi-key"
+        size="small"
+        appCopyField="securityCode"
+        [cipher]="cipher"
+        [label]="'copySecurityCode' | i18n"
+      ></button>
+    </bit-item-action>
+  } @else {
+    <bit-item-action>
+      @if (singleCopyableCard) {
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
+          [appCopyField]="singleCopyableCard.field"
+          [cipher]="cipher"
+          showToast
+        ></button>
+      } @else {
+        <ng-container>
           <button
             type="button"
-            bitIconButton="bwi-hashtag"
+            bitIconButton="bwi-clone"
             size="small"
-            appCopyField="cardNumber"
-            [cipher]="cipher"
-            [label]="'copyNumber' | i18n"
+            [label]="
+              hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+            "
+            [disabled]="!hasCardValues"
+            [bitMenuTriggerFor]="cardOptions"
           ></button>
-        </bit-item-action>
-        <bit-item-action>
-          <button
-            type="button"
-            bitIconButton="bwi-key"
-            size="small"
-            appCopyField="securityCode"
-            [cipher]="cipher"
-            [label]="'copySecurityCode' | i18n"
-          ></button>
-        </bit-item-action>
-      </ng-container>
-    } @else {
-      <ng-template #cardCopyMenu>
-        <bit-item-action>
-          @if (singleCopyableCard) {
-            <button
-              type="button"
-              bitIconButton="bwi-clone"
-              size="small"
-              [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
-              [appCopyField]="singleCopyableCard.field"
-              [cipher]="cipher"
-              showToast
-            ></button>
-          } @else {
-            <ng-container>
-              <button
-                type="button"
-                bitIconButton="bwi-clone"
-                size="small"
-                [label]="
-                  hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-                "
-                [disabled]="!hasCardValues"
-                [bitMenuTriggerFor]="cardOptions"
-              ></button>
-              <bit-menu #cardOptions>
-                <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
-                  {{ "copyNumber" | i18n }}
-                </button>
-                <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
-                  {{ "copySecurityCode" | i18n }}
-                </button>
-              </bit-menu>
-            </ng-container>
-          }
-        </bit-item-action>
-      </ng-template>
-    }
-  </ng-container>
+          <bit-menu #cardOptions>
+            <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
+              {{ "copyNumber" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
+              {{ "copySecurityCode" | i18n }}
+            </button>
+          </bit-menu>
+        </ng-container>
+      }
+    </bit-item-action>
+  }
 }
 
 @if (CipherViewLikeUtils.getType(cipher) === CipherType.Identity) {

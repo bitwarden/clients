@@ -39,23 +39,21 @@
           </bit-item-group>
         </ng-container>
       } @else {
-        <ng-template #noFolders>
-          <bit-no-items [icon]="NoFoldersIcon" class="tw-h-full tw-flex tw-items-center">
-            <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
-            <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
-            <button
-              bitButton
-              buttonType="primary"
-              type="button"
-              slot="button"
-              (click)="openAddEditFolderDialog()"
-              data-testid="empty-new-folder-button"
-            >
-              <i class="bwi bwi-plus" aria-hidden="true"></i>
-              {{ "newFolder" | i18n }}
-            </button>
-          </bit-no-items>
-        </ng-template>
+        <bit-no-items [icon]="NoFoldersIcon" class="tw-h-full tw-flex tw-items-center">
+          <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
+          <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
+          <button
+            bitButton
+            buttonType="primary"
+            type="button"
+            slot="button"
+            (click)="openAddEditFolderDialog()"
+            data-testid="empty-new-folder-button"
+          >
+            <i class="bwi bwi-plus" aria-hidden="true"></i>
+            {{ "newFolder" | i18n }}
+          </button>
+        </bit-no-items>
       }
     </ng-container>
   }

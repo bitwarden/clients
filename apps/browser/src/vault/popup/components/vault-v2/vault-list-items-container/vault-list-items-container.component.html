@@ -93,7 +93,7 @@
 
 <ng-template #itemGroup>
   <bit-item-group>
-    @for (group of cipherGroups(); track group) {
+    @for (group of cipherGroups(); track $index) {
       <ng-container>
         @if (group.subHeaderKey) {
           <ng-container>
