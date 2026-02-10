@@ -82,8 +82,10 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const { newAuthenticationData, newUnlockData } =
-        await this.confirmCurrentPasswordAndMakeNewAuthAndUnlockData(passwordInputResult, userId);
+      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
+        passwordInputResult,
+        userId,
+      );
 
       const request = PasswordRequest.newConstructor(newAuthenticationData, newUnlockData);
       await this.masterPasswordApiService.postPassword(request);
@@ -109,8 +111,10 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const { newAuthenticationData, newUnlockData } =
-        await this.confirmCurrentPasswordAndMakeNewAuthAndUnlockData(passwordInputResult, userId);
+      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
+        passwordInputResult,
+        userId,
+      );
 
       const request = UpdateTempPasswordRequest.newConstructorWithHint(
         newAuthenticationData,
@@ -139,7 +143,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     }
   }
 
-  private async confirmCurrentPasswordAndMakeNewAuthAndUnlockData(
+  private async makeNewAuthAndUnlockData(
     passwordInputResult: PasswordInputResult,
     userId: UserId,
   ): Promise<{
@@ -147,11 +151,9 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     newUnlockData: MasterPasswordUnlockData;
   }> {
     const ctx = "Could not change password.";
-    assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
     assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
 
     // We don't need to verify the currentPassword here because by this point it has already
     // been verified via proofOfDecryption before being emitted from the InputPasswordComponent.
