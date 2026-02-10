@@ -19,6 +19,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { TableDataSource, ToastService } from "@bitwarden/components";
 
 import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
+import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
 import { ApplicationsComponent } from "./applications.component";
 
@@ -35,6 +36,7 @@ describe("ApplicationsComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockDataService: MockProxy<RiskInsightsDataService>;
+  let mockSecurityTasksService: MockProxy<AccessIntelligenceSecurityTasksService>;
 
   const reportStatus$ = new BehaviorSubject<ReportStatus>(ReportStatus.Complete);
   const enrichedReportData$ = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
@@ -47,6 +49,7 @@ describe("ApplicationsComponent", () => {
     appAtRiskMembers: null,
     atRiskAppDetails: null,
   });
+  const unassignedCriticalCipherIds$ = new BehaviorSubject([]);
 
   beforeEach(async () => {
     mockI18nService = mock<I18nService>();
@@ -54,6 +57,7 @@ describe("ApplicationsComponent", () => {
     mockLogService = mock<LogService>();
     mockToastService = mock<ToastService>();
     mockDataService = mock<RiskInsightsDataService>();
+    mockSecurityTasksService = mock<AccessIntelligenceSecurityTasksService>();
 
     mockI18nService.t.mockImplementation((key: string) => key);
 
@@ -65,6 +69,9 @@ describe("ApplicationsComponent", () => {
       get: () => criticalReportResults$,
     });
     Object.defineProperty(mockDataService, "drawerDetails$", { get: () => drawerDetails$ });
+    Object.defineProperty(mockSecurityTasksService, "unassignedCriticalCipherIds$", {
+      get: () => unassignedCriticalCipherIds$,
+    });
 
     await TestBed.configureTestingModule({
       imports: [ApplicationsComponent, ReactiveFormsModule],
@@ -78,6 +85,7 @@ describe("ApplicationsComponent", () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: (): string | null => null } } },
         },
+        { provide: AccessIntelligenceSecurityTasksService, useValue: mockSecurityTasksService },
       ],
     }).compileComponents();
 
