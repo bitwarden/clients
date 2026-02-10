@@ -48,6 +48,14 @@
   @apply tw-right-6 tw-translate-x-1/2;
 }
 
+:root {
+  --bit-popover-backdrop-color: rgba(13, 32, 86, 0.2);
+}
+
+.bit-popover-dimmed-backdrop {
+  background: var(--bit-popover-backdrop-color);
+}
+
 /* Spotlight backdrop for guided tours */
 .bit-popover-spotlight-backdrop {
   @apply tw-bg-transparent tw-pointer-events-auto;
