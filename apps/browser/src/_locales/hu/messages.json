@@ -990,6 +990,12 @@
   "no": {
     "message": "Nem"
   },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
+  },
   "location": {
     "message": "Hely"
   },
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "E-mail"
   },
+  "emails": {
+    "message": "Email címek"
+  },
   "phone": {
     "message": "Telefonszám"
   },
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "Egyedi"
   },
-  "sendPasswordDescV3": {
-    "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Új Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3094,8 @@
     "message": "A Send mentésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Bővítmény átthelyezése?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "A Send fájl létrehozásához át kell helyezni a bővítményt egy új ablakba.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "A fájl kiválasztásához nyissuk meg a kiterjesztést az oldalsávon (ha lehetséges) vagy kattintsunk erre a sávra új ablak felbukkanásához."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox esetén nyissuk meg a bővítményt az oldalsávon vafy erre a hirdetőtáblára kattintva új felbukkanó ablak nyílik meg."
-  },
-  "sendSafariFileWarning": {
-    "message": "A fájl kiválasztásához Safariban kattintsunk erre a hirdetőtáblára kattintva új ablak nyílik meg."
-  },
   "popOut": {
     "message": "Áthelyezés"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Mielőtt belevágnánk"
   },
   "expirationDateIsInvalid": {
     "message": "A megadott lejárati idő nem érvényes."
@@ -5001,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Melléklet letöltése"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden letöltése"
   },
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
   },
+  "items": {
+    "message": "Elemek"
+  },
+  "searchResults": {
+    "message": "Keresési eredmények"
+  },
   "resizeSideNavigation": {
     "message": "Oldalnavigáció átméretezés"
+  },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "Védett email cím"
+  },
+  "sendPasswordHelperText": {
+    "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

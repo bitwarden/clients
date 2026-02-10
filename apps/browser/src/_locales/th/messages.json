@@ -990,6 +990,12 @@
   "no": {
     "message": "ไม่"
   },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "ตำแหน่งที่ตั้ง"
   },
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "อีเมล"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "โทรศัพท์"
   },
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "กำหนดเอง"
   },
-  "sendPasswordDescV3": {
-    "message": "เพิ่มรหัสผ่าน (ไม่บังคับ) เพื่อให้ผู้รับใช้เข้าถึง Send นี้",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Send ใหม่",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3094,8 @@
     "message": "บันทึก Send แล้ว",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "แยกหน้าต่างส่วนขยายหรือไม่",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "หากต้องการสร้างไฟล์ Send คุณต้องแยกส่วนขยายออกมาเป็นหน้าต่างใหม่",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "หากต้องการเลือกไฟล์ ให้เปิดส่วนขยายในแถบด้านข้าง (ถ้าทำได้) หรือแยกเป็นหน้าต่างใหม่โดยคลิกที่แบนเนอร์นี้"
-  },
-  "sendFirefoxFileWarning": {
-    "message": "หากต้องการเลือกไฟล์โดยใช้ Firefox ให้เปิดส่วนขยายในแถบด้านข้างหรือแยกเป็นหน้าต่างใหม่โดยคลิกที่แบนเนอร์นี้"
-  },
-  "sendSafariFileWarning": {
-    "message": "หากต้องการเลือกไฟล์โดยใช้ Safari ให้แยกเป็นหน้าต่างใหม่โดยคลิกที่แบนเนอร์นี้"
-  },
   "popOut": {
     "message": "แยกหน้าต่าง"
-  },
-  "sendFileCalloutHeader": {
-    "message": "ก่อนที่คุณจะเริ่ม"
   },
   "expirationDateIsInvalid": {
     "message": "วันที่หมดอายุที่ระบุไม่ถูกต้อง"
@@ -5001,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "ดาวน์โหลด Bitwarden"
   },
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "ทำไมฉันจึงเห็นสิ่งนี้"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

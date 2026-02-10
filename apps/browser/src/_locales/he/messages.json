@@ -199,11 +199,11 @@
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "מילוי",
+    "message": "השלם",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "מילוי אוטומטי"
+    "message": "השלמה אוטומטית"
   },
   "autoFillLogin": {
     "message": "מילוי כניסה אוטומטי"
@@ -291,7 +291,7 @@
     "message": "קוד אימות"
   },
   "confirmIdentity": {
-    "message": "יש לאשר את זהותך כדי להמשיך."
+    "message": "אשר את זהותך כדי להמשיך."
   },
   "changeMasterPassword": {
     "message": "החלף סיסמה ראשית"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "לא"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "מיקום"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "אימייל"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "טלפון"
   },
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "מותאם אישית"
   },
-  "sendPasswordDescV3": {
-    "message": "הוסף סיסמה אופציונלית עבור נמענים כדי לגשת לסֵנְד זה.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "סֵנְד חדש",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3094,8 @@
     "message": "סֵנְד נשמר",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "להקפיץ הרחבה?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "כדי ליצור קובץ סֵנְד, אתה צריך להקפיץ את ההרחבה לחלון חדש.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "כדי לבחור קובץ, פתח את ההרחבה בסרגל הצד (אם ניתן) או הקפץ לחלון חדש על ידי לחיצת באנר זה."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "כדי לבחור קובץ באמצעות Firefox, פתח את ההרחבה בסרגל הצד או הקפץ לחלון חדש על ידי לחיצת באנר זה."
-  },
-  "sendSafariFileWarning": {
-    "message": "כדי לבחור קובץ באמצעות Safari, הקפץ לחלון חדש על ידי לחיצת באנר זה."
-  },
   "popOut": {
     "message": "הקפץ"
-  },
-  "sendFileCalloutHeader": {
-    "message": "לפני שאתה מתחיל"
   },
   "expirationDateIsInvalid": {
     "message": "תאריך התפוגה שסופק אינו חוקי."
@@ -5001,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "הורד את Bitwarden"
   },
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

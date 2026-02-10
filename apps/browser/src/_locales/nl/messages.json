@@ -29,7 +29,7 @@
     "message": "Inloggen met passkey"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Ontgrendelen met passkey"
   },
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
   },
   "location": {
     "message": "Locatie"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "E-mailadres"
   },
+  "emails": {
+    "message": "E-mails"
+  },
   "phone": {
     "message": "Telefoonnummer"
   },
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "Aangepast"
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3094,8 @@
     "message": "Send bewerkt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Extensie uitklappen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Om een bestand te versturen via Send, moet je de extensie naar een nieuw venster uitklappen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Om een bestand te kiezen open je de extensie in de zijbalk (indien mogelijk) of pop-out naar een nieuw venster door op deze banner te klikken."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Om een bestand te kiezen met Firefox, open je de extensie in de zijbalk of als pop-up in een nieuw venster door op deze banner te klikken."
-  },
-  "sendSafariFileWarning": {
-    "message": "Om een bestand te kiezen met Safari, open je een nieuw pop-up-venster door op deze banner te klikken."
-  },
   "popOut": {
     "message": "Uitklappen"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Voor je begint"
   },
   "expirationDateIsInvalid": {
     "message": "De opgegeven vervaldatum is niet geldig."
@@ -3371,10 +3356,10 @@
     "message": "Fout"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Er zijn geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen. Log eerst in met een passkey."
   },
   "decryptionError": {
     "message": "Ontsleutelingsfout"
@@ -5001,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Bijlage downloaden"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden downloaden"
   },
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Zoekresultaten"
+  },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

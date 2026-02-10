@@ -19,20 +19,18 @@ use tracing::{debug, warn};
 use zbus::Connection;
 use zbus_polkit::policykit1::{AuthorityProxy, CheckAuthorizationFlags, Subject};
 
-use crate::secure_memory::*;
+use crate::secure_memory::{encrypted_memory_store::EncryptedMemoryStore, SecureMemoryStore as _};
 
 pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
-    secure_memory: Arc<Mutex<crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore>>,
+    secure_memory: Arc<Mutex<EncryptedMemoryStore<String>>>,
 }
 
 impl BiometricLockSystem {
     pub fn new() -> Self {
         Self {
-            secure_memory: Arc::new(Mutex::new(
-                crate::secure_memory::encrypted_memory_store::EncryptedMemoryStore::new(),
-            )),
+            secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::default())),
         }
     }
 }
@@ -64,7 +62,7 @@ impl super::BiometricTrait for BiometricLockSystem {
             .put(user_id.to_string(), key);
     }
 
-    async fn unlock(&self, user_id: &str, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
+    async fn unlock(&self, user_id: &String, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
         if !polkit_authenticate_bitwarden_policy().await? {
             return Err(anyhow!("Authentication failed"));
         }
@@ -72,11 +70,11 @@ impl super::BiometricTrait for BiometricLockSystem {
         self.secure_memory
             .lock()
             .await
-            .get(user_id)
+            .get(user_id)?
             .ok_or(anyhow!("No key found"))
     }
 
-    async fn unlock_available(&self, user_id: &str) -> Result<bool> {
+    async fn unlock_available(&self, user_id: &String) -> Result<bool> {
         Ok(self.secure_memory.lock().await.has(user_id))
     }
 
@@ -84,7 +82,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         Ok(false)
     }
 
-    async fn unenroll(&self, user_id: &str) -> Result<(), anyhow::Error> {
+    async fn unenroll(&self, user_id: &String) -> Result<(), anyhow::Error> {
         self.secure_memory.lock().await.remove(user_id);
         Ok(())
     }

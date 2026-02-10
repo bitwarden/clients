@@ -78,6 +78,10 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // Cursor-based search is disabled due to performance (6+ minutes on large databases)
+  // Enable when performance is optimized via indexing or other improvements
+  private static readonly USE_CUSTOM_MATCHER = false;
+
   // While background scripts do not necessarily need destroying,
   // processes in PhishingDataService are memory intensive.
   // We are adding the destroy to guard against accidental leaks.
@@ -153,8 +157,14 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
+    // Skip non-http(s) protocols - phishing database only contains web URLs
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
     // Quick check for QA/dev test addresses
     if (this._testWebAddresses.includes(url.href)) {
+      this.logService.info("[PhishingDataService] Found test web address: " + url.href);
       return true;
     }
 
@@ -162,28 +172,41 @@ export class PhishingDataService {
 
     try {
       // Quick lookup: check direct presence of href in IndexedDB
-      const hasUrl = await this.indexedDbService.hasUrl(url.href);
+      // Also check without trailing slash since browsers add it but DB entries may not have it
+      const urlHref = url.href;
+      const urlWithoutTrailingSlash = urlHref.endsWith("/") ? urlHref.slice(0, -1) : null;
+
+      let hasUrl = await this.indexedDbService.hasUrl(urlHref);
+
+      if (!hasUrl && urlWithoutTrailingSlash) {
+        hasUrl = await this.indexedDbService.hasUrl(urlWithoutTrailingSlash);
+      }
+
       if (hasUrl) {
+        this.logService.info("[PhishingDataService] Found phishing URL: " + urlHref);
         return true;
       }
     } catch (err) {
-      this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
+      this.logService.error("[PhishingDataService] IndexedDB lookup failed", err);
     }
 
-    // If a custom matcher is provided, iterate stored entries and apply the matcher.
-    if (resource && resource.match) {
+    // Custom matcher is disabled for performance (see USE_CUSTOM_MATCHER)
+    if (resource && resource.match && PhishingDataService.USE_CUSTOM_MATCHER) {
       try {
-        const entries = await this.indexedDbService.loadAllUrls();
-        for (const entry of entries) {
-          if (resource.match(url, entry)) {
-            return true;
-          }
+        const found = await this.indexedDbService.findMatchingUrl((entry) =>
+          resource.match(url, entry),
+        );
+
+        if (found) {
+          this.logService.info("[PhishingDataService] Found phishing URL via matcher: " + url.href);
         }
+        return found;
       } catch (err) {
-        this.logService.error("[PhishingDataService] Error running custom matcher", err);
+        this.logService.error("[PhishingDataService] Custom matcher failed", err);
+        return false;
       }
-      return false;
     }
+
     return false;
   }
 

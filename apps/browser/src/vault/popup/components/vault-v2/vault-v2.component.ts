@@ -5,26 +5,24 @@ import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angul
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   distinctUntilChanged,
   filter,
   firstValueFrom,
-  from,
   map,
   Observable,
   shareReplay,
   switchMap,
   take,
-  withLatestFrom,
   tap,
-  BehaviorSubject,
+  withLatestFrom,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
   AutoConfirmExtensionSetupDialogComponent,
@@ -58,8 +56,6 @@ import {
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
-import { BrowserApi } from "../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -162,10 +158,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     FeatureFlag.BrowserPremiumSpotlight,
   );
 
-  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
-  );
+  protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
+  protected readonly numberOfAppliedFilters$ =
+    this.vaultPopupListFiltersService.numberOfAppliedFilters$;
 
+  protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
@@ -173,38 +170,39 @@ export class VaultV2Component implements OnInit, OnDestroy {
   protected hasPremium$ = this.activeUserId$.pipe(
     switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
   );
-  protected accountAgeInDays$ = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      const creationDate$ = from(this.vaultProfileService.getProfileCreationDate(userId));
-      return creationDate$.pipe(
-        map((creationDate) => {
-          if (!creationDate) {
-            return 0;
-          }
-          const ageInMilliseconds = Date.now() - creationDate.getTime();
-          return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-        }),
-      );
+  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
+    map((account) => {
+      if (!account || !account.creationDate) {
+        return 0;
+      }
+      const creationDate = account.creationDate;
+      const ageInMilliseconds = Date.now() - creationDate.getTime();
+      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
     }),
   );
 
   protected showPremiumSpotlight$ = combineLatest([
     this.premiumSpotlightFeatureFlag$,
-    this.showPremiumNudgeSpotlight$,
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
+      ),
+    ),
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
-    map(
-      ([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
+      return (
         featureFlagEnabled &&
         showPremiumNudge &&
         !showHasItemsNudge &&
         !hasPremium &&
         count >= 5 &&
-        age >= 7,
-    ),
+        age >= 7
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -263,7 +261,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private router: Router,
     private autoConfirmService: AutomaticUserConfirmationService,
     private toastService: ToastService,
-    private vaultProfileService: VaultProfileService,
     private billingAccountService: BillingAccountProfileStateService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
@@ -371,9 +368,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   async navigateToImport() {
     await this.router.navigate(["/import"]);
-    if (await BrowserApi.isPopupOpen()) {
-      await BrowserPopupUtils.openCurrentPagePopout(window);
-    }
   }
 
   async dismissVaultNudgeSpotlight(type: NudgeType) {

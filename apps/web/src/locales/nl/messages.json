@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Geen kritische applicaties in gevaar"
   },
+  "critical": {
+    "message": "Kritiek ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Niet kritiek ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Kritiek"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Er zijn geen applicaties die met deze filters overeenkomen"
   },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
@@ -249,6 +273,9 @@
   },
   "application": {
     "message": "Applicatie"
+  },
+  "applications": {
+    "message": "Applicaties"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
@@ -585,6 +612,9 @@
   },
   "email": {
     "message": "E-mailadres"
+  },
+  "emails": {
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefoonnummer"
@@ -1217,6 +1247,9 @@
   "selectAll": {
     "message": "Alles selecteren"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Alles deselecteren"
   },
@@ -1364,6 +1397,12 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
   },
   "location": {
     "message": "Locatie"
@@ -3281,6 +3320,9 @@
   "nextChargeHeader": {
     "message": "Volgende betaling"
   },
+  "nextChargeDate": {
+    "message": "Volgende datum van betaling"
+  },
   "plan": {
     "message": "Pakket"
   },
@@ -3768,6 +3810,9 @@
   },
   "editCollection": {
     "message": "Verzameling bewerken"
+  },
+  "viewCollection": {
+    "message": "Collectie weergeven"
   },
   "collectionInfo": {
     "message": "Collectieinformatie"
@@ -5606,10 +5651,6 @@
   "sendTypeText": {
     "message": "Tekst"
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5628,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link en het ingestelde wachtwoord voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopieer en deel deze Send-link. Het kan worden bekeken door de mensen die je hebt opgegeven voor de volgende $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6925,17 +6986,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Automatisch invullen activeren"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activeer de automatisch invullen wanneer de pagina geladen is instelling in de browser extensie voor bestaande en nieuwe gebruikers."
+  "activateAutofillPolicyDescription": {
+    "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
   },
-  "experimentalFeature": {
-    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen bij laden van pagina misbruiken."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen tijdens het laden van de pagina misbruiken."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Meer info over automatisch invullen"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Lees meer over automatisch invullen"
   },
   "selectType": {
     "message": "Selecteer Type"
@@ -10438,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Je moet de eigenaar van de organisatie of beheerder zijn om deze actie uit te voeren."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Je moet de eigenaar van de organisatie zijn om deze actie uit te voeren."
   },
@@ -11366,6 +11430,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden probeert het domein gedurende de eerste 72 uur driemaal te verifiëren. Als het domein niet geverifieerd kan worden, controleer dan het DNS-record bij je host en verifieer handmatig. Het domein wordt binnen 7 dagen verwijderd uit je organisatie als het niet geverifieerd is."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden probeert het domein binnen 72 uur te claimen. Als het domein niet kan worden geclaimd, controleer dan je DNS-record en claim handmatig. Niet-geclaimde domeinen worden na 7 dagen verwijderd."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Eenmaal geclaimd, zullen bestaande leden met geclaimde domeinen gemaild worden over de "
+  },
+  "accountOwnershipChange": {
+    "message": "accounteigendom wijziging"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ niet geverifieerd. Controleer je DNS-records.",
     "placeholders": {
@@ -11378,8 +11454,8 @@
   "domainStatusClaimed": {
     "message": "Geverifieerd"
   },
-  "domainStatusUnderVerification": {
-    "message": "Gebruikersverificatie"
+  "domainStatusPending": {
+    "message": "In behandeling"
   },
   "claimedDomainsDescription": {
     "message": "Claim een domein voor eigendom van ledenaccounts. De SSO-identificatiepagina wordt overgeslagen tijdens het inloggen voor leden met geclaimde domeinen en beheerders kunnen geclaimde accounts verwijderen."
@@ -12102,13 +12178,13 @@
     "message": "Nu verifiëren."
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Ontgrendelen met passkey"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen."
   },
   "additionalStorageGB": {
     "message": "Extra opslagruimte (GB)"
@@ -12676,13 +12752,47 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Eigenaar, $OWNER$, toon alle items in eigendom van $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Je hebt Premium"
   },
   "emailProtected": {
     "message": "E-mail beveiligd"
+  },
+  "invalidSendPassword": {
+    "message": "Ongeldig Send-wachtwoord"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per gebruiker"
   }
 }
