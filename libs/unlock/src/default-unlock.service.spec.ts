@@ -102,9 +102,8 @@ describe("DefaultUnlockService", () => {
     });
 
     it("fetches PERSISTENT pin envelope when the pin lock type is persistent", async () => {
-      await service.unlockWithPin(mockUserId, mockPin);
-
       pinStateService.getPinLockType.mockResolvedValue("PERSISTENT" as any);
+      await service.unlockWithPin(mockUserId, mockPin);
       expect(pinStateService.getPinProtectedUserKeyEnvelope).toHaveBeenCalledWith(
         mockUserId,
         "PERSISTENT",
@@ -112,9 +111,8 @@ describe("DefaultUnlockService", () => {
     });
 
     it("fetches EPHEMERAL pin envelope when the pin lock type is ephemeral", async () => {
-      await service.unlockWithPin(mockUserId, mockPin);
-
       pinStateService.getPinLockType.mockResolvedValue("EPHEMERAL" as any);
+      await service.unlockWithPin(mockUserId, mockPin);
       expect(pinStateService.getPinProtectedUserKeyEnvelope).toHaveBeenCalledWith(
         mockUserId,
         "EPHEMERAL",
