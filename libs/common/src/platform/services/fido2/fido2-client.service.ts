@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, Observable, Subscription } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -64,7 +64,9 @@ export class Fido2ClientService<
       MAX: 600000,
     },
   };
-  protected readonly relatedOriginChecksEnabled$: Observable<boolean>;
+  protected readonly relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WebAuthnRelatedOrigins,
+  );
 
   constructor(
     private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
@@ -78,9 +80,6 @@ export class Fido2ClientService<
   ) {
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.fido2ClientAbortTimeout, () =>
       this.timeoutAbortController?.abort(),
-    );
-    this.relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.WebAuthnRelatedOrigins,
     );
   }
 

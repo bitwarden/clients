@@ -71,6 +71,8 @@ describe("FidoAuthenticatorService", () => {
 
     isValidRpId = jest.spyOn(DomainUtils, "isValidRpId");
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     client = new Fido2ClientService(
       authenticator,
       configService,
