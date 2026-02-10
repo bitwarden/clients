@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, EMPTY, from, map, startWith, switchMap, take } from "rxjs";
+import { combineLatest, debounceTime, EMPTY, map, startWith, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -289,35 +289,33 @@ export class ApplicationsComponent implements OnInit {
   };
 
   async requestPasswordChange() {
-    this.dataService.criticalApplicationAtRiskCipherIds$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
-        take(1), // Handle unsubscribe for one off operation
-        switchMap((cipherIds) => {
-          return from(
-            this.securityTasksService.requestPasswordChangeForCriticalApplications(
-              this.organizationId()!,
-              cipherIds,
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("notifiedMembers"),
-            variant: "success",
-            title: this.i18nService.t("success"),
-          });
-        },
-        error: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("unexpectedError"),
-            variant: "error",
-            title: this.i18nService.t("error"),
-          });
-        },
+    const orgId = this.organizationId();
+    if (!orgId) {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
       });
+      return;
+    }
+
+    try {
+      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+        orgId,
+        this.unassignedCipherIds(),
+      );
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
