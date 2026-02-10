@@ -224,7 +224,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.organizations$,
   ]).pipe(
     map(([searchText, filter, organizations]) => {
-      const selectedOrg = organizations?.find((org) => org.id === filter.organizationId);
+      const selectedOrg = organizations.find((org) => org.id === filter.organizationId);
       const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
 
       if (isOrgDisabled) {
@@ -479,7 +479,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             collections,
             filter.collectionId,
           );
-          searchableCollectionNodes = selectedCollection?.children ?? [];
+          searchableCollectionNodes = selectedCollection.children;
         }
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
@@ -618,12 +618,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.collections = collections;
           this.selectedCollection = selectedCollection;
 
-          this.canCreateCollections = allOrganizations?.some(
+          this.canCreateCollections = allOrganizations.some(
             (o) => o.canCreateNewCollections && !o.isProviderUser,
           );
 
           this.showBulkMove = filter.type !== "trash";
-          this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          this.isEmpty = collections.length === 0 && ciphers.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
 
@@ -891,7 +891,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * @returns
    */
   async editCipherAttachments(cipher: C) {
-    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+    if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       await this.go({ cipherId: null, itemId: null });
       return;
     }
@@ -1001,7 +1001,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
-    return this.editCipherId(uuidAsString(cipher?.id), cloneMode);
+    return this.editCipherId(uuidAsString(cipher.id), cloneMode);
   }
 
   /**
@@ -1114,7 +1114,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async editCollection(c: CollectionView, tab: CollectionDialogTabType): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
-        collectionId: c?.id,
+        collectionId: c.id,
         organizationId: c.organizationId,
         initialTab: tab,
         limitNestedCollections: true,
@@ -1212,8 +1212,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
-      availableCollections =
-        this.allCollections?.filter((c) => c.organizationId === organization?.id) ?? [];
+      availableCollections = this.allCollections.filter(
+        (c) => c.organizationId === organization?.id,
+      );
     }
 
     let ciphersToAssign: CipherView[];
@@ -1240,7 +1241,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         ciphers: ciphersToAssign,
         organizationId: orgId as OrganizationId,
         availableCollections,
-        activeCollection: this.activeFilter?.selectedCollectionNode?.node,
+        activeCollection: this.activeFilter.selectedCollectionNode?.node,
       },
     });
 
@@ -1598,13 +1599,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
     if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return Promise.resolve(cipher.login?.password);
+      return Promise.resolve(cipher.login.password);
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login?.password;
+    return cipherView.login.password;
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
@@ -1642,7 +1643,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       organization$,
     ]).pipe(
       map(
-        ([policy, organization]) => (policy && policy.organizationId === organization?.id) ?? false,
+        ([policy, organization]) => (policy && policy.organizationId === organization.id) ?? false,
       ),
     );
 
