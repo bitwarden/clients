@@ -32,7 +32,7 @@
     <bit-form-field>
       <bit-label>{{ "brand" | i18n }}</bit-label>
       <bit-select id="cardBrand" formControlName="brand">
-        @for (brand of cardBrands; track brand) {
+        @for (brand of cardBrands; track brand.value) {
           <bit-option [value]="brand.value" [label]="brand.name"></bit-option>
         }
       </bit-select>
@@ -42,7 +42,7 @@
       <bit-form-field class="tw-flex-1">
         <bit-label>{{ "expirationMonth" | i18n }}</bit-label>
         <bit-select id="cardExpMonth" formControlName="expMonth">
-          @for (month of expirationMonths; track month) {
+          @for (month of expirationMonths; track month.value) {
             <bit-option [value]="month.value" [label]="month.name"></bit-option>
           }
         </bit-select>

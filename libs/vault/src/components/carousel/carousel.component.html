@@ -22,7 +22,7 @@
       (keydown)="keyManager.onKeydown($event)"
       #carouselButtonWrapper
     >
-      @for (slide of slides; track slide; let i = $index) {
+      @for (slide of slides; track $index; let i = $index) {
         <vault-carousel-button
           [slide]="slide"
           [isActive]="i === selectedIndex"

@@ -3,7 +3,7 @@
     <h2 bitTypography="h6">{{ "autofillOptions" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
-    @for (login of loginUris; track login; let last = $last) {
+    @for (login of loginUris; track $index; let last = $last) {
       <ng-container>
         <bit-form-field
           [disableMargin]="last"

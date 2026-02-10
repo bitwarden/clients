@@ -9,7 +9,7 @@
           {{ "title" | i18n }}
         </bit-label>
         <bit-select formControlName="title">
-          @for (title of identityTitleOptions; track title) {
+          @for (title of identityTitleOptions; track title.value) {
             <bit-option [value]="title.value" [label]="title.name"> </bit-option>
           }
         </bit-select>
