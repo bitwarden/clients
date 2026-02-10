@@ -15,6 +15,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // Marked for removal when PM-30811 feature flag is unwound.
 // eslint-disable-next-line no-restricted-imports
@@ -24,7 +25,6 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { newGuid } from "@bitwarden/guid";
 
 import { DefaultChangeEmailService } from "./default-change-email.service";
 
