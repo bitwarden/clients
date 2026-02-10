@@ -468,8 +468,10 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     if (params.prefillNameAndURIFromTab) {
       const tab = await BrowserApi.getTabFromCurrentWindow();
 
-      initialValues.loginUri = tab.url;
-      initialValues.name = Utils.getHostname(tab.url);
+      if (tab?.url && (tab.url.startsWith("http://") || tab.url.startsWith("https://"))) {
+        initialValues.loginUri = tab.url;
+        initialValues.name = Utils.getHostname(tab.url);
+      }
     }
 
     return initialValues;
