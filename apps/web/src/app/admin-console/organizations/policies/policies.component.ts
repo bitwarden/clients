@@ -38,7 +38,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent implements OnDestroy {
-  private myDialogRef: DialogRef = undefined;
+  private myDialogRef?: DialogRef;
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
