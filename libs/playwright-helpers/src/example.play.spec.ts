@@ -11,10 +11,10 @@ test.skip("login and save session", async ({ auth }) => {
   await expectUnlockedAs(scene.mangle("test@example.com"), page);
 });
 
-test.skip("As long as the previous test ran in this worker, this time it will reuse authentication", async ({
+test.only("As long as the previous test ran in this worker, this time it will reuse authentication", async ({
   auth,
 }) => {
-  const { page, scene } = await auth.authenticate("test@example.com", "asdfasdfasdf");
+  const { page, scene } = await auth.authenticate("test@example.com", "passwordpassword");
 
   await expectUnlockedAs(scene.mangle("test@example.com"), page);
 });

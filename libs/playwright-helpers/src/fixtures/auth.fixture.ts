@@ -46,7 +46,9 @@ type AuthenticatedContext = {
   scene: SingleUserScene;
 };
 
-type SessionOptions = Simplify<Except<extractTUpType<SingleUserSceneTemplate>, "email">> & {
+type SessionOptions = Simplify<
+  Except<extractTUpType<SingleUserSceneTemplate>, "email" | "password">
+> & {
   /** The page to use for authenticating */
   page?: Page;
 };
@@ -158,7 +160,7 @@ export class AuthFixture {
     password: string,
     options: SessionOptions = {},
   ): Promise<AuthenticatedContext> {
-    const scene = await Play.scene(new SingleUserSceneTemplate({ ...options, email }));
+    const scene = await Play.scene(new SingleUserSceneTemplate({ ...options, email, password }));
 
     return await this.authenticateForScene(scene, password);
   }

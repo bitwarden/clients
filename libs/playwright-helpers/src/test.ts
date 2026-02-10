@@ -67,7 +67,7 @@ export async function cleanStage(): Promise<void> {
     // eslint-disable-next-line no-console
     console.warn(
       "PLAYWRIGHT_SKIP_CLEAN_STAGE is set, run\n",
-      `curl -X DELETE ${new URL(playId, webServerBaseUrl).toString()}\n`,
+      `curl -X DELETE ${new URL(`/seed/${playId}`, webServerBaseUrl).toString()}\n`,
     );
     return;
   }

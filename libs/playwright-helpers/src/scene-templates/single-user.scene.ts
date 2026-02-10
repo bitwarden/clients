@@ -16,6 +16,7 @@ type SceneResult = {
 };
 type UpParams = {
   email: string;
+  password: string;
   emailVerified?: boolean;
   premium?: boolean;
 };
