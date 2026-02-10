@@ -111,6 +111,9 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+      const ctx = "Could not change password.";
+      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+
       const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
         passwordInputResult,
         userId,

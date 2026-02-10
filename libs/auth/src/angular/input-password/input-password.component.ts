@@ -355,6 +355,10 @@ export class InputPasswordComponent implements OnInit {
         this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
       ) {
         if (newApisWithInputPasswordFlagEnabled) {
+          if (!this.userId) {
+            throw new Error("userId is required to verify current password.");
+          }
+
           const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
             currentPassword,
             this.userId,
