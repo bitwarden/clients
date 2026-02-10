@@ -8,9 +8,10 @@
 
 <router-outlet></router-outlet>
 
-<div class="tw-mt-4">
-  <a bitButton routerLink="./" *ngIf="!(homepage$ | async)">
-    <i class="bwi bwi-angle-left" aria-hidden="true"></i>
-    {{ "backToReports" | i18n }}
-  </a>
-</div>
+<ng-template #backButtonTemplate>
+  <div class="tw-p-3 tw-rounded-lg tw-opacity-90">
+    <a bitButton buttonType="primary" routerLink="./">
+      {{ "backToReports" | i18n }}
+    </a>
+  </div>
+</ng-template>
