@@ -13,7 +13,6 @@ export const BITWARDEN_ICONS = [
   "bwi-receipt",
   "bwi-bitcoin",
   "bwi-browser",
-  "bwi-browser-alt",
   "bwi-palette",
   "bwi-bug",
   "bwi-business",
