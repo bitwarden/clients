@@ -25,7 +25,7 @@ export const BWI_TO_FIGMA: Record<string, string> = {
   envelope: "mail",
   popout: "new-window",
   cog: "settings",
-  "cog-f": "settings-1",
+  "cog-f": "settings-filled",
   "minus-circle": "subtract-circle",
   eye: "visibility",
   "eye-slash": "visibility-off",

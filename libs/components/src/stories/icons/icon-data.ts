@@ -117,7 +117,7 @@ const actions = [
       'Opens settings or options for a related field or page. In a toggle application like an icon button, use the default state to indicate "off" or "closed".',
   },
   {
-    id: "bwi-settings-f",
+    id: "bwi-settings-filled",
     usage:
       'Closes settings or options for a related field or page. In a toggle application like an icon button, use the filled state to indicate "on" or "open".',
   },
