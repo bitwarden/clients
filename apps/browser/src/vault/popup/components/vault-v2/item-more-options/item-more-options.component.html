@@ -9,22 +9,16 @@
   <bit-menu #moreOptions>
     @if (!decryptionFailure) {
       @if (canAutofill && !hideAutofillOptions) {
-        <ng-container>
-          @if (autofillAllowed$ | async) {
-            <ng-container>
-              <button type="button" bitMenuItem (click)="doAutofill()">
-                {{ "autofill" | i18n }}
-              </button>
-            </ng-container>
-          }
-        </ng-container>
+        @if (autofillAllowed$ | async) {
+          <button type="button" bitMenuItem (click)="doAutofill()">
+            {{ "autofill" | i18n }}
+          </button>
+        }
       }
       @if (showViewOption) {
-        <ng-container>
-          <button type="button" bitMenuItem (click)="onView()">
-            {{ "view" | i18n }}
-          </button>
-        </ng-container>
+        <button type="button" bitMenuItem (click)="onView()">
+          {{ "view" | i18n }}
+        </button>
       }
       <button type="button" bitMenuItem (click)="toggleFavorite()">
         {{ favoriteText | i18n }}
@@ -35,18 +29,16 @@
         </button>
       }
       @if (canEdit && canViewPassword) {
-        <ng-container>
-          @if (canClone$ | async) {
-            <a bitMenuItem (click)="clone()">
-              {{ "clone" | i18n }}
-            </a>
-          }
-          @if (canAssignCollections$ | async) {
-            <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">
-              {{ "assignToCollections" | i18n }}
-            </a>
-          }
-        </ng-container>
+        @if (canClone$ | async) {
+          <a bitMenuItem (click)="clone()">
+            {{ "clone" | i18n }}
+          </a>
+        }
+        @if (canAssignCollections$ | async) {
+          <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">
+            {{ "assignToCollections" | i18n }}
+          </a>
+        }
       }
       @if (showArchive$ | async) {
         @if (canArchive$ | async) {

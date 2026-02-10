@@ -5,46 +5,40 @@
       class="tw-gap-2 tw-mt-2 tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 lg:tw-grid-cols-4"
     >
       @if (allFilters.organizations; as organizations) {
-        <ng-container>
-          @if (organizations.length) {
-            <bit-chip-select
-              fullWidth
-              formControlName="organization"
-              placeholderIcon="bwi-vault"
-              [placeholderText]="'vault' | i18n"
-              [options]="organizations"
-            >
-            </bit-chip-select>
-          }
-        </ng-container>
+        @if (organizations.length) {
+          <bit-chip-select
+            fullWidth
+            formControlName="organization"
+            placeholderIcon="bwi-vault"
+            [placeholderText]="'vault' | i18n"
+            [options]="organizations"
+          >
+          </bit-chip-select>
+        }
       }
       @if (allFilters.collections; as collections) {
-        <ng-container>
-          @if (collections.length) {
-            <bit-chip-select
-              fullWidth
-              formControlName="collection"
-              placeholderIcon="bwi-collection-shared"
-              [placeholderText]="'collection' | i18n"
-              [options]="collections"
-            >
-            </bit-chip-select>
-          }
-        </ng-container>
+        @if (collections.length) {
+          <bit-chip-select
+            fullWidth
+            formControlName="collection"
+            placeholderIcon="bwi-collection-shared"
+            [placeholderText]="'collection' | i18n"
+            [options]="collections"
+          >
+          </bit-chip-select>
+        }
       }
       @if (allFilters.folders; as folders) {
-        <ng-container>
-          @if (folders.length) {
-            <bit-chip-select
-              fullWidth
-              placeholderIcon="bwi-folder"
-              formControlName="folder"
-              [placeholderText]="'folder' | i18n"
-              [options]="folders"
-            >
-            </bit-chip-select>
-          }
-        </ng-container>
+        @if (folders.length) {
+          <bit-chip-select
+            fullWidth
+            placeholderIcon="bwi-folder"
+            formControlName="folder"
+            [placeholderText]="'folder' | i18n"
+            [options]="folders"
+          >
+          </bit-chip-select>
+        }
       }
       <bit-chip-select
         formControlName="cipherType"
