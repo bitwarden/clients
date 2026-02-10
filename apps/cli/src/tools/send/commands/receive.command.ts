@@ -262,7 +262,7 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.error("Server error: " + JSON.stringify(error.error));
     }
 
-    return Response.error("Error: " + error.error);
+    return Response.error("Error: " + JSON.stringify(error.error));
   }
 
   private async promptForOtp(sendId: string, email: string): Promise<SendOtp> {
