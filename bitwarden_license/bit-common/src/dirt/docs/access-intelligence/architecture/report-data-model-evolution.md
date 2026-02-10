@@ -4,10 +4,6 @@
 > from PR #17356 (merged, follows BW architecture), and the target model with the member
 > registry optimization. This is a reference for understanding why the report was 450MB+
 > and how the member registry solves it.
->
-> **Note**: The exact field names below are reconstructed from PR descriptions, facade code,
-> and the aggregation service in PR #12071. Run a Claude Code discovery session against the
-> actual source files to validate and fill in any gaps.
 
 ---
 
