@@ -20,17 +20,13 @@ import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-pr
   providedIn: "root",
 })
 export class KeeperDirectImportUIService implements Ui {
-  private dialogRef: DialogRef<DeviceApprovalChannel | string>;
+  private dialogRef: DialogRef;
 
   constructor(private dialogService: DialogService) {}
 
-  closeDialog() {
-    this.dialogRef?.close();
-  }
-
-  closeApprovalDialog(): void {
-    this.dialogRef?.close();
-  }
+  //
+  // Device approval flow
+  //
 
   async selectApprovalMethod(
     methods: DeviceApprovalChannel[],
@@ -48,12 +44,7 @@ export class KeeperDirectImportUIService implements Ui {
     });
 
     const result = await firstValueFrom(this.dialogRef.closed);
-
-    if (result === undefined || result === "cancel") {
-      return Cancel;
-    }
-
-    return result as DeviceApprovalChannel;
+    return result === undefined ? Cancel : (result as DeviceApprovalChannel);
   }
 
   async provideApprovalCode(
@@ -67,14 +58,16 @@ export class KeeperDirectImportUIService implements Ui {
     });
 
     const result = await firstValueFrom(this.dialogRef.closed);
-
-    if (result === "cancel" || result === undefined) {
-      return Cancel;
-    }
-
-    // Return the code entered by the user (or empty string for push)
-    return result;
+    return result === undefined ? Cancel : (result as string);
   }
+
+  closeApprovalDialog(): void {
+    this.dialogRef?.close();
+  }
+
+  //
+  // 2FA flow
+  //
 
   async selectTwoFactorMethod(
     methods: TwoFactorMethod[],
@@ -115,7 +108,7 @@ export class KeeperDirectImportUIService implements Ui {
       return "";
     }
 
-    return result;
+    return result as string;
   }
 
   async selectDuoMethod(
