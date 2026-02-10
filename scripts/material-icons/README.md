@@ -4,7 +4,7 @@ This directory contains scripts and resources for managing the Bitwarden icon fo
 
 ## Overview
 
-The icon system uses Figma-exported SVG files that are converted into a web font using Fantasticon. The workflow temporarily renames icons from their Figma names to BWI names during the build process, then restores the original Figma names afterward.
+The icon system uses Figma-exported SVG files that are converted into a web font using Fantasticon. SVG filenames directly become CSS class names (with the `bwi-` prefix added automatically), making the workflow simple and straightforward.
 
 ## Adding a New Icon
 
@@ -18,42 +18,12 @@ Follow these steps to add a new icon to the icon font:
    - **Outline stroke**: Enabled
    - **Include "id" attribute**: Disabled
    - **Simplify stroke**: Enabled
-4. Name the file using the Figma naming convention (e.g., `help.svg`, `star-filled.svg`)
+4. Name the file using kebab-case (e.g., `help.svg`, `star-filled.svg`, `add-circle.svg`)
 5. Save the SVG file to `libs/assets/src/material-icons/`
 
-### 2. Add the Icon Mapping
+**Important:** The SVG filename directly becomes the CSS class name. For example, `help.svg` will generate the class `bwi-help`, and `star-filled.svg` will generate `bwi-star-filled`. Choose your filename carefully as it determines how developers will use the icon.
 
-Open `scripts/material-icons/build-with-bwi-names.ts` and add your icon to the `FIGMA_TO_BWI` mapping:
-
-```typescript
-const FIGMA_TO_BWI: Record<string, string | string[]> = {
-  // ... existing mappings ...
-
-  // Add your new icon here
-  "figma-icon-name": "bwi-icon-name",
-
-  // For icons that need multiple BWI names, use an array:
-  "figma-icon-name": ["bwi-name-1", "bwi-name-2"],
-};
-```
-
-**Important naming notes:**
-
-- Figma names should match your SVG filename (without the `.svg` extension)
-- BWI names should be **without** the `bwi-` prefix (the script adds it automatically)
-- Use kebab-case for all names (e.g., `star-filled`, not `starFilled`)
-
-**Example mappings:**
-
-```typescript
-// Single mapping
-help: "question-circle",                    // help.svg → bwi-question-circle
-
-// Multiple mappings (one SVG, multiple class names)
-collection: ["collection", "collection-shared"],  // collection.svg → bwi-collection + bwi-collection-shared
-```
-
-### 3. Generate the Icon Font
+### 2. Generate the Icon Font
 
 Run the build script:
 
@@ -63,33 +33,36 @@ npm run icons:build
 
 This script will:
 
-1. ✅ Rename Figma icons to BWI names temporarily
-2. ✅ Generate the icon font files (woff2, woff, ttf, svg)
-3. ✅ Update the SCSS with the new icon mappings
-4. ✅ Clean up temporary files
-5. ✅ Restore original Figma filenames
+1. ✅ Generate the icon font files from all SVGs (woff2, woff, ttf, svg)
+2. ✅ Update the SCSS with the new icon mappings
+3. ✅ Clean up temporary build artifacts
 
 **Output files:**
 
 - `libs/angular/src/scss/bwicons/fonts/bwi-font.*` - Font files
 - `libs/angular/src/scss/bwicons/styles/style.scss` - Updated with new icon
 
-### 4. Add to Icon Component Type
+### 3. Add to Icon Component Type
 
-Add your icon to the TypeScript icon enum in `libs/components/src/shared/icon.ts`:
+Add your icon to the TypeScript icon array in `libs/components/src/shared/icon.ts`:
 
 ```typescript
-export type IconName =
-  | "bwi-add"
-  | "bwi-archive"
+// Add your icon to the array in alphabetical order
+export const BITWARDEN_ICONS = [
+  "bwi-add",
+  "bwi-archive",
   // ... existing icons ...
-  | "bwi-your-new-icon" // Add here, in alphabetical order
-  | "bwi-vault";
+  "bwi-your-new-icon", // Add here
+  "bwi-vault",
+] as const;
+
+// Type is automatically derived from the array
+export type BitwardenIcon = (typeof BITWARDEN_ICONS)[number];
 ```
 
 This provides type safety when using icons in components.
 
-### 5. Add to Storybook Documentation
+### 4. Add to Storybook Documentation
 
 Add your icon to the appropriate category in `libs/components/src/stories/icons/icon-data.ts`:
 
@@ -118,7 +91,7 @@ const actions = [
 - Mention any variants or related icons
 - Note any accessibility considerations
 
-### 6. Test Your Icon
+### 5. Test Your Icon
 
 1. **Visual verification**: Run Storybook to see your icon
 
@@ -139,17 +112,131 @@ const actions = [
    <bit-icon icon="bwi-your-new-icon"></bit-icon>
    ```
 
+## Migrating Icon Names
+
+Use the migration script when you need to **rename icon references across the entire codebase**. This is different from adding a new icon—it's for bulk-renaming existing icon class names.
+
+### When to Use Migration
+
+- You're standardizing icon names to match new Figma conventions
+- You're replacing a legacy icon name with a new one
+- You need to update icon references in dozens or hundreds of files
+
+**Important:** This is NOT for adding new icons. Use the "Adding a New Icon" workflow above for that.
+
+### How to Migrate Icon Names
+
+**1. Add the mapping to `migration-map.ts`**
+
+Open `scripts/material-icons/migration-map.ts` and add your mapping to the `BWI_TO_FIGMA` object:
+
+```typescript
+export const BWI_TO_FIGMA: Record<string, string> = {
+  // ... existing mappings ...
+
+  // Add your migration here
+  "old-icon-name": "new-icon-name",
+};
+```
+
+**Example:**
+
+```typescript
+// Rename bwi-question-circle to bwi-help
+"question-circle": "help",
+
+// Rename bwi-spinner to bwi-loading
+"spinner": "loading",
+```
+
+**Note:** Do not include the `bwi-` prefix—the script adds it automatically.
+
+**2. Preview the changes (recommended)**
+
+Run the migration script in dry-run mode to see what will be changed:
+
+```bash
+npm run icons:migrate -- --dry-run
+```
+
+This shows you all files and occurrences that will be updated without actually modifying anything.
+
+**3. Run the migration**
+
+Once you've verified the preview, run the actual migration:
+
+```bash
+npm run icons:migrate
+```
+
+**4. Review the migration report**
+
+After migration completes, check `scripts/material-icons/migration-report.json` for a detailed report of all changes:
+
+```json
+[
+  {
+    "file": "apps/web/src/app/components/icon.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 3
+  }
+  // ... more entries
+]
+```
+
+### What Gets Updated
+
+The migration script searches and replaces icon names in:
+
+- TypeScript files (`.ts`)
+- HTML templates (`.html`)
+- SCSS/CSS files (`.scss`, `.css`)
+- Markdown documentation (`.md`, `.mdx`)
+
+In the following directories:
+
+- `apps/`
+- `libs/`
+- `bitwarden_license/`
+
+Excluding build/cache directories like `node_modules`, `dist`, `.git`, etc.
+
+### Migration Workflow Example
+
+Complete workflow for renaming an icon:
+
+```bash
+# 1. Add mapping to migration-map.ts
+# "spinner": "loading"
+
+# 2. Preview changes
+npm run icons:migrate -- --dry-run
+
+# 3. Run migration
+npm run icons:migrate
+
+# 4. Review migration-report.json
+
+# 5. Commit the changes
+git add .
+git commit -m "Migrate bwi-spinner to bwi-loading"
+```
+
 ## File Structure
 
 ```
 scripts/material-icons/
-├── build-with-bwi-names.ts          # Main build script with icon mappings
+├── build-with-bwi-names.ts          # Main build script
+├── migrate-icon-names.ts            # Migration script for bulk renames
+├── migration-map.ts                 # Configuration for migration
+├── migration-report.json            # Generated migration report
 └── README.md                        # This file
 
 libs/assets/src/material-icons/
 ├── help.svg                         # Figma-exported SVG files
 ├── star-filled.svg
-└── ... (110+ icons)
+└── ... (all source SVG files)
 
 libs/angular/src/scss/bwicons/
 ├── fonts/
@@ -169,38 +256,49 @@ libs/components/src/
 
 ## Icon Naming Conventions
 
-### Figma Names (SVG files)
+The icon system uses a **direct naming approach**: the SVG filename becomes the CSS class name (with `bwi-` prefix added automatically).
 
-- Use descriptive names from Figma design system
-- Examples: `help`, `star-filled`, `add-circle`, `arrow-filled-down`
+### Naming Guidelines
 
-### BWI Names (CSS classes)
+- **Use kebab-case**: `star-filled.svg`, not `starFilled.svg` or `star_filled.svg`
+- **Be descriptive**: Choose names that clearly indicate the icon's purpose
+- **Follow Figma**: Use names from the Figma design system when possible
+- **Consider usage**: The filename determines how developers reference the icon
 
-- Use semantic names that describe function/purpose
-- Examples: `question-circle`, `star-f`, `plus-circle`, `down-solid`
+### Examples
 
-### Common Naming Patterns
+| SVG Filename            | Generated CSS Class      | Usage Example                     |
+| ----------------------- | ------------------------ | --------------------------------- |
+| `help.svg`              | `.bwi-help`              | Help/question icons               |
+| `star-filled.svg`       | `.bwi-star-filled`       | Filled star for favorites         |
+| `add-circle.svg`        | `.bwi-add-circle`        | Add button with circle background |
+| `arrow-filled-down.svg` | `.bwi-arrow-filled-down` | Dropdown indicators               |
+| `visibility-off.svg`    | `.bwi-visibility-off`    | Hide password toggle              |
 
-| Pattern         | Figma Name          | BWI Name     | Usage                     |
-| --------------- | ------------------- | ------------ | ------------------------- |
-| Actions         | `add`               | `plus`       | Generic add/create action |
-| Filled variants | `star-filled`       | `star-f`     | Filled state for toggles  |
-| Directional     | `arrow-filled-down` | `down-solid` | Dropdown indicators       |
-| Settings        | `settings-1`        | `cog-f`      | Filled settings icon      |
+### Legacy Mappings
+
+Some icons have legacy mappings documented in `migration-map.ts` for historical reference. For example:
+
+- `bwi-question-circle` was migrated to `bwi-help`
+- `bwi-spinner` was migrated to `bwi-loading`
+- `bwi-plus` was migrated to `bwi-add`
+
+These mappings are only relevant if you're running migrations. New icons don't need any mappings.
 
 ## Troubleshooting
 
 ### Icon not appearing after build
 
 - Verify the SVG file is in `libs/assets/src/material-icons/`
-- Check that the mapping in `FIGMA_TO_BWI` matches your filename exactly
+- Check that your SVG filename uses kebab-case and has the `.svg` extension
 - Run `npm run icons:build` again
 - Clear browser cache
 
 ### Wrong icon displaying
 
-- Check for naming conflicts in the `FIGMA_TO_BWI` mapping
+- Verify the SVG filename matches what you expect (it becomes the CSS class)
 - Ensure you're using the correct `bwi-` class name in your component
+- Check for duplicate SVG files with similar names
 
 ### Font not updating
 
@@ -216,24 +314,6 @@ libs/components/src/
 - Check that the icon name format matches: `bwi-icon-name`
 
 ## Advanced Usage
-
-### Creating Icon Variants
-
-If you need multiple CSS classes for the same icon (like `collection` and `collection-shared`):
-
-```typescript
-const FIGMA_TO_BWI: Record<string, string | string[]> = {
-  // Single SVG generates two CSS classes
-  collection: ["collection", "collection-shared"],
-};
-```
-
-This generates both:
-
-- `.bwi-collection:before`
-- `.bwi-collection-shared:before`
-
-Both use the same glyph from `collection.svg`.
 
 ### Icon Sizing Classes
 
@@ -256,22 +336,22 @@ Available utility classes (defined in `style.scss`):
 
 ```html
 <!-- Basic icon -->
-<i class="bwi bwi-question-circle"></i>
+<i class="bwi bwi-help"></i>
 
 <!-- Large icon -->
-<i class="bwi bwi-question-circle bwi-lg"></i>
+<i class="bwi bwi-help bwi-lg"></i>
 
 <!-- Fixed width icon (useful in lists) -->
-<i class="bwi bwi-question-circle bwi-fw"></i>
+<i class="bwi bwi-help bwi-fw"></i>
 
 <!-- Spinning icon -->
-<i class="bwi bwi-spinner bwi-spin"></i>
+<i class="bwi bwi-loading bwi-spin"></i>
 ```
 
 ## Best Practices
 
 1. **Icon Consistency**: Follow the existing Figma design system naming
-2. **Semantic Naming**: Use BWI names that describe the icon's purpose, not appearance
+2. **Semantic Naming**: Use descriptive filenames that clearly indicate the icon's purpose
 3. **Documentation**: Always add usage guidelines to Storybook
 4. **Accessibility**: Include proper ARIA labels when using icons without text
 5. **SVG Optimization**: Export from Figma with strokes outlined
@@ -288,5 +368,5 @@ Available utility classes (defined in `style.scss`):
 For questions or issues:
 
 - Check the troubleshooting section above
-- Review existing icon mappings in `build-with-bwi-names.ts`
+- Review existing icons in `libs/assets/src/material-icons/`
 - Consult the design team for icon naming conventions
