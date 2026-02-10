@@ -157,6 +157,8 @@ describe("AutofillInlineMenuList", () => {
       });
 
       it("creates the view for a totp field", async () => {
+        jest.spyOn(Date, "now").mockReturnValue(13000);
+
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
             inlineMenuFillType: CipherType.Login,
@@ -184,6 +186,8 @@ describe("AutofillInlineMenuList", () => {
       });
 
       it("renders correctly when there are multiple TOTP elements with username displayed", async () => {
+        jest.spyOn(Date, "now").mockReturnValue(13000);
+
         const totpCipher1 = createAutofillOverlayCipherDataMock(1, {
           type: CipherType.Login,
           login: {

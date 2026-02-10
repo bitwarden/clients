@@ -25,6 +25,7 @@
       <td
         bitCell
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+        [attr.aria-label]="'select' | i18n"
         appStopProp
       >
         <input
@@ -43,7 +44,7 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="row.applicationName"
       >
         @if (row.iconCipher) {
           <app-vault-icon [cipher]="row.iconCipher" [size]="24"></app-vault-icon>
@@ -57,12 +58,15 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="
+          row.applicationName + ' ' + (row.isMarkedAsCritical ? ('criticalBadge' | i18n) : '')
+        "
       >
         <div class="tw-flex tw-items-center tw-gap-2">
           <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
             {{ row.applicationName }}
           </div>
+
           @if (row.isMarkedAsCritical) {
             <span bitBadge [attr.aria-label]="'criticalBadge' | i18n">{{
               "criticalBadge" | i18n
@@ -79,7 +83,7 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('atRiskPasswords' | i18n) + ' ' + row.atRiskPasswordCount"
       >
         <span>
           {{ row.atRiskPasswordCount }}
@@ -94,7 +98,7 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('totalPasswords' | i18n) + ' ' + row.passwordCount"
       >
         <span>
           {{ row.passwordCount }}
@@ -109,7 +113,7 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('atRiskMembers' | i18n) + ' ' + row.atRiskMemberCount"
       >
         <span>
           {{ row.atRiskMemberCount }}
@@ -125,7 +129,7 @@
         (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('totalMembers' | i18n) + ' ' + row.memberCount"
       >
         {{ row.memberCount }}
       </td>
