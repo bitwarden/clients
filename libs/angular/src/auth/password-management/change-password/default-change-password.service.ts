@@ -7,6 +7,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -79,7 +80,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     return newKeyValue;
   }
 
-  async changePassword(passwordInputResult: PasswordInputResult, userId: UserId | null) {
+  async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
       const { newAuthenticationData, newUnlockData } =
         await this.confirmCurrentPasswordAndMakeNewAuthAndUnlockData(passwordInputResult, userId);
@@ -140,20 +141,17 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   private async confirmCurrentPasswordAndMakeNewAuthAndUnlockData(
     passwordInputResult: PasswordInputResult,
-    userId: UserId | null,
+    userId: UserId,
   ): Promise<{
     newAuthenticationData: MasterPasswordAuthenticationData;
     newUnlockData: MasterPasswordUnlockData;
   }> {
-    if (
-      !passwordInputResult.currentPassword ||
-      !passwordInputResult.newPassword ||
-      !passwordInputResult.salt ||
-      passwordInputResult.kdfConfig == null ||
-      passwordInputResult.newPasswordHint == null
-    ) {
-      throw new Error("invalid PasswordInputResult credentials, could not change password");
-    }
+    const ctx = "Could not change password.";
+    assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
 
     // Confirm that the current password + unlock data can decrypt the user key (i.e the current password is valid)
     const currentUnlockData = await firstValueFrom(
