@@ -64,7 +64,6 @@ export abstract class DrawerStateService {
 
 /**
  * Drawer types for Access Intelligence drawers.
- * Using const object instead of enum (ADR-0025).
  */
 export const DrawerType = Object.freeze({
   None: 0,
