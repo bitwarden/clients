@@ -49,7 +49,7 @@ pub trait KeyStore: Send + Sync {
     ///
     /// A vector of tuples containing each key's public key and human-readable name,
     /// or an error if the operation failed.
-    fn get_all_public_keys_and_names(&mut self) -> Result<Vec<(PublicKey, String)>>;
+    fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
 
     /// Signs data using the private key associated with the given public key.
     ///
@@ -63,6 +63,9 @@ pub trait KeyStore: Send + Sync {
     /// The signature bytes, or an error if signing fails
     /// (e.g., key not found, key locked, or cryptographic error).
     fn sign_data(&self, public_key: &PublicKey, data: &[u8]) -> Result<Vec<u8>>;
+
+    /// Clears the keystore of all keys.
+    fn clear(&self);
 }
 
 /// A thread-safe, in-memory, and encrypted implementation of the [`KeyStore`] trait.
@@ -79,6 +82,12 @@ impl InMemoryEncryptedKeyStore {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::new())),
         }
+    }
+}
+
+impl Default for InMemoryEncryptedKeyStore {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -106,7 +115,7 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .transpose()
     }
 
-    fn get_all_public_keys_and_names(&mut self) -> Result<Vec<(PublicKey, String)>> {
+    fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>> {
         self.secure_memory
             .lock()
             .expect("Mutex is not poisoned")
@@ -121,6 +130,13 @@ impl KeyStore for InMemoryEncryptedKeyStore {
 
     fn sign_data(&self, _public_key: &PublicKey, _data: &[u8]) -> Result<Vec<u8>> {
         todo!();
+    }
+
+    fn clear(&self) {
+        self.secure_memory
+            .lock()
+            .expect("Mutex is not poisoned")
+            .clear();
     }
 }
 
@@ -174,7 +190,7 @@ mod tests {
 
     #[test]
     fn test_new_creates_empty_store() {
-        let mut ks = InMemoryEncryptedKeyStore::new();
+        let ks = InMemoryEncryptedKeyStore::new();
 
         let result = ks.get_all_public_keys_and_names();
         assert!(result.is_ok());
@@ -256,7 +272,7 @@ mod tests {
 
     #[test]
     fn test_get_all_empty_store() {
-        let mut ks = InMemoryEncryptedKeyStore::new();
+        let ks = InMemoryEncryptedKeyStore::new();
         let result = ks.get_all_public_keys_and_names();
 
         assert!(result.is_ok());
@@ -265,7 +281,7 @@ mod tests {
 
     #[test]
     fn test_get_all_multiple_keys() {
-        let mut ks = InMemoryEncryptedKeyStore::new();
+        let ks = InMemoryEncryptedKeyStore::new();
 
         let key1 = create_test_keydata_ed25519("key1", "cipher-1");
         let key2 = create_test_keydata_rsa("key2", "cipher-2");

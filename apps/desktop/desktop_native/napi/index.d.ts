@@ -277,6 +277,45 @@ export declare namespace sshagent {
   export function stop(agentState: SshAgentState): void
 }
 
+export declare namespace sshagent_v2 {
+  /** Wrapper for Electron to be able to interface with the agent directly. */
+  export class SshAgentState {
+    /**
+     * Creates a new [`BitwardenSshAgent`] and starts the server.
+     *
+     * # Arguments
+     *
+     * * `list_callback` - Callback for list requests
+     * * `sign_callback` - Callback for sign requests
+     */
+    static serve(listCallback: ((err: Error | null, ) => boolean), signCallback: ((err: Error | null, arg: SignRequestData) => boolean)): Promise<SshAgentState>
+    stop(): void
+    isRunning(): boolean
+    setKeys(newKeys: Array<SshKeyData>): void
+    clearKeys(): void
+    lock(): void
+  }
+  /** SSH public key data */
+  export interface PublicKey {
+    alg: string
+    blob: Array<number>
+  }
+  /** Data for a sign request */
+  export interface SignRequestData {
+    publicKey: PublicKey
+    cipherId?: string
+    processName: string
+    isForwarding: boolean
+    namespace?: string
+  }
+  /** SSH key data, sent from Electron. */
+  export interface SshKeyData {
+    privateKey: string
+    name: string
+    cipherId: string
+  }
+}
+
 export declare namespace windows_registry {
   export function createKey(key: string, subkey: string, value: string): Promise<void>
   export function deleteKey(key: string, subkey: string): Promise<void>
