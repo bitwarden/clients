@@ -87,7 +87,7 @@ describe("PasswordInputToggle", () => {
     });
 
     it("has correct icon", () => {
-      expect(button.icon()).toBe("bwi-visibility-slash");
+      expect(button.icon()).toBe("bwi-visibility-off");
     });
 
     it("input is type text", () => {

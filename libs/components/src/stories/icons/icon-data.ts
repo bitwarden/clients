@@ -139,7 +139,7 @@ const actions = [
       'Turns visibility on. In a toggle affordance the default state should be displayed when the data visibility is currently "off" or "not visible".',
   },
   {
-    id: "bwi-visibility-slash",
+    id: "bwi-visibility-off",
     usage:
       'Turns visibility off. In a toggle affordance, the "off" state should be displayed when the data is currently visible.',
   },
