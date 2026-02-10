@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { RouterStateSnapshot } from "@angular/router";
 
-import { VaultV2Component } from "../components/vault-v2/vault-v2.component";
+import { VaultComponent } from "../components/vault/vault.component";
 import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../services/vault-popup-list-filters.service";
 
@@ -42,7 +42,7 @@ describe("clearVaultStateGuard", () => {
     const nextState = { url } as RouterStateSnapshot;
 
     const result = TestBed.runInInjectionContext(() =>
-      clearVaultStateGuard({} as VaultV2Component, null, null, nextState),
+      clearVaultStateGuard({} as VaultComponent, null, null, nextState),
     );
 
     expect(result).toBe(true);
@@ -56,7 +56,7 @@ describe("clearVaultStateGuard", () => {
       const nextState = { url } as RouterStateSnapshot;
 
       const result = TestBed.runInInjectionContext(() =>
-        clearVaultStateGuard({} as VaultV2Component, null, null, nextState),
+        clearVaultStateGuard({} as VaultComponent, null, null, nextState),
       );
 
       expect(result).toBe(true);
@@ -67,7 +67,7 @@ describe("clearVaultStateGuard", () => {
 
   it("should not clear vault state when not changing states", () => {
     const result = TestBed.runInInjectionContext(() =>
-      clearVaultStateGuard({} as VaultV2Component, null, null, null),
+      clearVaultStateGuard({} as VaultComponent, null, null, null),
     );
 
     expect(result).toBe(true);
