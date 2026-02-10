@@ -14,7 +14,6 @@ export enum FeatureFlag {
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
-  MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -108,7 +107,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
-  [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,

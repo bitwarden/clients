@@ -2,10 +2,8 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
@@ -76,12 +74,7 @@ export class UserConfirmComponent implements OnInit {
       await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
 
-    const membersComponentRefactorEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.MembersComponentRefactor),
-    );
-    if (!membersComponentRefactorEnabled) {
-      await this.data.confirmUser(this.publicKey);
-    }
+    await this.data.confirmUser(this.publicKey);
 
     this.dialogRef.close(true);
   };
