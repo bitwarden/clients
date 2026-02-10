@@ -137,10 +137,6 @@
     "message": "Podrobnosti o Sende",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Pridajte voliteľné heslo pre príjemcov na prístup k tomuto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Text, ktorý chcete zdieľať"
   },
@@ -4587,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Prečo to vidím?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Chránené e-mailom"
+  },
+  "emails": {
+    "message": "E-maily"
+  },
+  "noAuth": {
+    "message": "Ktokoľvek s odkazom"
+  },
+  "anyOneWithPassword": {
+    "message": "Ktokoľvek s heslom od vás"
+  },
+  "whoCanView": {
+    "message": "Kto môže zobraziť"
+  },
+  "specificPeople": {
+    "message": "Konkrétne osoby"
+  },
+  "emailVerificationDesc": {
+    "message": "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
+  },
+  "emailPlaceholder": {
+    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   }
 }

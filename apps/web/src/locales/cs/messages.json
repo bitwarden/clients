@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Kritické"
+  },
   "accessIntelligence": {
     "message": "Přístup k inteligenci"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Těmto filtrům neodpovídají žádné aplikace"
   },
   "passwordRisk": {
     "message": "Rizikové heslo"
@@ -1240,6 +1246,9 @@
   },
   "selectAll": {
     "message": "Označit vše"
+  },
+  "deselectAll": {
+    "message": "Odznačit vše"
   },
   "unselectAll": {
     "message": "Odznačit vše"
@@ -3802,6 +3811,9 @@
   "editCollection": {
     "message": "Upravit sbírku"
   },
+  "viewCollection": {
+    "message": "Zobrazit kolekci"
+  },
   "collectionInfo": {
     "message": "Informace o sbírce"
   },
@@ -3863,7 +3875,7 @@
     "message": "Tento uživatel by měl být nezávislý na poskytovateli. Pokud není poskytovatel spojen s organizací, tento uživatel si zachová vlastnictví organizace."
   },
   "admin": {
-    "message": "Administrátor"
+    "message": "Správce"
   },
   "adminDesc": {
     "message": "Spravuje přístup v organizaci, všechny sbírky, členy, hlášení a nastavení zabezpečení."
@@ -5329,7 +5341,7 @@
     "message": "Bude požadovat po uživatelích nastavení dvoufázového přihlášení pro jejich osobní účty."
   },
   "twoStepLoginPolicyWarning": {
-    "message": "Členové organizace, kteří nejsou vlastníky nebo administrátory a kteří nemají povoleno dvoufázové přihlášení pro svůj osobní účet, budou odebráni z organizace a obdrží e-mail, který je o změně informuje."
+    "message": "Členové organizace, kteří nejsou vlastníky nebo správci a kteří nemají povoleno dvoufázové přihlášení pro svůj osobní účet, budou odebráni z organizace a obdrží e-mail, který je o změně informuje."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Jste členem organizace, která vyžaduje použití dvoufázové přihlášení na Vašem uživatelském účtu. Pokud zakážete všechny poskytovatele dvoufázového přihlášení, budete z takovýchto organizací automaticky odebráni."
@@ -5586,7 +5598,7 @@
     "message": "Omezí členům vstup do jiných organizací. Tato zásada je vyžadována u organizací, které povolily ověřování domény."
   },
   "singleOrgBlockCreateMessage": {
-    "message": "Vaše aktuální organizace má pravidla, která Vám nedovolují připojit se k více než jedné organizaci. Obraťte se na administrátory organizace nebo se zaregistrujte z jiného účtu na Bitwardenu."
+    "message": "Vaše aktuální organizace má pravidla, která Vám nedovolují připojit se k více než jedné organizaci. Obraťte se na správce organizace nebo se zaregistrujte z jiného účtu na Bitwardenu."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Nevyhovující členové budou zařazeni do statusu odvolaných členů, dokud neopustí všechny ostatní organizace. Správci jsou osvobozeni a mohou obnovit členy, jakmile je splněna podmínka shody."
@@ -5607,7 +5619,7 @@
     "message": "Jednotná pravidla organizace nebyla nastavena."
   },
   "requireSsoExemption": {
-    "message": "Majitelé a administrátoři organizací jsou od prosazování těchto zásad osvobozeni."
+    "message": "Vlastníci a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "limitSendViews": {
     "message": "Omezit zobrazení"
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "Text"
   },
-  "sendPasswordDescV3": {
-    "message": "Přidá volitelné heslo pro příjemce pro přístup k tomuto Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Zkopírujte a sdílejte tento odkaz Send. Send bude k dispozici komukoli s odkazem na dalších $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Zkopírujte a sdílejte tento odkaz Send. Send bude k dispozici komukoli s odkazem a heslem na dalších $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Zkopírujte a sdílejte tento Send pro odesílání. Můžou jej zobrazit osoby, které jste zadali, a to po dobu $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6079,7 +6107,7 @@
     "message": "Bude vyžadovat, aby členové ukládali položky do organizace tím, že odeberete možnost osobního trezoru."
   },
   "personalOwnershipExemption": {
-    "message": "Majitelé a správci organizací jsou od prosazování těchto zásad osvobozeni."
+    "message": "Vlastníci a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných sbírek."
@@ -6128,7 +6156,7 @@
     "message": "Výchozí zjišťování shody URI"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Administrátoři a vlastníci jsou od těchto zásad osvobozeni."
+    "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Správci a vlastníci jsou od těchto zásad osvobozeni."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Výchozí zjišťování shody URI"
@@ -6693,7 +6721,7 @@
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
-    "message": "Administrátor poskytovatele"
+    "message": "Správce poskytovatele"
   },
   "providerAdminDesc": {
     "message": "Uživatel s nejvyšším oprávněním, který může spravovat všechny aspekty Vašeho poskytovatele a také přístup a správu klientských organizací."
@@ -6714,7 +6742,7 @@
     "message": "Byly jste pozváni se připojit k výše uvedenému poskytovateli. Pro přijetí pozvánky se musíte přihlásit nebo si založit nový účet na Bitwardenu."
   },
   "providerInviteAcceptFailed": {
-    "message": "Nelze přijmout pozvánku. Požádejte administrátora poskytovatele o zaslání nové pozvánky."
+    "message": "Nelze přijmout pozvánku. Požádejte správce poskytovatele o zaslání nové pozvánky."
   },
   "providerInviteAcceptedDesc": {
     "message": "K tomuto poskytovateli můžete přistupovat jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
@@ -8841,7 +8869,7 @@
     }
   },
   "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte majitele organizace.",
+    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8877,7 +8905,7 @@
     }
   },
   "freeOrgMaxCollectionReachedNoManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Pro aktualizaci kontaktujte majitele organizace.",
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Pro aktualizaci kontaktujte vlastníka organizace.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -9730,7 +9758,7 @@
     "message": "Nastaví chování sbírky pro organizaci"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Povolit vlastníkům a administrátorům spravovat všechny sbírky a položky z konzole administrace"
+    "message": "Povolit vlastníkům a správcům spravovat všechny sbírky a položky z konzole administrace"
   },
   "restrictCollectionCreationDescription": {
     "message": "Omezí vytváření sbírky na vlastníky a správce"
@@ -9874,7 +9902,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "Zapnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
+    "message": "Zapnuto nastavení povolení vlastníkům a správcům spravovat všechny sbírky a položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9883,7 +9911,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "Vypnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
+    "message": "Vypnuto nastavení povolení vlastníkům a správcům spravovat všechny sbírky a položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Pro provedení této akce musíte být vlastníkem organizace nebo správcem."
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Pro provedení této akce musíte být vlastníkem organizace."
   },
@@ -11055,7 +11086,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Bezplatné rodinné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte majitele organizace.",
+    "message": "Bezplatné rodinné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12739,6 +12770,15 @@
   "whenYouRemoveStorage": {
     "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Vlastník, $OWNER$, zobrazí všechny položky ve vlastnictví $OWNER$.",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Máte Premium"
   },
@@ -12747,5 +12787,12 @@
   },
   "invalidSendPassword": {
     "message": "Neplatné heslo k Send"
+  },
+  "sendPasswordHelperText": {
+    "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "za uživatele"
   }
 }
