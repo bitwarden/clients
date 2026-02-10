@@ -276,11 +276,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     return await this.handleCredentialRequest<CreateCredentialResult>(
       message,
       sender.tab!,
-      (
-        data: CreateCredentialParams | AssertCredentialParams,
-        tabParam: chrome.tabs.Tab,
-        abortController: AbortController,
-      ): Promise<CreateCredentialResult> =>
+      (data, tabParam, abortController) =>
         this.fido2ClientService.createCredential(
           data as CreateCredentialParams,
           tabParam,
@@ -302,11 +298,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     return await this.handleCredentialRequest<AssertCredentialResult>(
       message,
       sender.tab!,
-      (
-        data: CreateCredentialParams | AssertCredentialParams,
-        tabParam: chrome.tabs.Tab,
-        abortController: AbortController,
-      ): Promise<AssertCredentialResult> =>
+      (data, tabParam, abortController) =>
         this.fido2ClientService.assertCredential(
           data as AssertCredentialParams,
           tabParam,
