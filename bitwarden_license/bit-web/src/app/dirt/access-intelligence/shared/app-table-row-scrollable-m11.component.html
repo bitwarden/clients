@@ -63,22 +63,14 @@
         "
       >
         <div class="tw-flex tw-items-center tw-gap-2">
-          @if (row.isMarkedAsCritical) {
-            <div
-              class="tw-max-w-md tw-truncate"
-              [title]="row.applicationName"
-              [attr.aria-label]="row.applicationName + ' ' + ('criticalBadge' | i18n)"
-            >
-              {{ row.applicationName }}
-            </div>
+          <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
+            {{ row.applicationName }}
+          </div>
 
+          @if (row.isMarkedAsCritical) {
             <span bitBadge [attr.aria-label]="'criticalBadge' | i18n">{{
               "criticalBadge" | i18n
             }}</span>
-          } @else {
-            <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
-              {{ row.applicationName }}
-            </div>
           }
         </div>
       </td>
