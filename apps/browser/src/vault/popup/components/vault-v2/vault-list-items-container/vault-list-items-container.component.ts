@@ -21,6 +21,8 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -88,7 +90,14 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+  private configService = inject(ConfigService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+
+  /** Signal for the feature flag that controls simplified item action behavior */
+  protected readonly simplifiedItemActionEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM31019ItemActionInExtension),
+    { initialValue: false },
+  );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -232,22 +241,62 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      const key = this.shouldAutofillOnSelect() ? "autofillTitle" : "viewItemTitle";
+      // When feature flag is enabled, always use autofill title for autofill list items
+      // When feature flag is disabled, use the primaryActionAutofill setting
+      const key =
+        this.simplifiedItemActionEnabled() && !this.currentUriIsBlocked()
+          ? "autofillTitle"
+          : this.primaryActionAutofill() && !this.currentUriIsBlocked()
+            ? "autofillTitle"
+            : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
 
   /**
    * Option to show the autofill button for each item.
+   * Used when feature flag is disabled.
+   */
+  readonly showAutofillButton = input(false, { transform: booleanAttribute });
+
+  /**
+   * Option to mark this container as an autofill list (new behavior with feature flag).
    */
   readonly isAutofillList = input(false, { transform: booleanAttribute });
 
   /**
-   * Computed property whether the cipher select action should perform autofill
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
+   * Used when feature flag is disabled.
    */
-  readonly shouldAutofillOnSelect = computed(
-    () => this.isAutofillList() && !this.currentUriIsBlocked(),
+  readonly hideAutofillButton = computed(
+    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
   );
+
+  /**
+   * Flag indicating whether the cipher item autofill menu options should be shown or not.
+   * Used when feature flag is disabled.
+   */
+  readonly hideAutofillMenuOptions = computed(
+    () => this.currentUriIsBlocked() || this.showAutofillButton(),
+  );
+
+  /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   * Used when feature flag is disabled.
+   */
+  readonly primaryActionAutofill = input(false, { transform: booleanAttribute });
+
+  /**
+   * Computed property whether the cipher select action should perform autofill.
+   * When feature flag is enabled, uses isAutofillList.
+   * When feature flag is disabled, uses primaryActionAutofill.
+   */
+  readonly shouldAutofillOnSelect = computed(() => {
+    if (this.simplifiedItemActionEnabled()) {
+      return this.isAutofillList() && !this.currentUriIsBlocked();
+    }
+    return this.primaryActionAutofill() && !this.currentUriIsBlocked();
+  });
 
   /**
    * Remove the bottom margin from the bit-section in this component

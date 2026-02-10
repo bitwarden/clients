@@ -81,6 +81,18 @@ export class ItemMoreOptionsComponent {
    */
   readonly showAutofill = input(false, { transform: booleanAttribute });
 
+  /**
+   * Flag to hide the autofill menu options. Used for items that are
+   * already in the autofill list suggestion (old behavior, feature flag disabled).
+   */
+  readonly hideAutofillOptions = input(false, { transform: booleanAttribute });
+
+  /**
+   * Flag to show view item menu option. Used when something else is
+   * assigned as the primary action for the item, such as autofill (old behavior, feature flag disabled).
+   */
+  readonly showViewOption = input(false, { transform: booleanAttribute });
+
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
   protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;

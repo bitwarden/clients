@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -77,10 +77,13 @@ describe("AppearanceV2Component", () => {
     setEnableBadgeCounter.mockClear();
     setEnableRoutingAnimation.mockClear();
 
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [AppearanceV2Component],
       providers: [
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -111,7 +114,10 @@ describe("AppearanceV2Component", () => {
         },
         {
           provide: VaultSettingsService,
-          useValue: mock<VaultSettingsService>(),
+          useValue: {
+            clickItemsToAutofillVaultView$: of(true),
+            setClickItemsToAutofillVaultView: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     })
@@ -142,6 +148,7 @@ describe("AppearanceV2Component", () => {
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",
+      clickItemsToAutofillVaultView: true,
     });
   });
 
