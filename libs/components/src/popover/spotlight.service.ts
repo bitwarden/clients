@@ -34,11 +34,14 @@ export class SpotlightService {
     document.body.appendChild(this.backdropElement);
 
     // Create border element (initially hidden)
-    // Read the backdrop color from CSS variable for consistency
-    const backdropColor =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--bit-popover-backdrop-color")
-        .trim() || "rgba(13, 32, 86, 0.2)";
+    let backdropColor;
+    try {
+      backdropColor = getComputedStyle(document.documentElement)
+        ?.getPropertyValue("--bit-popover-backdrop-color")
+        .trim();
+    } catch {
+      // if getComputedStyle fails (e.g., in test environments)
+    }
 
     this.borderElement = document.createElement("div");
     this.borderElement.style.cssText = `
