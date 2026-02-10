@@ -2,7 +2,7 @@ import { ComponentFixture, fakeAsync, flush, TestBed, tick } from "@angular/core
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of, Subject } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -96,10 +96,12 @@ describe("ViewV2Component", () => {
   const mockPasswordRepromptService = {
     showPasswordPrompt,
   };
+  const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const mockVaultPopupAutofillService = {
     doAutofill,
     doAutofillAndSave,
     currentAutofillTab$,
+    autofillAllowed$,
   };
   const mockCopyCipherFieldService = {
     copy,
@@ -131,6 +133,7 @@ describe("ViewV2Component", () => {
     showToast.mockClear();
     showPasswordPrompt.mockClear();
     getFeatureFlag.mockClear();
+    autofillAllowed$.next(true);
     cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -718,8 +721,15 @@ describe("ViewV2Component", () => {
       component.cipher = { ...mockCipher, type: CipherType.Login } as CipherView;
     });
 
-    it("returns true when feature flag is enabled, cipher is a login, and not archived/deleted", () => {
+    it("returns true when feature flag is enabled, cipher is a login, and not archived/deleted", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.Login,
@@ -727,13 +737,22 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(true);
-    });
+    }));
 
-    it("returns true for Card type when conditions are met", () => {
+    it("returns true for Card type when conditions are met", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.Card,
@@ -741,13 +760,22 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(true);
-    });
+    }));
 
-    it("returns true for Identity type when conditions are met", () => {
+    it("returns true for Identity type when conditions are met", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.Identity,
@@ -755,10 +783,12 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(true);
-    });
+    }));
 
     it("returns false when feature flag is disabled", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(false));
@@ -782,8 +812,38 @@ describe("ViewV2Component", () => {
       expect(result).toBe(false);
     }));
 
-    it("returns false for SecureNote type", () => {
+    it("returns false when autofill is not allowed", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(false);
+
+      // Recreate component to pick up the new autofillAllowed value
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      component.cipher = {
+        ...mockCipher,
+        type: CipherType.Login,
+        isArchived: false,
+        isDeleted: false,
+      } as CipherView;
+
+      flush();
+
+      const result = component.showAutofillButton();
+
+      expect(result).toBe(false);
+    }));
+
+    it("returns false for SecureNote type", fakeAsync(() => {
+      getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.SecureNote,
@@ -791,13 +851,22 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(false);
-    });
+    }));
 
-    it("returns false for SshKey type", () => {
+    it("returns false for SshKey type", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.SshKey,
@@ -805,13 +874,22 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(false);
-    });
+    }));
 
-    it("returns false when cipher is archived", () => {
+    it("returns false when cipher is archived", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.Login,
@@ -819,13 +897,22 @@ describe("ViewV2Component", () => {
         isDeleted: false,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(false);
-    });
+    }));
 
-    it("returns false when cipher is deleted", () => {
+    it("returns false when cipher is deleted", fakeAsync(() => {
       getFeatureFlag$.mockReturnValue(of(true));
+      autofillAllowed$.next(true);
+
+      // Recreate component to pick up the signal values
+      fixture = TestBed.createComponent(ViewV2Component);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
       component.cipher = {
         ...mockCipher,
         type: CipherType.Login,
@@ -833,10 +920,12 @@ describe("ViewV2Component", () => {
         isDeleted: true,
       } as CipherView;
 
+      flush();
+
       const result = component.showAutofillButton();
 
       expect(result).toBe(false);
-    });
+    }));
   });
 
   describe("doAutofill", () => {

@@ -129,11 +129,11 @@ export class ViewV2Component {
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
   //feature flag
-  private pm30521FeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM30521_AutofillButtonViewLoginScreen,
+  private readonly pm30521FeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM30521_AutofillButtonViewLoginScreen),
   );
-  private readonly pm30521FeatureFlagSignal = toSignal(this.pm30521FeatureFlag$);
 
+  private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
@@ -336,7 +336,11 @@ export class ViewV2Component {
 
   showAutofillButton(): boolean {
     //feature flag
-    if (!this.pm30521FeatureFlagSignal()) {
+    if (!this.pm30521FeatureFlag()) {
+      return false;
+    }
+
+    if (!this.autofillAllowed()) {
       return false;
     }
 
