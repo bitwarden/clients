@@ -11,6 +11,18 @@ describe("validateRpId", () => {
   });
 
   describe("classic domain validation", () => {
+    it("should not be valid when rpId is null", async () => {
+      const origin = "example.com";
+
+      expect(await isValidRpId(null, origin)).toBe(false);
+    });
+
+    it("should not be valid when origin is null", async () => {
+      const rpId = "example.com";
+
+      expect(await isValidRpId(rpId, null)).toBe(false);
+    });
+
     it("should not be valid when rpId is more specific than origin", async () => {
       const rpId = "sub.login.bitwarden.com";
       const origin = "https://login.bitwarden.com:1337";
@@ -88,6 +100,13 @@ describe("validateRpId", () => {
       const origin = "https://sub.login.bitwarden.com:1337";
 
       expect(await isValidRpId(rpId, origin, mockFetch)).toBe(true);
+    });
+
+    it("should not be valid for a partial match of a subdomain", async () => {
+      const rpId = "accounts.example.com";
+      const origin = "https://evilaccounts.example.com";
+
+      expect(await isValidRpId(rpId, origin)).toBe(false);
     });
   });
 

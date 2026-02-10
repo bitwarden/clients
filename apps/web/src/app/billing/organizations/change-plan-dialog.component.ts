@@ -50,7 +50,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -117,7 +117,7 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
+  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -248,7 +248,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
     private configService: ConfigService,
   ) {}
@@ -1068,11 +1068,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
-      this.organizationId,
-      getPlanFromLegacyEnum(this.selectedPlan.type),
-      billingAddress,
-    );
+    const taxAmounts =
+      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
+        this.organizationId,
+        getPlanFromLegacyEnum(this.selectedPlan.type),
+        billingAddress,
+      );
 
     this.estimatedTax = taxAmounts.tax;
   }
