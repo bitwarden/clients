@@ -49,6 +49,8 @@
       >
         @if (row.iconCipher) {
           <app-vault-icon [cipher]="row.iconCipher" [size]="24"></app-vault-icon>
+        } @else {
+          <bit-icon name="bwi-globe" class="tw-text-muted"></bit-icon>
         }
       </td>
       <td
