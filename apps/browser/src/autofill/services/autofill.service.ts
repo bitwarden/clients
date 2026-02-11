@@ -740,6 +740,13 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
+    // Check if page details contain targeted fields from targeting rules
+    // This operation is mutually-exclusive from heuristic data-gathering
+    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
+    if (hasTargetedFields) {
+      return this.generateTargetedFillScript(pageDetails, options);
+    }
+
     let fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
     const fields = options.cipher.fields;
@@ -818,6 +825,134 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fillScript;
+  }
+
+  /**
+   * Generates fill script actions for targeted fields, mapping cipher values
+   * directly to field types identified by targeting rules. Reuses the standard
+   * fill_by_opid actions since targeted elements are cached with synthetic opids.
+   */
+  private async generateTargetedFillScript(
+    pageDetails: AutofillPageDetails,
+    options: GenerateFillScriptOptions,
+  ): Promise<AutofillScript | null> {
+    const fillScript = new AutofillScript();
+    const cipher = options.cipher;
+
+    fillScript.savedUrls =
+      cipher.login?.uris?.filter((u) => u.match != UriMatchStrategy.Never).map((u) => u.uri) ?? [];
+
+    // Note; targeted fields intentionally skip the untrusted iframe check. The
+    // presence of targeting rules represents explicit expectations of the target
+
+    for (const field of pageDetails.fields) {
+      if (!field.targeted || !field.fieldQualifier) {
+        continue;
+      }
+
+      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      if (!value) {
+        continue;
+      }
+
+      AutofillService.fillByOpid(fillScript, field, value);
+    }
+
+    if (!fillScript.script.length) {
+      return null;
+    }
+
+    return fillScript;
+  }
+
+  /**
+   * Maps a targeting rule field type to the cooresponding cipher value
+   */
+  private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
+    // Login fields
+    if (fieldType === "username") {
+      return cipher.login?.username;
+    }
+    if (fieldType === "password" || fieldType === "newPassword") {
+      return cipher.login?.password;
+    }
+    if (fieldType === "totp") {
+      return cipher.login?.totp;
+    }
+
+    // Card fields
+    if (fieldType === "cardholderName") {
+      return cipher.card?.cardholderName;
+    }
+    if (fieldType === "cardNumber") {
+      return cipher.card?.number;
+    }
+    if (fieldType === "cardExpirationMonth") {
+      return cipher.card?.expMonth;
+    }
+    if (fieldType === "cardExpirationYear") {
+      return cipher.card?.expYear;
+    }
+    if (fieldType === "cardExpirationDate") {
+      return cipher.card?.expMonth && cipher.card?.expYear
+        ? `${cipher.card.expMonth}/${cipher.card.expYear}`
+        : null;
+    }
+    if (fieldType === "cardCvv") {
+      return cipher.card?.code;
+    }
+
+    // Identity fields
+    if (fieldType === "identityTitle") {
+      return cipher.identity?.title;
+    }
+    if (fieldType === "identityFirstName") {
+      return cipher.identity?.firstName;
+    }
+    if (fieldType === "identityMiddleName") {
+      return cipher.identity?.middleName;
+    }
+    if (fieldType === "identityLastName") {
+      return cipher.identity?.lastName;
+    }
+    if (fieldType === "identityFullName") {
+      return cipher.identity?.fullName;
+    }
+    if (fieldType === "identityAddress1") {
+      return cipher.identity?.address1;
+    }
+    if (fieldType === "identityAddress2") {
+      return cipher.identity?.address2;
+    }
+    if (fieldType === "identityAddress3") {
+      return cipher.identity?.address3;
+    }
+    if (fieldType === "identityCity") {
+      return cipher.identity?.city;
+    }
+    if (fieldType === "identityState") {
+      return cipher.identity?.state;
+    }
+    if (fieldType === "identityPostalCode") {
+      return cipher.identity?.postalCode;
+    }
+    if (fieldType === "identityCountry") {
+      return cipher.identity?.country;
+    }
+    if (fieldType === "identityCompany") {
+      return cipher.identity?.company;
+    }
+    if (fieldType === "identityPhone") {
+      return cipher.identity?.phone;
+    }
+    if (fieldType === "identityEmail") {
+      return cipher.identity?.email;
+    }
+    if (fieldType === "identityUsername") {
+      return cipher.identity?.username;
+    }
+
+    return null;
   }
 
   /**
