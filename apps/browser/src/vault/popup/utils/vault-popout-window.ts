@@ -175,6 +175,10 @@ async function openFido2Popout(
     windowOptions: { height: 570 },
   });
 
+  if (!popoutWindow?.id) {
+    throw new Error("Failed to open FIDO2 popout window");
+  }
+
   return popoutWindow.id;
 }
 

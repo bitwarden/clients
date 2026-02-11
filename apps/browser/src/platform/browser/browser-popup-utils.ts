@@ -150,9 +150,25 @@ export default class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
+
+    // Only set explicit position if the sender window reports valid coordinates.
+    // On Wayland and non-standard multi-monitor layouts, these values may be
+    // undefined or produce out-of-bounds positions that cause window creation
+    // to fail silently in some Chromium-based browsers.
+    const hasValidPosition =
+      Number.isFinite(senderWindow?.left) &&
+      Number.isFinite(senderWindow?.width) &&
+      Number.isFinite(senderWindow?.top);
+
+    const positionOptions = hasValidPosition
+      ? {
+          left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
+          top: senderWindow.top + offsetTop,
+        }
+      : {};
+
     const popoutWindowOptions = {
-      left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
-      top: senderWindow.top + offsetTop,
+      ...positionOptions,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
       url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),

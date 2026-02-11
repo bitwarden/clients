@@ -119,8 +119,28 @@ export class BrowserApi {
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
+    const newWindow = await BrowserApi.attemptCreateWindow(options);
+
+    // If window creation failed and we had explicit positioning, retry without it.
+    // This handles cases where the calculated position is off-screen or invalid
+    // (e.g., Wayland with non-standard multi-monitor layouts on some browsers).
+    if (!newWindow && (options.left != null || options.top != null)) {
+      const { left, top, ...optionsWithoutPosition } = options;
+      return await BrowserApi.attemptCreateWindow(optionsWithoutPosition);
+    }
+
+    return newWindow;
+  }
+
+  private static async attemptCreateWindow(
+    options: chrome.windows.CreateData,
+  ): Promise<chrome.windows.Window | undefined> {
     return new Promise((resolve) => {
       chrome.windows.create(options, async (newWindow) => {
+        if (chrome.runtime.lastError || !newWindow) {
+          return resolve(undefined);
+        }
+
         if (!BrowserApi.isSafariApi) {
           return resolve(newWindow);
         }
