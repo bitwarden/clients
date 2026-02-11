@@ -27,6 +27,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
+  FillAssistTargetingRules = "fill-assist-targeting-rules",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -112,6 +113,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
+  [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
