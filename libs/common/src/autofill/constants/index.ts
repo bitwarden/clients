@@ -149,4 +149,35 @@ export const CLEAR_NOTIFICATION_LOGIN_DATA_DURATION = 60 * 1000; // 1 minute
 
 export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
+export const DEEP_QUERY_SELECTOR_SEPARATOR = ">>>";
+
+export const AutofillTargetingRuleTypes = {
+  password: "password",
+  newPassword: "newPassword",
+  username: "username",
+  cardholderName: "cardholderName",
+  cardNumber: "cardNumber",
+  cardExpirationMonth: "cardExpirationMonth",
+  cardExpirationYear: "cardExpirationYear",
+  cardExpirationDate: "cardExpirationDate",
+  cardCvv: "cardCvv",
+  identityTitle: "identityTitle",
+  identityFirstName: "identityFirstName",
+  identityMiddleName: "identityMiddleName",
+  identityLastName: "identityLastName",
+  identityFullName: "identityFullName",
+  identityAddress1: "identityAddress1",
+  identityAddress2: "identityAddress2",
+  identityAddress3: "identityAddress3",
+  identityCity: "identityCity",
+  identityState: "identityState",
+  identityPostalCode: "identityPostalCode",
+  identityCountry: "identityCountry",
+  identityCompany: "identityCompany",
+  identityPhone: "identityPhone",
+  identityEmail: "identityEmail",
+  identityUsername: "identityUsername",
+  totp: "totp",
+} as const;
+
 export * from "./match-patterns";
