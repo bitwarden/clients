@@ -10,4 +10,4 @@ export const ipc = {
   platform,
   keyManagement,
   tools,
-} as const;
+};
