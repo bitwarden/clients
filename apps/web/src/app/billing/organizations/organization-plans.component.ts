@@ -47,7 +47,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
@@ -86,6 +86,7 @@ const Allowed2020PlansForLegacyProviders = [
     OrganizationCreateModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
+    IconComponent,
   ],
   providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
