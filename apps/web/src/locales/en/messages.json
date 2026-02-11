@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Review at-risk logins"
@@ -11899,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
   "itemWasUnarchived": {
     "message": "Item was unarchived"
   },
@@ -12585,6 +12582,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
@@ -12903,7 +12903,7 @@
     "message": "Prices exclude tax and are billed annually."
   },
   "invoicePreviewErrorMessage": {
-    "message": "Encountered an error while generating the invoice preview." 
+    "message": "Encountered an error while generating the invoice preview."
   },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
