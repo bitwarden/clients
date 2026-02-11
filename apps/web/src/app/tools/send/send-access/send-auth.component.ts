@@ -52,6 +52,7 @@ export class SendAuthComponent implements OnInit {
   authType = AuthType;
 
   private expiredAuthAttempts = 0;
+  private otpSubmitted = false;
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
@@ -162,11 +163,19 @@ export class SendAuthComponent implements OnInit {
         this.sendAuthType.set(AuthType.Email);
       } else if (emailAndOtpRequired(response.error)) {
         this.enterOtp.set(true);
+        if (this.otpSubmitted) {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("invalidEmailOrVerificationCode"),
+          });
+        }
+        this.otpSubmitted = true;
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidVerificationCode"),
+          message: this.i18nService.t("invalidEmailOrVerificationCode"),
         });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
