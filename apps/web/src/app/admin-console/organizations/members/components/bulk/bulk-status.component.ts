@@ -63,9 +63,11 @@ export class BulkStatusComponent implements OnInit {
   async showBulkStatus(data: BulkStatusDialogData) {
     try {
       const response = await data.request;
-      const keyedErrors: any = response.data
-        .filter((r) => r.error !== "")
-        .reduce((a, x) => ({ ...a, [x.id]: x.error }), {});
+      const keyedErrors: any = response?.data
+        ? response.data
+            .filter((r) => r.error !== "")
+            .reduce((a, x) => ({ ...a, [x.id]: x.error }), {})
+        : {};
       const keyedFilteredUsers: any = data.filteredUsers.reduce(
         (a, x) => ({ ...a, [x.id]: x }),
         {},
