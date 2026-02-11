@@ -1,14 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { Component, computed, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
@@ -79,7 +71,6 @@ export class SendV2Component {
 
   protected readonly sendId = signal<string | null>(null);
   protected readonly action = signal<Action>(Action.None);
-  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
 
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
@@ -93,7 +84,6 @@ export class SendV2Component {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
-  private cdr = inject(ChangeDetectorRef);
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
@@ -138,23 +128,11 @@ export class SendV2Component {
     { initialValue: null },
   );
 
-  constructor() {
-    // WORKAROUND: Force change detection when data updates
-    // This is needed because SendSearchComponent (shared lib) hasn't migrated to OnPush yet
-    // and doesn't trigger CD properly when search/add operations complete
-    // TODO: Remove this once SendSearchComponent migrates to OnPush (tracked in CL-764)
-    effect(() => {
-      this.filteredSends();
-      this.cdr.markForCheck();
-    });
-  }
-
   protected readonly selectedSendType = computed(() => {
     const action = this.action();
-    const typeOverride = this.selectedSendTypeOverride();
 
-    if (action === Action.Add && typeOverride !== undefined) {
-      return typeOverride;
+    if (action === Action.Add) {
+      return undefined;
     }
 
     const sendId = this.sendId();
@@ -173,24 +151,18 @@ export class SendV2Component {
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
-      this.selectedSendTypeOverride.set(type);
-
-      const component = this.addEditComponent();
-      if (component) {
-        await component.resetAndLoad();
-      }
+      void this.addEditComponent()?.resetAndLoad();
     }
   }
 
-  /** Used by old UI to add a send without specifying type (defaults to Text) */
+  /** Used by old UI to add a send without specifying type (defaults to File) */
   protected async addSendWithoutType(): Promise<void> {
-    await this.addSend(SendType.Text);
+    await this.addSend(SendType.File);
   }
 
   protected closeEditPanel(): void {
     this.action.set(Action.None);
     this.sendId.set(null);
-    this.selectedSendTypeOverride.set(undefined);
   }
 
   protected async savedSend(send: SendView): Promise<void> {

@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { CanDeactivateFn } from "@angular/router";
 
-import { VaultV2Component } from "../components/vault-v2/vault-v2.component";
+import { VaultComponent } from "../components/vault/vault.component";
 import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../services/vault-popup-list-filters.service";
 
@@ -10,8 +10,8 @@ import { VaultPopupListFiltersService } from "../services/vault-popup-list-filte
  * This ensures the search and filter state is reset when navigating between different tabs,
  * except viewing or editing a cipher.
  */
-export const clearVaultStateGuard: CanDeactivateFn<VaultV2Component> = (
-  component: VaultV2Component,
+export const clearVaultStateGuard: CanDeactivateFn<VaultComponent> = (
+  component: VaultComponent,
   currentRoute,
   currentState,
   nextState,

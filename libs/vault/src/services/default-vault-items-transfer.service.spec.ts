@@ -16,6 +16,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -43,6 +44,7 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockEventCollectionService: MockProxy<EventCollectionService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let mockSyncService: MockProxy<SyncService>;
 
   const userId = "user-id" as UserId;
   const organizationId = "org-id" as OrganizationId;
@@ -79,6 +81,7 @@ describe("DefaultVaultItemsTransferService", () => {
     mockEventCollectionService = mock<EventCollectionService>();
     mockConfigService = mock<ConfigService>();
     mockOrganizationUserApiService = mock<OrganizationUserApiService>();
+    mockSyncService = mock<SyncService>();
 
     mockI18nService.t.mockImplementation((key) => key);
     transferInProgressValues = [];
@@ -95,6 +98,7 @@ describe("DefaultVaultItemsTransferService", () => {
       mockEventCollectionService,
       mockConfigService,
       mockOrganizationUserApiService,
+      mockSyncService,
     );
   });
 
@@ -557,6 +561,8 @@ describe("DefaultVaultItemsTransferService", () => {
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
       mockCollectionService.defaultUserCollection$.mockReturnValue(of(options.defaultCollection));
+      mockSyncService.fullSync.mockResolvedValue(true);
+      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
     }
 
     it("does nothing when feature flag is disabled", async () => {
@@ -635,11 +641,11 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService.open
         .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
         .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
-      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
 
       await service.enforceOrganizationDataOwnership(userId);
 
       expect(mockOrganizationUserApiService.revokeSelf).toHaveBeenCalledWith(organizationId);
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "leftOrganization",
@@ -930,6 +936,144 @@ describe("DefaultVaultItemsTransferService", () => {
 
       // Should have emitted: false (initial), true (transfer started), false (transfer failed)
       expect(transferInProgressValues).toEqual([false, true, false]);
+    });
+  });
+
+  describe("enforcementInFlight", () => {
+    const policy = {
+      organizationId: organizationId,
+      revisionDate: new Date("2024-01-01"),
+    } as Policy;
+    const organization = {
+      id: organizationId,
+      name: "Test Org",
+    } as Organization;
+    const personalCiphers = [{ id: "cipher-1" } as CipherView];
+    const defaultCollection = {
+      id: collectionId,
+      organizationId: organizationId,
+      isDefaultCollection: true,
+    } as CollectionView;
+
+    beforeEach(() => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([policy]));
+      mockOrganizationService.organizations$.mockReturnValue(of([organization]));
+      mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));
+      mockCollectionService.defaultUserCollection$.mockReturnValue(of(defaultCollection));
+      mockSyncService.fullSync.mockResolvedValue(true);
+      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
+    });
+
+    it("prevents re-entry when enforcement is already in flight", async () => {
+      // Create a dialog that resolves after a delay
+      const delayedSubject = new Subject<any>();
+      const delayedDialog = {
+        closed: delayedSubject.asObservable(),
+        close: jest.fn(),
+      } as unknown as DialogRef<any>;
+
+      mockDialogService.open.mockReturnValue(delayedDialog);
+
+      // Start first call (won't complete immediately)
+      const firstCall = service.enforceOrganizationDataOwnership(userId);
+
+      // Flush microtasks to allow first call to set enforcementInFlight
+      await Promise.resolve();
+
+      // Second call should return immediately without opening dialog
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Verify re-entry was prevented - only the first call should proceed
+      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
+      expect(mockPolicyService.policiesByType$).toHaveBeenCalledTimes(1);
+
+      // Clean up - resolve the first call's dialog
+      delayedSubject.next(TransferItemsDialogResult.Declined);
+      delayedSubject.complete();
+
+      // Mock the leave dialog
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(LeaveConfirmationDialogResult.Confirmed),
+      );
+
+      await firstCall;
+    });
+
+    it("allows subsequent calls after user declines and leaves", async () => {
+      // First call: user declines and confirms leaving
+      mockDialogService.open
+        .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
+        .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Reset mocks for second call
+      mockDialogService.open.mockClear();
+
+      // Second call: user accepts transfer
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Second call should proceed (dialog opened again)
+      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows subsequent calls after successful transfer", async () => {
+      // First call: user accepts transfer
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Reset mocks for second call
+      mockDialogService.open.mockClear();
+      mockCipherService.shareManyWithServer.mockClear();
+
+      // Second call should be allowed (though no migration needed after first transfer)
+      // Set up scenario where migration is needed again
+      mockCipherService.cipherViews$.mockReturnValue(of([{ id: "cipher-2" } as CipherView]));
+
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Second call should proceed (dialog opened again)
+      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows subsequent calls after transfer fails with error", async () => {
+      // First call: transfer fails
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockRejectedValue(new Error("Transfer failed"));
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Reset mocks for second call
+      mockDialogService.open.mockClear();
+      mockCipherService.shareManyWithServer.mockClear();
+
+      // Second call: user accepts transfer successfully
+      mockDialogService.open.mockReturnValueOnce(
+        createMockDialogRef(TransferItemsDialogResult.Accepted),
+      );
+      mockCipherService.shareManyWithServer.mockResolvedValue(undefined);
+
+      await service.enforceOrganizationDataOwnership(userId);
+
+      // Second call should proceed (dialog opened again)
+      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
     });
   });
 });
