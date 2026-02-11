@@ -80,6 +80,7 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
+        "getUrlAutofillTargetingRules",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -212,6 +213,9 @@ export default class RuntimeBackground {
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
         );
         return result;
+      }
+      case "getUrlAutofillTargetingRules": {
+        return await this.main.domainSettingsService.getTargetingRulesForUrl(sender.tab?.url);
       }
     }
   }
