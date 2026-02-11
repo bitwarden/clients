@@ -1,7 +1,8 @@
 import { BehaviorSubject, combineLatest, Observable } from "rxjs";
 import { map, shareReplay } from "rxjs/operators";
 
-import { RiskInsightsDataService , SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
