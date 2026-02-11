@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { DialogService } from "@bitwarden/components";
 
 import { ClientOptions, Vault } from "../../importers/keeper/access";
-import { convertVaultToImportResult } from "../../importers/keeper/keeper-direct-importer";
+import { KeeperDirectImporter } from "../../importers/keeper/keeper-direct-importer";
 import { ImportResult } from "../../models";
 
 import { KeeperPasswordPromptComponent } from "./dialog/keeper-password-prompt.component";
@@ -43,6 +43,6 @@ export class KeeperDirectImportService {
 
     const vault = await Vault.open(email, password, options);
 
-    return convertVaultToImportResult(vault, includeSharedFolders);
+    return new KeeperDirectImporter().convertVaultToImportResult(vault, includeSharedFolders);
   }
 }
