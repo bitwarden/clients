@@ -280,6 +280,17 @@ export class CipherView implements View, InitializerMetadata {
       return undefined;
     }
 
+    const attachments = obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+
+    if (obj.attachmentDecryptionFailures?.length) {
+      obj.attachmentDecryptionFailures.forEach((attachment) => {
+        const attachmentView = AttachmentView.fromSdkAttachmentView(attachment, true);
+        if (attachmentView) {
+          attachments.push(attachmentView);
+        }
+      });
+    }
+
     const cipherView = new CipherView();
     cipherView.id = uuidAsString(obj.id);
     cipherView.organizationId = uuidAsString(obj.organizationId);
@@ -295,8 +306,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
-    cipherView.attachments =
-      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
+    cipherView.attachments = attachments;
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)!) ?? [];
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!) ?? [];

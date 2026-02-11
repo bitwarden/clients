@@ -173,7 +173,7 @@ describe("CipherAttachmentsComponent", () => {
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
     expect(fileName.nativeElement.textContent.trim()).toEqual(attachment.fileName);
-    expect(fileSize.nativeElement.textContent).toEqual(attachment.sizeName);
+    expect(fileSize.nativeElement.textContent.trim()).toEqual(attachment.sizeName);
   });
 
   describe("bitSubmit", () => {
