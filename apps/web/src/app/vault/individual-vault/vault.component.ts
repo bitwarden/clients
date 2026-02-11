@@ -467,7 +467,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             collections,
             filter.collectionId,
           );
-          searchableCollectionNodes = selectedCollection?.children;
+          searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
@@ -611,7 +611,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           );
 
           this.showBulkMove = filter.type !== "trash";
-          this.isEmpty = collections.length === 0 && ciphers.length === 0;
+          this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
 

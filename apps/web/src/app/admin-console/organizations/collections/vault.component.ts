@@ -962,7 +962,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike) => {
+  restore = async (c: CipherViewLike): Promise<void> => {
     const organization = await firstValueFrom(this.organization$);
     if (!CipherViewLikeUtils.isDeleted(c)) {
       return;
