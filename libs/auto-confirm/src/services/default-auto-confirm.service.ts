@@ -76,13 +76,21 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       return;
     }
 
+    // Only initiate auto confirmation if the local client setting has been turned on
+    const autoConfirmEnabled = await firstValueFrom(
+      this.configuration$(userId).pipe(map((state) => state.enabled)),
+    );
+
+    if (!autoConfirmEnabled) {
+      return;
+    }
+
     const organization$ = this.organizationService.organizations$(userId).pipe(
       getById(organizationId),
       map((organization) => {
         if (organization == null) {
           throw new Error("Organization not found");
         }
-
         return organization;
       }),
     );
