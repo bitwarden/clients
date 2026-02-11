@@ -1,6 +1,6 @@
 import { contextBridge } from "electron";
 
-import { ipc as ossIpc } from "@bitwarden/desktop/preload";
+import { ipc as ossIpc } from "@bitwarden/desktop/preload.base";
 
 /**
  * Bitwarden Preload script.
