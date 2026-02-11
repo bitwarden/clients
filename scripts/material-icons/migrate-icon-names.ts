@@ -1,5 +1,3 @@
-#!/usr/bin/env ts-node
-
 /**
  * Automated migration script to replace legacy BWI icon names with Figma names
  *
