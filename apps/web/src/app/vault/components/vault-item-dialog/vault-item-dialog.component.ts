@@ -10,7 +10,7 @@ import {
   OnInit,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -226,6 +226,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   );
 
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
+    initialValue: false,
+  });
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -236,6 +239,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected userCanArchive$ = this.userId$.pipe(
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
+
+  private readonly userCanArchive = toSignal(this.userCanArchive$, { initialValue: false });
 
   protected get isTrashFilter() {
     return this.filter?.type === "trash";
@@ -293,14 +298,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher?.isArchived;
   }
 
-  private _userCanArchive = false;
-
   protected get showArchiveOptions(): boolean {
-    return this._userCanArchive && !this.params.isAdminConsoleAction && this.params.mode === "view";
+    return (
+      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
+    );
   }
 
   protected get showArchiveBtn(): boolean {
-    return this.cipher?.canBeArchived;
+    return this.userCanArchive() && this.cipher?.canBeArchived;
   }
 
   protected get showUnarchiveBtn(): boolean {
@@ -355,8 +360,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
-
-    this.userCanArchive$.pipe(takeUntilDestroyed()).subscribe((v) => (this._userCanArchive = v));
   }
 
   async ngOnInit() {
