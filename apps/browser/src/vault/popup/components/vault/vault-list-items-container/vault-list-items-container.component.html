@@ -125,7 +125,6 @@
           </button>
 
           <ng-container slot="end">
-            <!-- New behavior: Show "Fill" text on hover for autofill list items -->
             @if (showFillTextOnHover()) {
               <bit-item-action>
                 <span
@@ -135,7 +134,6 @@
                 </span>
               </bit-item-action>
             }
-            <!-- Old behavior: Show autofill badge button -->
             @if (showAutofillBadge()) {
               <bit-item-action>
                 <button
@@ -150,7 +148,6 @@
                 </button>
               </bit-item-action>
             }
-            <!-- Launch button -->
             @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
               <bit-item-action>
                 <button
@@ -163,7 +160,6 @@
               </bit-item-action>
             }
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
-            <!-- More options menu -->
             <app-item-more-options
               [cipher]="cipher"
               [showAutofill]="showAutofillInMenu()"
