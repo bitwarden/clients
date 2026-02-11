@@ -56,16 +56,15 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-border-brand",
       "tw-bg-bg-brand",
       "hover:tw-bg-bg-brand-strong",
-      "hover:tw-border-bg-brand-strong",
+      "hover:tw-border-border-brand-strong",
       "focus-visible:tw-bg-bg-brand-strong",
-      "focus-visible:tw-border-bg-brand-strong",
+      "focus-visible:tw-border-border-brand-strong",
     ],
     primaryOutline: [
       "tw-border-border-brand",
       "tw-text-fg-brand",
-      "hover:tw-border-bg-brand-strong",
+      "hover:tw-border-border-brand-strong",
       "hover:tw-text-fg-brand-strong",
-      "focus-visible:tw-border-bg-brand-strong",
       "focus-visible:tw-text-fg-brand-strong",
     ],
     primaryGhost: [
@@ -95,7 +94,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-heading",
       "hover:tw-border-border-contrast-strong",
       "hover:tw-text-fg-heading",
-      "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-text-fg-heading",
     ],
     subtleGhost: [
@@ -118,7 +116,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-danger",
       "hover:tw-border-bg-danger-strong",
       "hover:!tw-text-fg-danger-strong",
-      "focus-visible:tw-border-bg-danger-strong",
       "focus-visible:!tw-text-fg-danger-strong",
     ],
     dangerGhost: [
@@ -139,7 +136,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-warning",
       "hover:tw-border-border-warning-strong",
       "hover:!tw-text-fg-warning-strong",
-      "focus-visible:tw-border-border-warning-strong",
       "focus-visible:!tw-text-fg-warning-strong",
     ],
     warningGhost: [
@@ -160,7 +156,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-success",
       "hover:tw-border-border-success-strong",
       "hover:tw-text-fg-success-strong",
-      "focus-visible:tw-border-border-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
     successGhost: [
@@ -183,8 +178,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-border-border-contrast-strong",
       "hover:tw-text-fg-contrast-strong",
       "hover:tw-bg-bg-hover-contrast",
-      "focus:tw-border-border-contrast-strong",
-      "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-text-fg-contrast-strong",
       "focus-visible:tw-bg-bg-hover-contrast",
     ],

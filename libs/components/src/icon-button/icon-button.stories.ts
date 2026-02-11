@@ -189,6 +189,21 @@ export const AllVariants: Story = {
             <p class="tw-m-0" bitTypography="helper">successGhost</p>
           </div>
         </div>
+
+        <div class="tw-flex tw-gap-4 tw-bg-bg-contrast tw-text-contrast tw-p-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrast" bitIconButton="bwi-plus" label="Contrast" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">contrast</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastOutline" bitIconButton="bwi-plus" label="Contrast outline" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">contrastOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastGhost" bitIconButton="bwi-plus" label="Contrast ghost" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <p class="tw-m-0" bitTypography="helper">contrastGhost</p>
+          </div>
+        </div>
       </div>
     `,
   }),
