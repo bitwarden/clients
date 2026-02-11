@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -44,6 +44,11 @@ import {
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
 
+import {
+  PremiumOrgUpgradeDialogComponent,
+  PremiumOrgUpgradeDialogParams,
+} from "../upgrade/premium-org-upgrade-dialog/premium-org-upgrade-dialog.component";
+
 @Component({
   templateUrl: "./account-subscription.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,14 +75,27 @@ export class AccountSubscriptionComponent {
   private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private toastService = inject(ToastService);
 
+  readonly account = toSignal(this.accountService.activeAccount$);
+
+  readonly hasPremiumPersonally = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return this.billingAccountProfileStateService.hasPremiumPersonally$(account.id);
+      }),
+    ),
+    { initialValue: false },
+  );
+
   readonly subscription = resource({
     loader: async () => {
       const redirectToPremiumPage = async (): Promise<null> => {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      if (!account) {
+      if (!this.account()) {
         return await redirectToPremiumPage();
       }
       const subscription = await this.accountBillingClient.getSubscription();
@@ -181,6 +199,13 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly canUpgradeFromPremium = computed<boolean>(() => {
+    // Since account is checked in hasPremiumPersonally, no need to check again here
+    const hasPremiumPersonally = this.hasPremiumPersonally();
+    const upgradeEnabled = this.premiumToOrganizationUpgradeEnabled();
+    return hasPremiumPersonally && upgradeEnabled;
+  });
+
   readonly activeAccount = toSignal(this.accountService.activeAccount$);
 
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
@@ -236,7 +261,7 @@ export class AccountSubscriptionComponent {
         break;
       }
       case SubscriptionCardActions.UpgradePlan:
-        // TODO: Implement upgrade plan navigation
+        await this.openUpgradeDialog();
         break;
     }
   };
@@ -314,5 +339,22 @@ export class AccountSubscriptionComponent {
         break;
       }
     }
+  };
+
+  openUpgradeDialog = async (): Promise<void> => {
+    const account = this.account();
+    if (!account) {
+      return;
+    }
+
+    const dialogParams: PremiumOrgUpgradeDialogParams = {
+      account,
+      redirectOnCompletion: true,
+    };
+
+    const dialogRef = PremiumOrgUpgradeDialogComponent.open(this.dialogService, {
+      data: dialogParams,
+    });
+    await firstValueFrom(dialogRef.closed);
   };
 }
