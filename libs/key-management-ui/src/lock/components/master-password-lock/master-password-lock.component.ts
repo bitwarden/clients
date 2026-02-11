@@ -26,7 +26,7 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
@@ -37,6 +37,7 @@ import {
   UnlockOptionValue,
 } from "../../services/lock-component.service";
 import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
+import { UnlockService } from "@bitwarden/unlock";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -61,6 +62,8 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly logService = inject(LogService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly messageListener = inject(MessageListener);
+  private readonly unlockService = inject(UnlockService);
+  private readonly keyService = inject(KeyService);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
@@ -128,6 +131,16 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     masterPassword: string,
     activeUserId: UserId,
   ): Promise<void> {
+    await this.unlockService.unlockWithMasterPassword(activeUserId, masterPassword);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    if (!userKey) {
+      this.logService.error(
+        "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
+      );
+    }
+    this.successfulUnlock.emit({ userKey: userKey!, masterPassword });
+    return;
+
     try {
       const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
         masterPassword,

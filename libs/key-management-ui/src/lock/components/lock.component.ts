@@ -59,6 +59,8 @@ import {
   UnlockOptionValue,
 } from "../services/lock-component.service";
 
+import { UnlockService } from "@bitwarden/unlock";
+
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
 import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 
@@ -178,7 +180,8 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // desktop deps
     private broadcasterService: BroadcasterService,
-  ) {}
+    private unlockService: UnlockService,
+  ) { }
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
@@ -492,38 +495,47 @@ export class LockComponent implements OnInit, OnDestroy {
 
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
-    try {
-      const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
+    if (false) {
+      try {
 
-      if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
-        return; // successfully unlocked
-      }
+        const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
 
-      // Failure state: invalid PIN or failed decryption
-      this.invalidPinAttempts++;
-
-      // Log user out if they have entered an invalid PIN too many times
-      if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
+        if (userKey) {
+          await this.setUserKeyAndContinue(userKey);
+          return; // successfully unlocked
+        }
+      } catch {
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("unexpectedError"),
         });
-        this.messagingService.send("logout");
-        return;
       }
+    } else {
+      try {
+        await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+        const userKey = await this.keyService.getUserKey(this.activeAccount.id);
+        await this.setUserKeyAndContinue(userKey!);
+      } catch {
+        // Failure state: invalid PIN or failed decryption
+        this.invalidPinAttempts++;
 
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidPin"),
-      });
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("unexpectedError"),
-      });
+        // Log user out if they have entered an invalid PIN too many times
+        if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
+          this.toastService.showToast({
+            variant: "error",
+            message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+          });
+          this.messagingService.send("logout");
+          return;
+        }
+
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidPin"),
+        });
+      }
     }
   }
 

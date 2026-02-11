@@ -17,7 +17,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly keyService: KeyService,
     private readonly logService: LogService,
-  ) {}
+  ) { }
 
   async unlockWithMasterPassword(masterPassword: string, userId: UserId): Promise<UserKey> {
     this.validateInput(masterPassword, userId);

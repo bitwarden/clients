@@ -18,6 +18,7 @@ import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
+import { UnlockService } from "@bitwarden/unlock";
 
 export class UnlockCommand {
   constructor(
@@ -32,7 +33,8 @@ export class UnlockCommand {
     private i18nService: I18nService,
     private encryptedMigrator: EncryptedMigrator,
     private masterPasswordUnlockService: MasterPasswordUnlockService,
-  ) {}
+    private unlockService: UnlockService
+  ) { }
 
   async run(password: string, cmdOptions: Record<string, any>) {
     const normalizedOptions = new Options(cmdOptions);
@@ -52,12 +54,16 @@ export class UnlockCommand {
     const userId = activeAccount.id;
 
     try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        password,
-        userId,
-      );
+      if (true) {
+        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+          password,
+          userId,
+        );
 
-      await this.keyService.setUserKey(userKey, userId);
+        await this.keyService.setUserKey(userKey, userId);
+      } else {
+        await this.unlockService.unlockWithMasterPassword(userId, password);
+      }
     } catch (e) {
       return Response.error(e.message);
     }
@@ -91,16 +97,16 @@ export class UnlockCommand {
     const res = new MessageResponse(
       "Your vault is now unlocked!",
       "\n" +
-        "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
-        '$ export BW_SESSION="' +
-        process.env.BW_SESSION +
-        '"\n' +
-        '> $env:BW_SESSION="' +
-        process.env.BW_SESSION +
-        '"\n\n' +
-        "You can also pass the session key to any command with the `--session` option. ex:\n" +
-        "$ bw list items --session " +
-        process.env.BW_SESSION,
+      "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
+      '$ export BW_SESSION="' +
+      process.env.BW_SESSION +
+      '"\n' +
+      '> $env:BW_SESSION="' +
+      process.env.BW_SESSION +
+      '"\n\n' +
+      "You can also pass the session key to any command with the `--session` option. ex:\n" +
+      "$ bw list items --session " +
+      process.env.BW_SESSION,
     );
     res.raw = process.env.BW_SESSION;
     return Response.success(res);
