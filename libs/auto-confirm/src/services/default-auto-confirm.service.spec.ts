@@ -377,11 +377,20 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       defaultUserCollectionName: "encrypted-collection",
     } as OrganizationUserConfirmRequest;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       const organizations$ = new BehaviorSubject<Organization[]>([mockOrganization]);
       organizationService.organizations$.mockReturnValue(organizations$);
       configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+      // Enable auto-confirm configuration for the user
+      const enabledConfig = new AutoConfirmState();
+      enabledConfig.enabled = true;
+      await stateProvider.setUserState(
+        AUTO_CONFIRM_STATE,
+        { [mockUserId]: enabledConfig },
+        mockUserId,
+      );
 
       apiService.getUserPublicKey.mockResolvedValue({
         publicKey: mockPublicKey,
@@ -408,6 +417,21 @@ describe("DefaultAutomaticUserConfirmationService", () => {
 
     it("should return early when canManageAutoConfirm returns false", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
+
+      expect(apiService.getUserPublicKey).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
+    });
+
+    it("should return early when auto-confirm is disabled in configuration", async () => {
+      const disabledConfig = new AutoConfirmState();
+      disabledConfig.enabled = false;
+      await stateProvider.setUserState(
+        AUTO_CONFIRM_STATE,
+        { [mockUserId]: disabledConfig },
+        mockUserId,
+      );
 
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 
