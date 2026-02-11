@@ -241,14 +241,8 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      // When feature flag is enabled, always use autofill title for autofill list items
-      // When feature flag is disabled, use the primaryActionAutofill setting
-      const key =
-        this.simplifiedItemActionEnabled() && !this.currentUriIsBlocked()
-          ? "autofillTitle"
-          : this.primaryActionAutofill() && !this.currentUriIsBlocked()
-            ? "autofillTitle"
-            : "viewItemTitle";
+      // Use autofill title when autofill is the primary action
+      const key = this.shouldAutofillOnSelect() ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -297,6 +291,47 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     }
     return this.primaryActionAutofill() && !this.currentUriIsBlocked();
   });
+
+  /**
+   * Whether to show the "Fill" text on hover (new behavior).
+   * Only shown when feature flag is enabled AND this is an autofill list.
+   */
+  readonly showFillTextOnHover = computed(
+    () => this.simplifiedItemActionEnabled() && this.isAutofillList(),
+  );
+
+  /**
+   * Whether to show the autofill badge button (old behavior).
+   * Only shown when feature flag is disabled AND conditions are met.
+   */
+  readonly showAutofillBadge = computed(
+    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
+  );
+
+  /**
+   * Whether to show the launch button.
+   */
+  readonly showLaunchButton = computed(() =>
+    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.showAutofillButton(),
+  );
+
+  /**
+   * Whether to show the "Autofill" option in the more options menu.
+   * New behavior: show for non-autofill list items.
+   * Old behavior: show when not hidden by hideAutofillMenuOptions.
+   */
+  readonly showAutofillInMenu = computed(() =>
+    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.hideAutofillMenuOptions(),
+  );
+
+  /**
+   * Whether to show the "View" option in the more options menu.
+   * New behavior: show for autofill list items (since click = autofill).
+   * Old behavior: show when primary action is autofill.
+   */
+  readonly showViewInMenu = computed(() =>
+    this.simplifiedItemActionEnabled() ? this.isAutofillList() : this.primaryActionAutofill(),
+  );
 
   /**
    * Remove the bottom margin from the bit-section in this component

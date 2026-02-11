@@ -125,50 +125,49 @@
           </button>
 
           <ng-container slot="end">
-            <bit-item-action *ngIf="simplifiedItemActionEnabled() && isAutofillList()">
-              <span
-                class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
-              >
-                {{ "fill" | i18n }}
-              </span>
-            </bit-item-action>
-            <!-- Old behavior (feature flag disabled): Show autofill button -->
-            <bit-item-action *ngIf="!simplifiedItemActionEnabled() && !hideAutofillButton()">
-              <button
-                type="button"
-                bitBadge
-                variant="primary"
-                (click)="doAutofill(cipher)"
-                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-              >
-                {{ "fill" | i18n }}
-              </button>
-            </bit-item-action>
-            <!-- Launch button: New behavior shows when not autofill list, old behavior shows when no autofill button -->
-            <bit-item-action
-              *ngIf="
-                (simplifiedItemActionEnabled() ? !isAutofillList() : !showAutofillButton()) &&
-                CipherViewLikeUtils.canLaunch(cipher)
-              "
-            >
-              <button
-                type="button"
-                bitIconButton="bwi-external-link"
-                size="small"
-                (click)="launchCipher(cipher)"
-                [label]="'launchWebsiteName' | i18n: cipher.name"
-              ></button>
-            </bit-item-action>
+            <!-- New behavior: Show "Fill" text on hover for autofill list items -->
+            @if (showFillTextOnHover()) {
+              <bit-item-action>
+                <span
+                  class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
+                >
+                  {{ "fill" | i18n }}
+                </span>
+              </bit-item-action>
+            }
+            <!-- Old behavior: Show autofill badge button -->
+            @if (showAutofillBadge()) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitBadge
+                  variant="primary"
+                  (click)="doAutofill(cipher)"
+                  [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
+                  [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
+                >
+                  {{ "fill" | i18n }}
+                </button>
+              </bit-item-action>
+            }
+            <!-- Launch button -->
+            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-external-link"
+                  size="small"
+                  (click)="launchCipher(cipher)"
+                  [label]="'launchWebsiteName' | i18n: cipher.name"
+                ></button>
+              </bit-item-action>
+            }
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
-            <!-- More options with conditional inputs based on feature flag -->
+            <!-- More options menu -->
             <app-item-more-options
               [cipher]="cipher"
-              [showAutofill]="simplifiedItemActionEnabled() ? !isAutofillList() : false"
-              [hideAutofillOptions]="
-                simplifiedItemActionEnabled() ? false : hideAutofillMenuOptions()
-              "
-              [showViewOption]="simplifiedItemActionEnabled() ? false : primaryActionAutofill()"
+              [showAutofill]="showAutofillInMenu()"
+              [showViewOption]="showViewInMenu()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
