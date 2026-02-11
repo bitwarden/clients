@@ -5,11 +5,13 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
-  EVENTS,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
-  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
+  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+  AutofillTargetingRuleTypes,
+  EVENTS,
 } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -1070,6 +1072,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
+    /**
+     * This check come first because a targeting rule is an authoritative
+     * override for subsequent checks
+     */
+    if (autofillFieldData.targeted) {
+      this.setTargetedFieldFillType(autofillFieldData);
+      return false;
+    }
+
     if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
@@ -1114,6 +1125,67 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return true;
+  }
+
+  /**
+   * Maps a targeted field's qualifier to the correct inline menu fill type,
+   * bypassing heuristic qualification.
+   */
+  private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
+    const qualifier = autofillFieldData.fieldQualifier;
+
+    const loginQualifiers: AutofillTargetingRuleType[] = [
+      AutofillTargetingRuleTypes.username,
+      AutofillTargetingRuleTypes.password,
+      AutofillTargetingRuleTypes.newPassword,
+      AutofillTargetingRuleTypes.totp,
+    ];
+
+    const cardQualifiers: AutofillTargetingRuleType[] = [
+      AutofillTargetingRuleTypes.cardholderName,
+      AutofillTargetingRuleTypes.cardNumber,
+      AutofillTargetingRuleTypes.cardExpirationMonth,
+      AutofillTargetingRuleTypes.cardExpirationYear,
+      AutofillTargetingRuleTypes.cardExpirationDate,
+      AutofillTargetingRuleTypes.cardCvv,
+    ];
+
+    const identityQualifiers: AutofillTargetingRuleType[] = [
+      AutofillTargetingRuleTypes.identityTitle,
+      AutofillTargetingRuleTypes.identityFirstName,
+      AutofillTargetingRuleTypes.identityMiddleName,
+      AutofillTargetingRuleTypes.identityLastName,
+      AutofillTargetingRuleTypes.identityFullName,
+      AutofillTargetingRuleTypes.identityAddress1,
+      AutofillTargetingRuleTypes.identityAddress2,
+      AutofillTargetingRuleTypes.identityAddress3,
+      AutofillTargetingRuleTypes.identityCity,
+      AutofillTargetingRuleTypes.identityState,
+      AutofillTargetingRuleTypes.identityPostalCode,
+      AutofillTargetingRuleTypes.identityCountry,
+      AutofillTargetingRuleTypes.identityCompany,
+      AutofillTargetingRuleTypes.identityPhone,
+      AutofillTargetingRuleTypes.identityEmail,
+      AutofillTargetingRuleTypes.identityUsername,
+    ];
+
+    if (loginQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
+      return;
+    }
+
+    if (cardQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Card;
+      return;
+    }
+
+    if (identityQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Identity;
+      return;
+    }
+
+    // Fallback for any unrecognized targeted qualifier
+    autofillFieldData.inlineMenuFillType = CipherType.Login;
   }
 
   /**
