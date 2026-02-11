@@ -6127,6 +6127,9 @@
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   },
+  "emailProtected": {
+    "message": "Chránené e-mailom"
+  },
   "sendPasswordHelperText": {
     "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

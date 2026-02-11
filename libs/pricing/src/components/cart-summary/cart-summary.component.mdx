@@ -29,6 +29,8 @@ behavior across Bitwarden applications.
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
   - [With Discount and Credit](#with-discount-and-credit)
+  - [Hidden Cost Breakdown](#hidden-cost-breakdown)
+  - [Hidden Pricing Term](#hidden-pricing-term)
   - [Custom Header Template](#custom-header-template)
   - [Premium Plan](#premium-plan)
   - [Families Plan](#families-plan)
@@ -53,10 +55,16 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input    | Type                     | Description                                                                     |
-| -------- | ------------------------ | ------------------------------------------------------------------------------- |
-| `cart`   | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence |
-| `header` | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header              |
+| Input             | Type                     | Description                                                                                 |
+| ----------------- | ------------------------ | ------------------------------------------------------------------------------------------- |
+| `cart`            | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence             |
+| `header`          | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                          |
+| `hidePricingTerm` | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header |
+
+**Note:** Individual `CartItem` objects in the cart can include:
+
+- `hideBreakdown` (boolean): Hides the cost breakdown (quantity × unit price) for that specific line
+  item
 
 ### Events
 
@@ -73,6 +81,7 @@ export type CartItem = {
   quantity: number; // Number of items
   cost: number; // Cost per item
   discount?: Discount; // Optional item-level discount
+  hideBreakdown?: boolean; // Optional: hide cost breakdown (quantity × unit price)
 };
 
 export type Cart = {
@@ -468,6 +477,74 @@ Show cart with both discount and credit applied:
 </billing-cart-summary>
 ```
 
+### Hidden Cost Breakdown
+
+Show cart with hidden cost breakdowns (hides quantity × unit price for line items):
+
+<Canvas of={CartSummaryStories.WithHiddenBreakdown} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00,
+        hideBreakdown: true
+      },
+      additionalStorage: {
+        quantity: 2,
+        translationKey: 'additionalStorageGB',
+        cost: 10.00,
+        hideBreakdown: true
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        translationKey: 'members',
+        cost: 30.00,
+        hideBreakdown: true
+      },
+      additionalServiceAccounts: {
+        quantity: 2,
+        translationKey: 'additionalServiceAccountsV2',
+        cost: 6.00,
+        hideBreakdown: true
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 19.2
+  }"
+>
+</billing-cart-summary>
+```
+
+### Hidden Pricing Term
+
+Show cart with hidden pricing term (hides "/ month" or "/ year" from header):
+
+<Canvas of={CartSummaryStories.HiddenPricingTerm} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 9.6
+  }"
+  [hidePricingTerm]="true"
+>
+</billing-cart-summary>
+```
+
 ### Custom Header Template
 
 Show cart with custom header template:
@@ -546,6 +623,10 @@ Show cart with families plan:
   keys
 - **Custom Header Templates**: Optional header input allows for custom header designs while
   maintaining cart functionality
+- **Hidden Cost Breakdown**: Individual cart items can hide their cost breakdown (quantity × unit
+  price) using the `hideBreakdown` property
+- **Hidden Pricing Term**: Component can hide the billing term ("/ month" or "/ year") from the
+  header using the `hidePricingTerm` input
 - **Flexible Structure**: Accommodates different combinations of products, add-ons, and discounts
 - **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
 - **Modern Angular Patterns**: Uses `@let` to efficiently store and reuse signal values, OnPush
@@ -561,6 +642,9 @@ Show cart with families plan:
 - Use valid translation keys for CartItem translationKey (for i18n lookup)
 - Provide complete Cart object with all required fields
 - Use "annually" or "monthly" for cadence (not "year" or "month")
+- Use `hideBreakdown` on individual cart items when you want to hide cost breakdowns
+- Use the `hidePricingTerm` component input when the billing term shouldn't be displayed in the
+  header
 
 ### ❌ Don't
 

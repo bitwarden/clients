@@ -1,7 +1,17 @@
 <ng-container>
-  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
+  <bit-table-scroll [dataSource]="dataSource()" [rowSize]="53">
     <ng-container header>
-      <th></th>
+      <th bitCell>
+        <input
+          data-testid="selectAll"
+          bitCheckbox
+          type="checkbox"
+          [checked]="allAppsSelected()"
+          [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+          (change)="selectAllChanged($event.target)"
+          [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+        />
+      </th>
       <th bitCell></th>
       <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
@@ -15,25 +25,26 @@
       <td
         bitCell
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+        [attr.aria-label]="'select' | i18n"
         appStopProp
       >
         <input
           bitCheckbox
           type="checkbox"
-          [checked]="selectedUrls.has(row.applicationName)"
-          (change)="checkboxChange(row.applicationName, $event)"
+          [checked]="selectedUrls().has(row.applicationName)"
+          (change)="checkboxChange()(row.applicationName, $event)"
         />
       </td>
       <td
         bitCell
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="row.applicationName"
       >
         @if (row.iconCipher) {
           <app-vault-icon [cipher]="row.iconCipher" [size]="24"></app-vault-icon>
@@ -42,19 +53,24 @@
       <td
         class="tw-cursor-pointer tw-align-middle"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="
+          row.applicationName + ' ' + (row.isMarkedAsCritical ? ('criticalBadge' | i18n) : '')
+        "
       >
         <div class="tw-flex tw-items-center tw-gap-2">
           <div class="tw-max-w-md tw-truncate" [title]="row.applicationName">
             {{ row.applicationName }}
           </div>
+
           @if (row.isMarkedAsCritical) {
-            <span bitBadge>{{ "criticalBadge" | i18n }}</span>
+            <span bitBadge [attr.aria-label]="'criticalBadge' | i18n">{{
+              "criticalBadge" | i18n
+            }}</span>
           }
         </div>
       </td>
@@ -62,12 +78,12 @@
         bitCell
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('atRiskPasswords' | i18n) + ' ' + row.atRiskPasswordCount"
       >
         <span>
           {{ row.atRiskPasswordCount }}
@@ -77,12 +93,12 @@
         bitCell
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('totalPasswords' | i18n) + ' ' + row.passwordCount"
       >
         <span>
           {{ row.passwordCount }}
@@ -92,12 +108,12 @@
         bitCell
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('atRiskMembers' | i18n) + ' ' + row.atRiskMemberCount"
       >
         <span>
           {{ row.atRiskMemberCount }}
@@ -108,36 +124,15 @@
         data-testid="total-membership"
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
-        (keydown.space)="showAppAtRiskMembers(row.applicationName)"
+        (click)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers()(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers()(row.applicationName)"
         role="button"
         tabindex="0"
-        [attr.aria-label]="'viewItem' | i18n"
+        [attr.aria-label]="('totalMembers' | i18n) + ' ' + row.memberCount"
       >
         {{ row.memberCount }}
       </td>
-      @if (showRowMenuForCriticalApps) {
-        <td
-          bitCell
-          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-          appStopProp
-        >
-          <button
-            [bitMenuTriggerFor]="rowMenu"
-            type="button"
-            bitIconButton="bwi-ellipsis-v"
-            size="small"
-            label="{{ 'options' | i18n }}"
-            tabindex="0"
-          ></button>
-          <bit-menu #rowMenu>
-            <button type="button" bitMenuItem (click)="unmarkAsCritical(row.applicationName)">
-              {{ "unmarkAsCritical" | i18n }}
-            </button>
-          </bit-menu>
-        </td>
-      }
     </ng-template>
   </bit-table-scroll>
 </ng-container>

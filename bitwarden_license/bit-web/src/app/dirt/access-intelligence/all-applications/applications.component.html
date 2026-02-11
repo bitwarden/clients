@@ -46,11 +46,11 @@
 
     <app-table-row-scrollable-m11
       [dataSource]="dataSource"
-      [showRowMenuForCriticalApps]="false"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
+      class="tw-mb-10"
     ></app-table-row-scrollable-m11>
 
     @if (emptyTableExplanation()) {

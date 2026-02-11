@@ -6127,6 +6127,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
