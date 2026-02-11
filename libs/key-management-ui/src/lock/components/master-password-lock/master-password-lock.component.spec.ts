@@ -451,6 +451,24 @@ describe("MasterPasswordLockComponent", () => {
 
       expect(emitted).toBe(true);
     });
+
+    it("emits swapToPin when PIN swap button is clicked", () => {
+      const { secondaryButton } = setupComponent({
+        pin: { enabled: true },
+        biometrics: {
+          enabled: false,
+          biometricsStatus: BiometricsStatus.PlatformUnsupported,
+        },
+      });
+      let emitted = false;
+      component.swapToPin.subscribe(() => {
+        emitted = true;
+      });
+
+      secondaryButton.nativeElement.click();
+
+      expect(emitted).toBe(true);
+    });
   });
 
   describe("submit", () => {

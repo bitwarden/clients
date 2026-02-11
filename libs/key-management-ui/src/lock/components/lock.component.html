@@ -31,7 +31,7 @@
           bitButton
           buttonType="secondary"
           block
-          (click)="activeUnlockOption = UnlockOption.Pin"
+          (click)="swapUnlockOption(UnlockOption.Pin)"
         >
           {{ "unlockWithPin" | i18n }}
         </button>
@@ -43,7 +43,7 @@
           bitButton
           buttonType="secondary"
           block
-          (click)="activeUnlockOption = UnlockOption.MasterPassword"
+          (click)="swapUnlockOption(UnlockOption.MasterPassword)"
         >
           {{ "unlockWithMasterPassword" | i18n }}
         </button>
@@ -109,7 +109,7 @@
             bitFormButton
             buttonType="secondary"
             block
-            (click)="activeUnlockOption = UnlockOption.MasterPassword"
+            (click)="swapUnlockOption(UnlockOption.MasterPassword)"
           >
             {{ "unlockWithMasterPassword" | i18n }}
           </button>
@@ -135,6 +135,7 @@
       [biometricUnlockBtnText]="biometricUnlockBtnText"
       (successfulUnlock)="successfulMasterPasswordUnlock($event)"
       (swapToBiometrics)="swapUnlockOption(UnlockOption.Biometrics)"
+      (swapToPin)="swapUnlockOption(UnlockOption.Pin)"
       (prfUnlockSuccess)="onPrfUnlockSuccess($event)"
       (logOut)="logOut()"
     ></bit-master-password-lock>

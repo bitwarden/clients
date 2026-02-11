@@ -382,6 +382,17 @@ describe("LockComponent", () => {
       expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
       expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
     });
+
+    it("switches to master password without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.MasterPassword);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("unlockViaBiometrics", () => {
