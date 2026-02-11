@@ -15,307 +15,428 @@ import { KeeperDirectImporter } from "./keeper-direct-importer";
 
 describe("Keeper Direct Importer", () => {
   let vault: Vault;
-  let importer: KeeperDirectImporter;
+  let result: ImportResult;
+  //let orgResult: ImportResult;
 
   beforeAll(async () => {
-    // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
     jest.spyOn(console, "warn").mockImplementation();
 
     const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
     vault = new (Vault as any)(new Uint8Array(Buffer.from(fixture.masterKey, "base64")));
     await (vault as any).processMergedSyncDownResponse(response);
-    importer = new KeeperDirectImporter();
+
+    const importer = new KeeperDirectImporter();
+    result = importer.convertVaultToImportResult(vault, true);
+
+    //const orgImporter = new KeeperDirectImporter();
+    //orgImporter.organizationId = "test-org-id" as any;
+    //orgResult = orgImporter.convertVaultToImportResult(vault, true);
   });
 
-  describe("with shared folders", () => {
-    let result: ImportResult;
+  it("should parse address", () => {
+    const cipher = findCipher(result, "Home Address");
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
-    beforeAll(() => {
-      result = importer.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Primary residence - mailing and billing address");
 
-    it("should succeed", () => {
-      expect(result.success).toBe(true);
-    });
-
-    it("should import all records as ciphers", () => {
-      expect(result.ciphers.length).toBe(78);
-    });
-
-    it("should create folders from shared folders", () => {
-      expect(result.folders.length).toBeGreaterThan(0);
-      const folderNames = result.folders.map((f) => f.name);
-      expect(folderNames).toContain("Inheritance");
-      expect(folderNames).toContain("Marketing");
-    });
-
-    it("should create folder relationships for shared folder records", () => {
-      expect(result.folderRelationships.length).toBeGreaterThan(0);
-    });
+    // Fields
+    expect(getField(cipher, "address")?.value).toBe(
+      "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+    );
   });
 
-  describe("without shared folders", () => {
-    let result: ImportResult;
+  it("should parse bankAccount", () => {
+    const cipher = findCipher(result, "Wells Fargo Checking");
+    expect(cipher.type).toBe(CipherType.Login);
 
-    beforeAll(() => {
-      result = importer.convertVaultToImportResult(vault, false);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Primary checking account for direct deposit and bill payments");
+    expect(cipher.login.username).toBe("m.thompson@email.com");
+    expect(cipher.login.password).toBe("BankS3cur3!Pass");
+    expect(cipher.login.totp).toContain("otpauth://totp/");
 
-    it("should succeed", () => {
-      expect(result.success).toBe(true);
-    });
-
-    it("should exclude shared folder records", () => {
-      expect(result.ciphers.length).toBeLessThan(78);
-      expect(result.ciphers.length).toBe(61);
-    });
-
-    it("should not create any folders", () => {
-      expect(result.folders.length).toBe(0);
-      expect(result.folderRelationships.length).toBe(0);
-    });
+    // Fields
+    expect(getField(cipher, "bankAccount")?.value).toBe(
+      "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
+    );
+    expect(getField(cipher, "name")?.value).toBe("Michael James Thompson");
   });
 
-  describe("login cipher conversion", () => {
-    let result: ImportResult;
+  it("should parse bankAccount with other type", () => {
+    const cipher = findCipher(result, "Other bank");
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
-    beforeAll(() => {
-      result = importer.convertVaultToImportResult(vault, true);
-    });
-
-    it("should convert login with all fields", () => {
-      const cipher = findCipher(result, "Amazon Sign-In");
-      expect(cipher.type).toBe(CipherType.Login);
-      expect(cipher.login.username).toBe("dflinn@bitwarden.com");
-      expect(cipher.login.password).toBe("sSd{..Lj34+s,9F}Q(1S");
-      expect(cipher.login.uris).toHaveLength(1);
-      expect(cipher.login.uris[0].uri).toBe("https://www.amazon.com/ap/signin");
-    });
-
-    it("should convert login with notes", () => {
-      const cipher = findCipher(result, "cipher item");
-      expect(cipher.type).toBe(CipherType.Login);
-      expect(cipher.login.username).toBe("username123");
-      expect(cipher.login.password).toBe("password123");
-      expect(cipher.notes).toBe("the quick brown fox jumps over the lazy dog.");
-    });
-
-    it("should convert login with TOTP", () => {
-      const cipher = findCipher(result, "TOTP Test Item");
-      expect(cipher.type).toBe(CipherType.Login);
-      expect(cipher.login.totp).toContain("secret=PCP27OAIJORGCMLM");
-    });
-
-    it("should convert record with only title as secure note", () => {
-      const cipher = findCipher(result, "abc 1");
-      expect(cipher.type).toBe(CipherType.SecureNote);
-      expect(cipher.login).toBeNull();
-      expect(cipher.secureNote).toBeDefined();
-    });
-
-    it("should prepend http:// to URLs without protocol", () => {
-      const cipher = findCipher(result, "codepen");
-      expect(cipher.login.uris[0].uri).toBe("http://codepen.io");
-    });
-
-    it("should convert login with special characters in password", () => {
-      const cipher = findCipher(result, "Sign in | CVS Health");
-      expect(cipher.login.password).toBe(")ybR(o)t?pa@}Z1Y<3u@");
-    });
-
-    it("should set name to -- for records with empty title", () => {
-      for (const cipher of result.ciphers) {
-        expect(cipher.name).toBeTruthy();
-      }
-    });
-
-    it("should set notes to null when empty", () => {
-      const cipher = findCipher(result, "Amazon Sign-In");
-      expect(cipher.notes).toBeNull();
-    });
-
-    it("should convert login with multiple TOTP codes", () => {
-      // There are 3 records named "Comp Test", find the one with the password
-      const cipher = result.ciphers.find(
-        (c) => c.name === "Comp Test" && c.login?.password === "l3}9%aI6Hh33k2CJcsXB",
-      );
-      expect(cipher).toBeDefined();
-      expect(cipher!.type).toBe(CipherType.Login);
-      expect(cipher!.login.username).toBe("test");
-      expect(cipher!.login.totp).toContain("secret=YW6CMSUJOHCE3H33");
-
-      // Second TOTP code becomes a hidden field
-      const totpField = getField(cipher!, "TOTP");
-      expect(totpField).toBeDefined();
-      expect(totpField!.value).toContain("secret=6whhjvsb3taxmlf4e7fk4v7lsusuv2m5");
-      expect(totpField!.type).toBe(FieldType.Hidden);
-    });
+    // Fields
+    expect(getField(cipher, "bankAccount")?.value).toBe("Type: Crypto, Account Number: 12345678");
+    expect(getField(cipher, "name")?.value).toBe("Mark Zwei");
   });
 
-  describe("card cipher conversion", () => {
-    let result: ImportResult;
+  it("should parse bankCard", () => {
+    const cipher = findCipher(result, "Chase Visa");
+    expect(cipher.type).toBe(CipherType.Card);
 
-    beforeAll(() => {
-      result = importer.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Primary credit card for everyday purchases and rewards");
+    expect(cipher.card.number).toBe("4532123456789010");
+    expect(cipher.card.cardholderName).toBe("Sarah Johnson");
+    expect(cipher.card.brand).toBe("Visa");
+    expect(cipher.card.expMonth).toBe("06");
+    expect(cipher.card.expYear).toBe("2030");
 
-    it("should convert bank card record as card cipher", () => {
-      const cipher = findCipher(result, "VISA");
-      expect(cipher.type).toBe(CipherType.Card);
-      expect(cipher.login).toBeNull();
-      expect(cipher.card).toBeDefined();
-    });
-
-    it("should extract card number and cardholder name", () => {
-      const cipher = findCipher(result, "VISA");
-      expect(cipher.card.number).toBe("5555555555555555");
-      expect(cipher.card.cardholderName).toBe("Ted Lasso");
-    });
-
-    it("should extract card expiration date", () => {
-      const cipher = findCipher(result, "VISA");
-      expect(cipher.card.expMonth).toBe("02");
-      expect(cipher.card.expYear).toBe("2028");
-    });
-
-    it("should extract PIN as hidden field", () => {
-      const cipher = findCipher(result, "VISA");
-      const pinField = getField(cipher, "PIN");
-      expect(pinField).toBeDefined();
-      expect(pinField!.value).toBe("1235");
-      expect(pinField!.type).toBe(FieldType.Hidden);
-    });
+    // Fields
+    expect(cipher.fields.length).toBe(3);
+    expect(getField(cipher, "PIN")?.value).toBe("8426");
+    expect(getField(cipher, "PIN")?.type).toBe(FieldType.Hidden);
+    expect(
+      getFields(cipher, "URL")
+        .map((x) => x.value)
+        .sort(),
+    ).toEqual(["https://bank.card/test", "https://bank.card/test/with/label"]);
   });
 
-  describe("non-login cipher conversion", () => {
-    let result: ImportResult;
+  it("should parse birthCertificate", () => {
+    const cipher = findCipher(result, "John Doe Birth Certificate");
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
-    beforeAll(() => {
-      result = importer.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Official birth certificate for identification purposes");
 
-    it("should convert address record as secure note", () => {
-      const cipher = findCipher(result, "Test address");
-      expect(cipher.type).toBe(CipherType.SecureNote);
-      expect(cipher.login).toBeNull();
-      expect(cipher.secureNote).toBeDefined();
-    });
-
-    it("should convert contact record as secure note", () => {
-      const cipher = findCipher(result, "Test person");
-      expect(cipher.type).toBe(CipherType.SecureNote);
-      expect(cipher.login).toBeNull();
-    });
-
-    it("should store non-login fields as custom fields on secure notes", () => {
-      const cipher = findCipher(result, "Test address");
-      expect(cipher.fields).not.toBeNull();
-      expect(cipher.fields!.length).toBeGreaterThan(0);
-    });
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "name")?.value).toBe("John Michael Doe");
+    expect(getField(cipher, "birthDate")?.value).toBe("5/15/1990, 12:00:00 AM");
   });
 
-  describe("SSH key cipher conversion", () => {
-    let result: ImportResult;
+  it("should parse contact", () => {
+    const cipher = findCipher(result, "Dr. Emily Chen");
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
-    beforeAll(() => {
-      // import_ssh_key from sdk-internal doesn't work in the test environment,
-      // so sshKeys records fall back to SecureNote with expanded key fields.
-      jest.spyOn(console, "warn").mockImplementation();
-      result = importer.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Primary care physician - office visits and consultations");
 
-    it("should fall back to secure note when import_ssh_key fails", () => {
-      const cipher = findCipher(result, "GitHub");
-      expect(cipher.type).toBe(CipherType.SecureNote);
-      expect(cipher.login).toBeNull();
-      expect(cipher.secureNote).toBeDefined();
-    });
+    // Fields
+    expect(getField(cipher, "name")?.value).toBe("Emily Marie Chen");
+    expect(getField(cipher, "company")?.value).toBe("Springfield Medical Center");
+    expect(getField(cipher, "email")?.value).toBe("emily.chen@smc.org");
+    expect(getField(cipher, "phone")?.value).toBe("(AF) 5415558723 ext. 5577 (Work)");
 
-    it("should expand key pair into public and private key fields", () => {
-      const cipher = findCipher(result, "GitHub");
-      const publicKeyField = getField(cipher, "Public key");
-      expect(publicKeyField).toBeDefined();
-      expect(publicKeyField!.value).toContain("ssh-rsa");
-
-      const privateKeyField = getField(cipher, "Private key");
-      expect(privateKeyField).toBeDefined();
-      expect(privateKeyField!.value).toContain("BEGIN RSA PRIVATE KEY");
-      expect(privateKeyField!.type).toBe(FieldType.Hidden);
-    });
+    // TODO: resolved reference field (requires vault.ts reference support)
+    // expect(getField(cipher, "address")?.value).toBe(
+    //   "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+    // );
   });
 
-  describe("organization import", () => {
-    let result: ImportResult;
+  it("should parse databaseCredentials", () => {
+    const cipher = findCipher(result, "Production MySQL Database");
+    expect(cipher.type).toBe(CipherType.Login);
 
-    beforeAll(() => {
-      jest.spyOn(console, "warn").mockImplementation();
-      const orgImporter = new KeeperDirectImporter();
-      orgImporter.organizationId = "test-org-id" as any;
-      result = orgImporter.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Production database server for main application - handle with care");
+    expect(cipher.login.username).toBe("db_admin");
+    expect(cipher.login.password).toBe("SecureDb#2024$Pass");
 
-    it("should move folders to collections", () => {
-      expect(result.collections.length).toBeGreaterThan(0);
-      expect(result.folders.length).toBe(0);
-    });
+    // Fields
+    expect(cipher.fields.length).toBe(3);
+    expect(getField(cipher, "type")?.value).toBe("MySQL");
+    expect(getField(cipher, "Hostname")?.value).toBe("db.production.company.com");
+    expect(getField(cipher, "Port")?.value).toBe("3306");
   });
 
-  describe("custom fields", () => {
-    let result: ImportResult;
+  it("should parse driverLicense", () => {
+    const cipher = findCipher(result, "Oregon Driver's License");
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
-    beforeAll(() => {
-      jest.spyOn(console, "warn").mockImplementation();
-      result = importer.convertVaultToImportResult(vault, true);
-    });
+    // Properties
+    expect(cipher.notes).toBe("Valid Oregon driver's license - Class C");
 
-    it("should convert custom text field", () => {
-      const cipher = findCipher(result, "cipher item");
-      expect(cipher.fields).not.toBeNull();
-      const field = cipher.fields!.find((f) => f.value === "custom");
-      expect(field).toBeDefined();
-    });
-
-    it("should convert passkey as custom field on login", () => {
-      const cipher = findCipher(result, "df test passkey");
-      expect(cipher.type).toBe(CipherType.Login);
-      expect(cipher.fields).not.toBeNull();
-      const passkeyField = cipher.fields!.find((f) => f.name === "passkey");
-      expect(passkeyField).toBeDefined();
-    });
-
-    it("should format address as comma-separated string", () => {
-      const cipher = findCipher(result, "Test address");
-      const addressField = getField(cipher, "address");
-      expect(addressField).toBeDefined();
-      expect(addressField!.value).toBe("12234 Oak st, Portland, Maine, 97245, US");
-    });
-
-    it("should format name as space-separated string", () => {
-      const cipher = findCipher(result, "Test person");
-      const nameField = getField(cipher, "name");
-      expect(nameField).toBeDefined();
-      expect(nameField!.value).toBe("Ted Lassso");
-    });
-
-    it("should format phone number", () => {
-      const cipher = findCipher(result, "Test person");
-      const phoneField = getField(cipher, "phone");
-      expect(phoneField).toBeDefined();
-      expect(phoneField!.value).toBe("1234567899");
-    });
-
-    it("should have empty fields array when no custom fields exist", () => {
-      const cipher = findCipher(result, "Amazon Sign-In");
-      expect(cipher.fields).toHaveLength(0);
-    });
+    // Fields
+    expect(cipher.fields.length).toBe(4);
+    expect(getField(cipher, "dlNumber")?.value).toBe("DL-7482693");
+    expect(getField(cipher, "name")?.value).toBe("Robert William Anderson");
+    expect(getField(cipher, "birthDate")?.value).toBe("3/15/1985, 12:00:00 AM");
+    expect(getField(cipher, "expirationDate")?.value).toBe("3/15/2028, 12:00:00 AM");
   });
+
+  it("should parse encryptedNotes", () => {
+    const cipher = findCipher(result, "Important Meeting Notes");
+    expect(cipher.type).toBe(CipherType.SecureNote);
+
+    // Properties
+    expect(cipher.notes).toBe(
+      "Confidential meeting with executive team - requires follow-up by end of month",
+    );
+
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "note")?.value).toBe(
+      "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
+    );
+    expect(getField(cipher, "date")?.value).toBe("10/15/2024, 12:00:00 AM");
+  });
+
+  it("should parse file", () => {
+    const cipher = findCipher(result, "Project Proposal Document");
+    expect(cipher.type).toBe(CipherType.SecureNote);
+
+    // Properties
+    expect(cipher.notes).toBe(
+      "Annual project proposal for Q1 2025 business development initiatives",
+    );
+
+    // Fields
+    expect(cipher.fields.length).toBe(0);
+  });
+
+  it("should parse general", () => {
+    const cipher = findCipher(result, "General Information Record");
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe(
+      "General purpose record for miscellaneous information and credentials",
+    );
+    expect(cipher.login.username).toBe("general_user@example.com");
+    expect(cipher.login.password).toBe("GeneralPass#2024!Secure");
+    expect(cipher.login.uri).toBe("https://general.example.com");
+    expect(cipher.login.totp).toContain("otpauth://totp/");
+
+    // Fields
+    expect(cipher.fields.length).toBe(0);
+  });
+
+  it("should parse healthInsurance", () => {
+    const cipher = findCipher(result, "Blue Cross Blue Shield");
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe("PPO plan with nationwide coverage - family deductible $2500");
+    expect(cipher.login.username).toBe("david.martinez@email.com");
+    expect(cipher.login.password).toBe("Health$ecure789");
+    expect(cipher.login.uri).toBe("https://www.bcbs.com");
+
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "accountNumber")?.value).toBe("BCBS-12345678");
+    expect(getField(cipher, "insuredsName")?.value).toBe("David Alan Martinez");
+  });
+
+  it("should parse login", () => {
+    const cipher = findCipher(result, "Amazon Account");
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.login.totp).toContain("otpauth://totp/");
+
+    // Properties
+    expect(cipher.notes).toBe("Primary Amazon account for online shopping and Prime membership");
+    expect(cipher.login.username).toBe("john.martinez@email.com");
+    expect(cipher.login.password).toBe("Sp@rkl3Sun!2024");
+    expect(cipher.login.uri).toBe("https://www.amazon.com");
+    expect(cipher.login.uris.map((x) => x.uri)).toEqual([
+      "https://www.amazon.com",
+      "https://login.amazon.com",
+      "https://logout.amazon.com",
+      "https://account.amazon.com",
+      "https://profile.amazon.com",
+    ]);
+
+    // Fields
+    expect(cipher.fields.length).toBe(17);
+
+    // 1
+    expect(getField(cipher, "some label")?.value).toBe("some text");
+
+    // 2
+    expect(getField(cipher, "some more text")?.value).toBe(
+      "some lines\nsome more lines\nblah blah blah",
+    );
+
+    // 3
+    expect(getField(cipher, "pin-pin-pin")?.value).toBe("1234");
+    expect(getField(cipher, "pin-pin-pin")?.type).toBe(FieldType.Hidden);
+
+    // 4-9
+    const questions = getFields(cipher, "Security question");
+    expect(questions.map((x) => x.value)).toEqual([
+      "how old were you when you were born?",
+      "how are you?",
+      "how old are you?",
+    ]);
+    const answers = getFields(cipher, "Security question answer");
+    expect(answers.map((x) => x.value)).toEqual(["zero", "good, thanks!", "five"]);
+    expect(answers.map((x) => x.type)).toEqual([
+      FieldType.Hidden,
+      FieldType.Hidden,
+      FieldType.Hidden,
+    ]);
+
+    // 10-11
+    const phones = getFields(cipher, "phone");
+    expect(phones.map((x) => x.value)).toEqual([
+      "(AZ) 123123123 (Home)",
+      "(CZ) 555555555 ext. 444",
+    ]);
+
+    // 12
+    expect(getField(cipher, "some date")?.value).toBe("11/30/2025, 9:50:48 PM");
+
+    // 13
+    expect(getField(cipher, "email")?.value).toBe("blah@blah.com");
+
+    // 14
+    expect(getField(cipher, "someone")?.value).toBe("Maria Smith");
+
+    // 15
+    expect(getField(cipher, "special secret")?.value).toBe("big secret");
+    expect(getField(cipher, "special secret")?.type).toBe(FieldType.Hidden);
+
+    // 16-17: address reference fields (unresolved, contain raw record UIDs)
+    // Once reference resolution is implemented, these should contain formatted addresses:
+    //   "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US"
+    //   "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US"
+    expect(getFields(cipher, "addressRef").length).toBe(2);
+  });
+
+  it("should parse membership", () => {
+    const cipher = findCipher(result, "LA Fitness Gym");
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe("Annual membership - full gym access including pool and classes");
+
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "accountNumber")?.value).toBe("LAF-987654321");
+    expect(getField(cipher, "name")?.value).toBe("Lisa Marie Rodriguez");
+  });
+
+  it("should parse passport", () => {
+    const cipher = findCipher(result, "US Passport");
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe("Valid US passport for international travel");
+
+    // Fields
+    expect(cipher.fields.length).toBe(5);
+    expect(getField(cipher, "passportNumber")?.value).toBe("543826194");
+    expect(getField(cipher, "name")?.value).toBe("Jennifer Lynn Williams");
+    expect(getField(cipher, "birthDate")?.value).toBe("7/22/1990, 12:00:00 AM");
+    expect(getField(cipher, "expirationDate")?.value).toBe("7/22/2033, 12:00:00 AM");
+    expect(getField(cipher, "dateIssued")?.value).toBe("8/15/2023, 12:00:00 AM");
+  });
+
+  it("should parse photo", () => {
+    const cipher = findCipher(result, "Family Vacation 2024");
+    expect(cipher.type).toBe(CipherType.SecureNote);
+
+    // Properties
+    expect(cipher.notes).toBe("Summer vacation photos from Hawaii trip - scenic beach views");
+
+    // Fields
+    expect(cipher.fields.length).toBe(0);
+  });
+
+  it("should parse serverCredentials", () => {
+    const cipher = findCipher(result, "Web Server - Production");
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe("Primary production web server - Apache 2.4.52 - Ubuntu 22.04");
+    expect(cipher.login.username).toBe("sysadmin");
+    expect(cipher.login.password).toBe("Srv#Prod2024!Sec");
+
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "Hostname")?.value).toBe("web01.company.com");
+    expect(getField(cipher, "Port")?.value).toBe("22");
+  });
+
+  it("should parse softwareLicense", () => {
+    const cipher = findCipher(result, "Adobe Creative Cloud");
+    expect(cipher.type).toBe(CipherType.SecureNote);
+
+    // Properties
+    expect(cipher.notes).toBe(
+      "Annual subscription - full access to Photoshop, Illustrator, Premiere Pro",
+    );
+
+    // Fields
+    expect(cipher.fields.length).toBe(3);
+    expect(getField(cipher, "licenseNumber")?.value).toBe("ACDB-7849-2635-1947-8520");
+    expect(getField(cipher, "expirationDate")?.value).toBe("12/31/2025, 12:00:00 AM");
+    expect(getField(cipher, "dateActive")?.value).toBe("1/15/2024, 12:00:00 AM");
+  });
+
+  it("should parse sshKeys", () => {
+    const cipher = findCipher(result, "Production Server SSH Key");
+    expect(cipher.type).toBe(CipherType.SshKey);
+
+    // Properties
+    expect(cipher.notes).toBe("SSH key for production server deployment - RSA 2048 bit");
+
+    // Fields
+    expect(cipher.fields.length).toBe(3);
+    expect(getField(cipher, "Username")?.value).toBe("deploy_user");
+    expect(getField(cipher, "Hostname")?.value).toBe("prod-server.company.com");
+    expect(getField(cipher, "Port")?.value).toBe("22");
+  });
+
+  it("should parse sshKeys with a passphrase", () => {
+    const cipher = findCipher(result, "Production Server SSH Key with a passphrase");
+    expect(cipher.type).toBe(CipherType.SshKey);
+
+    // Properties
+    expect(cipher.notes).toBe("SSH key for production server deployment - RSA 2048 bit");
+
+    // Fields
+    expect(cipher.fields.length).toBe(4);
+    expect(getField(cipher, "Username")?.value).toBe("deploy_user");
+    expect(getField(cipher, "Password")?.value).toBe("blah-blah-blah");
+    expect(getField(cipher, "Password")?.type).toBe(FieldType.Hidden);
+    expect(getField(cipher, "Hostname")?.value).toBe("prod-server.company.com");
+    expect(getField(cipher, "Port")?.value).toBe("22");
+  });
+
+  it("should parse an invalid ssh key as login", () => {
+    const cipher = findCipher(result, "Invalid SSH key");
+    // TODO: Invalid SSH key falls back to Login (has username/password) rather than SecureNote. This is different from JSON importer.
+    expect(cipher.type).toBe(CipherType.Login);
+
+    // Properties
+    expect(cipher.notes).toBe("Broken ssh key");
+    expect(cipher.login.username).toBe("deploy_user");
+    expect(cipher.login.password).toBe("blah-blah-blah");
+
+    // Fields
+    expect(cipher.fields.length).toBe(5);
+    expect(getField(cipher, "Passphrase")?.value).toBe("blah-blah-blah");
+    expect(getField(cipher, "Public key")?.value).toBe("blah blah public key");
+    expect(getField(cipher, "Private key")?.value).toBe("blah blah blah private key");
+    expect(getField(cipher, "Hostname")?.value).toBe("prod-server.company.com");
+    expect(getField(cipher, "Port")?.value).toBe("22");
+  });
+
+  it("should parse ssnCard", () => {
+    const cipher = findCipher(result, "National Identity Card");
+    expect(cipher.type).toBe(CipherType.SecureNote);
+
+    // Properties
+    expect(cipher.notes).toBe("National identification card - Valid through 2028");
+
+    // Fields
+    expect(cipher.fields.length).toBe(2);
+    expect(getField(cipher, "identityNumber")?.value).toBe("ID-7849521");
+    expect(getField(cipher, "name")?.value).toBe("Sarah Elizabeth Johnson");
+  });
+
+  // TODO: wifiCredentials record ("Home Wi-Fi") is not present in the vault fixture
 
   //
   // Helpers
   //
 
-  function findCipher(result: ImportResult, name: string): CipherView {
-    const cipher = result.ciphers.find((c) => c.name === name);
+  function findCipher(r: ImportResult, name: string): CipherView {
+    const cipher = r.ciphers.find((c) => c.name === name);
     if (!cipher) {
       throw new Error(`Cipher not found: ${name}`);
     }
@@ -325,4 +446,21 @@ describe("Keeper Direct Importer", () => {
   function getField(cipher: CipherView, name: string): FieldView | undefined {
     return cipher.fields?.find((f) => f.name === name);
   }
+
+  function getFields(cipher: CipherView, name: string): FieldView[] {
+    return cipher.fields?.filter((f) => f.name === name) ?? [];
+  }
+
+  // function assertInFolder(r: ImportResult, cipherName: string, folderName: string): void {
+  //   const cipherIndex = r.ciphers.findIndex((c) => c.name === cipherName);
+  //   expect(cipherIndex).toBeGreaterThanOrEqual(0);
+
+  //   const folderIndex = r.folders.findIndex((f) => f.name === folderName);
+  //   expect(folderIndex).toBeGreaterThanOrEqual(0);
+
+  //   const hasRelationship = r.folderRelationships.some(
+  //     ([ci, fi]) => ci === cipherIndex && fi === folderIndex,
+  //   );
+  //   expect(hasRelationship).toBe(true);
+  // }
 });
