@@ -211,10 +211,57 @@ describe("Keeper Direct Importer", () => {
     });
   });
 
+  describe("SSH key cipher conversion", () => {
+    let result: ImportResult;
+
+    beforeAll(() => {
+      // import_ssh_key from sdk-internal doesn't work in the test environment,
+      // so sshKeys records fall back to SecureNote with expanded key fields.
+      jest.spyOn(console, "warn").mockImplementation();
+      result = importer.convertVaultToImportResult(vault, true);
+    });
+
+    it("should fall back to secure note when import_ssh_key fails", () => {
+      const cipher = findCipher(result, "GitHub");
+      expect(cipher.type).toBe(CipherType.SecureNote);
+      expect(cipher.login).toBeNull();
+      expect(cipher.secureNote).toBeDefined();
+    });
+
+    it("should expand key pair into public and private key fields", () => {
+      const cipher = findCipher(result, "GitHub");
+      const publicKeyField = getField(cipher, "Public key");
+      expect(publicKeyField).toBeDefined();
+      expect(publicKeyField!.value).toContain("ssh-rsa");
+
+      const privateKeyField = getField(cipher, "Private key");
+      expect(privateKeyField).toBeDefined();
+      expect(privateKeyField!.value).toContain("BEGIN RSA PRIVATE KEY");
+      expect(privateKeyField!.type).toBe(FieldType.Hidden);
+    });
+  });
+
+  describe("organization import", () => {
+    let result: ImportResult;
+
+    beforeAll(() => {
+      jest.spyOn(console, "warn").mockImplementation();
+      const orgImporter = new KeeperDirectImporter();
+      orgImporter.organizationId = "test-org-id" as any;
+      result = orgImporter.convertVaultToImportResult(vault, true);
+    });
+
+    it("should move folders to collections", () => {
+      expect(result.collections.length).toBeGreaterThan(0);
+      expect(result.folders.length).toBe(0);
+    });
+  });
+
   describe("custom fields", () => {
     let result: ImportResult;
 
     beforeAll(() => {
+      jest.spyOn(console, "warn").mockImplementation();
       result = importer.convertVaultToImportResult(vault, true);
     });
 
@@ -233,19 +280,6 @@ describe("Keeper Direct Importer", () => {
       expect(passkeyField).toBeDefined();
     });
 
-    it("should expand SSH key pair into public and private key fields", () => {
-      const cipher = findCipher(result, "GitHub");
-      expect(cipher.fields).not.toBeNull();
-      const publicKeyField = getField(cipher, "Public key");
-      expect(publicKeyField).toBeDefined();
-      expect(publicKeyField!.value).toContain("ssh-rsa");
-
-      const privateKeyField = getField(cipher, "Private key");
-      expect(privateKeyField).toBeDefined();
-      expect(privateKeyField!.value).toContain("BEGIN RSA PRIVATE KEY");
-      expect(privateKeyField!.type).toBe(FieldType.Hidden);
-    });
-
     it("should format address as comma-separated string", () => {
       const cipher = findCipher(result, "Test address");
       const addressField = getField(cipher, "address");
@@ -258,6 +292,13 @@ describe("Keeper Direct Importer", () => {
       const nameField = getField(cipher, "name");
       expect(nameField).toBeDefined();
       expect(nameField!.value).toBe("Ted Lassso");
+    });
+
+    it("should format phone number", () => {
+      const cipher = findCipher(result, "Test person");
+      const phoneField = getField(cipher, "phone");
+      expect(phoneField).toBeDefined();
+      expect(phoneField!.value).toBe("1234567899");
     });
 
     it("should have empty fields array when no custom fields exist", () => {
