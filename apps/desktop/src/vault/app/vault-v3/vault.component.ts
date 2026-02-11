@@ -11,6 +11,7 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   combineLatest,
@@ -167,13 +168,11 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: OrganizationId | null = null;
-  myVaultOnly = false;
   addType: CipherType | undefined = undefined;
   addOrganizationId: string | null = null;
   addCollectionIds: string[] | null = null;
   showingModal = false;
   deleted = false;
-  userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId | null = null;
   cipherRepromptId: string | null = null;
@@ -193,7 +192,15 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
 
-  readonly userHasPremium = signal<boolean>(false);
+  readonly userHasPremium = toSignal(
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    ),
+    { initialValue: false },
+  );
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -256,19 +263,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        filter((account): account is Account => !!account),
-        switchMap((account) =>
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        ),
-        takeUntil(this.componentIsDestroyed$),
-      )
-      .subscribe((canAccessPremium: boolean) => {
-        this.userHasPremiumAccess = canAccessPremium;
-        this.userHasPremium.set(canAccessPremium);
-      });
-
     // Subscribe to filter changes from router params via the bridge service
     // Use combineLatest to react to changes in both the filter and archive flag
     combineLatest([
@@ -353,7 +347,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
               case "copyTotp": {
                 if (
                   this.cipher()?.login?.hasTotp &&
-                  (this.cipher().organizationUseTotp || this.userHasPremiumAccess)
+                  (this.cipher().organizationUseTotp || this.userHasPremium())
                 ) {
                   const value = await firstValueFrom(
                     this.totpService.getCode$(this.cipher().login.totp),
@@ -502,7 +496,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async openAttachmentsDialog() {
-    if (!this.userHasPremiumAccess) {
+    if (!this.userHasPremium()) {
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
@@ -663,7 +657,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             },
           });
         }
-        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
+        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
