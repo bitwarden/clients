@@ -23,4 +23,12 @@ export abstract class UnlockService {
    * @throws If the master password is invalid or decryption fails
    */
   abstract unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void>;
+
+  /**
+   * Unlocks the user's account using a biometrics-protected copy of the user-key
+   *
+   * @param userId - The user's id
+   * @throws If the SDK is not available
+   */
+  abstract unlockWithBiometrics(userId: UserId): Promise<void>;
 }
