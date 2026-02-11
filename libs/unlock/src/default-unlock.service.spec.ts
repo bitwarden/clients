@@ -6,11 +6,19 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService } from "@bitwarden/key-management";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsService, KdfConfigService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
+import { StateProvider } from "@bitwarden/state";
 
 import { DefaultUnlockService } from "./default-unlock.service";
 
@@ -21,7 +29,7 @@ const mockMasterPassword = "master-password";
 const mockKdfParams = { type: "pbkdf2" } as any;
 const mockAccountCryptographicState = { some: "state" } as any;
 const mockPinProtectedUserKeyEnvelope = { some: "envelope" } as any;
-const mockMasterPasswordUnlockData = { some: "unlockData" } as any;
+const mockMasterPasswordUnlockData = { some: "unlockData", salt: "salt", kdf: "pbkdf2" } as any;
 
 describe("DefaultUnlockService", () => {
   const registerSdkService = mock<RegisterSdkService>();
@@ -30,6 +38,10 @@ describe("DefaultUnlockService", () => {
   const kdfService = mock<KdfConfigService>();
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+  const cryptoFunctionService = mock<CryptoFunctionService>();
+  const stateProvider = mock<StateProvider>();
+  const logService = mock<LogService>();
+  const biometricsService = mock<BiometricsService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -70,6 +82,19 @@ describe("DefaultUnlockService", () => {
       of({ toSdk: () => mockMasterPasswordUnlockData } as any),
     );
 
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      writable: true,
+      configurable: true,
+    });
+
+    jest.spyOn(PureCrypto, "derive_kdf_material").mockReturnValue(new Uint8Array(32));
+
+    cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
+
+    const mockStateUpdate = jest.fn().mockResolvedValue(undefined);
+    stateProvider.getUser.mockReturnValue({ update: mockStateUpdate } as any);
+
     service = new DefaultUnlockService(
       registerSdkService,
       accountCryptographicStateService,
@@ -77,6 +102,10 @@ describe("DefaultUnlockService", () => {
       kdfService,
       accountService,
       masterPasswordService,
+      cryptoFunctionService,
+      stateProvider,
+      logService,
+      biometricsService,
     );
   });
 
@@ -147,6 +176,44 @@ describe("DefaultUnlockService", () => {
       await expect(
         service.unlockWithMasterPassword(mockUserId, mockMasterPassword),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("unlockWithBiometrics", () => {
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+
+    it("calls SDK initialize_user_crypto with decrypted key from biometrics", async () => {
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(mockUserKey);
+
+      await service.unlockWithBiometrics(mockUserId);
+
+      expect(biometricsService.unlockWithBiometricsForUser).toHaveBeenCalledWith(mockUserId);
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith({
+        userId: mockUserId,
+        kdfParams: mockKdfParams,
+        email: mockEmail,
+        accountCryptographicState: mockAccountCryptographicState,
+        method: {
+          decryptedKey: {
+            decrypted_user_key: mockUserKey.toBase64(),
+          },
+        },
+      });
+    });
+
+    it("throws when biometrics returns null", async () => {
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(null);
+
+      await expect(service.unlockWithBiometrics(mockUserId)).rejects.toThrow(
+        "Failed to unlock with biometrics",
+      );
+    });
+
+    it("throws when SDK is not available", async () => {
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(mockUserKey);
+      registerSdkService.registerClient$.mockReturnValue(of(null as any));
+
+      await expect(service.unlockWithBiometrics(mockUserId)).rejects.toThrow("SDK not available");
     });
   });
 });
