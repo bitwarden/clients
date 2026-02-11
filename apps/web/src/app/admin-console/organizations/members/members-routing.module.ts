@@ -7,12 +7,12 @@ import { FreeBitwardenFamiliesComponent } from "../../../billing/members/free-bi
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 
 import { canAccessSponsoredFamilies } from "./../../../billing/guards/can-access-sponsored-families.guard";
-import { vNextMembersComponent } from "./members.component";
+import { MembersComponent } from "./members.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: vNextMembersComponent,
+    component: MembersComponent,
     canActivate: [organizationPermissionsGuard(canAccessMembersTab)],
     data: {
       titleId: "members",

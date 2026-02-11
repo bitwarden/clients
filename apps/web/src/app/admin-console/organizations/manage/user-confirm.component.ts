@@ -15,8 +15,6 @@ export type UserConfirmDialogData = {
   name: string;
   userId: string;
   publicKey: Uint8Array;
-  // @TODO remove this when doing feature flag cleanup for members component refactor.
-  confirmUser?: (publicKey: Uint8Array) => Promise<void>;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -73,8 +71,6 @@ export class UserConfirmComponent implements OnInit {
     if (this.formGroup.value.dontAskAgain) {
       await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
-
-    await this.data.confirmUser(this.publicKey);
 
     this.dialogRef.close(true);
   };

@@ -16,7 +16,7 @@ import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
-import { vNextMembersComponent } from "./manage/members.component";
+import { MembersComponent } from "./manage/members.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersComponent } from "./providers.component";
 import { AccountComponent } from "./settings/account.component";
@@ -94,7 +94,7 @@ const routes: Routes = [
               },
               {
                 path: "members",
-                component: vNextMembersComponent,
+                component: MembersComponent,
                 canActivate: [
                   providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
                 ],
