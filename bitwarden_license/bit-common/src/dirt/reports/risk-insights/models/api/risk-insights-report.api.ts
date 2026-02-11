@@ -7,10 +7,11 @@ import { RiskInsightsReport } from "../domain/risk-insights-report";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportView } from "../view/risk-insights-report.view";
 
-import { MemberDetailsApi } from "./member-details.api";
-
 /**
  * Converts a RiskInsightsReport API response
+ *
+ * Uses the member registry pattern with memberRefs and cipherRefs Records instead of
+ * duplicated member/cipher arrays.
  *
  * - See {@link RiskInsightsReport} for domain model
  * - See {@link RiskInsightsReportData} for data model
@@ -20,12 +21,23 @@ export class RiskInsightsReportApi extends BaseResponse {
   applicationName: string = "";
   passwordCount: number = 0;
   atRiskPasswordCount: number = 0;
-  atRiskCipherIds: string[] = [];
+
+  /**
+   * Member references with at-risk status
+   * Record<OrganizationUserId, boolean> where value indicates at-risk status
+   * Replaces: memberDetails[] + atRiskMemberDetails[]
+   */
+  memberRefs: Record<string, boolean> = {};
+
+  /**
+   * Cipher references with at-risk status
+   * Record<CipherId, boolean> where value indicates at-risk status
+   * Replaces: cipherIds[] + atRiskCipherIds[]
+   */
+  cipherRefs: Record<string, boolean> = {};
+
   memberCount: number = 0;
   atRiskMemberCount: number = 0;
-  memberDetails: MemberDetailsApi[] = [];
-  atRiskMemberDetails: MemberDetailsApi[] = [];
-  cipherIds: string[] = [];
 
   constructor(data: any) {
     super(data);
@@ -36,18 +48,9 @@ export class RiskInsightsReportApi extends BaseResponse {
     this.applicationName = this.getResponseProperty("applicationName");
     this.passwordCount = this.getResponseProperty("passwordCount");
     this.atRiskPasswordCount = this.getResponseProperty("atRiskPasswordCount");
-    this.atRiskCipherIds = this.getResponseProperty("atRiskCipherIds");
+    this.memberRefs = this.getResponseProperty("memberRefs") ?? {};
+    this.cipherRefs = this.getResponseProperty("cipherRefs") ?? {};
     this.memberCount = this.getResponseProperty("memberCount");
     this.atRiskMemberCount = this.getResponseProperty("atRiskMemberCount");
-    this.cipherIds = this.getResponseProperty("cipherIds");
-
-    const memberDetails = this.getResponseProperty("memberDetails");
-    if (memberDetails != null) {
-      this.memberDetails = memberDetails.map((f: any) => new MemberDetailsApi(f));
-    }
-    const atRiskMemberDetails = this.getResponseProperty("atRiskMemberDetails");
-    if (atRiskMemberDetails != null) {
-      this.atRiskMemberDetails = atRiskMemberDetails.map((f: any) => new MemberDetailsApi(f));
-    }
   }
 }

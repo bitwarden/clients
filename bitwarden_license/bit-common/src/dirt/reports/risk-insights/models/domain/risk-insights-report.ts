@@ -7,10 +7,11 @@ import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportView } from "../view/risk-insights-report.view";
 
-import { MemberDetails } from "./member-details";
-
 /**
  * Domain model for generated report data in Risk Insights containing encrypted properties
+ *
+ * Uses the member registry pattern with memberRefs and cipherRefs Records instead of
+ * duplicated member/cipher arrays.
  *
  * - See {@link RiskInsightsReportApi} for API model
  * - See {@link RiskInsightsReportData} for data model
@@ -20,12 +21,23 @@ export class RiskInsightsReport extends Domain {
   applicationName: EncString = new EncString("");
   passwordCount: EncString = new EncString("");
   atRiskPasswordCount: EncString = new EncString("");
-  atRiskCipherIds: string[] = [];
+
+  /**
+   * Member references with at-risk status
+   * Record<OrganizationUserId, boolean> where value indicates at-risk status
+   * Replaces: memberDetails[] + atRiskMemberDetails[]
+   */
+  memberRefs: Record<string, boolean> = {};
+
+  /**
+   * Cipher references with at-risk status
+   * Record<CipherId, boolean> where value indicates at-risk status
+   * Replaces: cipherIds[] + atRiskCipherIds[]
+   */
+  cipherRefs: Record<string, boolean> = {};
+
   memberCount: EncString = new EncString("");
   atRiskMemberCount: EncString = new EncString("");
-  memberDetails: MemberDetails[] = [];
-  atRiskMemberDetails: MemberDetails[] = [];
-  cipherIds: string[] = [];
 
   constructor(obj?: RiskInsightsReportData) {
     super();
@@ -35,17 +47,10 @@ export class RiskInsightsReport extends Domain {
     this.applicationName = new EncString(obj.applicationName);
     this.passwordCount = new EncString(obj.passwordCount);
     this.atRiskPasswordCount = new EncString(obj.atRiskPasswordCount);
-    this.atRiskCipherIds = obj.atRiskCipherIds;
+    this.memberRefs = obj.memberRefs ?? {};
+    this.cipherRefs = obj.cipherRefs ?? {};
     this.memberCount = new EncString(obj.memberCount);
     this.atRiskMemberCount = new EncString(obj.atRiskMemberCount);
-    this.cipherIds = obj.cipherIds;
-
-    if (obj.memberDetails != null) {
-      this.memberDetails = obj.memberDetails.map((m) => new MemberDetails(m));
-    }
-    if (obj.atRiskMemberDetails != null) {
-      this.atRiskMemberDetails = obj.atRiskMemberDetails.map((m) => new MemberDetails(m));
-    }
   }
 
   // [TODO] Domain level methods

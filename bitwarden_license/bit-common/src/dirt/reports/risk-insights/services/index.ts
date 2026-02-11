@@ -9,5 +9,6 @@ export * from "./domain/risk-insights-encryption.service";
 export * from "./domain/risk-insights-orchestrator.service";
 export * from "./domain/risk-insights-report.service";
 export * from "./implementations/default-cipher-health.service";
+export * from "./implementations/default-member-cipher-mapping.service";
 export * from "./view/all-activities.service";
 export * from "./view/risk-insights-data.service";
