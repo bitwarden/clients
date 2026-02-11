@@ -114,7 +114,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     dangerOutline: [
       "tw-border-border-danger",
       "tw-text-fg-danger",
-      "hover:tw-border-bg-danger-strong",
+      "hover:tw-border-border-danger-strong",
       "hover:!tw-text-fg-danger-strong",
       "focus-visible:!tw-text-fg-danger-strong",
     ],
