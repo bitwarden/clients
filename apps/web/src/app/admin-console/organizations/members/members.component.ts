@@ -426,7 +426,7 @@ export class vNextMembersComponent {
 
     const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
 
-    if (!result.successful) {
+    if (result.successful.length === 0) {
       this.validationService.showError(result.failed);
     }
 
@@ -461,7 +461,7 @@ export class vNextMembersComponent {
       await this.memberDialogManager.openBulkStatusDialog(
         users,
         filteredUsers,
-        Promise.resolve(result.successful ?? []),
+        Promise.resolve(result.successful),
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
