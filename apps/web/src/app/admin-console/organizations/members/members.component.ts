@@ -461,7 +461,7 @@ export class vNextMembersComponent {
       await this.memberDialogManager.openBulkStatusDialog(
         users,
         filteredUsers,
-        Promise.resolve(result.successful),
+        Promise.resolve(result.successful ?? []),
         this.i18nService.t("bulkReinviteMessage"),
       );
     }

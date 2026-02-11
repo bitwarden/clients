@@ -236,10 +236,12 @@ export class vNextMembersComponent {
         }
       } else {
         // In self-hosted environments, show legacy dialog
-        const request = this.apiService.postManyProviderUserReinvite(
-          providerId,
-          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-        );
+        const request = this.apiService
+          .postManyProviderUserReinvite(
+            providerId,
+            new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+          )
+          .then((response) => response.data);
 
         const dialogRef = BulkStatusComponent.open(this.dialogService, {
           data: {
