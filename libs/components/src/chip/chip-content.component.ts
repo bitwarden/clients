@@ -28,8 +28,21 @@ export class ChipContentComponent {
 
   readonly dismissible = input<boolean>(false);
 
+  protected readonly ChipSizes = ChipSizes;
+
+  protected readonly gapClass = computed(() =>
+    this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1",
+  );
+
   protected readonly classList = computed(() => {
-    const gapClass = this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1";
-    return ["tw-inline-flex", "tw-min-w-0", "tw-max-w-full", "tw-items-center", gapClass].join(" ");
+    return [
+      "tw-inline-flex",
+      "tw-min-w-0",
+      "tw-w-full",
+      "tw-max-w-full",
+      "tw-items-center",
+      "tw-justify-between",
+      this.gapClass(),
+    ].join(" ");
   });
 }
