@@ -288,6 +288,9 @@ export class DefaultSdkService implements SdkService {
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeState(userId, client.platform().state(), this.stateProvider);
+
     if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
       await client.crypto().initialize_user_crypto({
         userId: asUuid(userId),
@@ -335,9 +338,6 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-
-    // Initialize the SDK managed database and the client managed repositories.
-    await initializeState(userId, client.platform().state(), this.stateProvider);
 
     await this.loadFeatureFlags(client);
   }
