@@ -48,8 +48,7 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
   [PhishingResourceType.Links]: [
     {
       name: "Phishing.Database Links",
-      primaryUrl:
-        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-ACTIVE.txt",
+      primaryUrl: "https://assets.bitwarden.com/security/v1/link-blocklist.txt",
       fallbackUrl: "https://phish.co.za/latest/phishing-links-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
