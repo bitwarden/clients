@@ -467,7 +467,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             collections,
             filter.collectionId,
           );
-          searchableCollectionNodes = selectedCollection.children;
+          searchableCollectionNodes = selectedCollection?.children;
         }
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
@@ -606,7 +606,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.collections = collections;
           this.selectedCollection = selectedCollection;
 
-          this.canCreateCollections = allOrganizations.some(
+          this.canCreateCollections = allOrganizations?.some(
             (o) => o.canCreateNewCollections && !o.isProviderUser,
           );
 
@@ -876,7 +876,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * @returns
    */
   async editCipherAttachments(cipher: C) {
-    if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       await this.go({ cipherId: null, itemId: null });
       return;
     }
@@ -1256,16 +1256,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   restore = async (c: CipherViewLike) => {
     let toastMessage;
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (!c.edit) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     if (CipherViewLikeUtils.isArchived(c)) {
@@ -1284,9 +1284,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.refresh();
     } catch (e) {
       this.logService.error(e);
-      return false;
+      return;
     }
-    return true;
+    return;
   };
 
   async bulkRestore(ciphers: C[]) {
@@ -1585,7 +1585,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
     if (!CipherViewLikeUtils.isCipherListView(cipher)) {
-      return Promise.resolve(cipher.login.password);
+      return Promise.resolve(cipher?.login?.password);
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
