@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { IconProps, Option } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
@@ -29,12 +30,30 @@ export function OptionItem({
   handleSelection,
 }: OptionItemProps) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     const listenedForKeys = new Set(["Enter", "Space"]);
     if (listenedForKeys.has(event.code) && event.target instanceof Element) {
       handleSelection();
     }
 
     return;
+  };
+
+  const handleSelectionClickProxy = (event: MouseEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
+    handleSelection();
   };
 
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
@@ -52,7 +71,7 @@ export function OptionItem({
     title=${text}
     role="option"
     aria-label=${ariaLabel}
-    @click=${handleSelection}
+    @click=${handleSelectionClickProxy}
     @keyup=${handleSelectionKeyUpProxy}
   >
     ${itemIcon ? html`<div class=${optionItemIconContainerStyles}>${itemIcon}</div>` : nothing}

@@ -45,6 +45,7 @@ import {
   sendExtensionMessage,
   throttle,
 } from "../utils";
+import { EventSecurity } from "../utils/event-security";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -618,6 +619,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleSubmitButtonInteraction = (event: PointerEvent) => {
     if (
+      /**
+       * Reject synthetic events (not originating from the user agent)
+       */
+      !EventSecurity.isEventTrusted(event) ||
       !this.submitElements.has(event.target as HTMLElement) ||
       (event.type === "keyup" &&
         !["Enter", "Space"].includes((event as unknown as KeyboardEvent).code))
@@ -703,6 +708,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param event - The keyup event.
    */
   private handleFormFieldKeyupEvent = async (event: globalThis.KeyboardEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     const eventCode = event.code;
     if (eventCode === "Escape") {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
