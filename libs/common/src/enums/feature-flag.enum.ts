@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
@@ -108,7 +107,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.MembersComponentRefactor]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
