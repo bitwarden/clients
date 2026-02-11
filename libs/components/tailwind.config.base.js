@@ -317,6 +317,7 @@ module.exports = {
         base: ["1rem", "150%"],
         sm: ["0.875rem", "150%"],
         xs: [".75rem", "150%"],
+        xxs: [".5rem", "150%"],
       },
       container: {
         "@5xl": "1100px",

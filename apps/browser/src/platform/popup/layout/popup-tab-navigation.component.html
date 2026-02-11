@@ -27,8 +27,8 @@
               {{ button.label | i18n }}
             </span>
           </button>
-          <div *ngIf="button.showBerry" class="tw-absolute tw-top-1.5 tw-left-[calc(50%+5px)]">
-            <div class="tw-bg-notification-600 tw-size-2.5 tw-rounded-full"></div>
+          <div *ngIf="button.showBerry" class="tw-absolute tw-top-0 tw-left-[calc(50%+5px)]">
+            <bit-berry type="status" variant="danger"></bit-berry>
           </div>
         </li>
       </ul>
