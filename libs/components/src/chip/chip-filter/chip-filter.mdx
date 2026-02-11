@@ -20,7 +20,7 @@ Options are passed to the select via an `options` input.
 ```ts
 @Component({
   selector: `
-    <bit-chip-select options=[options]></bit-chip-select>
+    <bit-chip-filter options=[options]></bit-chip-filter>
   `,
 })
 class MyComponent {
@@ -95,7 +95,7 @@ const options = [
 Placeholder content is shown when no item is selected.
 
 ```html
-<bit-chip-select placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-select>
+<bit-chip-filter placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-filter>
 ```
 
 ## Reading the current value
@@ -104,5 +104,5 @@ The component implements `ControlValueAccessor`, so the current selected value c
 `ngModel` or `[formControlName]`.
 
 ```html
-<bit-chip-select [(ngModel)]="..."></bit-chip-select>
+<bit-chip-filter [(ngModel)]="..."></bit-chip-filter>
 ```

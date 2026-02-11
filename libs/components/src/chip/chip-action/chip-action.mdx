@@ -1,0 +1,193 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-action.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipActionComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+Action chips trigger a single contextual action related to the current view or task. They help users
+act quickly on what they're viewing without changing selection state or entering input.
+
+## Using action chips
+
+Use action chips when you need to provide:
+
+- Quick access to contextual actions
+- Lightweight interactive elements that don't change state
+- Actions that complement but don't compete with primary buttons
+- Multiple related actions in a compact, scannable format
+
+Action chips should be **secondary to the primary content or actions** on the screen.
+
+## Chip Types
+
+There are three types of chips in the component library:
+
+### Action chip
+
+**This component is the action chip variant.**
+
+Action chips trigger a single contextual action. They do not have selection state and do not manage
+input. Use action chips for quick, one-off actions like filtering, sorting, or navigating to related
+content.
+
+<Canvas of={stories.Default} />
+
+### Chip
+
+Chips represent user-provided values, entities, or selections that can be reviewed, edited, or
+removed. See [Chip](?path=/docs/component-library-chip--docs) for more details.
+
+### Filter chip
+
+Filter chips allow users to narrow or refine a list of items by predefined criteria. See
+[Chip Filter](?path=/docs/component-library-chip-chip-filter--docs) and
+[Chip Select](?path=/docs/component-library-chip-select--docs) for more details.
+
+## Content guidelines
+
+Chip copy should be **1-2 words**.
+
+If necessary, chip text should always be truncated with ellipses, not wrapped to a second line.
+
+## Basic usage
+
+The chip action component can be applied to both `<button>` and `<a>` elements using the
+`bitChipAction` directive.
+
+### As a button
+
+Use `<button>` when the chip triggers an action on the current page.
+
+```html
+<button bitChipAction label="Filter" startIcon="bwi-filter" (click)="applyFilter()"></button>
+```
+
+### As a link
+
+Use `<a>` when the chip navigates to a new page.
+
+```html
+<a bitChipAction label="View all" endIcon="bwi-arrow-right" [routerLink]="['/items']"> </a>
+```
+
+## Variants
+
+Action chips support four visual variants to provide different levels of emphasis and semantic
+meaning.
+
+### Primary
+
+The primary variant uses brand colors for high emphasis actions.
+
+<Canvas of={stories.WithStartIcon} />
+
+### Subtle
+
+The subtle variant uses muted colors for lower emphasis actions.
+
+```html
+<button bitChipAction label="Subtle" variant="subtle" startIcon="bwi-folder"></button>
+```
+
+### Accent Primary
+
+The accent primary variant uses accent brand colors.
+
+```html
+<button bitChipAction label="Info" variant="accent-primary" startIcon="bwi-info-circle"></button>
+```
+
+### Accent Secondary
+
+The accent secondary variant uses secondary accent colors.
+
+```html
+<button
+  bitChipAction
+  label="Warning"
+  variant="accent-secondary"
+  startIcon="bwi-exclamation-triangle"
+></button>
+```
+
+<Canvas of={stories.AllVariants} />
+
+## Sizes
+
+Action chips are available in two sizes: small and large (default).
+
+<Canvas of={stories.AllSizes} />
+
+## Icons
+
+Action chips support both start and end icons to provide visual context for the action.
+
+### Start icon
+
+```html
+<button bitChipAction label="Add" startIcon="bwi-plus"></button>
+```
+
+<Canvas of={stories.WithStartIcon} />
+
+### End icon
+
+```html
+<button bitChipAction label="Next" endIcon="bwi-arrow-right"></button>
+```
+
+<Canvas of={stories.WithEndIcon} />
+
+## Disabled state
+
+Action chips can be disabled to prevent interaction.
+
+```html
+<button bitChipAction label="Inactive" [disabled]="true" startIcon="bwi-filter"></button>
+```
+
+<Canvas of={stories.Inactive} />
+
+## Full width
+
+Action chips can expand to fill their container width.
+
+```html
+<button bitChipAction label="Full width" [fullWidth]="true"></button>
+```
+
+## Groups of action chips
+
+When displaying multiple action chips together, use consistent spacing:
+
+```html
+<div class="tw-flex tw-flex-wrap tw-gap-2">
+  <button bitChipAction label="Filter" startIcon="bwi-filter"></button>
+  <button bitChipAction label="Sort" startIcon="bwi-sort"></button>
+  <button bitChipAction label="Export" startIcon="bwi-download"></button>
+</div>
+```
+
+## Choosing between button and link
+
+Choose the appropriate HTML element based on the action:
+
+- **Use `<button>`** when the action affects the current page (filtering, sorting, opening a dialog)
+- **Use `<a>`** when the action navigates to a new page or external resource
+
+## Accessibility
+
+- The component includes proper `aria-disabled` attributes when disabled
+- Use descriptive labels that clearly communicate the action
+- Ensure sufficient color contrast when using chips on different backgrounds
+- For icon-only chips (if the label is empty), ensure the icon conveys clear meaning or add an
+  `aria-label`
+- When using as a link, ensure the href attribute is properly set for keyboard navigation
