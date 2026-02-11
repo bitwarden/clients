@@ -4,10 +4,10 @@ import { ActiveUserState, GlobalState, StateProvider } from "../../../platform/s
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "../../abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "../../enums";
 import {
-  CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
+  CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../key-state/vault-settings.state";
 import { RestrictedItemTypesService } from "../restricted-item-types.service";
 
@@ -52,7 +52,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   private clickItemsToAutofillVaultViewState: ActiveUserState<boolean> =
     this.stateProvider.getActive(CLICK_ITEMS_AUTOFILL_VAULT_VIEW);
   /**
-   * {@link VaultSettingsServiceAbstraction.clickItemsToAutofillVaultView$}
+   * {@link VaultSettingsServiceAbstraction.clickItemsToAutofillVaultView$$}
    */
   readonly clickItemsToAutofillVaultView$: Observable<boolean> =
     this.clickItemsToAutofillVaultViewState.state$.pipe(
