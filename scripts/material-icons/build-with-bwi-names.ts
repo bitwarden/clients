@@ -1,5 +1,3 @@
-#!/usr/bin/env ts-node
-
 /**
  * Builds icon font with Figma names directly (no remapping needed)
  * Handles icon variants for one-to-many mappings
