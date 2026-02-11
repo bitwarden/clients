@@ -1193,10 +1193,9 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<Cipher> {
     // The organization's symmetric key or the user's user key
     const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-    const cipherKeyEncryptionEnabled = await this.getCipherKeyEncryptionEnabled();
 
     const cipherKeyOrVaultKey =
-      cipherKeyEncryptionEnabled && cipher.key != null
+      cipher.key != null
         ? ((await this.encryptService.unwrapSymmetricKey(cipher.key, vaultKey)) as UserKey)
         : vaultKey;
 
