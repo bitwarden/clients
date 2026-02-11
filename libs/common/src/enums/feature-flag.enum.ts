@@ -169,7 +169,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockViaSDK]: FALSE,
+  [FeatureFlag.UnlockViaSDK]: true,
 
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
