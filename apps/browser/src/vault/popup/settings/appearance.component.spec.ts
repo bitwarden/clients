@@ -84,7 +84,7 @@ describe("AppearanceComponent", () => {
 
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31019ItemActionInExtension) {
+      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
         return featureFlag$.asObservable();
       }
       return of(false);
@@ -206,7 +206,7 @@ describe("AppearanceComponent", () => {
     });
   });
 
-  describe("PM31019ItemActionInExtension feature flag", () => {
+  describe("PM31039ItemActionInExtension feature flag", () => {
     describe("when set to OFF", () => {
       it("should show clickItemsToAutofillVaultView checkbox", () => {
         featureFlag$.next(false);

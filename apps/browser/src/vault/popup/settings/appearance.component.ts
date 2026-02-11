@@ -63,7 +63,7 @@ export class AppearanceComponent implements OnInit {
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM31019ItemActionInExtension),
+    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
     { initialValue: false },
   );
 

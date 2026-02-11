@@ -95,7 +95,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM31019ItemActionInExtension),
+    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
     { initialValue: false },
   );
 
@@ -242,31 +242,29 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
       // Use autofill title when autofill is the primary action
-      const key = this.shouldAutofillOnSelect() ? "autofillTitle" : "viewItemTitle";
+      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
 
   /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
    * Option to show the autofill button for each item.
    * Used when feature flag is disabled.
    */
   readonly showAutofillButton = input(false, { transform: booleanAttribute });
 
   /**
-   * Option to mark this container as an autofill list (new behavior with feature flag).
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * Whether to show the autofill badge button (old behavior).
+   * Only shown when feature flag is disabled AND conditions are met.
    */
-  readonly isAutofillList = input(false, { transform: booleanAttribute });
-
-  /**
-   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
-   * Used when feature flag is disabled.
-   */
-  readonly hideAutofillButton = computed(
-    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
+  readonly showAutofillBadge = computed(
+    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
   );
 
   /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
    * Flag indicating whether the cipher item autofill menu options should be shown or not.
    * Used when feature flag is disabled.
    */
@@ -275,37 +273,46 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   );
 
   /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
    * Option to perform autofill operation as the primary action for autofill suggestions.
    * Used when feature flag is disabled.
    */
   readonly primaryActionAutofill = input(false, { transform: booleanAttribute });
 
   /**
-   * Computed property whether the cipher select action should perform autofill.
-   * When feature flag is enabled, uses isAutofillList.
-   * When feature flag is disabled, uses primaryActionAutofill.
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
+   * Used when feature flag is disabled.
    */
-  readonly shouldAutofillOnSelect = computed(() => {
-    if (this.simplifiedItemActionEnabled()) {
-      return this.isAutofillList() && !this.currentUriIsBlocked();
-    }
-    return this.primaryActionAutofill() && !this.currentUriIsBlocked();
-  });
-
-  /**
-   * Whether to show the "Fill" text on hover (new behavior).
-   * Only shown when feature flag is enabled AND this is an autofill list.
-   */
-  readonly showFillTextOnHover = computed(
-    () => this.simplifiedItemActionEnabled() && this.isAutofillList(),
+  readonly hideAutofillButton = computed(
+    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
   );
 
   /**
-   * Whether to show the autofill badge button (old behavior).
-   * Only shown when feature flag is disabled AND conditions are met.
+   * Option to mark this container as an autofill list.
    */
-  readonly showAutofillBadge = computed(
-    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
+  readonly isAutofillList = input(false, { transform: booleanAttribute });
+
+  /**
+   * Computed property whether the cipher action may perform autofill.
+   * When feature flag is enabled, uses isAutofillList.
+   * When feature flag is disabled, uses primaryActionAutofill.
+   */
+  readonly canAutofill = computed(() => {
+    if (this.currentUriIsBlocked()) {
+      return false;
+    }
+    return this.isAutofillList()
+      ? this.simplifiedItemActionEnabled()
+      : this.primaryActionAutofill();
+  });
+
+  /**
+   * Whether to show the "Fill" text on hover.
+   * Only shown when feature flag is enabled AND this is an autofill list.
+   */
+  readonly showFillTextOnHover = computed(
+    () => this.simplifiedItemActionEnabled() && this.canAutofill(),
   );
 
   /**
@@ -321,7 +328,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * Old behavior: show when not hidden by hideAutofillMenuOptions.
    */
   readonly showAutofillInMenu = computed(() =>
-    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.hideAutofillMenuOptions(),
+    this.simplifiedItemActionEnabled() ? !this.canAutofill() : !this.hideAutofillMenuOptions(),
   );
 
   /**
@@ -382,7 +389,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.shouldAutofillOnSelect() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
   }
 
   /**

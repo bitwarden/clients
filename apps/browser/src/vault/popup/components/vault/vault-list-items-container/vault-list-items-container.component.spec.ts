@@ -46,7 +46,7 @@ describe("VaultListItemsContainerComponent", () => {
 
   const configService = {
     getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31019ItemActionInExtension) {
+      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
         return featureFlag$.asObservable();
       }
       return of(false);
