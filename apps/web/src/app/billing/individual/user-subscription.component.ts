@@ -79,13 +79,10 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$);
-    if (
-      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
-    ) {
-      this.loading = true;
-      this.sub = await this.apiService.getUserSubscription();
-    } else {
+    this.loading = true;
+    this.sub = await this.apiService.getUserSubscription();
+
+    if (!this.sub) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/premium"]);
