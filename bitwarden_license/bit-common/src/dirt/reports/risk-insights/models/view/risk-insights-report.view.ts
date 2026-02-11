@@ -7,7 +7,7 @@ import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
 import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 import { RiskInsightsReport } from "../domain/risk-insights-report";
 
-import { MemberRegistry, MemberRegistryEntry } from "./member-registry.view";
+import { MemberRegistry, MemberRegistryEntry } from "./risk-insights.view";
 
 /**
  * View model for Risk Insights Report containing decrypted application health data

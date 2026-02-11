@@ -21,6 +21,7 @@ export class RiskInsightsApi extends BaseResponse {
   reports: string = "";
   applications: string = "";
   summary: string = "";
+  memberRegistry: string = "";
   creationDate: string = "";
   contentEncryptionKey: string = "";
 
@@ -36,6 +37,7 @@ export class RiskInsightsApi extends BaseResponse {
     this.reports = this.getResponseProperty("reportData");
     this.applications = this.getResponseProperty("applicationData");
     this.summary = this.getResponseProperty("summaryData");
+    this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
 
     // Use when individual values are encrypted

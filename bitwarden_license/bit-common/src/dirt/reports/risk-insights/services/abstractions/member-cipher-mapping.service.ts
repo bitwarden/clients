@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { MemberRegistry } from "../../models/view/member-registry.view";
+import { MemberRegistry } from "../../models/view/risk-insights.view";
 
 /**
  * Organization User View (simplified interface for type safety)
