@@ -97,6 +97,7 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
 });
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
+export const TARGETING_RULES_DISK = new StateDefinition("targetingRules", "disk");
 
 // Components
 
