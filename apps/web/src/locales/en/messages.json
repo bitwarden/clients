@@ -268,6 +268,42 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
@@ -10148,6 +10184,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
   },
@@ -11860,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
   "itemWasUnarchived": {
     "message": "Item was unarchived"
   },
@@ -12864,7 +12900,7 @@
     "message": "Prices exclude tax and are billed annually."
   },
   "invoicePreviewErrorMessage": {
-    "message": "Encountered an error while generating the invoice preview." 
+    "message": "Encountered an error while generating the invoice preview."
   },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
