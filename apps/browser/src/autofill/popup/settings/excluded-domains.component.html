@@ -7,11 +7,7 @@
 
   <div class="tw-bg-background-alt">
     <p>
-      {{
-        (accountSwitcherEnabled$ | async)
-          ? ("excludedDomainsDescAlt" | i18n)
-          : ("excludedDomainsDesc" | i18n)
-      }}
+      {{ "excludedDomainsDesc" | i18n }}
     </p>
     <bit-section *ngIf="!isLoading">
       <bit-section-header>
