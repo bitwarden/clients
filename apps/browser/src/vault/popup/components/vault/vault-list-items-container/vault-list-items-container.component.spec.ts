@@ -94,7 +94,7 @@ describe("VaultListItemsContainerComponent", () => {
     component = fixture.componentInstance;
   });
 
-  describe("Feature flag behavior", () => {
+  describe("Updated item action feature flag", () => {
     describe("when feature flag is OFF", () => {
       beforeEach(() => {
         featureFlag$.next(false);
@@ -201,7 +201,7 @@ describe("VaultListItemsContainerComponent", () => {
         expect(component.showFillTextOnHover()).toBe(false);
       });
 
-      it("should not show autofill badge (new behavior uses text instead)", () => {
+      it("should not show autofill badge", () => {
         fixture.componentRef.setInput("isAutofillList", true);
         fixture.componentRef.setInput("showAutofillButton", true);
         fixture.detectChanges();
