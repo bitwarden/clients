@@ -52,15 +52,15 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
     }
 
     // Build the member registry from all unique member IDs
-    const registry = new MemberRegistry();
+    const registry: MemberRegistry = {};
     allMemberIds.forEach((id) => {
       const member = memberMap.get(id);
       if (member) {
-        registry.add({
+        registry[id] = {
           id: member.id,
           userName: member.name ?? "",
           email: member.email,
-        });
+        };
       }
     });
 
@@ -77,14 +77,14 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
    * Builds a member registry from an array of members.
    */
   buildMemberRegistry(members: OrganizationUserView[]): Observable<MemberRegistry> {
-    const registry = new MemberRegistry();
+    const registry: MemberRegistry = {};
 
     members.forEach((member) => {
-      registry.add({
+      registry[member.id] = {
         id: member.id,
         userName: member.name ?? "",
         email: member.email,
-      });
+      };
     });
 
     return of(registry);

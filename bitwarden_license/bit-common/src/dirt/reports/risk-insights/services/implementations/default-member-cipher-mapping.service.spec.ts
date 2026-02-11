@@ -67,8 +67,8 @@ describe("DefaultMemberCipherMappingService", () => {
 
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
       expect(result.mapping.get("cipher-1")?.length).toBe(2);
-      expect(result.registry.size()).toBe(2);
-      expect(result.registry.get("user-1")).toEqual({
+      expect(Object.keys(result.registry).length).toBe(2);
+      expect(result.registry["user-1"]).toEqual({
         id: "user-1",
         userName: "Alice",
         email: "alice@example.com",
@@ -90,7 +90,7 @@ describe("DefaultMemberCipherMappingService", () => {
 
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
       expect(result.mapping.get("cipher-1")?.length).toBe(2);
-      expect(result.registry.size()).toBe(2);
+      expect(Object.keys(result.registry).length).toBe(2);
     });
 
     it("should combine direct users and group members", async () => {
@@ -111,7 +111,7 @@ describe("DefaultMemberCipherMappingService", () => {
         expect.arrayContaining(["user-1", "user-2", "user-3"]),
       );
       expect(result.mapping.get("cipher-1")?.length).toBe(3);
-      expect(result.registry.size()).toBe(3);
+      expect(Object.keys(result.registry).length).toBe(3);
     });
 
     it("should deduplicate users across multiple collections", async () => {
@@ -130,7 +130,7 @@ describe("DefaultMemberCipherMappingService", () => {
       // User should appear only once despite being in multiple collections
       expect(result.mapping.get("cipher-1")).toEqual(["user-1"]);
       expect(result.mapping.get("cipher-1")?.length).toBe(1);
-      expect(result.registry.size()).toBe(1);
+      expect(Object.keys(result.registry).length).toBe(1);
     });
 
     it("should deduplicate users from direct access and group membership", async () => {
@@ -146,7 +146,7 @@ describe("DefaultMemberCipherMappingService", () => {
       // User should appear only once despite having both direct and group access
       expect(result.mapping.get("cipher-1")).toEqual(["user-1"]);
       expect(result.mapping.get("cipher-1")?.length).toBe(1);
-      expect(result.registry.size()).toBe(1);
+      expect(Object.keys(result.registry).length).toBe(1);
     });
 
     it("should handle multiple ciphers with different member access", async () => {
@@ -170,7 +170,7 @@ describe("DefaultMemberCipherMappingService", () => {
 
       expect(result.mapping.get("cipher-1")).toEqual(["user-1"]);
       expect(result.mapping.get("cipher-2")).toEqual(["user-2"]);
-      expect(result.registry.size()).toBe(2);
+      expect(Object.keys(result.registry).length).toBe(2);
     });
 
     it("should handle multiple ciphers with overlapping member access", async () => {
@@ -195,7 +195,7 @@ describe("DefaultMemberCipherMappingService", () => {
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
       expect(result.mapping.get("cipher-2")).toEqual(["user-2"]);
       // Registry should contain both users (deduplicated)
-      expect(result.registry.size()).toBe(2);
+      expect(Object.keys(result.registry).length).toBe(2);
     });
 
     it("should handle cipher with no collections", async () => {
@@ -209,7 +209,7 @@ describe("DefaultMemberCipherMappingService", () => {
       );
 
       expect(result.mapping.get("cipher-1")).toEqual([]);
-      expect(result.registry.size()).toBe(0);
+      expect(Object.keys(result.registry).length).toBe(0);
     });
 
     it("should handle cipher with collection but no access defined", async () => {
@@ -223,14 +223,14 @@ describe("DefaultMemberCipherMappingService", () => {
       );
 
       expect(result.mapping.get("cipher-1")).toEqual([]);
-      expect(result.registry.size()).toBe(0);
+      expect(Object.keys(result.registry).length).toBe(0);
     });
 
     it("should handle empty inputs", async () => {
       const result = await firstValueFrom(service.mapCiphersToMembers([], [], [], []));
 
       expect(result.mapping.size).toBe(0);
-      expect(result.registry.size()).toBe(0);
+      expect(Object.keys(result.registry).length).toBe(0);
     });
 
     it("should handle member with null name", async () => {
@@ -243,7 +243,7 @@ describe("DefaultMemberCipherMappingService", () => {
         service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
       );
 
-      expect(result.registry.get("user-1")?.userName).toBe("");
+      expect(result.registry["user-1"]?.userName).toBe("");
     });
 
     it("should handle complex scenario with multiple groups and collections", async () => {
@@ -278,7 +278,7 @@ describe("DefaultMemberCipherMappingService", () => {
         expect.arrayContaining(["user-1", "user-2", "user-3", "user-4"]),
       );
       expect(result.mapping.get("cipher-1")?.length).toBe(4);
-      expect(result.registry.size()).toBe(4);
+      expect(Object.keys(result.registry).length).toBe(4);
     });
   });
 
@@ -291,13 +291,13 @@ describe("DefaultMemberCipherMappingService", () => {
 
       const registry = await firstValueFrom(service.buildMemberRegistry(members));
 
-      expect(registry.size()).toBe(2);
-      expect(registry.get("user-1")).toEqual({
+      expect(Object.keys(registry).length).toBe(2);
+      expect(registry["user-1"]).toEqual({
         id: "user-1",
         userName: "Alice",
         email: "alice@example.com",
       });
-      expect(registry.get("user-2")).toEqual({
+      expect(registry["user-2"]).toEqual({
         id: "user-2",
         userName: "Bob",
         email: "bob@example.com",
@@ -307,7 +307,7 @@ describe("DefaultMemberCipherMappingService", () => {
     it("should handle empty members array", async () => {
       const registry = await firstValueFrom(service.buildMemberRegistry([]));
 
-      expect(registry.size()).toBe(0);
+      expect(Object.keys(registry).length).toBe(0);
     });
 
     it("should handle member with null name", async () => {
@@ -315,7 +315,7 @@ describe("DefaultMemberCipherMappingService", () => {
 
       const registry = await firstValueFrom(service.buildMemberRegistry(members));
 
-      expect(registry.get("user-1")?.userName).toBe("");
+      expect(registry["user-1"]?.userName).toBe("");
     });
   });
 });

@@ -266,7 +266,7 @@ function getApplicationMembers(
   // memberRefs is Record<OrganizationUserId, boolean>
   const memberIds = Object.keys(app.memberRefs);
 
-  return memberIds.map((id) => registry.get(id)).filter(Boolean); // Remove undefined entries
+  return memberIds.map((id) => registry[id]).filter(Boolean); // Remove undefined entries
 }
 
 // Example usage in component
@@ -284,7 +284,7 @@ export class ApplicationDetailsComponent {
 
   getMembers(app: ApplicationReport): MemberRegistryEntry[] {
     return Object.keys(app.memberRefs)
-      .map((id) => this.registry.get(id))
+      .map((id) => this.registry[id])
       .filter(Boolean);
   }
 }
@@ -387,7 +387,7 @@ const oldUniqueMemberCount = getUniqueMembers(flattenedMembers).length;
 const { registry } = await firstValueFrom(
   memberMappingService.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
 );
-const newUniqueMemberCount = registry.size();
+const newUniqueMemberCount = Object.keys(registry).length;
 
 expect(newUniqueMemberCount).toBe(oldUniqueMemberCount);
 ```
