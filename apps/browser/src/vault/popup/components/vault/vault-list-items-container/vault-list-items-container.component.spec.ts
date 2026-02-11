@@ -28,7 +28,7 @@ describe("VaultListItemsContainerComponent", () => {
   const featureFlag$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
 
-  const mockCipher: PopupCipherViewLike = {
+  const mockCipher = {
     id: "cipher-1",
     name: "Test Login",
     type: CipherType.Login,
