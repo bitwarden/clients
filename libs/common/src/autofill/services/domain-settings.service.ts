@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, map, Observable, switchMap, shareReplay } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap, shareReplay } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
@@ -24,6 +24,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { AutofillTargetingRules, AutofillTargetingRulesByDomain } from "../types";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -54,6 +55,14 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   {
     deserializer: (value: UriMatchStrategySetting) => value ?? UriMatchStrategy.Domain,
     clearOn: [],
+  },
+);
+
+const TARGETING_RULES = new KeyDefinition<AutofillTargetingRulesByDomain>(
+  DOMAIN_SETTINGS_DISK,
+  "fillAssistTargetingRules",
+  {
+    deserializer: (value: AutofillTargetingRulesByDomain) => value ?? null,
   },
 );
 
@@ -109,6 +118,22 @@ export abstract class DomainSettingsService {
    * Helper function for the common resolution of a given URL against equivalent domains
    */
   getUrlEquivalentDomains: (url: string) => Observable<Set<string>>;
+
+  /**
+   * Observable of all cached autofill targeting rules, keyed by normalized URL
+   */
+  targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
+
+  /**
+   * Update the cached targeting rules
+   */
+  setTargetingRules: (rules: AutofillTargetingRulesByDomain) => Promise<void>;
+
+  /**
+   * Look up targeting rules for a given URL, returning null if none exist.
+   * Performs exact match first (hostname + path), then hostname-only fallback.
+   */
+  getTargetingRulesForUrl: (url: string) => Promise<AutofillTargetingRules | null>;
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
@@ -130,6 +155,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   readonly defaultUriMatchStrategyPolicy$: Observable<UriMatchStrategySetting>;
 
   readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
+
+  private targetingRulesState: GlobalState<AutofillTargetingRulesByDomain>;
+  readonly targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -155,6 +183,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
     );
+
+    this.targetingRulesState = this.stateProvider.getGlobal(TARGETING_RULES);
+    this.targetingRules$ = this.targetingRulesState.state$.pipe(map((x) => x ?? null));
 
     this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -217,5 +248,49 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
 
     return domains$;
+  }
+
+  async setTargetingRules(rules: AutofillTargetingRulesByDomain): Promise<void> {
+    await this.targetingRulesState.update(() => rules);
+  }
+
+  async getTargetingRulesForUrl(url: URL["href"]): Promise<AutofillTargetingRules | null> {
+    const rules = await firstValueFrom(this.targetingRules$);
+    if (!rules) {
+      return null;
+    }
+
+    const normalizedURL = this.normalizeTargetingRulesUrl(url);
+    if (!normalizedURL) {
+      return null;
+    }
+
+    // Exact match first (hostname + path)
+    if (rules[normalizedURL]) {
+      return rules[normalizedURL];
+    }
+
+    // Fallback to hostname-only match
+    const hostnameOnly = new URL(url).hostname;
+    if (hostnameOnly && rules[hostnameOnly]) {
+      return rules[hostnameOnly];
+    }
+
+    return null;
+  }
+
+  private normalizeTargetingRulesUrl(url: string): string | null {
+    if (!url) {
+      return null;
+    }
+
+    try {
+      const parsed = new URL(url);
+      // remove trailing slash
+      const path = parsed.pathname.replace(/\/+$/, "") || "";
+      return `${parsed.hostname}${path}`;
+    } catch {
+      return null;
+    }
   }
 }
