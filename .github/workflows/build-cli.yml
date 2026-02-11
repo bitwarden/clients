@@ -146,7 +146,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -159,7 +159,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
@@ -440,7 +440,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -453,7 +453,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
