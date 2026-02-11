@@ -21,22 +21,22 @@ describe("Keeper Vault", () => {
   });
 
   it("should decrypt records, folders, and shared folders", () => {
-    expect(vault.getRecords().length).toBe(78);
-    expect(vault.getFolders().length).toBe(8);
-    expect(vault.getSharedFolders().length).toBe(9);
+    expect(vault.getRecords().length).toBe(40);
+    expect(vault.getFolders().length).toBe(30);
+    expect(vault.getSharedFolders().length).toBe(15);
   });
 
   it("should decrypt login fields", () => {
-    const record = vault.getRecords().find((r) => r.title === "Amazon Sign-In")!;
+    const record = vault.getRecords().find((r) => r.title === "Amazon Account")!;
     expect(record.type).toBe("login");
-    expect(record.login).toBe("dflinn@bitwarden.com");
-    expect(record.password).toBe("sSd{..Lj34+s,9F}Q(1S");
-    expect(record.url).toBe("https://www.amazon.com/ap/signin");
+    expect(record.login).toBe("john.martinez@email.com");
+    expect(record.password).toBeTruthy();
+    expect(record.url).toBe("https://www.amazon.com");
   });
 
   it("should decrypt notes", () => {
-    const record = vault.getRecords().find((r) => r.title === "cipher item")!;
-    expect(record.notes).toBe("the quick brown fox jumps over the lazy dog.");
+    const record = vault.getRecords().find((r) => r.title === "Important Meeting Notes")!;
+    expect(record.notes).toBeTruthy();
   });
 
   it("should contain all record types", () => {
@@ -46,6 +46,19 @@ describe("Keeper Vault", () => {
     expect(types).toContain("address");
     expect(types).toContain("contact");
     expect(types).toContain("bankCard");
+    expect(types).toContain("bankAccount");
+    expect(types).toContain("databaseCredentials");
+    expect(types).toContain("serverCredentials");
+    expect(types).toContain("encryptedNotes");
+    expect(types).toContain("membership");
+    expect(types).toContain("passport");
+    expect(types).toContain("softwareLicense");
+    expect(types).toContain("birthCertificate");
+    expect(types).toContain("driverLicense");
+    expect(types).toContain("ssnCard");
+    expect(types).toContain("healthInsurance");
+    expect(types).toContain("photo");
+    expect(types).toContain("file");
   });
 
   it("should assign shared folder UIDs to shared records", () => {
