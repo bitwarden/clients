@@ -423,6 +423,13 @@ describe("MasterPasswordLockComponent", () => {
           expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
 
           if (shouldEnable) {
+            // Mimic parent handling for PIN swap: child emits swapToPin, parent updates activeUnlockOption.
+            if (expectedUnlockOption === UnlockOption.Pin) {
+              component.swapToPin.subscribe(() => {
+                component.activeUnlockOption.set(UnlockOption.Pin);
+              });
+            }
+
             secondaryButton.nativeElement.click();
             expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
           } else {
