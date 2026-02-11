@@ -7,10 +7,10 @@ import {
   signal,
   computed,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, startWith } from "rxjs";
+import { combineLatest, debounceTime, EMPTY, map, startWith, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -22,6 +22,7 @@ import {
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   IconButtonModule,
@@ -30,8 +31,10 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  TooltipDirective,
   TypographyModule,
   ChipSelectComponent,
+  IconComponent,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
@@ -42,6 +45,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 import { AppTableRowScrollableM11Component } from "../shared/app-table-row-scrollable-m11.component";
 import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
+import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
 export const ApplicationFilterOption = {
   All: "all",
@@ -70,6 +74,8 @@ export type ApplicationFilterOption =
     ButtonModule,
     ReactiveFormsModule,
     ChipSelectComponent,
+    IconComponent,
+    TooltipDirective,
   ],
 })
 export class ApplicationsComponent implements OnInit {
@@ -86,13 +92,14 @@ export class ApplicationsComponent implements OnInit {
 
   // Template driven properties
   protected readonly selectedUrls = signal(new Set<string>());
-  protected readonly markingAsCritical = signal(false);
+  protected readonly updatingCriticalApps = signal(false);
   protected readonly applicationSummary = signal<OrganizationReportSummary>(createNewSummaryData());
   protected readonly criticalApplicationsCount = signal(0);
   protected readonly totalApplicationsCount = signal(0);
   protected readonly nonCriticalApplicationsCount = computed(() => {
     return this.totalApplicationsCount() - this.criticalApplicationsCount();
   });
+  protected readonly organizationId = signal<OrganizationId | undefined>(undefined);
 
   // filter related properties
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
@@ -112,14 +119,46 @@ export class ApplicationsComponent implements OnInit {
   ]);
   protected readonly emptyTableExplanation = signal("");
 
+  readonly allSelectedAppsAreCritical = computed(() => {
+    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
+      return false;
+    }
+
+    return this.dataSource.filteredData
+      .filter((row) => this.selectedUrls().has(row.applicationName))
+      .every((row) => row.isMarkedAsCritical);
+  });
+
+  protected readonly unassignedCipherIds = toSignal(
+    this.securityTasksService.unassignedCriticalCipherIds$,
+    { initialValue: [] },
+  );
+
+  readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
+
   constructor(
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
+    protected securityTasksService: AccessIntelligenceSecurityTasksService,
   ) {}
 
   async ngOnInit() {
+    this.activatedRoute.paramMap
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((params) => params.get("organizationId")),
+        switchMap(async (orgId) => {
+          if (orgId) {
+            this.organizationId.set(orgId as OrganizationId);
+          } else {
+            return EMPTY;
+          }
+        }),
+      )
+      .subscribe();
+
     this.dataService.enrichedReportData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (report) => {
         if (report != null) {
@@ -193,12 +232,8 @@ export class ApplicationsComponent implements OnInit {
     this.selectedFilter.set(value);
   }
 
-  isMarkedAsCriticalItem(applicationName: string) {
-    return this.selectedUrls().has(applicationName);
-  }
-
   markAppsAsCritical = async () => {
-    this.markingAsCritical.set(true);
+    this.updatingCriticalApps.set(true);
     const count = this.selectedUrls().size;
 
     this.dataService
@@ -209,10 +244,10 @@ export class ApplicationsComponent implements OnInit {
           this.toastService.showToast({
             variant: "success",
             title: "",
-            message: this.i18nService.t("criticalApplicationsMarkedSuccess", count.toString()),
+            message: this.i18nService.t("numCriticalApplicationsMarkedSuccess", count),
           });
           this.selectedUrls.set(new Set<string>());
-          this.markingAsCritical.set(false);
+          this.updatingCriticalApps.set(false);
         },
         error: () => {
           this.toastService.showToast({
@@ -223,6 +258,65 @@ export class ApplicationsComponent implements OnInit {
         },
       });
   };
+
+  unmarkAppsAsCritical = async () => {
+    this.updatingCriticalApps.set(true);
+    const appsToUnmark = this.selectedUrls();
+
+    this.dataService
+      .removeCriticalApplications(appsToUnmark)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t(
+              "numApplicationsUnmarkedCriticalSuccess",
+              appsToUnmark.size,
+            ),
+            variant: "success",
+          });
+          this.selectedUrls.set(new Set<string>());
+          this.updatingCriticalApps.set(false);
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
+      });
+  };
+
+  async requestPasswordChange() {
+    const orgId = this.organizationId();
+    if (!orgId) {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+      return;
+    }
+
+    try {
+      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+        orgId,
+        this.unassignedCipherIds(),
+      );
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
+  }
 
   showAppAtRiskMembers = async (applicationName: string) => {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
