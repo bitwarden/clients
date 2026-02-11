@@ -27,4 +27,5 @@ export function CipherIcon({ color, size, theme, uri }: CipherIconProps) {
 const cipherIconStyle = ({ width }: { width: string }) => css`
   width: ${width};
   height: fit-content;
+  max-height: 24px; /* fallback for Safari */
 `;

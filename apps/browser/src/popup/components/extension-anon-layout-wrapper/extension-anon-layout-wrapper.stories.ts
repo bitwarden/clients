@@ -10,6 +10,7 @@ import {
 import { of } from "rxjs";
 
 import { LockIcon, RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
+import { PopupWidthOptions } from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -243,7 +244,12 @@ export const DefaultContentExample: Story = {
   }),
   parameters: {
     chromatic: {
-      viewports: [380, 1280],
+      viewports: [
+        PopupWidthOptions.default,
+        PopupWidthOptions.narrow,
+        PopupWidthOptions.wide,
+        1280,
+      ],
     },
   },
 };

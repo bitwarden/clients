@@ -57,12 +57,8 @@
           <ng-container *ngIf="subscription">
             <ng-container *ngIf="enableDiscountDisplay$ | async as enableDiscount; else noDiscount">
               <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDateAndAmount' | i18n">
-                  {{
-                    (sub.subscription.periodEndDate | date: "MMM d, y") +
-                      ", " +
-                      (discountedSubscriptionAmount | currency: "$")
-                  }}
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
                 </span>
                 <billing-discount-badge
                   [discount]="getDiscount(sub?.customerDiscount)"
@@ -71,12 +67,8 @@
             </ng-container>
             <ng-template #noDiscount>
               <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDateAndAmount' | i18n">
-                  {{
-                    (sub.subscription.periodEndDate | date: "MMM d, y") +
-                      ", " +
-                      (subscriptionAmount | currency: "$")
-                  }}
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
                 </span>
               </div>
             </ng-template>

@@ -1,6 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { combineLatest, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
+import {
+  CollectionView,
+  CollectionTypes,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,8 +22,6 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
-
-import { CollectionData, CollectionTypes, CollectionView } from "../models";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
