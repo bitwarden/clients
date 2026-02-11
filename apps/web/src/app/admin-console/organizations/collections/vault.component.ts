@@ -472,7 +472,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               collections,
               filter.collectionId,
             );
-            searchableCollectionNodes = selectedCollection.children ?? [];
+            searchableCollectionNodes = selectedCollection?.children ?? [];
           }
 
           let collectionsToReturn: CollectionAdminView[] = [];
