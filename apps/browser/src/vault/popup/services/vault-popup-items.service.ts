@@ -135,24 +135,23 @@ export class VaultPopupItemsService {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-  private userCanArchive$ = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      return this.cipherArchiveService.userCanArchive$(userId);
-    }),
-  );
-
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.decryptedCollections$, this.userCanArchive$]).pipe(
-        map(([organizations, collections, canArchive]) => {
+      combineLatest([
+        this.organizations$,
+        this.decryptedCollections$,
+        this.cipherArchiveService.hasArchiveFlagEnabled$,
+      ]).pipe(
+        map(([organizations, collections, archiveFlag]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter(
               (c) =>
                 !CipherViewLikeUtils.isDeleted(c) &&
-                (!canArchive || !CipherViewLikeUtils.isArchived(c)),
+                (!archiveFlag || !CipherViewLikeUtils.isArchived(c)),
             )
+
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
                 (colId) => collectionMap[colId as CollectionId],
