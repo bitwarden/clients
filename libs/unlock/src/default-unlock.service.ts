@@ -42,7 +42,7 @@ export class DefaultUnlockService implements UnlockService {
     private stateProvider: StateProvider,
     private logService: LogService,
     private biometricsService: BiometricsService,
-  ) { }
+  ) {}
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
