@@ -12,11 +12,20 @@ import {
   Kdf,
   MasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
+  PureCrypto,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockService } from "./unlock.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { StateProvider } from "@bitwarden/state";
+import { MASTER_KEY, MASTER_KEY_HASH } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MasterKey } from "@bitwarden/common/types/key";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { LogService } from "@bitwarden/logging";
 
 export class DefaultUnlockService implements UnlockService {
   constructor(
@@ -26,9 +35,13 @@ export class DefaultUnlockService implements UnlockService {
     private kdfService: KdfConfigService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-  ) {}
+    private cryptoFunctionService: CryptoFunctionService,
+    private stateProvider: StateProvider,
+    private logService: LogService
+  ) { }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
+    const startTime = performance.now();
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
@@ -51,9 +64,16 @@ export class DefaultUnlockService implements UnlockService {
         }),
       ),
     );
+    this.logService.measure(
+      startTime,
+      "Unlock",
+      "DefaultUnlockService",
+      "unlockWithPin",
+    );
   }
 
   async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void> {
+    const startTime = performance.now();
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
@@ -75,6 +95,17 @@ export class DefaultUnlockService implements UnlockService {
           });
         }),
       ),
+    );
+    await this.setLegacyMasterKeyFromUnlockData(
+      masterPassword,
+      await this.getMasterPasswordUnlockData(userId),
+      userId,
+    );
+    this.logService.measure(
+      startTime,
+      "Unlock",
+      "DefaultUnlockService",
+      "unlockWithMasterPassword",
     );
   }
 
@@ -125,5 +156,32 @@ export class DefaultUnlockService implements UnlockService {
     );
     assertNonNullish(unlockData, "Master password unlock data is required");
     return unlockData.toSdk();
+  }
+
+  private async setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+    this.logService.info("[DefaultUnlockService] Setting legacy master key from unlock data");
+
+    // NOTE: This entire section is deprecated and will be removed as soon as
+    // the masterkey is dropped from state. It is very temporary.
+    await SdkLoadService.Ready;
+
+    const passwordBuffer = new TextEncoder().encode(password);
+    const saltBuffer = new TextEncoder().encode(masterPasswordUnlockData.salt);
+    const masterKey = PureCrypto.derive_kdf_material(passwordBuffer, saltBuffer, masterPasswordUnlockData.kdf);
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      masterKey,
+      password,
+      "sha256",
+      2 // HashPurpose.LocalAuthorization
+    );
+    await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => new SymmetricCryptoKey(masterKey) as MasterKey);
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => Utils.fromBufferToB64(hash));
   }
 }

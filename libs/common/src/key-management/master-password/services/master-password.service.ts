@@ -43,7 +43,7 @@ export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMOR
 });
 
 /** Disk since master key hash is used for unlock */
-const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "masterKeyHash", {
+export const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "masterKeyHash", {
   deserializer: (masterKeyHash) => masterKeyHash,
   clearOn: ["logout"],
 });
@@ -85,7 +85,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     private logService: LogService,
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
-  ) {}
+  ) { }
 
   async userHasMasterPassword(userId: UserId): Promise<boolean> {
     assertNonNullish(userId, "userId");

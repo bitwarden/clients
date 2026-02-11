@@ -19,6 +19,8 @@ import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 import { UnlockService } from "@bitwarden/unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 export class UnlockCommand {
   constructor(
@@ -33,7 +35,8 @@ export class UnlockCommand {
     private i18nService: I18nService,
     private encryptedMigrator: EncryptedMigrator,
     private masterPasswordUnlockService: MasterPasswordUnlockService,
-    private unlockService: UnlockService
+    private unlockService: UnlockService,
+    private configService: ConfigService,
   ) { }
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -54,15 +57,15 @@ export class UnlockCommand {
     const userId = activeAccount.id;
 
     try {
-      if (true) {
+      if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+        await this.unlockService.unlockWithMasterPassword(userId, password);
+      } else {
         const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
           password,
           userId,
         );
 
         await this.keyService.setUserKey(userKey, userId);
-      } else {
-        await this.unlockService.unlockWithMasterPassword(userId, password);
       }
     } catch (e) {
       return Response.error(e.message);

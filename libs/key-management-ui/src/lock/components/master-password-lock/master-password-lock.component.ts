@@ -38,6 +38,8 @@ import {
 } from "../../services/lock-component.service";
 import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 import { UnlockService } from "@bitwarden/unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -64,6 +66,7 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly messageListener = inject(MessageListener);
   private readonly unlockService = inject(UnlockService);
   private readonly keyService = inject(KeyService);
+  private readonly configService = inject(ConfigService);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
@@ -131,32 +134,45 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     masterPassword: string,
     activeUserId: UserId,
   ): Promise<void> {
-    await this.unlockService.unlockWithMasterPassword(activeUserId, masterPassword);
-    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
-    if (!userKey) {
-      this.logService.error(
-        "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
-      );
-    }
-    this.successfulUnlock.emit({ userKey: userKey!, masterPassword });
-    return;
-
-    try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        masterPassword,
-        activeUserId,
-      );
-      this.successfulUnlock.emit({ userKey, masterPassword });
-    } catch (error) {
-      this.logService.error(
-        "[MasterPasswordLockComponent] Failed to unlock via master password",
-        error,
-      );
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
+    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+      try {
+        await this.unlockService.unlockWithMasterPassword(activeUserId, masterPassword);
+        const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+        if (!userKey) {
+          this.logService.error(
+            "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
+          );
+        }
+        this.successfulUnlock.emit({ userKey: userKey!, masterPassword });
+      } catch (error) {
+        this.logService.error(
+          "[MasterPasswordLockComponent] Failed to unlock via master password",
+          error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidMasterPassword"),
+        });
+      }
+    } else {
+      try {
+        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+          masterPassword,
+          activeUserId,
+        );
+        this.successfulUnlock.emit({ userKey, masterPassword });
+      } catch (error) {
+        this.logService.error(
+          "[MasterPasswordLockComponent] Failed to unlock via master password",
+          error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidMasterPassword"),
+        });
+      }
     }
   }
 
