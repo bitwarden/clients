@@ -62,7 +62,6 @@ import {
   UnlockOptionValue,
 } from "../services/lock-component.service";
 
-
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
 import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 

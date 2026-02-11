@@ -4,23 +4,23 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
-import { UnlockService } from "@bitwarden/unlock";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 export class UnlockCommand {
   constructor(
@@ -37,7 +37,7 @@ export class UnlockCommand {
     private masterPasswordUnlockService: MasterPasswordUnlockService,
     private unlockService: UnlockService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
     const normalizedOptions = new Options(cmdOptions);
@@ -100,16 +100,16 @@ export class UnlockCommand {
     const res = new MessageResponse(
       "Your vault is now unlocked!",
       "\n" +
-      "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
-      '$ export BW_SESSION="' +
-      process.env.BW_SESSION +
-      '"\n' +
-      '> $env:BW_SESSION="' +
-      process.env.BW_SESSION +
-      '"\n\n' +
-      "You can also pass the session key to any command with the `--session` option. ex:\n" +
-      "$ bw list items --session " +
-      process.env.BW_SESSION,
+        "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
+        '$ export BW_SESSION="' +
+        process.env.BW_SESSION +
+        '"\n' +
+        '> $env:BW_SESSION="' +
+        process.env.BW_SESSION +
+        '"\n\n' +
+        "You can also pass the session key to any command with the `--session` option. ex:\n" +
+        "$ bw list items --session " +
+        process.env.BW_SESSION,
     );
     res.raw = process.env.BW_SESSION;
     return Response.success(res);
