@@ -44,31 +44,29 @@
           [cipher]="cipher"
         ></button>
       } @else {
-        <ng-container>
-          <button
-            type="button"
-            bitIconButton="bwi-clone"
-            size="small"
-            [label]="
-              hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-            "
-            [disabled]="!hasLoginValues"
-            [bitMenuTriggerFor]="loginOptions"
-          ></button>
-          <bit-menu #loginOptions>
-            <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
-              {{ "copyUsername" | i18n }}
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [label]="
+            hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+          "
+          [disabled]="!hasLoginValues"
+          [bitMenuTriggerFor]="loginOptions"
+        ></button>
+        <bit-menu #loginOptions>
+          <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+            {{ "copyUsername" | i18n }}
+          </button>
+          @if (cipher.viewPassword) {
+            <button type="button" bitMenuItem appCopyField="password" [cipher]="cipher">
+              {{ "copyPassword" | i18n }}
             </button>
-            @if (cipher.viewPassword) {
-              <button type="button" bitMenuItem appCopyField="password" [cipher]="cipher">
-                {{ "copyPassword" | i18n }}
-              </button>
-            }
-            <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
-              {{ "copyVerificationCode" | i18n }}
-            </button>
-          </bit-menu>
-        </ng-container>
+          }
+          <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
+            {{ "copyVerificationCode" | i18n }}
+          </button>
+        </bit-menu>
       }
     </bit-item-action>
   }
@@ -109,26 +107,24 @@
           showToast
         ></button>
       } @else {
-        <ng-container>
-          <button
-            type="button"
-            bitIconButton="bwi-clone"
-            size="small"
-            [label]="
-              hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-            "
-            [disabled]="!hasCardValues"
-            [bitMenuTriggerFor]="cardOptions"
-          ></button>
-          <bit-menu #cardOptions>
-            <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
-              {{ "copyNumber" | i18n }}
-            </button>
-            <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
-              {{ "copySecurityCode" | i18n }}
-            </button>
-          </bit-menu>
-        </ng-container>
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          size="small"
+          [label]="
+            hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+          "
+          [disabled]="!hasCardValues"
+          [bitMenuTriggerFor]="cardOptions"
+        ></button>
+        <bit-menu #cardOptions>
+          <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
+            {{ "copyNumber" | i18n }}
+          </button>
+          <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
+            {{ "copySecurityCode" | i18n }}
+          </button>
+        </bit-menu>
       }
     </bit-item-action>
   }
@@ -147,32 +143,30 @@
         showToast
       ></button>
     } @else {
-      <ng-container>
-        <button
-          type="button"
-          bitIconButton="bwi-clone"
-          size="small"
-          [label]="
-            hasIdentityValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
-          "
-          [disabled]="!hasIdentityValues"
-          [bitMenuTriggerFor]="identityOptions"
-        ></button>
-        <bit-menu #identityOptions>
-          <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
-            {{ "copyUsername" | i18n }}
-          </button>
-          <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher">
-            {{ "copyEmail" | i18n }}
-          </button>
-          <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher">
-            {{ "copyPhone" | i18n }}
-          </button>
-          <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher">
-            {{ "copyAddress" | i18n }}
-          </button>
-        </bit-menu>
-      </ng-container>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="
+          hasIdentityValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+        "
+        [disabled]="!hasIdentityValues"
+        [bitMenuTriggerFor]="identityOptions"
+      ></button>
+      <bit-menu #identityOptions>
+        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+          {{ "copyUsername" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher">
+          {{ "copyEmail" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher">
+          {{ "copyPhone" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher">
+          {{ "copyAddress" | i18n }}
+        </button>
+      </bit-menu>
     }
   </bit-item-action>
 }
