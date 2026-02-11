@@ -199,6 +199,7 @@ export class SendDetailsComponent implements OnInit {
             deletionDate: new Date(this.formattedDeletionDate),
             expirationDate: new Date(this.formattedDeletionDate),
             password: value.password,
+            authType: value.authType,
             emails: value.emails
               ? value.emails
                   .split(",")
@@ -312,7 +313,7 @@ export class SendDetailsComponent implements OnInit {
       const emails = control.value.split(",").map((e: string) => e.trim());
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
-      return invalidEmails.length > 0 ? { email: true } : null;
+      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
     };
   }
 
