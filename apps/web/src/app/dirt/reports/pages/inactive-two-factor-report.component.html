@@ -36,13 +36,13 @@
               }
             </bit-toggle-group>
           } @else {
-            <bit-chip-select
+            <bit-chip-filter
               [placeholderText]="chipSelectOptions[0].label"
               [options]="chipSelectOptions"
               [ngModel]="selectedFilterChip"
               (ngModelChange)="filterOrgToggleChipSelect($event)"
               fullWidth="true"
-            ></bit-chip-select>
+            ></bit-chip-filter>
           }
         }
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">

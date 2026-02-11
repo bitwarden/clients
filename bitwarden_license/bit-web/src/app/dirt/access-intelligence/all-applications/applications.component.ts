@@ -33,7 +33,7 @@ import {
   ToastService,
   TooltipDirective,
   TypographyModule,
-  ChipSelectComponent,
+  ChipFilterComponent,
   IconComponent,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
@@ -73,7 +73,7 @@ export type ApplicationFilterOption =
     TypographyModule,
     ButtonModule,
     ReactiveFormsModule,
-    ChipSelectComponent,
+    ChipFilterComponent,
     IconComponent,
     TooltipDirective,
   ],
