@@ -5,14 +5,19 @@ import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher
 import { StateClient, Repository } from "@bitwarden/sdk-internal";
 
 import { StateProvider, UserKeyDefinition } from "../../state";
+import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
 
 export async function initializeState(
   userId: UserId,
   stateClient: StateClient,
   stateProvider: StateProvider,
 ): Promise<void> {
-  await stateClient.register_cipher_repository(
-    new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
+  stateClient.register_client_managed_repositories(
+    {
+      cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
+      folder: null,
+      user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
+    }
   );
 }
 
@@ -27,7 +32,7 @@ class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
     private userId: UserId,
     private stateProvider: StateProvider,
     private mapper: SdkRecordMapper<ClientType, SdkType>,
-  ) {}
+  ) { }
 
   async get(id: string): Promise<SdkType | null> {
     const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
