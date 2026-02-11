@@ -170,14 +170,14 @@ describe("VaultListItemsContainerComponent", () => {
         fixture.componentRef.setInput("primaryActionAutofill", true);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(true);
+        expect(component.canAutofill()).toBe(true);
       });
 
       it("should not autofill on select when primaryActionAutofill is false", () => {
         fixture.componentRef.setInput("primaryActionAutofill", false);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(false);
+        expect(component.canAutofill()).toBe(false);
       });
     });
 
@@ -255,14 +255,14 @@ describe("VaultListItemsContainerComponent", () => {
         fixture.componentRef.setInput("isAutofillList", true);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(true);
+        expect(component.canAutofill()).toBe(true);
       });
 
       it("should not autofill on select for non-autofill list items", () => {
         fixture.componentRef.setInput("isAutofillList", false);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(false);
+        expect(component.canAutofill()).toBe(false);
       });
     });
 
@@ -277,7 +277,7 @@ describe("VaultListItemsContainerComponent", () => {
         fixture.componentRef.setInput("isAutofillList", true);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(false);
+        expect(component.canAutofill()).toBe(false);
       });
 
       it("should not autofill on select even when primaryActionAutofill is true", () => {
@@ -285,13 +285,13 @@ describe("VaultListItemsContainerComponent", () => {
         fixture.componentRef.setInput("primaryActionAutofill", true);
         fixture.detectChanges();
 
-        expect(component.shouldAutofillOnSelect()).toBe(false);
+        expect(component.canAutofill()).toBe(false);
       });
     });
   });
 
   describe("cipherItemTitleKey", () => {
-    it("should return autofillTitle when shouldAutofillOnSelect is true", () => {
+    it("should return autofillTitle when canAutofill is true", () => {
       featureFlag$.next(true);
       fixture.componentRef.setInput("isAutofillList", true);
       fixture.detectChanges();
@@ -302,7 +302,7 @@ describe("VaultListItemsContainerComponent", () => {
       expect(result).toBe("autofillTitleWithField");
     });
 
-    it("should return viewItemTitle when shouldAutofillOnSelect is false", () => {
+    it("should return viewItemTitle when canAutofill is false", () => {
       featureFlag$.next(true);
       fixture.componentRef.setInput("isAutofillList", false);
       fixture.detectChanges();
