@@ -1,7 +1,6 @@
 export type PhishingResource = {
   name?: string;
   primaryUrl: string;
-  fallbackUrl: string;
   checksumUrl: string;
   todayUrl: string;
   /** Matcher used to decide whether a given URL matches an entry from this resource */
@@ -21,7 +20,6 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
       name: "Phishing.Database Domains",
       primaryUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-ACTIVE.txt",
-      fallbackUrl: "https://phish.co.za/latest/phishing-domains-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
@@ -49,7 +47,6 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
     {
       name: "Phishing.Database Links",
       primaryUrl: "https://assets.bitwarden.com/security/v1/link-blocklist.txt",
-      fallbackUrl: "https://phish.co.za/latest/phishing-links-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
