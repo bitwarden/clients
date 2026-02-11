@@ -11899,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
   "itemWasUnarchived": {
     "message": "Item was unarchived"
   },
@@ -12903,7 +12900,7 @@
     "message": "Prices exclude tax and are billed annually."
   },
   "invoicePreviewErrorMessage": {
-    "message": "Encountered an error while generating the invoice preview." 
+    "message": "Encountered an error while generating the invoice preview."
   },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
