@@ -15,6 +15,22 @@ export default class BrowserLocalStorageService extends AbstractChromeStorageSer
     return await this.getWithRetries<T>(key, 0);
   }
 
+  /**
+   * Retrieves all storage keys.
+   *
+   * Returns all keys stored in local storage when the browser supports the getKeys API (Chrome 130+).
+   * Returns an empty array on older browser versions where this feature is unavailable.
+   *
+   * @returns Array of storage keys, or empty array if the feature is not supported
+   */
+  async getKeys(): Promise<string[]> {
+    // getKeys function is only available since Chrome 130
+    if ("getKeys" in this.chromeStorageApi) {
+      return this.chromeStorageApi.getKeys();
+    }
+    return [];
+  }
+
   private async getWithRetries<T>(key: string, retryNum: number): Promise<T> {
     // See: https://github.com/EFForg/privacybadger/pull/2980
     const MAX_RETRIES = 5;

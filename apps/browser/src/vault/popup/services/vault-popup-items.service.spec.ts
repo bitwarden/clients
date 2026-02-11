@@ -69,7 +69,7 @@ describe("VaultPopupItemsService", () => {
   const accountServiceMock = mockAccountServiceWith(userId);
   const configServiceMock = mock<ConfigService>();
   const cipherArchiveServiceMock = mock<CipherArchiveService>();
-  cipherArchiveServiceMock.userCanArchive$.mockReturnValue(of(true));
+  cipherArchiveServiceMock.hasArchiveFlagEnabled$ = of(true);
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
@@ -318,6 +318,25 @@ describe("VaultPopupItemsService", () => {
       service.autoFillCiphers$.subscribe((ciphers) => {
         expect(ciphers[0].name.includes(searchText)).toBe(true);
         expect(ciphers.length).toBe(1);
+        done();
+      });
+    });
+  });
+
+  describe("filteredCiphers$", () => {
+    it("should filter filteredCipher$ down to search term", (done) => {
+      const cipherList = Object.values(allCiphers);
+      const searchText = "Login";
+
+      searchService.searchCiphers.mockImplementation(async () => {
+        return cipherList.filter((cipher) => {
+          return cipher.name.includes(searchText);
+        });
+      });
+
+      service.filteredCiphers$.subscribe((ciphers) => {
+        // There are 10 ciphers but only 3 with "Login" in the name
+        expect(ciphers.length).toBe(3);
         done();
       });
     });

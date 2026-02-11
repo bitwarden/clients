@@ -33,6 +33,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -100,9 +101,9 @@ export class vNextMembersComponent {
   private policyService = inject(PolicyService);
   private policyApiService = inject(PolicyApiServiceAbstraction);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
-  private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
+  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -114,7 +115,7 @@ export class vNextMembersComponent {
   protected statusToggle = new BehaviorSubject<OrganizationUserStatusType | undefined>(undefined);
 
   protected readonly dataSource: Signal<MembersTableDataSource> = signal(
-    new MembersTableDataSource(this.configService, this.environmentService),
+    new MembersTableDataSource(this.environmentService),
   );
   protected readonly organization: Signal<Organization | undefined>;
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
@@ -127,6 +128,16 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map(
+        (members) => members.filter((m) => m.status === OrganizationUserStatusType.Invited).length,
+      ),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.memberActionsService.isProcessing;
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
@@ -135,6 +146,10 @@ export class vNextMembersComponent {
 
   protected readonly showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
+  );
+
+  protected readonly bulkReinviteUIEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
   );
 
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
@@ -389,9 +404,9 @@ export class vNextMembersComponent {
     // Capture the original count BEFORE enforcing the limit
     const originalInvitedCount = allInvitedUsers.length;
 
-    // When feature flag is enabled, limit invited users and uncheck the excess
+    // In cloud environments, limit invited users and uncheck the excess
     let filteredUsers: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+    if (this.dataSource().isIncreasedBulkLimitEnabled() && !this.bulkReinviteUIEnabled()) {
       filteredUsers = this.dataSource().limitAndUncheckExcess(
         allInvitedUsers,
         CloudBulkReinviteLimit,
@@ -409,21 +424,19 @@ export class vNextMembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(
-      organization,
-      filteredUsers.map((user) => user.id as UserId),
-    );
+    const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
 
     if (!result.successful) {
       this.validationService.showError(result.failed);
     }
 
-    // When feature flag is enabled, show toast instead of dialog
+    // In cloud environments, show toast instead of dialog
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
       const selectedCount = originalInvitedCount;
       const invitedCount = filteredUsers.length;
 
-      if (selectedCount > CloudBulkReinviteLimit) {
+      // Only show limited toast if feature flag is disabled and limit was applied
+      if (!this.bulkReinviteUIEnabled() && selectedCount > CloudBulkReinviteLimit) {
         const excludedCount = selectedCount - CloudBulkReinviteLimit;
         this.toastService.showToast({
           variant: "success",
@@ -437,11 +450,14 @@ export class vNextMembersComponent {
       } else {
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          message:
+            invitedCount === 1
+              ? this.i18nService.t("reinviteSuccessToast")
+              : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
         });
       }
     } else {
-      // Feature flag disabled - show legacy dialog
+      // In self-hosted environments, show legacy dialog
       await this.memberDialogManager.openBulkStatusDialog(
         users,
         filteredUsers,
@@ -449,6 +465,8 @@ export class vNextMembersComponent {
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
+
+    this.dataSource().uncheckAllUsers();
   }
 
   async bulkConfirm(organization: Organization) {
@@ -514,7 +532,7 @@ export class vNextMembersComponent {
     if (result.error != null) {
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(result.error),
+        message: result.error,
       });
       this.logService.error(result.error);
       return;

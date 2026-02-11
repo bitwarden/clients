@@ -137,10 +137,6 @@
     "message": "Send részletek",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Megosztandó szöveg"
   },
@@ -2091,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elem végleges törlése"
+  },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
   },
   "restoredItem": {
     "message": "Visszaállított elem"
@@ -4397,8 +4396,8 @@
   "archiveItem": {
     "message": "Elem archiválása"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "unArchiveAndSave": {
     "message": "Archiválás visszavonása és mentés"
@@ -4584,5 +4583,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "sendPasswordHelperText": {
+    "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Védett email cím"
+  },
+  "emails": {
+    "message": "Email címek"
+  },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
+  },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
