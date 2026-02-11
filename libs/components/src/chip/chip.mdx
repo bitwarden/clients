@@ -1,0 +1,149 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+A chip is a compact, interactive UI element used to represent an option, value, or action in a
+lightweight, scannable format. The base chip component represents user-provided values, entities, or
+selections that can be reviewed, edited, or removed.
+
+## Using chips
+
+Use chips when information or controls need to be:
+
+- Immediately recognizable
+- Quickly actionable
+- Easily grouped or compared
+- Secondary to the primary content or actions on the screen
+
+## Chip Types
+
+There are three types of chips in the component library:
+
+### Chip
+
+The `bit-chip` component represents user-provided values, entities, or selections that can be
+reviewed, edited, or removed. Use chips when users are entering or managing multiple discrete items,
+such as tags, users, or permissions.
+
+**This component is the chip variant.**
+
+<Canvas of={stories.Default} />
+
+### Action chip
+
+Action chips trigger a single contextual action related to the current view or task. They help users
+act quickly on what they're viewing without changing selection state or entering input. See
+[Chip Action](?path=/docs/component-library-chip-chip-action--docs) for more details.
+
+### Filter chip
+
+Filter chips allow users to narrow or refine a list of items by predefined criteria. Filter chips
+can be single select and toggle on/off, or they can be multi-select and open a dropdown menu. See
+[Chip Filter](?path=/docs/component-library-chip-chip-filter--docs) and
+[Chip Select](?path=/docs/component-library-chip-select--docs) for more details.
+
+## Content guidelines
+
+Chip copy should be **1-2 words**.
+
+If necessary, chip text should always be truncated with ellipses, not wrapped to a second line.
+
+## Basic usage
+
+The chip component displays a label with an optional start icon and a dismiss button.
+
+```html
+<bit-chip label="Tag name" startIcon="bwi-tag" (chipDismissed)="handleRemove()"> </bit-chip>
+```
+
+```ts
+@Component({
+  selector: "app-my-component",
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      <bit-chip
+        *ngFor="let tag of tags"
+        [label]="tag.name"
+        startIcon="bwi-tag"
+        (chipDismissed)="removeTag(tag)"
+      >
+      </bit-chip>
+    </div>
+  `,
+})
+class MyComponent {
+  protected tags = [
+    { id: 1, name: "Work" },
+    { id: 2, name: "Personal" },
+    { id: 3, name: "Important" },
+  ];
+
+  protected removeTag(tag: Tag) {
+    this.tags = this.tags.filter((t) => t.id !== tag.id);
+  }
+}
+```
+
+## Dismissing chips
+
+The chip component includes a built-in dismiss button (X icon) that emits a `chipDismissed` event
+when clicked. Handle this event to remove the chip from your collection.
+
+```html
+<bit-chip label="Removable tag" (chipDismissed)="handleDismiss()"> </bit-chip>
+```
+
+## Sizes
+
+Chips are available in two sizes: small and large (default).
+
+```html
+<!-- Small size -->
+<bit-chip label="Small" size="small"></bit-chip>
+
+<!-- Large size (default) -->
+<bit-chip label="Large" size="large"></bit-chip>
+```
+
+## Disabled state
+
+Chips can be disabled to prevent interaction.
+
+```html
+<bit-chip label="Disabled chip" [disabled]="true"> </bit-chip>
+```
+
+## With icons
+
+Add a start icon to provide additional visual context.
+
+```html
+<bit-chip label="User" startIcon="bwi-user"> </bit-chip>
+
+<bit-chip label="Folder" startIcon="bwi-folder"> </bit-chip>
+```
+
+## Full width
+
+Chips can expand to fill their container width.
+
+```html
+<bit-chip label="Full width chip" [fullWidth]="true"> </bit-chip>
+```
+
+## Accessibility
+
+- The chip includes proper `aria-disabled` attributes when disabled
+- The dismiss button includes an internationalized aria-label for screen readers
+- Ensure sufficient color contrast when using chips on different backgrounds
+- Use descriptive labels that clearly identify what the chip represents
