@@ -29,7 +29,7 @@
     "message": "Geçiş anahtarıyla giriş yap"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Kilidi geçiş anahtarıyla aç"
   },
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
   },
   "location": {
     "message": "Konum"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "E-posta"
   },
+  "emails": {
+    "message": "E-postalar"
+  },
   "phone": {
     "message": "Telefon"
   },
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "Özel"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3094,8 @@
     "message": "Send kaydedildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Uzantı dışarı alınsın mı?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Dosya Send'i oluşturmak için uzantıyı yeni bir pencere halinde dışarı almalısınız.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Dosya seçmek için eklentiyi kenar çubuğunda açın (mümkünse) veya bu banner'a tıklayarak yeni bir pencerede açın."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox ile dosya seçmek için eklentiyi kenar çubuğunda açın veya bu banner'a tıklayarak yeni bir pencerede açın."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari ile dosya seçmek için bu banner'a tıklayarak eklentiyi yeni bir pencerede açın."
-  },
   "popOut": {
     "message": "Dışarı al"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Başlamadan önce"
   },
   "expirationDateIsInvalid": {
     "message": "Belirtilen son kullanma tarihi geçersiz."
@@ -3371,10 +3356,10 @@
     "message": "Hata"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Kilit geçiş anahtarıyla açılamadı. Lütfen yeniden deneyin veya başka bir kilit açma yöntemi kullanın."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Kilit açma için PRF uyumlu bir geçiş anahtarı bulunamadı. Lütfen önce bir geçiş anahtarıyla giriş yapın."
   },
   "decryptionError": {
     "message": "Şifre çözme sorunu"
@@ -5001,6 +4986,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Ek dosyayı indir"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden’ı indirin"
   },
@@ -6115,7 +6103,35 @@
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
   },
+  "items": {
+    "message": "Kayıtlar"
+  },
+  "searchResults": {
+    "message": "Arama sonuçları"
+  },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

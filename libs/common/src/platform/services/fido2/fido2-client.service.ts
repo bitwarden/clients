@@ -3,6 +3,8 @@
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
@@ -62,6 +64,9 @@ export class Fido2ClientService<
       MAX: 600000,
     },
   };
+  protected readonly relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WebAuthnRelatedOrigins,
+  );
 
   constructor(
     private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
@@ -142,7 +147,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rp.id, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rp.id,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`,
       );
@@ -281,7 +292,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rpId, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rpId,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );

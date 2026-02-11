@@ -215,7 +215,10 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
@@ -333,4 +336,14 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       return { success: false, error: error.message };
     }
   };
+
+  get selectedInvitedCount(): number {
+    return this.dataSource
+      .getCheckedUsers()
+      .filter((member) => member.status === this.userStatusType.Invited).length;
+  }
+
+  get isSingleInvite(): boolean {
+    return this.selectedInvitedCount === 1;
+  }
 }
