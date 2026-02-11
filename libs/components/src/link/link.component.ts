@@ -56,6 +56,7 @@ const commonStyles = [
   "tw-cursor-pointer",
   "[&:hover_span]:tw-underline",
   "[&.tw-test-hover_span]:tw-underline",
+  "focus-visible:tw-underline",
   "[&:hover_span]:tw-decoration-[.125em]",
   "[&.tw-test-hover_span]:tw-decoration-[.125em]",
   "disabled:tw-no-underline",
