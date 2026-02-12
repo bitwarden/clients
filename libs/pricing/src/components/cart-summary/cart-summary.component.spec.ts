@@ -192,7 +192,7 @@ describe("CartSummaryComponent", () => {
     it("should display correct secrets manager information", () => {
       // Arrange
       const smSection = fixture.debugElement.query(By.css('[id="secrets-manager"]'));
-      const smHeading = smSection.query(By.css("h3"));
+      const smHeading = smSection?.query(By.css('div[bitTypography="h5"]'));
       const sectionText = fixture.debugElement.query(By.css('[id="secrets-manager-members"]'))
         .nativeElement.textContent;
       const additionalSA = fixture.debugElement.query(By.css('[id="additional-service-accounts"]'))
@@ -200,7 +200,8 @@ describe("CartSummaryComponent", () => {
 
       // Act/ Assert
       expect(smSection).toBeTruthy();
-      expect(smHeading.nativeElement.textContent.trim()).toBe("Secrets Manager");
+      expect(smHeading).toBeTruthy();
+      expect(smHeading!.nativeElement.textContent.trim()).toBe("Secrets Manager");
 
       // Check seats line item
       expect(sectionText).toContain("3 Secrets Manager seats");
@@ -245,13 +246,49 @@ describe("CartSummaryComponent", () => {
 
     it("should display term (month/year) in default header", () => {
       // Arrange / Act
-      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-main"));
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
       // Find the span that contains the term
       const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
 
       // Assert
       expect(termElement).toBeTruthy();
       expect(termElement!.nativeElement.textContent.trim()).toBe("/ month");
+    });
+
+    it("should hide term when hidePricingTerm is true", () => {
+      // Arrange
+      const cartWithHiddenTerm: Cart = {
+        ...mockCart,
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenTerm);
+      fixture.componentRef.setInput("hidePricingTerm", true);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(true);
+      expect(termElement).toBeFalsy();
+    });
+
+    it("should show term when hidePricingTerm is false", () => {
+      // Arrange
+      const cartWithVisibleTerm: Cart = {
+        ...mockCart,
+      };
+      fixture.componentRef.setInput("cart", cartWithVisibleTerm);
+      fixture.detectChanges();
+
+      // Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(component.hidePricingTerm()).toBe(false);
+      expect(termElement).toBeTruthy();
+      expect(termElement!.nativeElement.textContent).toContain("/ month");
     });
   });
 
@@ -287,7 +324,7 @@ describe("CartSummaryComponent", () => {
       );
 
       // Assert
-      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00 / month");
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00  / month");
     });
 
     it("should hide cost breakdown for additional storage when hideBreakdown is true", () => {
@@ -401,7 +438,7 @@ describe("CartSummaryComponent", () => {
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
       );
-      const discountLabel = discountSection.query(By.css("h3"));
+      const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
       const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
 
       // Act / Assert
@@ -426,7 +463,7 @@ describe("CartSummaryComponent", () => {
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
       );
-      const discountLabel = discountSection.query(By.css("h3"));
+      const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
       const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
 
       // Act / Assert
@@ -481,7 +518,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
-      const creditLabel = creditSection.query(By.css("h3"));
+      const creditLabel = creditSection.query(By.css('div[bitTypography="body1"]'));
       const creditAmount = creditSection.query(By.css('[data-testid="credit-amount"]'));
 
       // Act / Assert

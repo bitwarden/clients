@@ -7,6 +7,7 @@ export * from "./avatar";
 export * from "./badge-list";
 export * from "./badge";
 export * from "./banner";
+export * from "./berry";
 export * from "./breadcrumbs";
 export * from "./button";
 export * from "./callout";
