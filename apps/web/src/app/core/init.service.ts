@@ -43,6 +43,11 @@ export class InitService {
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
+  /**
+   * @deprecated Do not add new initialization logic here. Instead, have your service implement
+   * `AsyncInitializable` or `SyncInitializable` and register it with `initializableProvider()`.
+   * The `DecentralizedInitService` will automatically call `init()` in the correct order.
+   */
   init() {
     return async () => {
       await this.sdkLoadService.init();

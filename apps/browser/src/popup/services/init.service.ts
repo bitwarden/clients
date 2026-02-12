@@ -37,6 +37,11 @@ export class InitService implements AsyncInitializable {
 
   asyncDependencies: AsyncDependency[] = [SdkLoadService];
 
+  /**
+   * @deprecated Do not add new initialization logic here. Instead, have your service implement
+   * `AsyncInitializable` or `SyncInitializable` and register it with `initializableProvider()`.
+   * The `DecentralizedInitService` will automatically call `init()` in the correct order.
+   */
   async init(): Promise<void> {
     // SdkLoadService is handled by DecentralizedInitService
     await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
