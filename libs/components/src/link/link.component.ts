@@ -58,13 +58,12 @@ const commonStyles = [
   "[&.tw-test-hover_span]:tw-underline",
   "[&:hover_span]:tw-decoration-[.125em]",
   "[&.tw-test-hover_span]:tw-decoration-[.125em]",
-  "disabled:tw-no-underline",
-  "disabled:tw-cursor-not-allowed",
-  "disabled:!tw-text-fg-disabled",
-  "disabled:hover:!tw-text-fg-disabled",
-  "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
   "focus-visible:before:tw-ring-border-focus",
+  "[&:focus-visible_span]:tw-underline",
+  "[&:focus-visible_span]:tw-decoration-[.125em]",
+  "[&.tw-test-focus-visible_span]:tw-underline",
+  "[&.tw-test-focus-visible_span]:tw-decoration-[.125em]",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
@@ -93,6 +92,7 @@ const commonStyles = [
   "aria-disabled:!tw-text-fg-disabled",
   "aria-disabled:hover:!tw-text-fg-disabled",
   "aria-disabled:hover:tw-no-underline",
+  "[&[aria-disabled]:focus-visible_span]:!tw-no-underline",
 ];
 
 @Component({
