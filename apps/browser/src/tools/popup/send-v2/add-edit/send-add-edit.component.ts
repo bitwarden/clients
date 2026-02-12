@@ -9,9 +9,9 @@ import { map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -33,7 +33,6 @@ import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/pop
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dialog/send-file-popout-dialog-container.component";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -81,7 +80,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupPageComponent,
     PopupHeaderComponent,
     PopupFooterComponent,
-    SendFilePopoutDialogContainerComponent,
     SendFormModule,
     AsyncActionsModule,
     PopupBackBrowserDirective,

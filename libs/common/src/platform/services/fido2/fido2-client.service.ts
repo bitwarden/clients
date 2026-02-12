@@ -3,6 +3,8 @@
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
@@ -30,7 +32,6 @@ import {
   Fido2ClientService as Fido2ClientServiceAbstraction,
   PublicKeyCredentialParam,
   UserRequestedFallbackAbortReason,
-  UserVerification,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
@@ -63,6 +64,9 @@ export class Fido2ClientService<
       MAX: 600000,
     },
   };
+  protected readonly relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WebAuthnRelatedOrigins,
+  );
 
   constructor(
     private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
@@ -143,7 +147,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rp.id, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rp.id,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`,
       );
@@ -195,7 +205,7 @@ export class Fido2ClientService<
     }
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.authenticatorSelection?.userVerification,
+      makeCredentialParams.requireUserVerification,
       params.timeout,
     );
 
@@ -282,7 +292,13 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rpId, params.origin)) {
+    if (
+      !(await isValidRpId(
+        params.rpId,
+        params.origin,
+        await firstValueFrom(this.relatedOriginChecksEnabled$),
+      ))
+    ) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );
@@ -318,7 +334,7 @@ export class Fido2ClientService<
 
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.userVerification,
+      getAssertionParams.requireUserVerification,
       params.timeout,
     );
 
@@ -441,13 +457,13 @@ export class Fido2ClientService<
 
   private setAbortTimeout = (
     abortController: AbortController,
-    userVerification?: UserVerification,
+    requireUserVerification: boolean,
     timeout?: number,
   ): Subscription => {
     let clampedTimeout: number;
 
     const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
-    if (userVerification === "required") {
+    if (requireUserVerification) {
       timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
       clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
     } else {
