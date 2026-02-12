@@ -231,7 +231,7 @@ export class CipherAttachmentsComponent {
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.organization()?.canEditAllCiphers,
+        this.admin(),
       );
 
       // re-decrypt the cipher to update the attachments
