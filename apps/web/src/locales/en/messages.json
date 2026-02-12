@@ -4551,9 +4551,6 @@
   "loadingProgress": {
     "message": "Loading progress"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "This might take a few minutes."
-  },
   "reviewingMemberData": {
     "message": "Reviewing member data..."
   },
