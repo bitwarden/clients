@@ -106,7 +106,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];
       const url = tab.url ?? "";
-      if (url.startsWith("https://") || url.startsWith("http://localhost/")) {
+      if (url.startsWith("https://") || url.startsWith("http://localhost")) {
         void this.injectFido2ContentScripts(tab);
       }
     }
