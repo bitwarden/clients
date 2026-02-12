@@ -2,24 +2,27 @@
  * Example usage of DefaultDecentralizedInitService
  *
  * This file demonstrates how to:
- * 1. Make services implement Initializable
- * 2. Register services with INIT_SERVICES
- * 3. Use DefaultDecentralizedInitService in your app
+ * 1. Make services implement AsyncInitializable
+ * 2. Register services using initializableProvider()
+ * 3. Bootstrap DecentralizedInitService in your app module
  *
  * This is NOT production code - it's a reference example.
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable, provideAppInitializer } from "@angular/core";
 
 import {
   AsyncInitializable,
   AsyncDependency,
 } from "@bitwarden/common/platform/abstractions/initializable";
 
-import { INIT_SERVICES } from "../abstractions/decentralized-init.service";
+import {
+  DecentralizedInitService,
+  initializableProvider,
+} from "../abstractions/decentralized-init.service";
 
 // ============================================================================
-// STEP 1: Make your services implement Initializable
+// STEP 1: Make your services implement AsyncInitializable
 // ============================================================================
 
 /**
@@ -72,56 +75,46 @@ export class ExampleSyncService implements AsyncInitializable {
 }
 
 // ============================================================================
-// STEP 2: Register services in your library's provider bundle
+// STEP 2: Register services in your app's providers array
 // ============================================================================
 
 /**
- * Each library exports a provider array that apps can import.
- * Services with providedIn: 'root' don't need to be in the array,
- * but the INIT_SERVICES registration IS required to prevent tree-shaking.
+ * Use initializableProvider() to register each AsyncInitializable service.
+ * This creates a type-safe multi-provider entry for INIT_SERVICES,
+ * which prevents tree-shaking while providedIn: 'root' handles instantiation.
+ *
+ * Then use provideAppInitializer() to bootstrap DecentralizedInitService,
+ * which discovers all registered services and runs their init() methods
+ * in dependency order.
+ *
+ * Example providers array (e.g., in a services module or app config):
+ *
+ * ```typescript
+ * const safeProviders: SafeProvider[] = [
+ *   // Bootstrap DecentralizedInitService on app startup
+ *   safeProvider(
+ *     provideAppInitializer(() => {
+ *       const initService = inject(DecentralizedInitService);
+ *       return initService.init();
+ *     }),
+ *   ),
+ *
+ *   // Register each AsyncInitializable service
+ *   initializableProvider(ExampleConfigService),
+ *   initializableProvider(ExampleDatabaseService),
+ *   initializableProvider(ExampleSyncService),
+ * ];
+ * ```
  */
-export const EXAMPLE_LIBRARY_PROVIDERS = [
-  // The multi-provider registration prevents tree-shaking
-  // while providedIn: 'root' handles the actual service instantiation
-  { provide: INIT_SERVICES, useValue: ExampleConfigService, multi: true },
-  { provide: INIT_SERVICES, useValue: ExampleDatabaseService, multi: true },
-  { provide: INIT_SERVICES, useValue: ExampleSyncService, multi: true },
+export const EXAMPLE_PROVIDERS = [
+  provideAppInitializer(() => {
+    const initService = inject(DecentralizedInitService);
+    return initService.init();
+  }),
+  initializableProvider(ExampleConfigService),
+  initializableProvider(ExampleDatabaseService),
+  initializableProvider(ExampleSyncService),
 ];
-
-// ============================================================================
-// STEP 3: Use in your app config
-// ============================================================================
-
-/**
- * In your app's main config (e.g., app.config.ts or main.ts):
- *
- * import { DefaultDecentralizedInitService } from '@bitwarden/angular/platform/services/default-decentralized-init.service';
- * import { EXAMPLE_LIBRARY_PROVIDERS } from '@bitwarden/angular/platform/services/decentralized-init.service.example';
- *
- * export const appConfig: ApplicationConfig = {
- *   providers: [
- *     ...EXAMPLE_LIBRARY_PROVIDERS,
- *     DefaultDecentralizedInitService,
- *     {
- *       provide: APP_INITIALIZER,
- *       useFactory: (initService: DefaultDecentralizedInitService) => () => initService.init(),
- *       deps: [DefaultDecentralizedInitService],
- *       multi: true,
- *     },
- *   ]
- * };
- *
- * Or in your root component:
- *
- * @Component({ ... })
- * export class AppComponent {
- *   constructor(private initService: DefaultDecentralizedInitService) {}
- *
- *   ngOnInit() {
- *     await this.initService.init();
- *   }
- * }
- */
 
 // ============================================================================
 // EXECUTION ORDER
@@ -156,5 +149,5 @@ export const EXAMPLE_LIBRARY_PROVIDERS = [
  * If a service declares a dependency that isn't registered:
  * "ServiceA depends on ServiceB, but ServiceB is not registered in INIT_SERVICES.
  *  Make sure to add it to your providers array:
- *  { provide: INIT_SERVICES, useValue: ServiceB, multi: true }"
+ *  initializableProvider(ServiceB)"
  */
