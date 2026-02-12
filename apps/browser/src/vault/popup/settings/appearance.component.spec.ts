@@ -1,10 +1,12 @@
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -59,7 +61,7 @@ describe("AppearanceComponent", () => {
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
   const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
-  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(false);
+  const featureFlag$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
   const setShowFavicons = jest.fn().mockResolvedValue(undefined);
   const setEnableBadgeCounter = jest.fn().mockResolvedValue(undefined);
@@ -78,11 +80,20 @@ describe("AppearanceComponent", () => {
     setShowFavicons.mockClear();
     setEnableBadgeCounter.mockClear();
     setEnableRoutingAnimation.mockClear();
+    setClickItemsToAutofillVaultView.mockClear();
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
+        return featureFlag$.asObservable();
+      }
+      return of(false);
+    });
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent],
       providers: [
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -114,7 +125,7 @@ describe("AppearanceComponent", () => {
         {
           provide: VaultSettingsService,
           useValue: {
-            clickItemsToAutofillVaultView$,
+            clickItemsToAutofillVaultView$: of(false),
             setClickItemsToAutofillVaultView,
           },
         },
@@ -193,11 +204,40 @@ describe("AppearanceComponent", () => {
 
       expect(mockWidthService.setWidth).toHaveBeenCalledWith("wide");
     });
+  });
 
-    it("updates the click items to autofill vault view setting", () => {
-      component.appearanceForm.controls.clickItemsToAutofillVaultView.setValue(true);
+  describe("PM31039ItemActionInExtension feature flag", () => {
+    describe("when set to OFF", () => {
+      it("should show clickItemsToAutofillVaultView checkbox", () => {
+        featureFlag$.next(false);
+        fixture.detectChanges();
 
-      expect(setClickItemsToAutofillVaultView).toHaveBeenCalledWith(true);
+        const checkbox = fixture.debugElement.query(
+          By.css('input[formControlName="clickItemsToAutofillVaultView"]'),
+        );
+        expect(checkbox).not.toBeNull();
+      });
+
+      it("should update the clickItemsToAutofillVaultView setting when changed", () => {
+        featureFlag$.next(false);
+        fixture.detectChanges();
+
+        component.appearanceForm.controls.clickItemsToAutofillVaultView.setValue(true);
+
+        expect(setClickItemsToAutofillVaultView).toHaveBeenCalledWith(true);
+      });
+    });
+
+    describe("when set to ON", () => {
+      it("should hide clickItemsToAutofillVaultView checkbox", () => {
+        featureFlag$.next(true);
+        fixture.detectChanges();
+
+        const checkbox = fixture.debugElement.query(
+          By.css('input[formControlName="clickItemsToAutofillVaultView"]'),
+        );
+        expect(checkbox).toBeNull();
+      });
     });
   });
 });

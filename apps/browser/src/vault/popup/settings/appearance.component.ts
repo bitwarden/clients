@@ -2,14 +2,16 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -57,6 +59,13 @@ export class AppearanceComponent implements OnInit {
   private copyButtonsService = inject(VaultPopupCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
   private i18nService = inject(I18nService);
+  private configService = inject(ConfigService);
+
+  /** Signal for the feature flag that controls simplified item action behavior */
+  protected readonly simplifiedItemActionEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
+    { initialValue: false },
+  );
 
   appearanceForm = this.formBuilder.group({
     enableFavicon: false,

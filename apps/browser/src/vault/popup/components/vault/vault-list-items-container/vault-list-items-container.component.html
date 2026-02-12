@@ -90,11 +90,11 @@
       </ng-container>
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
           <button
             bit-item-content
             type="button"
-            (click)="primaryActionOnSelect(cipher)"
+            (click)="onCipherSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
               cipherItemTitleKey()(cipher)
@@ -125,32 +125,45 @@
           </button>
 
           <ng-container slot="end">
-            <bit-item-action *ngIf="!hideAutofillButton()">
-              <button
-                type="button"
-                bitBadge
-                variant="primary"
-                (click)="doAutofill(cipher)"
-                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-              >
-                {{ "fill" | i18n }}
-              </button>
-            </bit-item-action>
-            <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
-              <button
-                type="button"
-                bitIconButton="bwi-external-link"
-                size="small"
-                (click)="launchCipher(cipher)"
-                [label]="'launchWebsiteName' | i18n: cipher.name"
-              ></button>
-            </bit-item-action>
+            @if (showFillTextOnHover()) {
+              <bit-item-action>
+                <span
+                  class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100 tw-cursor-pointer"
+                >
+                  {{ "fill" | i18n }}
+                </span>
+              </bit-item-action>
+            }
+            @if (showAutofillBadge()) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitBadge
+                  variant="primary"
+                  (click)="doAutofill(cipher)"
+                  [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
+                  [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
+                >
+                  {{ "fill" | i18n }}
+                </button>
+              </bit-item-action>
+            }
+            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-external-link"
+                  size="small"
+                  (click)="launchCipher(cipher)"
+                  [label]="'launchWebsiteName' | i18n: cipher.name"
+                ></button>
+              </bit-item-action>
+            }
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             <app-item-more-options
               [cipher]="cipher"
-              [hideAutofillOptions]="hideAutofillMenuOptions()"
-              [showViewOption]="primaryActionAutofill()"
+              [showAutofill]="showAutofillInMenu()"
+              [showViewOption]="showViewInMenu()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
