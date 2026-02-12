@@ -62,7 +62,9 @@ function buildIconFont(): void {
     for (const [legacy, figma] of Object.entries(BWI_TO_FIGMA)) {
       if (legacy !== figma) {
         // Skip identity mappings
-        if (!reverseMap[figma]) {reverseMap[figma] = [];}
+        if (!reverseMap[figma]) {
+          reverseMap[figma] = [];
+        }
         reverseMap[figma].push(legacy);
       }
     }
@@ -71,7 +73,9 @@ function buildIconFont(): void {
     const legacyEntries = Object.entries(reverseMap)
       .flatMap(([figma, legacyNames]) => {
         const glyph = glyphMap[figma];
-        if (!glyph) {return [];} // Skip if Figma name not in glyphMap
+        if (!glyph) {
+          return [];
+        } // Skip if Figma name not in glyphMap
         return legacyNames.map((legacy) => ({ legacy, glyph }));
       })
       .sort((a, b) => a.legacy.localeCompare(b.legacy))
