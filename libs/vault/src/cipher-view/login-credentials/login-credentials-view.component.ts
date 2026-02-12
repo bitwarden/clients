@@ -9,7 +9,7 @@ import {
   Input,
   OnChanges,
   Output,
-  resource,
+  ResourceRef,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
@@ -35,7 +35,6 @@ import {
   ColorPasswordModule,
 } from "@bitwarden/components";
 
-import { ChangeLoginPasswordService } from "../../abstractions/change-login-password.service";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
@@ -75,6 +74,9 @@ export class LoginCredentialsViewComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showChangePasswordLink: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() changePasswordUrl: ResourceRef<string | null>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() handleChangePassword = new EventEmitter<void>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -93,18 +95,10 @@ export class LoginCredentialsViewComponent implements OnChanges {
 
   private datePipe = inject(DatePipe);
 
-  //there must be a way to pass this through instead of recreating the resource, but I couldn't figure it out
-  protected readonly changePasswordUrl = resource({
-    params: () => ({ cipher: this.cipher }),
-    loader: async ({ params }) =>
-      await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher),
-  });
-
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private i18nService: I18nService,
     private premiumUpgradeService: PremiumUpgradePromptService,
-    private changeLoginPasswordService: ChangeLoginPasswordService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
   ) {}
