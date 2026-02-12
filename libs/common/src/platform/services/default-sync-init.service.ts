@@ -2,14 +2,16 @@ import { Dependency } from "../abstractions/initializable";
 import { Injector } from "../abstractions/injector";
 import { SyncInitializable } from "../abstractions/sync-initializable";
 
+import { topologicalSort } from "./init-utils";
+
 /**
  * Framework-agnostic synchronous initialization service.
- * Executes init() methods synchronously in registration order.
+ * Executes init() methods synchronously in dependency order.
  *
  * Differences from async init:
- * - No dependency graph / topological sort
  * - No Promise handling
- * - Order is determined by registration order
+ * - Synchronous execution only
+ * - Uses same topological sort for dependency resolution
  * - Errors halt initialization immediately
  */
 export class DefaultSyncInitService {
@@ -28,8 +30,11 @@ export class DefaultSyncInitService {
       this.injector.get(token),
     );
 
+    // Sort by dependencies using shared utility
+    const sorted = topologicalSort(services, this.serviceTokens);
+
     // Execute init() synchronously for each service
-    for (const service of services) {
+    for (const service of sorted) {
       try {
         service.init();
       } catch (error) {
