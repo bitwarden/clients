@@ -9,15 +9,16 @@ import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 import { ImportResult } from "../../models";
 import { BaseImporter } from "../base-importer";
 
-import { Vault, VaultField, VaultRecord, VaultSharedFolder } from "./access";
+import { Vault, VaultField, VaultRecord } from "./access";
 
 export class KeeperDirectImporter extends BaseImporter {
-  private sharedFolderMap = new Map<string, VaultSharedFolder>();
+  private recordFolderPaths = new Map<string, string[]>();
 
   convertVaultToImportResult(vault: Vault, includeSharedFolders: boolean): ImportResult {
     const result = new ImportResult();
 
-    this.parseSharedFolders(vault);
+    this.recordFolderPaths = vault.getRecordFolderPaths();
+    this.parseAllFolders(vault, result);
     this.parseRecords(vault, result, includeSharedFolders);
     // TODO: resolveReferences (requires vault.ts to expose references from V3 record data)
 
@@ -29,20 +30,26 @@ export class KeeperDirectImporter extends BaseImporter {
     return result;
   }
 
-  private parseSharedFolders(vault: Vault): void {
-    this.sharedFolderMap.clear();
-    for (const sharedFolder of vault.getSharedFolders()) {
-      this.sharedFolderMap.set(sharedFolder.uid, sharedFolder);
+  private parseAllFolders(vault: Vault, result: ImportResult): void {
+    const allPaths = new Set<string>();
+    for (const paths of this.recordFolderPaths.values()) {
+      for (const path of paths) {
+        allPaths.add(path);
+      }
+    }
+    for (const path of allPaths) {
+      this.processFolder(result, path, false);
     }
   }
 
   private parseRecords(vault: Vault, result: ImportResult, includeSharedFolders: boolean): void {
     for (const record of vault.getRecords()) {
+      // TODO: What if the item is added to a shared folder and to a local folder?
       if (!includeSharedFolders && record.sharedFolderUid) {
         continue;
       }
 
-      this.parseFolders(result, record, includeSharedFolders);
+      this.parseRecordFolders(result, record);
 
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(record.title, "--");
@@ -81,18 +88,13 @@ export class KeeperDirectImporter extends BaseImporter {
     }
   }
 
-  private parseFolders(
-    result: ImportResult,
-    record: VaultRecord,
-    includeSharedFolders: boolean,
-  ): void {
-    if (!record.sharedFolderUid || !includeSharedFolders) {
+  private parseRecordFolders(result: ImportResult, record: VaultRecord): void {
+    const paths = this.recordFolderPaths.get(record.uid);
+    if (!paths) {
       return;
     }
-
-    const sharedFolder = this.sharedFolderMap.get(record.sharedFolderUid);
-    if (sharedFolder?.name) {
-      this.processFolder(result, sharedFolder.name);
+    for (const path of paths) {
+      this.processFolder(result, path);
     }
   }
 
