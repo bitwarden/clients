@@ -100,6 +100,10 @@ export class Vault {
     return Array.from(this.sharedFolders.values());
   }
 
+  getRecordFolderPaths(): Map<string, string[]> {
+    return this.recordFolderPaths;
+  }
+
   //
   // Private
   //
@@ -107,6 +111,11 @@ export class Vault {
   private readonly records = new Map<string, VaultRecord>();
   private readonly folders = new Map<string, VaultFolder>();
   private readonly sharedFolders = new Map<string, VaultSharedFolder>();
+  private readonly sharedFolderSubfolders = new Map<
+    string,
+    { uid: string; name: string; parentUid?: string; sharedFolderUid: string }
+  >();
+  private readonly recordFolderPaths = new Map<string, string[]>();
 
   private constructor(private readonly masterKey: Uint8Array) {}
 
@@ -266,6 +275,40 @@ export class Vault {
       }
     }
 
+    // Process shared folder subfolders
+    for (const sff of response.sharedFolderFolders) {
+      const sfUid = base64UrlEncode(new Uint8Array(sff.sharedFolderUid));
+      const folderUid = base64UrlEncode(new Uint8Array(sff.folderUid));
+      const sfKey = sharedFolderKeyMap.get(sfUid);
+      if (!sfKey) {
+        continue;
+      }
+
+      try {
+        const folderKey = await decryptKeeperKey(
+          new Uint8Array(sff.sharedFolderFolderKey),
+          sff.keyType,
+          sfKey,
+        );
+        const data = (await decryptFolderData(
+          new Uint8Array(sff.data),
+          folderKey,
+        )) as DecryptedFolderData;
+
+        const parentUid =
+          sff.parentUid.length > 0 ? base64UrlEncode(new Uint8Array(sff.parentUid)) : undefined;
+
+        this.sharedFolderSubfolders.set(folderUid, {
+          uid: folderUid,
+          name: data.name ?? "",
+          parentUid,
+          sharedFolderUid: sfUid,
+        });
+      } catch {
+        // Failed to decrypt shared folder subfolder
+      }
+    }
+
     // Process shared folder records - add their keys to recordMetaMap
     for (const sfr of response.sharedFolderRecords) {
       const sfUid = base64UrlEncode(new Uint8Array(sfr.sharedFolderUid));
@@ -366,5 +409,133 @@ export class Vault {
         // Failed to decrypt record
       }
     }
+
+    this.buildRecordFolderPaths(response);
   }
+
+  private buildRecordFolderPaths(response: SyncDownResponse): void {
+    // Map shared folder UID -> user folder UID (where the SF is placed in the folder tree)
+    const sharedFolderToUserFolder = new Map<string, string>();
+    for (const ufsf of response.userFolderSharedFolders) {
+      const folderUid =
+        ufsf.folderUid.length > 0 ? base64UrlEncode(new Uint8Array(ufsf.folderUid)) : undefined;
+      const sfUid = base64UrlEncode(new Uint8Array(ufsf.sharedFolderUid));
+      if (folderUid) {
+        sharedFolderToUserFolder.set(sfUid, folderUid);
+      }
+    }
+
+    const pathCache = new Map<string, string>();
+
+    const buildUserFolderPath = (folderUid: string): string => {
+      const cached = pathCache.get(folderUid);
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      const folder = this.folders.get(folderUid);
+      if (!folder) {
+        return "";
+      }
+
+      const name = sanitizeFolderName(folder.name);
+      const path = folder.parentUid ? joinPath(buildUserFolderPath(folder.parentUid), name) : name;
+
+      pathCache.set(folderUid, path);
+      return path;
+    };
+
+    const buildSharedFolderBasePath = (sfUid: string): string => {
+      const cached = pathCache.get("sf:" + sfUid);
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      const sf = this.sharedFolders.get(sfUid);
+      if (!sf) {
+        return "";
+      }
+
+      const name = sanitizeFolderName(sf.name);
+      const userFolderUid = sharedFolderToUserFolder.get(sfUid);
+      const path = userFolderUid ? joinPath(buildUserFolderPath(userFolderUid), name) : name;
+
+      pathCache.set("sf:" + sfUid, path);
+      return path;
+    };
+
+    const buildSfSubfolderPath = (folderUid: string): string => {
+      const cached = pathCache.get("sff:" + folderUid);
+      if (cached !== undefined) {
+        return cached;
+      }
+
+      const subfolder = this.sharedFolderSubfolders.get(folderUid);
+      if (!subfolder) {
+        return "";
+      }
+
+      const name = sanitizeFolderName(subfolder.name);
+      const basePath = subfolder.parentUid
+        ? buildSfSubfolderPath(subfolder.parentUid)
+        : buildSharedFolderBasePath(subfolder.sharedFolderUid);
+      const path = joinPath(basePath, name);
+
+      pathCache.set("sff:" + folderUid, path);
+      return path;
+    };
+
+    const addRecordPath = (recordUid: string, path: string) => {
+      if (!path) {
+        return;
+      }
+      let paths = this.recordFolderPaths.get(recordUid);
+      if (!paths) {
+        paths = [];
+        this.recordFolderPaths.set(recordUid, paths);
+      }
+      if (!paths.includes(path)) {
+        paths.push(path);
+      }
+    };
+
+    // Records in personal folders
+    for (const ufr of response.userFolderRecords) {
+      const folderUid =
+        ufr.folderUid.length > 0 ? base64UrlEncode(new Uint8Array(ufr.folderUid)) : undefined;
+      const recordUid = base64UrlEncode(new Uint8Array(ufr.recordUid));
+      if (folderUid) {
+        addRecordPath(recordUid, buildUserFolderPath(folderUid));
+      }
+    }
+
+    // Records in shared folders (direct or via subfolders)
+    for (const sffr of response.sharedFolderFolderRecords) {
+      const sfUid = base64UrlEncode(new Uint8Array(sffr.sharedFolderUid));
+      const recordUid = base64UrlEncode(new Uint8Array(sffr.recordUid));
+      const folderUid =
+        sffr.folderUid.length > 0 ? base64UrlEncode(new Uint8Array(sffr.folderUid)) : undefined;
+
+      if (folderUid) {
+        addRecordPath(recordUid, buildSfSubfolderPath(folderUid));
+      } else {
+        addRecordPath(recordUid, buildSharedFolderBasePath(sfUid));
+      }
+    }
+
+    // Records directly in shared folders (not in subfolders)
+    for (const sfr of response.sharedFolderRecords) {
+      const sfUid = base64UrlEncode(new Uint8Array(sfr.sharedFolderUid));
+      const recordUid = base64UrlEncode(new Uint8Array(sfr.recordUid));
+      addRecordPath(recordUid, buildSharedFolderBasePath(sfUid));
+    }
+  }
+}
+
+function sanitizeFolderName(name: string): string {
+  return name.replaceAll("\\", "-").replaceAll("/", "-");
+}
+
+function joinPath(parent: string, child: string): string {
+  return parent ? parent + "/" + child : child;
 }

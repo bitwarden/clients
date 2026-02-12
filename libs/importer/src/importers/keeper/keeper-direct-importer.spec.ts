@@ -16,7 +16,6 @@ import { KeeperDirectImporter } from "./keeper-direct-importer";
 describe("Keeper Direct Importer", () => {
   let vault: Vault;
   let result: ImportResult;
-  //let orgResult: ImportResult;
 
   beforeAll(async () => {
     jest.spyOn(console, "warn").mockImplementation();
@@ -27,10 +26,6 @@ describe("Keeper Direct Importer", () => {
 
     const importer = new KeeperDirectImporter();
     result = importer.convertVaultToImportResult(vault, true);
-
-    //const orgImporter = new KeeperDirectImporter();
-    //orgImporter.organizationId = "test-org-id" as any;
-    //orgResult = orgImporter.convertVaultToImportResult(vault, true);
   });
 
   it("should parse address", () => {
@@ -431,6 +426,39 @@ describe("Keeper Direct Importer", () => {
 
   // TODO: wifiCredentials record ("Home Wi-Fi") is not present in the vault fixture
 
+  it("should create folders and assign ciphers to them", () => {
+    const folders = result.folders;
+    expect(folders.length).toBe(33);
+
+    const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+    expect(folderNames).toEqual(allFolderNames);
+
+    // No collections should be created outside of org context
+    expect(result.collections.length).toBe(0);
+
+    // Folder relationships
+    assertInFolder(result, "Home Address", "Personal/Finance/Banking");
+    assertInFolder(
+      result,
+      "Production Server SSH Key",
+      "Development/Name-with-both-slashes/Android",
+    );
+    assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
+    assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
+
+    // In two folders at the same time
+    assertInFolder(
+      result,
+      "Production MySQL Database",
+      "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+    );
+    assertInFolder(
+      result,
+      "Production MySQL Database",
+      "Development/Name-with-both-slashes/Name-with-forward-slashes",
+    );
+  });
+
   //
   // Helpers
   //
@@ -451,16 +479,56 @@ describe("Keeper Direct Importer", () => {
     return cipher.fields?.filter((f) => f.name === name) ?? [];
   }
 
-  // function assertInFolder(r: ImportResult, cipherName: string, folderName: string): void {
-  //   const cipherIndex = r.ciphers.findIndex((c) => c.name === cipherName);
-  //   expect(cipherIndex).toBeGreaterThanOrEqual(0);
+  function assertInFolder(r: ImportResult, cipherName: string, folderName: string): void {
+    const cipherIndex = r.ciphers.findIndex((c) => c.name === cipherName);
+    expect(cipherIndex).toBeGreaterThanOrEqual(0);
 
-  //   const folderIndex = r.folders.findIndex((f) => f.name === folderName);
-  //   expect(folderIndex).toBeGreaterThanOrEqual(0);
+    const folderIndex = r.folders.findIndex((f) => f.name === folderName);
+    expect(folderIndex).toBeGreaterThanOrEqual(0);
 
-  //   const hasRelationship = r.folderRelationships.some(
-  //     ([ci, fi]) => ci === cipherIndex && fi === folderIndex,
-  //   );
-  //   expect(hasRelationship).toBe(true);
-  // }
+    const hasRelationship = r.folderRelationships.some(
+      ([ci, fi]) => ci === cipherIndex && fi === folderIndex,
+    );
+    expect(hasRelationship).toBe(true);
+  }
+
+  //
+  // Test data
+  //
+
+  const allFolderNames = [
+    "Clients",
+    "Clients/Enterprise",
+    "Clients/Enterprise/North America",
+    "Clients/Enterprise/North America/TechCorp",
+    "Dev build ",
+    "Dev build /dfdfgh",
+    "Development",
+    "Development/Name-with-both-slashes",
+    "Development/Name-with-both-slashes/Android",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes",
+    "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+    "Development/Web",
+    "Education",
+    "Inheritance",
+    "Inheritance/name change-folder",
+    "Inheritance/Sub-inheritance",
+    "Marketing",
+    "Marketing/Social Media",
+    "Marketing/Social Media/Cards",
+    "Personal",
+    "Personal/Finance",
+    "Personal/Finance/Banking",
+    "Personal/Finance/Banking/Accounts",
+    "Shared Project Folder",
+    "Transferred: Account",
+    "Transferred: Account/Test Item",
+    "Transferred: garrisonconsultinguser@gmail.com",
+    "Transferred: garrisonconsultinguser@gmail.com/Marketing",
+    "Work",
+    "Work/Documents",
+    "Work/Projects",
+    "Work/Projects/2025",
+    "Work/Projects/2025/Q4",
+  ];
 });
