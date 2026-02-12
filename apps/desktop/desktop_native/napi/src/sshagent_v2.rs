@@ -10,8 +10,8 @@ pub mod sshagent_v2 {
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, AuthRequest as SshAuthRequest, BitwardenSshAgent,
-        InMemoryEncryptedKeyStore, SignRequest as SshSignRequest,
+        ApprovalRequester, BitwardenSshAgent, InMemoryEncryptedKeyStore,
+        SignRequest as SshSignRequest,
     };
     use tracing::{debug, error};
 
@@ -65,45 +65,28 @@ pub mod sshagent_v2 {
 
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
-        // Callback used to approve listing keys
-        list_callback: Arc<ThreadsafeFunction<(), bool>>,
         // Callback used to approve signing data
         sign_callback: Arc<ThreadsafeFunction<SignRequestData, bool>>,
     }
 
     #[async_trait]
     impl ApprovalRequester for ElectronApprovalRequester {
-        async fn request(
+        async fn request_sign_approval(
             &self,
-            auth_request: SshAuthRequest,
+            sign_request: SshSignRequest,
             cipher_id: Option<String>,
         ) -> Result<bool, anyhow::Error> {
-            match auth_request {
-                SshAuthRequest::List => {
-                    debug!("Sending list approval request to Electron.");
-                    let is_approved = self
-                        .list_callback
-                        .call_async(Ok(()))
-                        .await
-                        .map_err(|e| anyhow::anyhow!("Electron list callback failed: {e}"))?;
+            let request = SignRequestData::from((sign_request, cipher_id));
 
-                    debug!(%is_approved, "List approval response from Electron.");
-                    Ok(is_approved)
-                }
-                SshAuthRequest::Sign(sign_request) => {
-                    let request = SignRequestData::from((sign_request, cipher_id));
+            debug!(?request, "Sending sign approval request to Electron.");
+            let is_approved = self
+                .sign_callback
+                .call_async(Ok(request))
+                .await
+                .map_err(|e| anyhow::anyhow!("Electron sign callback failed: {e}"))?;
 
-                    debug!(?request, "Sending sign approval request to Electron.");
-                    let is_approved = self
-                        .sign_callback
-                        .call_async(Ok(request))
-                        .await
-                        .map_err(|e| anyhow::anyhow!("Electron sign callback failed: {e}"))?;
-
-                    debug!(%is_approved, "Sign approval response from Electron.");
-                    Ok(is_approved)
-                }
-            }
+            debug!(%is_approved, "Sign approval response from Electron.");
+            Ok(is_approved)
         }
     }
 
@@ -113,16 +96,13 @@ pub mod sshagent_v2 {
         ///
         /// # Arguments
         ///
-        /// * `list_callback` - Callback for list requests
         /// * `sign_callback` - Callback for sign requests
         #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
-            list_callback: ThreadsafeFunction<(), bool>,
             sign_callback: ThreadsafeFunction<SignRequestData, bool>,
         ) -> napi::Result<Self> {
             let approval_handler = ElectronApprovalRequester {
-                list_callback: Arc::new(list_callback),
                 sign_callback: Arc::new(sign_callback),
             };
 

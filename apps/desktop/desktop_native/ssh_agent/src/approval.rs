@@ -2,18 +2,18 @@
 //! to be able to externally request approval for ssh
 //! authorization requests.
 
-use crate::server::AuthRequest;
+use crate::server::SignRequest;
 
-/// Handler that processes approval requests.
+/// Handler that processes approval requests for signing operations.
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait ApprovalRequester: Send + Sync {
-    /// Handles an approval request.
+    /// Requests approval for a signing operation.
     ///
     /// # Arguments
     ///
-    /// * `request` - The authorization request (List or Sign with context)
-    /// * `cipher_id` - The cipher ID from the vault (for sign requests)
+    /// * `sign_request` - The sign request with context (public key, process name, etc.)
+    /// * `cipher_id` - The cipher ID from the vault
     ///
     /// # Returns
     ///
@@ -23,9 +23,9 @@ pub trait ApprovalRequester: Send + Sync {
     /// # Errors
     ///
     /// Returns an error if the handler failed to process the request
-    async fn request(
+    async fn request_sign_approval(
         &self,
-        request: AuthRequest,
+        sign_request: SignRequest,
         cipher_id: Option<String>,
     ) -> Result<bool, anyhow::Error>;
 }

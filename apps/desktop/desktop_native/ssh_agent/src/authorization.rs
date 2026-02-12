@@ -75,23 +75,6 @@ where
         let is_locked = matches!(state, LockState::Locked);
         self.is_locked.store(is_locked, Ordering::Relaxed);
     }
-
-    // Requests approval from the handler.
-    async fn request_approval(
-        &self,
-        request: AuthRequest,
-        cipher_id: Option<String>,
-    ) -> Result<bool, AuthError> {
-        debug!(?request, ?cipher_id, "Requesting approval.");
-
-        self.approval_handler
-            .request(request, cipher_id)
-            .await
-            .map_err(|error| {
-                error!(%error, "Approval handler failed.");
-                AuthError::HandlerFailed(error)
-            })
-    }
 }
 
 #[async_trait::async_trait]
@@ -102,17 +85,16 @@ where
 {
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
+            // List requests are approved based solely on lock state
             AuthRequest::List => {
-                // If already unlocked, allow without approval
-                if !self.is_locked.load(Ordering::Relaxed) {
-                    debug!("Already unlocked, implicit approval for list.");
-                    return Ok(true);
-                }
-
-                self.request_approval(request.clone(), None).await
+                let is_unlocked = !self.is_locked.load(Ordering::Relaxed);
+                debug!(
+                    is_unlocked,
+                    "List request authorization based on lock state."
+                );
+                Ok(is_unlocked)
             }
             AuthRequest::Sign(sign_request) => {
-                // Get cipher_id
                 let cipher_id = match self.keystore.get(&sign_request.public_key) {
                     Ok(Some(key_data)) => Some(key_data.cipher_id().clone()),
                     Ok(None) => {
@@ -122,8 +104,15 @@ where
                         return Err(AuthError::KeystoreError(error));
                     }
                 };
+                debug!(?sign_request, ?cipher_id, "Requesting sign approval.");
 
-                self.request_approval(request.clone(), cipher_id).await
+                self.approval_handler
+                    .request_sign_approval(sign_request.clone(), cipher_id)
+                    .await
+                    .map_err(|error| {
+                        error!(%error, "Approval handler failed.");
+                        AuthError::HandlerFailed(error)
+                    })
             }
         }
     }
@@ -205,69 +194,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_authorize_list_when_locked_requests_approval() {
+    async fn test_authorize_list_when_locked_returns_false() {
         let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        // Expect approval request for List with no cipher_id
-        approval_handler
-            .expect_request()
-            .withf(|req, cipher_id| matches!(req, AuthRequest::List) && cipher_id.is_none())
-            .times(1)
-            .returning(|_, _| Ok(true));
+        let approval_handler = MockApprovalRequester::new();
 
         let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        // Don't call set_unlocked - should remain locked
+        // Don't call set_lock_state - should remain locked by default
 
         let request = AuthRequest::List;
         let result = policy.authorize(&request).await;
 
-        assert!(
-            matches!(result, Ok(true)),
-            "Should return Ok(true) when approval granted"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_approval_denied() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        approval_handler
-            .expect_request()
-            .times(1)
-            .returning(|_, _| Ok(false));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(false)),
-            "Should return Ok(false) when approval denied"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_handler_error_returns_false() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        approval_handler
-            .expect_request()
-            .times(1)
-            .returning(|_, _| Err(anyhow!("Handler failed")));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Err(AuthError::HandlerFailed(_))),
-            "Should return HandlerFailed error"
-        );
+        assert!(matches!(result, Ok(false)), "Should deny list when locked");
     }
 
     #[tokio::test]
@@ -328,11 +265,8 @@ mod tests {
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
         approval_handler
-            .expect_request()
-            .withf(|req, cipher_id| {
-                matches!(req, AuthRequest::Sign(_))
-                    && cipher_id.as_ref() == Some(&"cipher-123".to_string())
-            })
+            .expect_request_sign_approval()
+            .withf(|_sign_request, cipher_id| cipher_id.as_ref() == Some(&"cipher-123".to_string()))
             .times(1)
             .returning(|_, _| Ok(true));
 
@@ -357,7 +291,7 @@ mod tests {
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
         approval_handler
-            .expect_request()
+            .expect_request_sign_approval()
             .times(1)
             .returning(|_, _| Ok(false));
 
@@ -382,7 +316,7 @@ mod tests {
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
         approval_handler
-            .expect_request()
+            .expect_request_sign_approval()
             .times(1)
             .returning(|_, _| Err(anyhow!("Handler failed")));
 
@@ -407,11 +341,8 @@ mod tests {
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
         approval_handler
-            .expect_request()
-            .withf(|req, cipher_id| {
-                matches!(req, AuthRequest::Sign(_))
-                    && cipher_id.as_ref() == Some(&"cipher-123".to_string())
-            })
+            .expect_request_sign_approval()
+            .withf(|_sign_request, cipher_id| cipher_id.as_ref() == Some(&"cipher-123".to_string()))
             .times(1)
             .returning(|_, _| Ok(true));
 
@@ -444,15 +375,11 @@ mod tests {
         });
 
         approval_handler
-            .expect_request()
-            .withf(|req, _cipher_id| {
-                if let AuthRequest::Sign(sign_request) = req {
-                    sign_request.process_name == "test-process"
-                        && sign_request.is_forwarding
-                        && sign_request.namespace == Some("test-namespace".to_string())
-                } else {
-                    false
-                }
+            .expect_request_sign_approval()
+            .withf(|sign_request, _cipher_id| {
+                sign_request.process_name == "test-process"
+                    && sign_request.is_forwarding
+                    && sign_request.namespace == Some("test-namespace".to_string())
             })
             .times(1)
             .returning(|_, _| Ok(true));
