@@ -239,7 +239,7 @@ export class ProductSwitcherService {
           },
           sm: {
             name: "Secrets Manager",
-            icon: "bwi-terminal",
+            icon: "bwi-cli",
             appRoute: ["/sm", smOrg?.id],
             marketingRoute: {
               route: "/sm-landing",
@@ -262,7 +262,7 @@ export class ProductSwitcherService {
           },
           provider: {
             name: providerPortalName,
-            icon: "bwi-handshake",
+            icon: "bwi-provider",
             appRoute: ["/providers", providers[0]?.id],
             isActive: this.router.url.includes("/providers/"),
           },

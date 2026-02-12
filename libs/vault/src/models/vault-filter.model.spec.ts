@@ -39,7 +39,7 @@ describe("VaultFilter", () => {
         id: "identity",
         name: "identity",
         type: CipherType.Identity,
-        icon: "bwi-identity",
+        icon: "bwi-id-card",
       },
       null,
     );
@@ -48,7 +48,7 @@ describe("VaultFilter", () => {
         id: "trash",
         name: "trash",
         type: "trash",
-        icon: "bwi-delete",
+        icon: "bwi-trash",
       },
       null,
     );

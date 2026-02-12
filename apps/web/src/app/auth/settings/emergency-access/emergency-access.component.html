@@ -30,7 +30,7 @@
           [bitAction]="invite"
           [disabled]="!(canAccessPremium$ | async)"
         >
-          <i aria-hidden="true" class="bwi bwi-add bwi-fw"></i>
+          <i aria-hidden="true" class="bwi bwi-plus bwi-fw"></i>
           {{ "addEmergencyContact" | i18n }}
         </button>
       </div>
@@ -90,7 +90,7 @@
               [bitMenuTriggerFor]="trustedContactOptions"
               type="button"
               label="{{ 'options' | i18n }}"
-              bitIconButton="bwi-more-vertical"
+              bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
             <bit-menu #trustedContactOptions>
@@ -100,7 +100,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.Invited"
                 (click)="reinvite(c)"
               >
-                <i class="bwi bwi-fw bwi-mail" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                 {{ "resendInvitation" | i18n }}
               </button>
               <button
@@ -146,7 +146,7 @@
       <p bitTypography="body1" class="tw-mt-2" *ngIf="loaded">{{ "noTrustedContacts" | i18n }}</p>
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-loading bwi-spin tw-text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -213,7 +213,7 @@
               [bitMenuTriggerFor]="grantedContactOptions"
               type="button"
               label="{{ 'options' | i18n }}"
-              bitIconButton="bwi-more-vertical"
+              bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
             <bit-menu #grantedContactOptions>
@@ -223,7 +223,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.Confirmed"
                 (click)="requestAccess(c)"
               >
-                <i class="bwi bwi-fw bwi-mail" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                 {{ "requestAccess" | i18n }}
               </button>
               <button
@@ -247,7 +247,7 @@
                 "
                 [routerLink]="c.id"
               >
-                <i class="bwi bwi-fw bwi-visibility" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-eye" aria-hidden="true"></i>
                 {{ "view" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="remove(c)">
@@ -263,7 +263,7 @@
       <p bitTypography="body1" *ngIf="loaded">{{ "noGrantedAccess" | i18n }}</p>
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-loading bwi-spin tw-text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>

@@ -27,14 +27,14 @@
             />
           }
           @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-filled"></i>
+            <i class="bwi bwi-star-f"></i>
           }
         </td>
       }
       @if (!showRowCheckBox) {
         <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
           @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-filled"></i>
+            <i class="bwi bwi-star-f"></i>
           }
         </td>
       }
@@ -133,7 +133,7 @@
           <button
             [bitMenuTriggerFor]="rowMenu"
             type="button"
-            bitIconButton="bwi-more-vertical"
+            bitIconButton="bwi-ellipsis-v"
             size="small"
             label="{{ 'options' | i18n }}"
             tabindex="0"

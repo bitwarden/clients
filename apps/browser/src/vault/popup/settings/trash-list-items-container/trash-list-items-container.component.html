@@ -26,7 +26,7 @@
         ></i>
         <i
           *ngIf="hasAttachments(cipher)"
-          class="bwi bwi-attach bwi-sm"
+          class="bwi bwi-paperclip bwi-sm"
           [appA11yTitle]="'attachments' | i18n"
         ></i>
         <span slot="secondary">{{ getSubtitle(cipher) }}</span>
@@ -35,7 +35,7 @@
         <bit-item-action>
           <button
             type="button"
-            bitIconButton="bwi-more-vertical"
+            bitIconButton="bwi-ellipsis-v"
             size="small"
             [label]="'moreOptionsLabel' | i18n: cipher.name"
             [bitMenuTriggerFor]="moreOptions"

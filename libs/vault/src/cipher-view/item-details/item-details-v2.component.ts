@@ -119,7 +119,9 @@ export class ItemDetailsV2Component {
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return item.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection";
+      return item.type === CollectionTypes.DefaultUserCollection
+        ? "bwi-user"
+        : "bwi-collection-shared";
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }

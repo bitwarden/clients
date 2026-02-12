@@ -15,7 +15,7 @@
 
     <app-onboarding-task
       [title]="'importData' | i18n"
-      icon="bwi-upload"
+      icon="bwi-import"
       [route]="['/tools/import']"
       [completed]="onboardingTasks.importData"
     >
@@ -32,7 +32,7 @@
 
     <app-onboarding-task
       [title]="'installBrowserExtension' | i18n"
-      icon="bwi-terminal"
+      icon="bwi-cli"
       (click)="navigateToExtension()"
       route="[]"
       [completed]="onboardingTasks.installExtension"

@@ -47,7 +47,7 @@
         <button
           type="button"
           bitSuffix
-          bitIconButton="bwi-copy"
+          bitIconButton="bwi-clone"
           label="{{ 'copyDnsTxtRecord' | i18n }}"
           (click)="copyDnsTxt()"
         ></button>
@@ -68,7 +68,7 @@
       <button
         *ngIf="data.orgDomain"
         class="tw-ml-auto"
-        bitIconButton="bwi-delete"
+        bitIconButton="bwi-trash"
         buttonType="danger"
         size="default"
         label="{{ 'delete' | i18n }}"

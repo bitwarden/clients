@@ -86,7 +86,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       id: "login",
       name: this.i18nService.t("typeLogin"),
       type: CipherType.Login,
-      icon: "bwi-login",
+      icon: "bwi-globe",
     },
     {
       id: "card",
@@ -98,13 +98,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       id: "identity",
       name: this.i18nService.t("typeIdentity"),
       type: CipherType.Identity,
-      icon: "bwi-identity",
+      icon: "bwi-id-card",
     },
     {
       id: "note",
       name: this.i18nService.t("note"),
       type: CipherType.SecureNote,
-      icon: "bwi-note",
+      icon: "bwi-sticky-note",
     },
     {
       id: "sshKey",
@@ -405,14 +405,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           id: "headTrash",
           name: "HeadTrash",
           type: "trash",
-          icon: "bwi-delete",
+          icon: "bwi-trash",
         },
         [
           {
             id: "trash",
             name: this.i18nService.t("trash"),
             type: "trash",
-            icon: "bwi-delete",
+            icon: "bwi-trash",
           },
         ],
       ),

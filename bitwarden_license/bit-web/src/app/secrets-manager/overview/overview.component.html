@@ -12,7 +12,7 @@
     <app-onboarding-task
       [title]="'createMachineAccount' | i18n"
       (click)="openServiceAccountDialog()"
-      icon="bwi-terminal"
+      icon="bwi-cli"
       [completed]="view.tasks.createServiceAccount"
     >
       <span class="tw-pl-1">
@@ -30,14 +30,14 @@
       *ngIf="userIsAdmin"
       [title]="'createProject' | i18n"
       (click)="openNewProjectDialog()"
-      icon="bwi-collection"
+      icon="bwi-collection-shared"
       [completed]="view.tasks.createProject"
     ></app-onboarding-task>
     <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'importSecrets' | i18n"
       [route]="['settings', 'import']"
-      icon="bwi-upload"
+      icon="bwi-import"
       [completed]="view.tasks.importSecrets"
     ></app-onboarding-task>
     <app-onboarding-task
@@ -86,6 +86,6 @@
 
 <ng-template #spinner>
   <div class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
-    <i class="bwi bwi-loading bwi-spin bwi-3x"></i>
+    <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
   </div>
 </ng-template>

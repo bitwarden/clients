@@ -258,7 +258,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
         collectionCopy.icon =
-          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection";
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared";
         const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
         ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
       }
@@ -335,7 +335,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         id: "login",
         name: this.i18nService.t("typeLogin"),
         type: CipherType.Login,
-        icon: "bwi-login",
+        icon: "bwi-globe",
       },
       {
         id: "card",
@@ -347,13 +347,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         id: "identity",
         name: this.i18nService.t("typeIdentity"),
         type: CipherType.Identity,
-        icon: "bwi-identity",
+        icon: "bwi-id-card",
       },
       {
         id: "note",
         name: this.i18nService.t("typeSecureNote"),
         type: CipherType.SecureNote,
-        icon: "bwi-note",
+        icon: "bwi-sticky-note",
       },
       {
         id: "sshKey",

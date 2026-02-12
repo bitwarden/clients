@@ -28,7 +28,7 @@
             </ng-container>
             <ng-container *ngIf="keysConfiguredCount > 1 && k.configured">
               <i
-                class="bwi bwi-spin bwi-loading tw-text-muted bwi-fw"
+                class="bwi bwi-spin bwi-spinner tw-text-muted bwi-fw"
                 title="{{ 'loading' | i18n }}"
                 *ngIf="$any(removeKeyBtn).loading"
                 aria-hidden="true"
@@ -68,11 +68,11 @@
         {{ "readKey" | i18n }}
       </button>
       <ng-container *ngIf="$any(readKeyBtn).loading()">
-        <i class="bwi bwi-loading bwi-spin tw-text-muted" aria-hidden="true"></i>
+        <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
       </ng-container>
       <ng-container *ngIf="!$any(readKeyBtn).loading()">
         <ng-container *ngIf="webAuthnListening">
-          <i class="bwi bwi-loading bwi-spin tw-text-muted" aria-hidden="true"></i>
+          <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
           {{ "twoFactorU2fWaiting" | i18n }}...
         </ng-container>
         <ng-container *ngIf="webAuthnResponse">
@@ -80,7 +80,7 @@
           {{ "twoFactorU2fClickSave" | i18n }}
         </ng-container>
         <ng-container *ngIf="webAuthnError">
-          <i class="bwi bwi-warning tw-text-danger" aria-hidden="true"></i>
+          <i class="bwi bwi-exclamation-triangle tw-text-danger" aria-hidden="true"></i>
           {{ "twoFactorU2fProblemReadingTryAgain" | i18n }}
         </ng-container>
       </ng-container>

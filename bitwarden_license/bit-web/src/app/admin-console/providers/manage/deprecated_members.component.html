@@ -2,7 +2,7 @@
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
   </bit-search>
   <button type="button" bitButton buttonType="primary" (click)="invite()">
-    <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "inviteMember" | i18n }}
   </button>
 </app-header>
@@ -36,7 +36,7 @@
 
 <ng-container *ngIf="!firstLoaded">
   <i
-    class="bwi bwi-loading bwi-spin tw-text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   >
@@ -77,7 +77,7 @@
               <button
                 [bitMenuTriggerFor]="headerMenu"
                 type="button"
-                bitIconButton="bwi-more-vertical"
+                bitIconButton="bwi-ellipsis-v"
                 size="small"
                 label="{{ 'options' | i18n }}"
               ></button>
@@ -88,7 +88,7 @@
                   (click)="bulkReinvite()"
                   *ngIf="showBulkReinviteUsers"
                 >
-                  <i class="bwi bwi-fw bwi-mail" aria-hidden="true"></i>
+                  <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                   {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
                 </button>
                 <button
@@ -175,7 +175,7 @@
               <button
                 [bitMenuTriggerFor]="rowMenu"
                 type="button"
-                bitIconButton="bwi-more-vertical"
+                bitIconButton="bwi-ellipsis-v"
                 size="small"
                 label="{{ 'options' | i18n }}"
               ></button>
@@ -186,7 +186,7 @@
                   (click)="reinvite(user)"
                   *ngIf="user.status === userStatusType.Invited"
                 >
-                  <i aria-hidden="true" class="bwi bwi-mail"></i>
+                  <i aria-hidden="true" class="bwi bwi-envelope"></i>
                   {{ "resendInvitation" | i18n }}
                 </button>
                 <button

@@ -18,7 +18,7 @@ import { OrganizationResellerRenewalWarning } from "../types";
     @if (warning) {
       <bit-banner
         id="reseller-warning-banner"
-        icon="bwi-receipt"
+        icon="bwi-billing"
         bannerType="info"
         [showClose]="false"
       >

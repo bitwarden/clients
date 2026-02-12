@@ -18,7 +18,7 @@ import { OrganizationFreeTrialWarning } from "../types";
     @if (warning) {
       <bit-banner
         id="free-trial-banner"
-        icon="bwi-receipt"
+        icon="bwi-billing"
         bannerType="premium"
         [showClose]="false"
       >

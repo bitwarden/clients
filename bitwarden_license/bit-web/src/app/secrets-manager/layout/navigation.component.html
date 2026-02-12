@@ -2,7 +2,7 @@
   <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
   <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
   <bit-nav-item
-    icon="bwi-collection"
+    icon="bwi-collection-shared"
     [text]="'projects' | i18n"
     route="projects"
     [relativeTo]="route.parent"
@@ -38,14 +38,14 @@
     [relativeTo]="route.parent"
   ></bit-nav-item>
   <bit-nav-item
-    icon="bwi-delete"
+    icon="bwi-trash"
     [text]="'trash' | i18n"
     route="trash"
     [relativeTo]="route.parent"
     *ngIf="isAdmin$ | async"
   ></bit-nav-item>
   <bit-nav-group
-    icon="bwi-settings"
+    icon="bwi-cog"
     [text]="'settings' | i18n"
     *ngIf="isAdmin$ | async"
     route="settings/import"

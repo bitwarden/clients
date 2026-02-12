@@ -6,7 +6,7 @@
         <input bitInput formControlName="uri" #uriInput />
         <button
           type="button"
-          [bitIconButton]="showMatchDetection ? 'bwi-settings-filled' : 'bwi-settings'"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-filled' : 'bwi-cog'"
           bitSuffix
           [label]="toggleTitle"
           (click)="toggleMatchDetection()"
@@ -14,7 +14,7 @@
         ></button>
         <button
           type="button"
-          bitIconButton="bwi-subtract-circle"
+          bitIconButton="bwi-minus-circle"
           buttonType="danger"
           bitSuffix
           [label]="'deleteWebsite' | i18n"
@@ -26,7 +26,7 @@
       <div class="tw-flex tw-items-center tw-ml-1.5" *ngIf="canReorder">
         <button
           type="button"
-          bitIconButton="bwi-drag"
+          bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
           [label]="'reorderToggleButton' | i18n: uriLabel"

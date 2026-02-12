@@ -347,9 +347,9 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   protected itemIcon(item: AccessItemView) {
     switch (item.type) {
       case AccessItemType.Collection:
-        return "bwi-collection";
+        return "bwi-collection-shared";
       case AccessItemType.Group:
-        return "bwi-groups";
+        return "bwi-users";
       case AccessItemType.Member:
         return "bwi-user";
     }

@@ -342,7 +342,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       })
       .map((c) => ({
-        icon: c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection",
+        icon:
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         id: c.id,
         labelName: c.name,
         listName: c.name,
@@ -355,7 +356,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -447,7 +448,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon: c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection",
+          icon:
+            c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
           id: c.id,
           labelName: c.name,
           listName: c.name,

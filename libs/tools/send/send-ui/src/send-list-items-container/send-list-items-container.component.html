@@ -35,7 +35,7 @@
           }
           @if (send.maxAccessCountReached) {
             <i
-              class="bwi bwi-warning"
+              class="bwi bwi-exclamation-triangle"
               appA11yTitle="{{ 'maxAccessCountReached' | i18n }}"
               aria-hidden="true"
             ></i>
@@ -50,7 +50,7 @@
         <bit-item-action>
           <button
             class="tw-p-1"
-            bitIconButton="bwi-copy"
+            bitIconButton="bwi-clone"
             size="small"
             type="button"
             (click)="copySendLink(send)"
@@ -59,7 +59,7 @@
         </bit-item-action>
         <bit-item-action>
           <button
-            bitIconButton="bwi-delete"
+            bitIconButton="bwi-trash"
             size="small"
             type="button"
             (click)="deleteSend(send)"

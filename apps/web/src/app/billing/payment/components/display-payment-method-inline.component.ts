@@ -49,7 +49,7 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
                 }
 
                 <p>
-                  <bit-icon name="bwi-receipt"></bit-icon>
+                  <bit-icon name="bwi-billing"></bit-icon>
                   {{ pm.bankName }}, *{{ pm.last4 }}
                   @if (pm.hostedVerificationUrl) {
                     <span>- {{ "unverified" | i18n }}</span>

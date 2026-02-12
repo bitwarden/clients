@@ -1,6 +1,6 @@
 <div *ngIf="loading">
   <i
-    class="bwi bwi-loading bwi-spin tw-text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -32,7 +32,7 @@
           appStopProp
           [bitAction]="openChangeAvatar"
         >
-          <i class="bwi bwi-lg bwi-edit" aria-hidden="true"></i>
+          <i class="bwi bwi-lg bwi-pencil-square" aria-hidden="true"></i>
           Customize
         </button>
       </div>
@@ -43,7 +43,7 @@
           rel="noopener noreferrer"
           href="https://bitwarden.com/help/claimed-accounts"
         >
-          <i class="bwi bwi-help" aria-hidden="true"></i>
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
         </a>
       </div>
       @if (fingerprintMaterial && userPublicKey) {

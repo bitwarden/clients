@@ -20,7 +20,7 @@
       [disabled]="!firstLoaded"
       *ngIf="showUserManagementControls()"
     >
-      <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
+      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
       {{ "inviteMember" | i18n }}
     </button>
   </app-header>
@@ -63,7 +63,7 @@
   </div>
   <ng-container *ngIf="!firstLoaded">
     <i
-      class="bwi bwi-loading bwi-spin tw-text-muted"
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -115,7 +115,7 @@
                   <button
                     [bitMenuTriggerFor]="headerMenu"
                     type="button"
-                    bitIconButton="bwi-more-vertical"
+                    bitIconButton="bwi-ellipsis-v"
                     size="small"
                     label="{{ 'options' | i18n }}"
                     *ngIf="showUserManagementControls()"
@@ -135,7 +135,7 @@
                     (click)="bulkReinvite(organization)"
                     *ngIf="showBulkReinviteUsers"
                   >
-                    <i class="bwi bwi-fw bwi-mail" aria-hidden="true"></i>
+                    <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                     {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
                   </button>
                   <button
@@ -155,7 +155,7 @@
                     (click)="bulkRestore(organization)"
                     *ngIf="showBulkRestoreUsers"
                   >
-                    <i class="bwi bwi-fw bwi-add-circle" aria-hidden="true"></i>
+                    <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
                     {{ "restoreAccess" | i18n }}
                   </button>
                   <button
@@ -164,7 +164,7 @@
                     (click)="bulkRevoke(organization)"
                     *ngIf="showBulkRevokeUsers"
                   >
-                    <i class="bwi bwi-fw bwi-subtract-circle" aria-hidden="true"></i>
+                    <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
                     {{ "revokeAccess" | i18n }}
                   </button>
                   <button
@@ -185,7 +185,7 @@
                     *ngIf="showBulkDeleteUsers"
                   >
                     <span class="tw-text-danger">
-                      <i aria-hidden="true" class="bwi bwi-fw bwi-delete"></i>
+                      <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
                       {{ "delete" | i18n }}
                     </span>
                   </button>
@@ -367,7 +367,7 @@
                   <button
                     [bitMenuTriggerFor]="rowMenu"
                     type="button"
-                    bitIconButton="bwi-more-vertical"
+                    bitIconButton="bwi-ellipsis-v"
                     size="small"
                     label="{{ 'options' | i18n }}"
                   ></button>
@@ -381,7 +381,7 @@
                       (click)="reinvite(u, organization)"
                       *ngIf="u.status === userStatusType.Invited"
                     >
-                      <i aria-hidden="true" class="bwi bwi-mail"></i>
+                      <i aria-hidden="true" class="bwi bwi-envelope"></i>
                       {{ "resendInvitation" | i18n }}
                     </button>
                     <button
@@ -412,14 +412,14 @@
                       (click)="edit(u, organization, memberTab.Groups)"
                       *ngIf="organization.useGroups"
                     >
-                      <i aria-hidden="true" class="bwi bwi-groups"></i> {{ "groups" | i18n }}
+                      <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                     </button>
                     <button
                       type="button"
                       bitMenuItem
                       (click)="edit(u, organization, memberTab.Collections)"
                     >
-                      <i aria-hidden="true" class="bwi bwi-collection"></i>
+                      <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
                       {{ "collections" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
@@ -450,7 +450,7 @@
                       (click)="restore(u, organization)"
                       *ngIf="u.status === userStatusType.Revoked"
                     >
-                      <i aria-hidden="true" class="bwi bwi-add-circle"></i>
+                      <i aria-hidden="true" class="bwi bwi-plus-circle"></i>
                       {{ "restoreAccess" | i18n }}
                     </button>
                     <button
@@ -459,7 +459,7 @@
                       (click)="revoke(u, organization)"
                       *ngIf="u.status !== userStatusType.Revoked"
                     >
-                      <i aria-hidden="true" class="bwi bwi-subtract-circle"></i>
+                      <i aria-hidden="true" class="bwi bwi-minus-circle"></i>
                       {{ "revokeAccess" | i18n }}
                     </button>
                     <button
@@ -479,7 +479,7 @@
                       (click)="deleteUser(u, organization)"
                     >
                       <span class="tw-text-danger">
-                        <i class="bwi bwi-delete" aria-hidden="true"></i>
+                        <i class="bwi bwi-trash" aria-hidden="true"></i>
                         {{ "delete" | i18n }}
                       </span>
                     </button>

@@ -1,4 +1,4 @@
-<app-header *ngIf="project$ | async as project" [title]="project.name" icon="bwi-collection">
+<app-header *ngIf="project$ | async as project" [title]="project.name" icon="bwi-collection-shared">
   <bit-breadcrumbs slot="breadcrumbs">
     <bit-breadcrumb [route]="['..']" icon="bwi-angle-left">{{ "projects" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>

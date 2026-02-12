@@ -1203,7 +1203,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return cipherIcon;
     }
 
-    if (cipher.icon.icon.includes("bwi-identity")) {
+    if (cipher.icon.icon.includes("bwi-id-card")) {
       cipherIcon.append(buildSvgDomElement(idCardIcon));
       return cipherIcon;
     }

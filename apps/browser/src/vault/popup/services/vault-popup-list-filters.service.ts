@@ -337,7 +337,7 @@ export class VaultPopupListFiltersService {
 
             if (!org.enabled) {
               // Show a warning icon if the organization is deactivated
-              icon = "bwi-warning tw-text-danger";
+              icon = "bwi-exclamation-triangle tw-text-danger";
             } else if (
               org.productTierType === ProductTierType.Families ||
               org.productTierType === ProductTierType.Free
@@ -473,7 +473,9 @@ export class VaultPopupListFiltersService {
         tree.nestedList.map((c) =>
           this.convertToChipSelectOption(
             c,
-            c.node.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection",
+            c.node.type === CollectionTypes.DefaultUserCollection
+              ? "bwi-user"
+              : "bwi-collection-shared",
           ),
         ),
       ),

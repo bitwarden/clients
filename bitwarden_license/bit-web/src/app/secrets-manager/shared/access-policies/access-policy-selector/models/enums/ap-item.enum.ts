@@ -17,7 +17,7 @@ export class ApItemEnumUtil {
       case ApItemEnum.ServiceAccount:
         return "bwi-wrench";
       case ApItemEnum.Project:
-        return "bwi-collection";
+        return "bwi-collection-shared";
     }
   }
 }

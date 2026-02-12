@@ -32,7 +32,8 @@
     "test-stories": "test-storybook --url http://localhost:6006",
     "test-stories:watch": "test-stories --watch",
     "icons:build": "ts-node scripts/material-icons/build-with-bwi-names.ts",
-    "icons:migrate": "ts-node scripts/material-icons/migrate-icon-names.ts"
+    "icons:migrate": "ts-node scripts/material-icons/migrate-icon-names.ts",
+    "icons:reverse-migrate": "ts-node scripts/material-icons/reverse-migrate-icon-names.ts"
   },
   "workspaces": [
     "apps/*",

@@ -8,7 +8,7 @@
       [bitPopoverTriggerFor]="infoPopover"
       position="right-start"
     >
-      <i class="bwi bwi-help" aria-hidden="true"></i>
+      <i class="bwi bwi-question-circle" aria-hidden="true"></i>
     </button>
 
     <bit-popover [title]="'whatIsADevice' | i18n" #infoPopover>
@@ -23,7 +23,7 @@
 
 @if (initializing) {
   <div class="tw-flex tw-justify-center tw-items-center tw-p-4">
-    <i class="bwi bwi-loading bwi-spin tw-text-2xl" aria-hidden="true"></i>
+    <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
   </div>
 } @else {
   <!-- Table View: displays on medium to large screens -->

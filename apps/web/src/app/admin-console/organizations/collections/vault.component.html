@@ -121,7 +121,7 @@
                 buttonType="primary"
                 type="button"
               >
-                <i aria-hidden="true" class="bwi bwi-add"></i> {{ "newItem" | i18n }}
+                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
               </button>
             }
           </bit-no-items>
@@ -139,7 +139,7 @@
       @if (refreshing) {
         <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
           <i
-            class="bwi bwi-loading bwi-spin tw-text-muted"
+            class="bwi bwi-spinner bwi-spin tw-text-muted"
             title="{{ 'loading' | i18n }}"
             aria-hidden="true"
           ></i>

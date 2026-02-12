@@ -270,7 +270,7 @@ function createGrantedPoliciesView() {
 const expectedGrantedProjectApItemViews = [
   {
     type: ApItemEnum.Project,
-    icon: "bwi-collection",
+    icon: "bwi-collection-shared",
     id: "1",
     labelName: "Example project name",
     listName: "Example project name",
@@ -279,7 +279,7 @@ const expectedGrantedProjectApItemViews = [
   },
   {
     type: ApItemEnum.Project,
-    icon: "bwi-collection",
+    icon: "bwi-collection-shared",
     id: "2",
     labelName: "project name",
     listName: "project name",

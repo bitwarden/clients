@@ -5,7 +5,7 @@
   @if (!hasLoaded && loading) {
     <div>
       <i
-        class="bwi bwi-loading bwi-spin tw-text-muted"
+        class="bwi bwi-spinner bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -78,7 +78,7 @@
               @if (!organization && row.organizationId) {
                 <ng-container>
                   <i
-                    class="bwi bwi-collection tw-ml-1"
+                    class="bwi bwi-collection-shared tw-ml-1"
                     appStopProp
                     title="{{ 'shared' | i18n }}"
                     aria-hidden="true"
@@ -89,7 +89,7 @@
               @if (row.hasAttachments) {
                 <ng-container>
                   <i
-                    class="bwi bwi-attach tw-ml-1"
+                    class="bwi bwi-paperclip tw-ml-1"
                     appStopProp
                     title="{{ 'attachments' | i18n }}"
                     aria-hidden="true"

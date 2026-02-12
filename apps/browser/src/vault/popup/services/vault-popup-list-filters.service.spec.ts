@@ -359,7 +359,7 @@ describe("VaultPopupListFiltersService", () => {
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual([
             "bwi-user",
-            "bwi-warning tw-text-danger",
+            "bwi-exclamation-triangle tw-text-danger",
           ]);
           done();
         });
@@ -407,7 +407,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it("sets collection icon", (done) => {
       service.collections$.subscribe((collections) => {
-        expect(collections.every(({ icon }) => icon === "bwi-collection")).toBeTruthy();
+        expect(collections.every(({ icon }) => icon === "bwi-collection-shared")).toBeTruthy();
         done();
       });
     });

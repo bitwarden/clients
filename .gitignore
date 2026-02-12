@@ -53,6 +53,7 @@ storybook-static
 
 # Icon migration
 scripts/material-icons/migration-report.json
+scripts/material-icons/reverse-migration-report.json
 
 # Local app configuration
 apps/**/config/local.json

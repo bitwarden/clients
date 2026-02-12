@@ -46,7 +46,7 @@
         </div>
         <p class="tw-font-medium tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
         <div *ngIf="!biometricsVerificationFailed">
-          <i class="bwi bwi-loading bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
           {{ "awaitingConfirmation" | i18n }}
         </div>
       </div>
@@ -116,7 +116,7 @@
   </ng-container>
   <ng-container *ngIf="userVerificationOptions.server.otp">
     <div class="tw-mb-6" *ngIf="!sentInitialCode">
-      <i class="bwi bwi-loading bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
     </div>
 
     <div class="tw-mb-6" *ngIf="sentInitialCode">
