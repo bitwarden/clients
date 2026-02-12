@@ -10,6 +10,7 @@ import {
   createInitAutofillInlineMenuListMessageMock,
 } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
+import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
@@ -28,6 +29,7 @@ describe("AutofillInlineMenuList", () => {
   const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
     const oldEv = globalThis.addEventListener;
     globalThis.addEventListener = (eventName: any, callback: any) => {
       events.push({ eventName, callback });
