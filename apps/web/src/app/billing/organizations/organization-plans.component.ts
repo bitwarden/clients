@@ -252,8 +252,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
 
-    if (this.preSelectedProductTier != null && this.productTier < this.preSelectedProductTier) {
-      this.productTier = this.preSelectedProductTier;
+    if (
+      this.preSelectedProductTier() != null &&
+      this.productTier() < this.preSelectedProductTier()
+    ) {
+      this.productTier.set(this.preSelectedProductTier());
     }
     if (!this.selfHosted) {
       this.changedProduct();
@@ -291,14 +294,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return this.singleOrgPolicyAppliesToActiveUser && !this.hasProvider;
   }
 
-  get createOrganization() {
-    return this.organizationId == null;
+  get isCreatingNewOrganization() {
+    return this.organizationId() == null;
   }
 
   get upgradeRequiresPaymentMethod() {
     return (
       this.organization?.productTierType === ProductTierType.Free &&
-      !this.showFree &&
+      !this.showFree() &&
       !this.billing?.paymentSource
     );
   }
@@ -331,7 +334,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get selectableProducts() {
-    if (this.acceptingSponsorship) {
+    if (this.acceptingSponsorship()) {
       const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
       this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
@@ -339,21 +342,23 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     const businessOwnedIsChecked = this.formGroup.controls.businessOwned.value;
 
-    const result = this.passwordManagerPlans.filter(
-      (plan) =>
+    const result = this.passwordManagerPlans.filter((plan) => {
+      const currentPlan = this.currentPlan();
+      return (
         plan.type !== PlanType.Custom &&
         (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
-        (this.showFree || plan.productTier !== ProductTierType.Free) &&
+        (this.showFree() || plan.productTier !== ProductTierType.Free) &&
         (plan.isAnnual ||
           plan.productTier === ProductTierType.Free ||
           plan.productTier === ProductTierType.TeamsStarter) &&
-        (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
+        (!currentPlan || currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         (!this.hasProvider || plan.productTier !== ProductTierType.TeamsStarter) &&
         (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
           (this.isProviderQualifiedFor2020Plan() &&
-            Allowed2020PlansForLegacyProviders.includes(plan.type))),
-    );
+            Allowed2020PlansForLegacyProviders.includes(plan.type)))
+      );
+    });
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
 
@@ -377,7 +382,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get hasProvider() {
-    return this.providerId != null;
+    return this.providerId() != null;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
@@ -433,7 +438,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
-    const basePriceAfterDiscount = this.acceptingSponsorship
+    const basePriceAfterDiscount = this.acceptingSponsorship()
       ? Math.max(this.selectedPlan.PasswordManager.basePrice - this.discount, 0)
       : this.selectedPlan.PasswordManager.basePrice;
     let subTotal = basePriceAfterDiscount;
@@ -521,14 +526,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   handleAdditionalStorage(selectedPlanHasAdditionalStorageOption: boolean) {
-    if (!selectedPlanHasAdditionalStorageOption || !this.currentPlan) {
+    const currentPlan = this.currentPlan();
+    if (!selectedPlanHasAdditionalStorageOption || !currentPlan) {
       this.formGroup.controls.additionalStorage.setValue(0);
       return;
     }
 
     if (this.organization?.maxStorageGb) {
       this.formGroup.controls.additionalStorage.setValue(
-        this.organization.maxStorageGb - this.currentPlan.PasswordManager.baseStorageGb,
+        this.organization.maxStorageGb - currentPlan.PasswordManager.baseStorageGb,
       );
     }
   }
@@ -539,8 +545,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.currentPlan && !this.currentPlan.PasswordManager.hasAdditionalSeatsOption) {
-      this.formGroup.controls.additionalSeats.setValue(this.currentPlan.PasswordManager.baseSeats);
+    const currentPlan = this.currentPlan();
+    if (currentPlan && !currentPlan.PasswordManager.hasAdditionalSeatsOption) {
+      this.formGroup.controls.additionalSeats.setValue(currentPlan.PasswordManager.baseSeats);
       return;
     }
 
@@ -564,7 +571,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.secretsManagerForm.controls.enabled.value) {
       this.secretsManagerForm.controls.userSeats.setValue(this.sub?.smSeats || 1);
       this.secretsManagerForm.controls.additionalServiceAccounts.setValue(
-        this.sub?.smServiceAccounts - this.currentPlan.SecretsManager?.baseServiceAccount || 0,
+        this.sub?.smServiceAccounts - this.currentPlan().SecretsManager?.baseServiceAccount || 0,
       );
     }
 
@@ -637,7 +644,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
       await this.syncService.fullSync(true);
 
-      if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+      if (!this.acceptingSponsorship() && !this.isInTrialFlow) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/organizations/" + orgId]);
@@ -728,9 +735,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     // should still be taxed. We mark the plan as NOT sponsored when there is additional storage
     // so the server calculates tax, but we'll adjust the calculation to only tax the storage.
     const hasPaidStorage = (this.formGroup.value.additionalStorage || 0) > 0;
-    const sponsoredForTaxPreview = this.acceptingSponsorship && !hasPaidStorage;
+    const sponsoredForTaxPreview = this.acceptingSponsorship() && !hasPaidStorage;
 
-    if (this.acceptingSponsorship && hasPaidStorage) {
+    if (this.acceptingSponsorship() && hasPaidStorage) {
       // For sponsored plans with paid storage, calculate tax only on storage
       // by comparing tax on base+storage vs tax on base only
       //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
@@ -786,7 +793,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.billingFormGroup.invalid) {
         return;
       }
-      const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
       if (!paymentMethod) {
         throw new Error("Payment method validation failed");
       }
@@ -808,14 +815,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       const orgShareKey = await firstValueFrom(
         this.keyService
           .orgKeys$(userId)
-          .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
+          .pipe(map((orgKeys) => orgKeys?.[this.organizationId() as OrganizationId] ?? null)),
       );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
-    await this.organizationApiService.upgrade(this.organizationId, request);
-    return this.organizationId;
+    await this.organizationApiService.upgrade(this.organizationId(), request);
+    return this.organizationId();
   }
 
   private async createCloudHosted(
@@ -878,7 +885,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       const providerKey = await firstValueFrom(
         this.keyService
           .providerKeys$(activeUserId)
-          .pipe(map((providerKeys) => providerKeys?.[this.providerId as ProviderId] ?? null)),
+          .pipe(map((providerKeys) => providerKeys?.[this.providerId() as ProviderId] ?? null)),
       );
       assertNonNullish(providerKey, "Provider key not found");
 
@@ -886,7 +893,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;
       const orgId = (
-        await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)
+        await this.apiService.postProviderCreateOrganization(this.providerId(), providerRequest)
       ).organizationId;
 
       return orgId;
@@ -933,36 +940,122 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private upgradeFlowPrefillForm() {
-    if (this.acceptingSponsorship) {
+    if (this.acceptingSponsorship()) {
       this.formGroup.controls.productTier.setValue(ProductTierType.Families);
       this.changedProduct();
       return;
     }
 
-    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
+    const currentPlan = this.currentPlan();
+    if (currentPlan && currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) => {
-        if (this.currentPlan.productTier === ProductTierType.Free) {
+        const currentPlanValue = this.currentPlan();
+        if (currentPlanValue.productTier === ProductTierType.Free) {
           return plan.type === this._familyPlan;
         }
 
         if (
-          this.currentPlan.productTier === ProductTierType.Families &&
+          currentPlanValue.productTier === ProductTierType.Families &&
           !this.teamsStarterPlanIsAvailable
         ) {
           return plan.type === PlanType.TeamsAnnually;
         }
 
-        return plan.upgradeSortOrder === this.currentPlan.upgradeSortOrder + 1;
+        return plan.upgradeSortOrder === currentPlanValue.upgradeSortOrder + 1;
       });
 
-      this.plan = upgradedPlan.type;
-      this.productTier = upgradedPlan.productTier;
+      this.plan.set(upgradedPlan.type);
+      this.productTier.set(upgradedPlan.productTier);
       this.changedProduct();
     }
   }
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
+  }
+
+  private async determineFamilyPlan(): Promise<PlanType> {
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    return milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025;
+  }
+
+  /**
+   * Loads existing organization, billing, and subscription data for the given organization ID
+   * and populates the form controls with the retrieved billing address.
+   * @param organizationId
+   */
+  private async loadExistingOrganizationData(organizationId: string): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    this.organization = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+    this.billing = await this.organizationApiService.getBilling(organizationId);
+    this.sub = await this.organizationApiService.getSubscription(organizationId);
+    const billingAddress = await this.subscriberBillingClient.getBillingAddress({
+      type: "organization",
+      data: this.organization,
+    });
+    this.billingFormGroup.controls.billingAddress.patchValue({
+      ...billingAddress,
+      taxId: billingAddress?.taxId?.value,
+    });
+  }
+
+  /**
+   * Loads available plans from the API and filters them into password manager and secrets manager plans.
+   * Also sets the businessOwned form control to true if the current product tier is Enterprise or Teams.
+   */
+  private async loadPlanData(): Promise<void> {
+    const plans = await this.apiService.getPlans();
+    this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
+    this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
+
+    if (
+      this.productTier() === ProductTierType.Enterprise ||
+      this.productTier() === ProductTierType.Teams
+    ) {
+      this.formGroup.controls.businessOwned.setValue(true);
+    }
+  }
+
+  /**
+   * Preselects the next available upgrade plan based on the provided current plan.
+   * For free users, selects the family plan; for others, selects the next plan by upgrade sort order.
+   * @param currentPlan
+   */
+  private preselectUpgradePlan(currentPlan: PlanResponse): void {
+    if (currentPlan.productTier == ProductTierType.Enterprise) {
+      return;
+    }
+
+    const upgradedPlan = this.passwordManagerPlans.find((plan) => {
+      return currentPlan.productTier === ProductTierType.Free
+        ? plan.type === this._familyPlan
+        : plan.upgradeSortOrder == currentPlan.upgradeSortOrder + 1;
+    });
+
+    if (upgradedPlan) {
+      this.plan.set(upgradedPlan.type);
+      this.productTier.set(upgradedPlan.productTier);
+    }
+  }
+
+  /**
+   * Configures the form for provider-managed organizations by setting business ownership,
+   * adding required validators, loading provider data, and preselecting the default Teams plan.
+   */
+  private async setupProviderConfiguration(): Promise<void> {
+    this.formGroup.controls.businessOwned.setValue(true);
+    this.formGroup.controls.clientOwnerEmail.addValidators(Validators.required);
+    this.changedOwnedBusiness();
+    this.provider = await this.providerApiService.getProvider(this.providerId());
+    const providerDefaultPlan = this.passwordManagerPlans.find(
+      (plan) => plan.type === PlanType.TeamsAnnually,
+    );
+    this.plan.set(providerDefaultPlan.type);
+    this.productTier.set(providerDefaultPlan.productTier);
   }
 
   protected async onLicenseFileUploaded(organizationId: string): Promise<void> {
@@ -972,7 +1065,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("organizationReadyToGo"),
     });
 
-    if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+    if (!this.acceptingSponsorship() && !this.isInTrialFlow) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/organizations/" + organizationId]);
