@@ -64,7 +64,7 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (trialPeriodDays && createOrganization) {
+                    @if (trialPeriodDays && isCreatingNewOrganization) {
                       <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
                     }
                   </ul>
@@ -254,7 +254,7 @@
         <bit-section>
           <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
           <bit-radio-group formControlName="plan">
-            @for (selectablePlan of selectablePlans; track selectablePlan) {
+            @for (selectablePlan of selectablePlans; track $index) {
               @let pm = selectablePlan.PasswordManager;
               @let isAnnual = selectablePlan.isAnnual;
               <bit-radio-button
