@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
@@ -74,7 +73,7 @@ export enum FeatureFlag {
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM29437_WelcomeDialogNoExt = "pm-29437-welcome-dialog-no-ext-prompt",
-  SessionCountForPremiumUpgradePrompt = "session-count-for-premium-upgrade-prompt",
+  PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -110,7 +109,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.MembersComponentRefactor]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
@@ -121,6 +119,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
@@ -143,7 +142,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM29437_WelcomeDialogNoExt]: FALSE,
-  [FeatureFlag.SessionCountForPremiumUpgradePrompt]: 5,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
