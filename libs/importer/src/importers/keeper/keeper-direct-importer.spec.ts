@@ -21,8 +21,10 @@ describe("Keeper Direct Importer", () => {
     jest.spyOn(console, "warn").mockImplementation();
 
     const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
-    vault = new (Vault as any)(new Uint8Array(Buffer.from(fixture.masterKey, "base64")));
-    await (vault as any).processMergedSyncDownResponse(response);
+    vault = await (Vault as any).processNew(
+      response,
+      new Uint8Array(Buffer.from(fixture.masterKey, "base64")),
+    );
 
     const importer = new KeeperDirectImporter();
     result = importer.convertVaultToImportResult(vault, true);
