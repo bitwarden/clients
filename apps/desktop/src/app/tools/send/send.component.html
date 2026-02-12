@@ -12,7 +12,9 @@
                 (click)="selectAll()"
                 [attr.aria-pressed]="selectedAll === true"
               >
-                <i class="bwi bwi-fw bwi-grid" aria-hidden="true"></i>&nbsp;{{ "allSends" | i18n }}
+                <i class="bwi bwi-fw bwi-filter" aria-hidden="true"></i>&nbsp;{{
+                  "allSends" | i18n
+                }}
               </button>
             </span>
           </li>

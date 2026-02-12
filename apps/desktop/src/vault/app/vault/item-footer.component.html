@@ -13,11 +13,7 @@
     </button>
     @if (!cipher.isDeleted && action === "view") {
       <button type="button" class="primary" (click)="edit()" appA11yTitle="{{ 'edit' | i18n }}">
-        <i
-          class="bwi bwi-pencil-square-alt bwi-fw bwi-lg"
-          aria-hidden="true"
-          style="pointer-events: none"
-        >
+        <i class="bwi bwi-pencil bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none">
         </i>
       </button>
     }

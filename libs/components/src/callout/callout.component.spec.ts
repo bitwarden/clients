@@ -40,14 +40,14 @@ describe("Callout", () => {
       fixture.componentRef.setInput("type", "info");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
-      expect(component.iconComputed()).toBe("bwi-info");
+      expect(component.iconComputed()).toBe("bwi-info-circle");
     });
 
     it("warning", () => {
       fixture.componentRef.setInput("type", "warning");
       fixture.detectChanges();
       expect(component.titleComputed()).toBe("Warning");
-      expect(component.iconComputed()).toBe("bwi-warning");
+      expect(component.iconComputed()).toBe("bwi-exclamation-triangle");
     });
 
     it("danger", () => {

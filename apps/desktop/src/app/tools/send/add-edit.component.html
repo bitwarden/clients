@@ -220,10 +220,7 @@
                   <i
                     class="bwi bwi-lg"
                     aria-hidden="true"
-                    [ngClass]="{
-                      'bwi-eye': !showPassword,
-                      'bwi-eye-off': showPassword,
-                    }"
+                    [ngClass]="{ 'bwi-eye': !showPassword, 'bwi-eye-slash': showPassword }"
                   ></i>
                 </button>
               </div>
