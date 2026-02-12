@@ -52,7 +52,7 @@ describe("DefaultSdkService", () => {
     let apiService!: MockProxy<ApiService>;
 
     beforeEach(async () => {
-      await new TestSdkLoadService().loadAndInit();
+      await new TestSdkLoadService().init();
 
       sdkClientFactory = mock<SdkClientFactory>();
       environmentService = mock<EnvironmentService>();

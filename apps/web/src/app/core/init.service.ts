@@ -47,7 +47,7 @@ export class InitService {
 
   init() {
     return async () => {
-      await this.sdkLoadService.loadAndInit();
+      await this.sdkLoadService.init();
       await this.migrationRunner.run();
       this.encryptService.init(this.configService);
 

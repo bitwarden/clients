@@ -395,7 +395,7 @@ export class Main {
           this.messagingService.send("windowHidden");
         });
 
-        await this.sdkLoadService.loadAndInit();
+        await this.sdkLoadService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

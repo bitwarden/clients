@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 
+import { AsyncInitializable } from "@bitwarden/common/platform/abstractions/initializable";
+
 import { LegacyMessageWrapper } from "../models/native-messaging/legacy-message-wrapper";
 import { Message } from "../models/native-messaging/message";
 
@@ -7,7 +9,7 @@ import { BiometricMessageHandlerService } from "./biometric-message-handler.serv
 import { DuckDuckGoMessageHandlerService } from "./duckduckgo-message-handler.service";
 
 @Injectable()
-export class NativeMessagingService {
+export class NativeMessagingService implements AsyncInitializable {
   constructor(
     private duckduckgoMessageHandler: DuckDuckGoMessageHandlerService,
     private biometricMessageHandler: BiometricMessageHandlerService,
