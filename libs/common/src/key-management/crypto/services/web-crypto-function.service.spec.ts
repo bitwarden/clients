@@ -49,7 +49,7 @@ const Sha512Mac =
 
 describe("WebCrypto Function Service", () => {
   beforeAll(async () => {
-    await new TestSdkLoadService().init();
+    await new TestSdkLoadService().loadAndInit();
   });
 
   describe("pbkdf2", () => {

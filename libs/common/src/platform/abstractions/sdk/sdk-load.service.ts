@@ -51,5 +51,10 @@ export abstract class SdkLoadService implements AsyncInitializable {
     }
   }
 
+  /** @deprecated Use init() instead */
+  async loadAndInit(): Promise<void> {
+    return this.init();
+  }
+
   protected abstract load(): Promise<void>;
 }

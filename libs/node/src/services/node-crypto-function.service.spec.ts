@@ -46,7 +46,7 @@ const Sha512Mac =
 
 describe("NodeCrypto Function Service", () => {
   beforeAll(async () => {
-    await new TestSdkLoadService().init();
+    await new TestSdkLoadService().loadAndInit();
   });
 
   describe("pbkdf2", () => {

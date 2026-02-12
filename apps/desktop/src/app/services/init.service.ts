@@ -44,11 +44,13 @@ export class InitService implements AsyncInitializable {
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsServiceAbstraction,
     private keyService: KeyServiceAbstraction,
+    private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
     private versionService: VersionService,
+    private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
@@ -56,9 +58,11 @@ export class InitService implements AsyncInitializable {
     private readonly migrationRunner: MigrationRunner,
   ) {}
 
-  asyncDependencies: AsyncDependency[] = [SdkLoadService, SshAgentService, NativeMessagingService];
+  asyncDependencies: AsyncDependency[] = [SdkLoadService];
 
   async init() {
+    await this.sshAgentService.init();
+    this.nativeMessagingService.init();
     await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
     const accounts = await firstValueFrom(this.accountService.accounts$);

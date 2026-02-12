@@ -25,7 +25,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AsyncInitializable } from "@bitwarden/common/platform/abstractions/initializable";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -40,7 +39,7 @@ import { SshAgentPromptType } from "../models/ssh-agent-setting";
 @Injectable({
   providedIn: "root",
 })
-export class SshAgentService implements OnDestroy, AsyncInitializable {
+export class SshAgentService implements OnDestroy {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
   SSH_REQUEST_UNLOCK_POLLING_INTERVAL = 100;
