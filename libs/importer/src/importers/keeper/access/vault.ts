@@ -2,8 +2,12 @@ import { Client, ClientOptions } from "./client";
 import { base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./crypto";
 import {
   SharedFolder,
+  SharedFolderFolder,
+  SharedFolderFolderRecord,
   SyncDownResponse,
   UserFolder,
+  UserFolderRecord,
+  UserFolderSharedFolder,
   Record,
   RecordMetaData,
   SharedFolderRecord,
@@ -27,6 +31,11 @@ type FieldV3 = {
   label?: string;
 };
 
+export type VaultItem = RecordV3 & {
+  id: string;
+  folders: string[];
+};
+
 type Decryptor = (data: Uint8Array, key: Uint8Array) => Promise<Uint8Array>;
 
 export class Vault {
@@ -39,32 +48,15 @@ export class Vault {
     return await Vault.processNew(merged, loginResult.dataKey);
   }
 
-  getRecords(): RecordV3[] {
-    return Array.from(this.records.values());
-  }
-
-  getFolders(): string[] {
-    return Array.from(this.folders.values());
-  }
-
-  getSharedFolders(): string[] {
-    return Array.from(this.sharedFolders.values());
-  }
-
-  // TODO: Remove!
-  getRecordFolderPaths(): Map<string, string> {
-    return new Map<string, string>();
+  getItems(): VaultItem[] {
+    return this.items;
   }
 
   //
   // Private
   //
 
-  private constructor(
-    private readonly records: Map<string, RecordV3>,
-    private readonly folders: Map<string, string>,
-    private readonly sharedFolders: Map<string, string>,
-  ) {}
+  private constructor(private readonly items: VaultItem[]) {}
 
   private static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
     if (pages.length === 1) {
@@ -152,7 +144,36 @@ export class Vault {
     // 7. Now all records can be decrypted.
     const [records, failedRecords] = await Vault.decryptRecords(merged.records, allRecordKeys);
 
-    return new Vault(records, folders, sharedFolders);
+    // 8. Decrypt shared folder subfolder names.
+    const sharedFolderFolderNames = await Vault.decryptSharedFolderFolderNames(
+      merged.sharedFolderFolders,
+      sharedFolderKeys,
+    );
+
+    // 9. Build full folder paths for each record.
+    const recordFolderPaths = Vault.buildRecordFolderPaths(
+      merged.userFolders,
+      merged.userFolderSharedFolders,
+      merged.sharedFolderFolders,
+      merged.userFolderRecords,
+      merged.sharedFolderRecords,
+      merged.sharedFolderFolderRecords,
+      folders,
+      sharedFolders,
+      sharedFolderFolderNames,
+    );
+
+    // 10. Combine records with their folder paths into VaultItems.
+    const items: VaultItem[] = [];
+    for (const [uid, record] of records) {
+      items.push({
+        ...record,
+        id: uid,
+        folders: recordFolderPaths.get(uid) ?? [],
+      });
+    }
+
+    return new Vault(items);
   }
 
   private static async decryptFolderNames(
@@ -275,6 +296,121 @@ export class Vault {
       }
     }
     return [result, failed];
+  }
+
+  private static async decryptSharedFolderFolderNames(
+    sharedFolderFolders: SharedFolderFolder[],
+    sharedFolderKeys: Map<string, Uint8Array>,
+  ): Promise<Map<string, string>> {
+    const result = new Map<string, string>();
+    for (const sff of sharedFolderFolders) {
+      const sfUid = base64UrlEncode(sff.sharedFolderUid);
+      const sfKey = sharedFolderKeys.get(sfUid);
+      if (!sfKey) {
+        continue;
+      }
+      try {
+        const folderKey = await decryptKeeperKey(sff.sharedFolderFolderKey, sff.keyType, sfKey);
+        const decrypted = await Vault.decryptJsonV1<{ name: string }>(sff.data, folderKey);
+        result.set(base64UrlEncode(sff.folderUid), decrypted.name);
+      } catch {
+        // skip folders we can't decrypt
+      }
+    }
+    return result;
+  }
+
+  private static buildRecordFolderPaths(
+    userFolders: UserFolder[],
+    userFolderSharedFolders: UserFolderSharedFolder[],
+    sharedFolderFolders: SharedFolderFolder[],
+    userFolderRecords: UserFolderRecord[],
+    sharedFolderRecords: SharedFolderRecord[],
+    sharedFolderFolderRecords: SharedFolderFolderRecord[],
+    folderNames: Map<string, string>,
+    sharedFolderNames: Map<string, string>,
+    sharedFolderFolderNames: Map<string, string>,
+  ): Map<string, string[]> {
+    // Build a flat uid -> { name, parentUid } map for all folder types
+    const tree = new Map<string, { name: string; parentUid: string }>();
+
+    // User folders
+    for (const uf of userFolders) {
+      const uid = base64UrlEncode(uf.folderUid);
+      const parentUid = uf.parentUid.length > 0 ? base64UrlEncode(uf.parentUid) : "";
+      const name = folderNames.get(uid) ?? uid;
+      tree.set(uid, { name: sanitizeFolderName(name), parentUid });
+    }
+
+    // Shared folders (placed under user folders via userFolderSharedFolders)
+    for (const sf of userFolderSharedFolders) {
+      const sfUid = base64UrlEncode(sf.sharedFolderUid);
+      const parentUid = sf.folderUid.length > 0 ? base64UrlEncode(sf.folderUid) : "";
+      const name = sharedFolderNames.get(sfUid) ?? sfUid;
+      tree.set(sfUid, { name: sanitizeFolderName(name), parentUid });
+    }
+
+    // Shared folder subfolders
+    for (const sff of sharedFolderFolders) {
+      const uid = base64UrlEncode(sff.folderUid);
+      const sfUid = base64UrlEncode(sff.sharedFolderUid);
+      // If no parent, the parent is the shared folder itself
+      const parentUid = sff.parentUid.length > 0 ? base64UrlEncode(sff.parentUid) : sfUid;
+      const name = sharedFolderFolderNames.get(uid) ?? uid;
+      tree.set(uid, { name: sanitizeFolderName(name), parentUid });
+    }
+
+    // Helper to walk up the tree and build a full path
+    const getPath = (uid: string): string => {
+      const parts: string[] = [];
+      let current = uid;
+      const visited = new Set<string>();
+      while (current && tree.has(current)) {
+        if (visited.has(current)) {
+          break;
+        }
+        visited.add(current);
+        const node = tree.get(current)!;
+        parts.unshift(node.name);
+        current = node.parentUid;
+      }
+      return parts.join("/");
+    };
+
+    // Build record -> folder paths
+    const result = new Map<string, string[]>();
+
+    const addRecordFolder = (recordUid: string, folderUid: string) => {
+      const path = getPath(folderUid);
+      if (!path) {
+        return;
+      }
+      let paths = result.get(recordUid);
+      if (!paths) {
+        paths = [];
+        result.set(recordUid, paths);
+      }
+      if (!paths.includes(path)) {
+        paths.push(path);
+      }
+    };
+
+    // Records in user folders
+    for (const ufr of userFolderRecords) {
+      addRecordFolder(base64UrlEncode(ufr.recordUid), base64UrlEncode(ufr.folderUid));
+    }
+
+    // Records at shared folder root
+    for (const sfr of sharedFolderRecords) {
+      addRecordFolder(base64UrlEncode(sfr.recordUid), base64UrlEncode(sfr.sharedFolderUid));
+    }
+
+    // Records in shared folder subfolders
+    for (const sffr of sharedFolderFolderRecords) {
+      addRecordFolder(base64UrlEncode(sffr.recordUid), base64UrlEncode(sffr.folderUid));
+    }
+
+    return result;
   }
 
   private static async decryptJsonV1<T>(data: Uint8Array, key: Uint8Array): Promise<T> {
