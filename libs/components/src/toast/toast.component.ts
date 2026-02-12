@@ -16,11 +16,11 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
     bgColor: "tw-bg-danger-100",
   },
   info: {
-    icon: "bwi-info",
+    icon: "bwi-info-circle",
     bgColor: "tw-bg-info-100",
   },
   warning: {
-    icon: "bwi-warning",
+    icon: "bwi-exclamation-triangle",
     bgColor: "tw-bg-warning-100",
   },
 };

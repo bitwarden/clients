@@ -100,7 +100,7 @@ export const Default: Story = {
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
           <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
-          <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
+          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
             <bit-nav-item text="Child A" route="a" icon="bwi-grid"></bit-nav-item>
             <bit-nav-item text="Child B" route="b"></bit-nav-item>
             <bit-nav-item

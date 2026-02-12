@@ -13,8 +13,8 @@ import { SimpleDialogComponent, IconDirective } from "../simple-dialog.component
 const DEFAULT_ICON: Record<SimpleDialogType, string> = {
   primary: "bwi-business",
   success: "bwi-star",
-  info: "bwi-info",
-  warning: "bwi-warning",
+  info: "bwi-info-circle",
+  warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
 };
 

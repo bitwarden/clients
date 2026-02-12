@@ -36,7 +36,7 @@ import { TableDataSource, TableModule } from "../../../table";
             <td bitCell>{{ r.name }}</td>
             <td bitCell>
               <button
-                bitIconButton="bwi-more-vertical"
+                bitIconButton="bwi-ellipsis-v"
                 type="button"
                 label="Options"
                 (click)="openDefaultDialog()"

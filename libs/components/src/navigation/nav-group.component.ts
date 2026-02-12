@@ -49,12 +49,12 @@ export class NavGroupComponent extends NavBaseComponent {
 
   /**
    * Determines the appropriate icon for the toggle button based on variant and open state.
-   * - Tree variant: Always uses 'bwi-arrow-filled-up'
+   * - Tree variant: Always uses 'bwi-up-solid'
    * - Default variant: Uses 'bwi-angle-up' when open, 'bwi-angle-down' when closed
    */
   readonly toggleButtonIcon = computed(() => {
     if (this.variant() === "tree") {
-      return "bwi-arrow-filled-up";
+      return "bwi-up-solid";
     }
     return this.open() ? "bwi-angle-up" : "bwi-angle-down";
   });
