@@ -14,7 +14,39 @@ import { RiskInsightsReportView } from "./risk-insights-report.view";
 import { RiskInsightsSummaryView } from "./risk-insights-summary.view";
 
 /**
- * View model for Member Details in Risk Insights containing decrypted properties
+ * Member registry entry
+ *
+ * Represents a single organization member in the deduplicated member registry.
+ * Members are stored once in the registry and referenced by ID from applications.
+ */
+export interface MemberRegistryEntry {
+  /** Organization user ID (userGuid from OrganizationUserView) */
+  id: string;
+  /** Display name of the member */
+  userName: string;
+  /** Email address of the member */
+  email: string;
+}
+
+/**
+ * Member Registry - Deduplicated member lookup table
+ *
+ * A simple Record mapping organization user ID to member entry.
+ * Applications store only member IDs (as Record<string, boolean>) which are
+ * resolved to full entries via this registry.
+ *
+ * **Performance Impact:**
+ * - Without registry: 5,000 members × 50 apps × 180 bytes = ~45MB (duplicated)
+ * - With registry: 5,000 members × 140 bytes = ~700KB (deduplicated)
+ * - **Savings: ~98% reduction in member data storage**
+ */
+export type MemberRegistry = Record<string, MemberRegistryEntry>;
+
+/**
+ * View model for Risk Insights containing decrypted properties
+ *
+ * Uses the member registry pattern to eliminate duplicate member storage across applications.
+ * The registry is shared across all application reports and provides O(1) member lookup.
  *
  * - See {@link RiskInsights} for domain model
  * - See {@link RiskInsightsData} for data model
@@ -26,6 +58,7 @@ export class RiskInsightsView implements View {
   reports: RiskInsightsReportView[] = [];
   applications: RiskInsightsApplicationView[] = [];
   summary = new RiskInsightsSummaryView();
+  memberRegistry: MemberRegistry = {};
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
@@ -55,6 +88,7 @@ export class RiskInsightsView implements View {
     view.reports = obj.reports?.map((report) => RiskInsightsReportView.fromJSON(report)) ?? [];
     view.applications = obj.applications?.map((a) => RiskInsightsApplicationView.fromJSON(a)) ?? [];
     view.summary = RiskInsightsSummaryView.fromJSON(obj.summary ?? {});
+    view.memberRegistry = obj.memberRegistry ?? {};
 
     return view;
   }
