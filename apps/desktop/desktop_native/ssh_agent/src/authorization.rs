@@ -268,6 +268,27 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_authorize_list_when_locked_unlock_handler_error() {
+        let keystore = Arc::new(MockKeyStore::new());
+        let mut approval_handler = MockApprovalRequester::new();
+
+        approval_handler
+            .expect_request_unlock()
+            .times(1)
+            .returning(|| Err(anyhow!("Handler failed")));
+
+        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
+
+        let request = AuthRequest::List;
+        let result = policy.authorize(&request).await;
+
+        assert!(
+            matches!(result, Err(AuthError::HandlerFailed(_))),
+            "Should return HandlerFailed error when unlock handler fails"
+        );
+    }
+
+    #[tokio::test]
     async fn test_authorize_sign_key_not_found() {
         let mut keystore = MockKeyStore::new();
         let approval_handler = MockApprovalRequester::new();
