@@ -10,7 +10,7 @@ import {
   OnInit,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -28,7 +28,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -226,6 +226,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   );
 
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
+    initialValue: false,
+  });
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -236,6 +239,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected userCanArchive$ = this.userId$.pipe(
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
+
+  private readonly userCanArchive = toSignal(this.userCanArchive$, { initialValue: false });
 
   protected get isTrashFilter() {
     return this.filter?.type === "trash";
@@ -291,6 +296,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected get isCipherArchived() {
     return this.cipher?.isArchived;
+  }
+
+  protected get showArchiveOptions(): boolean {
+    return (
+      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
+    );
+  }
+
+  protected get showArchiveBtn(): boolean {
+    return this.userCanArchive() && this.cipher?.canBeArchived;
+  }
+
+  protected get showUnarchiveBtn(): boolean {
+    return this.isCipherArchived && !this.cipher?.isDeleted;
   }
 
   /**
@@ -508,11 +527,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialogService.open<
       AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId }
+      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
     >(AttachmentsV2Component, {
       data: {
         cipherId: this.formConfig.originalCipher?.id as CipherId,
         organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+        canEditCipher: this.formConfig.originalCipher?.edit,
       },
     });
 
@@ -574,20 +594,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     await this.changeMode("view");
   };
 
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipher.archivedDate = archivedDate;
-    this.cipher.revisionDate = revisionDate;
+  updateCipherFromResponse = async (cipherResponse: CipherData, userId: UserId) => {
+    const cipher: Cipher = new Cipher(cipherResponse);
 
-    // If we're in View mode, we don't need to update the form.
-    if (this.params.mode === "view") {
-      return;
-    }
+    cipher.collectionIds = [...this.cipher.collectionIds];
 
-    this.cipherFormComponent().patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
-    });
+    const cipherView = await this.cipherService.decrypt(cipher, userId);
+
+    await this.onCipherSaved(cipherView);
   };
 
   archive = async () => {
@@ -597,10 +611,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(
-        new Date(cipherResponse.revisionDate),
-        cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
-      );
+
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -621,7 +633,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.id as CipherId,
         activeUserId,
       );
-      this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+
+      await this.updateCipherFromResponse(cipherResponse, activeUserId);
+
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemWasUnarchived"),
@@ -631,7 +645,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
-      return;
     }
   };
 

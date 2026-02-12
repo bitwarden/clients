@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, output } from "@angular/core";
-import { map, shareReplay } from "rxjs";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -38,10 +39,18 @@ export class NewCipherMenuComponent {
   /**
    * Returns an observable that emits the cipher menu items, filtered by the restricted types.
    */
-  cipherMenuItems$ = this.restrictedItemTypesService.restricted$.pipe(
-    map((restrictedTypes) => {
+  cipherMenuItems$ = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    toObservable(this.canCreateCipher),
+    toObservable(this.canCreateSshKey),
+  ]).pipe(
+    map(([restrictedTypes, canCreateCipher, canCreateSshKey]) => {
+      // If user cannot create ciphers at all, return empty array
+      if (!canCreateCipher) {
+        return [];
+      }
       return CIPHER_MENU_ITEMS.filter((item) => {
-        if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
+        if (!canCreateSshKey && item.type === CipherType.SshKey) {
           return false;
         }
         return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
@@ -49,4 +58,40 @@ export class NewCipherMenuComponent {
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  /**
+   * Returns the appropriate button label based on what can be created.
+   * If only collections can be created (no ciphers or folders), show "New Collection".
+   * Otherwise, show "New".
+   */
+  protected getButtonLabel(): string {
+    const canCreateCipher = this.canCreateCipher();
+    const canCreateFolder = this.canCreateFolder();
+    const canCreateCollection = this.canCreateCollection();
+
+    // If only collections can be created, be specific
+    if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
+      return "newCollection";
+    }
+
+    return "new";
+  }
+
+  /**
+   * Returns true if only collections can be created (no other options).
+   * When this is true, the button should directly create a collection instead of showing a dropdown.
+   */
+  protected isOnlyCollectionCreation(): boolean {
+    return !this.canCreateCipher() && !this.canCreateFolder() && this.canCreateCollection();
+  }
+
+  /**
+   * Handles the button click. If only collections can be created, directly emit the collection event.
+   * Otherwise, the menu trigger will handle opening the dropdown.
+   */
+  protected handleButtonClick(): void {
+    if (this.isOnlyCollectionCreation()) {
+      this.collectionAdded.emit();
+    }
+  }
 }

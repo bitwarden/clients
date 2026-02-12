@@ -228,7 +228,7 @@ export class RiskInsightsOrchestratorService {
    * @param criticalApplication Application name of the critical application to remove
    * @returns
    */
-  removeCriticalApplication$(criticalApplication: string): Observable<ReportState> {
+  removeCriticalApplications$(applicationsToUnmark: Set<string>): Observable<ReportState> {
     this.logService.info(
       "[RiskInsightsOrchestratorService] Removing critical applications from report",
     );
@@ -245,11 +245,10 @@ export class RiskInsightsOrchestratorService {
           throwError(() => Error("Tried to update critical applications without a report"));
         }
 
-        // Create a set for quick lookup of the new critical apps
         const existingApplicationData = report!.applicationData || [];
-        const updatedApplicationData = this._removeCriticalApplication(
+        const updatedApplicationData = this._removeCriticalApplications(
           existingApplicationData,
-          criticalApplication,
+          applicationsToUnmark,
         );
 
         // Updated summary data after changing critical apps
@@ -917,12 +916,12 @@ export class RiskInsightsOrchestratorService {
   }
 
   // Toggles the isCritical flag on applications via criticalApplicationName
-  private _removeCriticalApplication(
+  private _removeCriticalApplications(
     applicationData: OrganizationReportApplication[],
-    criticalApplication: string,
+    applicationsToUnmark: Set<string>,
   ): OrganizationReportApplication[] {
     const updatedApplicationData = applicationData.map((application) => {
-      if (application.applicationName == criticalApplication) {
+      if (applicationsToUnmark.has(application.applicationName)) {
         return { ...application, isCritical: false } as OrganizationReportApplication;
       }
       return application;

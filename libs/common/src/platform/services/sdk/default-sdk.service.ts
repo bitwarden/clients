@@ -2,7 +2,10 @@ import {
   combineLatest,
   concatMap,
   Observable,
+  share,
   shareReplay,
+  ReplaySubject,
+  timer,
   map,
   distinctUntilChanged,
   tap,
@@ -263,7 +266,10 @@ export class DefaultSdkService implements SdkService {
         },
       ),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      share({
+        connector: () => new ReplaySubject(1),
+        resetOnRefCountZero: () => timer(1000),
+      }),
     );
 
     this.sdkClientCache.set(userId, client$);
