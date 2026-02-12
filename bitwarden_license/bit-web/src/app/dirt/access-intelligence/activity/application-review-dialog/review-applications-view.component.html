@@ -9,7 +9,12 @@
     <bit-table-scroll class="tw-w-full tw-border-collapse" [dataSource]="dataSource" [rowSize]="47">
       <ng-container header>
         <th bitCell>
-          <button type="button" bitIconButton="bwi-star" [label]="" [disabled]="true"></button>
+          <button
+            type="button"
+            [bitIconButton]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
+            (click)="toggleAll()"
+            [label]="isAllSelected() ? ('unselectAll' | i18n) : ('selectAll' | i18n)"
+          ></button>
         </th>
         <th bitCell class="tw-text-right tw-py-3 tw-px-2 tw-font-medium"></th>
         <th
