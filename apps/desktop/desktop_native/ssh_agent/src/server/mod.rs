@@ -19,11 +19,14 @@ use crate::crypto::keystore::KeyStore;
 /// Handles SSH agent protocol messages and delegates to provided
 /// keystore and authorization policy implementations.
 ///
-/// The server manages its own lifecycle - it can be created, started, stopped,
-/// and restarted without being recreated.
+/// The server internally manages its lifecycle - it can be created, started, stopped,
+/// and restarted without being re-created.
 pub struct SshAgentServer<K, A> {
+    /// The storeage of SSH key data
     keystore: Arc<K>,
+    /// The authenticator policy to invoke for operations that require authorization
     auth_policy: Arc<A>,
+    /// Async task coordination to use when asked to stop. Is `None` when non running.
     cancellation_token: Option<CancellationToken>,
 }
 
@@ -32,6 +35,7 @@ where
     K: KeyStore,
     A: AuthPolicy,
 {
+    /// Creates a new [`SshAgentServer`]
     pub fn new(keystore: Arc<K>, auth_policy: Arc<A>) -> Self {
         Self {
             keystore,

@@ -17,7 +17,7 @@ pub trait ApprovalRequester: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns an error if the handler failed to process the request
+    /// If the handler failed to process the request
     async fn request_unlock(&self) -> anyhow::Result<bool>;
 
     /// Requests approval for a signing operation.
@@ -34,7 +34,7 @@ pub trait ApprovalRequester: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns an error if the handler failed to process the request
+    /// If the handler failed to process the request
     async fn request_sign_approval(
         &self,
         sign_request: SignRequest,

@@ -30,7 +30,7 @@ pub enum AuthError {
     KeystoreError(#[source] anyhow::Error),
 }
 
-/// Represents the vaults lock state.
+/// Represents the vault's lock state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LockState {
     Locked,
