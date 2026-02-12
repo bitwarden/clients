@@ -3,7 +3,7 @@ import { firstValueFrom, timeout, Observable } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -63,15 +63,15 @@ export class UnifiedUpgradePromptService {
    *
    * @returns A promise that resolves to the dialog result if shown, or null if not shown
    */
-  async displayUpgradePromptConditionally(): Promise<boolean> {
+  async displayUpgradePromptConditionally(): Promise<UnifiedUpgradeDialogResult | null> {
     // Check self-hosted first before any other operations
     if (this.platformUtilsService.isSelfHost()) {
-      return false;
+      return null;
     }
 
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
-      return false;
+      return null;
     }
 
     // await this.migrateLegacyStateIfNeeded(account.id);
@@ -80,12 +80,12 @@ export class UnifiedUpgradePromptService {
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     );
     if (hasPremium) {
-      return false;
+      return null;
     }
 
     const hasDismissed = await firstValueFrom(this.hasDismissedModal$(account.id).pipe(take(1)));
     if (hasDismissed) {
-      return false;
+      return null;
     }
 
     const requiredSessionCount =
@@ -94,16 +94,15 @@ export class UnifiedUpgradePromptService {
 
     const sessionCount = await this.incrementSessionCountIfNeeded(account.id);
     if (sessionCount < requiredSessionCount) {
-      return false;
+      return null;
     }
 
     const hasOrganizations = await this.hasOrganizations(account.id);
     if (hasOrganizations) {
-      return false;
+      return null;
     }
 
-    await this.launchUpgradeDialog(account);
-    return true;
+    return this.launchUpgradeDialog();
   }
 
   private getSessionCount$(userId: UserId): Observable<number> {
@@ -161,7 +160,12 @@ export class UnifiedUpgradePromptService {
     return nextCount;
   }
 
-  private async launchUpgradeDialog(account: Account) {
+  private async launchUpgradeDialog(): Promise<UnifiedUpgradeDialogResult | null> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      return null;
+    }
+
     this.unifiedUpgradeDialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
       data: { account },
     });

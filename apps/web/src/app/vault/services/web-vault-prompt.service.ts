@@ -31,7 +31,7 @@ const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   },
 );
 
-const ONE_DAY_MS = 1000 * 60 * 60 * 24;
+const THIRTY_DAY_MS = 1000 * 60 * 60 * 24 * 30;
 
 @Injectable()
 export class WebVaultPromptService {
@@ -66,29 +66,33 @@ export class WebVaultPromptService {
 
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
+    if (await this.conditionallyShowWelcomeDialog()) {
+      return;
+    }
+
     this.checkForAutoConfirm();
   }
 
-  async conditionallyShowWelcomeDialog(): Promise<void> {
+  async conditionallyShowWelcomeDialog(): Promise<boolean> {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
-      return;
+      return false;
     }
 
     const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialogNoExt);
     if (!enabled) {
-      return;
+      return false;
     }
 
     const createdAt = account.creationDate;
     if (!createdAt) {
-      return;
+      return false;
     }
 
     const ageMs = Date.now() - createdAt.getTime();
-    const isNewUser = ageMs >= 0 && ageMs <= ONE_DAY_MS;
+    const isNewUser = ageMs >= 0 && ageMs <= THIRTY_DAY_MS;
     if (!isNewUser) {
-      return;
+      return false;
     }
 
     const acknowledged = await firstValueFrom(
@@ -98,13 +102,14 @@ export class WebVaultPromptService {
     );
 
     if (acknowledged) {
-      return;
+      return false;
     }
 
     const dialogRef = VaultWelcomeDialogNoExtComponent.open(this.dialogService);
     await firstValueFrom(dialogRef.closed);
 
     await this.stateProvider.setUserState(VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY, true, account.id);
+    return true;
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {

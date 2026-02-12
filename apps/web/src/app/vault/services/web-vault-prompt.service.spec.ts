@@ -271,25 +271,6 @@ describe("WebVaultPromptService", () => {
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
-    it("should not show dialog when account has no creation date", async () => {
-      activeAccount$.next(createAccount({ creationDate: undefined }));
-      getFeatureFlag.mockResolvedValueOnce(true);
-
-      await service.conditionallyShowWelcomeDialog();
-
-      expect(mockDialogOpen).not.toHaveBeenCalled();
-    });
-
-    it("should not show dialog when account is older than 24 hours", async () => {
-      const twoDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
-      activeAccount$.next(createAccount({ creationDate: twoDaysAgo }));
-      getFeatureFlag.mockResolvedValueOnce(true);
-
-      await service.conditionallyShowWelcomeDialog();
-
-      expect(mockDialogOpen).not.toHaveBeenCalled();
-    });
-
     it("should not show dialog when user has already acknowledged it", async () => {
       activeAccount$.next(createAccount({ creationDate: new Date() }));
       getFeatureFlag.mockResolvedValueOnce(true);
@@ -326,9 +307,18 @@ describe("WebVaultPromptService", () => {
       );
     });
 
-    it("should show dialog for account created exactly 24 hours ago", async () => {
-      const exactlyOneDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 24);
-      activeAccount$.next(createAccount({ creationDate: exactlyOneDayAgo }));
+    it("should not show dialog when account has no creation date", async () => {
+      activeAccount$.next(createAccount({ creationDate: undefined }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should show dialog for account created within 30 days", async () => {
+      const exactlyThirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30);
+      activeAccount$.next(createAccount({ creationDate: exactlyThirtyDaysAgo }));
       getFeatureFlag.mockResolvedValueOnce(true);
       getUserState$.mockReturnValueOnce(of(false));
       mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
@@ -338,9 +328,9 @@ describe("WebVaultPromptService", () => {
       expect(mockDialogOpen).toHaveBeenCalled();
     });
 
-    it("should not show dialog for account created just over 24 hours ago", async () => {
-      const justOverOneDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 - 1000);
-      activeAccount$.next(createAccount({ creationDate: justOverOneDayAgo }));
+    it("should not show dialog for account created over 30 days ago", async () => {
+      const justOverThirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 - 1000);
+      activeAccount$.next(createAccount({ creationDate: justOverThirtyDaysAgo }));
       getFeatureFlag.mockResolvedValueOnce(true);
 
       await service.conditionallyShowWelcomeDialog();
