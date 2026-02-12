@@ -1,7 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   combineLatest,
@@ -158,17 +168,15 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: OrganizationId | null = null;
-  myVaultOnly = false;
   addType: CipherType | undefined = undefined;
   addOrganizationId: string | null = null;
   addCollectionIds: string[] | null = null;
   showingModal = false;
   deleted = false;
-  userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
   activeUserId: UserId | null = null;
   cipherRepromptId: string | null = null;
-  cipher: CipherView | null = new CipherView();
+  readonly cipher = signal<CipherView | null>(null);
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -183,6 +191,16 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
+
+  readonly userHasPremium = toSignal(
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    ),
+    { initialValue: false },
+  );
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -190,6 +208,14 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
   );
+
+  protected readonly submitButtonText = computed(() => {
+    return this.cipher()?.isArchived &&
+      !this.userHasPremium() &&
+      this.cipherArchiveService.hasArchiveFlagEnabled$
+      ? this.i18nService.t("unArchiveAndSave")
+      : this.i18nService.t("save");
+  });
 
   protected hasArchivedCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
@@ -237,18 +263,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        filter((account): account is Account => !!account),
-        switchMap((account) =>
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        ),
-        takeUntil(this.componentIsDestroyed$),
-      )
-      .subscribe((canAccessPremium: boolean) => {
-        this.userHasPremiumAccess = canAccessPremium;
-      });
-
     // Subscribe to filter changes from router params via the bridge service
     // Use combineLatest to react to changes in both the filter and archive flag
     combineLatest([
@@ -306,30 +320,40 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                 this.showingModal = false;
                 break;
               case "copyUsername": {
-                if (this.cipher?.login?.username) {
-                  this.copyValue(this.cipher, this.cipher?.login?.username, "username", "Username");
+                if (this.cipher()?.login?.username) {
+                  this.copyValue(
+                    this.cipher(),
+                    this.cipher()?.login?.username,
+                    "username",
+                    "Username",
+                  );
                 }
                 break;
               }
               case "copyPassword": {
-                if (this.cipher?.login?.password && this.cipher.viewPassword) {
-                  this.copyValue(this.cipher, this.cipher.login.password, "password", "Password");
+                if (this.cipher()?.login?.password && this.cipher().viewPassword) {
+                  this.copyValue(
+                    this.cipher(),
+                    this.cipher().login.password,
+                    "password",
+                    "Password",
+                  );
                   await this.eventCollectionService
-                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher.id)
+                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher().id)
                     .catch(() => {});
                 }
                 break;
               }
               case "copyTotp": {
                 if (
-                  this.cipher?.login?.hasTotp &&
-                  (this.cipher.organizationUseTotp || this.userHasPremiumAccess)
+                  this.cipher()?.login?.hasTotp &&
+                  (this.cipher().organizationUseTotp || this.userHasPremium())
                 ) {
                   const value = await firstValueFrom(
-                    this.totpService.getCode$(this.cipher.login.totp),
+                    this.totpService.getCode$(this.cipher().login.totp),
                   ).catch((): any => null);
                   if (value) {
-                    this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
+                    this.copyValue(this.cipher(), value.code, "verificationCodeTotp", "TOTP");
                   }
                 }
                 break;
@@ -453,7 +477,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     this.collections =
       this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
     this.action = "view";
@@ -472,7 +496,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async openAttachmentsDialog() {
-    if (!this.userHasPremiumAccess) {
+    if (!this.userHasPremium()) {
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
@@ -633,7 +657,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             },
           });
         }
-        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
+        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
@@ -690,7 +714,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.buildFormConfig("edit");
     if (!cipher.edit && this.config) {
       this.config.mode = "partial-edit";
@@ -704,7 +728,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.buildFormConfig("clone");
     this.action = "clone";
     await this.go().catch(() => {});
@@ -753,7 +777,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       return;
     }
     this.addType = type || this.activeFilter.cipherType;
-    this.cipher = new CipherView();
+    this.cipher.set(new CipherView());
     this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
@@ -785,14 +809,14 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     );
 
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async deleteCipher() {
     this.cipherId = null;
-    this.cipher = null;
+    this.cipher.set(null);
     this.action = null;
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
@@ -807,7 +831,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   async cancelCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     this.action = this.cipherId ? "view" : null;
     await this.go().catch(() => {});
   }
@@ -881,14 +905,16 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   /** Refresh the current cipher object */
   protected async refreshCurrentCipher() {
-    if (!this.cipher) {
+    if (!this.cipher()) {
       return;
     }
 
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$(this.activeUserId!).pipe(
-        filter((c) => !!c),
-        map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+    this.cipher.set(
+      await firstValueFrom(
+        this.cipherService.cipherViews$(this.activeUserId!).pipe(
+          filter((c) => !!c),
+          map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+        ),
       ),
     );
   }
