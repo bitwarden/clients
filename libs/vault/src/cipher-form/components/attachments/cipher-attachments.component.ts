@@ -303,6 +303,8 @@ export class CipherAttachmentsComponent {
     // Admin uploads skip local state upsert, so local state may be stale.
     if (this.admin()) {
       const cipherResponse = await this.apiService.getCipherAdmin(id);
+      // Admin API response doesn't include `edit`, but admin users always have edit access
+      cipherResponse.edit = true;
       const cipherData = new CipherData(cipherResponse);
       return new Cipher(cipherData);
     }
