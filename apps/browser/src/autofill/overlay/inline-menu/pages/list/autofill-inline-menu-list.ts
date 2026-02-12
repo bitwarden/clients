@@ -1012,7 +1012,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
     const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
-      (event: MouseEvent) => {
+      (event: Event) => {
         /**
          * Reject synthetic events (not originating from the user agent)
          */
@@ -1140,7 +1140,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to view.
    */
   private handleViewCipherClickEvent = (cipher: InlineMenuCipherData) => {
-    return this.useEventHandlersMemo((event: MouseEvent) => {
+    return this.useEventHandlersMemo((event: Event) => {
       /**
        * Reject synthetic events (not originating from the user agent)
        */
