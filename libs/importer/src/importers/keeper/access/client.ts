@@ -33,7 +33,6 @@ import {
   ValidateAuthHashRequest,
   ValidateDeviceVerificationCodeRequest,
 } from "./generated/APIRequest";
-import { AccountSummaryElements, AccountSummaryRequest } from "./generated/AccountSummary";
 import { SyncDownRequest, SyncDownResponse } from "./generated/SyncDown";
 import { post } from "./http";
 import { encryptWithKeeperKey } from "./keys";
@@ -174,10 +173,6 @@ export class Client {
     }
 
     return pages;
-  }
-
-  async loadAccountSummary(sessionToken: Uint8Array): Promise<AccountSummaryElements> {
-    return await this.accountSummaryRequest(sessionToken);
   }
 
   private async loadDeviceCredentials(
@@ -679,20 +674,6 @@ export class Client {
       sessionToken,
     );
     return SyncDownResponse.fromBinary(responseBytes);
-  }
-
-  private async accountSummaryRequest(sessionToken: Uint8Array): Promise<AccountSummaryElements> {
-    const request = AccountSummaryRequest.create({
-      summaryVersion: 1,
-    });
-
-    const responseBytes = await this.apiRequestAuth(
-      "login/account_summary",
-      request,
-      AccountSummaryRequest,
-      sessionToken,
-    );
-    return AccountSummaryElements.fromBinary(responseBytes);
   }
 
   private async apiRequest<TReq>(
