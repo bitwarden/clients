@@ -33,6 +33,7 @@ import {
   selector: "app-upgrade-account",
   template: "",
   standalone: true,
+  providers: [UpgradeAccountComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradeAccountComponent {
@@ -46,6 +47,7 @@ class MockUpgradeAccountComponent {
   selector: "app-upgrade-payment",
   template: "",
   standalone: true,
+  providers: [UpgradePaymentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockUpgradePaymentComponent {
@@ -61,7 +63,6 @@ describe("UnifiedUpgradeDialogComponent", () => {
   const mockDialogRef = mock<DialogRef>();
   const mockRouter = mock<Router>();
   const mockPremiumInterestStateService = mock<PremiumInterestStateService>();
-
   const mockAccount: Account = {
     id: "user-id" as UserId,
     ...mockAccountInfoWith({
@@ -126,9 +127,8 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
     // Default mock: no premium interest
     mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
-
     await TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule, UnifiedUpgradeDialogComponent],
+      imports: [UnifiedUpgradeDialogComponent],
       providers: [
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: DIALOG_DATA, useValue: defaultDialogData },
@@ -399,6 +399,56 @@ describe("UnifiedUpgradeDialogComponent", () => {
       // Premium interest cleared only in ngOnInit, not in previousStep
       expect(mockPremiumInterestStateService.clearPremiumInterest).toHaveBeenCalledTimes(0);
       expect(mockDialogRef.close).toHaveBeenCalledWith({ status: "closed" });
+    });
+  });
+
+  describe("Child Component Display Logic", () => {
+    it("should display app-upgrade-account on plan selection step", async () => {
+      const { fixture } = await createComponentWithDialogData(defaultDialogData);
+
+      const upgradeAccountElement = fixture.nativeElement.querySelector("app-upgrade-account");
+
+      expect(upgradeAccountElement).toBeTruthy();
+    });
+
+    it("should display app-upgrade-payment on payment step", async () => {
+      const customDialogData: UnifiedUpgradeDialogParams = {
+        account: mockAccount,
+        initialStep: UnifiedUpgradeDialogStep.Payment,
+        selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+      };
+
+      const { fixture } = await createComponentWithDialogData(customDialogData);
+
+      const upgradePaymentElement = fixture.nativeElement.querySelector("app-upgrade-payment");
+
+      expect(upgradePaymentElement).toBeTruthy();
+    });
+  });
+
+  describe("redirectOnCompletion", () => {
+    it("should handle redirectOnCompletion for families upgrade with organization", async () => {
+      const customDialogData: UnifiedUpgradeDialogParams = {
+        account: mockAccount,
+        redirectOnCompletion: true,
+      };
+
+      mockRouter.navigate.mockResolvedValue(true);
+
+      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
+
+      const result = {
+        status: "upgradedToFamilies" as const,
+        organizationId: "org-789",
+      };
+
+      await customComponent["onComplete"](result);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations/org-789/vault"]);
+      expect(mockDialogRef.close).toHaveBeenCalledWith({
+        status: "upgradedToFamilies",
+        organizationId: "org-789",
+      });
     });
   });
 });
