@@ -403,7 +403,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
     await this.updateLegacyState(
       newPassword,
-      kdfConfig,
+      unlockData.kdf,
       new EncString(unlockData.masterKeyWrappedUserKey),
       userId,
       unlockData,
