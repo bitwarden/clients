@@ -68,7 +68,7 @@ export const Default: Story = {
   }),
   args: {
     text: "Hello World",
-    icon: "bwi-filter",
+    icon: "bwi-grid",
   },
 };
 
