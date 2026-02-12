@@ -4328,6 +4328,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Edited user $ID$.",
     "placeholders": {
@@ -6135,6 +6144,18 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "I accept these risks and policy updates"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Automatic user confirmation enabled by admin"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Automatic user confirmation disabled by admin"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Automatic user confirmation enabled by Bitwarden"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Automatic user confirmation disabled by Bitwarden"
   },
   "personalOwnership": {
     "message": "Remove individual vault"
