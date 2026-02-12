@@ -1,0 +1,26 @@
+<div slot="title-end">
+  <button
+    type="button"
+    class="tw-border-none tw-p-0"
+    [bitPopoverTriggerFor]="popover"
+    [position]="'below-center'"
+    #triggerRef="popoverTrigger"
+    [appA11yTitle]="'openSimplifiedAutofillPopover' | i18n"
+    bitLink
+  >
+    <div
+      class="tw-flex tw-items-center tw-justify-center tw-relative tw-size-4 before:tw-content-[''] before:tw-absolute before:tw-inset-0 before:tw-rounded-full before:tw-bg-primary-600 before:tw-animate-pulse"
+    >
+      <bit-icon name="bwi-info-circle" class="bwi-sm tw-z-[1]"></bit-icon>
+    </div>
+  </button>
+</div>
+
+<bit-popover [title]="'simplifiedAutofill' | i18n" #popover>
+  <p>
+    {{ "simplifiedAutofillDescription" | i18n }}
+  </p>
+  <button type="button" bitButton buttonType="primary" (click)="triggerRef.closePopover()">
+    {{ "gotIt" | i18n }}
+  </button>
+</bit-popover>
