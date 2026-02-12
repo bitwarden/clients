@@ -6,6 +6,7 @@ import { Vault } from "../../keeper/access";
 
 import { SyncDownResponse } from "./generated/SyncDown";
 import * as fixture from "./keeper-vault-fixture.json";
+import { VaultItem } from "./vault";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.
 // Later it's converted to the ImportResult format by the keeper-direct-importer. We only do some minimal testing here
@@ -20,27 +21,23 @@ describe("Keeper Vault", () => {
     vault = await (Vault as any).processNew(response, masterKey);
   });
 
-  it("should decrypt records, folders, and shared folders", () => {
-    expect(vault.getRecords().length).toBe(40);
-    expect(vault.getFolders().length).toBe(30);
-    expect(vault.getSharedFolders().length).toBe(15);
+  it("should decrypt all records", () => {
+    expect(vault.getItems().length).toBe(40);
   });
 
   it("should decrypt login fields", () => {
-    const record = vault.getRecords().find((r) => r.title === "Amazon Account")!;
+    const record = findItem("Amazon Account");
     expect(record.type).toBe("login");
-    // expect(record.login).toBe("john.martinez@email.com");
-    // expect(record.password).toBeTruthy();
-    // expect(record.url).toBe("https://www.amazon.com");
+    expect(record.notes).toBe("Primary Amazon account for online shopping and Prime membership");
   });
 
   it("should decrypt notes", () => {
-    const record = vault.getRecords().find((r) => r.title === "Important Meeting Notes")!;
+    const record = findItem("Important Meeting Notes");
     expect(record.notes).toBeTruthy();
   });
 
   it("should contain all record types", () => {
-    const types = new Set(vault.getRecords().map((r) => r.type));
+    const types = new Set(vault.getItems().map((r) => r.type));
     expect(types).toContain("login");
     expect(types).toContain("sshKeys");
     expect(types).toContain("address");
@@ -61,8 +58,29 @@ describe("Keeper Vault", () => {
     expect(types).toContain("file");
   });
 
-  it("should assign shared folder UIDs to shared records", () => {
-    const record = vault.getRecords().find((r) => r.title === "Sensitive Login Credential")!;
-    // expect(record.sharedFolderUid).toBeTruthy();
+  it("should build record folder paths", () => {
+    expect(findItem("General Information Record").folders).toEqual([
+      "Personal/Finance/Banking/Accounts",
+    ]);
+    expect(findItem("Production MySQL Database").folders).toEqual([
+      "Development/Name-with-both-slashes/Name-with-forward-slashes",
+      "Development/Name-with-both-slashes/Name-with-forward-slashes/Name-with-backslashes",
+    ]);
+    expect(findItem("Web Server - Production").folders).toEqual([
+      "Development/Name-with-both-slashes/Android",
+      "Clients/Enterprise/North America/TechCorp",
+    ]);
+    expect(findItem("Sensitive Login Credential").folders).toEqual(["Shared Project Folder"]);
+    expect(findItem("VISA").folders).toEqual(["Marketing", "Marketing/Social Media/Cards"]);
+    expect(findItem("GitHub").folders).toEqual(["Marketing", "Shared Project Folder"]);
+    expect(findItem("Amazon Account").folders).toEqual(["Education"]);
   });
+
+  //
+  // Helpers
+  //
+
+  function findItem(title: string): VaultItem {
+    return vault.getItems().find((i) => i.title === title)!;
+  }
 });
