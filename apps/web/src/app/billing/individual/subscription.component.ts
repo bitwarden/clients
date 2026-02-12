@@ -26,7 +26,7 @@ export class SubscriptionComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
-    private configService: ConfigService,
+    configService: ConfigService,
     private accountBillingClient: AccountBillingClient,
   ) {
     this.hasPremium$ = combineLatest([

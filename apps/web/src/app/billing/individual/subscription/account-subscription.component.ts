@@ -206,8 +206,6 @@ export class AccountSubscriptionComponent {
     return hasPremiumPersonally && upgradeEnabled;
   });
 
-  readonly activeAccount = toSignal(this.accountService.activeAccount$);
-
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
       case SubscriptionCardActions.ContactSupport:
