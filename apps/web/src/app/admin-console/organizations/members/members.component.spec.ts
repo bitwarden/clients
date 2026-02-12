@@ -519,7 +519,7 @@ describe("vNextMembersComponent", () => {
 
       await component.bulkReinvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser.id]);
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
     });
 
