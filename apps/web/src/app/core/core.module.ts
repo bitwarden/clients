@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
+import { inject, NgModule, Optional, provideAppInitializer, SkipSelf } from "@angular/core";
 import { Router } from "@angular/router";
 
 import {
@@ -17,6 +17,10 @@ import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
+import {
+  DecentralizedInitService,
+  initializableProvider,
+} from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -27,7 +31,6 @@ import {
   OBSERVABLE_DISK_LOCAL_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
-  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_LANGUAGE,
   WINDOW,
@@ -193,12 +196,12 @@ const safeProviders: SafeProvider[] = [
     useFactory: (platformUtilsService: PlatformUtilsService): VaultTimeout =>
       platformUtilsService.isDev() ? VaultTimeoutStringType.Never : 15,
   }),
-  safeProvider({
-    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
-    useFactory: (initService: InitService) => initService.init(),
-    deps: [InitService],
-    multi: true,
-  }),
+  safeProvider(
+    provideAppInitializer(() => {
+      const initService = inject(DecentralizedInitService);
+      return initService.init();
+    }),
+  ),
   safeProvider({
     provide: I18nServiceAbstraction,
     useClass: I18nService,
@@ -513,6 +516,8 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
     ],
   }),
+  initializableProvider(InitService),
+  initializableProvider(SdkLoadService),
 ];
 
 @NgModule({

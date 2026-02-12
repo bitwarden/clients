@@ -9,6 +9,10 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  AsyncDependency,
+  AsyncInitializable,
+} from "@bitwarden/common/platform/abstractions/initializable";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
@@ -22,7 +26,7 @@ import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 import { VersionService } from "../platform/version.service";
 
 @Injectable()
-export class InitService {
+export class InitService implements AsyncInitializable {
   constructor(
     @Inject(WINDOW) private win: Window,
     private serverNotificationsService: ServerNotificationsService,
@@ -37,43 +41,42 @@ export class InitService {
     private accountService: AccountService,
     private versionService: VersionService,
     private ipcService: IpcService,
-    private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
   ) {}
+
+  asyncDependencies: AsyncDependency[] = [SdkLoadService];
 
   /**
    * @deprecated Do not add new initialization logic here. Instead, have your service implement
    * `AsyncInitializable` or `SyncInitializable` and register it with `initializableProvider()`.
    * The `DecentralizedInitService` will automatically call `init()` in the correct order.
    */
-  init() {
-    return async () => {
-      await this.sdkLoadService.init();
-      await this.migrationRunner.run();
+  async init() {
+    // SdkLoadService is handled by DecentralizedInitService
+    await this.migrationRunner.run();
 
-      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-      if (activeAccount) {
-        // If there is an active account, we must await the process of setting the user key in memory
-        // if the auto user key is set to avoid race conditions of any code trying to access the user key from mem.
-        await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
-      }
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeAccount) {
+      // If there is an active account, we must await the process of setting the user key in memory
+      // if the auto user key is set to avoid race conditions of any code trying to access the user key from mem.
+      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+    }
 
-      this.serverNotificationsService.startListening();
-      await this.vaultTimeoutService.init(true);
-      await this.i18nService.init();
-      (this.eventUploadService as EventUploadService).init(true);
-      this.twoFactorService.init();
-      const htmlEl = this.win.document.documentElement;
-      htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
-      this.themingService.applyThemeChangesTo(this.document);
-      this.versionService.applyVersionToWindow();
-      void this.ipcService.init();
-      this.taskService.listenForTaskNotifications();
+    this.serverNotificationsService.startListening();
+    await this.vaultTimeoutService.init(true);
+    await this.i18nService.init();
+    (this.eventUploadService as EventUploadService).init(true);
+    this.twoFactorService.init();
+    const htmlEl = this.win.document.documentElement;
+    htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
+    this.themingService.applyThemeChangesTo(this.document);
+    this.versionService.applyVersionToWindow();
+    void this.ipcService.init();
+    this.taskService.listenForTaskNotifications();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
-      containerService.attachToGlobal(this.win);
-    };
+    const containerService = new ContainerService(this.keyService, this.encryptService);
+    containerService.attachToGlobal(this.win);
   }
 }
