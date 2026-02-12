@@ -285,8 +285,8 @@ export declare namespace sshagent_v2 {
      *
      * # Arguments
      *
-     * * `unlock_callback` - Callback to request vault unlock from Electron
-     * * `sign_callback` - Callback for sign requests
+     * * `unlock_callback` - Allows agent to vault unlock
+     * * `sign_callback` - Allows agent to get approval for sign requests
      */
     static serve(unlockCallback: ((err: Error | null, ) => boolean), signCallback: ((err: Error | null, arg: SignRequestData) => boolean)): Promise<SshAgentState>
     stop(): void
@@ -305,7 +305,7 @@ export declare namespace sshagent_v2 {
   export interface SignRequestData {
     publicKey: PublicKey
     cipherId?: string
-    processName: string
+    processName?: string
     isForwarding: boolean
     namespace?: string
   }
