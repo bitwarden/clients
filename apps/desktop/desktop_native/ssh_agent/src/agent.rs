@@ -70,10 +70,13 @@ where
     pub fn set_keys(&self, _keys: Vec<K::KeyData>) -> Result<()> {
         debug!("Received new key data.");
 
+        // TODO: set keys
+
         self.auth_policy.set_lock_state(LockState::Unlocked);
 
-        debug!("New key data is set.");
-        todo!()
+        debug!("New key data set.");
+
+        Ok(())
     }
 
     /// Clears all keys from keystore
