@@ -37,6 +37,7 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
   SsoUrlService,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -57,6 +58,7 @@ import {
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -93,6 +95,7 @@ import {
   PlatformUtilsService,
   PlatformUtilsService as PlatformUtilsServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -126,6 +129,8 @@ import {
 import {
   LockComponentService,
   SessionTimeoutSettingsComponentService,
+  WebAuthnPrfUnlockService,
+  DefaultWebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
@@ -357,6 +362,7 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       KdfConfigService,
       DesktopBiometricsService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -418,6 +424,21 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: WebAuthnPrfUnlockService,
+    useClass: DefaultWebAuthnPrfUnlockService,
+    deps: [
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      KeyServiceAbstraction,
+      UserDecryptionOptionsServiceAbstraction,
+      EncryptService,
+      EnvironmentService,
+      PlatformUtilsServiceAbstraction,
+      WINDOW,
+      LogServiceAbstraction,
+      ConfigService,
+    ],
+  }),
+  safeProvider({
     provide: CLIENT_TYPE,
     useValue: ClientType.Desktop,
   }),
@@ -437,6 +458,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
+      RegisterSdkService,
     ],
   }),
   safeProvider({

@@ -13,7 +13,7 @@ import { VaultFilter, FolderFilter } from "@bitwarden/vault";
   imports: [A11yTitleDirective, NavigationModule, IconButtonModule, I18nPipe],
 })
 export class FolderFilterComponent {
-  protected readonly folder = input<TreeNode<FolderFilter>>();
+  protected readonly folder = input.required<TreeNode<FolderFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
   protected onEditFolder = output<FolderFilter>();
 

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "No"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Location"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Phone"
   },
@@ -2472,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Restore item"
@@ -3020,10 +3035,6 @@
   "custom": {
     "message": "Custom"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "New Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3083,28 +3094,8 @@
     "message": "Send saved",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "To create a file Send, you need to pop out the extension to a new window.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "In order to choose a file, open the extension in the sidebar (if possible) or pop out to a new window by clicking this banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "In order to choose a file using Firefox, open the extension in the sidebar or pop out to a new window by clicking this banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "In order to choose a file using Safari, pop out to a new window by clicking this banner."
-  },
   "popOut": {
     "message": "Pop out"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Before you start"
   },
   "expirationDateIsInvalid": {
     "message": "The expiration date provided is not valid."
@@ -3363,6 +3354,12 @@
   },
   "error": {
     "message": "Error"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Decryption error"
@@ -4598,11 +4595,11 @@
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
-   "regExAdvancedOptionWarning": {
+  "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
-   "startsWithAdvancedOptionWarning": {
+  "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
@@ -4610,7 +4607,7 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
-  "uriAdvancedOption":{
+  "uriAdvancedOption": {
     "message": "Advanced options",
     "description": "Advanced option placeholder for uri option component"
   },
@@ -4800,7 +4797,7 @@
       }
     }
   },
- "copyFieldCipherName": {
+  "copyFieldCipherName": {
     "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
@@ -4832,7 +4829,7 @@
   "adminConsole": {
     "message": "Admin Console"
   },
-  "admin" :{
+  "admin": {
     "message": "Admin"
   },
   "automaticUserConfirmation": {
@@ -4841,7 +4838,7 @@
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
   },
-  "autoConfirmOnboardingCallout":{
+  "autoConfirmOnboardingCallout": {
     "message": "Save time with automatic user confirmation"
   },
   "autoConfirmWarning": {
@@ -4988,6 +4985,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
   },
   "downloadBitwarden": {
     "message": "Download Bitwarden"
@@ -5670,6 +5670,9 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
   },
@@ -5775,7 +5778,7 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "phishingPageTitleV2":{
+  "phishingPageTitleV2": {
     "message": "Phishing attempt detected"
   },
   "phishingPageSummary": {
@@ -5795,7 +5798,7 @@
     "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
-  "phishingPageLearnMore" : {
+  "phishingPageLearnMore": {
     "message": "Learn more about phishing detection"
   },
   "protectedBy": {
@@ -5963,7 +5966,7 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
-  "removeMasterPasswordForOrgUserKeyConnector":{
+  "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
@@ -5981,10 +5984,10 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
-  "organizationVerified":{
+  "organizationVerified": {
     "message": "Organization verified"
   },
-  "domainVerified":{
+  "domainVerified": {
     "message": "Domain verified"
   },
   "leaveOrganizationContent": {
@@ -6100,7 +6103,39 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

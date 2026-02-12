@@ -8,7 +8,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncDependency,
@@ -53,7 +52,6 @@ export class InitService implements AsyncInitializable {
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
-    private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
   ) {}
@@ -62,7 +60,6 @@ export class InitService implements AsyncInitializable {
 
   async init() {
     await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
-    this.encryptService.init(this.configService);
 
     const accounts = await firstValueFrom(this.accountService.accounts$);
     const setUserKeyInMemoryPromises = [];

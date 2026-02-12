@@ -12,7 +12,7 @@ import { VaultFilter, CollectionFilter } from "@bitwarden/vault";
   imports: [A11yTitleDirective, NavigationModule],
 })
 export class CollectionFilterComponent {
-  protected readonly collection = input<TreeNode<CollectionFilter>>();
+  protected readonly collection = input.required<TreeNode<CollectionFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
 
   protected readonly displayName = computed<string>(() => {

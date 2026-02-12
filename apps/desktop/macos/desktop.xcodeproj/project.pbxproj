@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/macos_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
+		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/autofill_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
 		3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitwardenMacosProvider.swift; sourceTree = "<group>"; };
 		968ED08A2C52A47200FFFEE6 /* ReleaseAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ReleaseAppStore.xcconfig; sourceTree = "<group>"; };
 		9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bitwarden-icon.png"; sourceTree = "<group>"; };
@@ -256,7 +256,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D83832AD2D67B9D0003FB9F8 /* ReleaseDeveloper.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
@@ -409,7 +409,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D83832AB2D67B9AE003FB9F8 /* Debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
