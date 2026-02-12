@@ -264,8 +264,26 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+    /**
+     * The following state setting methods can be removed as part of https://bitwarden.atlassian.net/browse/PM-32151
+     *
+     * Why do we need to set this state here? Upon setting the password, the server calls PushLogOutAsync,
+     * which logs the user out on the client. However:
+     * - It's possible for there to be a delay between the server sending the notification and the client
+     *   receiving the push, allowing the user time to take actions in their vault during that delay.
+     * - It's possible that the server push notifications are not active.
+     * To guard against these cases, we set the state below until a better logout mechanism is introduced in PM-32151
+     */
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId); // allows navigation back to vault
+    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
+    await this.updateLegacyState(
+      newPassword,
+      unlockData.kdf,
+      new EncString(unlockData.masterKeyWrappedUserKey),
+      userId,
+      unlockData,
+    );
+    // end PM-32151 cleanup
   }
 
   /**
