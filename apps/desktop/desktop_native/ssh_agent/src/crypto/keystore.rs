@@ -1,4 +1,4 @@
-//! This module defines the [`KeyStore`] trait and provides an encrypted in-memory
+//! Defines the [`KeyStore`] trait and provides an encrypted in-memory
 //! implementation for storing SSH keys securely. All stored data is ephemeral and
 //! lost when the store is dropped.
 
@@ -22,21 +22,9 @@ pub trait KeyStore: Send + Sync {
 
     /// Stores or updates an SSH key in the keystore.
     /// If a key with the same public key already exists, it will be overwritten.
-    ///
-    /// # Arguments
-    ///
-    /// * `key_data` - The SSH key data to store
-    ///
-    /// # Returns
-    ///
-    /// `Ok(())` if the key was successfully stored, or an error if the operation failed.
     fn insert(&self, key_data: Self::KeyData) -> Result<()>;
 
-    /// Retrieves SSH key data by its public key.
-    ///
-    /// # Arguments
-    ///
-    /// * `public_key` - The public key to search for
+    /// Retrieves SSH key data by its [`PublicKey`]
     ///
     /// # Returns
     ///
@@ -47,21 +35,14 @@ pub trait KeyStore: Send + Sync {
 
     /// # Returns
     ///
-    /// A vector of tuples containing each key's public key and human-readable name,
-    /// or an error if the operation failed.
+    /// A vector of tuples containing each key's public key and human-readable name.
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
 
-    /// Signs data using the private key associated with the given public key.
-    ///
-    /// # Arguments
-    ///
-    /// * `public_key` - The public key identifying which private key to use
-    /// * `data` - The data to sign
+    /// Signs data using the private key associated with the given [`PublicKey`].
     ///
     /// # Returns
     ///
-    /// The signature bytes, or an error if signing fails
-    /// (e.g., key not found, key locked, or cryptographic error).
+    /// The signature bytes.
     fn sign_data(&self, public_key: &PublicKey, data: &[u8]) -> Result<Vec<u8>>;
 
     /// Clears the keystore of all keys.
