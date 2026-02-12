@@ -338,6 +338,7 @@ describe("CipherAttachmentsComponent", () => {
 
       it("calls `saveAttachmentWithServer` with admin=true when using admin API", async () => {
         await setupWithOrganization(true);
+        fixture.componentRef.setInput("admin", true);
 
         await component.submit();
 
