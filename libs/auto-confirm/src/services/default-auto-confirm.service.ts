@@ -102,7 +102,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       organization$.pipe(
         switchMap((org) => this.organizationUserService.buildConfirmRequest(org, publicKey)),
         switchMap((request) =>
-          this.organizationUserApiService.postOrganizationUserConfirm(
+          this.organizationUserApiService.postOrganizationUserAutoConfirm(
             organizationId,
             confirmedUserId,
             request,
