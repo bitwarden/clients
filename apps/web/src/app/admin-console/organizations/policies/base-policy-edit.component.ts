@@ -56,7 +56,7 @@ export abstract class BasePolicyEditDefinition {
    * If true, the {@link description} will be reused in the policy edit modal. Set this to false if you
    * have more complex requirements that you will implement in your template instead.
    **/
-  showDescription: boolean = true;
+  showDescription: boolean = false;
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
