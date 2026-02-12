@@ -2,12 +2,13 @@
 // @ts-strict-ignore
 import {
   Component,
-  EventEmitter,
-  Input,
+  effect,
+  input,
+  model,
   OnDestroy,
   OnInit,
-  Output,
-  ViewChild,
+  output,
+  viewChild,
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -68,6 +69,10 @@ import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shar
 interface OnSuccessArgs {
   organizationId: string;
 }
+interface OnTrialBillingSuccessArgs {
+  orgId: string;
+  subLabelText: string;
+}
 
 const Allowed2020PlansForLegacyProviders = [
   PlanType.TeamsMonthly2020,
@@ -91,87 +96,63 @@ const Allowed2020PlansForLegacyProviders = [
   providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
+  // ViewChildren
+  readonly enterPaymentMethodComponent = viewChild(EnterPaymentMethodComponent);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organizationId?: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showFree = true;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showCancel = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() acceptingSponsorship = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() planSponsorshipType?: PlanSponsorshipType;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() currentPlan: PlanResponse;
+  // Inputs
+  readonly organizationId = input<string | null>(null);
+  readonly providerId = input<string | null>(null);
+  readonly showFree = input(true);
+  readonly showCancel = input(false);
+  readonly acceptingSponsorship = input<boolean>(false);
+  readonly planSponsorshipType = input<PlanSponsorshipType | null>(null);
+  readonly currentPlan = input<PlanResponse | null>(null);
+  readonly preSelectedProductTier = input<ProductTierType | null>(null);
+  readonly enableSecretsManagerByDefault = input<boolean>(false);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get productTier(): ProductTierType {
-    return this._productTier;
-  }
+  // Model signals
+  readonly productTier = model<ProductTierType>(ProductTierType.Free);
+  readonly plan = model<PlanType>(PlanType.Free);
 
-  set productTier(product: ProductTierType) {
-    this._productTier = product;
-    this.formGroup?.controls?.productTier?.setValue(product);
-  }
+  // Outputs
+  readonly onSuccess = output<OnSuccessArgs>();
+  readonly onCanceled = output<void>();
+  readonly onTrialBillingSuccess = output<OnTrialBillingSuccessArgs>();
 
-  private _productTier = ProductTierType.Free;
+  // State properties
+  protected loading = true;
+  protected selfHosted = false;
+  protected readonly productTypes = ProductTierType;
+  protected formPromise: Promise<string> | null = null;
+  protected singleOrgPolicyAppliesToActiveUser = false;
+  protected isInTrialFlow = false;
+  protected discount = 0;
+  protected selectedFile: File | null = null;
+
+  // Plan data
+  protected passwordManagerPlans: PlanResponse[] = [];
+  protected secretsManagerPlans: PlanResponse[] = [];
+
+  // Organization data
+  protected organization: Organization | null = null;
+  protected sub: OrganizationSubscriptionResponse | null = null;
+  protected billing: BillingResponse | null = null;
+  protected provider: ProviderResponse | null = null;
+
+  // Billing calculations
+  protected estimatedTax = 0;
+  protected total = 0;
+
+  // Private properties
   private _familyPlan: PlanType;
+  private readonly destroy$ = new Subject<void>();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get plan(): PlanType {
-    return this._plan;
-  }
+  // Forms
+  protected readonly secretsManagerSubscription = secretsManagerSubscribeFormFactory(
+    this.formBuilder,
+  );
 
-  set plan(plan: PlanType) {
-    this._plan = plan;
-    this.formGroup?.controls?.plan?.setValue(plan);
-  }
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() enableSecretsManagerByDefault: boolean;
-
-  private _plan = PlanType.Free;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() providerId?: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() preSelectedProductTier?: ProductTierType;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onCanceled = new EventEmitter<void>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onTrialBillingSuccess = new EventEmitter();
-
-  loading = true;
-  selfHosted = false;
-  productTypes = ProductTierType;
-  formPromise: Promise<string>;
-  singleOrgPolicyAppliesToActiveUser = false;
-  isInTrialFlow = false;
-  discount = 0;
-
-  secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
-
-  formGroup = this.formBuilder.group({
+  protected readonly formGroup = this.formBuilder.group({
     name: [""],
     billingEmail: ["", [Validators.email]],
     businessOwned: [false],
@@ -179,27 +160,15 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     additionalStorage: [0, [Validators.min(0), Validators.max(99)]],
     additionalSeats: [0, [Validators.min(0), Validators.max(100000)]],
     clientOwnerEmail: ["", [Validators.email]],
-    plan: [this.plan],
-    productTier: [this.productTier],
+    plan: [this.plan()],
+    productTier: [this.productTier()],
     secretsManager: this.secretsManagerSubscription,
   });
 
-  billingFormGroup = this.formBuilder.group({
+  protected readonly billingFormGroup = this.formBuilder.group({
     paymentMethod: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
-
-  passwordManagerPlans: PlanResponse[];
-  secretsManagerPlans: PlanResponse[];
-  organization: Organization;
-  sub: OrganizationSubscriptionResponse;
-  billing: BillingResponse;
-  provider: ProviderResponse;
-
-  protected estimatedTax: number = 0;
-  protected total: number = 0;
-
-  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private apiService: ApiService,
@@ -222,73 +191,49 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
+
+    /** Effects are being used here to keep the form controls in sync with the model signals.
+     * This is necessary because there are multiple ways the form values can be updated (e.g. user input, programmatically when loading current plan, etc.)
+     * and we want to ensure that the form controls always reflect the current state of the model signals.
+     * Although the signals are not updated much after initialization
+     */
+    effect(() => {
+      const productTier = this.productTier();
+      if (productTier) {
+        this.formGroup.controls.productTier.setValue(productTier, { emitEvent: false });
+      }
+    });
+    effect(() => {
+      const plan = this.plan();
+      if (plan) {
+        this.formGroup.controls.plan.setValue(plan, { emitEvent: false });
+      }
+    });
   }
 
   async ngOnInit() {
-    if (this.organizationId) {
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      );
-      this.billing = await this.organizationApiService.getBilling(this.organizationId);
-      this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-      const billingAddress = await this.subscriberBillingClient.getBillingAddress({
-        type: "organization",
-        data: this.organization,
-      });
-      this.billingFormGroup.controls.billingAddress.patchValue({
-        ...billingAddress,
-        taxId: billingAddress?.taxId?.value,
-      });
+    const organizationId = this.organizationId();
+
+    if (organizationId) {
+      await this.loadExistingOrganizationData(organizationId);
     }
 
     if (!this.selfHosted) {
-      const plans = await this.apiService.getPlans();
-      this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
-      this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
-
-      if (
-        this.productTier === ProductTierType.Enterprise ||
-        this.productTier === ProductTierType.Teams
-      ) {
-        this.formGroup.controls.businessOwned.setValue(true);
-      }
+      await this.loadPlanData();
     }
 
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    this._familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
-    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
-      const upgradedPlan = this.passwordManagerPlans.find((plan) =>
-        this.currentPlan.productTier === ProductTierType.Free
-          ? plan.type === this._familyPlan
-          : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
-      );
+    this._familyPlan = await this.determineFamilyPlan();
 
-      this.plan = upgradedPlan.type;
-      this.productTier = upgradedPlan.productTier;
+    const currentPlan = this.currentPlan();
+    if (currentPlan) {
+      this.preselectUpgradePlan(currentPlan);
     }
 
     if (this.hasProvider) {
-      this.formGroup.controls.businessOwned.setValue(true);
-      this.formGroup.controls.clientOwnerEmail.addValidators(Validators.required);
-      this.changedOwnedBusiness();
-      this.provider = await this.providerApiService.getProvider(this.providerId);
-      const providerDefaultPlan = this.passwordManagerPlans.find(
-        (plan) => plan.type === PlanType.TeamsAnnually,
-      );
-      this.plan = providerDefaultPlan.type;
-      this.productTier = providerDefaultPlan.productTier;
+      await this.setupProviderConfiguration();
     }
 
-    if (!this.createOrganization) {
+    if (!this.isCreatingNewOrganization) {
       this.upgradeFlowPrefillForm();
     } else {
       this.formGroup.controls.name.addValidators([Validators.required, Validators.maxLength(50)]);

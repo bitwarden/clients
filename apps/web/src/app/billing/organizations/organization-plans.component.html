@@ -22,20 +22,20 @@
 }
 @if (!isLoading && !selfHosted && passwordManagerPlans && secretsManagerPlans) {
   <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-pt-6">
-    <bit-section [ngClass]="{ 'tw-hidden': !createOrganization }">
+    <bit-section [ngClass]="{ 'tw-hidden': !isCreatingNewOrganization }">
       <app-org-info
         (changedBusinessOwned)="changedOwnedBusiness()"
         [formGroup]="formGroup"
-        [createOrganization]="createOrganization"
-        [isProvider]="!!providerId"
-        [acceptingSponsorship]="acceptingSponsorship"
+        [createOrganization]="isCreatingNewOrganization"
+        [isProvider]="!!providerId()"
+        [acceptingSponsorship]="acceptingSponsorship()"
       >
       </app-org-info>
     </bit-section>
     <bit-section>
       <h2 bitTypography="h2">{{ "chooseYourPlan" | i18n }}</h2>
       <bit-radio-group formControlName="productTier" [block]="true">
-        @for (selectableProduct of selectableProducts; track selectableProduct) {
+        @for (selectableProduct of selectableProducts; track $index) {
           @let pm = selectableProduct.PasswordManager;
           @let tier = selectableProduct.productTier;
           @let hasSelfHost = selectableProduct.hasSelfHost;
@@ -272,7 +272,7 @@
                         &times; 12
                         {{ "monthAbbr" | i18n }}
                         =
-                        @if (acceptingSponsorship) {
+                        @if (acceptingSponsorship()) {
                           <span class="tw-line-through">{{ pm.basePrice | currency: "$" }}</span>
                           {{ "freeWithSponsorship" | i18n }}
                         } @else {
@@ -437,7 +437,7 @@
       >
         {{ "submit" | i18n }}
       </button>
-      @if (showCancel) {
+      @if (showCancel()) {
         <button type="button" buttonType="secondary" bitButton bitFormButton (click)="cancel()">
           {{ "cancel" | i18n }}
         </button>
