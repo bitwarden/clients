@@ -1,13 +1,5 @@
-import { Ui } from "../../lastpass/access/ui";
 import { Client, ClientOptions } from "./client";
-import {
-  base64UrlEncode,
-  decryptAesV1,
-  decryptAesV2,
-  decryptFolderData,
-  decryptKeeperKey,
-  decryptRecordData,
-} from "./crypto";
+import { base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./crypto";
 import {
   SharedFolder,
   SyncDownResponse,
@@ -41,8 +33,6 @@ export class Vault {
   static async open(username: string, password: string, options: ClientOptions): Promise<Vault> {
     const client = new Client(options);
     const loginResult = await client.login(username, password, options);
-    // TODO: It seems we don't need this. Remove!
-    await client.loadAccountSummary(loginResult.sessionToken);
 
     const pages = await client.syncDown(loginResult.sessionToken);
     const merged = Vault.mergeSyncDownPages(pages);
@@ -61,6 +51,7 @@ export class Vault {
     return Array.from(this.sharedFolders.values());
   }
 
+  // TODO: Remove!
   getRecordFolderPaths(): Map<string, string> {
     return new Map<string, string>();
   }
