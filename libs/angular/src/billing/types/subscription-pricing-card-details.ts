@@ -1,10 +1,13 @@
-import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { BitwardenIcon, ButtonType } from "@bitwarden/components";
 
 export type SubscriptionPricingCardDetails = {
   title: string;
   tagline: string;
-  price?: { amount: number; cadence: SubscriptionCadence };
+  price?: {
+    amount: number;
+    cadence: "month" | "monthly" | "year" | "annually";
+    showPerUser?: boolean;
+  };
   button: {
     text: string;
     type: ButtonType;
