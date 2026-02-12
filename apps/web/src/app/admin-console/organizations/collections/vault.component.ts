@@ -920,14 +920,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const organization = await firstValueFrom(this.organization$);
-    const disableForm = cipher ? !cipher.edit && !organization.canEditAllCiphers : false;
-    // If the form is disabled, force the mode into `view`
-    const dialogMode = disableForm ? "view" : mode;
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode: dialogMode,
+      mode,
       formConfig,
-      disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
@@ -1318,7 +1313,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });

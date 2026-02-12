@@ -215,6 +215,7 @@ module.exports.buildConfig = function buildConfig(params) {
       rules: [
         {
           test: /\.[cm]?js$/,
+          exclude: /\.wasm\.js$/,
           use: [
             {
               loader: "babel-loader",

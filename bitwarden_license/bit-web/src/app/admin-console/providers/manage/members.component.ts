@@ -104,6 +104,14 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+
   protected isProcessing = this.providerActionsService.isProcessing;
 
   constructor() {
@@ -220,7 +228,10 @@ export class vNextMembersComponent {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
