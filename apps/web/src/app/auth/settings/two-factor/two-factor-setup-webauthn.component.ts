@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -99,7 +99,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       toastService,
     );
     this.formGroup = new FormGroup({
-      name: new FormControl({ value: "", disabled: false }),
+      name: new FormControl({ value: "", disabled: false }, Validators.required),
     });
     this.auth(data);
   }
@@ -213,7 +213,22 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.webAuthnListening = listening;
   }
 
+  private findNextAvailableKeyId(existingIds: Set<number>): number {
+    // Search for first gap, bounded by current key count + 1
+    for (let i = 1; i <= existingIds.size + 1; i++) {
+      if (!existingIds.has(i)) {
+        return i;
+      }
+    }
+
+    // This should never be reached due to loop bounds, but TypeScript requires a return
+    throw new Error("Unable to find next available key ID");
+  }
+
   private processResponse(response: TwoFactorWebAuthnResponse) {
+    if (!response.keys || response.keys.length === 0) {
+      response.keys = [];
+    }
     this.resetWebAuthn();
     this.keys = [];
     this.keyIdAvailable = null;
@@ -223,26 +238,37 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       nameControl.setValue("");
     }
     this.keysConfiguredCount = 0;
-    for (let i = 1; i <= 5; i++) {
-      if (response.keys != null) {
-        const key = response.keys.filter((k) => k.id === i);
-        if (key.length > 0) {
-          this.keysConfiguredCount++;
-          this.keys.push({
-            id: i,
-            name: key[0].name,
-            configured: true,
-            migrated: key[0].migrated,
-            removePromise: null,
-          });
-          continue;
-        }
-      }
-      this.keys.push({ id: i, name: "", configured: false, removePromise: null });
-      if (this.keyIdAvailable == null) {
-        this.keyIdAvailable = i;
-      }
+
+    // Build configured keys
+    for (const key of response.keys) {
+      this.keysConfiguredCount++;
+      this.keys.push({
+        id: key.id,
+        name: key.name,
+        configured: true,
+        migrated: key.migrated,
+        removePromise: null,
+      });
     }
+
+    // [PM-20109]: To accommodate the existing form logic with minimal changes,
+    // we need to have at least one unconfigured key slot available to the collection.
+    // Prior to PM-20109, both client and server had hard checks for IDs <= 5.
+    // While we don't have any technical constraints _at this time_, we should avoid
+    // unbounded growth of key IDs over time as users add/remove keys;
+    // this strategy gap-fills key IDs.
+    const existingIds = new Set(response.keys.map((k) => k.id));
+    const nextId = this.findNextAvailableKeyId(existingIds);
+
+    // Add unconfigured slot, which can be used to add a new key
+    this.keys.push({
+      id: nextId,
+      name: "",
+      configured: false,
+      removePromise: null,
+    });
+    this.keyIdAvailable = nextId;
+
     this.enabled = response.enabled;
     this.onUpdated.emit(this.enabled);
   }

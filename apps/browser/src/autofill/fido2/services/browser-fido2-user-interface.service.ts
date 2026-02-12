@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -79,7 +77,7 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
   | {
       type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
-      cipherId?: string;
+      cipherId: string;
       userVerified: boolean;
     }
   | {
@@ -120,9 +118,7 @@ export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
  * Browser implementation of the {@link Fido2UserInterfaceService}.
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
-export class BrowserFido2UserInterfaceService
-  implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>
-{
+export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference> {
   constructor(private authService: AuthService) {}
 
   async newSession(

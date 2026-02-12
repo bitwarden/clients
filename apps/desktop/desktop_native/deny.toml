@@ -1,9 +1,10 @@
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
+# Allow unmaintained crates in transient deps but not direct
+unmaintained = "workspace"
 ignore = [
   # Vulnerability in `rsa` crate: https://rustsec.org/advisories/RUSTSEC-2023-0071.html
   { id = "RUSTSEC-2023-0071", reason = "There is no fix available yet." },
-  { id = "RUSTSEC-2024-0436", reason = "paste crate is unmaintained."}
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html

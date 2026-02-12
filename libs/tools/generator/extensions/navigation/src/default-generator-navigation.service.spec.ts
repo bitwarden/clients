@@ -70,6 +70,7 @@ describe("DefaultGeneratorNavigationService", () => {
               enabled: true,
               type: PolicyType.PasswordGenerator,
               data: { overridePasswordType: "password" },
+              revisionDate: new Date().toISOString(),
             }),
           ]);
         },

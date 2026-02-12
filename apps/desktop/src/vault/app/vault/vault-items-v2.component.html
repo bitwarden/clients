@@ -2,6 +2,21 @@
   <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
 </div>
 <ng-container *ngIf="loaded">
+  @if (showPremiumCallout()) {
+    <div class="tw-m-4">
+      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+        <ng-container>
+          <div>
+            {{ "premiumSubscriptionEndedDesc" | i18n }}
+          </div>
+          <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+            {{ "restartPremium" | i18n }}
+          </a>
+        </ng-container>
+      </bit-callout>
+    </div>
+  }
+
   <div class="content">
     <cdk-virtual-scroll-viewport
       itemSize="42"
@@ -78,6 +93,14 @@
       <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
         <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
         {{ itemTypes.labelKey | i18n }}
+      </button>
+    }
+    @if (desktopMigrationMilestone1()) {
+      <bit-menu-divider />
+
+      <button type="button" bitMenuItem (click)="onAddFolder.emit()">
+        <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
+        {{ "folder" | i18n }}
       </button>
     }
   </bit-menu>

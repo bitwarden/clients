@@ -6,16 +6,18 @@ import {
   OnDestroy,
   OnInit,
   inject,
+  signal,
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, firstValueFrom } from "rxjs";
-import { distinctUntilChanged, map, tap } from "rxjs/operators";
+import { concat, EMPTY, firstValueFrom, of } from "rxjs";
+import { concatMap, delay, distinctUntilChanged, map, skip, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   DrawerType,
+  ReportProgress,
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -38,18 +40,23 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllActivityComponent } from "./activity/all-activity.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { ApplicationsComponent } from "./all-applications/applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
 import { PageLoadingComponent } from "./shared/page-loading.component";
+import { ReportLoadingComponent } from "./shared/report-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
-import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
+
+// Type alias for progress step (used in concatMap emissions)
+type ProgressStep = ReportProgress | null;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
+    ApplicationsComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -59,7 +66,7 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
     HeaderModule,
     TabsModule,
     AllActivityComponent,
-    ApplicationsLoadingComponent,
+    ReportLoadingComponent,
     PageLoadingComponent,
   ],
   animations: [
@@ -74,9 +81,9 @@ import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.com
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
+  protected milestone11Enabled: boolean = false;
 
-  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
-  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
+  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
   appsCount: number = 0;
 
@@ -95,32 +102,35 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected IMPORT_ICON = "bwi bwi-download";
   protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
 
+  // Current progress step for loading component (null = not loading)
+  // Uses concatMap with delay to ensure each step is displayed for a minimum time
+  protected readonly currentProgressStep = signal<ProgressStep>(null);
+
+  // Minimum time to display each progress step (in milliseconds)
+  private readonly STEP_DISPLAY_DELAY_MS = 250;
+
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
     protected dialogService: DialogService,
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
+      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
     });
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isEnabled) => {
-        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
-        this.tabIndex = 0; // default to first tab
-      });
   }
 
   async ngOnInit() {
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
+
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -170,6 +180,44 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // this happens when navigating between orgs
     // or just navigating away from the page and back
     this.currentDialogRef?.close();
+
+    // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time
+    // - skip(1): Skip initial BehaviorSubject emission (may contain stale Complete from previous run)
+    // - concatMap: Queue steps and process them sequentially
+    // - First visible step (FetchingMembers) shows immediately so loading appears instantly
+    // - Subsequent steps are delayed to prevent jarring quick transitions
+    // - After Complete step is shown, emit null to hide loading
+    this.dataService.reportProgress$
+      .pipe(
+        // Skip the initial emission from _reportProgressSubject (BehaviorSubject in orchestrator).
+        // Without this, navigating to the page would flash the loading component briefly
+        // because BehaviorSubject emits its current value (e.g., Complete from last run) to new subscribers.
+        skip(1),
+        concatMap((step) => {
+          // Show null and FetchingMembers immediately (first visible step)
+          // This ensures loading component appears instantly when user clicks "Run Report"
+          if (step === null || step === ReportProgress.FetchingMembers) {
+            return of(step);
+          }
+          // Delay subsequent steps to prevent jarring quick transitions
+          if (step === ReportProgress.Complete) {
+            // Show Complete step, wait, then emit null to hide loading
+            // Why concat is needed:
+            // - The orchestrator emits Complete but never emits null afterward
+            // - Without this concat, the loading would stay on "Compiling insights..." forever
+            // - The concat automatically emits null to hide the loader
+            return concat(
+              of(step as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(null as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+            );
+          }
+          return of(step).pipe(delay(this.STEP_DISPLAY_DELAY_MS));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((step) => {
+        this.currentProgressStep.set(step);
+      });
   }
 
   ngOnDestroy(): void {
@@ -194,7 +242,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
     });
 
-    // close drawer when tabs are changed
+    // Reset drawer state and close drawer when tabs are changed
+    // This ensures card selection state is cleared (PM-29263)
+    this.dataService.closeDrawer();
     this.currentDialogRef?.close();
   }
 

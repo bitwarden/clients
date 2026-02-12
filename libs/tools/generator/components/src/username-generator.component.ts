@@ -1,5 +1,6 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass, AsyncPipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -11,7 +12,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import {
   BehaviorSubject,
   catchError,
@@ -28,6 +29,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -38,7 +40,22 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService, Option } from "@bitwarden/components";
+import {
+  ToastService,
+  Option,
+  AriaDisableDirective,
+  BaseCardDirective,
+  CardComponent,
+  ColorPasswordComponent,
+  CopyClickDirective,
+  BitIconButtonComponent,
+  TooltipDirective,
+  SectionComponent,
+  SectionHeaderComponent,
+  SelectComponent,
+  TypographyModule,
+  FormFieldModule,
+} from "@bitwarden/components";
 import {
   AlgorithmInfo,
   CredentialGeneratorService,
@@ -55,7 +72,12 @@ import {
   Algorithm,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CatchallSettingsComponent } from "./catchall-settings.component";
+import { ForwarderSettingsComponent } from "./forwarder-settings.component";
+import { SubaddressSettingsComponent } from "./subaddress-settings.component";
+import { UsernameSettingsComponent } from "./username-settings.component";
 import { toAlgorithmInfo, translate } from "./util";
 
 // constants used to identify navigation selections that are not
@@ -69,7 +91,29 @@ const NONE_SELECTED = "none";
 @Component({
   selector: "tools-username-generator",
   templateUrl: "username-generator.component.html",
-  standalone: false,
+  imports: [
+    BaseCardDirective,
+    CardComponent,
+    ColorPasswordComponent,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    CopyClickDirective,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    NgClass,
+    ReactiveFormsModule,
+    SelectComponent,
+    FormFieldModule,
+    CatchallSettingsComponent,
+    ForwarderSettingsComponent,
+    SubaddressSettingsComponent,
+    UsernameSettingsComponent,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the username generator

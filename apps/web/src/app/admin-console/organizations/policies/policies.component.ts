@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map } from "rxjs";
+import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -14,20 +14,21 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -36,7 +37,8 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent {
+export class PoliciesComponent implements OnDestroy {
+  private myDialogRef?: DialogRef;
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -70,6 +72,7 @@ export class PoliciesComponent {
     switchMap(() => this.organizationId$),
     switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
     map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
@@ -94,6 +97,10 @@ export class PoliciesComponent {
     private destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
+  }
+
+  ngOnDestroy() {
+    this.myDialogRef?.close();
   }
 
   // Handle policies component launch from Event message
@@ -129,7 +136,7 @@ export class PoliciesComponent {
   edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    dialogComponent.open(this.dialogService, {
+    this.myDialogRef = dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: organizationId,

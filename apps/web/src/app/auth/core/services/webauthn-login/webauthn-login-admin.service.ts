@@ -39,9 +39,7 @@ import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service
 /**
  * Service for managing WebAuthnLogin credentials.
  */
-export class WebauthnLoginAdminService
-  implements UserKeyRotationDataProvider<WebauthnRotateCredentialRequest>
-{
+export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<WebauthnRotateCredentialRequest> {
   static readonly MaxCredentialCount = 5;
 
   private navigatorCredentials: CredentialsContainer;

@@ -1,4 +1,5 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { AsyncPipe } from "@angular/common";
 import {
   OnInit,
   Input,
@@ -9,16 +10,27 @@ import {
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { takeUntil, Subject, map, filter, tap, skip, ReplaySubject, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  SectionComponent,
+  SectionHeaderComponent,
+  BaseCardDirective,
+  CardComponent,
+  FormFieldModule,
+  TypographyModule,
+  CheckboxModule,
+} from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   PasswordGenerationOptions,
   BuiltIn,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { hasRangeOfValues } from "./util";
 
@@ -39,7 +51,19 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-password-settings",
   templateUrl: "password-settings.component.html",
-  standalone: false,
+  imports: [
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    ReactiveFormsModule,
+    BaseCardDirective,
+    CardComponent,
+    FormFieldModule,
+    CheckboxModule,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component

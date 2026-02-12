@@ -335,22 +335,15 @@ export class SsoLoginStrategy extends LoginStrategy {
     await this.keyService.setUserKey(userKey, userId);
   }
 
-  protected override async setPrivateKey(
+  protected override async setAccountCryptographicState(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
-      // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
-      // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
-      // and so we don't want them falling into the createKeyPairForOldAccount flow
-      await this.keyService.setPrivateKey(
-        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+    if (tokenResponse.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
         userId,
       );
-    } else if (tokenResponse.privateKey) {
-      // User doesn't have masterKeyEncryptedUserKey but they do have a userKeyEncryptedPrivateKey
-      // This is just existing TDE users or a TDE offboarder on an untrusted device
-      await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
     }
   }
 

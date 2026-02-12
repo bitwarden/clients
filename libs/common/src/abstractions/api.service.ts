@@ -1,12 +1,11 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
@@ -50,6 +49,7 @@ import { UpdateProfileRequest } from "../auth/models/request/update-profile.requ
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -140,7 +140,10 @@ export abstract class ApiService {
       | UserApiTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   >;
   abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
@@ -442,6 +445,13 @@ export abstract class ApiService {
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
+  /**
+   * Retrieves the bearer access token for the user.
+   * If the access token is expired or within 5 minutes of expiration, attempts to refresh the token
+   * and persists the refresh token to state before returning it.
+   * @param userId The user for whom we're retrieving the access token
+   * @returns The access token, or an Error if no access token exists.
+   */
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;

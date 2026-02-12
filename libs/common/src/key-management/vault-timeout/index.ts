@@ -10,3 +10,5 @@ export {
   VaultTimeoutNumberType,
   VaultTimeoutStringType,
 } from "./types/vault-timeout.type";
+// Only used by desktop's electron-key.service.spec.ts test
+export { VAULT_TIMEOUT } from "./services/vault-timeout-settings.state";
