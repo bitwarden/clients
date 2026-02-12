@@ -1,4 +1,7 @@
-import { Dependency } from "./initializable";
+import { AsyncDependency } from "./initializable";
+import { SyncDependency } from "./sync-initializable";
+
+export type Dependency = AsyncDependency | SyncDependency;
 
 /**
  * Framework-agnostic dependency injection interface.

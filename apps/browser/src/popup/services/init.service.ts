@@ -5,7 +5,10 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
+import {
+  AsyncDependency,
+  AsyncInitializable,
+} from "@bitwarden/common/platform/abstractions/initializable";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -18,7 +21,7 @@ import { PopupSizeService } from "../../platform/popup/layout/popup-size.service
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
-export class InitService implements Initializable {
+export class InitService implements AsyncInitializable {
   private sizeService = inject(PopupSizeService);
 
   constructor(
@@ -36,7 +39,7 @@ export class InitService implements Initializable {
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
-  dependencies: Dependency[] = [SdkLoadService];
+  asyncDependencies: AsyncDependency[] = [SdkLoadService];
 
   async init(): Promise<void> {
     // SdkLoadService is handled by DecentralizedInitService

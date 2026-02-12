@@ -1,5 +1,4 @@
-import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
-import { Injector } from "@bitwarden/common/platform/abstractions/injector";
+import { Dependency, Injector } from "@bitwarden/common/platform/abstractions/injector";
 
 /**
  * Map-based injector for background script.
@@ -7,13 +6,13 @@ import { Injector } from "@bitwarden/common/platform/abstractions/injector";
  * No reflection or property name conventions required.
  */
 export class BackgroundInjector implements Injector {
-  private readonly serviceMap = new Map<Dependency, Initializable>();
+  private readonly serviceMap = new Map<Dependency, unknown>();
 
   /**
    * Register a service instance with its token.
    * Call this in MainBackground constructor after service instantiation.
    */
-  register<T extends Initializable>(token: Dependency, instance: T): void {
+  register(token: Dependency, instance: unknown): void {
     if (this.serviceMap.has(token)) {
       throw new Error(`Service ${token.name} is already registered`);
     }

@@ -1,4 +1,4 @@
-import { Dependency, Initializable } from "../abstractions/initializable";
+import { AsyncDependency, AsyncInitializable } from "../abstractions/initializable";
 import { Injector } from "../abstractions/injector";
 
 import { topologicalSort } from "./init-utils";
@@ -20,7 +20,7 @@ import { topologicalSort } from "./init-utils";
  */
 export class DefaultDecentralizedInitService {
   constructor(
-    private readonly serviceTokens: Dependency[],
+    private readonly serviceTokens: AsyncDependency[],
     private readonly injector: Injector,
   ) {}
 
@@ -30,10 +30,12 @@ export class DefaultDecentralizedInitService {
     }
 
     // Resolve all tokens to instances using the provided Injector
-    const services: Initializable[] = this.serviceTokens.map((token) => this.injector.get(token));
+    const services: AsyncInitializable[] = this.serviceTokens.map((token) =>
+      this.injector.get(token),
+    );
 
     // Use shared topological sort utility
-    const sorted = topologicalSort(services, this.serviceTokens);
+    const sorted = topologicalSort(services, this.serviceTokens, (s) => s.asyncDependencies);
 
     for (const service of sorted) {
       try {

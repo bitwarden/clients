@@ -1,24 +1,17 @@
 /**
- * Generic interface for services that can be topologically sorted.
- * Both Initializable and SyncInitializable can extend this.
- */
-interface Sortable<TDep = unknown> {
-  dependencies?: TDep[];
-  constructor?: { name?: string };
-}
-
-/**
  * Performs topological sort on services based on their declared dependencies.
  * Returns services in an order where all dependencies come before dependents.
  *
  * @param services The resolved service instances
  * @param tokens The tokens used to register these services (parallel array)
+ * @param getDependencies Function to extract dependency tokens from a service instance
  * @throws Error if circular dependencies are detected
  * @throws Error if a dependency is declared but not registered
  */
-export function topologicalSort<T extends Sortable, TDep = unknown>(
+export function topologicalSort<T, TDep = unknown>(
   services: T[],
   tokens: TDep[],
+  getDependencies: (service: T) => TDep[] | undefined,
 ): T[] {
   // Build a map from token to instance
   const instanceMap = new Map<TDep, T>();
@@ -36,17 +29,17 @@ export function topologicalSort<T extends Sortable, TDep = unknown>(
     }
 
     if (visiting.has(service)) {
-      const serviceName = service.constructor?.name || "Unknown";
+      const serviceName = (service as any).constructor?.name || "Unknown";
       const cycle = [...path, serviceName].join(" -> ");
       throw new Error(`Circular dependency detected: ${cycle}`);
     }
 
     visiting.add(service);
-    const serviceName = service.constructor?.name || "Unknown";
+    const serviceName = (service as any).constructor?.name || "Unknown";
     const currentPath = [...path, serviceName];
 
     // Visit all dependencies first
-    for (const depClass of service.dependencies ?? []) {
+    for (const depClass of getDependencies(service) ?? []) {
       const depInstance = instanceMap.get(depClass as TDep);
 
       if (!depInstance) {

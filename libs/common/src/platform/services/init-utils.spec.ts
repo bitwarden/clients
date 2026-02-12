@@ -8,6 +8,8 @@ type MockService = {
   constructor?: { name?: string };
 };
 
+const getDeps = (s: MockService) => s.dependencies;
+
 describe("topologicalSort", () => {
   it("should sort services with linear dependencies", () => {
     class A {}
@@ -18,7 +20,7 @@ describe("topologicalSort", () => {
     const b: MockService = { dependencies: [A], value: "b" };
     const c: MockService = { dependencies: [B], value: "c" };
 
-    const sorted = topologicalSort([c, b, a], [C, B, A]);
+    const sorted = topologicalSort([c, b, a], [C, B, A], getDeps);
 
     expect(sorted.map((s) => s.value)).toEqual(["a", "b", "c"]);
   });
@@ -36,7 +38,7 @@ describe("topologicalSort", () => {
     const c: MockService = { dependencies: [A], value: "c" };
     const d: MockService = { dependencies: [B, C], value: "d" };
 
-    const sorted = topologicalSort([d, c, b, a], [D, C, B, A]);
+    const sorted = topologicalSort([d, c, b, a], [D, C, B, A], getDeps);
     const values = sorted.map((s) => s.value);
 
     // A must come first, D must come last, B and C can be in any order
@@ -52,7 +54,7 @@ describe("topologicalSort", () => {
     const a: MockService = { value: "a" };
     const b: MockService = { value: "b" };
 
-    const sorted = topologicalSort([b, a], [B, A]);
+    const sorted = topologicalSort([b, a], [B, A], getDeps);
 
     // Without dependencies, order should be preserved (registration order)
     expect(sorted.map((s) => s.value)).toEqual(["b", "a"]);
@@ -71,7 +73,7 @@ describe("topologicalSort", () => {
       constructor: { name: "ServiceB" },
     };
 
-    expect(() => topologicalSort([a, b], [A, B])).toThrow(/Circular dependency detected/);
+    expect(() => topologicalSort([a, b], [A, B], getDeps)).toThrow(/Circular dependency detected/);
   });
 
   it("should detect circular dependencies in longer chains", () => {
@@ -92,7 +94,9 @@ describe("topologicalSort", () => {
       constructor: { name: "ServiceC" },
     };
 
-    expect(() => topologicalSort([a, b, c], [A, B, C])).toThrow(/Circular dependency detected/);
+    expect(() => topologicalSort([a, b, c], [A, B, C], getDeps)).toThrow(
+      /Circular dependency detected/,
+    );
   });
 
   it("should throw error for missing dependency", () => {
@@ -104,7 +108,7 @@ describe("topologicalSort", () => {
       constructor: { name: "ServiceA" },
     };
 
-    expect(() => topologicalSort([a], [A])).toThrow(/depends on.*but.*is not registered/);
+    expect(() => topologicalSort([a], [A], getDeps)).toThrow(/depends on.*but.*is not registered/);
   });
 
   it("should use 'Unknown' as service name if constructor.name is unavailable", () => {
@@ -114,11 +118,13 @@ describe("topologicalSort", () => {
     const a = Object.create(null);
     a.dependencies = [B];
 
-    expect(() => topologicalSort([a], [A])).toThrow(/Unknown depends on/);
+    expect(() => topologicalSort([a], [A], (s: any) => s.dependencies)).toThrow(
+      /Unknown depends on/,
+    );
   });
 
   it("should handle empty services array", () => {
-    const sorted = topologicalSort([], []);
+    const sorted = topologicalSort([], [], getDeps);
 
     expect(sorted).toEqual([]);
   });
@@ -128,7 +134,7 @@ describe("topologicalSort", () => {
 
     const a: MockService = { value: "a" };
 
-    const sorted = topologicalSort([a], [A]);
+    const sorted = topologicalSort([a], [A], getDeps);
 
     expect(sorted).toEqual([a]);
   });
@@ -142,7 +148,7 @@ describe("topologicalSort", () => {
     const b: MockService = { dependencies: [], value: "b" };
     const c: MockService = { dependencies: [], value: "c" };
 
-    const sorted = topologicalSort([c, b, a], [C, B, A]);
+    const sorted = topologicalSort([c, b, a], [C, B, A], getDeps);
 
     // Independent services maintain registration order
     expect(sorted.map((s) => s.value)).toEqual(["c", "b", "a"]);
@@ -164,7 +170,7 @@ describe("topologicalSort", () => {
     const c: MockService = { dependencies: [A], value: "c" };
     const d: MockService = { dependencies: [B, C], value: "d" };
 
-    const sorted = topologicalSort([d, c, b, a], [D, C, B, A]);
+    const sorted = topologicalSort([d, c, b, a], [D, C, B, A], getDeps);
     const values = sorted.map((s) => s.value);
 
     // A must come first, D must come last

@@ -1,4 +1,4 @@
-import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+import { SyncDependency } from "@bitwarden/common/platform/abstractions/sync-initializable";
 
 import { SafeInjectionToken } from "../utils/safe-injection-token";
 import { SafeProvider } from "../utils/safe-provider";
@@ -6,12 +6,12 @@ import { SafeProvider } from "../utils/safe-provider";
 /**
  * Multi-provider token for registering services that need synchronous initialization.
  */
-export const SYNC_INIT_SERVICES = new SafeInjectionToken<Dependency[]>("SYNC_INIT_SERVICES");
+export const SYNC_INIT_SERVICES = new SafeInjectionToken<SyncDependency[]>("SYNC_INIT_SERVICES");
 
 /**
  * Helper function to create a type-safe provider for a SyncInitializable service.
  */
-export function syncInitializableProvider<T extends Dependency>(ctor: T) {
+export function syncInitializableProvider<T extends SyncDependency>(ctor: T) {
   return {
     provide: SYNC_INIT_SERVICES,
     useValue: ctor,

@@ -11,7 +11,10 @@
 
 import { Injectable } from "@angular/core";
 
-import { Initializable, Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+import {
+  AsyncInitializable,
+  AsyncDependency,
+} from "@bitwarden/common/platform/abstractions/initializable";
 
 import { INIT_SERVICES } from "../abstractions/decentralized-init.service";
 
@@ -24,8 +27,8 @@ import { INIT_SERVICES } from "../abstractions/decentralized-init.service";
  * This will run first (or in parallel with other no-dependency services)
  */
 @Injectable({ providedIn: "root" })
-export class ExampleConfigService implements Initializable {
-  dependencies: Dependency[] = []; // No dependencies
+export class ExampleConfigService implements AsyncInitializable {
+  asyncDependencies: AsyncDependency[] = []; // No dependencies
 
   async init(): Promise<void> {
     // Load config, etc.
@@ -38,8 +41,8 @@ export class ExampleConfigService implements Initializable {
  * This will run AFTER ConfigService
  */
 @Injectable({ providedIn: "root" })
-export class ExampleDatabaseService implements Initializable {
-  dependencies = [ExampleConfigService]; // Type-safe class reference
+export class ExampleDatabaseService implements AsyncInitializable {
+  asyncDependencies = [ExampleConfigService]; // Type-safe class reference
 
   constructor(private configService: ExampleConfigService) {}
 
@@ -54,8 +57,8 @@ export class ExampleDatabaseService implements Initializable {
  * This will run AFTER both ConfigService and DatabaseService
  */
 @Injectable({ providedIn: "root" })
-export class ExampleSyncService implements Initializable {
-  dependencies = [ExampleConfigService, ExampleDatabaseService];
+export class ExampleSyncService implements AsyncInitializable {
+  asyncDependencies = [ExampleConfigService, ExampleDatabaseService];
 
   constructor(
     private configService: ExampleConfigService,

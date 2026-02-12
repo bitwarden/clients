@@ -1,10 +1,13 @@
-import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
+import {
+  AsyncDependency,
+  AsyncInitializable,
+} from "@bitwarden/common/platform/abstractions/initializable";
 import { Injector } from "@bitwarden/common/platform/abstractions/injector";
 import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 
 // Test service implementations
-class TestService implements Initializable {
-  dependencies: Dependency[] = [];
+class TestService implements AsyncInitializable {
+  asyncDependencies: AsyncDependency[] = [];
   initCalled = false;
 
   init(): Promise<void> | void {
@@ -22,9 +25,9 @@ function createTrackingService(name: string, executionOrder: string[]) {
 }
 
 // Helper to create a mock Injector that maps tokens to instances
-function createMockInjector(tokenMap: Map<Dependency, Initializable>): Injector {
+function createMockInjector(tokenMap: Map<AsyncDependency, AsyncInitializable>): Injector {
   return {
-    get: <T>(token: Dependency): T => {
+    get: <T>(token: AsyncDependency): T => {
       const instance = tokenMap.get(token);
       if (!instance) {
         throw new Error(`No provider for ${token.name}!`);
@@ -107,7 +110,7 @@ describe("DefaultDecentralizedInitService", () => {
 
         const serviceA = new ServiceA();
         const serviceB = new ServiceB();
-        serviceB.dependencies = [ServiceA];
+        serviceB.asyncDependencies = [ServiceA];
 
         const tokenMap = new Map([
           [ServiceA, serviceA],
@@ -137,8 +140,8 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceC = new ServiceC();
         const serviceD = new ServiceD();
 
-        serviceC.dependencies = [ServiceA, ServiceB];
-        serviceD.dependencies = [ServiceC];
+        serviceC.asyncDependencies = [ServiceA, ServiceB];
+        serviceD.asyncDependencies = [ServiceC];
 
         const tokenMap = new Map([
           [ServiceA, serviceA],
@@ -178,9 +181,9 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceC = new ServiceC();
         const serviceD = new ServiceD();
 
-        serviceB.dependencies = [ServiceA];
-        serviceC.dependencies = [ServiceA];
-        serviceD.dependencies = [ServiceB, ServiceC];
+        serviceB.asyncDependencies = [ServiceA];
+        serviceC.asyncDependencies = [ServiceA];
+        serviceD.asyncDependencies = [ServiceB, ServiceC];
 
         const tokenMap = new Map([
           [ServiceA, serviceA],
@@ -251,7 +254,7 @@ describe("DefaultDecentralizedInitService", () => {
 
         class DependentService extends TestService {
           // References the abstract class, not the concrete implementation
-          dependencies = [AbstractBaseService as Dependency];
+          asyncDependencies = [AbstractBaseService as AsyncDependency];
 
           async init(): Promise<void> {
             executionOrder.push("dependent");
@@ -264,13 +267,13 @@ describe("DefaultDecentralizedInitService", () => {
         const concreteService = new ConcreteImplementation();
         const dependentService = new DependentService();
 
-        const tokenMap = new Map<Dependency, Initializable>([
-          [AbstractBaseService as Dependency, concreteService], // Token points to concrete instance
-          [DependentService as Dependency, dependentService],
+        const tokenMap = new Map<AsyncDependency, AsyncInitializable>([
+          [AbstractBaseService as AsyncDependency, concreteService], // Token points to concrete instance
+          [DependentService as AsyncDependency, dependentService],
         ]);
         const mockInjector = createMockInjector(tokenMap);
         const sut = new DefaultDecentralizedInitService(
-          [DependentService as Dependency, AbstractBaseService as Dependency],
+          [DependentService as AsyncDependency, AbstractBaseService as AsyncDependency],
           mockInjector,
         );
 
@@ -294,8 +297,8 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceA = new ServiceA();
         const serviceB = new ServiceB();
 
-        serviceA.dependencies = [ServiceB as Dependency];
-        serviceB.dependencies = [ServiceA as Dependency];
+        serviceA.asyncDependencies = [ServiceB as AsyncDependency];
+        serviceB.asyncDependencies = [ServiceA as AsyncDependency];
 
         const tokenMap = new Map([
           [ServiceA, serviceA],
@@ -318,9 +321,9 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceB = new ServiceB();
         const serviceC = new ServiceC();
 
-        serviceA.dependencies = [ServiceB as Dependency];
-        serviceB.dependencies = [ServiceC as Dependency];
-        serviceC.dependencies = [ServiceA as Dependency];
+        serviceA.asyncDependencies = [ServiceB as AsyncDependency];
+        serviceB.asyncDependencies = [ServiceC as AsyncDependency];
+        serviceC.asyncDependencies = [ServiceA as AsyncDependency];
 
         const tokenMap = new Map([
           [ServiceA, serviceA],
@@ -343,7 +346,7 @@ describe("DefaultDecentralizedInitService", () => {
         // Arrange
         class ServiceA extends TestService {}
         class ServiceB extends TestService {
-          dependencies = [ServiceA];
+          asyncDependencies = [ServiceA];
         }
 
         const serviceB = new ServiceB();
@@ -360,7 +363,7 @@ describe("DefaultDecentralizedInitService", () => {
         // Arrange
         class MyDependency extends TestService {}
         class MyService extends TestService {
-          dependencies = [MyDependency];
+          asyncDependencies = [MyDependency];
         }
 
         const myService = new MyService();
@@ -427,7 +430,7 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         class AsyncService extends TestService {
-          dependencies = [SyncService];
+          asyncDependencies = [SyncService];
 
           async init(): Promise<void> {
             executionOrder.push("async");

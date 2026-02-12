@@ -1,7 +1,6 @@
 import { Injectable, Injector as NgInjector } from "@angular/core";
 
-import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
-import { Injector } from "@bitwarden/common/platform/abstractions/injector";
+import { Dependency, Injector } from "@bitwarden/common/platform/abstractions/injector";
 
 /**
  * Adapter that wraps Angular's Injector to implement the framework-agnostic Injector interface.

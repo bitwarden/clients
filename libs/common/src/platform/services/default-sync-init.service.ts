@@ -1,5 +1,4 @@
-import { Dependency } from "../abstractions/initializable";
-import { Injector } from "../abstractions/injector";
+import { Dependency, Injector } from "../abstractions/injector";
 import { SyncInitializable } from "../abstractions/sync-initializable";
 
 import { topologicalSort } from "./init-utils";
@@ -31,7 +30,7 @@ export class DefaultSyncInitService {
     );
 
     // Sort by dependencies using shared utility
-    const sorted = topologicalSort(services, this.serviceTokens);
+    const sorted = topologicalSort(services, this.serviceTokens, (s) => s.syncDependencies);
 
     // Execute init() synchronously for each service
     for (const service of sorted) {

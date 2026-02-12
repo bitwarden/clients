@@ -1,6 +1,6 @@
 import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
-import { Initializable } from "../initializable";
+import { AsyncInitializable } from "../initializable";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
 import type { SdkService } from "./sdk.service";
@@ -11,7 +11,7 @@ export class SdkLoadFailedError extends Error {
   }
 }
 
-export abstract class SdkLoadService implements Initializable {
+export abstract class SdkLoadService implements AsyncInitializable {
   protected static logLevel: LogLevel = LogLevel.Info;
   private static markAsReady: () => void;
   private static markAsFailed: (error: unknown) => void;

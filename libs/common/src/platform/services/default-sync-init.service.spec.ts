@@ -1,12 +1,11 @@
-import { Dependency } from "../abstractions/initializable";
-import { Injector } from "../abstractions/injector";
-import { SyncInitializable } from "../abstractions/sync-initializable";
+import { Dependency, Injector } from "../abstractions/injector";
+import { SyncDependency, SyncInitializable } from "../abstractions/sync-initializable";
 
 import { DefaultSyncInitService } from "./default-sync-init.service";
 
 // Mock service base class
 class MockSyncService implements SyncInitializable {
-  dependencies?: Dependency[] = [];
+  syncDependencies?: SyncDependency[] = [];
   initCalled = false;
 
   init(): void {
@@ -155,12 +154,12 @@ describe("DefaultSyncInitService", () => {
     const order: number[] = [];
 
     class TestService1 extends Service1 {
-      dependencies: Dependency[] = [];
+      syncDependencies: SyncDependency[] = [];
       init = () => order.push(1);
     }
 
     class TestService2 extends Service2 {
-      dependencies = [Service1]; // Service2 depends on Service1
+      syncDependencies = [Service1]; // Service2 depends on Service1
       init = () => order.push(2);
     }
 
@@ -184,7 +183,7 @@ describe("DefaultSyncInitService", () => {
     expect(order).toEqual([1, 2]);
   });
 
-  it("should handle reverse registration order with dependencies", () => {
+  it("should handle reverse registration order with syncDependencies", () => {
     const order: number[] = [];
 
     class TestService1 extends Service1 {
@@ -192,7 +191,7 @@ describe("DefaultSyncInitService", () => {
     }
 
     class TestService2 extends Service2 {
-      dependencies = [Service1];
+      syncDependencies = [Service1];
       init = () => order.push(2);
     }
 
@@ -216,14 +215,14 @@ describe("DefaultSyncInitService", () => {
     expect(order).toEqual([1, 2]);
   });
 
-  it("should detect circular dependencies", () => {
+  it("should detect circular syncDependencies", () => {
     class TestService1 extends Service1 {
-      dependencies = [Service2];
+      syncDependencies = [Service2];
       init = () => {};
     }
 
     class TestService2 extends Service2 {
-      dependencies = [Service1];
+      syncDependencies = [Service1];
       init = () => {};
     }
 
@@ -247,7 +246,7 @@ describe("DefaultSyncInitService", () => {
 
   it("should throw error for missing dependency", () => {
     class TestService1 extends Service1 {
-      dependencies = [Service2]; // Service2 not registered
+      syncDependencies = [Service2]; // Service2 not registered
       init = () => {};
     }
 
@@ -269,17 +268,17 @@ describe("DefaultSyncInitService", () => {
     const order: number[] = [];
 
     class TestService1 extends Service1 {
-      dependencies: Dependency[] = [];
+      syncDependencies: SyncDependency[] = [];
       init = () => order.push(1);
     }
 
     class TestService2 extends Service2 {
-      dependencies = [Service1];
+      syncDependencies = [Service1];
       init = () => order.push(2);
     }
 
     class TestService3 extends Service3 {
-      dependencies = [Service2];
+      syncDependencies = [Service2];
       init = () => order.push(3);
     }
 

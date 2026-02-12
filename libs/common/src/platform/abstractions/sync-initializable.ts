@@ -1,4 +1,8 @@
-import { Dependency } from "./initializable";
+declare const SyncDependency: FunctionConstructor;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export interface SyncDependency extends Function {
+  prototype: SyncInitializable;
+}
 
 /**
  * Services implementing SyncInitializable participate in synchronous initialization.
@@ -21,9 +25,9 @@ export interface SyncInitializable {
    * Only reference other SyncInitializable services.
    *
    * Example:
-   * dependencies = [BrowserApiService, LogService];
+   * syncDependencies = [BrowserApiService, LogService];
    */
-  dependencies?: Dependency[];
+  syncDependencies?: SyncDependency[];
 
   /**
    * Initialize this service synchronously.

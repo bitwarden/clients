@@ -10,7 +10,10 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
+import {
+  AsyncDependency,
+  AsyncInitializable,
+} from "@bitwarden/common/platform/abstractions/initializable";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
@@ -31,7 +34,7 @@ import { BiometricMessageHandlerService } from "../../services/biometric-message
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 @Injectable()
-export class InitService implements Initializable {
+export class InitService implements AsyncInitializable {
   constructor(
     @Inject(WINDOW) private win: Window,
     private syncService: SyncServiceAbstraction,
@@ -55,7 +58,7 @@ export class InitService implements Initializable {
     private readonly migrationRunner: MigrationRunner,
   ) {}
 
-  dependencies: Dependency[] = [SdkLoadService, SshAgentService, NativeMessagingService];
+  asyncDependencies: AsyncDependency[] = [SdkLoadService, SshAgentService, NativeMessagingService];
 
   async init() {
     await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process

@@ -2,7 +2,7 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+import { Dependency } from "@bitwarden/common/platform/abstractions/injector";
 import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 import {
   AsyncActionsModule,

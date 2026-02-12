@@ -1,4 +1,4 @@
-import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/initializable";
 
 import { SafeInjectionToken } from "../utils/safe-injection-token";
 import { SafeProvider } from "../utils/safe-provider";
@@ -18,14 +18,14 @@ import { SafeProvider } from "../utils/safe-provider";
  *
  * Note: Use useValue (not useExisting) to register the class token itself.
  */
-export const INIT_SERVICES = new SafeInjectionToken<Dependency[]>("INIT_SERVICES");
+export const INIT_SERVICES = new SafeInjectionToken<AsyncDependency[]>("INIT_SERVICES");
 
 /**
  * Helper function to create a type-safe provider for an Initializable service.
  *
  * @param ctor The Initializable service class/token to register
  */
-export function initializableProvider<T extends Dependency>(ctor: T) {
+export function initializableProvider<T extends AsyncDependency>(ctor: T) {
   return {
     provide: INIT_SERVICES,
     useValue: ctor,
