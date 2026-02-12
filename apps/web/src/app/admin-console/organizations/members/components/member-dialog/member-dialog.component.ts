@@ -294,15 +294,34 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) => {
+        if (!this.isEditDialogParams(this.params)) {
+          return organization.seats - this.params.occupiedSeatCount;
+        }
+
+        return organization.seats;
+      }),
+    );
+
+    this.emailBatchLimit$ = combineLatest([this.organization$, this.remainingSeats$]).pipe(
+      map(([organization, remainingSeats]) => {
+        const standardLimit =
+          organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
+        return Math.min(standardLimit, remainingSeats);
+      }),
+    );
+
     combineLatest({
       organization: this.organization$,
       collections,
       userDetails: userDetails$,
       groups: groups$,
+      emailBatchLimit: this.emailBatchLimit$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.setFormValidators(organization);
+      .subscribe(({ organization, collections, userDetails, groups, emailBatchLimit }) => {
+        this.setFormValidators(organization, emailBatchLimit);
 
         // Groups tab: populate available groups
         this.groupAccessItems = [].concat(
@@ -332,25 +351,9 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
-
-    this.remainingSeats$ = this.organization$.pipe(
-      map((organization) => {
-        if (!this.isEditDialogParams(this.params)) {
-          return organization.seats - this.params.occupiedSeatCount;
-        }
-
-        return organization.seats;
-      }),
-    );
-
-    this.emailBatchLimit$ = this.organization$.pipe(
-      map((organization) => {
-        return organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
-      }),
-    );
   }
 
-  private setFormValidators(organization: Organization) {
+  private setFormValidators(organization: Organization, emailBatchLimit: number) {
     if (this.isEditDialogParams(this.params)) {
       return;
     }
@@ -358,7 +361,7 @@ export class MemberDialogComponent implements OnDestroy {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
+      inputEmailLimitValidator(emailBatchLimit, (maxEmailsCount: number) =>
         this.i18nService.t("tooManyEmails", maxEmailsCount),
       ),
       orgSeatLimitReachedValidator(
