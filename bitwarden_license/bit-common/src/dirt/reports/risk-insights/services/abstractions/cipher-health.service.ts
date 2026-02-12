@@ -53,7 +53,7 @@ export abstract class CipherHealthService {
    * used by 2+ ciphers (unique passwords are excluded).
    *
    * @param ciphers - Array of ciphers to analyze
-   * @returns Map of password hash to array of cipher IDs sharing that password
+   * @returns Map of password to array of cipher IDs sharing that password
    */
   abstract detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>>;
 }
