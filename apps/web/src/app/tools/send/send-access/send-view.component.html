@@ -9,12 +9,7 @@
 
 @if (loading()) {
   <div class="tw-text-center">
-    <bit-icon
-      name="bwi-spinner"
-      class="bwi-spin bwi-2x tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-    ></bit-icon>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    <bit-spinner></bit-spinner>
   </div>
 } @else {
   @if (unavailable()) {
@@ -47,8 +42,8 @@
         }
       }
       @if (expirationDate()) {
-        @let formattedExpirationTime = expirationDate() | date: "h:mm a";
-        @let formattedExpirationDate = expirationDate() | date: "MMM d, y";
+        @let formattedExpirationTime = expirationDate() | date: "shortTime";
+        @let formattedExpirationDate = expirationDate() | date: "mediumDate";
         <p class="tw-text-center tw-text-muted tw-text-sm">
           {{ "sendExpiresOn" | i18n: formattedExpirationTime : formattedExpirationDate }}
         </p>
