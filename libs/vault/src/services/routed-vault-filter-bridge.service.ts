@@ -145,7 +145,7 @@ function createLegacyFilterForEndUser(
     );
   }
 
-  if (filter.folderId !== undefined && filter.folderId === Unassigned) {
+  if (filter.folderId !== undefined && (filter.folderId === Unassigned || filter.folderId === "")) {
     legacyFilter.selectedFolderNode = ServiceUtils.getTreeNodeObject(folderTree, null);
   } else if (filter.folderId !== undefined && filter.folderId !== Unassigned) {
     legacyFilter.selectedFolderNode = ServiceUtils.getTreeNodeObject(folderTree, filter.folderId);

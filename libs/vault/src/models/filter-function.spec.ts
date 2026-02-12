@@ -116,6 +116,14 @@ describe("createFilter", () => {
 
       expect(result).toBe(true);
     });
+
+    it("should return true when filtering on empty-string folder id", () => {
+      const filterFunction = createFilterFunction({ folderId: "" });
+
+      const result = filterFunction(cipher);
+
+      expect(result).toBe(true);
+    });
   });
 
   describe("given an organizational cipher (with organization and collections)", () => {

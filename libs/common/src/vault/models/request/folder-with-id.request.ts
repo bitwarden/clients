@@ -7,6 +7,6 @@ export class FolderWithIdRequest extends FolderRequest {
 
   constructor(folder: Folder) {
     super(folder);
-    this.id = folder.id;
+    this.id = folder.id ?? "";
   }
 }
