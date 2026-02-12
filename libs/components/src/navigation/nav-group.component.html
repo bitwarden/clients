@@ -1,13 +1,10 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
-@let variantValue = variant();
-
 @if (!hideIfEmpty() || nestedNavComponents().length > 0) {
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
     [route]="route()"
-    [variant]="variantValue"
-    [treeDepth]="treeDepth()"
+    [treeDepth]="treeDepth() + 1"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
     (mainContentClicked)="handleMainContentClicked()"
@@ -15,6 +12,7 @@
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
     [forceActiveStyles]="forceActiveStyles()"
+    navGroupItem="true"
   >
     <ng-template #button>
       <button
@@ -30,16 +28,11 @@
         [label]="['toggleCollapse' | i18n, text()].join(' ')"
       ></button>
     </ng-template>
-    @if (variantValue === "tree") {
-      <ng-container slot="start">
-        <ng-container *ngTemplateOutlet="button"></ng-container>
-      </ng-container>
-    }
+    <ng-container slot="start">
+      <ng-container *ngTemplateOutlet="button"></ng-container>
+    </ng-container>
     <ng-container slot="end">
       <ng-content select="[slot=end]"></ng-content>
-      @if (variantValue !== "tree") {
-        <ng-container *ngTemplateOutlet="button"></ng-container>
-      }
     </ng-container>
   </bit-nav-item>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->

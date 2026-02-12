@@ -34,21 +34,26 @@ export abstract class NavGroupAbstraction {
 })
 export class NavItemComponent extends NavBaseComponent {
   /**
-   * Base padding for tree variant items (in rem)
-   * This provides the initial indentation for tree items before depth-based padding
+   * Base padding for nav items (in rem)
+   * This provides the initial indentation for nav items before depth-based padding
    */
-  protected readonly TREE_BASE_PADDING = 2.5;
+  protected readonly TREE_BASE_PADDING = 2.25;
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly TREE_DEPTH_PADDING = 1.75;
+  protected readonly TREE_DEPTH_PADDING = 1.5;
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
    */
   readonly forceActiveStyles = input<boolean>(false);
+
+  /**
+   * Determines if invisible placeholder arrow should be rendered for non `nav-group` items
+   */
+  readonly navGroupItem = input<boolean>(false);
 
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
@@ -68,19 +73,19 @@ export class NavItemComponent extends NavBaseComponent {
   }
 
   /**
-   * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
+   * Adding calculation for nav items due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
    */
   protected readonly navItemIndentationPadding = computed(() => {
     const open = this.sideNavService.open();
     const depth = this.treeDepth() ?? 0;
 
-    if (open && this.variant() === "tree") {
+    if (open) {
       return depth === 1
         ? `${this.TREE_BASE_PADDING}rem`
         : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
     }
 
-    return `${this.TREE_BASE_PADDING * depth}rem`;
+    return "0";
   });
 
   /**
