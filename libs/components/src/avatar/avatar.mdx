@@ -14,52 +14,61 @@ import { AvatarModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-## Size
+## Static
 
-### 2XLarge
+By default, the avatar component is non-interactive. Use the avatar component as an atom in a larger
+molecule like a list item, table, or card to help users differentiate between multiple accounts in a
+list.
 
-<Canvas of={stories.XXLarge} />
+If the avatar is not a clickable element, there are no hover or focus states.
 
-### XLarge
+## Interactive
 
-<Canvas of={stories.XLarge} />
+The Avatar can be used as a button. Use the avatar component as a button to open a secondary menu
+like an account switcher or dropdown.
 
-### Large
+When the avatar is used as a button, there are hover and focus states for accessibility. Although it
+is rare for an avatar button to be inactive, this state is supported as well.
 
-<Canvas of={stories.Large} />
+<Canvas of={stories.Interactive} />
 
-### Base
+### Inactive
 
-<Canvas of={stories.Default} />
+<Canvas of={stories.Inactive} />
 
-### Small
+## Sizes
 
-<Canvas of={stories.Small} />
+There are multiple sizes available for the Avatar:
+`"2xlarge" | "xlarge" | "large" | "base" | "small"`
 
-## Background color
+<Canvas of={stories.Sizes} />
 
-The Background color can be set 3 ways. The color is generated using the following order of
-priority:
+## Color
 
-- Color
-- ID
-- Text, usually set to the user's Name field
+The avatar color can be set 3 ways. The color is generated using the following order of priority:
 
-<Canvas of={stories.ColorByText} />
-Use the user 'ID' field if `Name` is not defined.
+| Method         | Input   | Accepted inputs                                                                     |
+| -------------- | ------- | ----------------------------------------------------------------------------------- |
+| Default colors | `color` | `"teal" \| "coral" \| "brand" \| "green" \| "purple"`                               |
+| Custom color   | `color` | Css colors like a hex code                                                          |
+| ID             | `id`    | Unique string identifier                                                            |
+| Text           | `text`  | String whose first letters are displayed inside the avatar, usually the user's name |
+
+### Default colors
+
+<Canvas of={stories.DefaultColors} />
+
+### Custom color
+
+<Canvas of={stories.CustomColor} />
+
+### Color by ID
+
 <Canvas of={stories.ColorByID} />
 
-## Avatar as a button
+### Color by Text
 
-The Avatar can be used as a button.
-
-Typically this is only in the navigation on client apps where account switching is used and in the
-web app for the account menu indicator.
-
-When the avatar is used as a button, the following states should be used:
-
-`TODO:` [Jira add stories](https://bitwarden.atlassian.net/browse/CL-101) for button avatars.
-[See Figma](https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?type=design&node-id=9730-31746&mode=design&t=IjDIHDb6FZl6bUQW-4)
+<Canvas of={stories.ColorByText} />
 
 ## Accessibility
 
