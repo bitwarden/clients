@@ -25,6 +25,35 @@ interruptive if overused.
 For non-blocking, supplementary content, open dialogs as a
 [Drawer](?path=/story/component-library-dialogs-service--drawer) (requires `bit-layout`).
 
+### Closing Drawers on Navigation
+
+When using drawers, you may want to close them automatically when the user navigates to another page
+to prevent the drawer from persisting across route changes. To implement this functionality:
+
+1. Store a reference to the dialog when opening it
+2. Implement `OnDestroy` and close the dialog in `ngOnDestroy`
+
+```ts
+import { Component, OnDestroy } from "@angular/core";
+import { DialogRef } from "@bitwarden/components";
+
+export class MyComponent implements OnDestroy {
+  private myDialogRef: DialogRef;
+
+  ngOnDestroy() {
+    this.myDialogRef?.close();
+  }
+
+  openDrawer() {
+    this.myDialogRef = this.dialogService.open(MyDialogComponent, {
+      // dialog options
+    });
+  }
+}
+```
+
+This ensures drawers are closed when the component is destroyed during navigation.
+
 ## Placement
 
 Dialogs should be centered vertically and horizontally on screen. Dialogs height should expand to
