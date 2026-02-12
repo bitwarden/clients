@@ -89,4 +89,11 @@ where
         self.auth_policy.set_lock_state(LockState::Locked);
         info!("Locked.");
     }
+
+    /// Sets the auth policy to an unlocked state
+    pub fn unlock(&self) {
+        debug!("Unlocking.");
+        self.auth_policy.set_lock_state(LockState::Unlocked);
+        info!("Unlocked.");
+    }
 }

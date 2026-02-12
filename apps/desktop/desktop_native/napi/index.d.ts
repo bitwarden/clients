@@ -285,15 +285,16 @@ export declare namespace sshagent_v2 {
      *
      * # Arguments
      *
-     * * `list_callback` - Callback for list requests
+     * * `unlock_callback` - Callback to request vault unlock from Electron
      * * `sign_callback` - Callback for sign requests
      */
-    static serve(listCallback: ((err: Error | null, ) => boolean), signCallback: ((err: Error | null, arg: SignRequestData) => boolean)): Promise<SshAgentState>
+    static serve(unlockCallback: ((err: Error | null, ) => boolean), signCallback: ((err: Error | null, arg: SignRequestData) => boolean)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     setKeys(newKeys: Array<SshKeyData>): void
     clearKeys(): void
     lock(): void
+    unlock(): void
   }
   /** SSH public key data */
   export interface PublicKey {

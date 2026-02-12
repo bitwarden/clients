@@ -8,6 +8,18 @@ use crate::server::SignRequest;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait ApprovalRequester: Send + Sync {
+    /// Requests approval to unlock the vault.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(true)` - Unlock was approved
+    /// * `Ok(false)` - Unlock was denied
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the handler failed to process the request
+    async fn request_unlock(&self) -> anyhow::Result<bool>;
+
     /// Requests approval for a signing operation.
     ///
     /// # Arguments
@@ -27,5 +39,5 @@ pub trait ApprovalRequester: Send + Sync {
         &self,
         sign_request: SignRequest,
         cipher_id: Option<String>,
-    ) -> Result<bool, anyhow::Error>;
+    ) -> anyhow::Result<bool>;
 }

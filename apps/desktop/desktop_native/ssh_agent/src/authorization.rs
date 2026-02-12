@@ -85,14 +85,31 @@ where
 {
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
-            // List requests are approved based solely on lock state
             AuthRequest::List => {
-                let is_unlocked = !self.is_locked.load(Ordering::Relaxed);
-                debug!(
-                    is_unlocked,
-                    "List request authorization based on lock state."
-                );
-                Ok(is_unlocked)
+                // if already unlocked, allow
+                if !self.is_locked.load(Ordering::Relaxed) {
+                    debug!("Already unlocked, allowing list request.");
+                    return Ok(true);
+                }
+
+                // otherwise request unlock from approval handler
+                debug!("Locked, requesting unlock approval.");
+                let unlock_approved =
+                    self.approval_handler
+                        .request_unlock()
+                        .await
+                        .map_err(|error| {
+                            error!(%error, "Unlock request failed.");
+                            AuthError::HandlerFailed(error)
+                        })?;
+
+                debug!(unlock_approved, "Unlock response received.");
+
+                if unlock_approved {
+                    self.set_lock_state(LockState::Unlocked);
+                }
+
+                Ok(unlock_approved)
             }
             AuthRequest::Sign(sign_request) => {
                 let cipher_id = match self.keystore.get(&sign_request.public_key) {
@@ -194,9 +211,15 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_authorize_list_when_locked_returns_false() {
+    async fn test_authorize_list_when_locked_requests_unlock() {
         let keystore = Arc::new(MockKeyStore::new());
-        let approval_handler = MockApprovalRequester::new();
+        let mut approval_handler = MockApprovalRequester::new();
+
+        // Expect unlock request and deny it
+        approval_handler
+            .expect_request_unlock()
+            .times(1)
+            .returning(|| Ok(false));
 
         let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
         // Don't call set_lock_state - should remain locked by default
@@ -204,7 +227,39 @@ mod tests {
         let request = AuthRequest::List;
         let result = policy.authorize(&request).await;
 
-        assert!(matches!(result, Ok(false)), "Should deny list when locked");
+        assert!(
+            matches!(result, Ok(false)),
+            "Should deny list when unlock is denied"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_authorize_list_when_locked_unlock_approved() {
+        let keystore = Arc::new(MockKeyStore::new());
+        let mut approval_handler = MockApprovalRequester::new();
+
+        // Expect unlock request and approve it
+        approval_handler
+            .expect_request_unlock()
+            .times(1)
+            .returning(|| Ok(true));
+
+        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
+        // Don't call set_lock_state - should remain locked by default
+
+        let request = AuthRequest::List;
+        let result = policy.authorize(&request).await;
+
+        assert!(
+            matches!(result, Ok(true)),
+            "Should allow list when unlock is approved"
+        );
+
+        // Verify that the state was actually unlocked
+        assert!(
+            !policy.is_locked.load(Ordering::Relaxed),
+            "Policy should be unlocked after approval"
+        );
     }
 
     #[tokio::test]

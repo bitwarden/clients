@@ -7,6 +7,7 @@
 pub mod sshagent_v2 {
     use std::sync::Arc;
 
+    use anyhow::Context;
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
@@ -65,17 +66,31 @@ pub mod sshagent_v2 {
 
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
+        // Callback used to request vault unlock from Electron
+        unlock_callback: Arc<ThreadsafeFunction<(), bool>>,
         // Callback used to approve signing data
         sign_callback: Arc<ThreadsafeFunction<SignRequestData, bool>>,
     }
 
     #[async_trait]
     impl ApprovalRequester for ElectronApprovalRequester {
+        async fn request_unlock(&self) -> anyhow::Result<bool> {
+            debug!("Sending unlock request to Electron.");
+            let is_approved = self
+                .unlock_callback
+                .call_async(Ok(()))
+                .await
+                .context("Electron unlock callback failed")?;
+
+            debug!(%is_approved, "Unlock response from Electron.");
+            Ok(is_approved)
+        }
+
         async fn request_sign_approval(
             &self,
             sign_request: SshSignRequest,
             cipher_id: Option<String>,
-        ) -> Result<bool, anyhow::Error> {
+        ) -> anyhow::Result<bool> {
             let request = SignRequestData::from((sign_request, cipher_id));
 
             debug!(?request, "Sending sign approval request to Electron.");
@@ -83,7 +98,7 @@ pub mod sshagent_v2 {
                 .sign_callback
                 .call_async(Ok(request))
                 .await
-                .map_err(|e| anyhow::anyhow!("Electron sign callback failed: {e}"))?;
+                .context("Electron sign callback failed")?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
             Ok(is_approved)
@@ -96,13 +111,16 @@ pub mod sshagent_v2 {
         ///
         /// # Arguments
         ///
-        /// * `sign_callback` - Callback for sign requests
+        /// * `unlock_callback` - Allows agent to vault unlock
+        /// * `sign_callback` - Allows agent to get approval for sign requests
         #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
+            unlock_callback: ThreadsafeFunction<(), bool>,
             sign_callback: ThreadsafeFunction<SignRequestData, bool>,
         ) -> napi::Result<Self> {
             let approval_handler = ElectronApprovalRequester {
+                unlock_callback: Arc::new(unlock_callback),
                 sign_callback: Arc::new(sign_callback),
             };
 
@@ -146,6 +164,11 @@ pub mod sshagent_v2 {
         #[napi]
         pub fn lock(&mut self) {
             self.agent.lock();
+        }
+
+        #[napi]
+        pub fn unlock(&mut self) {
+            self.agent.unlock();
         }
     }
 }
