@@ -15,7 +15,7 @@
     "message": "目前沒有關鍵應用程式存在風險"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "關鍵 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +24,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "非關鍵 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -32,20 +32,26 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "關鍵"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "沒有任何應用程式符合這些篩選條件"
   },
   "passwordRisk": {
     "message": "密碼風險"
   },
   "noEditPermissions": {
-    "message": "你沒有權限編輯這個項目"
+    "message": "您沒有權限編輯此項目"
   },
   "reviewAtRiskPasswords": {
-    "message": "檢視各應用程式中的風險密碼（弱、外洩或重複使用）。選擇最關鍵的應用程式，優先採取安全措施，協助使用者處理這些密碼。"
+    "message": "檢視各項應用程式中具有風險的密碼（包含強度不足、已外洩或重複使用的密碼）。請選取最關鍵的應用程式，以便優先採取安全措施，引導使用者處理風險密碼。"
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "檢視有風險的登入資訊"
+    "message": "檢視高風險登入"
   },
   "dataLastUpdated": {
     "message": "資料最後更新於：$DATE$",
@@ -269,7 +275,7 @@
     "message": "應用程式"
   },
   "applications": {
-    "message": "Applications"
+    "message": "應用程式"
   },
   "atRiskPasswords": {
     "message": "具有風險的密碼"
@@ -608,7 +614,7 @@
     "message": "電子郵件"
   },
   "emails": {
-    "message": "Emails"
+    "message": "電子郵件"
   },
   "phone": {
     "message": "電話號碼"
@@ -1241,6 +1247,9 @@
   "selectAll": {
     "message": "全選"
   },
+  "deselectAll": {
+    "message": "取消全選"
+  },
   "unselectAll": {
     "message": "取消全選"
   },
@@ -1390,10 +1399,10 @@
     "message": "否"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "任何持有連結的人"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "任何持有您設定之密碼的人"
   },
   "location": {
     "message": "位置"
@@ -3312,7 +3321,7 @@
     "message": "下一次收費"
   },
   "nextChargeDate": {
-    "message": "Next charge date"
+    "message": "下次扣款日期"
   },
   "plan": {
     "message": "方案"
@@ -3801,6 +3810,9 @@
   },
   "editCollection": {
     "message": "編輯集合"
+  },
+  "viewCollection": {
+    "message": "檢視集合"
   },
   "collectionInfo": {
     "message": "集合資訊"
@@ -5639,10 +5651,6 @@
   "sendTypeText": {
     "message": "文字"
   },
-  "sendPasswordDescV3": {
-    "message": "新增一個用於收件人存取此 Send 的可選密碼。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "建立新 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5669,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "複製並分享此 Send 連結。任何擁有此連結的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結與您所設定密碼的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，只有您指定的人可以檢視。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6959,16 +6987,16 @@
     "message": "一個或多個組織原則禁止您匯出個人密碼庫。"
   },
   "activateAutofillPolicy": {
-    "message": "Activate autofill"
+    "message": "啓用自動填入"
   },
   "activateAutofillPolicyDescription": {
-    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
+    "message": "為所有現有的和新的成員，啓用瀏覽器擴充套件上的頁面載入自動填入設定。"
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "被入侵或不被信任的網站，可能會濫用頁面載入的自動填入功能。"
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "進一步瞭解「自動填入」功能"
   },
   "selectType": {
     "message": "選擇 SSO 類型"
@@ -10471,6 +10499,9 @@
   "failedToSaveIntegration": {
     "message": "整合設定儲存失敗。請稍後再試。"
   },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "必須具備組織擁有者或管理員身分，才能執行此動作。"
+  },
   "mustBeOrgOwnerToPerformAction": {
     "message": "必須是組織擁有者才能執行此動作。"
   },
@@ -11400,13 +11431,13 @@
     "message": "Bitwarden 會在前 72 小時內嘗試宣告該網域 3 次。若無法宣告，請檢查主機上的 DNS 紀錄並手動宣告。若 7 天內仍未宣告，該網域將自你的組織移除。"
   },
   "automaticDomainClaimProcess1": {
-    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+    "message": "Bitwarden 將在 72 小時內嘗試宣告該網域。若無法成功宣告，請驗證您的 DNS 記錄並手動宣告。未被宣告的網域將於 7 天後移除。"
   },
   "automaticDomainClaimProcess2": {
-    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+    "message": "宣告完成後，系統將透過電子郵件通知使用已宣告網域的現有成員，關於"
   },
   "accountOwnershipChange": {
-    "message": "account ownership change"
+    "message": "帳號所有權變更"
   },
   "automaticDomainClaimProcessEnd": {
     "message": "."
@@ -11424,7 +11455,7 @@
     "message": "已宣告"
   },
   "domainStatusPending": {
-    "message": "Pending"
+    "message": "待處理"
   },
   "claimedDomainsDescription": {
     "message": "宣告網域以取得其成員帳號的管理權。擁有已宣告網域的成員在登入時會略過 SSO 識別頁面，且管理員將可刪除已宣告的帳號。"
@@ -12147,13 +12178,13 @@
     "message": "立即驗證"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "使用通行金鑰解鎖"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "使用通行金鑰解鎖失敗。請再試一次或改用其他解鎖方式。"
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "沒有可用的支援 PRF 的通行金鑰可用於解鎖。"
   },
   "additionalStorageGB": {
     "message": "額外儲存空間 (GB)"
@@ -12722,22 +12753,31 @@
     "message": "您已用完全部 $GB$ GB 的加密儲存空間。如需繼續儲存檔案，請增加儲存空間。"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "誰可以檢視"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "特定人員"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "當您移除儲存空間時，將會獲得按比例計算的帳戶抵扣金額，並自動套用至下一期帳單。"
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "擁有者：$OWNER$，顯示所有由 $OWNER$ 擁有的項目",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "您已擁有進階版"
@@ -12746,6 +12786,13 @@
     "message": "電子郵件已受保護"
   },
   "invalidSendPassword": {
-    "message": "Invalid Send password"
+    "message": "Send 密碼無效"
+  },
+  "sendPasswordHelperText": {
+    "message": "對方必須輸入密碼才能檢視此 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "每位使用者"
   }
 }

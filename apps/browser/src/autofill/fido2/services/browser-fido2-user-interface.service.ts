@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -79,7 +77,7 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
   | {
       type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
-      cipherId?: string;
+      cipherId: string;
       userVerified: boolean;
     }
   | {
