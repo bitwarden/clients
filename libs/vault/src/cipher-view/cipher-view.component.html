@@ -14,7 +14,7 @@
   <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
     <a
       bitLink
-      href="#"
+      [href]="changePasswordUrl.hasValue() ? changePasswordUrl.value() : '#'"
       appStopClick
       (click)="launchChangePassword()"
       linkType="secondary"
