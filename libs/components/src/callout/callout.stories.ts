@@ -103,7 +103,7 @@ export const NoTitleWithIcon: Story = {
   }),
   args: {
     type: "default",
-    icon: "bwi-login",
+    icon: "bwi-globe",
   },
 };
 

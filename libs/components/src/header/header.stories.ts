@@ -90,7 +90,7 @@ export const KitchenSink: Story = {
               placeholder="Ask Jeeves"
               type="text"
             />
-            <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
+            <button type="button" bitIconButton="bwi-filter" label="Switch products"></button>
             <bit-avatar text="Will"></bit-avatar>
             <button bitButton buttonType="primary">New</button>
             <button bitButton slot="secondary">Click Me 🎉</button>
@@ -182,7 +182,7 @@ export const WithTitleSuffixComponent: Story = {
     props: args,
     template: /*html*/ `
     <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
-      <ng-container slot="title-suffix"><i class="bwi bwi-loading bwi-spin"></i></ng-container>
+      <ng-container slot="title-suffix"><i class="bwi bwi-spinner bwi-spin"></i></ng-container>
     </bit-header>
   `,
   }),

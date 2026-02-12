@@ -60,7 +60,7 @@
       </td>
       <td bitCell>
         <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
-          <i class="bwi bwi-collection-shared tw-text-muted" aria-hidden="true"></i>
+          <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
           <div>
             <a
               *ngIf="project.linkable"
@@ -107,7 +107,7 @@
           bitMenuItem
           (click)="editProjectEvent.emit(project.id)"
         >
-          <i class="bwi bwi-fw bwi-pencil-square-alt" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-pencil" aria-hidden="true"></i>
           {{ "editProject" | i18n }}
         </button>
         <button
