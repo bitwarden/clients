@@ -10,6 +10,7 @@ export class RiskInsights extends Domain {
   reports: EncString = new EncString("");
   applications: EncString = new EncString("");
   summary: EncString = new EncString("");
+  memberRegistry: EncString = new EncString("");
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
@@ -24,6 +25,7 @@ export class RiskInsights extends Domain {
     this.reports = conditionalEncString(obj.reports) ?? new EncString("");
     this.applications = conditionalEncString(obj.applications) ?? new EncString("");
     this.summary = conditionalEncString(obj.summary) ?? new EncString("");
+    this.memberRegistry = conditionalEncString(obj.memberRegistry) ?? new EncString("");
     this.creationDate = new Date(obj.creationDate);
     this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
 
