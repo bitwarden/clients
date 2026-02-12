@@ -126,3 +126,21 @@ export const TextOverflow: Story = {
     `,
   }),
 };
+
+export const WithForm: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <form bit-simple-dialog>
+        <span bitDialogTitle>Confirm Action</span>
+        <span bitDialogContent>
+          Are you sure you want to proceed with this action? This cannot be undone.
+        </span>
+        <ng-container bitDialogFooter>
+          <button type="submit" bitButton buttonType="primary">Confirm</button>
+          <button type="button" bitButton buttonType="secondary">Cancel</button>
+        </ng-container>
+      </form>
+    `,
+  }),
+};

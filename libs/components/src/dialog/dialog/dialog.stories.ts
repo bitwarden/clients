@@ -225,8 +225,7 @@ export const WithCards: Story = {
       ...args,
     },
     template: /*html*/ `
-      <form [formGroup]="formObj">
-      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <form [formGroup]="formObj" bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -270,7 +269,7 @@ export const WithCards: Story = {
           </bit-section>
         </ng-container>
         <ng-container bitDialogFooter>
-          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="submit" bitButton buttonType="primary" [disabled]="loading">Save</button>
           <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             type="button"
@@ -281,8 +280,7 @@ export const WithCards: Story = {
             size="default"
             label="Delete"></button>
         </ng-container>
-      </bit-dialog>
-  </form>
+      </form>
     `,
   }),
   args: {
