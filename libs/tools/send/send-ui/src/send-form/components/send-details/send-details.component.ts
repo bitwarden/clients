@@ -203,6 +203,7 @@ export class SendDetailsComponent implements OnInit {
             deletionDate: new Date(this.formattedDeletionDate),
             expirationDate: new Date(this.formattedDeletionDate),
             password: value.password,
+            authType: value.authType,
             emails: value.emails
               ? value.emails
                   .split(",")
