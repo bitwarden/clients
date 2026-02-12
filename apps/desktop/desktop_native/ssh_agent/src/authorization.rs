@@ -155,20 +155,25 @@ mod tests {
 
     fn create_test_sign_request(
         public_key: crate::crypto::PublicKey,
-        process_name: &str,
+        process_name: Option<&str>,
         is_forwarding: bool,
         namespace: Option<String>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
-            process_name: process_name.to_string(),
+            process_name: process_name.map(|s| s.to_string()),
             is_forwarding,
             namespace,
         })
     }
 
     fn create_default_test_sign_request(public_key: crate::crypto::PublicKey) -> AuthRequest {
-        create_test_sign_request(public_key, TEST_PROCESS_NAME, TEST_IS_FORWARDING, None)
+        create_test_sign_request(
+            public_key,
+            Some(TEST_PROCESS_NAME),
+            TEST_IS_FORWARDING,
+            None,
+        )
     }
 
     fn setup_keystore_with_key(
@@ -432,7 +437,7 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .withf(|sign_request, _cipher_id| {
-                sign_request.process_name == "test-process"
+                sign_request.process_name == Some("test-process".to_string())
                     && sign_request.is_forwarding
                     && sign_request.namespace == Some("test-namespace".to_string())
             })
@@ -443,7 +448,7 @@ mod tests {
 
         let request = create_test_sign_request(
             test_pub_key,
-            "test-process",
+            Some("test-process"),
             true,
             Some("test-namespace".to_string()),
         );

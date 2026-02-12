@@ -8,8 +8,9 @@ use crate::{authorization::AuthError, crypto::PublicKey};
 pub struct SignRequest {
     /// The public key identifying which key to use for signing
     pub public_key: PublicKey,
-    /// Name of the process making the request
-    pub process_name: String,
+    /// Name of the process making the request. If the agent is running in sandboxed environments,
+    /// it may not have access to the process name.
+    pub process_name: Option<String>,
     /// Whether this is an agent forwarding request
     pub is_forwarding: bool,
     /// Optional namespace for SSH signature requests

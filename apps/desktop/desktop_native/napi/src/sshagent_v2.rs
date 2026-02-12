@@ -38,7 +38,7 @@ pub mod sshagent_v2 {
     pub struct SignRequestData {
         pub public_key: PublicKey,
         pub cipher_id: Option<String>,
-        pub process_name: String,
+        pub process_name: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<String>,
     }
