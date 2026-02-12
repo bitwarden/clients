@@ -142,7 +142,6 @@ import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
-import { VaultDialogOnboardingService } from "./vault-onboarding/services/vault-dialog-onboarding.service";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -331,7 +330,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
-    private vaultWelcomeDialogOnboardingService: VaultDialogOnboardingService,
     private cipherFormConfigService: DefaultCipherFormConfigService,
     protected billingApiService: BillingApiServiceAbstraction,
     private restrictedItemTypesService: RestrictedItemTypesService,
@@ -636,7 +634,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
 
-    void this.vaultWelcomeDialogOnboardingService.displayWelcomeDialogIfNeeded();
+    void this.webVaultPromptService.conditionallyShowWelcomeDialog();
     void this.webVaultPromptService.conditionallyPromptUser();
   }
 

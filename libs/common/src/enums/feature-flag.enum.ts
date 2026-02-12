@@ -73,7 +73,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  WelcomeDialog = "pm-29437-welcome-dialog",
+  PM29437_WelcomeDialogNoExt = "pm-29437-welcome-dialog-no-ext-prompt",
   SessionCountForPremiumUpgradePrompt = "session-count-for-premium-upgrade-prompt",
 
   /* Platform */
@@ -142,7 +142,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
-  [FeatureFlag.WelcomeDialog]: true,
+  [FeatureFlag.PM29437_WelcomeDialogNoExt]: FALSE,
   [FeatureFlag.SessionCountForPremiumUpgradePrompt]: 5,
 
   /* Auth */

@@ -7,11 +7,13 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
@@ -19,6 +21,7 @@ import {
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
+import { VaultWelcomeDialogNoExtComponent } from "../components/vault-welcome-dialog-no-ext/vault-welcome-dialog-no-ext.component";
 
 import { WebVaultPromptService } from "./web-vault-prompt.service";
 
@@ -29,6 +32,7 @@ describe("WebVaultPromptService", () => {
   const mockOrganizationId = "org-456";
 
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(false));
+  const getFeatureFlag = jest.fn().mockResolvedValue(false);
   const open = jest.fn();
   const policies$ = jest.fn().mockReturnValue(of([]));
   const configurationAutoConfirm$ = jest
@@ -41,9 +45,25 @@ describe("WebVaultPromptService", () => {
   const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(undefined);
   const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
   const logError = jest.fn();
+  const getUserState$ = jest.fn().mockReturnValue(of(false));
+  const setUserState = jest.fn().mockResolvedValue([mockUserId, true]);
+  const mockDialogOpen = jest.spyOn(VaultWelcomeDialogNoExtComponent, "open");
+
+  let activeAccount$: BehaviorSubject<Account | null>;
+
+  function createAccount(overrides: Partial<Account> = {}): Account {
+    return {
+      id: mockUserId,
+      creationDate: new Date(),
+      ...overrides,
+    } as Account;
+  }
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDialogOpen.mockReset();
+
+    activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,15 +71,16 @@ describe("WebVaultPromptService", () => {
         { provide: UnifiedUpgradePromptService, useValue: { displayUpgradePromptConditionally } },
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
         { provide: PolicyService, useValue: { policies$ } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: mockUserId }) } },
+        { provide: AccountService, useValue: { activeAccount$ } },
         {
           provide: AutomaticUserConfirmationService,
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
         },
         { provide: OrganizationService, useValue: { organizations$ } },
-        { provide: ConfigService, useValue: { getFeatureFlag$ } },
+        { provide: ConfigService, useValue: { getFeatureFlag$, getFeatureFlag } },
         { provide: DialogService, useValue: { open } },
         { provide: LogService, useValue: { error: logError } },
+        { provide: StateProvider, useValue: { getUserState$, setUserState } },
       ],
     });
 
@@ -230,5 +251,101 @@ describe("WebVaultPromptService", () => {
 
       expect(openSpy).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("conditionallyShowWelcomeDialog", () => {
+    it("should not show dialog when no active account", async () => {
+      activeAccount$.next(null);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when feature flag is disabled", async () => {
+      getFeatureFlag.mockResolvedValueOnce(false);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM29437_WelcomeDialogNoExt);
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when account has no creation date", async () => {
+      activeAccount$.next(createAccount({ creationDate: undefined }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when account is older than 24 hours", async () => {
+      const twoDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 48);
+      activeAccount$.next(createAccount({ creationDate: twoDaysAgo }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when user has already acknowledged it", async () => {
+      activeAccount$.next(createAccount({ creationDate: new Date() }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+      getUserState$.mockReturnValueOnce(of(true));
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("should show dialog for new user who has not acknowledged", async () => {
+      activeAccount$.next(createAccount({ creationDate: new Date() }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+      getUserState$.mockReturnValueOnce(of(false));
+      mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).toHaveBeenCalled();
+    });
+
+    it("should persist acknowledged state after dialog is closed", async () => {
+      activeAccount$.next(createAccount({ creationDate: new Date() }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+      getUserState$.mockReturnValueOnce(of(false));
+      mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(setUserState).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "vaultWelcomeDialogAcknowledged" }),
+        true,
+        mockUserId,
+      );
+    });
+
+    it("should show dialog for account created exactly 24 hours ago", async () => {
+      const exactlyOneDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 24);
+      activeAccount$.next(createAccount({ creationDate: exactlyOneDayAgo }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+      getUserState$.mockReturnValueOnce(of(false));
+      mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).toHaveBeenCalled();
+    });
+
+    it("should not show dialog for account created just over 24 hours ago", async () => {
+      const justOverOneDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 - 1000);
+      activeAccount$.next(createAccount({ creationDate: justOverOneDayAgo }));
+      getFeatureFlag.mockResolvedValueOnce(true);
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
   });
 });
