@@ -1,4 +1,4 @@
-import { Provider, provideAppInitializer } from "@angular/core";
+import { EnvironmentProviders, Provider } from "@angular/core";
 import { Constructor, Opaque } from "type-fest";
 
 import { SafeInjectionToken } from "./safe-injection-token";
@@ -134,13 +134,6 @@ export const safeProvider = <
     | AllowAngularDecorators<SafeFactoryProvider<AFactory, IFactory, DFactory>>
     | SafeExistingProvider<AExisting, IExisting>
     | AllowAngularDecorators<SafeConcreteProvider<IConcrete, DConcrete>>
-    | Constructor<unknown>,
+    | Constructor<unknown>
+    | EnvironmentProviders,
 ): SafeProvider => provider as SafeProvider;
-
-/**
- * A type-safe wrapper around Angular's {@link provideAppInitializer} that returns a {@link SafeProvider}.
- * Use this instead of `provideAppInitializer(...) as any` in provider arrays that require SafeProvider.
- */
-export function safeAppInitializer(fn: () => void | Promise<void>): SafeProvider {
-  return provideAppInitializer(fn) as unknown as SafeProvider;
-}

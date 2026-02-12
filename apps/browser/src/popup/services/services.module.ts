@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { inject, NgModule, NgZone } from "@angular/core";
+import { inject, NgModule, NgZone, provideAppInitializer } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import {
@@ -15,11 +15,7 @@ import {
   initializableProvider,
 } from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
-import {
-  SafeProvider,
-  safeAppInitializer,
-  safeProvider,
-} from "@bitwarden/angular/platform/utils/safe-provider";
+import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import {
   CLIENT_TYPE,
@@ -260,10 +256,12 @@ const safeProviders: SafeProvider[] = [
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,
   }),
-  safeAppInitializer(() => {
-    const initService = inject(DecentralizedInitService);
-    return initService.init();
-  }),
+  safeProvider(
+    provideAppInitializer(() => {
+      const initService = inject(DecentralizedInitService);
+      return initService.init();
+    }),
+  ),
   safeProvider({
     provide: CryptoFunctionService,
     useFactory: () => new WebCryptoFunctionService(window),
