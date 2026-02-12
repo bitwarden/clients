@@ -634,7 +634,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
 
-    void this.webVaultPromptService.conditionallyShowWelcomeDialog();
     void this.webVaultPromptService.conditionallyPromptUser();
   }
 

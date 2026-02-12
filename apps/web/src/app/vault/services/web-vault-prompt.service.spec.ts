@@ -21,7 +21,7 @@ import {
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
-import { VaultWelcomeDialogNoExtComponent } from "../components/vault-welcome-dialog-no-ext/vault-welcome-dialog-no-ext.component";
+import { VaultWelcomeDialogComponent } from "../components/vault-welcome-dialog/vault-welcome-dialog.component";
 
 import { WebVaultPromptService } from "./web-vault-prompt.service";
 
@@ -47,7 +47,7 @@ describe("WebVaultPromptService", () => {
   const logError = jest.fn();
   const getUserState$ = jest.fn().mockReturnValue(of(false));
   const setUserState = jest.fn().mockResolvedValue([mockUserId, true]);
-  const mockDialogOpen = jest.spyOn(VaultWelcomeDialogNoExtComponent, "open");
+  const mockDialogOpen = jest.spyOn(VaultWelcomeDialogComponent, "open");
 
   let activeAccount$: BehaviorSubject<Account | null>;
 

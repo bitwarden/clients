@@ -11,34 +11,34 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 
-export const VaultWelcomeDialogNoExtResult = {
+export const VaultWelcomeDialogResult = {
   Dismissed: "dismissed",
   GetStarted: "getStarted",
 } as const;
 
-export type VaultWelcomeDialogNoExtResult =
-  (typeof VaultWelcomeDialogNoExtResult)[keyof typeof VaultWelcomeDialogNoExtResult];
+export type VaultWelcomeDialogResult =
+  (typeof VaultWelcomeDialogResult)[keyof typeof VaultWelcomeDialogResult];
 
 @Component({
-  selector: "app-vault-welcome-dialog-no-ext",
-  templateUrl: "./vault-welcome-dialog-no-ext.component.html",
+  selector: "app-vault-welcome-dialog",
+  templateUrl: "./vault-welcome-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, JslibModule],
 })
-export class VaultWelcomeDialogNoExtComponent {
-  constructor(private dialogRef: DialogRef<VaultWelcomeDialogNoExtResult>) {}
+export class VaultWelcomeDialogComponent {
+  constructor(private dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
 
   protected onDismiss(): void {
-    this.dialogRef.close(VaultWelcomeDialogNoExtResult.Dismissed);
+    this.dialogRef.close(VaultWelcomeDialogResult.Dismissed);
   }
 
   protected onPrimaryCta(): void {
-    this.dialogRef.close(VaultWelcomeDialogNoExtResult.GetStarted);
+    this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
   }
 
-  static open(dialogService: DialogService): DialogRef<VaultWelcomeDialogNoExtResult> {
-    return dialogService.open<VaultWelcomeDialogNoExtResult>(VaultWelcomeDialogNoExtComponent, {
+  static open(dialogService: DialogService): DialogRef<VaultWelcomeDialogResult> {
+    return dialogService.open<VaultWelcomeDialogResult>(VaultWelcomeDialogComponent, {
       disableClose: true,
       positionStrategy: new CenterPositionStrategy(),
     });

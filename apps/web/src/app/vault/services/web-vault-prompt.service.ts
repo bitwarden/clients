@@ -20,7 +20,7 @@ import {
   AutoConfirmPolicy,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
-import { VaultWelcomeDialogNoExtComponent } from "../components/vault-welcome-dialog-no-ext/vault-welcome-dialog-no-ext.component";
+import { VaultWelcomeDialogComponent } from "../components/vault-welcome-dialog/vault-welcome-dialog.component";
 
 const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   VAULT_WELCOME_DIALOG_DISK,
@@ -105,7 +105,7 @@ export class WebVaultPromptService {
       return false;
     }
 
-    const dialogRef = VaultWelcomeDialogNoExtComponent.open(this.dialogService);
+    const dialogRef = VaultWelcomeDialogComponent.open(this.dialogService);
     await firstValueFrom(dialogRef.closed);
 
     await this.stateProvider.setUserState(VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY, true, account.id);

@@ -2860,7 +2860,7 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration of a list of logins that are at-risk."
   },
-  "welcomeDialogGraphiicAlt": {
+  "welcomeDialogGraphicAlt": {
     "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
