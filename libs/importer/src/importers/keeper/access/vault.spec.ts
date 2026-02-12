@@ -16,8 +16,8 @@ describe("Keeper Vault", () => {
 
   beforeAll(async () => {
     const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
-    vault = new (Vault as any)(new Uint8Array(Buffer.from(fixture.masterKey, "base64")));
-    await (vault as any).processMergedSyncDownResponse(response);
+    const masterKey = new Uint8Array(Buffer.from(fixture.masterKey, "base64"));
+    vault = await (Vault as any).processNew(response, masterKey);
   });
 
   it("should decrypt records, folders, and shared folders", () => {

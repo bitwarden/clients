@@ -14,6 +14,7 @@ import {
   UserFolder,
   Record,
   RecordMetaData,
+  SharedFolderRecord,
 } from "./generated/SyncDown";
 
 //
@@ -68,9 +69,11 @@ export class Vault {
   // Private
   //
 
-  private records = new Map<string, RecordV3>();
-  private folders = new Map<string, string>();
-  private sharedFolders = new Map<string, string>();
+  private constructor(
+    private readonly records: Map<string, RecordV3>,
+    private readonly folders: Map<string, string>,
+    private readonly sharedFolders: Map<string, string>,
+  ) {}
 
   private static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
     if (pages.length === 1) {
@@ -130,28 +133,35 @@ export class Vault {
   }
 
   private static async processNew(merged: SyncDownResponse, masterKey: Uint8Array): Promise<Vault> {
-    const log = console.log;
-
+    // 1. Each folder is encrypted with its own folder key that is encrypted with the master key.
+    //    We only need the folder names.
     const folders = await Vault.decryptFolderNames(merged.userFolders, masterKey);
-    const sharedFolders = await Vault.decryptSharedFolderNames(merged.sharedFolders, masterKey);
-    const keys = await Vault.decryptRecordKeys(merged.recordMetaData, masterKey);
-    const [decryptedRecords, failedRecords] = await Vault.decryptRecords(merged.records, keys);
 
-    // TODO: Remove this debug code!
-    if (0) {
-      log("Records decrypted:", decryptedRecords.size);
-      log("Records failed:", failedRecords.length);
-      log("Keys total:", keys.size);
-      for (const record of decryptedRecords.values()) {
-        log(record);
-      }
-    }
+    // 2. Shared folders also have their own keys. Those keys are also needed to decrypt the records in the shared folder.
+    const sharedFolderKeys = await Vault.decryptSharedFolderKeys(merged.sharedFolders, masterKey);
 
-    const vault = new Vault();
-    vault.records = decryptedRecords;
-    vault.folders = folders;
-    vault.sharedFolders = sharedFolders;
-    return vault;
+    // 3. Shared folder names are encrypted with the shared folder keys.
+    const sharedFolders = await Vault.decryptSharedFolderNames(
+      merged.sharedFolders,
+      sharedFolderKeys,
+    );
+
+    // 4. Non-shared record keys are stored in the record metadata. They are encrypted with the master key.
+    const recordKeys = await Vault.decryptRecordKeys(merged.recordMetaData, masterKey);
+
+    // 5. Shared record keys are stored in the shared folder records. They are encrypted with the shared folder key.
+    const sharedRecordKeys = await Vault.decryptSharedFolderRecordKeys(
+      merged.sharedFolderRecords,
+      sharedFolderKeys,
+    );
+
+    // 6. All record keys.
+    const allRecordKeys = new Map([...recordKeys, ...sharedRecordKeys]);
+
+    // 7. Now all records can be decrypted.
+    const [records, failedRecords] = await Vault.decryptRecords(merged.records, allRecordKeys);
+
+    return new Vault(records, folders, sharedFolders);
   }
 
   private static async decryptFolderNames(
@@ -168,18 +178,67 @@ export class Vault {
     return result;
   }
 
-  private static async decryptSharedFolderNames(
+  private static async decryptSharedFolderKeys(
     sharedFolders: SharedFolder[],
     masterKey: Uint8Array,
+  ): Promise<Map<string, Uint8Array>> {
+    const result = new Map<string, Uint8Array>();
+    for (const folder of sharedFolders) {
+      const uid = base64UrlEncode(folder.sharedFolderUid);
+      try {
+        const key = await decryptKeeperKey(folder.sharedFolderKey, folder.keyType, masterKey);
+        result.set(uid, key);
+      } catch {
+        // TODO: Log this?
+      }
+    }
+    return result;
+  }
+
+  private static async decryptSharedFolderNames(
+    sharedFolders: SharedFolder[],
+    keys: Map<string, Uint8Array>,
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     for (const folder of sharedFolders) {
       const uid = base64UrlEncode(folder.sharedFolderUid);
-      const folderKey = await decryptKeeperKey(folder.sharedFolderKey, folder.keyType, masterKey);
-      const name = folder.data
-        ? (await Vault.decryptJsonV1<{ name: string }>(folder.data, folderKey)).name
-        : await Vault.decryptString(folder.name, folderKey, decryptAesV1);
-      result.set(uid, name);
+      const key = keys.get(uid);
+      if (!key) {
+        continue;
+      }
+      try {
+        const name = folder.data
+          ? (await Vault.decryptJsonV1<{ name: string }>(folder.data, key)).name
+          : await Vault.decryptString(folder.name, key, decryptAesV1);
+        result.set(uid, name);
+      } catch {
+        // TODO: Log this?
+      }
+    }
+    return result;
+  }
+
+  private static async decryptSharedFolderRecordKeys(
+    sharedFolderRecords: SharedFolderRecord[],
+    sharedFolderKeys: Map<string, Uint8Array>,
+  ): Promise<Map<string, Uint8Array>> {
+    const result = new Map<string, Uint8Array>();
+    for (const sfr of sharedFolderRecords) {
+      const uid = base64UrlEncode(sfr.sharedFolderUid);
+      const key = sharedFolderKeys.get(uid);
+      if (!key) {
+        continue;
+      }
+      try {
+        const encryptedKey = new Uint8Array(sfr.recordKey);
+        const recordKey =
+          encryptedKey.length === 60
+            ? await decryptAesV2(encryptedKey, key)
+            : await decryptAesV1(encryptedKey, key);
+        result.set(base64UrlEncode(sfr.recordUid), recordKey);
+      } catch {
+        // TODO: Log this?
+      }
     }
     return result;
   }
