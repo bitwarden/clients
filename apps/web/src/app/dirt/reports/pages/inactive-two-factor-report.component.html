@@ -60,42 +60,34 @@
             </td>
             <td bitCell>
               @if (!organization || canManageCipher(row)) {
-                <ng-container>
-                  <a
-                    bitLink
-                    href="#"
-                    appStopClick
-                    (click)="selectCipher(row)"
-                    title="{{ 'editItemWithName' | i18n: row.name }}"
-                    >{{ row.name }}</a
-                  >
-                </ng-container>
+                <a
+                  bitLink
+                  href="#"
+                  appStopClick
+                  (click)="selectCipher(row)"
+                  title="{{ 'editItemWithName' | i18n: row.name }}"
+                  >{{ row.name }}</a
+                >
               } @else {
-                <ng-template>
-                  <span>{{ row.name }}</span>
-                </ng-template>
+                <span>{{ row.name }}</span>
               }
               @if (!organization && row.organizationId) {
-                <ng-container>
-                  <i
-                    class="bwi bwi-collection-shared tw-ml-1"
-                    appStopProp
-                    title="{{ 'shared' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="tw-sr-only">{{ "shared" | i18n }}</span>
-                </ng-container>
+                <i
+                  class="bwi bwi-collection-shared tw-ml-1"
+                  appStopProp
+                  title="{{ 'shared' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "shared" | i18n }}</span>
               }
               @if (row.hasAttachments) {
-                <ng-container>
-                  <i
-                    class="bwi bwi-paperclip tw-ml-1"
-                    appStopProp
-                    title="{{ 'attachments' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-                </ng-container>
+                <i
+                  class="bwi bwi-paperclip tw-ml-1"
+                  appStopProp
+                  title="{{ 'attachments' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
               }
               <br />
               <small>{{ row.subTitle }}</small>
