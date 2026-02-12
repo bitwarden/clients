@@ -8,48 +8,94 @@ import {
   input,
 } from "@angular/core";
 
-import { FocusableElement } from "../shared/focusable-element";
-
 export type BadgeVariant =
   | "primary"
-  | "secondary"
+  | "subtle"
   | "success"
   | "danger"
   | "warning"
-  | "info"
-  | "notification";
+  | "accent-primary";
 
-const styles: Record<BadgeVariant, string[]> = {
-  primary: ["tw-bg-primary-100", "tw-border-primary-700", "!tw-text-primary-700"],
-  secondary: ["tw-bg-secondary-100", "tw-border-secondary-700", "!tw-text-secondary-700"],
-  success: ["tw-bg-success-100", "tw-border-success-700", "!tw-text-success-700"],
-  danger: ["tw-bg-danger-100", "tw-border-danger-700", "!tw-text-danger-700"],
-  warning: ["tw-bg-warning-100", "tw-border-warning-700", "!tw-text-warning-700"],
-  info: ["tw-bg-info-100", "tw-border-info-700", "!tw-text-info-700"],
-  notification: [
-    "tw-bg-notification-100",
-    "tw-border-notification-600",
-    "!tw-text-notification-600",
+export type BadgeSize = "small" | "large";
+
+const inactiveStyles = [
+  "disabled:tw-bg-bg-disabled",
+  "disabled:tw-border-border-base",
+  "disabled:tw-text-fg-disabled",
+  "disabled:hover:tw-bg-bg-disabled",
+  "disabled:tw-pointer-events-none",
+  "aria-disabled:tw-bg-bg-disabled",
+  "aria-disabled:tw-border-border-base",
+  "aria-disabled:tw-text-fg-disabled",
+  "aria-disabled:hover:tw-bg-bg-disabled",
+  "aria-disabled:tw-pointer-events-none",
+];
+
+const variantStyles: Record<BadgeVariant, string[]> = {
+  primary: [
+    "tw-bg-bg-brand-softer",
+    "tw-border-border-brand-soft",
+    "tw-text-fg-brand-strong",
+    "[&:is(button,a)]:hover:tw-bg-bg-brand-soft",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-brand-soft",
+  ],
+  subtle: [
+    "tw-bg-bg-primary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
+  ],
+  success: [
+    "tw-bg-bg-primary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
+  ],
+  warning: [
+    "tw-bg-bg-primary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
+  ],
+  danger: [
+    "tw-bg-bg-primary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
+  ],
+  "accent-primary": [
+    "tw-bg-bg-accent-primary-soft",
+    "tw-border-border-accent-primary-soft",
+    "tw-text-fg-accent-primary-strong",
+    "[&:is(button,a)]:hover:tw-bg-bg-accent-primary-medium",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-accent-primary-medium",
   ],
 };
 
-const hoverStyles: Record<BadgeVariant, string[]> = {
-  primary: ["hover:tw-bg-primary-600", "hover:tw-border-primary-600", "hover:!tw-text-contrast"],
-  secondary: [
-    "hover:tw-bg-secondary-600",
-    "hover:tw-border-secondary-600",
-    "hover:!tw-text-contrast",
-  ],
-  success: ["hover:tw-bg-success-600", "hover:tw-border-success-600", "hover:!tw-text-contrast"],
-  danger: ["hover:tw-bg-danger-600", "hover:tw-border-danger-600", "hover:!tw-text-contrast"],
-  warning: ["hover:tw-bg-warning-600", "hover:tw-border-warning-600", "hover:!tw-text-black"],
-  info: ["hover:tw-bg-info-600", "hover:tw-border-info-600", "hover:!tw-text-black"],
-  notification: [
-    "hover:tw-bg-notification-600",
-    "hover:tw-border-notification-600",
-    "hover:!tw-text-contrast",
-  ],
+// Size mappings
+const sizeStyles: Record<BadgeSize, string[]> = {
+  small: ["tw-text-xs", "tw-px-1.5", "tw-py-0.5"],
+  large: ["tw-text-sm", "tw-px-2", "tw-py-1"],
 };
+
+const commonStyles = [
+  "tw-inline-flex",
+  "tw-items-center",
+  "tw-rounded-full",
+  "tw-border",
+  "tw-font-medium",
+
+  // Button-specific resets (when applied to button elements)
+  "[&:is(button)]:tw-appearance-none",
+  "[&:is(button)]:tw-outline-none",
+  ...inactiveStyles,
+  // "[&:is(button)]:tw-bg-transparent",
+];
+
 /**
  * Badges are primarily used as labels, counters, and small buttons.
  * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
@@ -61,8 +107,7 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
  * > `NOTE:` The `disabled` state only applies to buttons.
  */
 @Component({
-  selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
-  providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
+  selector: "span[bitBadge]",
   imports: [CommonModule],
   templateUrl: "badge.component.html",
   host: {
@@ -71,7 +116,7 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BadgeComponent implements FocusableElement {
+export class BadgeComponent {
   private readonly el = inject(ElementRef<HTMLElement>);
 
   private readonly hasHoverEffects = this.el.nativeElement.nodeName !== "SPAN";
@@ -89,6 +134,10 @@ export class BadgeComponent implements FocusableElement {
   readonly variant = input<BadgeVariant>("primary");
 
   /**
+   * Size of the badge, which determines its padding and font size.
+   */
+  readonly size = input<BadgeSize>("large");
+  /**
    * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
    * When enabled, a title attribute is automatically added for accessibility.
    */
@@ -101,35 +150,9 @@ export class BadgeComponent implements FocusableElement {
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
   protected readonly classList = computed(() => {
-    return [
-      "tw-inline-block",
-      "tw-py-1",
-      "tw-px-2",
-      "tw-font-medium",
-      "tw-text-center",
-      "tw-align-text-top",
-      "tw-rounded-full",
-      "tw-border-[0.5px]",
-      "tw-border-solid",
-      "tw-box-border",
-      "tw-whitespace-nowrap",
-      "tw-text-xs",
-      "hover:tw-no-underline",
-      "focus-visible:tw-outline-none",
-      "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-offset-2",
-      "focus-visible:tw-ring-primary-600",
-      "disabled:tw-bg-secondary-300",
-      "disabled:hover:tw-bg-secondary-300",
-      "disabled:tw-border-secondary-300",
-      "disabled:hover:tw-border-secondary-300",
-      "disabled:!tw-text-muted",
-      "disabled:hover:!tw-text-muted",
-      "disabled:tw-cursor-not-allowed",
-    ]
-      .concat(styles[this.variant()])
-      .concat(this.hasHoverEffects ? [...hoverStyles[this.variant()], "tw-min-w-10"] : [])
-      .concat(this.truncate() ? this.maxWidthClass() : []);
+    return [...commonStyles, ...sizeStyles[this.size()], ...variantStyles[this.variant()]].concat(
+      this.truncate() ? this.maxWidthClass() : [],
+    );
   });
 
   protected readonly titleAttr = computed(() => {
