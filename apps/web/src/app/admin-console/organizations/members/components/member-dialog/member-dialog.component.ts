@@ -195,9 +195,9 @@ export class MemberDialogComponent implements OnDestroy {
     private accountService: AccountService,
     organizationService: OrganizationService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
+    private configService: ConfigService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
