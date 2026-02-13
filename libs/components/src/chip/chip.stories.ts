@@ -32,9 +32,9 @@ export default {
   argTypes: {
     ...sharedArgTypes,
   },
-} as Meta<ChipComponent>;
+} as Meta;
 
-type Story = StoryObj<ChipComponent>;
+type Story = StoryObj;
 
 export const Default: Story = {
   render: (args) => ({
@@ -44,6 +44,7 @@ export const Default: Story = {
         [disabled]="disabled"
         [startIcon]="startIcon"
         [label]="label"
+        [size]="size"
       >
       </bit-chip>
     `,
