@@ -21,9 +21,9 @@ export default {
     ...variantArgType,
     ...endIconArgType,
   },
-} as Meta<ChipActionComponent>;
+} as Meta;
 
-type Story = StoryObj<ChipActionComponent>;
+type Story = StoryObj;
 
 export const Default: Story = {
   render: (args) => ({

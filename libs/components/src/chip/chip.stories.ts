@@ -52,3 +52,21 @@ export const Default: Story = {
     startIcon: "bwi-filter",
   },
 };
+
+export const Inactive: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    startIcon: "bwi-filter",
+    disabled: true,
+  },
+};
+
+export const Small: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    startIcon: "bwi-filter",
+    size: "small",
+  },
+};

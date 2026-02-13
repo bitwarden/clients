@@ -1,13 +1,7 @@
-import { Component, ChangeDetectionStrategy, booleanAttribute, input } from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, inject } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
-import {
-  BaseChipDirective,
-  type ChipVariant,
-  type ChipSize,
-  ChipVariants,
-  ChipSizes,
-} from "../base-chip.directive";
+import { BaseChipDirective } from "../base-chip.directive";
 import { ChipContentComponent } from "../chip-content.component";
 
 @Component({
@@ -19,16 +13,12 @@ import { ChipContentComponent } from "../chip-content.component";
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["variant", "size", "disabled", "fullWidth"],
+      inputs: ["variant", "size", "disabled"],
     },
   ],
 })
 export class ChipActionComponent {
-  readonly variant = input<ChipVariant>(ChipVariants.Primary);
-  readonly size = input<ChipSize>(ChipSizes.Large);
-
-  readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
-  readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
+  readonly baseChip = inject(BaseChipDirective, { host: true });
 
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
