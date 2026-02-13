@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy, booleanAttribute, input, output } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, input, output } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenIcon } from "../shared/icon";
 
-import { BaseChipDirective, type ChipSize, ChipSizes } from "./base-chip.directive";
+import { BaseChipDirective } from "./base-chip.directive";
 import { ChipContentComponent } from "./chip-content.component";
 import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
 
@@ -20,14 +20,13 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
       inputs: ["size", "disabled"],
     },
   ],
-  host: {
-    "[attr.aria-disabled]": "disabled() ? true : null",
-  },
 })
 export class ChipComponent {
-  readonly size = input<ChipSize>(ChipSizes.Large);
+  protected readonly baseChip = inject(BaseChipDirective, { host: true });
+
+  readonly size = this.baseChip.size();
+  readonly disabled = this.baseChip.disabled();
   readonly label = input<string>("");
-  readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   readonly startIcon = input<BitwardenIcon | undefined>();
 
@@ -35,7 +34,7 @@ export class ChipComponent {
 
   protected handleDismiss(event: MouseEvent) {
     event.stopPropagation();
-    if (!this.disabled()) {
+    if (!this.baseChip.disabled()) {
       this.chipDismissed.emit();
     }
   }
