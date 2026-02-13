@@ -35,6 +35,11 @@ import {
   AdjustAccountSubscriptionStorageDialogParams,
 } from "@bitwarden/web-vault/app/billing/individual/subscription/adjust-account-subscription-storage-dialog.component";
 import {
+  UnifiedUpgradeDialogComponent,
+  UnifiedUpgradeDialogStatus,
+  UnifiedUpgradeDialogStep,
+} from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
+import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
@@ -93,10 +98,11 @@ export class AccountSubscriptionComponent {
       if (!this.account()) {
         return await redirectToPremiumPage();
       }
-      if (!this.hasPremiumPersonally()) {
+      const subscription = await this.accountBillingClient.getSubscription();
+      if (!subscription) {
         return await redirectToPremiumPage();
       }
-      return await this.accountBillingClient.getSubscription();
+      return subscription;
     },
   });
 
@@ -106,6 +112,7 @@ export class AccountSubscriptionComponent {
     const subscription = this.subscription.value();
     if (subscription) {
       return (
+        subscription.status === SubscriptionStatuses.Incomplete ||
         subscription.status === SubscriptionStatuses.IncompleteExpired ||
         subscription.status === SubscriptionStatuses.Canceled ||
         subscription.status === SubscriptionStatuses.Unpaid
@@ -230,6 +237,27 @@ export class AccountSubscriptionComponent {
       case SubscriptionCardActions.UpdatePayment:
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
+      case SubscriptionCardActions.Resubscribe: {
+        const account = this.account();
+        if (!account) {
+          return;
+        }
+
+        const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+          data: {
+            account,
+            initialStep: UnifiedUpgradeDialogStep.Payment,
+            selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+          },
+        });
+
+        const result = await lastValueFrom(dialogRef.closed);
+
+        if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+          this.subscription.reload();
+        }
+        break;
+      }
       case SubscriptionCardActions.UpgradePlan:
         await this.openUpgradeDialog();
         break;

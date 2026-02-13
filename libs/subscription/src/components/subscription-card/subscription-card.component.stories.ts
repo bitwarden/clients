@@ -51,10 +51,13 @@ export default {
                 weCouldNotProcessYourPayment:
                   "We could not process your payment. Please update your payment method or contact the support team for assistance.",
                 contactSupportShort: "Contact Support",
-                yourSubscriptionHasExpired:
-                  "Your subscription has expired. Please contact the support team for assistance.",
+                yourSubscriptionIsExpired:
+                  "Your subscription is expired. Please resubscribe to continue using premium features.",
+                yourSubscriptionIsCanceled:
+                  "Your subscription is canceled. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
                 reinstateSubscription: "Reinstate subscription",
+                resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:
                   "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise.",
