@@ -4,13 +4,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
 
-type BannerType = "premium" | "info" | "warning" | "danger";
+type BannerType = "premium" | "info" | "warning" | "danger" | "test";
 
 const defaultIcon: Record<BannerType, string> = {
   premium: "bwi-star",
   info: "bwi-info-circle",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
+  test: "bwi-star",
 };
 
 /**
