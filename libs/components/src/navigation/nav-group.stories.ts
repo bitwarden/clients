@@ -160,8 +160,8 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
               <bit-nav-item text="Level 3 - no children, no icon" route="t5"></bit-nav-item>
               <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" [open]="true">
                 <bit-nav-item text="Level 4 - no children, no icon" route="t7"></bit-nav-item>
-                <bit-nav-group text="Level 4 - with children" route="t6" icon="bwi-collection-shared" [open]="true">
-                  <bit-nav-item text="Level 5 - no children, no icon" route="t7"></bit-nav-item>
+                <bit-nav-group text="Level 4 - with children" route="t8" icon="bwi-collection-shared" [open]="true">
+                  <bit-nav-item text="Level 5 - no children, no icon" route="t9"></bit-nav-item>
                 </bit-nav-group>
               </bit-nav-group>
             </bit-nav-group>
