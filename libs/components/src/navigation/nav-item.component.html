@@ -1,9 +1,9 @@
-<div class="tw-ps-2 tw-pe-2">
+<div class="tw-ps-2 tw-pe-2 tw-cursor-pointer">
   @let open = sideNavService.open();
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
-      class="tw-relative tw-rounded-xl tw-h-10 tw-py-2"
+      class="tw-relative tw-rounded-xl tw-h-10 tw-py-2 tw-border-2 tw-border-transparent focus-visible:tw-border-solid focus-visible:tw-border-border-focus-contrast"
       [class]="fvwStyles()"
       [class.tw-bg-bg-sidenav-active-item]="showActiveStyles"
       [class.tw-bg-bg-sidenav-background]="!showActiveStyles"
@@ -24,7 +24,7 @@
               <button
                 type="button"
                 class="tw-ms-auto !tw-p-0 !tw-w-6 !tw-h-6"
-                bitIconButton="bwi-up-solid"
+                bitIconButton="bwi-down-solid"
                 size="small"
               ></button>
             </div>
