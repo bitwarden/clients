@@ -36,7 +36,7 @@ import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult } from "./components/member-dialog";
-import { vNextMembersComponent } from "./members.component";
+import { MembersComponent } from "./members.component";
 import {
   MemberDialogManagerService,
   MemberExportService,
@@ -48,9 +48,9 @@ import {
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
 
-describe("vNextMembersComponent", () => {
-  let component: vNextMembersComponent;
-  let fixture: ComponentFixture<vNextMembersComponent>;
+describe("MembersComponent", () => {
+  let component: MembersComponent;
+  let fixture: ComponentFixture<MembersComponent>;
 
   let mockApiService: MockProxy<ApiService>;
   let mockI18nService: MockProxy<I18nService>;
@@ -172,7 +172,7 @@ describe("vNextMembersComponent", () => {
     mockFileDownloadService = mock<FileDownloadService>();
 
     await TestBed.configureTestingModule({
-      declarations: [vNextMembersComponent],
+      declarations: [MembersComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
@@ -211,13 +211,13 @@ describe("vNextMembersComponent", () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      .overrideComponent(vNextMembersComponent, {
+      .overrideComponent(MembersComponent, {
         remove: { imports: [] },
         add: { template: "<div></div>" },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(vNextMembersComponent);
+    fixture = TestBed.createComponent(MembersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -515,11 +515,11 @@ describe("vNextMembersComponent", () => {
       };
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: true });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkReinvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser.id]);
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
     });
 
@@ -549,7 +549,7 @@ describe("vNextMembersComponent", () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       const error = new Error("Bulk reinvite failed");
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: false, failed: error });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [], failed: error });
 
       await component.bulkReinvite(mockOrg);
 

@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critique"
+  },
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Aucune application ne correspond à ces filtres"
   },
   "passwordRisk": {
     "message": "Risque du mot de passe"
@@ -41,8 +47,8 @@
   "noEditPermissions": {
     "message": "Vous n'avez pas l'autorisation de modifier cet élément"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Examinez les mots de passe à risque (faibles, exposés ou réutilisés) à travers les applications. Sélectionnez vos applications les plus critiques pour prioriser les actions de sécurité pour que vos utilisateurs s'occupent des mots de passe à risque."
+  "reviewAccessIntelligence": {
+    "message": "Examinez les rapports de sécurité pour trouver et corriger les risques liés aux identifiants avant de les escalader."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Examiner les identifiants à risque"
@@ -255,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marquées comme non critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Marquer $COUNT$ comme critique(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Marquer $COUNT$ comme non critique(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1240,6 +1282,9 @@
   },
   "selectAll": {
     "message": "Tout sélectionner"
+  },
+  "deselectAll": {
+    "message": "Tout désélectionner"
   },
   "unselectAll": {
     "message": "Tout désélectionner"
@@ -3802,6 +3847,9 @@
   "editCollection": {
     "message": "Modifier la collection"
   },
+  "viewCollection": {
+    "message": "Afficher la Collection"
+  },
   "collectionInfo": {
     "message": "Informations de la collection"
   },
@@ -5382,8 +5430,8 @@
   "minimumNumberOfWords": {
     "message": "Nombre minimum de mots"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Type de Mot de Passe",
+  "passwordTypePolicyOverride": {
+    "message": "Type de mot de passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5639,10 +5687,6 @@
   "sendTypeText": {
     "message": "Texte"
   },
-  "sendPasswordDescV3": {
-    "message": "Ajouter un mot de passe facultatif pour que les destinataires puissent accéder à ce Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nouveau Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5705,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien pour les prochains $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien et le mot de passe que vous avez configurez pour les prochain(e)s $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copiez et partagez ce lien Send. Il peut être consulté par les personnes que vous avez spécifiées pour les prochain(e)s $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6609,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation envoyée"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations envoyées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ des utilisateurs de $SELECTEDCOUNT$ ont été ré-invités. $EXCLUDEDCOUNT$ n'ont pas été invités en raison de la limite d'invitation de $LIMIT$.",
     "placeholders": {
@@ -6625,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ de $TOTAL$ invitations envoyées...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Garder cette page ouverte jusqu'à ce que tout soit envoyé."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations non pas été envoyées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation n'a pas été envoyée"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Une erreur s'est produite lors de l'envoi des invitations à $COUNT$ des $TOTAL$ membres. Essayez d'envoyer à nouveau et si le problème persiste,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Essayez d'envoyer à nouveau"
   },
   "bulkRemovedMessage": {
     "message": "Supprimé avec succès"
@@ -10064,6 +10184,9 @@
   "assignTasks": {
     "message": "Assigner des tâches"
   },
+  "allTasksAssigned": {
+    "message": "Toutes les tâches ont été assignées"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Envoyer des notifications pour modifier les mots de passe"
   },
@@ -10470,6 +10593,9 @@
   },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Vous devez être un Propriétaire d'Organisation ou un Administrateur pour effectuer cette action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Vous devez être le propriétaire de l'organisation pour effectuer cette action."
@@ -11773,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "L'élément a été envoyé à l'archive"
   },
-  "itemsWereSentToArchive": {
-    "message": "Les éléments ont été envoyés à l'archive"
-  },
   "itemWasUnarchived": {
     "message": "L'élément a été désarchivé"
   },
@@ -12459,6 +12582,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Êtes-vous sûr de vouloir continuer ?"
   },
+  "errorCannotDecrypt": {
+    "message": "Erreur: Impossible de déchiffrer"
+  },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
   },
@@ -12739,6 +12865,15 @@
   "whenYouRemoveStorage": {
     "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
   },
+  "ownerBadgeA11yDescription": {
+    "message": "Propriétaire, $OWNER$, affiche tous les éléments appartenant à $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "youHavePremium": {
     "message": "Vous avez Premium"
   },
@@ -12747,5 +12882,61 @@
   },
   "invalidSendPassword": {
     "message": "Mot de passe Send invalide"
+  },
+  "sendPasswordHelperText": {
+    "message": "Les personnes devront entrer le mot de passe pour afficher ce Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "par utilisateur"
+  },
+  "upgradeToTeams": {
+    "message": "Mettre à niveau vers Équipes"
+  },
+  "upgradeToEnterprise": {
+    "message": "Mettre à niveau vers Entreprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Partagez encore plus avec Familles, ou obtenez une sécurité de mot de passe puissante et fiable avec Équipes ou Entreprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Les prix excluent les taxes et sont facturés annuellement."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Une erreur s'est produite lors de la génération de l'aperçu de la facture."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Adhésion à $PLAN$ au prorata ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Crédit d'abonnement Premium"
+  },
+  "enterpriseMembership": {
+    "message": "Adhésion à Entreprise"
+  },
+  "teamsMembership": {
+    "message": "Adhésion à Équipes"
+  },
+  "plansUpdated": {
+    "message": "Vous avez mis à niveau vers $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Une erreur s'est produite lors de la mise à jour de votre mode de paiement."
   }
 }

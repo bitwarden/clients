@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden はこれらのドメインのログイン情報を保存するよう尋ねません。変更を有効にするにはページを更新する必要があります。"
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden はログインしているすべてのアカウントで、これらのドメインのログイン情報を保存するよう要求しません。 変更を有効にするにはページを更新する必要があります。"
-  },
   "blockedDomainsDesc": {
     "message": "自動入力やその他の関連機能はこれらのウェブサイトには提供されません。変更を反映するにはページを更新する必要があります。"
   },
@@ -3035,10 +3032,6 @@
   "custom": {
     "message": "カスタム"
   },
-  "sendPasswordDescV3": {
-    "message": "受信者がこの Send にアクセスするための任意のパスワードを追加します。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "新しい Send を作成",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3091,8 @@
     "message": "編集済みの Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "拡張機能をポップアウトしますか？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "ファイル Send を作成するには、拡張機能を新しいウィンドウでポップアウト表示する必要があります。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "ファイルを選択するには、可能な場合サイドバーで拡張子を開くか、このバナーをクリックして新しいウィンドウにポップアップしてください。"
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox を使用してファイルを選択するには、サイドバーで開くか、このバナーをクリックして新しいウィンドウで開いてください。"
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari を使用してファイルを選択するには、このバナーをクリックして新しいウィンドウで開いてください。"
-  },
   "popOut": {
     "message": "ポップアウト"
-  },
-  "sendFileCalloutHeader": {
-    "message": "はじめる前に"
   },
   "expirationDateIsInvalid": {
     "message": "入力された有効期限は正しくありません。"
@@ -5990,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "カード番号"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6127,6 +6103,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6126,15 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

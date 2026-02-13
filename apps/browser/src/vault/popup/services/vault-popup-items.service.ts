@@ -135,24 +135,23 @@ export class VaultPopupItemsService {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-  private userCanArchive$ = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      return this.cipherArchiveService.userCanArchive$(userId);
-    }),
-  );
-
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.decryptedCollections$, this.userCanArchive$]).pipe(
-        map(([organizations, collections, canArchive]) => {
+      combineLatest([
+        this.organizations$,
+        this.decryptedCollections$,
+        this.cipherArchiveService.hasArchiveFlagEnabled$,
+      ]).pipe(
+        map(([organizations, collections, archiveFlag]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter(
               (c) =>
                 !CipherViewLikeUtils.isDeleted(c) &&
-                (!canArchive || !CipherViewLikeUtils.isArchived(c)),
+                (!archiveFlag || !CipherViewLikeUtils.isArchived(c)),
             )
+
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
                 (colId) => collectionMap[colId as CollectionId],
@@ -199,6 +198,15 @@ export class VaultPopupItemsService {
         >,
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * List of ciphers that are filtered using filters and search.
+   * Includes favorite ciphers and ciphers currently suggested for autofill.
+   * Ciphers are sorted by name.
+   */
+  filteredCiphers$: Observable<PopupCipherViewLike[]> = this._filteredCipherList$.pipe(
+    shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   /**

@@ -56,6 +56,7 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -767,12 +768,13 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
     provide: SecurityStateService,
     useClass: DefaultSecurityStateService,
-    deps: [StateProvider],
+    deps: [AccountCryptographicStateService],
   }),
   safeProvider({
     provide: RestrictedItemTypesService,
@@ -858,7 +860,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      CryptoFunctionServiceAbstraction,
       ConfigService,
     ],
   }),
@@ -1079,6 +1080,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      AutomaticUserConfirmationService,
     ],
   }),
   safeProvider({
@@ -1704,6 +1706,7 @@ const safeProviders: SafeProvider[] = [
       SdkService,
       ApiServiceAbstraction,
       ConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
