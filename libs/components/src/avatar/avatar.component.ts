@@ -242,11 +242,11 @@ export class AvatarComponent {
       return "tw-fill-fg-disabled";
     }
 
-    const customBg = this.customBackgroundColor();
     let textColor = "white";
+    const color = this.color();
 
-    if (customBg) {
-      textColor = Utils.pickTextColorBasedOnBgColor(customBg, 135, true);
+    if (this.usingCustomColor() && color) {
+      textColor = Utils.pickTextColorBasedOnBgColor(color, 135, true);
     }
 
     return textColor === "white" ? "tw-fill-fg-white" : "tw-fill-fg-black";
