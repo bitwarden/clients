@@ -86,9 +86,17 @@ jobs:
 
       - name: Get branch name
         id: branch-names
-        uses: tj-actions/branch-names@5250492686b253f06fa55861556d1027b067aeb5 # v9
-        with:
-          replace_slashes_with_hyphens: 'true'
+        run: |
+            # Get branch name based on event type
+            if [[ "${{ github.event_name }}" == *"pull_request"* ]]; then
+              BRANCH_NAME="${{ github.event.pull_request.head.ref || github.head_ref }}"
+            else
+              BRANCH_NAME="${{ github.ref_name }}"
+            fi
+            # Replace slashes with hyphens
+            BRANCH_NAME_NORMALIZED="${BRANCH_NAME//\//-}"
+            echo "current_branch=$BRANCH_NAME_NORMALIZED" >> "$GITHUB_OUTPUT"
+        shell: bash
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build CL Storybook
