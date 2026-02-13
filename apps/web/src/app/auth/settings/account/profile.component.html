@@ -4,7 +4,6 @@
     class="bwi-spin tw-text-muted"
     [ariaLabel]="'loading' | i18n"
   ></bit-icon>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </div>
 <form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
   <div class="tw-grid tw-grid-cols-12 tw-gap-6">
