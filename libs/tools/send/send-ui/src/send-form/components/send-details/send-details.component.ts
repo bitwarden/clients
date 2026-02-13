@@ -325,10 +325,7 @@ export class SendDetailsComponent implements OnInit {
       const authType = this.sendDetailsForm?.get("authType")?.value;
       const emails = control.value;
 
-      if (
-        authType === AuthType.Email &&
-        (emails === null || emails === "" || emails?.trim() === "")
-      ) {
+      if (authType === AuthType.Email && (!emails || emails.trim() === "")) {
         return {
           emailsRequiredForEmailAuth: {
             message: this.i18nService.t("emailsRequiredChangeAccessType"),
