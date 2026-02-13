@@ -8,6 +8,7 @@ import { RiskInsightsApi } from "../api/risk-insights.api";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsData } from "../data/risk-insights.data";
 import { RiskInsights } from "../domain/risk-insights";
+import { RiskInsightsMetrics } from "../domain/risk-insights-metrics";
 
 import { RiskInsightsApplicationView } from "./risk-insights-application.view";
 import { RiskInsightsReportView } from "./risk-insights-report.view";
@@ -74,6 +75,244 @@ export class RiskInsightsView implements View {
     this.contentEncryptionKey = report.contentEncryptionKey;
   }
 
+  // ==================== Query Methods ====================
+
+  /**
+   * Get all at-risk members across all applications
+   *
+   * Deduplicates members - a member appearing in multiple applications is counted once.
+   *
+   * @returns Array of unique at-risk member registry entries
+   */
+  getAtRiskMembers(): MemberRegistryEntry[] {
+    const atRiskMemberIds = new Set<string>();
+
+    this.reports.forEach((report) => {
+      Object.entries(report.memberRefs)
+        .filter(([_, isAtRisk]) => isAtRisk)
+        .forEach(([memberId]) => atRiskMemberIds.add(memberId));
+    });
+
+    return Array.from(atRiskMemberIds)
+      .map((id) => this.memberRegistry[id])
+      .filter((entry): entry is MemberRegistryEntry => entry !== undefined);
+  }
+
+  /**
+   * Get only applications marked as critical
+   *
+   * @returns Array of critical application reports
+   */
+  getCriticalApplications(): RiskInsightsReportView[] {
+    const criticalNames = new Set(
+      this.applications.filter((a) => a.isCritical).map((a) => a.applicationName),
+    );
+    return this.reports.filter((r) => criticalNames.has(r.applicationName));
+  }
+
+  /**
+   * Get applications that haven't been reviewed yet
+   *
+   * An application is considered "new" if it has no reviewedDate.
+   *
+   * @returns Array of unreviewed application reports
+   */
+  getNewApplications(): RiskInsightsReportView[] {
+    const unreviewedNames = new Set(
+      this.applications.filter((a) => !a.reviewedDate).map((a) => a.applicationName),
+    );
+    return this.reports.filter((r) => unreviewedNames.has(r.applicationName));
+  }
+
+  /**
+   * Find an application report by name
+   *
+   * @param applicationName - Name of the application to find
+   * @returns Application report if found, undefined otherwise
+   */
+  getApplicationByName(applicationName: string): RiskInsightsReportView | undefined {
+    return this.reports.find((r) => r.applicationName === applicationName);
+  }
+
+  /**
+   * Get total count of unique members in the organization
+   *
+   * @returns Number of members in the registry
+   */
+  getTotalMemberCount(): number {
+    return Object.keys(this.memberRegistry).length;
+  }
+
+  // ==================== Update Methods ====================
+
+  /**
+   * Mark an application as critical
+   *
+   * Updates the applications array and automatically recomputes the summary.
+   * If the application doesn't exist in applications[], it will be added.
+   *
+   * @param applicationName - Name of the application to mark as critical
+   */
+  markApplicationAsCritical(applicationName: string): void {
+    const app = this.applications.find((a) => a.applicationName === applicationName);
+
+    if (app) {
+      app.isCritical = true;
+    } else {
+      // Application not in list, add it
+      const newApp = new RiskInsightsApplicationView();
+      newApp.applicationName = applicationName;
+      newApp.isCritical = true;
+      this.applications.push(newApp);
+    }
+
+    this.recomputeSummary();
+  }
+
+  /**
+   * Unmark an application as critical
+   *
+   * Updates the applications array and automatically recomputes the summary.
+   *
+   * @param applicationName - Name of the application to unmark as critical
+   */
+  unmarkApplicationAsCritical(applicationName: string): void {
+    const app = this.applications.find((a) => a.applicationName === applicationName);
+
+    if (app) {
+      app.isCritical = false;
+      this.recomputeSummary();
+    }
+  }
+
+  /**
+   * Mark an application as reviewed
+   *
+   * Updates the applications array with the review date.
+   * Review status does not affect summary, so no recomputation is needed.
+   *
+   * @param applicationName - Name of the application to mark as reviewed
+   * @param reviewedDate - Date of review (defaults to current date)
+   */
+  markApplicationAsReviewed(applicationName: string, reviewedDate?: Date): void {
+    const app = this.applications.find((a) => a.applicationName === applicationName);
+
+    if (app) {
+      app.reviewedDate = reviewedDate ?? new Date();
+    } else {
+      const newApp = new RiskInsightsApplicationView();
+      newApp.applicationName = applicationName;
+      newApp.reviewedDate = reviewedDate ?? new Date();
+      this.applications.push(newApp);
+    }
+  }
+
+  // ==================== Computation Methods ====================
+
+  /**
+   * Recomputes the summary from current reports and applications
+   *
+   * This method is called automatically when critical application flags change.
+   * It can also be called manually if summary needs to be refreshed.
+   *
+   * Computes:
+   * - Total and at-risk application counts
+   * - Total and at-risk member counts (deduplicated)
+   * - Critical application and member counts
+   */
+  recomputeSummary(): void {
+    const summary = new RiskInsightsSummaryView();
+
+    // Basic totals
+    summary.totalMemberCount = this.getTotalMemberCount();
+    summary.totalApplicationCount = this.reports.length;
+    summary.totalAtRiskApplicationCount = this.reports.filter((r) => r.isAtRisk()).length;
+
+    // Deduplicate at-risk members across all applications
+    summary.totalAtRiskMemberCount = this.getAtRiskMembers().length;
+
+    // Critical application metrics
+    const criticalReports = this.getCriticalApplications();
+    summary.totalCriticalApplicationCount = criticalReports.length;
+    summary.totalCriticalAtRiskApplicationCount = criticalReports.filter((r) =>
+      r.isAtRisk(),
+    ).length;
+
+    // Collect unique critical member IDs
+    const criticalMemberIds = new Set<string>();
+    const criticalAtRiskMemberIds = new Set<string>();
+
+    criticalReports.forEach((report) => {
+      Object.entries(report.memberRefs).forEach(([memberId, isAtRisk]) => {
+        criticalMemberIds.add(memberId);
+        if (isAtRisk) {
+          criticalAtRiskMemberIds.add(memberId);
+        }
+      });
+    });
+
+    summary.totalCriticalMemberCount = criticalMemberIds.size;
+    summary.totalCriticalAtRiskMemberCount = criticalAtRiskMemberIds.size;
+
+    this.summary = summary;
+  }
+
+  /**
+   * Computes complete metrics from current view state
+   *
+   * Generates RiskInsightsMetrics including both summary counts and password-level metrics.
+   * Password counts are computed by aggregating cipherRefs across all reports.
+   *
+   * @returns RiskInsightsMetrics with all counts populated
+   */
+  toMetrics(): RiskInsightsMetrics {
+    const metrics = new RiskInsightsMetrics();
+
+    // Copy summary counts (member and application counts)
+    metrics.totalApplicationCount = this.summary.totalApplicationCount;
+    metrics.totalAtRiskApplicationCount = this.summary.totalAtRiskApplicationCount;
+    metrics.totalCriticalApplicationCount = this.summary.totalCriticalApplicationCount;
+    metrics.totalCriticalAtRiskApplicationCount = this.summary.totalCriticalAtRiskApplicationCount;
+    metrics.totalMemberCount = this.summary.totalMemberCount;
+    metrics.totalAtRiskMemberCount = this.summary.totalAtRiskMemberCount;
+    metrics.totalCriticalMemberCount = this.summary.totalCriticalMemberCount;
+    metrics.totalCriticalAtRiskMemberCount = this.summary.totalCriticalAtRiskMemberCount;
+
+    // Compute password counts from reports
+    let totalPasswordCount = 0;
+    let totalAtRiskPasswordCount = 0;
+    let totalCriticalPasswordCount = 0;
+    let totalCriticalAtRiskPasswordCount = 0;
+
+    // Build set of critical application names for quick lookup
+    const criticalAppNames = new Set(
+      this.applications.filter((a) => a.isCritical).map((a) => a.applicationName),
+    );
+
+    this.reports.forEach((report) => {
+      const isCritical = criticalAppNames.has(report.applicationName);
+      const passwordCount = Object.keys(report.cipherRefs).length;
+      const atRiskCount = report.getAtRiskCipherIds().length;
+
+      totalPasswordCount += passwordCount;
+      totalAtRiskPasswordCount += atRiskCount;
+
+      if (isCritical) {
+        totalCriticalPasswordCount += passwordCount;
+        totalCriticalAtRiskPasswordCount += atRiskCount;
+      }
+    });
+
+    metrics.totalPasswordCount = totalPasswordCount;
+    metrics.totalAtRiskPasswordCount = totalAtRiskPasswordCount;
+    metrics.totalCriticalPasswordCount = totalCriticalPasswordCount;
+    metrics.totalCriticalAtRiskPasswordCount = totalCriticalAtRiskPasswordCount;
+
+    return metrics;
+  }
+
+  // ==================== Serialization ====================
+
   toJSON() {
     return this;
   }
@@ -92,8 +331,4 @@ export class RiskInsightsView implements View {
 
     return view;
   }
-
-  // [TODO] SDK Mapping
-  // toSdkRiskInsightsView(): SdkRiskInsightsView {}
-  // static fromRiskInsightsView(obj?: SdkRiskInsightsView): RiskInsightsView | undefined {}
 }

@@ -7,13 +7,13 @@ import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
   ReportState,
   DrawerDetails,
-  DrawerType,
   RiskInsightsEnrichedData,
   ReportStatus,
   ReportProgress,
   ApplicationHealthReportDetail,
   OrganizationReportApplication,
 } from "../../models";
+import { DrawerType } from "../abstractions/drawer-state.service";
 import { RiskInsightsOrchestratorService } from "../domain/risk-insights-orchestrator.service";
 
 export class RiskInsightsDataService {
