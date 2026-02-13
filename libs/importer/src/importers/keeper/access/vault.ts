@@ -186,7 +186,7 @@ export class Vault {
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     for (const folder of userFolders) {
-      const uid = base64UrlEncode(folder.folderUid);
+      const uid = uidToString(folder.folderUid);
       const folderKey = await decryptKeeperKey(folder.userFolderKey, folder.keyType, masterKey);
       const decrypted = await Vault.decryptJsonV1<{ name: string }>(folder.data, folderKey);
       result.set(uid, decrypted.name);
@@ -200,7 +200,7 @@ export class Vault {
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
     for (const folder of sharedFolders) {
-      const uid = base64UrlEncode(folder.sharedFolderUid);
+      const uid = uidToString(folder.sharedFolderUid);
       try {
         const key = await decryptKeeperKey(folder.sharedFolderKey, folder.keyType, masterKey);
         result.set(uid, key);
@@ -217,7 +217,7 @@ export class Vault {
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     for (const folder of sharedFolders) {
-      const uid = base64UrlEncode(folder.sharedFolderUid);
+      const uid = uidToString(folder.sharedFolderUid);
       const key = keys.get(uid);
       if (!key) {
         continue;
@@ -240,7 +240,7 @@ export class Vault {
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
     for (const sfr of sharedFolderRecords) {
-      const uid = base64UrlEncode(sfr.sharedFolderUid);
+      const uid = uidToString(sfr.sharedFolderUid);
       const key = sharedFolderKeys.get(uid);
       if (!key) {
         continue;
@@ -251,7 +251,7 @@ export class Vault {
           encryptedKey.length === 60
             ? await decryptAesV2(encryptedKey, key)
             : await decryptAesV1(encryptedKey, key);
-        result.set(base64UrlEncode(sfr.recordUid), recordKey);
+        result.set(uidToString(sfr.recordUid), recordKey);
       } catch {
         // TODO: Log this?
       }
@@ -265,7 +265,7 @@ export class Vault {
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
     for (const meta of metaData) {
-      const uid = base64UrlEncode(meta.recordUid);
+      const uid = uidToString(meta.recordUid);
       const recordKey = await decryptKeeperKey(meta.recordKey, meta.recordKeyType, masterKey);
       result.set(uid, recordKey);
     }
@@ -279,7 +279,7 @@ export class Vault {
     const result = new Map<string, RecordV3>();
     const failed: Record[] = [];
     for (const record of records) {
-      const uid = base64UrlEncode(record.recordUid);
+      const uid = uidToString(record.recordUid);
       const key = keys.get(uid);
       if (key) {
         if (record.version < 3) {
@@ -308,7 +308,7 @@ export class Vault {
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     for (const sff of sharedFolderFolders) {
-      const sfUid = base64UrlEncode(sff.sharedFolderUid);
+      const sfUid = uidToString(sff.sharedFolderUid);
       const sfKey = sharedFolderKeys.get(sfUid);
       if (!sfKey) {
         continue;
@@ -316,7 +316,7 @@ export class Vault {
       try {
         const folderKey = await decryptKeeperKey(sff.sharedFolderFolderKey, sff.keyType, sfKey);
         const decrypted = await Vault.decryptJsonV1<{ name: string }>(sff.data, folderKey);
-        result.set(base64UrlEncode(sff.folderUid), decrypted.name);
+        result.set(uidToString(sff.folderUid), decrypted.name);
       } catch {
         // skip folders we can't decrypt
       }
@@ -336,25 +336,25 @@ export class Vault {
 
     // 1. Normal folders. Defines the relationship between a folder and its parent.
     for (const folder of folders) {
-      const uid = base64UrlEncode(folder.folderUid);
-      const parentUid = base64UrlEncode(folder.parentUid);
+      const uid = uidToString(folder.folderUid);
+      const parentUid = uidToString(folder.parentUid);
       childToParent.set(uid, parentUid);
     }
 
     // 2. Shared folders. Defines the relationship between a shared folder and its parent.
     for (const folder of sharedFolderSharedFolders) {
-      const uid = base64UrlEncode(folder.sharedFolderUid);
-      const folderUid = base64UrlEncode(folder.folderUid);
+      const uid = uidToString(folder.sharedFolderUid);
+      const folderUid = uidToString(folder.folderUid);
       childToParent.set(uid, folderUid);
     }
 
     // 3. Shared folder subfolders. Defines the relationship between a subfolder and its parent (shared folder or another subfolder).
     for (const sff of sharedFoldersFolder) {
-      const uid = base64UrlEncode(sff.folderUid);
+      const uid = uidToString(sff.folderUid);
       const parentUid =
         sff.parentUid.length > 0
-          ? base64UrlEncode(sff.parentUid)
-          : base64UrlEncode(sff.sharedFolderUid);
+          ? uidToString(sff.parentUid)
+          : uidToString(sff.sharedFolderUid);
       childToParent.set(uid, parentUid);
     }
 
@@ -402,17 +402,17 @@ export class Vault {
 
     // Records in normal folders
     for (const r of userFolderRecords) {
-      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.folderUid));
+      addPath(uidToString(r.recordUid), uidToString(r.folderUid));
     }
 
     // Records in the root of shared folders
     for (const r of sharedFolderRecords) {
-      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.sharedFolderUid));
+      addPath(uidToString(r.recordUid), uidToString(r.sharedFolderUid));
     }
 
     // Records in subfolders of shared folders
     for (const r of sharedFolderFolderRecords) {
-      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.folderUid));
+      addPath(uidToString(r.recordUid), uidToString(r.folderUid));
     }
 
     return result;
@@ -441,6 +441,10 @@ export class Vault {
   ): Promise<string> {
     return new TextDecoder().decode(await decrypt(data, key));
   }
+}
+
+function uidToString(uid: Uint8Array): string {
+  return base64UrlEncode(uid);
 }
 
 function sanitizeFolderName(name: string): string {
