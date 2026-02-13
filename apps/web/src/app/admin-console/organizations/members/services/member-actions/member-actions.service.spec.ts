@@ -507,7 +507,7 @@ describe("MemberActionsService", () => {
 
       const result = await service.bulkReinvite(mockOrganization, users);
 
-      expect(result.successful).toBeUndefined();
+      expect(result.successful).toHaveLength(0);
       expect(result.failed).toHaveLength(totalUsers);
       expect(result.failed.every((f) => f.error === errorMessage)).toBe(true);
       expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenCalledTimes(2);
