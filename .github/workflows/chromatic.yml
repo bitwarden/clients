@@ -86,12 +86,16 @@ jobs:
 
       - name: Get branch name
         id: branch-names
+        env: 
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
             # Get branch name based on event type
-            if [[ "${{ github.event_name }}" == *"pull_request"* ]]; then
-              BRANCH_NAME="${{ github.event.pull_request.head.ref || github.head_ref }}"
+            if [[ "$EVENT_NAME" == *"pull_request"* ]]; then
+              BRANCH_NAME="$HEAD_REF"
             else
-              BRANCH_NAME="${{ github.ref_name }}"
+              BRANCH_NAME="$REF_NAME"
             fi
             # Replace slashes with hyphens
             BRANCH_NAME_NORMALIZED="${BRANCH_NAME//\//-}"
