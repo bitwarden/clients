@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Прегледайте паролите в риск (слаби, преизползвани или разобличени) в различните приложения. Изберете най-важните си приложения, за да дадете приоритет на действията по сигурността за потребителите си, така че те да обърнат внимание на паролите си в риск."
+  "reviewAccessIntelligence": {
+    "message": "Прегледайте докладите по сигурността, за да забележите и отстраните евентуалните рискове свързани с удостоверителните данни, преди те да ескалират."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Преглед на елементите за вписване в риск"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ приложения са отбелязани като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като неважни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Отбелязване на $COUNT$ като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Отбелязване на $COUNT$ като неважни",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5394,7 +5430,7 @@
   "minimumNumberOfWords": {
     "message": "Минимален брой думи"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Тип парола",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6637,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "Изпратена е 1 покана"
+  },
+  "bulkReinviteSentToast": {
+    "message": "Изпратени са $COUNT$ покани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ от $SELECTEDCOUNT$ повторно поканени потребители. $EXCLUDEDCOUNT$ не бяха поканени, поради ограничението от $LIMIT$.",
     "placeholders": {
@@ -6653,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "Изпратени са $COUNT$ от $TOTAL$ покани…",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Оставете тази страница отворена, докато приключи изпращането на поканите."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ покани не бяха изпратени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 покана не беше изпратена"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Възникна грешка при изпращането на покани до $COUNT$ от общо $TOTAL$ членове. Опитайте да изпратите поканите отново, а ако този проблем се повтаря,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Опитайте да изпратите отново"
   },
   "bulkRemovedMessage": {
     "message": "Успешно премахване"
@@ -10092,6 +10184,9 @@
   "assignTasks": {
     "message": "Назначаване на задачи"
   },
+  "allTasksAssigned": {
+    "message": "Всички задачи бяха разпределени"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Изпращане на известия за промяна на пароли"
   },
@@ -11804,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "Елементът беше преместен в архива"
   },
-  "itemsWereSentToArchive": {
-    "message": "Елементите бяха преместени в архива"
-  },
   "itemWasUnarchived": {
     "message": "Елементът беше изваден от архива"
   },
@@ -12490,6 +12582,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Наистина ли искате да продължите?"
   },
+  "errorCannotDecrypt": {
+    "message": "Грешка: не може да се дешифрира"
+  },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
@@ -12794,5 +12889,54 @@
   },
   "perUser": {
     "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Надграждане до екипния план"
+  },
+  "upgradeToEnterprise": {
+    "message": "Надграждане до плана за големи организации"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Споделяйте още повече със Семейния план, или преминете към подсилената защита на паролите с Екипния план или този за големи организации"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Цените не включват данък и се заплащат веднъж годишно."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Възникна грешка при създаването на предварителния вид на фактурата."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Пропорционално членство в план „$PLAN$“ ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Членство в план за големи организации"
+  },
+  "teamsMembership": {
+    "message": "Членство в екипен план"
+  },
+  "plansUpdated": {
+    "message": "Вие надградихте до $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Възникна грешка при обновяването на разплащателния метод."
   }
 }

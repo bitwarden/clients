@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Vous n'avez pas l'autorisation de modifier cet élément"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Examinez les mots de passe à risque (faibles, exposés ou réutilisés) à travers les applications. Sélectionnez vos applications les plus critiques pour prioriser les actions de sécurité pour que vos utilisateurs s'occupent des mots de passe à risque."
+  "reviewAccessIntelligence": {
+    "message": "Examinez les rapports de sécurité pour trouver et corriger les risques liés aux identifiants avant de les escalader."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Examiner les identifiants à risque"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marquées comme critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marquées comme non critiques",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Marquer $COUNT$ comme critique(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Marquer $COUNT$ comme non critique(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5394,8 +5430,8 @@
   "minimumNumberOfWords": {
     "message": "Nombre minimum de mots"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Type de Mot de Passe",
+  "passwordTypePolicyOverride": {
+    "message": "Type de mot de passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6637,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation envoyée"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations envoyées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ des utilisateurs de $SELECTEDCOUNT$ ont été ré-invités. $EXCLUDEDCOUNT$ n'ont pas été invités en raison de la limite d'invitation de $LIMIT$.",
     "placeholders": {
@@ -6653,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ de $TOTAL$ invitations envoyées...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Garder cette page ouverte jusqu'à ce que tout soit envoyé."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations non pas été envoyées",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation n'a pas été envoyée"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Une erreur s'est produite lors de l'envoi des invitations à $COUNT$ des $TOTAL$ membres. Essayez d'envoyer à nouveau et si le problème persiste,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Essayez d'envoyer à nouveau"
   },
   "bulkRemovedMessage": {
     "message": "Supprimé avec succès"
@@ -10092,6 +10184,9 @@
   "assignTasks": {
     "message": "Assigner des tâches"
   },
+  "allTasksAssigned": {
+    "message": "Toutes les tâches ont été assignées"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Envoyer des notifications pour modifier les mots de passe"
   },
@@ -11804,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "L'élément a été envoyé à l'archive"
   },
-  "itemsWereSentToArchive": {
-    "message": "Les éléments ont été envoyés à l'archive"
-  },
   "itemWasUnarchived": {
     "message": "L'élément a été désarchivé"
   },
@@ -12490,6 +12582,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Êtes-vous sûr de vouloir continuer ?"
   },
+  "errorCannotDecrypt": {
+    "message": "Erreur: Impossible de déchiffrer"
+  },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
   },
@@ -12794,5 +12889,54 @@
   },
   "perUser": {
     "message": "par utilisateur"
+  },
+  "upgradeToTeams": {
+    "message": "Mettre à niveau vers Équipes"
+  },
+  "upgradeToEnterprise": {
+    "message": "Mettre à niveau vers Entreprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Partagez encore plus avec Familles, ou obtenez une sécurité de mot de passe puissante et fiable avec Équipes ou Entreprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Les prix excluent les taxes et sont facturés annuellement."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Une erreur s'est produite lors de la génération de l'aperçu de la facture."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Adhésion à $PLAN$ au prorata ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Crédit d'abonnement Premium"
+  },
+  "enterpriseMembership": {
+    "message": "Adhésion à Entreprise"
+  },
+  "teamsMembership": {
+    "message": "Adhésion à Équipes"
+  },
+  "plansUpdated": {
+    "message": "Vous avez mis à niveau vers $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Une erreur s'est produite lors de la mise à jour de votre mode de paiement."
   }
 }

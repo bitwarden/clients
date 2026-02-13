@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Herzie risicovolle wachtwoorden (zwak, blootgelegd of herbruikt) tussen applicaties. Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risicovolle wachtwoorden aan te pakken."
+  "reviewAccessIntelligence": {
+    "message": "Bekijk veiligheidsrapportages om risicovolle inloggegevens te vinden en verhelpen voordat ze uit de hand lopen."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Risicovolle logins bekijken"
@@ -268,6 +268,42 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applicaties als belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applicaties als niet-belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "$COUNT$ belangrijk markeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "$COUNT$ niet-belangrijk markeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Kon applicaties niet als kritiek markeren"
   },
@@ -389,10 +425,10 @@
     "message": "Nu beoordelen"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "Alles bijgewerkt!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "Geen nieuwe toepassingen om te beoordelen op dit moment"
   },
   "organizationHasItemsSavedForApplications": {
     "message": "Je organisatie heeft items opgeslagen voor $COUNT$ applicaties",
@@ -428,16 +464,16 @@
     "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
+    "message": "Beoordeling opgeslagen"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Nieuwe toepassingen beoordeeld"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Fout bij opslaan beoordelingsstatus"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Probeer opnieuw"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -1248,7 +1284,7 @@
     "message": "Alles selecteren"
   },
   "deselectAll": {
-    "message": "Deselect all"
+    "message": "Selectie ongedaan maken"
   },
   "unselectAll": {
     "message": "Alles deselecteren"
@@ -1441,7 +1477,7 @@
     "message": "Single sign-on gebruiken"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Je organisatie vereist single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -5394,7 +5430,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum aantal woorden"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Type wachtwoord",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -5664,7 +5700,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send succesvol aangemaakt!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
@@ -5698,7 +5734,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ uur",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5707,11 +5743,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "Nieuwe Send (tekst)",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "Nieuwe Send (bestand)",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -6637,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 uitnodiging verzonden"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ uitnodigingen verzonden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ van $SELECTEDCOUNT$ gebruikers opnieuw uitgenodigd. $EXCLUDEDCOUNT$ werden niet uitgenodigd vanwege de $LIMIT$ uitnodigingslimiet.",
     "placeholders": {
@@ -6653,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ van $TOTAL$ uitnodigingen verzonden...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Houd deze pagina open totdat alles is verstuurd."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ uitnodigingen niet verzonden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "$COUNT$ uitnodiging niet verzonden"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Er is een fout opgetreden tijdens het verzenden van uitnodigingen naar $COUNT$ van $TOTAL$ leden. Probeer het opnieuw te verzenden en als het probleem aanhoudt,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Probeer opnieuw te verzenden"
   },
   "bulkRemovedMessage": {
     "message": "Succesvol verwijderd"
@@ -7353,7 +7445,7 @@
     "message": "SSO ingeschakeld"
   },
   "ssoTurnedOff": {
-    "message": "SSO turned off"
+    "message": "SSO uitgeschakeld"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ moet met Single Sign-on inloggen",
@@ -9644,7 +9736,7 @@
     "message": "SSO login is vereist"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "E-mail is vereist voor SSO"
   },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
@@ -10091,6 +10183,9 @@
   },
   "assignTasks": {
     "message": "Taken toewijzen"
+  },
+  "allTasksAssigned": {
+    "message": "Alle taken zijn toegewezen"
   },
   "assignSecurityTasksToMembers": {
     "message": "Meldingen verzenden om wachtwoorden te wijzigen"
@@ -11773,7 +11868,7 @@
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Archief doorzoeken"
   },
   "archiveNoun": {
     "message": "Archief",
@@ -11796,15 +11891,12 @@
     "message": "Items in archief"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Geen items in archief"
   },
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
   "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
-  },
-  "itemsWereSentToArchive": {
     "message": "Item naar archief verzonden"
   },
   "itemWasUnarchived": {
@@ -12490,8 +12582,11 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Weet je zeker dat je wilt doorgaan?"
   },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
+  },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Gebruikersverificatie is mislukt."
   },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
@@ -12583,16 +12678,16 @@
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Weet je zeker dat je wilt verlaten?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Door te weigeren, blijven je persoonlijke items in je account, maar verlies je toegang tot gedeelde items en organisatiefunctionaliteit."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Neem contact op met je beheerder om weer toegang te krijgen."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ verlaten",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12601,10 +12696,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Hoe beheer ik mijn kluis?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Items overdragen aan $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12613,7 +12708,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12622,13 +12717,13 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Weigeren en verlaten"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Waarom zie ik dit?"
   },
   "youHaveBitwardenPremium": {
     "message": "Je hebt Bitwarden Premium"
@@ -12679,16 +12774,16 @@
     "message": "Online beveiliging voltooien"
   },
   "updatePayment": {
-    "message": "Update payment"
+    "message": "Betalingswijze bijwerken"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+    "message": "We konden je betaling niet verwerken. Werk je betalingsmethode bij of neem contact op met het ondersteuningsteam voor assistentie."
   },
   "yourSubscriptionHasExpired": {
-    "message": "Your subscription has expired. Please contact the support team for assistance."
+    "message": "Je abonnement is verlopen. Neem voor hulp contact op met het supportteam."
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "message": "Je abonnement verloopt op $DATE$. Je kunt het op elk gewenst moment hervatten.",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -12697,10 +12792,10 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+    "message": "Deel nog meer met Families, of krijg krachtige, betrouwbare wachtwoordbeveiliging met Teams of Enterprise."
   },
   "youHaveAGracePeriod": {
-    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "message": "Je hebt een periode van $DAYS$ dagen tot de vervaldatum van je abonnement. Probeer de achterstallige facturen vóór $DATE$ op te lossen.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -12713,31 +12808,31 @@
     }
   },
   "manageInvoices": {
-    "message": "Manage invoices"
+    "message": "Facturen beheren"
   },
   "yourNextChargeIsFor": {
-    "message": "Your next charge is for"
+    "message": "Je volgende betaling is voor"
   },
   "dueOn": {
-    "message": "due on"
+    "message": "verschuldigd op"
   },
   "yourSubscriptionWillBeSuspendedOn": {
-    "message": "Your subscription will be suspended on"
+    "message": "Je abonnement zal worden opgeschort op"
   },
   "yourSubscriptionWasSuspendedOn": {
-    "message": "Your subscription was suspended on"
+    "message": "Je abonnement is opgeschort op"
   },
   "yourSubscriptionWillBeCanceledOn": {
-    "message": "Your subscription will be canceled on"
+    "message": "Je abonnement zal worden geannuleerd op"
   },
   "yourSubscriptionWasCanceledOn": {
-    "message": "Your subscription was canceled on"
+    "message": "Je abonnement is geannuleerd op"
   },
   "storageFull": {
-    "message": "Storage full"
+    "message": "Opslag is vol"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "Je hebt $USED$ gebruikt van de $AVAILABLE$ GB versleutelde bestandsopslag.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12750,7 +12845,7 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "Je hebt alle $GB$ GB aan versleutelde opslag gebruikt. Voeg meer opslagruimte toe om door te gaan met het opslaan van bestanden."
   },
   "whoCanView": {
     "message": "Wie kan weergeven"
@@ -12794,5 +12889,54 @@
   },
   "perUser": {
     "message": "per gebruiker"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade naar Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgraden naar Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Deel nog meer met Families, of krijg krachtige, betrouwbare wachtwoordbeveiliging met Teams of Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Fout opgetreden bij het genereren van de voorbeeldfactuur."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Verrekening lidmaatschap $PLAN$ ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Krediet Premium-abonnement"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise-lidmaatschap"
+  },
+  "teamsMembership": {
+    "message": "Teams-lidmaatschap"
+  },
+  "plansUpdated": {
+    "message": "Je hebt opgewaardeerd naar $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Er is een fout opgetreden bij het bijwerken van je betaalmethode."
   }
 }
