@@ -12,7 +12,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 
 @NgModule({
-  imports: [OssModule, OssRoutingModule, AppRoutingModule],
+  imports: [OssModule, AppRoutingModule, OssRoutingModule],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
 })
