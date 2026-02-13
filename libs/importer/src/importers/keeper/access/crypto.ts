@@ -1,5 +1,7 @@
 import * as forge from "node-forge";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { RecordKeyType } from "./generated/record";
 
 const AES_GCM_NONCE_SIZE = 12;
@@ -358,43 +360,12 @@ export async function decryptFolderData(
   }
 }
 
-// Base64 URL encoding/decoding
-
 export function base64UrlEncode(data: Uint8Array): string {
-  // Convert to base64
-  let binary = "";
-  for (let i = 0; i < data.length; i++) {
-    binary += String.fromCharCode(data[i]);
-  }
-  const base64 = btoa(binary);
-  // Convert to base64url
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return Utils.fromB64toUrlB64(Utils.fromBufferToB64(data));
 }
 
 export function base64UrlDecode(text: string): Uint8Array {
-  if (!text) {
-    return new Uint8Array(0);
-  }
-
-  const base64 = text
-    .replace(/-/g, "+")
-    .replace(/_/g, "/")
-    .replace(/=/g, "")
-    .replace(/\r/g, "")
-    .replace(/\n/g, "");
-
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-
-  try {
-    const binary = atob(padded);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-  } catch {
-    return new Uint8Array(0);
-  }
+  return Utils.fromUrlB64ToArray(text);
 }
 
 // Helper functions
