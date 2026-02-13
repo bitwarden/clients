@@ -1,12 +1,12 @@
-import { AsymmetricPublicCryptoKey, UserId } from "@bitwarden/sdk-internal";
+import { PublicKey, UserId } from "@bitwarden/sdk-internal";
 
 /**
  * Result of the trust verification process.
  */
 export type TrustVerificationResult = {
   wasTrustDenied: boolean;
-  trustedOrganizationPublicKeys: AsymmetricPublicCryptoKey[];
-  trustedEmergencyAccessUserPublicKeys: AsymmetricPublicCryptoKey[];
+  trustedOrganizationPublicKeys: PublicKey[];
+  trustedEmergencyAccessUserPublicKeys: PublicKey[];
 };
 
 /**

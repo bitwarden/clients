@@ -25,7 +25,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     private sdkService: SdkService,
     private logService: LogService,
     private dialogService: DialogService,
-  ) {}
+  ) { }
 
   async changePasswordAndRotateUserKey(
     currentMasterPassword: string,
@@ -51,10 +51,14 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
 
           using ref = sdk.take();
           this.logService.info("[UserKey Rotation] Re-encrypting user data with new user key...");
-          await ref.value.user_crypto_management().rotate_user_keys_with_password_change({
-            old_password: currentMasterPassword,
-            password: newMasterPassword,
-            hint,
+          await ref.value.user_crypto_management().rotate_user_keys({
+            master_key_unlock_method: {
+              Password: {
+                old_password: currentMasterPassword,
+                password: newMasterPassword,
+                hint: hint,
+              }
+            },
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
           } as RotateUserKeysRequest);
