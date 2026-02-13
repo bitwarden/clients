@@ -39,7 +39,7 @@
     "message": "Access Intelligence"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "Bu filtrelerle eşleşen uygulama yok"
   },
   "passwordRisk": {
     "message": "Parola Riski"
@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Uygulamalar genelinde risk altındaki parolaları (zayıf, açığa çıkmış veya farklı yerlerde kullanılan) gözden geçirin. Kullanıcılarınız için risk altındaki parolalara yönelik güvenlik eylemlerine öncelik vermek üzere en kritik uygulamalarınızı seçin."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Risk altındaki hesapları inceleyin"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ uygulama kritik olarak işaretlendi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ uygulama kritik olarak işaretlendi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ uygulama kritik değil olarak işaretlendi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "$COUNT$ tane şeyi kritik olarak işaretle",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "$COUNT$ tane şeyi kritik değil olarak işaretle",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5394,7 +5430,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Parola türü",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -5987,7 +6023,7 @@
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
-    "message": "Benefits"
+    "message": "Avantajlar"
   },
   "centralizeDataOwnershipBenefit1": {
     "message": "Gain full visibility into credential health, including shared and unshared items."
@@ -6005,7 +6041,7 @@
     "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
   "centralizeDataOwnershipWarningLink": {
-    "message": "Learn more about the transfer"
+    "message": "Transfer hakkında daha fazla bilgi edinin"
   },
   "organizationDataOwnership": {
     "message": "Kuruluş veri sahipliğini zorunlu kılın"
@@ -6446,10 +6482,10 @@
     "message": "Hesap kurtarmaya kaydolundu"
   },
   "enrolled": {
-    "message": "Enrolled"
+    "message": "Kayıtlı"
   },
   "notEnrolled": {
-    "message": "Not enrolled"
+    "message": "Kayıtlı değil"
   },
   "withdrawAccountRecovery": {
     "message": "Hesap kurtarmadan ayrıl"
@@ -6637,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 davet gönder"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ davet gönder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$SELECTEDCOUNT$ kullanıcıdan $LIMIT$ tanesi yeniden davet edildi. $EXCLUDEDCOUNT$ kullanıcı, $LIMIT$ davet sınırı nedeniyle davet edilmedi.",
     "placeholders": {
@@ -6653,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Tüm davetler gönderilene dek bu sayfayı açık tutunuz."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ davet gönderilmedi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 davet gönderilmedi"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Tekrar göndermeyi dene"
   },
   "bulkRemovedMessage": {
     "message": "Başarıyla kaldırıldı"
@@ -6975,7 +7067,7 @@
     "message": "Kasa zaman aşımı izin verilen aralıkta değil."
   },
   "disableExport": {
-    "message": "Remove export"
+    "message": "Dışa aktarmayı kaldır"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Üyelerin kişisel kasalarındaki verileri dışa aktarmasına izin verme."
@@ -10092,6 +10184,9 @@
   "assignTasks": {
     "message": "Görev ata"
   },
+  "allTasksAssigned": {
+    "message": "Tüm görevler atandı"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Parolaları değiştirmek için bildirim gönder"
   },
@@ -10611,10 +10706,10 @@
     "message": "İndeks"
   },
   "httpEventCollectorUrl": {
-    "message": "HTTP Event Collector URL"
+    "message": "HTTP Olay Toplayıcı URL'si"
   },
   "httpEventCollectorToken": {
-    "message": "HTTP Event Collector Token"
+    "message": "HTTP Olay Toplayıcı Token'i"
   },
   "selectAPlan": {
     "message": "Bir plan seçin"
@@ -11804,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
-  "itemsWereSentToArchive": {
-    "message": "Kayıtlar arşive gönderildi"
-  },
   "itemWasUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
@@ -12449,46 +12541,49 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yaparak devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Alan Adı"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş yapmak için kuruluşunuzu doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Kuruluş doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Alan adı doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Kuruluşunuzu doğrulamazsanız, kuruluşa erişiminiz iptal edilecektir."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş yapmak için alan adınızı doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş yaparak devam etmek için bu alan adını doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş yaparak devam etmek için kuruluşu ve alan adını doğrulayın."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Hiçbir kritik uygulama seçili değil"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Devam etmek istediğinizden emin misiniz?"
+  },
+  "errorCannotDecrypt": {
+    "message": "Hata: Deşifre edilemiyor"
   },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
@@ -12509,13 +12604,13 @@
     "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Replace encryption key"
+    "message": "Şifreleme anahtarını değiştir"
   },
   "recoveryReplacePrivateKeyDesc": {
     "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
   },
   "recoveryStepSyncTitle": {
-    "message": "Synchronizing data"
+    "message": "Veri eşitleme"
   },
   "recoveryStepPrivateKeyTitle": {
     "message": "Verifying encryption key integrity"
@@ -12536,13 +12631,13 @@
     "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
   },
   "runDiagnostics": {
-    "message": "Run Diagnostics"
+    "message": "Tanılamayı Çalıştır"
   },
   "repairIssues": {
     "message": "Repair Issues"
   },
   "saveDiagnosticLogs": {
-    "message": "Save Diagnostic Logs"
+    "message": "Tanılama Günlüklerini Kaydet"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Bu ayar kuruluşunuz tarafından yönetiliyor."
@@ -12583,16 +12678,16 @@
     "message": "Zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Ayrılmak istediğinizden emin misiniz?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Reddederseniz kişisel kayıtlarınız hesabınızda kalır, ancak paylaşılan kayıtlara ve kuruluş özelliklerine erişiminizi kaybedersiniz."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Erişiminizi yeniden kazanmak için yöneticinizle iletişime geçin."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ kuruluşundan ayrıl",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12601,10 +12696,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Kasamı nasıl yönetebilirim?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Kayıtları $ORGANIZATION$ kuruluşuna aktar",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12613,7 +12708,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor. Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12622,22 +12717,22 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Reddet ve ayrıl"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Bunu neden görüyorum?"
   },
   "youHaveBitwardenPremium": {
     "message": "Bitwarden Premium abonesisiniz"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Premium aboneliğinizi görüntüleyin ve yönetin"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Lisans dosyanızı güncellemeniz gerekecektir"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12649,16 +12744,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "Lisans dosyasını yükle"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "Lisans dosyasınızı yükleyin"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Premium lisans dosyasınızı yükleyin"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Lisans dosyanızın adı şuna benzer olacaktır: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12667,13 +12762,13 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Halihazırda bir aboneliğiniz var mı?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Tüm planları görüntüle"
   },
   "planDescPremium": {
     "message": "Eksiksiz çevrimiçi güvenlik"
@@ -12722,16 +12817,16 @@
     "message": "due on"
   },
   "yourSubscriptionWillBeSuspendedOn": {
-    "message": "Your subscription will be suspended on"
+    "message": "Aboneliğiniz şu tarihte askıya alınacaktır"
   },
   "yourSubscriptionWasSuspendedOn": {
-    "message": "Your subscription was suspended on"
+    "message": "Aboneliğiniz şu tarihte askıya alındı"
   },
   "yourSubscriptionWillBeCanceledOn": {
-    "message": "Your subscription will be canceled on"
+    "message": "Aboneliğiniz şu tarihte iptal edilecektir"
   },
   "yourSubscriptionWasCanceledOn": {
-    "message": "Your subscription was canceled on"
+    "message": "Aboneliğiniz şu tarihte iptal edildi"
   },
   "storageFull": {
     "message": "Depolama alanı dolu"
@@ -12783,7 +12878,7 @@
     "message": "Premium abonesiniz"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-posta korumalı"
   },
   "invalidSendPassword": {
     "message": "Geçersiz Send parolası"
@@ -12793,6 +12888,55 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "perUser": {
-    "message": "per user"
+    "message": "kişi başı"
+  },
+  "upgradeToTeams": {
+    "message": "Ekip planına yükselt"
+  },
+  "upgradeToEnterprise": {
+    "message": "Kurumsal planına yükselt"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Fiyatlara vergi dahil değildir ve yıllık olarak faturalandırılır."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium abonelik kredisi"
+  },
+  "enterpriseMembership": {
+    "message": "Kurumsal üyelik"
+  },
+  "teamsMembership": {
+    "message": "Ekip üyeliği"
+  },
+  "plansUpdated": {
+    "message": "$PLAN$ planına geçtiniz!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Ödeme yönteminizi güncellerken bir hata oluştu."
   }
 }
