@@ -28,7 +28,7 @@ import {
   AutoConfirmExtensionSetupDialogComponent,
   AutoConfirmState,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
