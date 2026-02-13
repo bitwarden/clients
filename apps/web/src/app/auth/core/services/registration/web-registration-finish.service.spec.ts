@@ -13,7 +13,6 @@ import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/r
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -234,7 +233,6 @@ describe("WebRegistrationFinishService", () => {
 
     it("throws an error if the user key cannot be created", async () => {
       keyService.makeUserKey.mockResolvedValue([null, null]);
-      configService.getFeatureFlag.mockResolvedValue(false);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -242,10 +240,6 @@ describe("WebRegistrationFinishService", () => {
     });
 
     describe("when feature flag is OFF (old API)", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-      });
-
       it("registers the user with KDF fields when given valid email verification input", async () => {
         keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
         keyService.makeKeyPair.mockResolvedValue(userKeyPair);
@@ -256,9 +250,6 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-        );
         expect(accountApiService.registerFinish).toHaveBeenCalledWith(
           expect.objectContaining({
             email,
@@ -375,7 +366,18 @@ describe("WebRegistrationFinishService", () => {
 
     describe("when feature flag is ON (new API)", () => {
       beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
+        // and does NOT emit newMasterKey, newServerMasterKeyHash, or newLocalMasterKeyHash.
+        passwordInputResult = {
+          newPassword: "newPassword",
+          kdfConfig: DEFAULT_KDF_CONFIG,
+          newPasswordHint: "newPasswordHint",
+          newApisWithInputPasswordFlagEnabled: true,
+        };
+
+        // The service derives the master key internally when the Auth flag is ON
+        keyService.makeMasterKey.mockResolvedValue(masterKey);
+
         masterPasswordService.emailToSalt.mockReturnValue(salt);
         masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
           masterPasswordAuthentication,
@@ -383,7 +385,7 @@ describe("WebRegistrationFinishService", () => {
         masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
       });
 
-      it("registers the user with new data types when given valid email verification input", async () => {
+      it("derives the master key and registers the user with new data types", async () => {
         keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
         keyService.makeKeyPair.mockResolvedValue(userKeyPair);
         accountApiService.registerFinish.mockResolvedValue();
@@ -391,11 +393,14 @@ describe("WebRegistrationFinishService", () => {
 
         await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
+        // Verify master key is derived internally (not from passwordInputResult)
+        expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+          passwordInputResult.newPassword,
+          email.trim().toLowerCase(),
+          passwordInputResult.kdfConfig,
+        );
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-        );
         expect(accountApiService.registerFinish).toHaveBeenCalledWith(
           expect.objectContaining({
             email,

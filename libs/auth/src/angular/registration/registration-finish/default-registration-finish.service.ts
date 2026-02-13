@@ -4,7 +4,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/registration/register-finish-v2.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import {
   EncryptedString,
   EncString,
@@ -45,9 +45,56 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerInviteToken?: string,
     providerUserId?: string,
   ): Promise<void> {
-    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
-      passwordInputResult.newMasterKey,
-    );
+    /**
+     * "KM flag"   = (does not yet exist for registration — KM team has an in-progress PR)
+     * "Auth flag" = PM27086_UpdateAuthenticationApisForInputPassword (checked in InputPasswordComponent
+     *               and passed through via PasswordInputResult.newApisWithInputPasswordFlagEnabled)
+     *
+     * Flag unwinding will depend on which flag gets unwound first:
+     * - If KM flag gets unwound first, remove all code after the KM V2 path,
+     *   as the V2Encryption method is the end-goal.
+     * - If Auth flag gets unwound first (in PM-28143), keep the KM code & early return,
+     *   but unwind the auth flagging logic and remove the "Scenario 2" code.
+     */
+
+    // Scenario 1: KM V2 flag ON (placeholder — to be added when KM's registration V2 PR lands)
+    // const accountEncryptionV2 = await this.configService.getFeatureFlag(
+    //   FeatureFlag.EnableAccountEncryptionV2Registration, // flag name TBD by KM team
+    // );
+    // if (accountEncryptionV2) {
+    //   // SDK path — end goal. Replaces all key derivation below.
+    //   return;
+    // }
+
+    let newUserKey: UserKey;
+    let newEncUserKey: EncString;
+
+    // Scenario 2: KM flag OFF, Auth flag ON
+    if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+      /**
+       * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
+       * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here.
+       *
+       * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
+       */
+      const ctx = "Could not finish registration.";
+      assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+      assertTruthy(email, "email", ctx);
+
+      const newMasterKey = await this.keyService.makeMasterKey(
+        passwordInputResult.newPassword,
+        email.trim().toLowerCase(),
+        passwordInputResult.kdfConfig,
+      );
+
+      [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(newMasterKey);
+    } else {
+      // Default Scenario: both flags OFF
+      [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
+        passwordInputResult.newMasterKey,
+      );
+    }
 
     if (!newUserKey || !newEncUserKey) {
       throw new Error("User key could not be created");
@@ -89,9 +136,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       userAsymmetricKeys[1].encryptedString,
     );
 
-    const useNewApi = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-    );
+    const useNewApi = passwordInputResult.newApisWithInputPasswordFlagEnabled ?? false;
 
     if (useNewApi) {
       // New API path - use V2 request with new data types
