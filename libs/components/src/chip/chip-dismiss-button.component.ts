@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input } from "@angular/core";
 
+import { AriaDisableDirective } from "../a11y/aria-disable.directive";
 import { IconComponent } from "../icon/icon.component";
 import { ariaDisableElement } from "../utils/aria-disable-element";
-import { AriaDisableDirective } from "../a11y/aria-disable.directive";
 
 @Component({
   selector: "button[bitChipDismissButton]",
