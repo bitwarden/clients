@@ -72,7 +72,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  PM29437_WelcomeDialogNoExt = "pm-29437-welcome-dialog-no-ext-prompt",
+  PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
 
   /* Platform */
@@ -141,7 +141,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
-  [FeatureFlag.PM29437_WelcomeDialogNoExt]: FALSE,
+  [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,

@@ -79,7 +79,7 @@ export class WebVaultPromptService {
       return false;
     }
 
-    const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialogNoExt);
+    const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialog);
     if (!enabled) {
       return false;
     }

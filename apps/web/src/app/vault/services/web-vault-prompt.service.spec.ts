@@ -267,7 +267,7 @@ describe("WebVaultPromptService", () => {
 
       await service.conditionallyShowWelcomeDialog();
 
-      expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM29437_WelcomeDialogNoExt);
+      expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM29437_WelcomeDialog);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
