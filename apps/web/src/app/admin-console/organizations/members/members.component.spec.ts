@@ -515,11 +515,11 @@ describe("vNextMembersComponent", () => {
       };
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: true });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkReinvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser.id]);
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
     });
 
@@ -549,7 +549,7 @@ describe("vNextMembersComponent", () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       const error = new Error("Bulk reinvite failed");
-      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: false, failed: error });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [], failed: error });
 
       await component.bulkReinvite(mockOrg);
 
