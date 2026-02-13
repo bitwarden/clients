@@ -532,6 +532,10 @@ export class CipherService implements CipherServiceAbstraction {
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]] | null> {
+    if (ciphers.length === 0) {
+      return [[], []];
+    }
+
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
 
@@ -2403,6 +2407,12 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    // Short-circuit if there are no ciphers to decrypt
+    // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
+    if (ciphers.length === 0) {
+      return [[], []];
+    }
+
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
         ciphers,
