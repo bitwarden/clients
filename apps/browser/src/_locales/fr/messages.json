@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines. Vous devez actualiser la page pour que les modifications prennent effet."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines pour tous les comptes connectés. Vous devez actualiser la page pour que les modifications prennent effet."
-  },
   "blockedDomainsDesc": {
     "message": "La saisie automatique et d'autres fonctionnalités connexes ne seront pas proposées pour ces sites web. Vous devez actualiser la page pour que les modifications soient prises en compte."
   },
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Numéro de carte"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"

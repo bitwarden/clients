@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Noildzes darbība"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"
   },
