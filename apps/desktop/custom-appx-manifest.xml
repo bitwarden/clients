@@ -92,8 +92,8 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
              MaxVersionTested is a REQUIRED schema attribute (cannot be omitted).
              Set to 99999 for future-proofing - eliminates need to bump with Windows updates.
              Before custom manifest, electron-builder auto-generated this (10.0.14316.0). -->
-        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14316.0"
-            MaxVersionTested="10.0.99999.0" />
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0"
+            MaxVersionTested="10.0.26200.0" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
