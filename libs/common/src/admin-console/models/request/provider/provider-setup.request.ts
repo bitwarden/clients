@@ -1,4 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
+
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 // @ts-strict-ignore
 interface TokenizedPaymentMethod {
   type: "bankAccount" | "card" | "payPal";
@@ -20,7 +23,7 @@ export class ProviderSetupRequest {
   businessName: string;
   billingEmail: string;
   token: string;
-  key: string;
+  key: UnsignedSharedKey;
   paymentMethod: TokenizedPaymentMethod;
   billingAddress: BillingAddress;
 }

@@ -14,10 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -33,6 +30,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 
@@ -66,7 +64,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<UnsignedSharedKey> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -90,7 +88,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     // RSA Encrypt user key with organization's public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    return encryptedKey.encryptedString;
+    return encryptedKey;
   }
 
   /**
@@ -135,7 +133,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
     // Decrypt User's Reset Password Key to get UserKey
     const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.resetPasswordKey),
+      response.resetPasswordKey,
       decPrivateKey,
     );
     const existingUserKey = userKey as UserKey;

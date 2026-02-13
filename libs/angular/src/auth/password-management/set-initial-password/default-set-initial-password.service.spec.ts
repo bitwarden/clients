@@ -51,6 +51,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import {
+  UnsignedSharedKey,
   AuthClient,
   BitwardenClient,
   WrappedAccountCryptographicState,
@@ -142,7 +143,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let keysRequest: KeysRequest;
 
     let organizationKeys: OrganizationKeysResponse;
-    let orgPublicKeyEncryptedUserKey: EncString;
+    let orgPublicKeyEncryptedUserKey: UnsignedSharedKey;
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
@@ -178,7 +179,7 @@ describe("DefaultSetInitialPasswordService", () => {
         privateKey: "orgPrivateKey",
         publicKey: "orgPublicKey",
       } as OrganizationKeysResponse;
-      orgPublicKeyEncryptedUserKey = new EncString("orgPublicKeyEncryptedUserKey");
+      orgPublicKeyEncryptedUserKey = "orgPublicKeyEncryptedUserKey" as UnsignedSharedKey;
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
@@ -197,7 +198,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
       enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
-      enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+      enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey;
     });
 
     interface MockConfig {
@@ -527,7 +528,7 @@ describe("DefaultSetInitialPasswordService", () => {
                 if (property === "orgPublicKeyEncryptedUserKey") {
                   orgPublicKeyEncryptedUserKey = null;
                 } else {
-                  orgPublicKeyEncryptedUserKey.encryptedString = "" as EncryptedString;
+                  orgPublicKeyEncryptedUserKey = "" as UnsignedSharedKey;
                 }
 
                 setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });

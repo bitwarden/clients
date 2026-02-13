@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../../models/response/base.response";
 
@@ -12,7 +14,7 @@ export interface IWebAuthnPrfDecryptionOptionServerResponse {
 
 export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
   encryptedPrivateKey: EncString;
-  encryptedUserKey: EncString;
+  encryptedUserKey: UnsignedSharedKey;
   credentialId: string;
   transports: string[];
 
@@ -26,7 +28,7 @@ export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
 
     const encUserKey = this.getResponseProperty("EncryptedUserKey");
     if (encUserKey) {
-      this.encryptedUserKey = new EncString(encUserKey);
+      this.encryptedUserKey = encUserKey as UnsignedSharedKey;
     }
 
     this.credentialId = this.getResponseProperty("CredentialId");

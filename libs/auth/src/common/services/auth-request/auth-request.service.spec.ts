@@ -5,7 +5,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
@@ -16,6 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
@@ -89,9 +89,9 @@ describe("AuthRequestService", () => {
 
   describe("approveOrDenyAuthRequest", () => {
     beforeEach(() => {
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-        encryptedString: "ENCRYPTED_STRING",
-      } as EncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
+        "ENCRYPTED_STRING" as UnsignedSharedKey,
+      );
       appIdService.getAppId.mockResolvedValue("APP_ID");
     });
     it("should throw if auth request is missing id or key", async () => {
@@ -221,13 +221,13 @@ describe("AuthRequestService", () => {
 
       // Act
       const result = await sut.decryptPubKeyEncryptedUserKey(
-        mockPubKeyEncryptedUserKey,
+        mockPubKeyEncryptedUserKey as UnsignedSharedKey,
         mockPrivateKey,
       );
 
       // Assert
       expect(encryptService.decapsulateKeyUnsigned).toBeCalledWith(
-        new EncString(mockPubKeyEncryptedUserKey),
+        mockPubKeyEncryptedUserKey,
         mockPrivateKey,
       );
       expect(result).toEqual(mockDecryptedUserKey);

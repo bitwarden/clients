@@ -59,7 +59,7 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
@@ -397,10 +397,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async setProviderKeys(providers: ProfileProviderResponse[], userId: UserId): Promise<void> {
     await this.stateProvider.getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS).update(() => {
-      const encProviderKeys: { [providerId: ProviderId]: EncryptedString } = {};
+      const encProviderKeys: { [providerId: ProviderId]: UnsignedSharedKey } = {};
 
       providers.forEach((provider) => {
-        encProviderKeys[provider.id as ProviderId] = provider.key as EncryptedString;
+        encProviderKeys[provider.id as ProviderId] = provider.key;
       });
 
       return encProviderKeys;
@@ -427,7 +427,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PROVIDER_KEYS, null, userId);
   }
 
-  async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
+  async makeOrgKey<T extends OrgKey | ProviderKey>(
+    userId: UserId,
+  ): Promise<[UnsignedSharedKey, T]> {
     if (userId == null) {
       throw new Error("UserId is required");
     }
@@ -826,7 +828,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       // Convert each value in the record to it's own decryption observable
       convertValues(async (_, value) => {
         const decapsulatedKey = await this.encryptService.decapsulateKeyUnsigned(
-          new EncString(value),
+          value,
           userPrivateKey,
         );
         return decapsulatedKey as ProviderKey;
@@ -881,7 +883,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           switchMap(async ([encryptedOrgKeys, providerKeys]) => {
             const userPubKey = await this.derivePublicKey(userPrivateKey);
 
-            const result: Record<OrganizationId, EncString> = {};
+            const result: Record<OrganizationId, UnsignedSharedKey> = {};
             encryptedOrgKeys = encryptedOrgKeys ?? {};
             for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
               if (result[orgId] != null) {
@@ -892,7 +894,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
                 continue;
               }
 
-              let orgKey: EncString;
+              let orgKey: UnsignedSharedKey;
 
               // Because the SDK only supports user encrypted org keys, we need to re-encrypt
               // any provider encrypted org keys with the user's public key. This should be removed

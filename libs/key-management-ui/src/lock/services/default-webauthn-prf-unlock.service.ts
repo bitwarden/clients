@@ -123,7 +123,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
 
     // Step 2: Use private key to decrypt user key
     const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(prfOption.encryptedUserKey),
+      prfOption.encryptedUserKey,
       privateKey,
     );
 

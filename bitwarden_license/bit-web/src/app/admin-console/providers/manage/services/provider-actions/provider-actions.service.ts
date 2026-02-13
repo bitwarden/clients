@@ -77,9 +77,9 @@ export class ProviderActionsService {
       assertNonNullish(providerKey, "Provider key not found");
 
       const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-      assertNonNullish(key.encryptedString, "No key was provided");
+      assertNonNullish(key, "No key was provided");
 
-      const request = new ProviderUserConfirmRequest(key.encryptedString);
+      const request = new ProviderUserConfirmRequest(key);
       await this.apiService.postProviderUserConfirm(providerId, user.id, request);
       return { success: true };
     } catch (error) {

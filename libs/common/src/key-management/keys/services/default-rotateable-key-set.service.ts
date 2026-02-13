@@ -67,13 +67,13 @@ export class DefaultRotateableKeySetService implements RotateableKeySetService {
       publicKey,
       newDownstreamKey,
     );
-    const newEncryptedRotateableKey = await this.encryptService.encapsulateKeyUnsigned(
+    const encapsulatedDownstreamKey = await this.encryptService.encapsulateKeyUnsigned(
       newDownstreamKey,
       publicKey,
     );
 
     const newRotateableKeySet = new RotateableKeySet<UpstreamKey>(
-      newEncryptedRotateableKey,
+      encapsulatedDownstreamKey,
       newEncryptedPublicKey,
       keySet.encryptedPrivateKey,
     );

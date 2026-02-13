@@ -6,6 +6,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { SelectionReadOnlyResponse } from "@bitwarden/common/admin-console/models/response/selection-read-only.response";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { KdfType } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserResponse extends BaseResponse {
   id: string;
@@ -79,7 +80,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   kdfIterations: number;
   kdfMemory?: number;
   kdfParallelism?: number;
-  resetPasswordKey: string;
+  resetPasswordKey: UnsignedSharedKey;
   encryptedPrivateKey: string;
 
   constructor(response: any) {

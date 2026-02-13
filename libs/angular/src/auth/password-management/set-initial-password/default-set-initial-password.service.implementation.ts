@@ -467,7 +467,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgPublicKey,
     );
 
-    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey.encryptedString) {
+    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey) {
       throw new Error(
         "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
       );
@@ -475,7 +475,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     enrollmentRequest.masterPasswordHash = masterKeyHash;
-    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey;
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       orgId,

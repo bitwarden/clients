@@ -279,7 +279,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
       assertNonNullish(providerKey, "Provider key not found");
 
       const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-      const request = new ProviderUserConfirmRequest(key.encryptedString);
+      const request = new ProviderUserConfirmRequest(key);
       await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);
       return { success: true };
     } catch (error) {

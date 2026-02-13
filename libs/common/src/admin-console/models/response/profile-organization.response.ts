@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -29,7 +31,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   seats: number;
   maxCollections: number;
   maxStorageGb?: number;
-  key: string;
+  key: UnsignedSharedKey;
   hasPublicAndPrivateKeys: boolean;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;

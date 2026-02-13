@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";
@@ -21,7 +23,7 @@ export class RotateableKeySet<UpstreamKey extends SymmetricCryptoKey = Symmetric
 
   constructor(
     /** `DownstreamKey` protected by publicKey */
-    readonly encapsulatedDownstreamKey: EncString,
+    readonly encapsulatedDownstreamKey: UnsignedSharedKey,
 
     /** DownstreamKey encrypted PublicKey */
     readonly encryptedPublicKey: EncString,

@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncString } from "../models/enc-string";
@@ -146,7 +148,7 @@ export abstract class EncryptService {
   abstract encapsulateKeyUnsigned(
     sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
-  ): Promise<EncString>;
+  ): Promise<UnsignedSharedKey>;
   /**
    * Decapsulates a shared symmetric key with an asymmetric private key
    * Note: This does not establish sender authenticity
@@ -157,7 +159,7 @@ export abstract class EncryptService {
    * @throws Error if decapsulation fails
    */
   abstract decapsulateKeyUnsigned(
-    encryptedSharedKey: EncString,
+    encryptedSharedKey: UnsignedSharedKey,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey>;
 

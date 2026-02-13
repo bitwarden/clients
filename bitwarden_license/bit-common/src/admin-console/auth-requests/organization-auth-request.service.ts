@@ -13,6 +13,7 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";
@@ -72,7 +73,7 @@ export class OrganizationAuthRequestService {
         const detail = details.data.find((d) => d.organizationUserId === r.organizationUserId);
         const encryptedKey = await this.getEncryptedUserKey(organizationId, r.publicKey, detail);
 
-        return new OrganizationAuthRequestUpdateRequest(r.id, true, encryptedKey.encryptedString);
+        return new OrganizationAuthRequestUpdateRequest(r.id, true, encryptedKey);
       }),
     );
 
@@ -122,7 +123,7 @@ export class OrganizationAuthRequestService {
     organizationId: string,
     devicePublicKey: string,
     resetPasswordDetails: OrganizationUserResetPasswordDetailsResponse,
-  ): Promise<EncString> {
+  ): Promise<UnsignedSharedKey> {
     const encryptedUserKey = resetPasswordDetails.resetPasswordKey;
     const encryptedOrgPrivateKey = resetPasswordDetails.encryptedPrivateKey;
     const devicePubKey = Utils.fromB64ToArray(devicePublicKey);
@@ -142,7 +143,7 @@ export class OrganizationAuthRequestService {
 
     // Decrypt user key with decrypted org private key
     const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(encryptedUserKey),
+      encryptedUserKey,
       decOrgPrivateKey,
     );
 

@@ -667,7 +667,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.createOrganization) {
         const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
-        const key = orgKey[0].encryptedString;
+        const key = orgKey[0];
         const collection = await this.encryptService.encryptString(
           this.i18nService.t("defaultCollection"),
           orgKey[1],

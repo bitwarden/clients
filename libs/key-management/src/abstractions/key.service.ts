@@ -20,6 +20,7 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { KdfConfig } from "../models/kdf-config";
 
@@ -243,7 +244,9 @@ export abstract class KeyService {
    * @throws Error when no public key is found for the target user.
    * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
-  abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
+  abstract makeOrgKey<T extends OrgKey | ProviderKey>(
+    userId: UserId,
+  ): Promise<[UnsignedSharedKey, T]>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user

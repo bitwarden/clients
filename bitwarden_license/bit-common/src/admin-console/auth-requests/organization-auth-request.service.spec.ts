@@ -6,11 +6,11 @@ import {
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -196,7 +196,7 @@ describe("OrganizationAuthRequestService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const encryptedUserKey = new EncString("encryptedUserKey");
+      const encryptedUserKey = "unsignedSharedKey" as UnsignedSharedKey;
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)),
       );
@@ -213,13 +213,7 @@ describe("OrganizationAuthRequestService", () => {
 
       expect(organizationAuthRequestApiService.bulkUpdatePendingRequests).toHaveBeenCalledWith(
         organizationId,
-        [
-          new OrganizationAuthRequestUpdateRequest(
-            "requestId1",
-            true,
-            encryptedUserKey.encryptedString,
-          ),
-        ],
+        [new OrganizationAuthRequestUpdateRequest("requestId1", true, encryptedUserKey)],
       );
     });
   });
@@ -241,7 +235,7 @@ describe("OrganizationAuthRequestService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const encryptedUserKey = new EncString("encryptedUserKey");
+      const encryptedUserKey = "unsignedSharedKey" as UnsignedSharedKey;
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)),
       );

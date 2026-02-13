@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { DeviceType } from "../../../enums";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { RotateableKeySet } from "../../../key-management/keys/models/rotateable-key-set";
@@ -16,7 +18,7 @@ export class ProtectedDeviceResponse extends BaseResponse {
     this.type = this.getResponseProperty("type");
     this.creationDate = new Date(this.getResponseProperty("creationDate"));
     if (response.encryptedUserKey) {
-      this.encryptedUserKey = new EncString(this.getResponseProperty("encryptedUserKey"));
+      this.encryptedUserKey = this.getResponseProperty("encryptedUserKey");
     }
     if (response.encryptedPublicKey) {
       this.encryptedPublicKey = new EncString(this.getResponseProperty("encryptedPublicKey"));
@@ -32,7 +34,7 @@ export class ProtectedDeviceResponse extends BaseResponse {
    * Intended to be the users symmetric key that is encrypted in some form, the current way to encrypt this is with
    * the devices public key.
    */
-  encryptedUserKey: EncString;
+  encryptedUserKey: UnsignedSharedKey;
   /**
    * Intended to be the public key that was generated for a device upon trust and encrypted. Currenly encrypted using
    * a users symmetric key so that when trusted and unlocked a user can decrypt the public key for all their devices.

@@ -6,10 +6,6 @@ import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.d
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -32,6 +28,7 @@ import {
   KdfType,
   UserKeyRotationKeyRecoveryProvider,
 } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -265,7 +262,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     }
 
     const grantorUserKey = (await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.keyEncrypted),
+      response.keyEncrypted,
       activeUserPrivateKey,
     )) as UserKey;
 
@@ -295,7 +292,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     }
 
     const grantorKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(takeoverResponse.keyEncrypted),
+      takeoverResponse.keyEncrypted,
       activeUserPrivateKey,
     );
     if (grantorKey == null) {
@@ -461,16 +458,18 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     return requests;
   }
 
-  private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
-    const publicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
-      userKey,
-      publicKey,
-    );
+  private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<UnsignedSharedKey> {
+    // Encapsulate the user-key for the grantee's public key. There is no sender authentication provided here!
+    const granteePublicKeyEncapsulatedUnsignedGrantorUserKey =
+      await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    if (publicKeyEncryptedUserKey == null || !publicKeyEncryptedUserKey.encryptedString) {
+    if (
+      granteePublicKeyEncapsulatedUnsignedGrantorUserKey == null ||
+      !granteePublicKeyEncapsulatedUnsignedGrantorUserKey
+    ) {
       throw new Error("publicKeyEncryptedUserKey not found");
     }
 
-    return publicKeyEncryptedUserKey.encryptedString;
+    return granteePublicKeyEncapsulatedUnsignedGrantorUserKey;
   }
 }
