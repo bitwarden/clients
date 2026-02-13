@@ -164,8 +164,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
@@ -332,8 +334,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
@@ -488,8 +492,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs:
@@ -765,8 +771,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs: setup
@@ -1018,8 +1026,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     runs-on: macos-15
     needs:
@@ -1263,8 +1273,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1546,8 +1558,10 @@ jobs:
       matrix:
         include:
           - variant: oss
+            license_type: oss
             artifact_prefix: ""
           - variant: bit
+            license_type: commercial
             artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
