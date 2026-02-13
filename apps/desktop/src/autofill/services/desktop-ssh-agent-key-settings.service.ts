@@ -14,7 +14,7 @@ export class DesktopSshAgentKeySettingsService extends SshAgentKeySettings {
 
   isKeyEnabledForAgent$(cipherId: string): Observable<boolean> {
     return this.desktopSettingsService.sshAgentEnabledKeys$.pipe(
-      map((keys) => keys[cipherId] === true),
+      map((keys) => keys[cipherId] !== false),
     );
   }
 

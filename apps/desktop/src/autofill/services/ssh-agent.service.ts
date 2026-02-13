@@ -161,7 +161,7 @@ export class SshAgentService implements OnDestroy {
               (cipher) =>
                 cipher.type === CipherType.SshKey &&
                 !cipher.isDeleted &&
-                enabledKeys[cipher.id] === true,
+                enabledKeys[cipher.id] !== false,
             );
             const keys = sshCiphers.map((cipher) => {
               return {
@@ -261,7 +261,7 @@ export class SshAgentService implements OnDestroy {
             (cipher) =>
               cipher.type === CipherType.SshKey &&
               !cipher.isDeleted &&
-              enabledKeys[cipher.id] === true,
+              enabledKeys[cipher.id] !== false,
           );
           const keys = sshCiphers.map((cipher) => {
             return {
