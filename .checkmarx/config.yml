@@ -11,8 +11,8 @@ checkmarx:
         # Exclude spec files, and test specific files
         filter: "!*.spec.ts,!**/spec/**,!apps/desktop/native-messaging-test-runner/**"
       kics:
-        filter: "!.devcontainer/**"
+        filter: "!.devcontainer"
       sca:
-        filter: "!.devcontainer/**"
+        filter: "!.devcontainer"
       containers:
-        filter: "!.devcontainer/**"
+        filter: "!.devcontainer"
