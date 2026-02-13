@@ -1,8 +1,10 @@
 import { Injectable, WritableSignal } from "@angular/core";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
+import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -197,7 +199,7 @@ export class MemberDialogManagerService {
   async openBulkStatusDialog(
     users: OrganizationUserView[],
     filteredUsers: OrganizationUserView[],
-    request: Promise<any>,
+    request: Promise<OrganizationUserBulkResponse[] | ProviderUserBulkResponse[]>,
     successMessage: string,
   ): Promise<void> {
     const dialogRef = BulkStatusComponent.open(this.dialogService, {

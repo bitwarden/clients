@@ -223,10 +223,12 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
         }
       } else {
         // Feature flag disabled - show legacy dialog
-        const request = this.apiService.postManyProviderUserReinvite(
-          this.providerId,
-          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-        );
+        const request = this.apiService
+          .postManyProviderUserReinvite(
+            this.providerId,
+            new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+          )
+          .then((response) => response.data);
 
         const dialogRef = BulkStatusComponent.open(this.dialogService, {
           data: {
