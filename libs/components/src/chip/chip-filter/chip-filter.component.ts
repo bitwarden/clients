@@ -19,6 +19,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 
 import { ButtonModule } from "../../button";
+import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
@@ -50,6 +51,7 @@ export type ChipFilterOption<T> = Option<T> & {
     BaseChipDirective,
     ChipContentComponent,
     ChipDismissButtonComponent,
+    IconComponent,
   ],
   providers: [
     {

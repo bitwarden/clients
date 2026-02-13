@@ -59,7 +59,7 @@
           class="tw-text-[length:inherit]"
           [title]="'backTo' | i18n: parent.label ?? placeholderText()"
         >
-          <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
+          <bit-icon slot="start" name="bwi-angle-left" aria-hidden="true"></bit-icon>
           {{ "backTo" | i18n: parent.label ?? placeholderText() }}
         </button>
         <button
@@ -69,7 +69,7 @@
           [title]="'viewItemsIn' | i18n: renderedOptions.label"
           class="tw-text-[length:inherit]"
         >
-          <i slot="start" class="bwi bwi-list" aria-hidden="true"></i>
+          <bit-icon slot="start" name="bwi-list" aria-hidden="true"></bit-icon>
           {{ "viewItemsIn" | i18n: renderedOptions.label }}
         </button>
       }
@@ -86,11 +86,11 @@
           [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
         >
           @if (option.icon) {
-            <i slot="start" class="bwi" [ngClass]="option.icon" aria-hidden="true"></i>
+            <bit-icon slot="start" name="{{ option.icon }}" aria-hidden="true"></bit-icon>
           }
           {{ option.label }}
           @if (option.children?.length) {
-            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+            <bit-icon slot="end" name="bwi-angle-right" aria-hidden="true"></bit-icon>
           }
         </button>
       }
