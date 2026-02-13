@@ -80,13 +80,9 @@
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <!-- MinVersion 10.0.17763.0 = Windows 10 v1809 (October 2018)
-             Provides broad compatibility while supporting Electron 39 requirements.
-             MaxVersionTested is a REQUIRED schema attribute (cannot be omitted).
-             Set to 99999 for future-proofing - eliminates need to bump with Windows updates.
-             Before custom manifest, electron-builder auto-generated this (10.0.14316.0). -->
-        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0"
-            MaxVersionTested="10.0.26200.0" />
+        <!-- MinVersion 10.0.14316.0 = Windows 10 2016 Anniversary Update (April 2016) -->
+        <TargetDeviceFamily Name="Windows.Desktop"
+          MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
