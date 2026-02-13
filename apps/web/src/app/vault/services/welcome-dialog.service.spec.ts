@@ -54,18 +54,16 @@ describe("WelcomeDialogService", () => {
     it("should not show dialog when no active account", async () => {
       activeAccount$.next(null);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(false);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
     it("should not show dialog when feature flag is disabled", async () => {
       getFeatureFlag.mockResolvedValueOnce(false);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(false);
       expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM29437_WelcomeDialog);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
@@ -74,9 +72,8 @@ describe("WelcomeDialogService", () => {
       activeAccount$.next(createAccount({ creationDate: undefined }));
       getFeatureFlag.mockResolvedValueOnce(true);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(false);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
@@ -85,9 +82,8 @@ describe("WelcomeDialogService", () => {
       activeAccount$.next(createAccount({ creationDate: overThirtyDaysAgo }));
       getFeatureFlag.mockResolvedValueOnce(true);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(false);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
@@ -96,9 +92,8 @@ describe("WelcomeDialogService", () => {
       getFeatureFlag.mockResolvedValueOnce(true);
       getUserState$.mockReturnValueOnce(of(true));
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(false);
       expect(mockDialogOpen).not.toHaveBeenCalled();
     });
 
@@ -108,9 +103,8 @@ describe("WelcomeDialogService", () => {
       getUserState$.mockReturnValueOnce(of(false));
       mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(true);
       expect(mockDialogOpen).toHaveBeenCalled();
     });
 
@@ -121,9 +115,8 @@ describe("WelcomeDialogService", () => {
       getUserState$.mockReturnValueOnce(of(false));
       mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);
 
-      const result = await service.conditionallyShowWelcomeDialog();
+      await service.conditionallyShowWelcomeDialog();
 
-      expect(result).toBe(true);
       expect(mockDialogOpen).toHaveBeenCalled();
     });
   });
