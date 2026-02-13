@@ -94,7 +94,6 @@ const commonStyles = [
   "[&:is(button)]:tw-outline-none",
   ...focusRing,
   ...inactiveStyles,
-  // "[&:is(button)]:tw-bg-transparent",
 ];
 
 @Directive({
@@ -130,14 +129,12 @@ export class BaseChipDirective {
    * Computed class list based on variant, size, and state
    */
   protected readonly classList = computed(() => {
-    // Add size classes
     const classes = [
       ...commonStyles,
       ...sizeStyles[this.size()],
       this.fullWidth() ? "tw-w-full" : "tw-max-w-52",
     ];
 
-    // Add variant classes (selected state adds focus ring)
     if (this.selected()) {
       classes.push(...variantStyles[ChipVariants.Primary]);
     } else {
