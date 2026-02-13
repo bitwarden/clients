@@ -6,7 +6,6 @@ import { ChipContentComponent } from "../chip-content.component";
 
 @Component({
   selector: "a[bitChipAction], button[bitChipAction]",
-  standalone: true,
   imports: [ChipContentComponent],
   templateUrl: "./chip-action.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
