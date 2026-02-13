@@ -89,6 +89,9 @@ export class ApplicationsComponent implements OnInit {
   // Standard properties
   protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
+  protected readonly filteredTableData = toSignal(this.dataSource.connect(), {
+    initialValue: [],
+  });
 
   // Template driven properties
   protected readonly selectedUrls = signal(new Set<string>());
@@ -121,7 +124,7 @@ export class ApplicationsComponent implements OnInit {
 
   // Computed property that returns only selected applications that are currently visible in filtered data
   readonly visibleSelectedApps = computed(() => {
-    const filteredData = this.dataSource.filteredData;
+    const filteredData = this.filteredTableData();
     const selected = this.selectedUrls();
 
     if (!filteredData || selected.size === 0) {
@@ -140,11 +143,13 @@ export class ApplicationsComponent implements OnInit {
 
   readonly allSelectedAppsAreCritical = computed(() => {
     const visibleSelected = this.visibleSelectedApps();
-    if (!this.dataSource.filteredData || visibleSelected.size === 0) {
+    const filteredData = this.filteredTableData();
+
+    if (!filteredData || visibleSelected.size === 0) {
       return false;
     }
 
-    return this.dataSource.filteredData
+    return filteredData
       .filter((row) => visibleSelected.has(row.applicationName))
       .every((row) => row.isMarkedAsCritical);
   });
@@ -231,7 +236,7 @@ export class ApplicationsComponent implements OnInit {
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
 
-        if (this.dataSource?.filteredData?.length === 0) {
+        if (this.filteredTableData()?.length === 0) {
           this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
         } else {
           this.emptyTableExplanation.set("");
@@ -334,15 +339,35 @@ export class ApplicationsComponent implements OnInit {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 
-  onCheckboxChange = (applicationName: string, event: Event) => {
-    const isChecked = (event.target as HTMLInputElement).checked;
+  onCheckboxChange = ({
+    applicationName,
+    checked,
+  }: {
+    applicationName: string;
+    checked: boolean;
+  }) => {
     this.selectedUrls.update((selectedUrls) => {
       const nextSelected = new Set(selectedUrls);
-      if (isChecked) {
+      if (checked) {
         nextSelected.add(applicationName);
       } else {
         nextSelected.delete(applicationName);
       }
+      return nextSelected;
+    });
+  };
+
+  onSelectAllChange = (checked: boolean) => {
+    const filteredData = this.filteredTableData();
+    if (!filteredData) {
+      return;
+    }
+
+    this.selectedUrls.update((selectedUrls) => {
+      const nextSelected = new Set(selectedUrls);
+      filteredData.forEach((row) =>
+        checked ? nextSelected.add(row.applicationName) : nextSelected.delete(row.applicationName),
+      );
       return nextSelected;
     });
   };

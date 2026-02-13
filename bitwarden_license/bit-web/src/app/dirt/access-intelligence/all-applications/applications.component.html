@@ -79,8 +79,9 @@
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
-      [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
+      (checkboxChange)="onCheckboxChange($event)"
+      (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
     ></app-table-row-scrollable-m11>
 
