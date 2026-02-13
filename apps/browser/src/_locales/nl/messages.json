@@ -35,7 +35,7 @@
     "message": "Single sign-on gebruiken"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Je organisatie vereist single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -589,10 +589,10 @@
     "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Gearchiveerd"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Dearchiveren en opslaan"
   },
   "upgradeToUseArchive": {
     "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
@@ -1555,13 +1555,13 @@
     "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Je Premium-abonnement is afgelopen"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Premium herstarten"
   },
   "ppremiumSignUpReports": {
     "message": "Wachtwoordhygiëne, gezondheid van je account en datalekken om je kluis veilig te houden."
@@ -2746,9 +2746,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden zal voor deze domeinen niet vragen om inloggegevens op te slaan. Je moet de pagina vernieuwen om de wijzigingen toe te passen."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden zal voor deze domeinen niet vragen om de wachtwoorden op te slaan voor alle ingelogde accounts. Je moet de pagina verversen om de wijzigingen op te slaan."
   },
   "blockedDomainsDesc": {
     "message": "Autofill en andere gerelateerde functies worden niet aangeboden voor deze websites. Vernieuw de pagina om de wijzigingen toe te passen."
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Kaartnummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Je organisatie maakt niet langer gebruik van hoofdwachtwoorden om in te loggen op Bitwarden. Controleer de organisatie en het domein om door te gaan."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Bitwarden-apps downloaden"
   },
   "emailProtected": {
     "message": "E-mail beveiligd"
