@@ -17,7 +17,7 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["size"],
+      inputs: ["size", "disabled"],
     },
   ],
   host: {
@@ -28,7 +28,6 @@ export class ChipComponent {
   readonly size = input<ChipSize>(ChipSizes.Large);
   readonly label = input<string>("");
   readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
-  readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
 
   readonly startIcon = input<BitwardenIcon | undefined>();
 
