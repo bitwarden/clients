@@ -7,9 +7,9 @@ import { Subject, merge } from "rxjs";
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import {
-  DecentralizedInitService,
-  initializableProvider,
-} from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
+  AsyncInitService,
+  asyncInitializableProvider,
+} from "@bitwarden/angular/platform/abstractions/async-init.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
@@ -205,7 +205,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DialogService),
   safeProvider(
     provideAppInitializer(() => {
-      const initService = inject(DecentralizedInitService);
+      const initService = inject(AsyncInitService);
       return initService.init();
     }),
   ),
@@ -585,8 +585,8 @@ const safeProviders: SafeProvider[] = [
       LogService,
     ],
   }),
-  initializableProvider(InitService),
-  initializableProvider(SdkLoadService),
+  asyncInitializableProvider(InitService),
+  asyncInitializableProvider(SdkLoadService),
 ];
 
 @NgModule({

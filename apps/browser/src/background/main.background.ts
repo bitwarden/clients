@@ -155,7 +155,7 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
-import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
+import { DefaultAsyncInitService } from "@bitwarden/common/platform/services/default-async-init.service";
 import { DefaultSyncInitService } from "@bitwarden/common/platform/services/default-sync-init.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
@@ -473,7 +473,7 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
-  decentralizedInitService: DefaultDecentralizedInitService;
+  asyncInitService: DefaultAsyncInitService;
   syncInitService: DefaultSyncInitService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
@@ -1553,7 +1553,7 @@ export default class MainBackground {
     const asyncInjector = new ManualInjector<AsyncDependency>();
     asyncInjector.register(SdkLoadService, this.sdkLoadService);
 
-    this.decentralizedInitService = new DefaultDecentralizedInitService(
+    this.asyncInitService = new DefaultAsyncInitService(
       asyncInjector.getRegisteredTokens(),
       asyncInjector,
     );
@@ -1582,7 +1582,7 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    await this.decentralizedInitService.init();
+    await this.asyncInitService.init();
 
     // Only the "true" background should run migrations
     await this.migrationRunner.run();

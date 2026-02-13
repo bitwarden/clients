@@ -4,7 +4,7 @@ import { Injector } from "../abstractions/injector";
 import { topologicalSort } from "./init-utils";
 
 /**
- * Framework-agnostic implementation of decentralized initialization service.
+ * Framework-agnostic implementation of async initialization service.
  * Uses topological sort to execute initialization in dependency order.
  *
  * This service:
@@ -18,7 +18,7 @@ import { topologicalSort } from "./init-utils";
  * Works in both Angular (via AngularInjectorAdapter) and non-Angular contexts
  * (via ManualInjector or any Injector implementation).
  */
-export class DefaultDecentralizedInitService {
+export class DefaultAsyncInitService {
   constructor(
     private readonly serviceTokens: AsyncDependency[],
     private readonly injector: Injector,

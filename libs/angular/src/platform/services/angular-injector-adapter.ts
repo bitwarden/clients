@@ -4,7 +4,7 @@ import { Dependency, Injector } from "@bitwarden/common/platform/abstractions/in
 
 /**
  * Adapter that wraps Angular's Injector to implement the framework-agnostic Injector interface.
- * This enables DecentralizedInitService (from common) to work in Angular contexts
+ * This enables AsyncInitService (from common) to work in Angular contexts
  * like the browser popup and desktop app.
  */
 @Injectable()

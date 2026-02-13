@@ -11,9 +11,9 @@ import {
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import {
-  DecentralizedInitService,
-  initializableProvider,
-} from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
+  AsyncInitService,
+  asyncInitializableProvider,
+} from "@bitwarden/angular/platform/abstractions/async-init.service";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -268,7 +268,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider(
     provideAppInitializer(() => {
-      const initService = inject(DecentralizedInitService);
+      const initService = inject(AsyncInitService);
       return initService.init();
     }),
   ),
@@ -818,8 +818,8 @@ const safeProviders: SafeProvider[] = [
     useClass: AutoConfirmNudgeService,
     deps: [StateProvider, AutomaticUserConfirmationService],
   }),
-  initializableProvider(InitService),
-  initializableProvider(SdkLoadService),
+  asyncInitializableProvider(InitService),
+  asyncInitializableProvider(SdkLoadService),
 ];
 
 @NgModule({

@@ -3,7 +3,7 @@ import {
   AsyncInitializable,
 } from "@bitwarden/common/platform/abstractions/async-initializable";
 import { Injector } from "@bitwarden/common/platform/abstractions/injector";
-import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
+import { DefaultAsyncInitService } from "@bitwarden/common/platform/services/default-async-init.service";
 
 // Test service implementations
 class TestService implements AsyncInitializable {
@@ -37,7 +37,7 @@ function createMockInjector(tokenMap: Map<AsyncDependency, AsyncInitializable>):
   };
 }
 
-describe("DefaultDecentralizedInitService", () => {
+describe("DefaultAsyncInitService", () => {
   let executionOrder: string[];
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe("DefaultDecentralizedInitService", () => {
       it("completes without error when called", async () => {
         // Arrange
         const mockInjector = createMockInjector(new Map());
-        const sut = new DefaultDecentralizedInitService([], mockInjector);
+        const sut = new DefaultAsyncInitService([], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).resolves.not.toThrow();
@@ -62,7 +62,7 @@ describe("DefaultDecentralizedInitService", () => {
         const service = new TestService();
         const tokenMap = new Map([[TestService, service]]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([TestService], mockInjector);
+        const sut = new DefaultAsyncInitService([TestService], mockInjector);
 
         // Act
         await sut.init();
@@ -87,10 +87,7 @@ describe("DefaultDecentralizedInitService", () => {
           [Service3, service3],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService(
-          [Service1, Service2, Service3],
-          mockInjector,
-        );
+        const sut = new DefaultAsyncInitService([Service1, Service2, Service3], mockInjector);
 
         // Act
         await sut.init();
@@ -117,7 +114,7 @@ describe("DefaultDecentralizedInitService", () => {
           [ServiceB, serviceB],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([ServiceB, ServiceA], mockInjector);
+        const sut = new DefaultAsyncInitService([ServiceB, ServiceA], mockInjector);
 
         // Act
         await sut.init();
@@ -150,7 +147,7 @@ describe("DefaultDecentralizedInitService", () => {
           [ServiceD, serviceD],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService(
+        const sut = new DefaultAsyncInitService(
           [ServiceD, ServiceB, ServiceC, ServiceA],
           mockInjector,
         );
@@ -192,7 +189,7 @@ describe("DefaultDecentralizedInitService", () => {
           [ServiceD, serviceD],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService(
+        const sut = new DefaultAsyncInitService(
           [ServiceD, ServiceC, ServiceB, ServiceA],
           mockInjector,
         );
@@ -224,7 +221,7 @@ describe("DefaultDecentralizedInitService", () => {
         const service = new CountingService();
         const tokenMap = new Map([[CountingService, service]]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([CountingService], mockInjector);
+        const sut = new DefaultAsyncInitService([CountingService], mockInjector);
 
         // Act
         await sut.init();
@@ -272,7 +269,7 @@ describe("DefaultDecentralizedInitService", () => {
           [DependentService as AsyncDependency, dependentService],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService(
+        const sut = new DefaultAsyncInitService(
           [DependentService as AsyncDependency, AbstractBaseService as AsyncDependency],
           mockInjector,
         );
@@ -305,7 +302,7 @@ describe("DefaultDecentralizedInitService", () => {
           [ServiceB, serviceB],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([ServiceA, ServiceB], mockInjector);
+        const sut = new DefaultAsyncInitService([ServiceA, ServiceB], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -331,10 +328,7 @@ describe("DefaultDecentralizedInitService", () => {
           [ServiceC, serviceC],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService(
-          [ServiceA, ServiceB, ServiceC],
-          mockInjector,
-        );
+        const sut = new DefaultAsyncInitService([ServiceA, ServiceB, ServiceC], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -353,7 +347,7 @@ describe("DefaultDecentralizedInitService", () => {
         const tokenMap = new Map([[ServiceB, serviceB]]);
         // Note: ServiceA is not in the tokenMap
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([ServiceB], mockInjector);
+        const sut = new DefaultAsyncInitService([ServiceB], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/not registered/);
@@ -369,11 +363,11 @@ describe("DefaultDecentralizedInitService", () => {
         const myService = new MyService();
         const tokenMap = new Map([[MyService, myService]]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([MyService], mockInjector);
+        const sut = new DefaultAsyncInitService([MyService], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow("MyService depends on MyDependency");
-        await expect(sut.init()).rejects.toThrow("useValue: MyDependency");
+        await expect(sut.init()).rejects.toThrow("asyncInitializableProvider(MyDependency)");
       });
     });
 
@@ -389,7 +383,7 @@ describe("DefaultDecentralizedInitService", () => {
         const service = new FailingService();
         const tokenMap = new Map([[FailingService, service]]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([FailingService], mockInjector);
+        const sut = new DefaultAsyncInitService([FailingService], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Failed to initialize FailingService/);
@@ -410,7 +404,7 @@ describe("DefaultDecentralizedInitService", () => {
         const service = new SyncService();
         const tokenMap = new Map([[SyncService, service]]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([SyncService], mockInjector);
+        const sut = new DefaultAsyncInitService([SyncService], mockInjector);
 
         // Act
         await sut.init();
@@ -446,7 +440,7 @@ describe("DefaultDecentralizedInitService", () => {
           [AsyncService, asyncService],
         ]);
         const mockInjector = createMockInjector(tokenMap);
-        const sut = new DefaultDecentralizedInitService([AsyncService, SyncService], mockInjector);
+        const sut = new DefaultAsyncInitService([AsyncService, SyncService], mockInjector);
 
         // Act
         await sut.init();

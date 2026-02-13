@@ -1,10 +1,10 @@
 /**
- * Example usage of DefaultDecentralizedInitService
+ * Example usage of DefaultAsyncInitService
  *
  * This file demonstrates how to:
  * 1. Make services implement AsyncInitializable
- * 2. Register services using initializableProvider()
- * 3. Bootstrap DecentralizedInitService in your app module
+ * 2. Register services using asyncInitializableProvider()
+ * 3. Bootstrap AsyncInitService in your app module
  *
  * This is NOT production code - it's a reference example.
  */
@@ -16,10 +16,7 @@ import {
   AsyncDependency,
 } from "@bitwarden/common/platform/abstractions/async-initializable";
 
-import {
-  DecentralizedInitService,
-  initializableProvider,
-} from "../abstractions/decentralized-init.service";
+import { AsyncInitService, asyncInitializableProvider } from "../abstractions/async-init.service";
 
 // ============================================================================
 // STEP 1: Make your services implement AsyncInitializable
@@ -79,11 +76,11 @@ export class ExampleSyncService implements AsyncInitializable {
 // ============================================================================
 
 /**
- * Use initializableProvider() to register each AsyncInitializable service.
- * This creates a type-safe multi-provider entry for INIT_SERVICES,
+ * Use asyncInitializableProvider() to register each AsyncInitializable service.
+ * This creates a type-safe multi-provider entry for ASYNC_INIT_SERVICES,
  * which prevents tree-shaking while providedIn: 'root' handles instantiation.
  *
- * Then use provideAppInitializer() to bootstrap DecentralizedInitService,
+ * Then use provideAppInitializer() to bootstrap AsyncInitService,
  * which discovers all registered services and runs their init() methods
  * in dependency order.
  *
@@ -91,29 +88,29 @@ export class ExampleSyncService implements AsyncInitializable {
  *
  * ```typescript
  * const safeProviders: SafeProvider[] = [
- *   // Bootstrap DecentralizedInitService on app startup
+ *   // Bootstrap AsyncInitService on app startup
  *   safeProvider(
  *     provideAppInitializer(() => {
- *       const initService = inject(DecentralizedInitService);
+ *       const initService = inject(AsyncInitService);
  *       return initService.init();
  *     }),
  *   ),
  *
  *   // Register each AsyncInitializable service
- *   initializableProvider(ExampleConfigService),
- *   initializableProvider(ExampleDatabaseService),
- *   initializableProvider(ExampleSyncService),
+ *   asyncInitializableProvider(ExampleConfigService),
+ *   asyncInitializableProvider(ExampleDatabaseService),
+ *   asyncInitializableProvider(ExampleSyncService),
  * ];
  * ```
  */
 export const EXAMPLE_PROVIDERS = [
   provideAppInitializer(() => {
-    const initService = inject(DecentralizedInitService);
+    const initService = inject(AsyncInitService);
     return initService.init();
   }),
-  initializableProvider(ExampleConfigService),
-  initializableProvider(ExampleDatabaseService),
-  initializableProvider(ExampleSyncService),
+  asyncInitializableProvider(ExampleConfigService),
+  asyncInitializableProvider(ExampleDatabaseService),
+  asyncInitializableProvider(ExampleSyncService),
 ];
 
 // ============================================================================
@@ -147,7 +144,7 @@ export const EXAMPLE_PROVIDERS = [
  * Missing dependency detection:
  *
  * If a service declares a dependency that isn't registered:
- * "ServiceA depends on ServiceB, but ServiceB is not registered in INIT_SERVICES.
+ * "ServiceA depends on ServiceB, but ServiceB is not registered in ASYNC_INIT_SERVICES.
  *  Make sure to add it to your providers array:
- *  initializableProvider(ServiceB)"
+ *  asyncInitializableProvider(ServiceB)"
  */

@@ -5,7 +5,7 @@ export interface AsyncDependency extends Function {
 }
 
 /**
- * Services that implement AsyncInitializable can participate in decentralized initialization.
+ * Services that implement AsyncInitializable can participate in async initialization.
  * Each service declares its dependencies, and initialization will execute them in the
  * correct order using topological sort.
  *

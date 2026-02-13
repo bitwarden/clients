@@ -1,6 +1,6 @@
 import { SyncDependency } from "@bitwarden/common/platform/abstractions/sync-initializable";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 
-import { SafeInjectionToken } from "../utils/safe-injection-token";
 import { SafeProvider } from "../utils/safe-provider";
 
 /**

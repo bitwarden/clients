@@ -18,9 +18,9 @@ import { ChangePasswordService } from "@bitwarden/angular/auth/password-manageme
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import {
-  DecentralizedInitService,
-  initializableProvider,
-} from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
+  AsyncInitService,
+  asyncInitializableProvider,
+} from "@bitwarden/angular/platform/abstractions/async-init.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -198,7 +198,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider(
     provideAppInitializer(() => {
-      const initService = inject(DecentralizedInitService);
+      const initService = inject(AsyncInitService);
       return initService.init();
     }),
   ),
@@ -516,8 +516,8 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
     ],
   }),
-  initializableProvider(InitService),
-  initializableProvider(SdkLoadService),
+  asyncInitializableProvider(InitService),
+  asyncInitializableProvider(SdkLoadService),
 ];
 
 @NgModule({

@@ -50,11 +50,11 @@ export class InitService implements AsyncInitializable {
 
   /**
    * @deprecated Do not add new initialization logic here. Instead, have your service implement
-   * `AsyncInitializable` or `SyncInitializable` and register it with `initializableProvider()`.
-   * The `DecentralizedInitService` will automatically call `init()` in the correct order.
+   * `AsyncInitializable` or `SyncInitializable` and register it with `asyncInitializableProvider()`.
+   * The `AsyncInitService` will automatically call `init()` in the correct order.
    */
   async init() {
-    // SdkLoadService is handled by DecentralizedInitService
+    // SdkLoadService is handled by AsyncInitService
     await this.migrationRunner.run();
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
