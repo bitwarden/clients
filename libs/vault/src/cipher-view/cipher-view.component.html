@@ -64,7 +64,11 @@
   </app-view-identity-sections>
 
   <!-- SshKEY SECTIONS -->
-  <app-sshkey-view *ngIf="hasSshKey()" [sshKey]="cipher()!.sshKey"></app-sshkey-view>
+  <app-sshkey-view
+    *ngIf="hasSshKey()"
+    [sshKey]="cipher()!.sshKey"
+    [cipherId]="cipher()!.id"
+  ></app-sshkey-view>
 
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher()?.notes">

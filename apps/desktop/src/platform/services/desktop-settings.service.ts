@@ -81,6 +81,15 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
+const SSH_AGENT_ENABLED_KEYS = new UserKeyDefinition<Record<string, boolean>>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentEnabledKeys",
+  {
+    deserializer: (v) => v,
+    clearOn: [],
+  },
+);
+
 const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   DESKTOP_SETTINGS_DISK,
   "sshAgentRememberAuthorizations",
@@ -178,6 +187,9 @@ export class DesktopSettingsService {
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly sshAgentEnabledKeysState = this.stateProvider.getActive(SSH_AGENT_ENABLED_KEYS);
+  sshAgentEnabledKeys$ = this.sshAgentEnabledKeysState.state$.pipe(map((v) => v ?? {}));
 
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
@@ -315,6 +327,13 @@ export class DesktopSettingsService {
    */
   async setSshAgentEnabled(value: boolean) {
     await this.sshAgentEnabledState.update(() => value);
+  }
+
+  async setSshAgentEnabledForKey(cipherId: string, enabled: boolean) {
+    await this.sshAgentEnabledKeysState.update((current) => {
+      const keys = current ?? {};
+      return { ...keys, [cipherId]: enabled };
+    });
   }
 
   async setSshAgentPromptBehavior(value: SshAgentPromptType) {

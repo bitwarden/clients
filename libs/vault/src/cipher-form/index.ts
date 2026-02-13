@@ -12,3 +12,4 @@ export { CipherFormGeneratorComponent } from "./components/cipher-generator/ciph
 export { CipherFormContainer } from "../cipher-form/cipher-form-container";
 export { CipherFormComponent } from "./components/cipher-form.component";
 export { AdvancedUriOptionDialogComponent } from "./components/autofill-options/advanced-uri-option-dialog.component";
+export { SshAgentKeySettings } from "./abstractions/ssh-agent-settings";

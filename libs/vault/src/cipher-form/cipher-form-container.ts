@@ -82,4 +82,10 @@ export abstract class CipherFormContainer {
    * This can be used for child forms to react to changes in the form status.
    */
   formStatusChange$: Observable<"enabled" | "disabled">;
+
+  /**
+   * An observable that emits the saved CipherView after a successful save.
+   * Child components can use this to perform post-save actions.
+   */
+  cipherSaved$: Observable<CipherView>;
 }

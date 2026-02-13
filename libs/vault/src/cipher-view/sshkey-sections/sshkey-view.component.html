@@ -69,5 +69,11 @@
         [valueLabel]="'sshFingerprint' | i18n"
       ></button>
     </bit-form-field>
+    @if (showAgentStatus()) {
+      <div class="tw-text-sm tw-text-muted tw-mt-2">
+        {{ "sshAgentUseWithAgent" | i18n }}:
+        {{ agentEnabled() ? ("yes" | i18n) : ("no" | i18n) }}
+      </div>
+    }
   </read-only-cipher-card>
 </section>

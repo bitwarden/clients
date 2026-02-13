@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -14,6 +14,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import {
   CardComponent,
+  CheckboxModule,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -23,6 +24,7 @@ import {
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
 
 import { SshImportPromptService } from "../../../services/ssh-import-prompt.service";
+import { SshAgentKeySettings } from "../../abstractions/ssh-agent-settings";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -32,6 +34,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
   templateUrl: "./sshkey-section.component.html",
   imports: [
     CardComponent,
+    CheckboxModule,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -66,6 +69,10 @@ export class SshKeySectionComponent implements OnInit {
       this.originalCipherView()?.edit
     );
   });
+
+  private sshAgentKeySettings = inject(SshAgentKeySettings, { optional: true });
+  readonly showSshAgentToggle = signal(false);
+  readonly sshAgentEnabled = signal(false);
 
   private destroyRef = inject(DestroyRef);
 
@@ -110,6 +117,30 @@ export class SshKeySectionComponent implements OnInit {
           this.sshKeyForm.disable();
         }
       });
+
+    // Initialize SSH agent toggle if the service is available
+    if (this.sshAgentKeySettings) {
+      this.showSshAgentToggle.set(true);
+      const cipherId = this.originalCipherView()?.id;
+      if (cipherId) {
+        // Existing cipher: load current setting
+        this.sshAgentKeySettings
+          .isKeyEnabledForAgent$(cipherId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((enabled) => {
+            this.sshAgentEnabled.set(enabled);
+          });
+      } else {
+        // New cipher: save the setting after the cipher is created
+        this.cipherFormContainer.cipherSaved$
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((savedCipher) => {
+            if (savedCipher?.id && this.sshAgentEnabled()) {
+              void this.sshAgentKeySettings.setKeyEnabledForAgent(savedCipher.id, true);
+            }
+          });
+      }
+    }
   }
 
   /** Set form initial form values from the current cipher */
@@ -121,6 +152,15 @@ export class SshKeySectionComponent implements OnInit {
       publicKey,
       keyFingerprint,
     });
+  }
+
+  async toggleSshAgent() {
+    const newValue = !this.sshAgentEnabled();
+    this.sshAgentEnabled.set(newValue);
+    const cipherId = this.originalCipherView()?.id;
+    if (this.sshAgentKeySettings && cipherId) {
+      await this.sshAgentKeySettings.setKeyEnabledForAgent(cipherId, newValue);
+    }
   }
 
   async importSshKeyFromClipboard() {

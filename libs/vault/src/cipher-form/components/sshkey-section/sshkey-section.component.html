@@ -36,5 +36,18 @@
       <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
       <input id="keyFingerprint" bitInput formControlName="keyFingerprint" />
     </bit-form-field>
+
+    @if (showSshAgentToggle()) {
+      <bit-form-control disableMargin>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="sshAgentEnabled"
+          [checked]="sshAgentEnabled()"
+          (change)="toggleSshAgent()"
+        />
+        <bit-label>{{ "sshAgentUseWithAgent" | i18n }}</bit-label>
+      </bit-form-control>
+    }
   </bit-card>
 </section>

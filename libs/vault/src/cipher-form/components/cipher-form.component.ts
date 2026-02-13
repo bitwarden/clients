@@ -125,6 +125,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() cipherSaved = new EventEmitter<CipherView>();
 
+  cipherSaved$ = this.cipherSaved.asObservable();
+
   private formReadySubject = new Subject<void>();
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

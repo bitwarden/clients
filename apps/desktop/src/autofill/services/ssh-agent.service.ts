@@ -154,8 +154,14 @@ export class SshAgentService implements OnDestroy {
           }
 
           if (isListRequest) {
+            const enabledKeys = await firstValueFrom(
+              this.desktopSettingsService.sshAgentEnabledKeys$,
+            );
             const sshCiphers = ciphers.filter(
-              (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
+              (cipher) =>
+                cipher.type === CipherType.SshKey &&
+                !cipher.isDeleted &&
+                enabledKeys[cipher.id] === true,
             );
             const keys = sshCiphers.map((cipher) => {
               return {
@@ -248,8 +254,14 @@ export class SshAgentService implements OnDestroy {
             return;
           }
 
+          const enabledKeys = await firstValueFrom(
+            this.desktopSettingsService.sshAgentEnabledKeys$,
+          );
           const sshCiphers = ciphers.filter(
-            (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
+            (cipher) =>
+              cipher.type === CipherType.SshKey &&
+              !cipher.isDeleted &&
+              enabledKeys[cipher.id] === true,
           );
           const keys = sshCiphers.map((cipher) => {
             return {

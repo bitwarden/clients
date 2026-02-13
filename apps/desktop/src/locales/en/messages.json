@@ -301,6 +301,9 @@
   "sshAgentUnlockTimeout": {
     "message": "SSH key request timed out."
   },
+  "sshAgentUseWithAgent": {
+    "message": "Use with SSH agent"
+  },
   "enableSshAgent": {
     "message": "Enable SSH agent"
   },
