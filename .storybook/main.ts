@@ -73,6 +73,9 @@ const config: StorybookConfig = {
     if (configType === "PRODUCTION") {
       const branchName = process.env.STORYBOOK_BRANCH_NAME;
 
+      // eslint-disable-next-line
+      console.log(`STORYBOOK_BRANCH_NAME: ${branchName}`);
+
       return {
         autofill: {
           title: `Autofill Components (branch: ${branchName})`,

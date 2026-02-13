@@ -107,7 +107,7 @@ jobs:
         if: steps.get-changed-files-for-chromatic-cl.outputs.storyFiles == 'true'
         env:
           STORYBOOK_BRANCH_NAME: ${{ steps.branch-names.outputs.current_branch }}
-        run: npm run build-storybook:ci
+        run: npm run build-storybook:ci --force-rebuild
 
       - name: Build Autofill Storybook
         if: steps.get-changed-files-for-chromatic-autofill.outputs.storyFiles == 'true'
