@@ -81,7 +81,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly options = input.required<ChipFilterOption<T>[]>();
 
   /** Disables the entire chip (template input) */
-  protected readonly disabledInput = input<boolean, unknown>(false, {
+  protected readonly disabledInput = input(false, {
     alias: "disabled",
     transform: booleanAttribute,
   });
@@ -93,7 +93,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
   /** Chip will stretch to full width of its container */
-  readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
+  readonly fullWidth = input(undefined, { transform: booleanAttribute });
 
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`

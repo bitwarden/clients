@@ -121,9 +121,10 @@ export class BaseChipDirective {
   readonly selected = input<boolean>(false);
 
   /** Chip will stretch to full width of its container */
-  readonly fullWidth = input<boolean, unknown>(false, { transform: booleanAttribute });
+  readonly fullWidth = input(false, { transform: booleanAttribute });
 
-  readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
+  /** Disabled state of the chip */
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   /**
    * Computed class list based on variant, size, and state
