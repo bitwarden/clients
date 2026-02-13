@@ -190,7 +190,7 @@ export class DisplayPaymentMethodInlineComponent {
   isFormValid(): boolean {
     const enterPaymentMethodComponent = this.enterPaymentMethodComponent();
     if (enterPaymentMethodComponent) {
-      return this.enterPaymentMethodComponent().validate();
+      return this.enterPaymentMethodComponent()!.validate();
     }
     return false;
   }
