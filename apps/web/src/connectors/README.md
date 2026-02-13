@@ -2,7 +2,7 @@
 
 ## WebAuthn Flow
 
-#### NOTE: This flow currently describes a transitory state the that this web connector is regarding the mobile client governing the scheme for linking back to the application. This will be moving to leveraging detecting the cloud environment and using the corresponding protocols.
+> NOTE: This flow currently describes a transitory state that this web connector is regarding the mobile client governing the scheme for linking back to the application. This will be moving to leveraging detecting the cloud environment and using the corresponding protocols.
 
 Three HTML variants are built from the same TS entry point (`webauthn.ts`):
 
@@ -24,7 +24,7 @@ mobile? }`, plus `deeplinkScheme` query param. Used by mobile flows.
 
 Core interaction: `parseWebauthnJson()` converts the base64url challenge and allowCredentials IDs to
 `Uint8Array`. On non-Safari browsers, `navigator.credentials.get({ publicKey })` is called
-automatically on load; Safari requires a user-initiated button click (`webauthn.t188-195`). On
+automatically on load; Safari requires a user-initiated button click (`webauthn.ts`). On
 success, `buildDataString()` serializes the `PublicKeyCredential` response (id, rawId,
 authenticatorData, clientDataJSON, signature) to JSON with base64url encoding.
 
@@ -68,7 +68,7 @@ Firefox cannot use WebAuthn inside an extension iframe, so `WebAuthnIFrame` open
 
 ## Duo Flow
 
-#### NOTE: This flow currently describes a transitory state the that this web connector is regarding the mobile client governing the scheme for linking back to the application. This will be moving to leveraging detecting the cloud environment and using the corresponding protocols.
+> NOTE: This flow currently describes a transitory state that this web connector is regarding the mobile client governing the scheme for linking back to the application. This will be moving to leveraging detecting the cloud environment and using the corresponding protocols.
 
 The Duo connector is `duo-redirect-connector.html` (source: `duo-redirect.ts`, template:
 `duo-redirect.html`). It serves two purposes:
