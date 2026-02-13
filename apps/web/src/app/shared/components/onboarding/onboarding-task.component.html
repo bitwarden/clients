@@ -1,10 +1,14 @@
 <ng-template #content>
-  <i class="bwi bwi-fw !tw-mr-4" [ngClass]="completed ? 'bwi-check tw-text-success' : icon"></i
+  <bit-icon
+    [name]="completed ? 'bwi-check' : icon"
+    class="bwi-fw !tw-mr-4"
+    [ngClass]="completed ? 'tw-text-success' : ''"
+  ></bit-icon
   ><span
     [ngClass]="{
       'tw-text-primary-700 tw-line-through tw-decoration-primary-700 tw-opacity-50': completed,
     }"
-    >{{ title }}<i class="bwi bwi-angle-right tw-ml-1"></i
+    >{{ title }}<bit-icon name="bwi-angle-right" class="tw-ml-1"></bit-icon
   ></span>
 </ng-template>
 
