@@ -72,6 +72,7 @@ param(
     # Whether to build in release mode.
     $Release=$false
 )
+
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
 $startTime = Get-Date
@@ -113,7 +114,7 @@ else {
 
 $builderConfig = Get-Content $electronConfigFile | ConvertFrom-Json
 $packageConfig = Get-Content package.json | ConvertFrom-Json
-$manifestTemplate = Get-Content $builderConfig.appx.customManifestPath
+$manifestTemplate = Get-Content ($builderConfig.appx.customManifestPath ?? "custom-appx-manifest.xml")
 
 $srcDir = Get-Location
 $assetsDir = Get-Item $builderConfig.directories.buildResources
