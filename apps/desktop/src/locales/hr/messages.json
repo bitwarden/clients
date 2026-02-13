@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Radnja nakon isteka"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Istek sesije"
   },
