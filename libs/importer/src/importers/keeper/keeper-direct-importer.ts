@@ -9,17 +9,14 @@ import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 import { ImportResult } from "../../models";
 import { BaseImporter } from "../base-importer";
 
-import { Vault, VaultField, VaultRecord } from "./access";
+import { Vault, VaultField, VaultItem } from "./access";
 
 export class KeeperDirectImporter extends BaseImporter {
-  private recordFolderPaths = new Map<string, string[]>();
-
   convertVaultToImportResult(vault: Vault, includeSharedFolders: boolean): ImportResult {
     const result = new ImportResult();
 
-    this.recordFolderPaths = vault.getRecordFolderPaths();
-    this.parseAllFolders(vault, result);
-    this.parseRecords(vault, result, includeSharedFolders);
+    const items = vault.getItems();
+    this.parseRecords(items, result, includeSharedFolders);
     // TODO: resolveReferences (requires vault.ts to expose references from V3 record data)
 
     if (this.organization) {
@@ -30,76 +27,64 @@ export class KeeperDirectImporter extends BaseImporter {
     return result;
   }
 
-  private parseAllFolders(vault: Vault, result: ImportResult): void {
-    const allPaths = new Set<string>();
-    for (const paths of this.recordFolderPaths.values()) {
-      for (const path of paths) {
-        allPaths.add(path);
-      }
-    }
-    for (const path of allPaths) {
-      this.processFolder(result, path, false);
-    }
-  }
-
-  private parseRecords(vault: Vault, result: ImportResult, includeSharedFolders: boolean): void {
-    for (const record of vault.getRecords()) {
-      // TODO: What if the item is added to a shared folder and to a local folder?
-      if (!includeSharedFolders && record.sharedFolderUid) {
-        continue;
-      }
-
-      this.parseRecordFolders(result, record);
-
-      const cipher = this.initLoginCipher();
-      cipher.name = this.getValueOrDefault(record.title, "--");
-      cipher.notes = this.getValueOrDefault(record.notes);
-
-      cipher.login.username = this.getValueOrDefault(record.login);
-      cipher.login.password = this.getValueOrDefault(record.password);
-      cipher.login.uris = this.makeUriArray(record.url);
-
-      // Track consumed fields by index so they aren't processed again
-      const consumedFieldIndices = new Set<number>();
-
-      // Handle special record types
-      switch (record.type) {
-        case "bankCard":
-          this.importBankCard(record, cipher, consumedFieldIndices);
-          break;
-        case "sshKeys":
-          // In Bitwarden the ssh key is supposed to be valid.
-          // So we only set the type if we can actually import a key.
-          if (!this.importSshKey(record, cipher, consumedFieldIndices)) {
-            // Otherwise, fallback to secure note.
-            // Make sure the passphrase is not lost, if any. The key pair will be imported
-            // as a custom field via the standard field processing pipeline.
-            this.addField(cipher, "Passphrase", cipher.login.password, FieldType.Hidden);
-          }
-          break;
-      }
-
-      this.importFields(record, cipher, consumedFieldIndices);
-
-      this.convertToNoteIfNeeded(cipher);
-      this.cleanupCipher(cipher);
-
-      result.ciphers.push(cipher);
+  private parseRecords(
+    items: VaultItem[],
+    result: ImportResult,
+    includeSharedFolders: boolean,
+  ): void {
+    // TODO: Filter out shared folder records when includeSharedFolders is false
+    for (const item of items) {
+      this.parseRecord(item, result);
     }
   }
 
-  private parseRecordFolders(result: ImportResult, record: VaultRecord): void {
-    const paths = this.recordFolderPaths.get(record.uid);
-    if (!paths) {
-      return;
-    }
-    for (const path of paths) {
+  private parseRecord(item: VaultItem, result: ImportResult): void {
+    for (const path of item.folders) {
       this.processFolder(result, path);
     }
+
+    const cipher = this.initLoginCipher();
+    cipher.name = this.getValueOrDefault(item.title, "--");
+    cipher.notes = this.getValueOrDefault(item.notes);
+
+    cipher.login.username = this.getValueOrDefault(this.getFirstFieldValue(item, "login"));
+    cipher.login.password = this.getValueOrDefault(this.getFirstFieldValue(item, "password"));
+
+    // Track consumed fields by index so they aren't processed again
+    const consumedFieldIndices = new Set<number>();
+
+    // Handle special record types
+    switch (item.type) {
+      case "bankCard":
+        this.importBankCard(item, cipher, consumedFieldIndices);
+        break;
+      case "sshKeys":
+        // In Bitwarden the ssh key is supposed to be valid.
+        // So we only set the type if we can actually import a key.
+        if (!this.importSshKey(item, cipher, consumedFieldIndices)) {
+          // Otherwise, fallback to secure note.
+          // Make sure the passphrase is not lost, if any. The key pair will be imported
+          // as a custom field via the standard field processing pipeline.
+          this.addField(cipher, "Passphrase", cipher.login.password, FieldType.Hidden);
+        }
+        break;
+    }
+
+    this.importFields(item, cipher, consumedFieldIndices);
+
+    this.convertToNoteIfNeeded(cipher);
+    this.cleanupCipher(cipher);
+
+    result.ciphers.push(cipher);
+  }
+
+  private getFirstFieldValue(item: VaultItem, fieldType: string): string | undefined {
+    const field = item.fields.find((f) => f.type === fieldType);
+    return field?.value.length ? String(field.value[0]) : undefined;
   }
 
   private importBankCard(
-    record: VaultRecord,
+    record: VaultItem,
     cipher: CipherView,
     consumedFieldIndices: Set<number>,
   ): void {
@@ -144,7 +129,7 @@ export class KeeperDirectImporter extends BaseImporter {
   }
 
   private importSshKey(
-    record: VaultRecord,
+    record: VaultItem,
     cipher: CipherView,
     consumedFieldIndices: Set<number>,
   ): boolean {
@@ -218,7 +203,7 @@ export class KeeperDirectImporter extends BaseImporter {
   }
 
   private importFields(
-    record: VaultRecord,
+    record: VaultItem,
     cipher: CipherView,
     consumedFieldIndices: Set<number>,
   ): void {
@@ -228,15 +213,15 @@ export class KeeperDirectImporter extends BaseImporter {
         continue;
       }
       const field = record.fields[i];
-      // Skip fields already extracted into record.login/password/url
-      if (field.type === "login" || field.type === "password" || field.type === "url") {
+      // Skip fields already extracted into cipher.login
+      if (field.type === "login" || field.type === "password") {
         continue;
       }
       this.importField(cipher, field);
     }
 
     // Process custom fields
-    for (const field of record.customFields) {
+    for (const field of record.custom) {
       this.importField(cipher, field);
     }
   }
