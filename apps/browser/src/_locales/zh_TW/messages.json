@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Bitwarden 是一款安全、免費、跨平台的密碼管理工具。",
+    "message": "無論在家、在工作場所或外出時，Bitwarden 都能輕鬆保護您的所有密碼、密碼金鑰及敏感資訊。",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -29,13 +29,13 @@
     "message": "使用通行金鑰登入"
   },
   "unlockWithPasskey": {
-    "message": "使用通行金鑰解鎖"
+    "message": "使用密碼金鑰解鎖"
   },
   "useSingleSignOn": {
     "message": "使用單一登入（SSO）"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的組織需要單一登入。"
+    "message": "您的組織要求使用單一登入。"
   },
   "welcomeBack": {
     "message": "歡迎回來"
@@ -44,7 +44,7 @@
     "message": "設定一組高強度密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "設定密碼以完成建立您的帳號"
+    "message": "請設定密碼以完成帳戶建立"
   },
   "enterpriseSingleSignOn": {
     "message": "企業單一登入（SSO）"
@@ -71,7 +71,7 @@
     "message": "主密碼提示可在您忘記時幫助您回想主密碼。"
   },
   "masterPassHintText": {
-    "message": "如果您忘記了密碼，可以傳送密碼提示到您的電子郵件。$CURRENT$ / 最多 $MAXIMUM$ 個字元",
+    "message": "若您忘記密碼，可將密碼提示傳送至您的電子郵件。\n$CURRENT$/$MAXIMUM$ 個字元上限。",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -209,7 +209,7 @@
     "message": "自動填入登入資料"
   },
   "autoFillCard": {
-    "message": "自動填入卡片資料"
+    "message": "自動填入付款卡"
   },
   "autoFillIdentity": {
     "message": "自動填入身分資料"
@@ -231,7 +231,7 @@
     "message": "沒有符合的登入資料"
   },
   "noCards": {
-    "message": "沒有卡片資料"
+    "message": "沒有付款卡"
   },
   "noIdentities": {
     "message": "沒有身分資料"
@@ -240,7 +240,7 @@
     "message": "新增登入資料"
   },
   "addCardMenu": {
-    "message": "新增卡片資料"
+    "message": "新增付款卡"
   },
   "addIdentityMenu": {
     "message": "新增身分資料"
@@ -261,7 +261,7 @@
     "message": "新增項目"
   },
   "accountEmail": {
-    "message": "帳號電子郵件"
+    "message": "帳戶電子郵件"
   },
   "requestHint": {
     "message": "取得提示"
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden 不會在這些網域要求儲存登入資料。您必須重新整理頁面，變更才會生效。"
   },
-  "excludedDomainsDescAlt": {
-    "message": "對於所有已登入的帳戶，Bitwarden 不會詢問是否儲存這些網域的登入資訊。您必須重新整理頁面變更才會生效。"
-  },
   "blockedDomainsDesc": {
     "message": "自動填入及其它相關的功能無法在這些網站上使用。您必須重新整理頁面來使變更生效。"
   },
@@ -3158,7 +3155,7 @@
     "message": "此組織有一項企業政策，會自動將您加入密碼重設。加入後，組織管理員將能變更您的主密碼。"
   },
   "selectFolder": {
-    "message": "選擇資料夾⋯"
+    "message": "選擇資料夾…"
   },
   "noFoldersFound": {
     "message": "未找到資料夾",
@@ -3260,19 +3257,19 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "您的密碼庫逾時時間超過組織設定的限制。"
+    "message": "您的密碼庫逾時時間超過您所屬組織設定的限制。"
   },
   "vaultExportDisabled": {
-    "message": "密碼庫匯出已停用"
+    "message": "密碼庫匯出不可用"
   },
   "personalVaultExportPolicyInEffect": {
-    "message": "一個或多個組織原則禁止您匯出個人密碼庫。"
+    "message": "一項或多項組織政策禁止您匯出個人密碼庫。"
   },
   "copyCustomFieldNameInvalidElement": {
-    "message": "未能找出有效的表單元件。請試試看改用 HTML 檢查功能。"
+    "message": "無法識別有效的表單元素。請嘗試檢查 HTML。"
   },
   "copyCustomFieldNameNotUnique": {
-    "message": "找不到唯一識別碼。"
+    "message": "未找到唯一識別碼。"
   },
   "organizationName": {
     "message": "組織名稱"
@@ -3290,22 +3287,22 @@
     "message": "主密碼已移除"
   },
   "leaveOrganizationConfirmation": {
-    "message": "您確定要離開這個組織嗎？"
+    "message": "您確定要離開此組織嗎？"
   },
   "leftOrganization": {
     "message": "您已離開此組織。"
   },
   "toggleCharacterCount": {
-    "message": "切換字元計數"
+    "message": "顯示／隱藏字元數"
   },
   "sessionTimeout": {
-    "message": "您的登入階段已逾時，請返回並嘗試重新登入。"
+    "message": "您的工作階段已逾時，請返回並重新登入。"
   },
   "exportingPersonalVaultTitle": {
-    "message": "正匯出個人密碼庫"
+    "message": "正在匯出個人密碼庫"
   },
   "exportingIndividualVaultDescription": {
-    "message": "僅匯出與 $EMAIL$ 關聯的個人密碼庫項目。組織密碼庫項目將不包括在內。僅匯出密碼庫項目資訊，不包括關聯的附件。",
+    "message": "僅匯出與 $EMAIL$ 相關的個人密碼庫項目，不包含組織密碼庫項目。僅匯出項目資訊，不包含相關附件。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3423,13 +3420,13 @@
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "使用您電子郵件提供者的子地址功能。"
+    "message": "使用您的電子郵件服務提供者的子地址功能。"
   },
   "catchallEmail": {
     "message": "Catch-all 電子郵件"
   },
   "catchallEmailDesc": {
-    "message": "使用您的網域設定的 Catch-all 收件匣。"
+    "message": "使用您網域中已設定的 Catch-all 收件匣。"
   },
   "random": {
     "message": "隨機"
@@ -3444,10 +3441,10 @@
     "message": "服務"
   },
   "forwardedEmail": {
-    "message": "轉寄的電子郵件別名"
+    "message": "轉寄電子郵件別名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部轉寄服務產生一個電子郵件別名。"
+    "message": "使用外部轉寄服務產生電子郵件別名。"
   },
   "forwarderDomainName": {
     "message": "電子郵件網域",
@@ -3594,7 +3591,7 @@
     "message": "API 金鑰"
   },
   "ssoKeyConnectorError": {
-    "message": "Key Connector 錯誤：請確保 Key Connector 可用且運作正常。"
+    "message": "Key Connector 錯誤：請確認 Key Connector 可用且運作正常。"
   },
   "premiumSubcriptionRequired": {
     "message": "需要進階版訂閲"
@@ -3603,7 +3600,7 @@
     "message": "組織已停用。"
   },
   "disabledOrganizationFilterError": {
-    "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
+    "message": "無法存取已停用組織中的項目。請聯絡組織擁有者以取得協助。"
   },
   "loggingInTo": {
     "message": "正在登入至 $DOMAIN$",
@@ -3618,13 +3615,13 @@
     "message": "伺服器版本"
   },
   "selfHostedServer": {
-    "message": "自架"
+    "message": "自行託管（自行部署並管理）"
   },
   "thirdParty": {
     "message": "第三方"
   },
   "thirdPartyServerMessage": {
-    "message": "已連線至第三方伺服器實作，$SERVERNAME$。 請使用官方伺服器驗證錯誤，或將其報告給第三方伺服器。",
+    "message": "已連線至第三方伺服器實作：$SERVERNAME$。請使用官方伺服器驗證是否為程式錯誤，或向第三方伺服器回報。",
     "placeholders": {
       "servername": {
         "content": "$1",
@@ -3908,10 +3905,10 @@
     "message": "記住這個裝置"
   },
   "uncheckIfPublicDevice": {
-    "message": "若使用公用裝置，請勿勾選"
+    "message": "若為公用裝置，請取消勾選"
   },
   "approveFromYourOtherDevice": {
-    "message": "使用其他裝置核准"
+    "message": "在其他裝置上核准"
   },
   "requestAdminApproval": {
     "message": "要求管理員核准"
@@ -4025,7 +4022,7 @@
     "message": "搜尋"
   },
   "inputMinLength": {
-    "message": "必須輸入至少 $COUNT$ 個字元。",
+    "message": "輸入內容至少需 $COUNT$ 個字元。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4034,7 +4031,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "輸入的內容長度不得超過 $COUNT$ 字元。",
+    "message": "輸入內容不得超過 $COUNT$ 個字元。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4070,10 +4067,10 @@
     }
   },
   "multipleInputEmails": {
-    "message": "一個或多個電子郵件無效"
+    "message": "一或多個電子郵件地址無效"
   },
   "inputTrimValidator": {
-    "message": "輸入不得僅包含空格。",
+    "message": "輸入內容不得僅包含空白字元。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "inputEmail": {
@@ -4101,7 +4098,7 @@
     }
   },
   "selectPlaceholder": {
-    "message": "-- 選擇 --"
+    "message": "-- 請選擇 --"
   },
   "multiSelectPlaceholder": {
     "message": "-- 輸入以進行篩選 --"
@@ -4295,7 +4292,7 @@
     "message": "使用 PIN 碼"
   },
   "useBiometrics": {
-    "message": "用生物識別"
+    "message": "使用生物辨識"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "輸入傳送到你的電子郵件的驗證碼。"
@@ -4364,7 +4361,7 @@
     "message": "選擇匯入檔案的格式"
   },
   "selectImportFile": {
-    "message": "選擇要匯入的檔案"
+    "message": "選擇匯入的檔案"
   },
   "chooseFile": {
     "message": "選擇檔案"
@@ -4373,10 +4370,10 @@
     "message": "未選擇任何檔案"
   },
   "orCopyPasteFileContents": {
-    "message": "或複製/貼上要匯入的檔案內容"
+    "message": "或複製／貼上匯入檔案的內容"
   },
   "instructionsFor": {
-    "message": "$NAME$ 教學",
+    "message": "$NAME$ 操作說明",
     "description": "The title for the import tool instructions.",
     "placeholders": {
       "name": {
@@ -4386,10 +4383,10 @@
     }
   },
   "confirmVaultImport": {
-    "message": "確認匯入密碼庫"
+    "message": "確認密碼庫匯入"
   },
   "confirmVaultImportDesc": {
-    "message": "此檔案受密碼保護，請輸入檔案密碼以匯入資料。"
+    "message": "此檔案受密碼保護。請輸入檔案密碼以匯入資料。"
   },
   "confirmFilePassword": {
     "message": "確認檔案密碼"
@@ -4413,13 +4410,13 @@
     "message": "不會將密碼金鑰複製到拓製的項目中。您想繼續拓製該項目嗎？"
   },
   "logInWithPasskeyQuestion": {
-    "message": "使用密碼金鑰登入？"
+    "message": "要使用密碼金鑰登入嗎？"
   },
   "passkeyAlreadyExists": {
-    "message": "用於這個應用程式的密碼金鑰已經存在。"
+    "message": "此應用程式已存在密碼金鑰。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "未發現用於這個應用程式的密碼金鑰。"
+    "message": "此應用程式未發現密碼金鑰。"
   },
   "noMatchingPasskeyLogin": {
     "message": "您沒有符合該網站的登入資訊。"
@@ -4449,16 +4446,16 @@
     "message": "密碼金鑰項目"
   },
   "overwritePasskey": {
-    "message": "要覆寫密碼金鑰嗎？"
+    "message": "要覆寫目前的密碼金鑰嗎？"
   },
   "overwritePasskeyAlert": {
-    "message": "該項目已包含密碼金鑰。您確定要覆寫目前的密碼金鑰嗎？"
+    "message": "此項目已包含密碼金鑰。確定要覆寫目前的密碼金鑰嗎？"
   },
   "featureNotSupported": {
     "message": "尚未支援此功能"
   },
   "yourPasskeyIsLocked": {
-    "message": "使用密碼金鑰需要身分驗證。請驗證您的身份以繼續。"
+    "message": "使用密碼金鑰需要身分驗證。請驗證身分以繼續。"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
@@ -4467,7 +4464,7 @@
     "message": "未找到任何 LastPass 資料"
   },
   "incorrectUsernameOrPassword": {
-    "message": "使用者名稱或密碼不正確"
+    "message": "使用者名稱或密碼錯誤"
   },
   "incorrectPassword": {
     "message": "密碼錯誤"
@@ -4509,7 +4506,7 @@
     "message": "需要 LastPass 驗證"
   },
   "awaitingSSO": {
-    "message": "等待 SSO 驗證"
+    "message": "正在等待 SSO 驗證"
   },
   "awaitingSSODesc": {
     "message": "請使用您的公司憑證繼續登入。"
@@ -4546,7 +4543,7 @@
     "message": "目前帳戶"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden 帳號"
+    "message": "Bitwarden 帳戶"
   },
   "availableAccounts": {
     "message": "可用帳戶"
@@ -4993,7 +4990,7 @@
     "message": "下載 Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "在所有裝置中下載 Bitwarden"
+    "message": "在所有裝置上下載 Bitwarden"
   },
   "getTheMobileApp": {
     "message": "取得手機應用程式"
@@ -5008,7 +5005,7 @@
     "message": "在不使用瀏覽器的情況下存取你的密碼庫，然後設定生物辨識解鎖，以加快在桌面應用程式和瀏覽器擴充功能中的解鎖速度。"
   },
   "downloadFromBitwardenNow": {
-    "message": "立即從 bitwarden.com 下載"
+    "message": "立即前往 bitwarden.com 下載"
   },
   "getItOnGooglePlay": {
     "message": "在 Google Play上取得"
@@ -5401,10 +5398,10 @@
     "message": "企業政策已套用至您的選項中"
   },
   "sshPrivateKey": {
-    "message": "私密金鑰"
+    "message": "私鑰"
   },
   "sshPublicKey": {
-    "message": "公共金鑰"
+    "message": "公鑰"
   },
   "sshFingerprint": {
     "message": "指紋"
@@ -5431,7 +5428,7 @@
     "message": "自訂逾時時間最小為 1 分鐘。"
   },
   "fileSavedToDevice": {
-    "message": "檔案已儲存至裝置。在您的裝置中管理下載的檔案。"
+    "message": "檔案已儲存至裝置。請在裝置的下載項目中管理檔案。"
   },
   "showCharacterCount": {
     "message": "顯示字元數"
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "付款卡號碼"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "下載 Bitwarden 應用程式"
   },
   "emailProtected": {
     "message": "電子郵件已受保護"
