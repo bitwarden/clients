@@ -119,13 +119,33 @@ export class ApplicationsComponent implements OnInit {
   ]);
   protected readonly emptyTableExplanation = signal("");
 
+  // Computed property that returns only selected applications that are currently visible in filtered data
+  readonly visibleSelectedApps = computed(() => {
+    const filteredData = this.dataSource.filteredData;
+    const selected = this.selectedUrls();
+
+    if (!filteredData || selected.size === 0) {
+      return new Set<string>();
+    }
+
+    const visibleSelected = new Set<string>();
+    filteredData.forEach((row) => {
+      if (selected.has(row.applicationName)) {
+        visibleSelected.add(row.applicationName);
+      }
+    });
+
+    return visibleSelected;
+  });
+
   readonly allSelectedAppsAreCritical = computed(() => {
-    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
+    const visibleSelected = this.visibleSelectedApps();
+    if (!this.dataSource.filteredData || visibleSelected.size === 0) {
       return false;
     }
 
     return this.dataSource.filteredData
-      .filter((row) => this.selectedUrls().has(row.applicationName))
+      .filter((row) => visibleSelected.has(row.applicationName))
       .every((row) => row.isMarkedAsCritical);
   });
 
@@ -225,10 +245,11 @@ export class ApplicationsComponent implements OnInit {
 
   markAppsAsCritical = async () => {
     this.updatingCriticalApps.set(true);
-    const count = this.selectedUrls().size;
+    const visibleSelected = this.visibleSelectedApps();
+    const count = visibleSelected.size;
 
     this.dataService
-      .saveCriticalApplications(Array.from(this.selectedUrls()))
+      .saveCriticalApplications(Array.from(visibleSelected))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -252,7 +273,7 @@ export class ApplicationsComponent implements OnInit {
 
   unmarkAppsAsCritical = async () => {
     this.updatingCriticalApps.set(true);
-    const appsToUnmark = this.selectedUrls();
+    const appsToUnmark = this.visibleSelectedApps();
 
     this.dataService
       .removeCriticalApplications(appsToUnmark)
