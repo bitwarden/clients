@@ -73,6 +73,7 @@ export enum FeatureFlag {
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
+  PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -139,6 +140,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
+  [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
@@ -194,6 +196,11 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
+  if (serverConfig) {
+    serverConfig.featureStates[FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt] = true;
+    serverConfig.featureStates[FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge] = 0.5;
+  }
+
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }

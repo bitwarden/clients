@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { StateProvider } from "@bitwarden/state";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
@@ -20,9 +19,8 @@ import {
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
-import { WebWelcomeExtensionPromptDialogComponent } from "../components/web-welcome-extension-prompt/web-welcome-extension-prompt-dialog.component";
 
-import { WebBrowserInteractionService } from "./web-browser-interaction.service";
+import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "./web-vault-prompt.service";
 
 describe("WebVaultPromptService", () => {
@@ -44,19 +42,15 @@ describe("WebVaultPromptService", () => {
   const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(undefined);
   const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
   const logError = jest.fn();
-  const extensionInstalled$ = new BehaviorSubject<boolean>(false);
-  const mockStateSubject = new BehaviorSubject<boolean>(false);
-  const mockAccountCreationDate = new Date("2026-01-15"); // 25 days ago from test date
+  const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
   const activeAccountSubject = new BehaviorSubject<{ id: UserId; creationDate: Date | null }>({
     id: mockUserId,
-    creationDate: mockAccountCreationDate,
+    creationDate: null,
   });
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockStateSubject.next(false);
-    extensionInstalled$.next(false);
-    activeAccountSubject.next({ id: mockUserId, creationDate: mockAccountCreationDate });
+    activeAccountSubject.next({ id: mockUserId, creationDate: null });
 
     TestBed.configureTestingModule({
       providers: [
@@ -79,18 +73,8 @@ describe("WebVaultPromptService", () => {
         { provide: DialogService, useValue: { open } },
         { provide: LogService, useValue: { error: logError } },
         {
-          provide: StateProvider,
-          useValue: {
-            getUser: jest.fn().mockReturnValue({
-              state$: mockStateSubject.asObservable(),
-            }),
-          },
-        },
-        {
-          provide: WebBrowserInteractionService,
-          useValue: {
-            extensionInstalled$: extensionInstalled$.asObservable(),
-          },
+          provide: WebVaultExtensionPromptService,
+          useValue: { conditionallyPromptUserForExtension },
         },
       ],
     });
@@ -115,58 +99,12 @@ describe("WebVaultPromptService", () => {
       ).toHaveBeenCalledWith(mockUserId);
     });
 
-    it("opens welcome extension dialog when conditions are met", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
-      // Extension not installed
-      extensionInstalled$.next(false);
-      // Dialog not dismissed
-      mockStateSubject.next(false);
-
-      const openSpy = jest.spyOn(WebWelcomeExtensionPromptDialogComponent, "open");
-
+    it("calls conditionallyPromptUserForExtension with the userId", async () => {
       await service.conditionallyPromptUser();
 
-      expect(openSpy).toHaveBeenCalledWith(expect.anything());
-    });
-
-    it("does not open welcome extension dialog when feature flag is disabled", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(false));
-      // Extension not installed
-      extensionInstalled$.next(false);
-      // Dialog not dismissed
-      mockStateSubject.next(false);
-
-      const openSpy = jest.spyOn(WebWelcomeExtensionPromptDialogComponent, "open");
-
-      await service.conditionallyPromptUser();
-
-      expect(openSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not open welcome extension dialog when extension is installed", async () => {
-      // Extension installed
-      extensionInstalled$.next(true);
-      // Dialog not dismissed
-      mockStateSubject.next(false);
-
-      const openSpy = jest.spyOn(WebWelcomeExtensionPromptDialogComponent, "open");
-
-      await service.conditionallyPromptUser();
-
-      expect(openSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not open welcome extension dialog when already dismissed", async () => {
-      // Extension not installed
-      extensionInstalled$.next(false);
-      // Dialog dismissed
-      mockStateSubject.next(true);
-
-      const openSpy = jest.spyOn(WebWelcomeExtensionPromptDialogComponent, "open");
-
-      await service.conditionallyPromptUser();
-
-      expect(openSpy).not.toHaveBeenCalled();
+      expect(
+        service["webVaultExtensionPromptService"].conditionallyPromptUserForExtension,
+      ).toHaveBeenCalledWith(mockUserId);
     });
   });
 
@@ -316,90 +254,5 @@ describe("WebVaultPromptService", () => {
 
       expect(openSpy).not.toHaveBeenCalled();
     }));
-  });
-
-  describe("showWelcomeExtensionDialog", () => {
-    it("returns false when feature flag is disabled", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(false));
-      extensionInstalled$.next(false);
-      mockStateSubject.next(false);
-
-      const result = await service["showWelcomeExtensionDialog"](mockUserId);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns true when all conditions are met", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
-      extensionInstalled$.next(false);
-      mockStateSubject.next(false);
-
-      const result = await service["showWelcomeExtensionDialog"](mockUserId);
-
-      expect(result).toBe(true);
-    });
-
-    it("returns false when extension is installed", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
-      extensionInstalled$.next(true);
-      mockStateSubject.next(false);
-
-      const result = await service["showWelcomeExtensionDialog"](mockUserId);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false when dialog has been dismissed", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
-      extensionInstalled$.next(false);
-      mockStateSubject.next(true);
-
-      const result = await service["showWelcomeExtensionDialog"](mockUserId);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false when account is older than 30 days", async () => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
-      extensionInstalled$.next(false);
-      mockStateSubject.next(false);
-      const oldAccountDate = new Date("2025-12-01");
-      activeAccountSubject.next({ id: mockUserId, creationDate: oldAccountDate });
-
-      const result = await service["showWelcomeExtensionDialog"](mockUserId);
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe("profileIsOlderThan30Days", () => {
-    it("returns false when account is less than 30 days old", async () => {
-      const recentDate = new Date("2026-01-15"); // 25 days ago
-      activeAccountSubject.next({ id: mockUserId, creationDate: recentDate });
-
-      const result = await service["profileIsOlderThan30Days"]();
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false when account is exactly 30 days old", async () => {
-      // The implementation uses < (less than), so exactly 30 days returns false
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      activeAccountSubject.next({ id: mockUserId, creationDate: thirtyDaysAgo });
-
-      const result = await service["profileIsOlderThan30Days"]();
-
-      expect(result).toBe(false);
-    });
-
-    it("returns true when account is older than 30 days", async () => {
-      const oldDate = new Date("2025-12-01"); // More than 30 days ago
-      activeAccountSubject.next({ id: mockUserId, creationDate: oldDate });
-
-      const result = await service["profileIsOlderThan30Days"]();
-
-      expect(result).toBe(true);
-    });
   });
 });
