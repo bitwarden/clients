@@ -4337,7 +4337,7 @@
     "message": "Kısayolu yazın"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Aşağıdaki değiştirici tuşlardan birini veya ikisini (Ctrl, Alt, Win) ve bir harf kullanın."
   },
   "invalidShortcut": {
     "message": "Geçersiz kısayol"
@@ -4448,43 +4448,46 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yaparak devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Alan Adı"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş yapmak için kuruluşunuzu doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Kuruluş doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Alan adı doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Kuruluşunuzu doğrulamazsanız, kuruluşa erişiminiz iptal edilecektir."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş yapmak için alan adınızı doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş yaparak devam etmek için bu alan adını doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş yaparak devam etmek için kuruluşu ve alan adını doğrulayın."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Zaman aşımı eylemi"
+  },
+  "errorCannotDecrypt": {
+    "message": "Hata: Deşifre edilemiyor"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"

@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "超时动作"
   },
+  "errorCannotDecrypt": {
+    "message": "错误：无法解密"
+  },
   "sessionTimeoutHeader": {
     "message": "会话超时"
   },
@@ -4589,13 +4592,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "电子邮件受保护"
+    "message": "电子邮箱保护"
   },
   "emails": {
     "message": "电子邮件"
   },
   "noAuth": {
-    "message": "任何拥有此链接的人"
+    "message": "拥有此链接的任何人"
   },
   "anyOneWithPassword": {
     "message": "拥有您设置的密码的任何人"

@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
   },

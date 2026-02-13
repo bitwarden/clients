@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Akce vypršení časového limitu"
   },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nelze dešifrovat"
+  },
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
   },

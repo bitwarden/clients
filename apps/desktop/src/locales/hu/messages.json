@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Időkifutási művelet"
   },
+  "errorCannotDecrypt": {
+    "message": "Hiba: nem fejthető vissza."
+  },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
   },

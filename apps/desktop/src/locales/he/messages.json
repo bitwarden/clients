@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "פעולת פסק זמן"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "פסק זמן להפעלה"
   },
