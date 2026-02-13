@@ -1,3 +1,5 @@
+//! Windows-specific window focus management for biometric prompts.
+
 use windows::{
     core::s,
     Win32::{
