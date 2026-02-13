@@ -1,15 +1,6 @@
-import { inject, Injectable } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  BehaviorSubject,
-  Observable,
-  combineLatest,
-  fromEvent,
-  map,
-  startWith,
-  debounceTime,
-  first,
-} from "rxjs";
+import { computed, effect, inject, Injectable, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
@@ -32,16 +23,17 @@ export class SideNavService {
 
   private rootFontSizePx: number;
 
-  private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
-  open$ = this._open$.asObservable();
+  /**
+   * Whether the side navigation is open or closed.
+   */
+  readonly open = signal(isAtOrLargerThanBreakpoint("md"));
 
   private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
-  private _userCollapsePreference$ = new BehaviorSubject<CollapsePreference>(null);
-  userCollapsePreference$ = this._userCollapsePreference$.asObservable();
+  readonly isLargeScreen = toSignal(this.isLargeScreen$, { requireSync: true });
 
-  isOverlay$ = combineLatest([this.open$, this.isLargeScreen$]).pipe(
-    map(([open, isLargeScreen]) => open && !isLargeScreen),
-  );
+  readonly userCollapsePreference = signal<CollapsePreference>(null);
+
+  readonly isOverlay = computed(() => this.open() && !this.isLargeScreen());
 
   /**
    * Local component state width
@@ -67,16 +59,14 @@ export class SideNavService {
     this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
 
     // Handle open/close state
-    combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([isLargeScreen, userCollapsePreference]) => {
-        if (!isLargeScreen) {
-          this.setClose();
-        } else if (userCollapsePreference !== "closed") {
-          // Auto-open when user hasn't set preference (null) or prefers open
-          this.setOpen();
-        }
-      });
+    effect(() => {
+      if (!this.isLargeScreen()) {
+        this.open.set(false);
+      } else if (this.userCollapsePreference() !== "closed") {
+        // Auto-open when user hasn't set preference (null) or prefers open
+        this.open.set(true);
+      }
+    });
 
     // Initialize the resizable width from state provider
     this.widthState$.pipe(first()).subscribe((width: number) => {
@@ -89,31 +79,14 @@ export class SideNavService {
     });
   }
 
-  get open() {
-    return this._open$.getValue();
-  }
-
-  setOpen() {
-    this._open$.next(true);
-  }
-
-  setClose() {
-    this._open$.next(false);
-  }
-
   /**
    * Toggle the open/close state of the side nav
    */
   toggle() {
-    const curr = this._open$.getValue();
     // Store user's preference based on what state they're toggling TO
-    this._userCollapsePreference$.next(curr ? "closed" : "open");
+    this.userCollapsePreference.set(this.open() ? "closed" : "open");
 
-    if (curr) {
-      this.setClose();
-    } else {
-      this.setOpen();
-    }
+    this.open.set(!this.open());
   }
 
   /**

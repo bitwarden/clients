@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Разблокировать при помощи passkey"
+  },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
@@ -573,14 +576,23 @@
   "itemWasSentToArchive": {
     "message": "Элемент был отправлен в архив"
   },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
   "itemUnarchived": {
     "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
+  },
+  "archived": {
+    "message": "Архивирован"
+  },
+  "unarchiveAndSave": {
+    "message": "Разархивировать и сохранить"
   },
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -1536,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
+  },
   "ppremiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
   },
@@ -2027,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2455,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
   },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
   "restoreItem": {
     "message": "Восстановить элемент"
   },
@@ -2713,9 +2746,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden не будет предлагать сохранить логины для этих доменов. Для вступления изменений в силу необходимо обновить страницу."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
   },
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
@@ -3002,10 +3032,6 @@
   "custom": {
     "message": "Пользовательский"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3065,28 +3091,8 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Открепить расширение?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Чтобы создать файл Send, необходимо открыть расширение в новом окне.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Для выбора файла откройте расширение в боковой панели (если возможно) или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Для выбора файла с помощью Firefox, откройте расширение в боковой панели или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Для выбора файла с помощью Safari, перейдите в новое окно, нажав на этот баннер."
-  },
   "popOut": {
     "message": "Открепить"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед тем, как начать"
   },
   "expirationDateIsInvalid": {
     "message": "Срок истечения указан некорректно."
@@ -3345,6 +3351,12 @@
   },
   "error": {
     "message": "Ошибка"
+  },
+  "prfUnlockFailed": {
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF. Пожалуйста, сначала авторизуйтесь, используя passkey."
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
@@ -4721,6 +4733,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Больше опций"
+  },
   "moreOptionsTitle": {
     "message": "Больше опций - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4825,39 @@
   },
   "adminConsole": {
     "message": "консоли администратора"
+  },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматически подтверждать новых пользователей"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новые пользователи будут автоматически подтверждены при разблокировке устройства."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Каковы потенциальные риски для безопасности?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Включено автоматическое подтверждение"
+  },
+  "availableNow": {
+    "message": "Уже доступно"
   },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
@@ -4934,6 +4982,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Скачать вложение"
   },
   "downloadBitwarden": {
     "message": "Скачать Bitwarden"
@@ -5074,14 +5125,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скрыть обнаружение совпадений $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
   },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
@@ -5619,6 +5667,9 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "narrow": {
+    "message": "Узкий"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -5912,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
   },
@@ -6049,7 +6103,38 @@
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
   },
+  "items": {
+    "message": "Элементы"
+  },
+  "searchResults": {
+    "message": "Результаты поиска"
+  },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"
+  },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Скачать приложения Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

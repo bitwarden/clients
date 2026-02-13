@@ -8,6 +8,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import {
   SignedPublicKey,
@@ -70,7 +71,7 @@ type MasterPasswordAuthenticationAndUnlockData = {
  * A token provider that exposes a null access token to the SDK.
  */
 class NoopTokenProvider implements TokenProvider {
-  constructor() {}
+  constructor() { }
 
   async get_access_token(): Promise<string | undefined> {
     // Ignore from the test coverage, since this is called by the SDK
@@ -104,7 +105,8 @@ export class UserKeyRotationService {
     private sdkClientFactory: SdkClientFactory,
     private securityStateService: SecurityStateService,
     private sdkService: SdkService,
-  ) {}
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+  ) { }
 
   /**
    * Creates a new user key and re-encrypts all required data with the it.
@@ -177,7 +179,7 @@ export class UserKeyRotationService {
     const { userKey: newUserKey, accountKeysRequest } = await this.getRotatedAccountKeysFlagged(
       user.id,
       masterKeyKdfConfig,
-      user.email,
+      masterKeySalt,
       currentCryptographicStateParameters,
       upgradeToV2FeatureFlagEnabled,
     );
@@ -331,7 +333,7 @@ export class UserKeyRotationService {
   protected async upgradeV1UserToV2UserAccountKeys(
     userId: UserId,
     kdfConfig: KdfConfig,
-    email: string,
+    masterKeySalt: string,
     cryptographicStateParameters: V1CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
     // Initialize an SDK with the current cryptographic state
@@ -339,7 +341,7 @@ export class UserKeyRotationService {
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
-      email: email,
+      email: masterKeySalt,
       accountCryptographicState: {
         V1: {
           private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
@@ -359,7 +361,7 @@ export class UserKeyRotationService {
   protected async rotateV2UserAccountKeys(
     userId: UserId,
     kdfConfig: KdfConfig,
-    email: string,
+    masterKeySalt: string,
     cryptographicStateParameters: V2CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
     // Initialize an SDK with the current cryptographic state
@@ -367,7 +369,7 @@ export class UserKeyRotationService {
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
-      email: email,
+      email: masterKeySalt,
       accountCryptographicState: {
         V2: {
           private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
@@ -629,8 +631,11 @@ export class UserKeyRotationService {
       this.kdfConfigService.getKdfConfig$(user.id),
       "KDF config",
     ))!;
-    // The master key salt used for deriving the masterkey always needs to be trimmed and lowercased.
-    const masterKeySalt = user.email.trim().toLowerCase();
+
+    const masterKeySalt = await this.firstValueFromOrThrow(
+      this.masterPasswordService.saltForUser$(user.id),
+      "Master key salt",
+    );
 
     // V1 and V2 users both have a user key and a private key
     const currentUserKey: UserKey = (await this.firstValueFromOrThrow(

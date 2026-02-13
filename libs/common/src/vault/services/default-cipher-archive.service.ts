@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
+import { CipherData } from "../models/data/cipher.data";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
@@ -84,45 +85,31 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
   }
 
-  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.upsert(Object.values(currentCiphers), userId);
+    await this.cipherService.upsert(responseDataArray, userId);
+    return response.data[0];
   }
 
-  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.upsert(Object.values(currentCiphers), userId);
+    await this.cipherService.upsert(responseDataArray, userId);
+    return response.data[0];
   }
 }

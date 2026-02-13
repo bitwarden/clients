@@ -100,6 +100,66 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Tento Send bude trvale smazán v určené datum.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Soubor ke sdílení"
+  },
+  "hideTextByDefault": {
+    "message": "Ve výchozím nastavení skrýt text"
+  },
+  "hideYourEmail": {
+    "message": "Skryje Vaši e-mailovou adresu před zobrazením."
+  },
+  "limitSendViews": {
+    "message": "Omezit zobrazení"
+  },
+  "limitSendViewsCount": {
+    "message": "Zbývá $ACCESSCOUNT$ zobrazení",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Po dosažení limitu nebude nikdo moci zobrazit tento Send.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Soukromá poznámka"
+  },
+  "sendDetails": {
+    "message": "Podrobnosti Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text ke sdílení"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nový textový Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nový Send se soubory",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Upravit textový Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Upravit Send se soubory",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Opravdu chcete tento Send trvale smazat?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Nová",
     "description": "for adding new items"
@@ -2027,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka byla trvale smazána"
+  },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
   },
   "restoredItem": {
     "message": "Položka byla obnovena"
@@ -4011,6 +4074,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -4267,7 +4336,7 @@
   "typeShortcut": {
     "message": "Napsat zkratku"
   },
-  "editAutotypeShortcutDescription": {
+  "editAutotypeKeyboardModifiersDescription": {
     "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
   },
   "invalidShortcut": {
@@ -4327,8 +4396,8 @@
   "archiveItem": {
     "message": "Archivovat položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
   },
   "unArchiveAndSave": {
     "message": "Odebrat z archivu a uložit"
@@ -4416,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Akce vypršení časového limitu"
+  },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nelze dešifrovat"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
@@ -4514,5 +4586,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail je chráněný"
+  },
+  "emails": {
+    "message": "E-maily"
+  },
+  "noAuth": {
+    "message": "Kdokoli s odkazem"
+  },
+  "anyOneWithPassword": {
+    "message": "Kdokoli s heslem od Vás"
+  },
+  "whoCanView": {
+    "message": "Kdo může zobrazit"
+  },
+  "specificPeople": {
+    "message": "Vybraní lidé"
+  },
+  "emailVerificationDesc": {
+    "message": "Po sdílení tohoto odkazu Send budou muset jednotlivci ověřit svůj e-mail pomocí kódu pro zobrazení tohoto Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadejte více e-mailů oddělených čárkou."
+  },
+  "emailPlaceholder": {
+    "message": "uživatel@bitwarden.com, uživatel@společnost.cz"
   }
 }

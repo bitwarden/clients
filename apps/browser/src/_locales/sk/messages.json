@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
   },
+  "unlockWithPasskey": {
+    "message": "Odomknúť pomocou prístupového kľúča"
+  },
   "useSingleSignOn": {
     "message": "Použiť jednotné prihlásenie"
   },
@@ -573,14 +576,23 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
+  "itemWasUnarchived": {
+    "message": "Položka bola odobraná z archívu"
+  },
   "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {
     "message": "Archivovať položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  "archiveItemDialogContent": {
+    "message": "Po archivácii bude táto položka vylúčená z výsledkov vyhľadávania a návrhov automatického vypĺňania."
+  },
+  "archived": {
+    "message": "Archivované"
+  },
+  "unarchiveAndSave": {
+    "message": "Zrušiť archiváciu a uložiť"
   },
   "upgradeToUseArchive": {
     "message": "Na použitie archívu je potrebné prémiové členstvo."
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Ktokoľvek s odkazom"
+  },
+  "anyOneWithPassword": {
+    "message": "Ktokoľvek s heslom od vás"
   },
   "location": {
     "message": "Poloha"
@@ -1536,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše predplatné Prémium skončilo"
+  },
+  "archivePremiumRestart": {
+    "message": "Ak chcete obnoviť prístup k svojmu archívu, reštartujte predplatné Prémium. Ak pred reštartom upravíte podrobnosti archivovanej položky, bude presunutá späť do trezoru."
+  },
+  "restartPremium": {
+    "message": "Reštartovať Prémium"
+  },
   "ppremiumSignUpReports": {
     "message": "Správy o sile hesla, zabezpečení účtov a únikoch dát ktoré vám pomôžu udržať vaše kontá v bezpečí."
   },
@@ -2027,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "E-maily"
+  },
   "phone": {
     "message": "Telefón"
   },
@@ -2455,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Položka bola natrvalo odstránená"
   },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka bola obnovená"
+  },
   "restoreItem": {
     "message": "Obnoviť položku"
   },
@@ -2713,9 +2746,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden nebude požadovať ukladanie prihlasovacích údajov pre tieto domény. Aby sa zmeny prejavili, musíte stránku obnoviť."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden nebude požadovať ukladanie prihlasovacích údajov pre tieto domény pre všetky prihlásené účty. Aby sa zmeny prejavili, musíte stránku obnoviť."
   },
   "blockedDomainsDesc": {
     "message": "Automatické vypĺňanie a ďalšie súvisiace funkcie sa na týchto webových stránkach nebudú ponúkať. Aby sa zmeny prejavili, musíte stránku obnoviť."
@@ -3002,10 +3032,6 @@
   "custom": {
     "message": "Vlastné"
   },
-  "sendPasswordDescV3": {
-    "message": "Pridajte voliteľné heslo pre príjemcov na prístup k tomuto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3065,28 +3091,8 @@
     "message": "Send bol upravený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Zobraziť rozšírenie v novom okne?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Na vytvorenie Sendu so súborom musíte zobraziť rozšírenie v novom okne.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Ak chcete zvoliť súbor, otvorte rozšírenie v bočnom paneli (ak je to možné) alebo kliknite do tohto okna kliknutím na tento banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Ak chcete zvoliť súbor pomocou prehliadača Firefox, otvorte rozšírenie v bočnom paneli alebo kliknite do tohto okna kliknutím na tento banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "Ak chcete zvoliť súbor pomocou Safari, kliknite na tento banner a otvorte nové okno."
-  },
   "popOut": {
     "message": "Zobraziť v novom okne"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Skôr než začnete"
   },
   "expirationDateIsInvalid": {
     "message": "Uvedený dátum exspirácie nie je platný."
@@ -3345,6 +3351,12 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "prfUnlockFailed": {
+    "message": "Odomknutie pomocou prístupového kľúča zlyhalo. Skúste to znovu alebo použite inú metódu odomknutia."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Na odomkntuie nie sú k dispozícii žiadne PRF-enabled prístupové kľúče. Najskôr sa prihláste pomocou prístupového kľúča."
   },
   "decryptionError": {
     "message": "Chyba dešifrovania"
@@ -4721,6 +4733,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Ďalšie možnosti"
+  },
   "moreOptionsTitle": {
     "message": "Ďalšie možnosti - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4825,39 @@
   },
   "adminConsole": {
     "message": "Správcovská konzola"
+  },
+  "admin": {
+    "message": "Správca"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrdenie používateľa"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdzovať čakajúcich používateľov, keď je toto zariadenie odomknuté"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Šetrite čas automatickým potvrdzovaním používateľa"
+  },
+  "autoConfirmWarning": {
+    "message": "Môže mať vplyv na bezpečnosť údajov vašej organizácie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Dozvedieť sa viac o rizikách"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdzovať nových používateľov"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví používatelia budú automaticky potvrdení, keď je toto zariadenie odomknuté."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Aké sú potenciálne bezpečnostné riziká?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuté automatické potvrdzovanie"
+  },
+  "availableNow": {
+    "message": "Teraz dostupné"
   },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"
@@ -4934,6 +4982,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Stiahnuť prílohu"
   },
   "downloadBitwarden": {
     "message": "Stiahnuť Bitwarden"
@@ -5074,14 +5125,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Skryť spôsob zisťovania zhody $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobraziť spôsob mapovania"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skryť spôsob mapovania"
   },
   "autoFillOnPageLoad": {
     "message": "Automaticky vyplniť pri načítaní stránky?"
@@ -5619,6 +5667,9 @@
   "extraWide": {
     "message": "Extra široké"
   },
+  "narrow": {
+    "message": "Úzke"
+  },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo je nesprávne."
   },
@@ -5912,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Číslo karty"
   },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nedá sa dešifrovať"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Vaša organizácia už nepoužíva hlavné heslá na prihlásenie do Bitwardenu. Ak chcete pokračovať, overte organizáciu a doménu."
   },
@@ -6049,7 +6103,38 @@
   "whyAmISeeingThis": {
     "message": "Prečo to vidím?"
   },
+  "items": {
+    "message": "Položky"
+  },
+  "searchResults": {
+    "message": "Výsledky vyhľadávania"
+  },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
+  },
+  "whoCanView": {
+    "message": "Kto môže zobraziť"
+  },
+  "specificPeople": {
+    "message": "Konkrétne osoby"
+  },
+  "emailVerificationDesc": {
+    "message": "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
+  },
+  "emailPlaceholder": {
+    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Chránené e-mailom"
+  },
+  "sendPasswordHelperText": {
+    "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

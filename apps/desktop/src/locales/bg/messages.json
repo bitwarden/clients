@@ -100,6 +100,66 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Изпращането ще бъде окончателно изтрито на тази дата.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Файл за споделяне"
+  },
+  "hideTextByDefault": {
+    "message": "Скриване на текста по подразбиране"
+  },
+  "hideYourEmail": {
+    "message": "Скриване на Вашата е-поща от получателите."
+  },
+  "limitSendViews": {
+    "message": "Ограничаване на преглежданията"
+  },
+  "limitSendViewsCount": {
+    "message": "Остават $ACCESSCOUNT$ преглеждания",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Никой няма да може да преглежда това Изпращане след достигане на ограничението.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Лична бележка"
+  },
+  "sendDetails": {
+    "message": "Подробности за Изпращането",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Текст за споделяне"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ново файлово Изпращане",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Редактиране на текстовото Изпращане",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Редактиране на файловото Изпращане",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Наистина ли искате да изтриете завинаги това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Ново",
     "description": "for adding new items"
@@ -2027,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Записът е изтрит окончателно"
+  },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
   },
   "restoredItem": {
     "message": "Записът е възстановен"
@@ -4011,6 +4074,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
   },
+  "vulnerablePassword": {
+    "message": "Уязвима парола."
+  },
+  "changeNow": {
+    "message": "Промяна сега"
+  },
   "missingWebsite": {
     "message": "Липсващ уеб сайт"
   },
@@ -4267,8 +4336,8 @@
   "typeShortcut": {
     "message": "Комбинация за въвеждане"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Използвайте един или повече от модификаторите Ctrl, Alt, Win или Shift, заедно с някоя буква."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Използвайте един или повече от модификаторите Ctrl, Alt или Win, заедно с някоя буква."
   },
   "invalidShortcut": {
     "message": "Неправилна комбинация"
@@ -4327,8 +4396,8 @@
   "archiveItem": {
     "message": "Архивиране на елемента"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
   },
   "unArchiveAndSave": {
     "message": "Разархивиране и запазване"
@@ -4416,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Действие при изтичането на времето за достъп"
+  },
+  "errorCannotDecrypt": {
+    "message": "Грешка: не може да се дешифрира"
   },
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
@@ -4514,5 +4586,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Е-пощата е защитена"
+  },
+  "emails": {
+    "message": "Е-пощи"
+  },
+  "noAuth": {
+    "message": "Всеки с връзката"
+  },
+  "anyOneWithPassword": {
+    "message": "Всеки с парола, зададена от Вас"
+  },
+  "whoCanView": {
+    "message": "Кой може да преглежда"
+  },
+  "specificPeople": {
+    "message": "Определени хора"
+  },
+  "emailVerificationDesc": {
+    "message": "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
+  },
+  "emailPlaceholder": {
+    "message": "потребител@bitwarden.com , потребител@acme.com"
   }
 }

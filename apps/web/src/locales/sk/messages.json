@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Nie sú ohrozené žiadne kritické aplikácie"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Prehľad o prístupe"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Ohrozenie hesla"
@@ -23,8 +47,8 @@
   "noEditPermissions": {
     "message": "Na úpravu tejto položky nemáte oprávnenie"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Skontrolujte ohrozené heslá (slabé, odhalené, alebo opätovne použité) naprieč aplikáciami. Vyberte najkritickejšie aplikácie a priorizujte vaším používateľom bezpečnostné opatrenia ohľadom ohrozených hesiel."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Prehľad ohrozených prihlasovacích mien"
@@ -244,11 +268,50 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Nepodarilo sa označiť aplikácie za kritické"
   },
   "application": {
     "message": "Aplikácia"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Ohrozených hesiel"
@@ -585,6 +648,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telefón"
@@ -1217,6 +1283,9 @@
   "selectAll": {
     "message": "Vybrať Všetko"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Zrušiť výber"
   },
@@ -1364,6 +1433,12 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Poloha"
@@ -1749,6 +1824,9 @@
   "noMembersInList": {
     "message": "Neexistujú žiadni členovia na zobrazenie."
   },
+  "noMembersToExport": {
+    "message": "Neexistujú žiadni členovia na export."
+  },
   "noEventsInList": {
     "message": "Neexistujú žiadne udalosti na zobrazenie."
   },
@@ -1974,7 +2052,7 @@
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Exportovať",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2307,7 +2385,7 @@
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importovať",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2537,6 +2615,9 @@
   "enabled": {
     "message": "Povolené"
   },
+  "optionEnabled": {
+    "message": "Povolené"
+  },
   "restoreAccess": {
     "message": "Obnoviť prístup"
   },
@@ -2635,7 +2716,7 @@
     "message": "Kľúč"
   },
   "unnamedKey": {
-    "message": "Unnamed key"
+    "message": "Kľúč bez mena"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Overovací kód"
@@ -3147,7 +3228,7 @@
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Položka bola obnovená"
   },
   "restartPremium": {
     "message": "Restart Premium"
@@ -3275,6 +3356,9 @@
   "nextChargeHeader": {
     "message": "Ďalšia platba"
   },
+  "nextChargeDate": {
+    "message": "Next charge date"
+  },
   "plan": {
     "message": "Plán"
   },
@@ -3300,7 +3384,7 @@
     "message": "Launch Cloud Subscription"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Spustiť cloud predplatné"
   },
   "storage": {
     "message": "Ukladací priestor"
@@ -3763,6 +3847,9 @@
   "editCollection": {
     "message": "Upraviť zbierku"
   },
+  "viewCollection": {
+    "message": "View collection"
+  },
   "collectionInfo": {
     "message": "Informácie o zbierke"
   },
@@ -4218,10 +4305,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Prijatý presun do vlastníctva organizácie."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Odvolane z dôvodu odmietnutia presunu do vlastníctva organizácie."
   },
   "invitedUserId": {
     "message": "Používateľ $ID$ pozvaný.",
@@ -5189,19 +5276,19 @@
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Opraviť šifrovanie"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Tento súbor používa zastaranú metódu šifrovania."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Príloha bola aktualizovaná"
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "V trezore máte staré prílohy ktoré musia byť opravené pred tým, než budete môcť obnoviť šifrovací kľúč k účtu."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "yourAccountsFingerprint": {
     "message": "Fráza odtlačku vašeho účtu",
@@ -5343,8 +5430,8 @@
   "minimumNumberOfWords": {
     "message": "Minimálny počet slov"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Typ hesla",
+  "passwordTypePolicyOverride": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5411,6 +5498,12 @@
   },
   "restoreSelected": {
     "message": "Obnoviť zvolené"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
   },
   "restoredItem": {
     "message": "Obnovená položka"
@@ -5594,10 +5687,6 @@
   "sendTypeText": {
     "message": "Text"
   },
-  "sendPasswordDescV3": {
-    "message": "Pridajte voliteľné heslo pre príjemcov na prístup k tomuto Sendu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Vytvoriť nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5608,6 +5697,57 @@
   },
   "createdSend": {
     "message": "Send vytvorený",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedSuccessfully": {
+    "message": "Send bol úspešne vytvorený!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hodín",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Nový textový Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Nový súborový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5648,6 +5788,9 @@
   },
   "revoked": {
     "message": "Zrušený prístup"
+  },
+  "accepted": {
+    "message": "Prijaté"
   },
   "sendLink": {
     "message": "Odkaz na Send",
@@ -5868,6 +6011,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Požadovanie vlastníctva údajov organizácie"
@@ -6307,6 +6481,12 @@
   "enrolledAccountRecovery": {
     "message": "Zapísaný na obnovu konta"
   },
+  "enrolled": {
+    "message": "Zapísaný"
+  },
+  "notEnrolled": {
+    "message": "Nezapísaný"
+  },
   "withdrawAccountRecovery": {
     "message": "Odhlásiť sa z obnovy konta"
   },
@@ -6493,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ z $SELECTEDCOUNT$ používateľov opätovne pozvaných. $EXCLUDEDCOUNT$ nebolo pozvaných kvôli limitu $LIMIT$ pozvánok.",
     "placeholders": {
@@ -6509,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Odstránenie úspešné"
@@ -6831,7 +7067,7 @@
     "message": "Časový limit trezoru nie je v povolenom rozsahu."
   },
   "disableExport": {
-    "message": "Remove export"
+    "message": "Odstrániť export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Zakázať používateľom exportovať údaje zo súkromného trezora."
@@ -6842,17 +7078,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Jedna alebo viacero zásad organizácie vám bráni exportovať váš osobný trezor."
   },
-  "activateAutofill": {
-    "message": "Activate auto-fill"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Aktivujte nastavenie automatického vypĺňania pri načítaní stránky v rozšírení pre prehliadač pre všetkých súčasných a nových členov."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit auto-fill on page load."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Learn more about auto-fill"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Vyberte typ SSO"
@@ -9500,7 +9736,7 @@
     "message": "Vyžaduje sa prihlásenie cez SSO"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "Pre SSO je potrebný email"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -9948,6 +10184,9 @@
   "assignTasks": {
     "message": "Priradiť úlohy"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Odoslať upozornenia na zmenu hesla"
   },
@@ -10349,8 +10588,14 @@
   "datadogEventIntegrationDesc": {
     "message": "Pošlite dáta z denníka udalostí do vašej inštancie Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Pre vykonanie tejto akcie musíte by vlastník organizácie."
@@ -10459,6 +10704,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -11274,6 +11525,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden sa pokúsi privlastniť doménu 3 krát počas prvých 72 hodín. Ak sa doménu nepodarilo privlastniť, skontrolujte DNS záznam u svojho hostiteľa a privlastnite manuálne. Doména bude z organizácie odstránená po 7 dňoch ak nie je privlastnená."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ nie je privlastnená. Overte si DNS záznam.",
     "placeholders": {
@@ -11286,8 +11549,8 @@
   "domainStatusClaimed": {
     "message": "Privlastnená"
   },
-  "domainStatusUnderVerification": {
-    "message": "Overuje sa"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Privlastnite si doménu, aby ste mohli vlastniť členské účty. Stránka s identifikátorom SSO bude pri prihlásení členov s privlastnenými doménami preskočená a správcovia budú môcť členské účty odstrániť."
@@ -11574,6 +11837,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
   },
+  "vulnerablePassword": {
+    "message": "Zraniteľné heslo."
+  },
+  "changeNow": {
+    "message": "Zmeniť teraz"
+  },
   "missingWebsite": {
     "message": "Chýbajúca webová stránka"
   },
@@ -11613,7 +11882,7 @@
     "message": "Zrušiť archiváciu"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archivované"
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
@@ -11630,8 +11899,8 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
-  "itemsWereSentToArchive": {
-    "message": "Položky boli archivované"
+  "itemWasUnarchived": {
+    "message": "Položka bola odobraná z archívu"
   },
   "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
@@ -11646,8 +11915,8 @@
     "message": "Archivovať položku",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Archivovať položky",
@@ -12000,6 +12269,15 @@
   "verifyNow": {
     "message": "Overiť teraz."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Dodatočné úložisko GB"
   },
@@ -12260,43 +12538,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Vaša organizácia už nepoužíva hlavné heslá na prihlásenie do Bitwardenu. Ak chcete pokračovať, overte organizáciu a doménu."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Pokračujte prihlásením"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nepokračovať"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Doména"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Táto doména bude ukladať šifrovacie kľúče vášho účtu, takže sa uistite, že jej dôverujete. Ak si nie ste istí, overte si to u správcu."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Na prihlásenie overte organizáciu"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizácia je overená"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Doména je overená"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Ak organizáciu neoveríte, váš prístup k nej bude zrušený."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Opustiť teraz"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Na prihlásenie overte doménu"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Na pokračovanie prihlásením, overte túto doménu."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Na pokračovanie prihlásením, overte organizáciu a doménu."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Nie sú vybrané žiadne kritické aplikácie"
@@ -12304,59 +12582,62 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Ste si istí, že chcete pokračovať?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "Zlyhalo overenie používateľa."
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Zmeniť veľkosť bočnej navigácie"
   },
   "recoveryDeleteCiphersTitle": {
-    "message": "Delete unrecoverable vault items"
+    "message": "Vymazať neobnoviteľné položky trezora"
   },
   "recoveryDeleteCiphersDesc": {
-    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+    "message": "Niektoré vaše položky trezora sa nepodarilo obnoviť. Chcete tieto neobnoviteľné položky vymazať z vášho trezora?"
   },
   "recoveryDeleteFoldersTitle": {
-    "message": "Delete unrecoverable folders"
+    "message": "Vymazať neobnoviteľné priečinky trezora"
   },
   "recoveryDeleteFoldersDesc": {
-    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+    "message": "Niektoré vaše priečinky sa nepodarilo obnoviť. Chcete tieto neobnoviteľné priečinky vymazať z vášho trezora?"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Replace encryption key"
+    "message": "Vymeniť šifrovací kľúč"
   },
   "recoveryReplacePrivateKeyDesc": {
-    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+    "message": "Váš verejný a šifrovací pár kľúčov sa nepodarilo obnoviť. Chcete ich nahradiť novým párom kľúčov? Bude to vyžadovať opätovné nastavenie existujúceho núdzového prístupu a členstiev v organizáciach."
   },
   "recoveryStepSyncTitle": {
-    "message": "Synchronizing data"
+    "message": "Synchronizácia údajov"
   },
   "recoveryStepPrivateKeyTitle": {
-    "message": "Verifying encryption key integrity"
+    "message": "Overuje sa integrita šifrovacieho kľúča"
   },
   "recoveryStepUserInfoTitle": {
-    "message": "Verifying user information"
+    "message": "Overujú sa údaje o používateľovi"
   },
   "recoveryStepCipherTitle": {
-    "message": "Verifying vault item integrity"
+    "message": "Overuje sa integrita položky trezora"
   },
   "recoveryStepFoldersTitle": {
-    "message": "Verifying folder integrity"
+    "message": "Overuje sa integrita priečinka"
   },
   "dataRecoveryTitle": {
-    "message": "Data Recovery and Diagnostics"
+    "message": "Obnova Dát a Diagnostika"
   },
   "dataRecoveryDescription": {
-    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+    "message": "Pre diagnostiku a opravu problémov s vašim kontom použite nástroj na obnovu dát. Po spustení diagnostiky budete mat možnosť opraviť odhalené problémy a možnosť uložiť záznamy z priebehu diagnostiky pre podporu."
   },
   "runDiagnostics": {
-    "message": "Run Diagnostics"
+    "message": "Spustiť diagnostiku"
   },
   "repairIssues": {
-    "message": "Repair Issues"
+    "message": "Opraviť problémy"
   },
   "saveDiagnosticLogs": {
-    "message": "Save Diagnostic Logs"
+    "message": "Uložiť záznamy diagnostiky"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Toto nastavenie spravuje vaša organizácia."
@@ -12397,16 +12678,16 @@
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Naozaj chcete odísť?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Ak chcete obnoviť prístup, obráťte sa na správcu."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Opustiť $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12415,10 +12696,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Ako môžem spravovať svoj trezor?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Prenos položiek do $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12427,7 +12708,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12436,22 +12717,22 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Prijať prenos"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Zamietnuť a odísť"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Prečo to vidím?"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "Máte Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Zobraziť a spravovať vaše Premium predplatné"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Musíte aktualizovať licenčný súbor"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12463,16 +12744,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "Nahrať licenčný súbor"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "Nahrajte váš licenčný súbor"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Nahrajte váš Premium licenčný súbor"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Váš licenčný súbor sa bude volať podobne ako: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12481,15 +12762,181 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Už máte predplatné?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Otvorte stránku predplatného vo vašom Bitwarden cloud konte a stiahnite váš licenčný súbor. Potom sa vráťte na tuto obrazovku a nahrajte ho nižšie."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Zobraziť všetky druhy predplatného"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Úplné online zabezpečenie"
+  },
+  "updatePayment": {
+    "message": "Úpraviť Platbu"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nepodarilo sa nám spracovať platbu. Prosím, aktualizujte vašu platobnú metódu alebo pre pomoc kontaktujte tím podpory."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Vaše predplatné vypršalo. Pre pomoc kontaktujte tím podpory."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Vaše predplatné ma naplánovaný koniec na $DATE$. Kedykoľvek predtým ho môžete opätovne obnoviť.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Zdieľajte ešte viac s predplatným Rodiny, alebo dosiahnite výkonnú a dôveryhodnú bezpečnosť s predplatným Tímy alebo Spoločnosť."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Máte odklad splatnosti v dĺžke $DAYS$ dní od dátumu vypršania platnosti predplatného. Prosím, uhraďte nezaplatené faktúry do $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Spravovať faktúry"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Vaša najbližšia platba je"
+  },
+  "dueOn": {
+    "message": "splatná"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Vaše predplatné bude pozastavené dňa"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Vaše predplatné bolo pozastavené dňa"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Vaše predplatné bude zrušené dňa"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Vaše predplatné bolo zrušené dňa"
+  },
+  "storageFull": {
+    "message": "Úložisko je plné"
+  },
+  "storageUsedDescription": {
+    "message": "Používate $USED$ z $AVAILABLE$ GB vášho šifrovaného úložiska.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Použili ste všetkých $GB$ GB vášho šifrovaného úložiska. Ak chcete uložiť ďalšie súbory, pridajte viac úložiska."
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "Ak odstránite úložisko, dostanete na váš účet proporcionálny kredit ktorý sa automaticky použije pri najbližšej faktúre."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "youHavePremium": {
+    "message": "Máte Premium"
+  },
+  "emailProtected": {
+    "message": "Email chránený"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade to Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgrade to Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "You've upgraded to $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }

@@ -28,11 +28,14 @@
   "logInWithPasskey": {
     "message": "Inloggen met passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Ontgrendelen met passkey"
+  },
   "useSingleSignOn": {
     "message": "Single sign-on gebruiken"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Je organisatie vereist single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -573,14 +576,23 @@
   "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
+  "itemWasUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
   "itemUnarchived": {
     "message": "Item uit het archief gehaald"
   },
   "archiveItem": {
     "message": "Item archiveren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  "archiveItemDialogContent": {
+    "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
+  },
+  "archived": {
+    "message": "Gearchiveerd"
+  },
+  "unarchiveAndSave": {
+    "message": "Dearchiveren en opslaan"
   },
   "upgradeToUseArchive": {
     "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
   },
   "location": {
     "message": "Locatie"
@@ -1536,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Je Premium-abonnement is afgelopen"
+  },
+  "archivePremiumRestart": {
+    "message": "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst."
+  },
+  "restartPremium": {
+    "message": "Premium herstarten"
+  },
   "ppremiumSignUpReports": {
     "message": "Wachtwoordhygiëne, gezondheid van je account en datalekken om je kluis veilig te houden."
   },
@@ -2027,6 +2054,9 @@
   "email": {
     "message": "E-mailadres"
   },
+  "emails": {
+    "message": "E-mails"
+  },
   "phone": {
     "message": "Telefoonnummer"
   },
@@ -2455,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Definitief verwijderd item"
   },
+  "archivedItemRestored": {
+    "message": "Gearchiveerd item hersteld"
+  },
   "restoreItem": {
     "message": "Item herstellen"
   },
@@ -2713,9 +2746,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden zal voor deze domeinen niet vragen om inloggegevens op te slaan. Je moet de pagina vernieuwen om de wijzigingen toe te passen."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden zal voor deze domeinen niet vragen om de wachtwoorden op te slaan voor alle ingelogde accounts. Je moet de pagina verversen om de wijzigingen op te slaan."
   },
   "blockedDomainsDesc": {
     "message": "Autofill en andere gerelateerde functies worden niet aangeboden voor deze websites. Vernieuw de pagina om de wijzigingen toe te passen."
@@ -3002,10 +3032,6 @@
   "custom": {
     "message": "Aangepast"
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3065,28 +3091,8 @@
     "message": "Send bewerkt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Extensie uitklappen?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Om een bestand te versturen via Send, moet je de extensie naar een nieuw venster uitklappen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Om een bestand te kiezen open je de extensie in de zijbalk (indien mogelijk) of pop-out naar een nieuw venster door op deze banner te klikken."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Om een bestand te kiezen met Firefox, open je de extensie in de zijbalk of als pop-up in een nieuw venster door op deze banner te klikken."
-  },
-  "sendSafariFileWarning": {
-    "message": "Om een bestand te kiezen met Safari, open je een nieuw pop-up-venster door op deze banner te klikken."
-  },
   "popOut": {
     "message": "Uitklappen"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Voor je begint"
   },
   "expirationDateIsInvalid": {
     "message": "De opgegeven vervaldatum is niet geldig."
@@ -3345,6 +3351,12 @@
   },
   "error": {
     "message": "Fout"
+  },
+  "prfUnlockFailed": {
+    "message": "Ontgrendelen met passkey mislukt. Probeer het opnieuw of gebruik een andere ontgrendelingsmethode."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Er zijn geen PRF-ingeschakelde passkeys beschikbaar om te ontgrendelen. Log eerst in met een passkey."
   },
   "decryptionError": {
     "message": "Ontsleutelingsfout"
@@ -4721,6 +4733,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Meer opties"
+  },
   "moreOptionsTitle": {
     "message": "Meer opties - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4825,39 @@
   },
   "adminConsole": {
     "message": "Beheerconsole"
+  },
+  "admin": {
+    "message": "Beheerder"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatisch gebruikers in behandeling bevestigen wanneer dit apparaat is ontgrendeld"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Bespaar tijd met automatische gebruikersbevestiging"
+  },
+  "autoConfirmWarning": {
+    "message": "Dit kan van invloed zijn op de gegevensbeveiliging van je organisatie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Meer informatie over de risico's"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatisch nieuwe gebruikers bevestigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nieuwe gebruikers worden automatisch bevestigd wanneer dit apparaat is ontgrendeld."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Wat zijn de mogelijke veiligheidsrisico's?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische bevestigen ingeschakeld"
+  },
+  "availableNow": {
+    "message": "Nu beschikbaar"
   },
   "accountSecurity": {
     "message": "Accountbeveiliging"
@@ -4934,6 +4982,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Bijlage downloaden"
   },
   "downloadBitwarden": {
     "message": "Bitwarden downloaden"
@@ -5074,14 +5125,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Overeenkomstdetectie verbergen $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
   },
   "autoFillOnPageLoad": {
     "message": "Automatisch invullen bij laden van pagina?"
@@ -5619,6 +5667,9 @@
   "extraWide": {
     "message": "Extra breed"
   },
+  "narrow": {
+    "message": "Smal"
+  },
   "sshKeyWrongPassword": {
     "message": "Het wachtwoord dat je hebt ingevoerd is onjuist."
   },
@@ -5912,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Kaartnummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Je organisatie maakt niet langer gebruik van hoofdwachtwoorden om in te loggen op Bitwarden. Controleer de organisatie en het domein om door te gaan."
   },
@@ -6049,7 +6103,38 @@
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Zoekresultaten"
+  },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Bitwarden-apps downloaden"
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

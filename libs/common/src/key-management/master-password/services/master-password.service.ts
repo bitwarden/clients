@@ -5,6 +5,7 @@ import { firstValueFrom, map, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
@@ -341,5 +342,52 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+  }
+
+  async setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
+    )) as MasterKey;
+    const localKeyHash = await this.hashMasterKey(
+      password,
+      masterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    await this.setMasterKey(masterKey, userId);
+    await this.setMasterKeyHash(localKeyHash, userId);
+  }
+
+  // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
+  private async hashMasterKey(
+    password: string,
+    key: MasterKey,
+    hashPurpose: HashPurpose,
+  ): Promise<string> {
+    if (password == null) {
+      throw new Error("password is required.");
+    }
+    if (key == null) {
+      throw new Error("key is required.");
+    }
+
+    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
+    return Utils.fromBufferToB64(hash);
   }
 }

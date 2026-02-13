@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
+  "unlockWithPasskey": {
+    "message": "Desbloquear com chave de acesso"
+  },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
   },
@@ -573,14 +576,23 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
+  },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Depois de arquivado, este item será excluído dos resultados de pesquisa e das sugestões de preenchimento automático."
+  },
+  "archived": {
+    "message": "Arquivado"
+  },
+  "unarchiveAndSave": {
+    "message": "Desarquivar e guardar"
   },
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
@@ -978,6 +990,12 @@
   "no": {
     "message": "Não"
   },
+  "noAuth": {
+    "message": "Qualquer pessoa com o link"
+  },
+  "anyOneWithPassword": {
+    "message": "Qualquer pessoa com uma palavra-passe definida por si"
+  },
   "location": {
     "message": "Localização"
   },
@@ -1062,7 +1080,7 @@
     }
   },
   "deleteItemConfirmation": {
-    "message": "Tem a certeza de que pretende eliminar este item?"
+    "message": "Pretende realmente mover este item para o lixo?"
   },
   "deletedItem": {
     "message": "Item movido para o lixo"
@@ -1535,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "archivePremiumRestart": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Reiniciar o Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -2027,6 +2054,9 @@
   "email": {
     "message": "E-mail"
   },
+  "emails": {
+    "message": "E-mails"
+  },
   "phone": {
     "message": "Telefone"
   },
@@ -2455,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Item eliminado permanentemente"
   },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
+  },
   "restoreItem": {
     "message": "Restaurar item"
   },
@@ -2713,9 +2746,6 @@
   },
   "excludedDomainsDesc": {
     "message": "O Bitwarden não pedirá para guardar os detalhes de início de sessão destes domínios. É necessário atualizar a página para que as alterações tenham efeito."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "O Bitwarden não pedirá para guardar os detalhes de início de sessão destes domínios para todas as contas com sessão iniciada. É necessário atualizar a página para que as alterações tenham efeito."
   },
   "blockedDomainsDesc": {
     "message": "O preenchimento automático e outras funcionalidades relacionadas não serão disponibilizados para estes sites. É necessário atualizar a página para que as alterações tenham efeito."
@@ -3002,10 +3032,6 @@
   "custom": {
     "message": "Personalizado"
   },
-  "sendPasswordDescV3": {
-    "message": "Adicione uma palavra-passe opcional para os destinatários acederem a este Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Novo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3065,28 +3091,8 @@
     "message": "Send editado",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Abrir a extensão numa nova janela?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Para criar um ficheiro Send, precisa de abrir a extensão para uma nova janela.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Para escolher um ficheiro, abra a extensão na barra lateral (se possível) ou abra uma nova janela clicando neste banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Para escolher um ficheiro utilizando o Firefox, abra a extensão na barra lateral ou abra uma nova janela clicando neste banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "Para escolher um ficheiro utilizando o Safari, abra uma nova janela clicando neste banner."
-  },
   "popOut": {
     "message": "Abrir numa nova janela"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Antes de começar"
   },
   "expirationDateIsInvalid": {
     "message": "O prazo de validade fornecido não é válido."
@@ -3345,6 +3351,12 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "prfUnlockFailed": {
+    "message": "Não foi possível desbloquear com a chave de acesso. Por favor, tente novamente ou utilize outro método de desbloqueio."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Não estão disponíveis chaves de acesso com PRF ativado para o desbloqueio. Por favor, inicie sessão primeiro com uma chave de acesso."
   },
   "decryptionError": {
     "message": "Erro de desencriptação"
@@ -4037,7 +4049,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor introduzido deve ser, no mínimo, $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -4721,6 +4733,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Mais opções"
+  },
   "moreOptionsTitle": {
     "message": "Mais opções - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4825,39 @@
   },
   "adminConsole": {
     "message": "Consola de administração"
+  },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática do utilizador"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirmar automaticamente os utilizadores pendentes enquanto este dispositivo estiver desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Poupe tempo com a confirmação automática de utilizadores"
+  },
+  "autoConfirmWarning": {
+    "message": "Isto pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
+  "autoConfirmSetup": {
+    "message": "Confirmar automaticamente novos utilizadores"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Os novos utilizadores serão automaticamente confirmados enquanto este dispositivo estiver desbloqueado."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quais são os riscos potenciais de segurança?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Confirmação automática ativada"
+  },
+  "availableNow": {
+    "message": "Já disponível"
   },
   "accountSecurity": {
     "message": "Segurança da conta"
@@ -4934,6 +4982,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Transferir anexo"
   },
   "downloadBitwarden": {
     "message": "Descarregar o Bitwarden"
@@ -5074,14 +5125,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ocultar deteção de correspondência para $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
   },
   "autoFillOnPageLoad": {
     "message": "Preencher automaticamente ao carregar a página?"
@@ -5619,6 +5667,9 @@
   "extraWide": {
     "message": "Muito ampla"
   },
+  "narrow": {
+    "message": "Estreito"
+  },
   "sshKeyWrongPassword": {
     "message": "A palavra-passe que introduziu está incorreta."
   },
@@ -5912,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Número do cartão"
   },
+  "errorCannotDecrypt": {
+    "message": "Erro: Não é possível desencriptar"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "A sua organização já não utiliza palavras-passe mestras para iniciar sessão no Bitwarden. Para continuar, verifique a organização e o domínio."
   },
@@ -6049,7 +6103,38 @@
   "whyAmISeeingThis": {
     "message": "Porque é que estou a ver isto?"
   },
+  "items": {
+    "message": "Itens"
+  },
+  "searchResults": {
+    "message": "Resultados da pesquisa"
+  },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
+  },
+  "whoCanView": {
+    "message": "Quem pode ver"
+  },
+  "specificPeople": {
+    "message": "Pessoas específicas"
+  },
+  "emailVerificationDesc": {
+    "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Introduza vários e-mails, separados por vírgula."
+  },
+  "emailPlaceholder": {
+    "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Descarregar as apps Bitwarden"
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
+  },
+  "sendPasswordHelperText": {
+    "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

@@ -41,6 +41,7 @@ interface OverlayLike {
 interface OverlayRefStub {
   attach: (portal: ComponentPortal<unknown>) => unknown;
   updatePosition: () => void;
+  dispose: () => void;
 }
 
 describe("TooltipDirective (visibility only)", () => {
@@ -68,6 +69,7 @@ describe("TooltipDirective (visibility only)", () => {
         },
       })),
       updatePosition: jest.fn(),
+      dispose: jest.fn(),
     };
 
     const overlayMock: OverlayLike = {
@@ -101,13 +103,22 @@ describe("TooltipDirective (visibility only)", () => {
     expect(isVisible()).toBe(true);
   }));
 
-  it("sets isVisible to true on focus", fakeAsync(() => {
+  it("sets isVisible to true on focus-visible", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    button.dispatchEvent(new Event("focus"));
+    // Mock matches to return true for :focus-visible (simulates keyboard navigation)
+    const originalMatches = button.matches.bind(button);
+    button.matches = jest.fn((selector: string) => {
+      if (selector === ":focus-visible") {
+        return true;
+      }
+      return originalMatches(selector);
+    });
+
+    button.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
     tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
   }));

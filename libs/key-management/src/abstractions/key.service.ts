@@ -69,20 +69,6 @@ export abstract class KeyService {
    */
   abstract setUserKey(key: UserKey, userId: UserId): Promise<void>;
   /**
-   * Sets the provided user keys and stores any other necessary versions
-   * (such as auto, biometrics, or pin).
-   * Also sets the user's encrypted private key in storage and
-   * clears the decrypted private key from memory
-   * Note: does not clear the private key if null is provided
-   *
-   * @throws Error when userKey, encPrivateKey or userId is null
-   * @throws UserPrivateKeyDecryptionFailedError when the userKey cannot decrypt encPrivateKey
-   * @param userKey The user key to set
-   * @param encPrivateKey An encrypted private key
-   * @param userId The desired user
-   */
-  abstract setUserKeys(userKey: UserKey, encPrivateKey: string, userId: UserId): Promise<void>;
-  /**
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
@@ -128,18 +114,13 @@ export abstract class KeyService {
 
   /**
    * Generates a new user key
-   * @deprecated Interacting with the master key directly is prohibited. Use {@link makeUserKeyV1} instead.
+   * @deprecated Interacting with the master key directly is prohibited.
+   * For new features please use the KM provided SDK methods for user cryptography initialization or reach out to the KM team.
    * @throws Error when master key is null or undefined.
    * @param masterKey The user's master key.
    * @returns A new user key and the master key protected version of it
    */
   abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
-  /**
-   * Generates a new user key for a V1 user
-   * Note: This will be replaced by a higher level function to initialize a whole users cryptographic state in the near future.
-   * @returns A new user key
-   */
-  abstract makeUserKeyV1(): Promise<UserKey>;
   /**
    * Clears the user's stored version of the user key
    * @param userId The desired user
@@ -263,21 +244,6 @@ export abstract class KeyService {
    * @returns The new encrypted OrgKey | ProviderKey and the decrypted key itself
    */
   abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
-  /**
-   * Sets the user's encrypted private key in storage and
-   * clears the decrypted private key from memory
-   * Note: does not clear the private key if null is provided
-   * @param encPrivateKey An encrypted private key
-   */
-  abstract setPrivateKey(encPrivateKey: string, userId: UserId): Promise<void>;
-  /**
-   * Sets the user's encrypted signing key in storage
-   * In contrast to the private key, the decrypted signing key
-   * is not stored in memory outside of the SDK.
-   * @param encryptedSigningKey An encrypted signing key
-   * @param userId The user id of the user to set the signing key for
-   */
-  abstract setUserSigningKey(encryptedSigningKey: WrappedSigningKey, userId: UserId): Promise<void>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user
@@ -285,8 +251,7 @@ export abstract class KeyService {
    * encrypted private key at all.
    *
    * @param userId The user id of the user to get the data for.
-   * @returns An observable stream of the decrypted private key or null.
-   * @throws Error when decryption of the encrypted private key fails.
+   * @returns An observable stream of the decrypted private key or null if the private key is not present or fails to decrypt
    */
   abstract userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null>;
 
@@ -334,9 +299,9 @@ export abstract class KeyService {
   abstract getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]>;
   /**
    * Generates a new keypair
-   * @param key A key to encrypt the private key with. If not provided,
-   * defaults to the user key
-   * @returns A new keypair: [publicKey in Base64, encrypted privateKey]
+   * @deprecated New use-cases of this function are prohibited. Low-level cryptographic constructions and initialization should be done in the SDK.
+   * @param key A symmetric key to wrap the newly created private key with.
+   * @returns A new keypair: [publicKey in Base64, wrapped privateKey]
    * @throws If the provided key is a null-ish value.
    */
   abstract makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]>;
@@ -361,6 +326,8 @@ export abstract class KeyService {
   /**
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
+   * @deprecated New use cases for cryptography initialization should be done in the SDK.
+   * Current usage is actively being migrated see PM-21771 for details.
    * @param userId The user id of the target user.
    * @returns The user's newly created  public key, private key, and encrypted private key
    * @throws An error if the userId is null or undefined.
@@ -428,8 +395,6 @@ export abstract class KeyService {
    * @param userId The user id for the key
    */
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
-
-  abstract setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void>;
 
   abstract userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null>;
 }

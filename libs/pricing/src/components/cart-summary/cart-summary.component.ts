@@ -37,6 +37,9 @@ export class CartSummaryComponent {
   // Optional inputs
   readonly header = input<TemplateRef<{ total: number }>>();
 
+  // Hide pricing term (e.g., "/ month" or "/ year") if true
+  readonly hidePricingTerm = input<boolean>(false);
+
   // UI state
   readonly isExpanded = signal(true);
 
@@ -116,7 +119,7 @@ export class CartSummaryComponent {
    */
   readonly discountAmount = computed<number>(() => {
     const { discount } = this.cart();
-    if (!discount || !discount.active) {
+    if (!discount) {
       return 0;
     }
 
@@ -136,23 +139,44 @@ export class CartSummaryComponent {
    */
   readonly discountLabel = computed<string>(() => {
     const { discount } = this.cart();
-    if (!discount || !discount.active) {
+    if (!discount) {
       return "";
     }
     return getLabel(this.i18nService, discount);
   });
 
   /**
+   * Calculates the credit amount from the cart credit
+   */
+  readonly creditAmount = computed<number>(() => {
+    const { credit } = this.cart();
+    if (!credit) {
+      return 0;
+    }
+    return credit.value;
+  });
+
+  /**
    * Calculates the total of all line items including discount and tax
    */
   readonly total = computed<number>(
-    () => this.subtotal() - this.discountAmount() + this.estimatedTax(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**
    * Observable of computed total value
    */
   readonly total$ = toObservable(this.total);
+
+  /**
+   * Translates a key with optional parameters
+   */
+  translateWithParams(key: string, params?: Array<string | number>): string {
+    if (!params || params.length === 0) {
+      return this.i18nService.t(key);
+    }
+    return this.i18nService.t(key, ...params);
+  }
 
   /**
    * Toggles the expanded/collapsed state of the cart items

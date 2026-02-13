@@ -100,6 +100,66 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Denna Send kommer att raderas permanent på detta datum.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Fil att dela"
+  },
+  "hideTextByDefault": {
+    "message": "Dölj text som standard"
+  },
+  "hideYourEmail": {
+    "message": "Dölj din e-postadress från tittarna."
+  },
+  "limitSendViews": {
+    "message": "Begränsa antalet visningar"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visningar kvar",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Ingen kan se denna Send efter att gränsen har nåtts.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Privat anteckning"
+  },
+  "sendDetails": {
+    "message": "Send-detaljer",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text att dela"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Ny Send för text",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Ny Send för fil",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Redigera Send för text",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Redigera Send för fil",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Är du säker på att du vill ta bort denna Send permanent?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Ny",
     "description": "for adding new items"
@@ -2027,6 +2087,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Raderade objekt permanent"
+  },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
   },
   "restoredItem": {
     "message": "Återställde objekt"
@@ -4011,6 +4074,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
   },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
+  },
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
@@ -4267,8 +4336,8 @@
   "typeShortcut": {
     "message": "Inmatningsgenväg"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win och en bokstav."
   },
   "invalidShortcut": {
     "message": "Ogiltig genväg"
@@ -4307,7 +4376,7 @@
     "message": "Avarkivera"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arkiverade"
   },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
@@ -4327,23 +4396,23 @@
   "archiveItem": {
     "message": "Arkivera objekt"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Avarkivera och spara"
   },
   "restartPremium": {
     "message": "Starta om Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Ditt Premium-abonnemang avslutades"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Objektet har återställts"
   },
   "zipPostalCodeLabel": {
     "message": "Postnummer"
@@ -4416,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Tidsgränsåtgärd"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Sessionstidsgräns"
@@ -4514,5 +4586,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individer måste ange lösenordet för att visa denna Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "E-post"
+  },
+  "noAuth": {
+    "message": "Vem som helst med länken"
+  },
+  "anyOneWithPassword": {
+    "message": "Alla som har ett lösenord inställt av dig"
+  },
+  "whoCanView": {
+    "message": "Vem kan se"
+  },
+  "specificPeople": {
+    "message": "Specifika personer"
+  },
+  "emailVerificationDesc": {
+    "message": "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
+  },
+  "emailPlaceholder": {
+    "message": "användare@bitwarden.com , användare@acme.com"
   }
 }
