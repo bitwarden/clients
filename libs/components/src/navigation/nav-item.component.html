@@ -12,23 +12,11 @@
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
-          @if (navGroupItem()) {
-            <div
-              class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
-            >
-              <ng-content select="[slot=start]"></ng-content>
-            </div>
-          } @else {
-            <!-- Renders invisible placeholder arrow button for non-group nav items to maintain visual alignment -->
-            <div class="tw-transform tw--translate-x-[calc(100%_+_4px)] tw-invisible">
-              <button
-                type="button"
-                class="tw-ms-auto !tw-p-0 !tw-w-6 !tw-h-6"
-                bitIconButton="bwi-down-solid"
-                size="small"
-              ></button>
-            </div>
-          }
+          <div
+            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
+          >
+            <ng-content select="[slot=start]"></ng-content>
+          </div>
         }
         @if (route()) {
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin` -->

@@ -50,11 +50,6 @@ export class NavItemComponent extends NavBaseComponent {
    */
   readonly forceActiveStyles = input<boolean>(false);
 
-  /**
-   * Determines if invisible placeholder arrow should be rendered for non `nav-group` items
-   */
-  readonly navGroupItem = input<boolean>(false);
-
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
 
@@ -80,9 +75,7 @@ export class NavItemComponent extends NavBaseComponent {
     const depth = this.treeDepth() ?? 0;
 
     if (open) {
-      return depth === 1
-        ? `${this.TREE_BASE_PADDING}rem`
-        : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
+      return `${this.TREE_BASE_PADDING + depth * this.TREE_DEPTH_PADDING}rem`;
     }
 
     return "0";

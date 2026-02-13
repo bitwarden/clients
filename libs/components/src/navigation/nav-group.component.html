@@ -4,7 +4,7 @@
     [text]="text()"
     [icon]="icon()"
     [route]="route()"
-    [treeDepth]="treeDepth() + 1"
+    [treeDepth]="treeDepth()"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
     (mainContentClicked)="handleMainContentClicked()"
@@ -12,7 +12,6 @@
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
     [forceActiveStyles]="forceActiveStyles()"
-    navGroupItem="true"
   >
     <ng-template #button>
       <button
