@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Hành động sau khi đóng kho"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
   },
