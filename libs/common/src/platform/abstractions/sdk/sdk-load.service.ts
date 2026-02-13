@@ -1,6 +1,6 @@
 import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
-import { AsyncInitializable } from "../initializable";
+import { AsyncInitializable } from "../async-initializable";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
 import type { SdkService } from "./sdk.service";

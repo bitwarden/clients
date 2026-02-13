@@ -8,11 +8,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncDependency,
   AsyncInitializable,
-} from "@bitwarden/common/platform/abstractions/initializable";
+} from "@bitwarden/common/platform/abstractions/async-initializable";
+import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";

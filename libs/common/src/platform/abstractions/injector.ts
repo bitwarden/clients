@@ -1,4 +1,4 @@
-import { AsyncDependency } from "./initializable";
+import { AsyncDependency } from "./async-initializable";
 import { SyncDependency } from "./sync-initializable";
 
 export type Dependency = AsyncDependency | SyncDependency;

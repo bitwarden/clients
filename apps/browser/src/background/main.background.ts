@@ -114,6 +114,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/async-initializable";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -123,7 +124,6 @@ import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AsyncDependency } from "@bitwarden/common/platform/abstractions/initializable";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";

@@ -1,4 +1,4 @@
-import { AsyncDependency } from "@bitwarden/common/platform/abstractions/initializable";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/async-initializable";
 
 import { SafeInjectionToken } from "../utils/safe-injection-token";
 import { SafeProvider } from "../utils/safe-provider";

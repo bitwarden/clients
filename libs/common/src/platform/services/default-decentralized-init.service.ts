@@ -1,4 +1,4 @@
-import { AsyncDependency, AsyncInitializable } from "../abstractions/initializable";
+import { AsyncDependency, AsyncInitializable } from "../abstractions/async-initializable";
 import { Injector } from "../abstractions/injector";
 
 import { topologicalSort } from "./init-utils";

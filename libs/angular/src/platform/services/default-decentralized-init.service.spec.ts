@@ -1,7 +1,7 @@
 import {
   AsyncDependency,
   AsyncInitializable,
-} from "@bitwarden/common/platform/abstractions/initializable";
+} from "@bitwarden/common/platform/abstractions/async-initializable";
 import { Injector } from "@bitwarden/common/platform/abstractions/injector";
 import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 

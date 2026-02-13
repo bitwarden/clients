@@ -14,7 +14,7 @@ import { inject, Injectable, provideAppInitializer } from "@angular/core";
 import {
   AsyncInitializable,
   AsyncDependency,
-} from "@bitwarden/common/platform/abstractions/initializable";
+} from "@bitwarden/common/platform/abstractions/async-initializable";
 
 import {
   DecentralizedInitService,

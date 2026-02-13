@@ -2,11 +2,11 @@ import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncDependency,
   AsyncInitializable,
-} from "@bitwarden/common/platform/abstractions/initializable";
+} from "@bitwarden/common/platform/abstractions/async-initializable";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
