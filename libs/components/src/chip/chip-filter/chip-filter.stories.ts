@@ -6,7 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { MenuModule } from "../../menu";
 import { I18nMockService } from "../../utils/i18n-mock.service";
-import { sharedArgTypes } from "../shared-story-arg-types";
+import { fullWidthArgType, sharedArgTypes } from "../shared-story-arg-types";
 
 import { ChipFilterComponent } from "./chip-filter.component";
 
@@ -33,6 +33,7 @@ export default {
   ],
   argTypes: {
     ...sharedArgTypes,
+    ...fullWidthArgType,
   },
   parameters: {
     design: {

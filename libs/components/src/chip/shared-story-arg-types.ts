@@ -14,10 +14,6 @@ const sharedArgTypes = {
       defaultValue: { summary: ChipSizes.Large },
     },
   },
-  fullWidth: {
-    control: "boolean",
-    description: "Whether the chip takes full width",
-  },
   startIcon: {
     control: "select",
     options: BITWARDEN_ICONS,
@@ -37,6 +33,13 @@ const endIconArgType = {
   },
 } satisfies Partial<ArgTypes>;
 
+const fullWidthArgType = {
+  fullWidth: {
+    control: "boolean",
+    description: "Whether the chip takes full width",
+  },
+} satisfies Partial<ArgTypes>;
+
 const variantArgType = {
   variant: {
     options: Object.values(ChipVariants),
@@ -49,4 +52,4 @@ const variantArgType = {
   },
 } satisfies Partial<ArgTypes>;
 
-export { sharedArgTypes, variantArgType, endIconArgType };
+export { sharedArgTypes, variantArgType, endIconArgType, fullWidthArgType };
