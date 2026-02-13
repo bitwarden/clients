@@ -1,7 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   ButtonModule,
   DialogModule,
@@ -10,6 +12,7 @@ import {
   TypographyModule,
   CenterPositionStrategy,
 } from "@bitwarden/components";
+import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 
 export const VaultWelcomeDialogResult = {
   Dismissed: "dismissed",
@@ -19,6 +22,15 @@ export const VaultWelcomeDialogResult = {
 export type VaultWelcomeDialogResult =
   (typeof VaultWelcomeDialogResult)[keyof typeof VaultWelcomeDialogResult];
 
+const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
+  VAULT_WELCOME_DIALOG_DISK,
+  "vaultWelcomeDialogAcknowledged",
+  {
+    deserializer: (value) => value,
+    clearOn: [],
+  },
+);
+
 @Component({
   selector: "app-vault-welcome-dialog",
   templateUrl: "./vault-welcome-dialog.component.html",
@@ -27,14 +39,30 @@ export type VaultWelcomeDialogResult =
   imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, JslibModule],
 })
 export class VaultWelcomeDialogComponent {
+  private accountService = inject(AccountService);
+  private stateProvider = inject(StateProvider);
+
   constructor(private dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
 
-  protected onDismiss(): void {
+  protected async onDismiss(): Promise<void> {
+    await this.setAcknowledged();
     this.dialogRef.close(VaultWelcomeDialogResult.Dismissed);
   }
 
-  protected onPrimaryCta(): void {
+  protected async onPrimaryCta(): Promise<void> {
+    await this.setAcknowledged();
     this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
+  }
+
+  private async setAcknowledged(): Promise<void> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (account) {
+      await this.stateProvider.setUserState(
+        VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY,
+        true,
+        account.id,
+      );
+    }
   }
 
   static open(dialogService: DialogService): DialogRef<VaultWelcomeDialogResult> {

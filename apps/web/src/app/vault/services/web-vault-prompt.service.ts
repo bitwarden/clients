@@ -12,7 +12,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
@@ -20,18 +19,8 @@ import {
   AutoConfirmPolicy,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
-import { VaultWelcomeDialogComponent } from "../components/vault-welcome-dialog/vault-welcome-dialog.component";
 
-const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
-  VAULT_WELCOME_DIALOG_DISK,
-  "vaultWelcomeDialogAcknowledged",
-  {
-    deserializer: (value) => value,
-    clearOn: [],
-  },
-);
-
-const THIRTY_DAY_MS = 1000 * 60 * 60 * 24 * 30;
+import { WelcomeDialogService } from "./welcome-dialog.service";
 
 @Injectable()
 export class WebVaultPromptService {
@@ -44,7 +33,7 @@ export class WebVaultPromptService {
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
-  private stateProvider = inject(StateProvider);
+  private welcomeDialogService = inject(WelcomeDialogService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -66,50 +55,11 @@ export class WebVaultPromptService {
 
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
-    if (await this.conditionallyShowWelcomeDialog()) {
+    if (await this.welcomeDialogService.conditionallyShowWelcomeDialog()) {
       return;
     }
 
     this.checkForAutoConfirm();
-  }
-
-  async conditionallyShowWelcomeDialog(): Promise<boolean> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (!account) {
-      return false;
-    }
-
-    const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialog);
-    if (!enabled) {
-      return false;
-    }
-
-    const createdAt = account.creationDate;
-    if (!createdAt) {
-      return false;
-    }
-
-    const ageMs = Date.now() - createdAt.getTime();
-    const isNewUser = ageMs >= 0 && ageMs <= THIRTY_DAY_MS;
-    if (!isNewUser) {
-      return false;
-    }
-
-    const acknowledged = await firstValueFrom(
-      this.stateProvider
-        .getUserState$(VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY, account.id)
-        .pipe(map((v) => v ?? false)),
-    );
-
-    if (acknowledged) {
-      return false;
-    }
-
-    const dialogRef = VaultWelcomeDialogComponent.open(this.dialogService);
-    await firstValueFrom(dialogRef.closed);
-
-    await this.stateProvider.setUserState(VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY, true, account.id);
-    return true;
   }
 
   private async openAutoConfirmFeatureDialog(organization: Organization) {
