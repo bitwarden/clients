@@ -80,7 +80,7 @@ describe("ArchiveCipherUtilitiesService", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "itemWasSentToArchive",
+        message: "itemArchiveToast",
       });
     });
 
@@ -106,7 +106,7 @@ describe("ArchiveCipherUtilitiesService", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "itemWasUnarchived",
+        message: "itemUnarchivedToast",
       });
     });
 

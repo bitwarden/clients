@@ -11905,14 +11905,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Items archived"

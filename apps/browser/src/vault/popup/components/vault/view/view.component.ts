@@ -277,17 +277,24 @@ export class ViewComponent {
   };
 
   restore = async (): Promise<void> => {
+    let toastMessage;
     try {
       await this.cipherService.restoreWithServer(this.cipher.id, this.activeUserId);
     } catch (e) {
       this.logService.error(e);
     }
 
+    if (this.cipher.archivedDate) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
+    }
+
     await this.popupRouterCacheService.back();
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("restoredItem"),
+      message: toastMessage,
     });
   };
 

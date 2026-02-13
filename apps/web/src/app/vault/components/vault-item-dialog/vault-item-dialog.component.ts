@@ -616,7 +616,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemWasSentToArchive"),
+        message: this.i18nService.t("itemArchiveToast"),
       });
     } catch {
       this.toastService.showToast({
@@ -638,7 +638,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemWasUnarchived"),
+        message: this.i18nService.t("itemUnarchivedToast"),
       });
     } catch {
       this.toastService.showToast({
