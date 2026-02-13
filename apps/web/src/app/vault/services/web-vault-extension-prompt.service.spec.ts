@@ -8,7 +8,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 
-import { WebWelcomeExtensionPromptDialogComponent } from "../components/web-welcome-extension-prompt/web-welcome-extension-prompt-dialog.component";
+import { WebVaultExtensionPromptDialogComponent } from "../components/web-vault-extension-prompt/web-vault-extension-prompt-dialog.component";
 
 import { WebBrowserInteractionService } from "./web-browser-interaction.service";
 import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
@@ -147,7 +147,7 @@ describe("WebVaultExtensionPromptService", () => {
 
       const dialogClosedSubject = new BehaviorSubject<void>(undefined);
       const openSpy = jest
-        .spyOn(WebWelcomeExtensionPromptDialogComponent, "open")
+        .spyOn(WebVaultExtensionPromptDialogComponent, "open")
         .mockReturnValue({ closed: dialogClosedSubject.asObservable() } as any);
 
       const resultPromise = service.conditionallyPromptUserForExtension(mockUserId);

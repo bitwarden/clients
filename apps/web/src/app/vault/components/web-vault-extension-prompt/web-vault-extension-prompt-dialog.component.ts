@@ -26,12 +26,12 @@ export const WELCOME_EXTENSION_DIALOG_DISMISSED = new UserKeyDefinition<boolean>
 );
 
 @Component({
-  selector: "web-welcome-extension-prompt-dialog",
-  templateUrl: "./web-welcome-extension-prompt-dialog.component.html",
+  selector: "web-vault-extension-prompt-dialog",
+  templateUrl: "./web-vault-extension-prompt-dialog.component.html",
   imports: [CommonModule, ButtonModule, DialogModule, I18nPipe, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WebWelcomeExtensionPromptDialogComponent implements OnInit {
+export class WebVaultExtensionPromptDialogComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private stateProvider: StateProvider,
@@ -54,6 +54,6 @@ export class WebWelcomeExtensionPromptDialogComponent implements OnInit {
 
   /** Opens the web extension prompt generator dialog. */
   static open(dialogService: DialogService) {
-    return dialogService.open(WebWelcomeExtensionPromptDialogComponent);
+    return dialogService.open(WebVaultExtensionPromptDialogComponent);
   }
 }

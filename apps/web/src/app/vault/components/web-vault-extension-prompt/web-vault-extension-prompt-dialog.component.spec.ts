@@ -13,13 +13,13 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
-  WebWelcomeExtensionPromptDialogComponent,
+  WebVaultExtensionPromptDialogComponent,
   WELCOME_EXTENSION_DIALOG_DISMISSED,
-} from "./web-welcome-extension-prompt-dialog.component";
+} from "./web-vault-extension-prompt-dialog.component";
 
-describe("WebWelcomeExtensionPromptDialogComponent", () => {
-  let component: WebWelcomeExtensionPromptDialogComponent;
-  let fixture: ComponentFixture<WebWelcomeExtensionPromptDialogComponent>;
+describe("WebVaultExtensionPromptDialogComponent", () => {
+  let component: WebVaultExtensionPromptDialogComponent;
+  let fixture: ComponentFixture<WebVaultExtensionPromptDialogComponent>;
   let fakeStateProvider: FakeStateProvider;
   let mockDialogRef: MockProxy<DialogRef<void>>;
 
@@ -33,7 +33,7 @@ describe("WebWelcomeExtensionPromptDialogComponent", () => {
     mockDialogRef = mock<DialogRef<void>>();
 
     await TestBed.configureTestingModule({
-      imports: [WebWelcomeExtensionPromptDialogComponent],
+      imports: [WebVaultExtensionPromptDialogComponent],
       providers: [
         provideNoopAnimations(),
         {
@@ -48,7 +48,7 @@ describe("WebWelcomeExtensionPromptDialogComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WebWelcomeExtensionPromptDialogComponent);
+    fixture = TestBed.createComponent(WebVaultExtensionPromptDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

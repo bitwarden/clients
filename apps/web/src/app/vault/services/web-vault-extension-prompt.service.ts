@@ -10,8 +10,8 @@ import { StateProvider } from "@bitwarden/state";
 
 import {
   WELCOME_EXTENSION_DIALOG_DISMISSED,
-  WebWelcomeExtensionPromptDialogComponent,
-} from "../components/web-welcome-extension-prompt/web-welcome-extension-prompt-dialog.component";
+  WebVaultExtensionPromptDialogComponent,
+} from "../components/web-vault-extension-prompt/web-vault-extension-prompt-dialog.component";
 
 import { WebBrowserInteractionService } from "./web-browser-interaction.service";
 
@@ -55,7 +55,7 @@ export class WebVaultExtensionPromptService {
       return false;
     }
 
-    const dialogRef = WebWelcomeExtensionPromptDialogComponent.open(this.dialogService);
+    const dialogRef = WebVaultExtensionPromptDialogComponent.open(this.dialogService);
     await firstValueFrom(dialogRef.closed);
 
     return true;
