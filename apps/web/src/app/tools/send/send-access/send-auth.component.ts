@@ -73,7 +73,6 @@ export class SendAuthComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.updatePageTitle();
     void this.onSubmit();
   }
 
@@ -226,6 +225,10 @@ export class SendAuthComponent implements OnInit {
           pageTitle: { key: "verifyYourEmailToViewThisSend" },
         });
       }
+    } else if (authType === AuthType.Password) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "sendAccessPasswordTitle" },
+      });
     }
   }
 }
