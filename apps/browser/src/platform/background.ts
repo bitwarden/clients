@@ -4,4 +4,5 @@ import MainBackground from "../background/main.background";
 
 const logService = new ConsoleLogService(false);
 const bitwardenMain = ((self as any).bitwardenMain = new MainBackground());
+bitwardenMain.syncBootstrap();
 bitwardenMain.bootstrap().catch((error) => logService.error(error));

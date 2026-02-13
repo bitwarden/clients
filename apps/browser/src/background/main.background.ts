@@ -1570,14 +1570,18 @@ export default class MainBackground {
     );
   }
 
+  /**
+   * Synchronous bootstrap phase. Registers Chrome API event listeners
+   * immediately so the service worker is not terminated before they are set up.
+   * MUST be called before the async bootstrap().
+   */
+  syncBootstrap(): void {
+    this.syncInitService.init();
+  }
+
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    // CRITICAL: Synchronous initialization MUST happen first
-    // Registers all Chrome API event listeners before service worker termination
-    this.syncInitService.init();
-
-    // Now safe to do async initialization
     await this.decentralizedInitService.init();
 
     // Only the "true" background should run migrations
