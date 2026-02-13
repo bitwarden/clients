@@ -27,8 +27,3 @@ export interface AsyncInitializable {
    */
   init(): Promise<void> | void;
 }
-
-/** @deprecated Use {@link AsyncInitializable} instead */
-export type Initializable = AsyncInitializable;
-/** @deprecated Use {@link AsyncDependency} instead */
-export type Dependency = AsyncDependency;

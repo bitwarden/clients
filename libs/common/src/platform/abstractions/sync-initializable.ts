@@ -16,7 +16,7 @@ export interface SyncDependency extends Function {
  *
  * Important:
  * - init() is synchronous (returns void, not Promise)
- * - Dependencies are optional - services are topologically sorted if provided
+ * - Declaring dependencies is optional - services without dependencies are initialized first
  * - Should be idempotent (safe to call multiple times)
  */
 export interface SyncInitializable {

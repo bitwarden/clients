@@ -47,8 +47,8 @@ export function topologicalSort<T, TDep = unknown>(
         throw new Error(
           `${serviceName} depends on ${depName}, but ${depName} is not registered. ` +
             `Make sure to register it in your initialization service tokens:\n` +
-            `Angular: { provide: INIT_SERVICES, useValue: ${depName}, multi: true }\n` +
-            `Background: Add ${depName} to initServiceTokens array and register with injector`,
+            `Angular: asyncInitializableProvider(${depName})\n` +
+            `Background: Add ${depName} to register() calls on the injector`,
         );
       }
 
