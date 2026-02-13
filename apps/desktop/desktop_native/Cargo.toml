@@ -12,7 +12,6 @@ members = [
     "ssh_agent",
     "win_webauthn",
     "windows_plugin_authenticator",
-     "windows_plugin_authenticator"
 ]
 
 [workspace.package]

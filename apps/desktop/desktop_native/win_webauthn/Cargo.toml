@@ -5,9 +5,6 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
-[lints]
-workspace = true
-
 [target.'cfg(windows)'.dependencies]
 base64 = { workspace = true }
 ciborium = { workspace = true }
@@ -23,3 +20,6 @@ windows-core = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 hex = { workspace = true }
+
+[lints]
+workspace = true
