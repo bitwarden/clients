@@ -150,11 +150,13 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials = cipherViews
         .filter(
           (cipher) =>
+            !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
             cipher.login.uris.some((uri) => uri.match !== UriMatchStrategy.Never) &&
             cipher.login.uris.some((uri) => !Utils.isNullOrWhitespace(uri.uri)) &&
-            !Utils.isNullOrWhitespace(cipher.login.username),
+            !Utils.isNullOrWhitespace(cipher.login.username) &&
+            !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
