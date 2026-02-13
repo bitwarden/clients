@@ -1191,33 +1191,28 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin = false,
   ): Promise<Cipher> {
-    const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-    const cipherKeyEncryptionEnabled = await this.getCipherKeyEncryptionEnabled();
+    // The organization's symmetric key or the user's user key
+    const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
 
-    const cipherEncKey =
-      cipherKeyEncryptionEnabled && cipher.key != null
-        ? ((await this.encryptService.unwrapSymmetricKey(cipher.key, encKey)) as UserKey)
-        : encKey;
+    const cipherKeyOrVaultKey =
+      cipher.key != null
+        ? ((await this.encryptService.unwrapSymmetricKey(cipher.key, vaultKey)) as UserKey)
+        : vaultKey;
 
-    //if cipher key encryption is disabled but the item has an individual key,
-    //then we rollback to using the user key as the main key of encryption of the item
-    //in order to keep item and it's attachments with the same encryption level
-    if (cipher.key != null && !cipherKeyEncryptionEnabled) {
-      const model = await this.decrypt(cipher, userId);
-      await this.updateWithServer(model, userId);
-    }
+    const encFileName = await this.encryptService.encryptString(filename, cipherKeyOrVaultKey);
 
-    const encFileName = await this.encryptService.encryptString(filename, cipherEncKey);
-
-    const dataEncKey = await this.keyService.makeDataEncKey(cipherEncKey);
-    const encData = await this.encryptService.encryptFileData(new Uint8Array(data), dataEncKey[0]);
+    const attachmentKey = await this.keyService.makeDataEncKey(cipherKeyOrVaultKey);
+    const encData = await this.encryptService.encryptFileData(
+      new Uint8Array(data),
+      attachmentKey[0],
+    );
 
     const response = await this.cipherFileUploadService.upload(
       cipher,
       encFileName,
       encData,
       admin,
-      dataEncKey,
+      attachmentKey,
     );
 
     const cData = new CipherData(response, cipher.collectionIds);
