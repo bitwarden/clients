@@ -13,6 +13,9 @@ import { ChipFilterComponent } from "@bitwarden/components";
 
 <Canvas of={stories.Default} />
 
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chip--docs).
+
 ## Options
 
 Options are passed to the select via an `options` input.
@@ -44,7 +47,7 @@ class MyComponent {
 }
 ```
 
-### Option Trees
+### Option Trees (Nested Options)
 
 Nested trees of options are also supported by passing an array of options to `children`.
 
@@ -90,7 +93,7 @@ const options = [
 
 <Canvas of={stories.NestedOptions} />
 
-## Placeholder Content
+## Placeholder
 
 Placeholder content is shown when no item is selected.
 
@@ -98,10 +101,10 @@ Placeholder content is shown when no item is selected.
 <bit-chip-filter placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-filter>
 ```
 
-## Reading the current value
+## Reading the Current Value
 
-The component implements `ControlValueAccessor`, so the current selected value can be read via
-`ngModel` or `[formControlName]`.
+The component implements `ControlValueAccessor`, so the selected value can be accessed via `ngModel`
+or `[formControlName]`.
 
 ```html
 <bit-chip-filter [(ngModel)]="..."></bit-chip-filter>
