@@ -150,17 +150,13 @@ export class Vault {
       sharedFolderKeys,
     );
 
-    // 9. Build full folder paths for each record.
-    const recordFolderPaths = Vault.buildRecordFolderPaths(
+    // 9. Build full folder paths
+    const folderPaths = Vault.buildRecordFolderPaths(
       merged.userFolders,
-      merged.userFolderSharedFolders,
+      merged.sharedFolders,
       merged.sharedFolderFolders,
-      merged.userFolderRecords,
-      merged.sharedFolderRecords,
-      merged.sharedFolderFolderRecords,
-      folders,
-      sharedFolders,
-      sharedFolderFolderNames,
+      merged.userFolderSharedFolders,
+      new Map([...folders, ...sharedFolders]),
     );
 
     // 10. Combine records with their folder paths into VaultItems.
@@ -169,7 +165,7 @@ export class Vault {
       items.push({
         ...record,
         id: uid,
-        folders: recordFolderPaths.get(uid) ?? [],
+        folders: [],
       });
     }
 
@@ -321,96 +317,51 @@ export class Vault {
   }
 
   private static buildRecordFolderPaths(
-    userFolders: UserFolder[],
-    userFolderSharedFolders: UserFolderSharedFolder[],
-    sharedFolderFolders: SharedFolderFolder[],
-    userFolderRecords: UserFolderRecord[],
-    sharedFolderRecords: SharedFolderRecord[],
-    sharedFolderFolderRecords: SharedFolderFolderRecord[],
+    folders: UserFolder[],
+    sharedFolders: SharedFolder[],
+    sharedFoldersFolder: SharedFolderFolder[],
+    sharedFolderSharedFolders: UserFolderSharedFolder[],
     folderNames: Map<string, string>,
-    sharedFolderNames: Map<string, string>,
-    sharedFolderFolderNames: Map<string, string>,
-  ): Map<string, string[]> {
-    // Build a flat uid -> { name, parentUid } map for all folder types
-    const tree = new Map<string, { name: string; parentUid: string }>();
+  ): Map<string, string> {
+    const paths = new Map<string, string>();
+    const childToParent = new Map<string, string>();
 
-    // User folders
-    for (const uf of userFolders) {
-      const uid = base64UrlEncode(uf.folderUid);
-      const parentUid = uf.parentUid.length > 0 ? base64UrlEncode(uf.parentUid) : "";
-      const name = folderNames.get(uid) ?? uid;
-      tree.set(uid, { name: sanitizeFolderName(name), parentUid });
+    // 1. Normal folders. Defines the relationship between a folder and its parent.
+    for (const folder of folders) {
+      const uid = base64UrlEncode(folder.folderUid);
+      const parentUid = base64UrlEncode(folder.parentUid);
+      childToParent.set(uid, parentUid);
     }
 
-    // Shared folders (placed under user folders via userFolderSharedFolders)
-    for (const sf of userFolderSharedFolders) {
-      const sfUid = base64UrlEncode(sf.sharedFolderUid);
-      const parentUid = sf.folderUid.length > 0 ? base64UrlEncode(sf.folderUid) : "";
-      const name = sharedFolderNames.get(sfUid) ?? sfUid;
-      tree.set(sfUid, { name: sanitizeFolderName(name), parentUid });
+    // 2. Shared folders. Defines the relationship between a shared folder and its parent.
+    for (const folder of sharedFolderSharedFolders) {
+      const uid = base64UrlEncode(folder.sharedFolderUid);
+      const folderUid = base64UrlEncode(folder.folderUid);
+      childToParent.set(uid, folderUid);
     }
 
-    // Shared folder subfolders
-    for (const sff of sharedFolderFolders) {
-      const uid = base64UrlEncode(sff.folderUid);
-      const sfUid = base64UrlEncode(sff.sharedFolderUid);
-      // If no parent, the parent is the shared folder itself
-      const parentUid = sff.parentUid.length > 0 ? base64UrlEncode(sff.parentUid) : sfUid;
-      const name = sharedFolderFolderNames.get(uid) ?? uid;
-      tree.set(uid, { name: sanitizeFolderName(name), parentUid });
-    }
-
-    // Helper to walk up the tree and build a full path
+    // 3. Walk up the parent chain to build full paths for every folder.
     const getPath = (uid: string): string => {
-      const parts: string[] = [];
-      let current = uid;
-      const visited = new Set<string>();
-      while (current && tree.has(current)) {
-        if (visited.has(current)) {
-          break;
-        }
-        visited.add(current);
-        const node = tree.get(current)!;
-        parts.unshift(node.name);
-        current = node.parentUid;
+      if (paths.has(uid)) {
+        return paths.get(uid)!;
       }
-      return parts.join("/");
+      const name = sanitizeFolderName(folderNames.get(uid) ?? uid);
+      const parentUid = childToParent.get(uid);
+      if (!parentUid) {
+        paths.set(uid, name);
+        return name;
+      }
+      const parentPath = getPath(parentUid);
+      const path = joinPath(parentPath, name);
+      paths.set(uid, path);
+      return path;
     };
 
-    // Build record -> folder paths
-    const result = new Map<string, string[]>();
-
-    const addRecordFolder = (recordUid: string, folderUid: string) => {
-      const path = getPath(folderUid);
-      if (!path) {
-        return;
-      }
-      let paths = result.get(recordUid);
-      if (!paths) {
-        paths = [];
-        result.set(recordUid, paths);
-      }
-      if (!paths.includes(path)) {
-        paths.push(path);
-      }
-    };
-
-    // Records in user folders
-    for (const ufr of userFolderRecords) {
-      addRecordFolder(base64UrlEncode(ufr.recordUid), base64UrlEncode(ufr.folderUid));
+    for (const uid of childToParent.keys()) {
+      getPath(uid);
     }
 
-    // Records at shared folder root
-    for (const sfr of sharedFolderRecords) {
-      addRecordFolder(base64UrlEncode(sfr.recordUid), base64UrlEncode(sfr.sharedFolderUid));
-    }
-
-    // Records in shared folder subfolders
-    for (const sffr of sharedFolderFolderRecords) {
-      addRecordFolder(base64UrlEncode(sffr.recordUid), base64UrlEncode(sffr.folderUid));
-    }
-
-    return result;
+    return paths;
   }
 
   private static async decryptJsonV1<T>(data: Uint8Array, key: Uint8Array): Promise<T> {
