@@ -90,7 +90,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
       [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(newMasterKey);
     } else {
-      // Default Scenario: both flags OFF
       [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
         passwordInputResult.newMasterKey,
       );
