@@ -1,3 +1,5 @@
+//! Biometric authentication with key management (v2 implementation).
+
 use anyhow::Result;
 
 #[allow(clippy::module_inception)]
@@ -11,6 +13,7 @@ pub mod windows_focus;
 
 pub use biometric_v2::BiometricLockSystem;
 
+/// Platform-specific biometric authentication with key management.
 #[allow(async_fn_in_trait)]
 pub trait BiometricTrait: Send + Sync {
     /// Authenticate the user

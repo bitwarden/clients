@@ -1,3 +1,5 @@
+//! Biometric authentication (legacy implementation).
+
 use aes::cipher::generic_array::GenericArray;
 use anyhow::{anyhow, Result};
 
@@ -13,21 +15,35 @@ use sha2::{Digest, Sha256};
 
 use crate::crypto::{self, CipherString};
 
+/// Cryptographic key material for biometric encryption.
+///
+/// Combines OS-derived and optional client-derived key parts to create
+/// the final encryption key via SHA-256 hashing.
 pub struct KeyMaterial {
+    /// Base64-encoded OS key part.
     pub os_key_part_b64: String,
+    /// Base64-encoded client key part.
     pub client_key_part_b64: Option<String>,
 }
 
+/// OS-derived encryption key and initialization vector.
 pub struct OsDerivedKey {
+    /// Base64-encoded encryption key.
     pub key_b64: String,
+    /// Base64-encoded initialization vector.
     pub iv_b64: String,
 }
 
+/// Platform-specific biometric authentication operations.
 #[allow(async_fn_in_trait)]
 pub trait BiometricTrait {
+    /// Prompts for biometric authentication.
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool>;
+    /// Checks if biometric authentication is available.
     async fn available() -> Result<bool>;
+    /// Derives cryptographic key material.
     fn derive_key_material(secret: Option<&str>) -> Result<OsDerivedKey>;
+    /// Encrypts and stores a secret using biometric protection.
     async fn set_biometric_secret(
         service: &str,
         account: &str,
@@ -35,6 +51,7 @@ pub trait BiometricTrait {
         key_material: Option<KeyMaterial>,
         iv_b64: &str,
     ) -> Result<String>;
+    /// Retrieves and decrypts a biometric-protected secret.
     async fn get_biometric_secret(
         service: &str,
         account: &str,
@@ -75,6 +92,7 @@ impl KeyMaterial {
         }
     }
 
+    /// Derives a 256-bit encryption key using SHA-256.
     pub fn derive_key(&self) -> Result<GenericArray<u8, typenum::U32>> {
         Ok(Sha256::digest(self.digest_material()))
     }
