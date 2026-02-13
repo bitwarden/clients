@@ -136,6 +136,10 @@ export class ApplicationsComponent implements OnInit {
 
   readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
 
+  readonly canShowEmptyTableMessage = computed<boolean>(
+    () => this.emptyTableExplanation() && this.dataSource.filteredData?.length === 0,
+  );
+
   constructor(
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
