@@ -238,7 +238,7 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
       case SubscriptionCardActions.Resubscribe: {
-        const account = this.activeAccount();
+        const account = this.account();
         if (!account) {
           return;
         }
