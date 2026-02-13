@@ -5,7 +5,7 @@
       src="../../../../images/welcome-dialog-graphic.png"
       [alt]="'welcomeDialogGraphicAlt' | i18n"
     />
-    <div class="tw-px-12 tw-py-6 tw-text-center">
+    <div class="tw-px-12 tw-pt-6 tw-text-center">
       <div class="tw-px-12">
         <h2 bitTypography="h2" class="tw-mb-4">
           {{ "vaultWelcomeDialogTitle" | i18n }}
@@ -15,13 +15,13 @@
         </p>
       </div>
     </div>
-    <div class="tw-w-full tw-flex tw-justify-center tw-gap-4">
-      <button bitButton buttonType="secondary" type="button" (click)="onDismiss()">
-        {{ "vaultWelcomeDialogDismissCta" | i18n }}
-      </button>
-      <button bitButton buttonType="primary" type="button" (click)="onPrimaryCta()">
-        {{ "vaultWelcomeDialogPrimaryCta" | i18n }}
-      </button>
-    </div>
+  </div>
+  <div bitDialogFooter class="tw-w-full tw-flex tw-justify-center tw-gap-4 tw-pb-4">
+    <button bitButton buttonType="secondary" type="button" (click)="onDismiss()">
+      {{ "vaultWelcomeDialogDismissCta" | i18n }}
+    </button>
+    <button bitButton buttonType="primary" type="button" (click)="onPrimaryCta()">
+      {{ "vaultWelcomeDialogPrimaryCta" | i18n }}
+    </button>
   </div>
 </bit-dialog>
