@@ -24,8 +24,6 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
 export class ChipComponent {
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
-  readonly size = this.baseChip.size();
-  readonly disabled = this.baseChip.disabled();
   readonly label = input<string>("");
 
   readonly startIcon = input<BitwardenIcon | undefined>();
