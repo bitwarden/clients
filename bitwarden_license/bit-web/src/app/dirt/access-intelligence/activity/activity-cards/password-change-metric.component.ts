@@ -20,7 +20,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
 import {
   ButtonModule,
@@ -57,10 +57,14 @@ export class PasswordChangeMetricComponent implements OnInit {
 
   // Signal states
   private readonly _tasks: Signal<SecurityTask[]> = signal<SecurityTask[]>([]);
-  private readonly _atRiskCipherIds: Signal<CipherId[]> = signal<CipherId[]>([]);
   private readonly _hasCriticalApplications: Signal<boolean> = signal<boolean>(false);
-  private readonly _reportGeneratedAt: Signal<Date | undefined> = signal<Date | undefined>(
-    undefined,
+  private readonly _unassignedCipherIds = toSignal(
+    this.securityTasksService.unassignedCriticalCipherIds$,
+    { initialValue: [] },
+  );
+  private readonly _atRiskCipherIds = toSignal(
+    this.riskInsightsDataService.criticalApplicationAtRiskCipherIds$,
+    { initialValue: [] },
   );
 
   // Computed properties
@@ -74,41 +78,11 @@ export class PasswordChangeMetricComponent implements OnInit {
     return total > 0 ? Math.round((this.completedTasksCount() / total) * 100) : 0;
   });
 
-  readonly unassignedCipherIds = computed<number>(() => {
-    const atRiskIds = this._atRiskCipherIds();
-    const tasks = this._tasks();
+  readonly unassignedCipherIds = computed(() => this._unassignedCipherIds().length);
 
-    if (tasks.length === 0) {
-      return atRiskIds.length;
-    }
-
-    const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
-    const inProgressTaskIds = new Set(inProgressTasks.map((task) => task.cipherId));
-
-    const reportGeneratedAt = this._reportGeneratedAt();
-    const completedTasksAfterReportGeneration = reportGeneratedAt
-      ? tasks.filter(
-          (task) =>
-            task.status === SecurityTaskStatus.Completed &&
-            new Date(task.revisionDate) >= reportGeneratedAt,
-        )
-      : [];
-    const completedTaskIds = new Set(
-      completedTasksAfterReportGeneration.map((task) => task.cipherId),
-    );
-
-    // find cipher ids from last report that do not have a corresponding in progress task (awaiting password reset) OR completed task
-    const unassignedIds = atRiskIds.filter(
-      (id) => !inProgressTaskIds.has(id) && !completedTaskIds.has(id),
-    );
-
-    return unassignedIds.length;
-  });
-
-  readonly atRiskPasswordCount = computed<number>(() => {
+  readonly atRiskPasswordCount = computed(() => {
     const atRiskIds = this._atRiskCipherIds();
     const atRiskIdsSet = new Set(atRiskIds);
-
     return atRiskIdsSet.size;
   });
 
@@ -119,7 +93,7 @@ export class PasswordChangeMetricComponent implements OnInit {
     if (this.tasksCount() === 0) {
       return PasswordChangeView.NO_TASKS_ASSIGNED;
     }
-    if (this.unassignedCipherIds() > 0) {
+    if (this._unassignedCipherIds().length > 0) {
       return PasswordChangeView.NEW_TASKS_AVAILABLE;
     }
     return PasswordChangeView.PROGRESS;
@@ -133,10 +107,6 @@ export class PasswordChangeMetricComponent implements OnInit {
     private toastService: ToastService,
   ) {
     this._tasks = toSignal(this.securityTasksService.tasks$, { initialValue: [] });
-    this._atRiskCipherIds = toSignal(
-      this.riskInsightsDataService.criticalApplicationAtRiskCipherIds$,
-      { initialValue: [] },
-    );
     this._hasCriticalApplications = toSignal(
       this.riskInsightsDataService.criticalReportResults$.pipe(
         map((report) => {
@@ -144,10 +114,6 @@ export class PasswordChangeMetricComponent implements OnInit {
         }),
       ),
       { initialValue: false },
-    );
-    this._reportGeneratedAt = toSignal(
-      this.riskInsightsDataService.enrichedReportData$.pipe(map((report) => report?.creationDate)),
-      { initialValue: undefined },
     );
 
     effect(() => {
@@ -164,7 +130,7 @@ export class PasswordChangeMetricComponent implements OnInit {
     try {
       await this.securityTasksService.requestPasswordChangeForCriticalApplications(
         this.organizationId(),
-        this._atRiskCipherIds(),
+        this._unassignedCipherIds(),
       );
       this.toastService.showToast({
         message: this.i18nService.t("notifiedMembers"),

@@ -13,7 +13,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { filter, switchMap, fromEvent, startWith, map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ScrollLayoutHostDirective, ScrollLayoutService } from "@bitwarden/components";
+import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bitwarden/components";
 
 @Component({
   selector: "popup-page",
@@ -21,7 +21,7 @@ import { ScrollLayoutHostDirective, ScrollLayoutService } from "@bitwarden/compo
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
-  imports: [CommonModule, ScrollLayoutHostDirective],
+  imports: [CommonModule, IconModule, ScrollLayoutHostDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupPageComponent {

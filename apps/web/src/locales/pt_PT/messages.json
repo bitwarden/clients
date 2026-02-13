@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Não tem permissão para editar este item"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Reveja as palavras-passe em risco (fracas, expostas ou reutilizadas) em todas as aplicações. Selecione as suas aplicações mais críticas para dar prioridade a ações de segurança para os seus utilizadores para resolver as palavras-passe em risco."
+  "reviewAccessIntelligence": {
+    "message": "Reveja os relatórios de segurança para identificar e corrigir riscos associados às credenciais antes que se agravem."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Rever credenciais em risco"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ marcadas como críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ aplicações marcadas como críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ aplicações marcadas como não críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Marcar $COUNT$ como críticas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Marcar $COUNT$ como não críticas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5394,8 +5430,8 @@
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Tipo de palavra-passe",
+  "passwordTypePolicyOverride": {
+    "message": "Tipo de palavras-passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6637,6 +6673,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 convite enviado"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ convites enviados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ de $SELECTEDCOUNT$ utilizadores convidados novamente. $EXCLUDEDCOUNT$ não foram convidados devido ao limite de $LIMIT$ convites.",
     "placeholders": {
@@ -6653,6 +6701,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ de $TOTAL$ convites enviados...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Mantenha esta página aberta até que todos sejam enviados."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ convites não enviados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 convite não enviado"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Ocorreu um erro ao enviar convites para $COUNT$ dos $TOTAL$ membros. Tente enviar novamente e, se o problema persistir,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Tente enviar novamente"
   },
   "bulkRemovedMessage": {
     "message": "Removido com sucesso"
@@ -10092,6 +10184,9 @@
   "assignTasks": {
     "message": "Atribuir tarefas"
   },
+  "allTasksAssigned": {
+    "message": "Todas as tarefas foram atribuídas"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Enviar notificações para alterar palavras-passe"
   },
@@ -11804,9 +11899,6 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
-  "itemsWereSentToArchive": {
-    "message": "Os itens foram movidos para o arquivo"
-  },
   "itemWasUnarchived": {
     "message": "O item foi desarquivado"
   },
@@ -12490,6 +12582,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Tem a certeza de que deseja continuar?"
   },
+  "errorCannotDecrypt": {
+    "message": "Erro: Não é possível desencriptar"
+  },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
@@ -12794,5 +12889,54 @@
   },
   "perUser": {
     "message": "por utilizador"
+  },
+  "upgradeToTeams": {
+    "message": "Atualizar para o plano Equipas"
+  },
+  "upgradeToEnterprise": {
+    "message": "Atualizar para o plano Empresarial"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Partilhe ainda mais com o plano Familiar ou obtenha uma segurança de palavras-passe poderosa e fiável com os planos Equipas ou Empresarial"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Os preços não incluem impostos e são cobrados anualmente."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Foi encontrado um erro ao gerar a pré-visualização da fatura."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Adesão ao plano $PLAN$ proporcional ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Crédito de subscrição Premium"
+  },
+  "enterpriseMembership": {
+    "message": "Adesão Empresarial"
+  },
+  "teamsMembership": {
+    "message": "Adesão Equipas"
+  },
+  "plansUpdated": {
+    "message": "Atualizou para o plano $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Ocorreu um erro ao atualizar o seu método de pagamento."
   }
 }
