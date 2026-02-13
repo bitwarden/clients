@@ -4,6 +4,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -45,6 +46,7 @@ describe("NotificationsService", () => {
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -75,6 +77,7 @@ describe("NotificationsService", () => {
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
     policyService = mock<InternalPolicyService>();
+    autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
     configService.getFeatureFlag$.mockImplementation(() => of(true));
@@ -128,6 +131,7 @@ describe("NotificationsService", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      autoConfirmService,
     );
   });
 
@@ -505,6 +509,30 @@ describe("NotificationsService", () => {
         expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
           notificationId: "auth-request-456",
         });
+      });
+    });
+
+    describe("NotificationType.AutoConfirmMember", () => {
+      it("should call autoConfirmService.autoConfirmUser with correct parameters", async () => {
+        autoConfirmService.autoConfirmUser.mockResolvedValue();
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AutoConfirmMember,
+          payload: {
+            UserId: mockUser1,
+            TargetUserId: "target-user-id",
+            OrganizationId: "org-id",
+          },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(autoConfirmService.autoConfirmUser).toHaveBeenCalledWith(
+          mockUser1,
+          "target-user-id",
+          "org-id",
+        );
       });
     });
   });

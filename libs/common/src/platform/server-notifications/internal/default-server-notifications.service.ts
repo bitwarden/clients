@@ -15,6 +15,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -49,6 +50,7 @@ export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
+  NotificationType.AutoConfirmMember,
 ]);
 
 export class DefaultServerNotificationsService implements ServerNotificationsService {
@@ -70,6 +72,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
     private readonly policyService: InternalPolicyService,
+    private autoConfirmService: AutomaticUserConfirmationService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -291,6 +294,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         break;
       case NotificationType.SyncPolicy:
         await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+        break;
+      case NotificationType.AutoConfirmMember:
+        await this.autoConfirmService.autoConfirmUser(
+          notification.payload.userId,
+          notification.payload.targetUserId,
+          notification.payload.organizationId,
+        );
         break;
       default:
         break;

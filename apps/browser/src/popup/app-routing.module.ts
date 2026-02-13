@@ -42,7 +42,7 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
-import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm";
+import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
