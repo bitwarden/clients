@@ -21,11 +21,11 @@ type RecordV3 = {
   type: string;
   title: string;
   notes: string;
-  fields: FieldV3[];
-  customFields: FieldV3[];
+  fields: VaultField[];
+  custom: VaultField[];
 };
 
-type FieldV3 = {
+export type VaultField = {
   type: string;
   value: unknown[];
   label?: string;
@@ -139,10 +139,8 @@ export class Vault {
     );
 
     // 6. Now all records can be decrypted.
-    const [records, failedRecords] = await Vault.decryptRecords(
-      merged.records,
-      new Map([...recordKeys, ...sharedRecordKeys]),
-    );
+    const allRecordKeys = new Map([...recordKeys, ...sharedRecordKeys]);
+    const [records] = await Vault.decryptRecords(merged.records, allRecordKeys);
 
     // 7. Decrypt shared folder subfolder names.
     const sharedFolderSubfolderNames = await Vault.decryptSharedFolderFolderNames(
@@ -176,6 +174,9 @@ export class Vault {
         folders: recordFolders.get(uid) ?? [],
       });
     }
+
+    // TODO: Remove this debug dump
+    await dumpSyncDownResponse(merged, allRecordKeys);
 
     return new Vault(items);
   }
@@ -283,7 +284,6 @@ export class Vault {
       const key = keys.get(uid);
       if (key) {
         if (record.version < 3) {
-          const decrypted = await Vault.decryptJsonV1(record.data, keys.get(uid));
           throw new Error("V1 records are not supported yet");
         } else {
           const r = await Vault.decryptJsonV2<Partial<RecordV3>>(record.data, keys.get(uid));
@@ -292,7 +292,7 @@ export class Vault {
             title: r.title ?? "",
             notes: r.notes ?? "",
             fields: r.fields ?? [],
-            customFields: r.customFields ?? [],
+            custom: r.custom ?? [],
           });
         }
       } else {
@@ -352,9 +352,7 @@ export class Vault {
     for (const sff of sharedFoldersFolder) {
       const uid = uidToString(sff.folderUid);
       const parentUid =
-        sff.parentUid.length > 0
-          ? uidToString(sff.parentUid)
-          : uidToString(sff.sharedFolderUid);
+        sff.parentUid.length > 0 ? uidToString(sff.parentUid) : uidToString(sff.sharedFolderUid);
       childToParent.set(uid, parentUid);
     }
 
@@ -453,4 +451,29 @@ function sanitizeFolderName(name: string): string {
 
 function joinPath(parent: string, child: string): string {
   return parent ? parent + "/" + child : child;
+}
+
+// TODO: Remove this debug function
+async function dumpSyncDownResponse(
+  merged: SyncDownResponse,
+  recordKeys: Map<string, Uint8Array>,
+): Promise<void> {
+  const fs = await import("fs");
+  const { base64UrlDecode } = await import("./crypto");
+  const json = (SyncDownResponse as any).toJson(merged) as Record<string, unknown>;
+  for (const record of (json.records as Array<Record<string, unknown>>) ?? []) {
+    const uid = uidToString(base64UrlDecode(record.recordUid as string));
+    const key = recordKeys.get(uid);
+    if (key && record.data) {
+      try {
+        const data = base64UrlDecode(record.data as string);
+        const decrypt = (record.version as number) >= 3 ? decryptAesV2 : decryptAesV1;
+        const decrypted = await decrypt(data, key);
+        record.data = JSON.parse(new TextDecoder().decode(decrypted));
+      } catch {
+        // leave as base64
+      }
+    }
+  }
+  fs.writeFileSync("sync-down-response.json", JSON.stringify(json, null, 2));
 }
