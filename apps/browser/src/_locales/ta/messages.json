@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
-  "excludedDomainsDescAlt": {
-    "message": "உள்நுழைந்த அனைத்து கணக்குகளுக்கும் இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
-  },
   "blockedDomainsDesc": {
     "message": "இந்த இணையதளங்களுக்கு தானாக நிரப்புதல் மற்றும் பிற தொடர்புடைய அம்சங்கள் வழங்கப்படாது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "அட்டை எண்"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"

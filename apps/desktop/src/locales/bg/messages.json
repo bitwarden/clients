@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Действие при изтичането на времето за достъп"
   },
+  "errorCannotDecrypt": {
+    "message": "Грешка: не може да се дешифрира"
+  },
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
   },
