@@ -81,7 +81,7 @@ describe("SendEditCommand", () => {
         const requestJson = encodeRequest(requestData);
 
         const cmdOptions = {
-          email: ["test@example.com"],
+          emails: ["test@example.com"],
         };
 
         sendService.encrypt.mockResolvedValue([
@@ -155,7 +155,7 @@ describe("SendEditCommand", () => {
         const requestJson = encodeRequest(requestData);
 
         const cmdOptions = {
-          email: ["test@example.com"],
+          emails: ["test@example.com"],
           password: "testPassword123",
         };
 
@@ -239,7 +239,7 @@ describe("SendEditCommand", () => {
         const requestJson = encodeRequest(requestData);
 
         const cmdOptions = {
-          email: ["cli@example.com"],
+          emails: ["cli@example.com"],
         };
 
         const response = await command.run(requestJson, cmdOptions);
@@ -277,7 +277,7 @@ describe("SendEditCommand", () => {
         const requestJson = encodeRequest(requestData);
 
         const cmdOptions = {
-          email: ["cli@example.com"],
+          emails: ["cli@example.com"],
         };
 
         sendService.encrypt.mockResolvedValue([

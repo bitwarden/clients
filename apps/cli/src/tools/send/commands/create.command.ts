@@ -173,7 +173,7 @@ class Options {
     this.file = passedOptions?.file;
     this.text = passedOptions?.text;
     this.password = passedOptions?.password;
-    this.emails = passedOptions?.email;
+    this.emails = passedOptions?.emails;
     this.hidden = CliUtils.convertBooleanOption(passedOptions?.hidden);
     this.maxAccessCount =
       passedOptions?.maxAccessCount != null ? parseInt(passedOptions.maxAccessCount, null) : null;
