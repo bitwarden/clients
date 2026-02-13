@@ -1,0 +1,15 @@
+<div [class]="layoutClasses()">
+  <div [class]="sizeClasses()">
+    <bit-spinner [size]="size()" [variant]="variant()"></bit-spinner>
+  </div>
+  @if (title() || body()) {
+    <div [class]="textContainerClasses()">
+      @if (title()) {
+        <span>{{ title() }}</span>
+      }
+      @if (body()) {
+        <span>{{ body() }}</span>
+      }
+    </div>
+  }
+</div>
