@@ -23,6 +23,9 @@ export class WebVaultExtensionPromptService {
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
 
+  /**
+   * Conditionally prompts the user to install the web extension
+   */
   async conditionallyPromptUserForExtension(userId: UserId) {
     const featureFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
@@ -61,6 +64,10 @@ export class WebVaultExtensionPromptService {
     return true;
   }
 
+  /**
+   * Returns true if the user's profile is within the defined thresholds for showing the extension prompt, false otherwise.
+   * Thresholds are defined as account age between a configurable number of days and 30 days.
+   */
   private async profileIsWithinThresholds() {
     const creationDate = await firstValueFrom(
       this.accountService.activeAccount$.pipe(

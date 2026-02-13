@@ -196,11 +196,6 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  if (serverConfig) {
-    serverConfig.featureStates[FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt] = true;
-    serverConfig.featureStates[FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge] = 0.5;
-  }
-
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
