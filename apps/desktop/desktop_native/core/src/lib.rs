@@ -1,7 +1,9 @@
 //! Desktop native core functionality for Bitwarden.
 //!
-//! Provides native platform integrations including biometric authentication,
-//! clipboard management, SSH agent functionality, and secure storage.
+//! Modules in this crate should fall into one of these categories:
+//!  * infrastructure to interface with the Electron client
+//!  * core functionality for the Desktop app that is not feature-specific
+//!  * library code that is used internally by other desktop_native crates.
 
 #![warn(missing_docs)]
 
