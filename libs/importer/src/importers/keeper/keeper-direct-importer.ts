@@ -47,9 +47,6 @@ export class KeeperDirectImporter extends BaseImporter {
     cipher.name = this.getValueOrDefault(item.title, "--");
     cipher.notes = this.getValueOrDefault(item.notes);
 
-    cipher.login.username = this.getValueOrDefault(this.getFirstFieldValue(item, "login"));
-    cipher.login.password = this.getValueOrDefault(this.getFirstFieldValue(item, "password"));
-
     // Track consumed fields by index so they aren't processed again
     const consumedFieldIndices = new Set<number>();
 
@@ -60,12 +57,13 @@ export class KeeperDirectImporter extends BaseImporter {
         break;
       case "sshKeys":
         // In Bitwarden the ssh key is supposed to be valid.
-        // So we only set the type if we can actually import a key.
+        // So we only set the type if we can actually import the key.
         if (!this.importSshKey(item, cipher, consumedFieldIndices)) {
-          // Otherwise, fallback to secure note.
+          // Otherwise, fallback to login/secure note.
           // Make sure the passphrase is not lost, if any. The key pair will be imported
           // as a custom field via the standard field processing pipeline.
-          this.addField(cipher, "Passphrase", cipher.login.password, FieldType.Hidden);
+          const passphrase = this.getFirstFieldValue(item, "password");
+          this.addField(cipher, "Passphrase", passphrase, FieldType.Hidden);
         }
         break;
     }
@@ -124,8 +122,6 @@ export class KeeperDirectImporter extends BaseImporter {
         consumedFieldIndices.add(i);
       }
     }
-
-    this.copyLoginPropertiesAsCustomFields(cipher);
   }
 
   private importSshKey(
@@ -146,9 +142,11 @@ export class KeeperDirectImporter extends BaseImporter {
       return false;
     }
 
+    const passphrase = this.getFirstFieldValue(record, "password") ?? "";
+
     let keyView: SshKeyView | null = null;
     try {
-      keyView = import_ssh_key(keyPair.privateKey, cipher.login.password ?? "");
+      keyView = import_ssh_key(keyPair.privateKey, passphrase);
     } catch {
       this.logService.warning(`Unable to import SSH key (title: ${record.title})`);
       return false;
@@ -163,8 +161,6 @@ export class KeeperDirectImporter extends BaseImporter {
     cipher.sshKey.keyFingerprint = keyView.fingerprint;
 
     consumedFieldIndices.add(keyPairIndex);
-
-    this.copyLoginPropertiesAsCustomFields(cipher);
 
     // Extract host details if present
     for (let i = 0; i < record.fields.length; i++) {
@@ -183,25 +179,6 @@ export class KeeperDirectImporter extends BaseImporter {
     return true;
   }
 
-  private copyLoginPropertiesAsCustomFields(cipher: CipherView): void {
-    if (!this.isNullOrWhitespace(cipher.login?.username)) {
-      this.addField(cipher, "Username", cipher.login.username!);
-      cipher.login.username = null;
-    }
-
-    if (!this.isNullOrWhitespace(cipher.login?.password)) {
-      this.addField(cipher, "Password", cipher.login.password!, FieldType.Hidden);
-      cipher.login.password = null;
-    }
-
-    if (cipher.login?.uris) {
-      for (const uri of cipher.login.uris) {
-        this.addField(cipher, "URL", uri.uri);
-      }
-      cipher.login.uris = null;
-    }
-  }
-
   private importFields(
     record: VaultItem,
     cipher: CipherView,
@@ -213,10 +190,6 @@ export class KeeperDirectImporter extends BaseImporter {
         continue;
       }
       const field = record.fields[i];
-      // Skip fields already extracted into cipher.login
-      if (field.type === "login" || field.type === "password") {
-        continue;
-      }
       this.importField(cipher, field);
     }
 
@@ -248,6 +221,36 @@ export class KeeperDirectImporter extends BaseImporter {
 
   private tryImportArrayField(type: string, values: unknown[], cipher: CipherView): boolean {
     switch (type) {
+      case "login":
+        {
+          for (const v of values) {
+            const username = String(v);
+            if (this.isNullOrWhitespace(username)) {
+              continue;
+            }
+            if (cipher.type === CipherType.Login && !cipher.login.username) {
+              cipher.login.username = username;
+            } else {
+              this.addField(cipher, "Username", username);
+            }
+          }
+        }
+        break;
+      case "password":
+        {
+          for (const v of values) {
+            const password = String(v);
+            if (this.isNullOrWhitespace(password)) {
+              continue;
+            }
+            if (cipher.type === CipherType.Login && !cipher.login.password) {
+              cipher.login.password = password;
+            } else {
+              this.addField(cipher, "Password", password, FieldType.Hidden);
+            }
+          }
+        }
+        break;
       case "oneTimeCode":
         {
           const codes = values.map((v) => String(v));
