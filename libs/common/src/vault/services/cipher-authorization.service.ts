@@ -53,6 +53,19 @@ export abstract class CipherAuthorizationService {
     cipher: CipherLike,
     isAdminConsoleAction?: boolean,
   ) => Observable<boolean>;
+
+  /**
+   * Determines if the user can edit the specified cipher.
+   *
+   * @param {CipherLike} cipher - The cipher object to evaluate for edit permissions.
+   * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
+   *
+   * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can edit the cipher.
+   */
+  abstract canEditCipher$: (
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ) => Observable<boolean>;
 }
 
 /**
@@ -114,6 +127,29 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         }
 
         return !!cipher.permissions?.restore;
+      }),
+    );
+  }
+
+  /**
+   *
+   * {@link CipherAuthorizationService.canEditCipher$}
+   */
+  canEditCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    return this.organization$(cipher).pipe(
+      map((organization) => {
+        if (isAdminConsoleAction) {
+          // If the user is an admin, they can edit an unassigned cipher
+          if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+            return organization?.canEditUnassignedCiphers === true;
+          }
+
+          if (organization?.canEditAllCiphers) {
+            return true;
+          }
+        }
+
+        return !!cipher.edit;
       }),
     );
   }
