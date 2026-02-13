@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Vaxt bitmə əməliyyatı"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
   },

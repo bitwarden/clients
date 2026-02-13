@@ -16,7 +16,7 @@ import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotligh
 import {
   AutoConfirmWarningDialogComponent,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";

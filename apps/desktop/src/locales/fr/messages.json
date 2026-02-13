@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Action à l’expiration"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Délai d'expiration de la session"
   },
