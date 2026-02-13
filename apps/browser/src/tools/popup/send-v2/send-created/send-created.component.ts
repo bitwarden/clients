@@ -79,17 +79,6 @@ export class SendCreatedComponent {
       : this.i18nService.t("days", String(this.daysAvailable)).toLowerCase();
   }
 
-  formatExpirationDate(): string {
-    if (this.hoursAvailable < 24) {
-      return this.hoursAvailable === 1
-        ? this.i18nService.t("sendExpiresInHoursSingle")
-        : this.i18nService.t("sendExpiresInHours", String(this.hoursAvailable));
-    }
-    return this.daysAvailable === 1
-      ? this.i18nService.t("sendExpiresInDaysSingle")
-      : this.i18nService.t("sendExpiresInDays", String(this.daysAvailable));
-  }
-
   getHoursAvailable(send: SendView): number {
     const now = new Date().getTime();
     return Math.max(0, Math.ceil((send.deletionDate.getTime() - now) / (1000 * 60 * 60)));

@@ -156,40 +156,6 @@ describe("SendCreatedComponent", () => {
     });
   });
 
-  describe("formatExpirationDate", () => {
-    it("returns days plural if expiry is more than 24 hours", () => {
-      sendView.deletionDate = new Date(Date.now() + 168 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInDays 7");
-    });
-
-    it("returns days singular if expiry is 24 hours", () => {
-      sendView.deletionDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInDaysSingle");
-    });
-
-    it("returns hours plural if expiry is more than 1 hour but less than 24", () => {
-      sendView.deletionDate = new Date(Date.now() + 2 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInHours 2");
-    });
-
-    it("returns hours singular if expiry is in 1 hour", () => {
-      sendView.deletionDate = new Date(Date.now() + 1 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInHoursSingle");
-    });
-  });
-
   describe("formattedExpirationTime", () => {
     it("returns formatted time for hours plural", () => {
       sendView.deletionDate = new Date(Date.now() + 5 * 60 * 60 * 1000);
