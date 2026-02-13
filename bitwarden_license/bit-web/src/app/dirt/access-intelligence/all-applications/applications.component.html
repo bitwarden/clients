@@ -21,27 +21,58 @@
       >
       </bit-chip-select>
 
-      <button
-        type="button"
-        [buttonType]="'primary'"
-        bitButton
-        class="tw-ml-auto"
-        [disabled]="!selectedUrls().size"
-        [loading]="markingAsCritical()"
-        (click)="markAppsAsCritical()"
-      >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
-        {{ "markAppAsCritical" | i18n }}
-      </button>
+      <div class="tw-ml-auto tw-gap-4 tw-flex">
+        @if (selectedUrls().size > 0) {
+          @if (allSelectedAppsAreCritical()) {
+            <button
+              type="button"
+              [buttonType]="'primary'"
+              bitButton
+              class="tw-ml-auto"
+              [loading]="updatingCriticalApps()"
+              (click)="unmarkAppsAsCritical()"
+              data-testid="unmark-critical-button"
+            >
+              {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              [buttonType]="'primary'"
+              bitButton
+              class="tw-ml-auto"
+              [loading]="updatingCriticalApps()"
+              (click)="markAppsAsCritical()"
+              data-testid="mark-critical-button"
+            >
+              {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}
+            </button>
+          }
+        }
 
-      <button
-        type="button"
-        bitIconButton="bwi-download"
-        buttonType="main"
-        [label]="'downloadCSV' | i18n"
-        [disabled]="!dataSource.filteredData.length"
-        (click)="downloadApplicationsCSV()"
-      ></button>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          [disabled]="!enableRequestPasswordChange()"
+          [bitTooltip]="!enableRequestPasswordChange() ? ('allTasksAssigned' | i18n) : null"
+          [addTooltipToDescribedby]="!enableRequestPasswordChange()"
+          (click)="requestPasswordChange()"
+          data-testid="assign-tasks-button"
+        >
+          <bit-icon class="tw-mr-2" name="bwi-envelope" />
+          {{ "assignTasks" | i18n }}
+        </button>
+
+        <button
+          type="button"
+          bitIconButton="bwi-download"
+          buttonType="main"
+          [label]="'downloadCSV' | i18n"
+          [disabled]="!dataSource.filteredData.length"
+          (click)="downloadApplicationsCSV()"
+        ></button>
+      </div>
     </div>
 
     <app-table-row-scrollable-m11

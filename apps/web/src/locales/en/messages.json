@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Review at-risk logins"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applications marked as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3301,6 +3337,15 @@
   },
   "reinstated": {
     "message": "The subscription has been reinstated."
+  },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
   },
   "cancelConfirmation": {
     "message": "Are you sure you want to cancel? You will lose access to all of this subscription's features at the end of this billing cycle."
@@ -6637,6 +6682,18 @@
       }
     }
   },
+  "reinviteSuccessToast":{
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
     "placeholders": {
@@ -6653,6 +6710,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+	"content": "$1",
+	"example": "1,000"
+      },
+      "total": {
+	"content": "$2",
+	"example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+	"content": "$1",
+	"example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription":{
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+	"content": "$1",
+	"example": "1,000"
+      },
+      "total": {
+	"content": "$2",
+	"example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Removed successfully"
@@ -10101,6 +10202,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
   },
@@ -11810,17 +11914,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Items archived"
@@ -12499,6 +12597,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
@@ -12817,7 +12918,7 @@
     "message": "Prices exclude tax and are billed annually."
   },
   "invoicePreviewErrorMessage": {
-    "message": "Encountered an error while generating the invoice preview." 
+    "message": "Encountered an error while generating the invoice preview."
   },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",

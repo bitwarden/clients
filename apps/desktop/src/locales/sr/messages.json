@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Акција тајмаута"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Истек сесије"
   },
