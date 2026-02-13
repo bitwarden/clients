@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden wird keine Login-Daten für diese Domäne speichern. Du musst die Seite aktualisieren, damit die Änderungen wirksam werden."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden wird für alle angemeldeten Konten nicht danach fragen Zugangsdaten für diese Domains speichern. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
-  },
   "blockedDomainsDesc": {
     "message": "Automatisches Ausfüllen und andere zugehörige Funktionen werden für diese Webseiten nicht angeboten. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
   },
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Kartennummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "E-Mail-Adresse geschützt"

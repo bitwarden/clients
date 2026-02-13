@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не будет предлагать сохранить логины для этих доменов. Для вступления изменений в силу необходимо обновить страницу."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
   },
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Скачать приложения Bitwarden"
   },
   "emailProtected": {
     "message": "Email защищен"
