@@ -106,6 +106,10 @@ export class SendAuthComponent implements OnInit {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
           this.sendAuthType.set(AuthType.Password);
+          this.sendAccessForm.controls.password?.setErrors({
+            invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
+          });
+          this.sendAccessForm.controls.password?.markAsTouched();
         } else if (e.statusCode === 404) {
           this.unavailable.set(true);
         } else {
@@ -176,11 +180,10 @@ export class SendAuthComponent implements OnInit {
         this.sendAuthType.set(AuthType.Password);
         this.updatePageTitle();
       } else if (passwordHashB64Invalid(response.error)) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidSendPassword"),
+        this.sendAccessForm.controls.password?.setErrors({
+          invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
         });
+        this.sendAccessForm.controls.password?.markAsTouched();
       } else if (sendIdInvalid(response.error)) {
         this.unavailable.set(true);
       } else {
