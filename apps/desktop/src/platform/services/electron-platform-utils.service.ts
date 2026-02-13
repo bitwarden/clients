@@ -163,8 +163,14 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
       return "Snap";
     } else if (ipc.platform.isFlatpak) {
       return "Flatpak";
+    } else if (this.getDevice() === DeviceType.WindowsDesktop) {
+      return "WindowsUnknown";
+    } else if (this.getDevice() === DeviceType.MacOsDesktop) {
+      return "MacOSUnknown";
+    } else if (this.getDevice() === DeviceType.LinuxDesktop) {
+      return "LinuxUnknown";
     } else {
-      return "Unknown";
+      return "DesktopUnknown";
     }
   }
 }

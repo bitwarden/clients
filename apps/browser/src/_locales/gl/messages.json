@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden non ofrecerá gardar contas para estes dominios. Recarga a páxina para que os cambios fagan efecto."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden non ofrecerá gardar contas para estes dominios en ningunha das sesións iniciadas. Recarga a páxina para que os cambios fornezan efecto."
-  },
   "blockedDomainsDesc": {
     "message": "O autoenchido e outras funcións relacionadas non estarán dispoñibles para estas webs. Debes recargar a páxina para que os cambios teñan efecto."
   },
@@ -5966,6 +5963,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6126,6 +6126,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"
