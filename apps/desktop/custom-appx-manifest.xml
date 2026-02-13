@@ -103,6 +103,13 @@
                 <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
             </uap:VisualElements>
+            <Extensions>
+                <uap:Extension Category="windows.protocol">
+                    <uap:Protocol Name="bitwarden">
+                      <uap:DisplayName>Bitwarden</uap:DisplayName>
+                  </uap:Protocol>
+                </uap:Extension>
+            </Extensions>
         </Application>
     </Applications>
 </Package>
