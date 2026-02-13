@@ -88,7 +88,14 @@ export class SendTableComponent {
     this.removePassword.emit(send);
   }
 
-  protected onDelete(send: SendView): void {
+  protected onDelete(event: Event, send: SendView): void {
+    /**
+     * We stop the click event propagation here so that the options menu will not close; if it
+     * does close then the button that triggers the menu will steal the focus from the accept
+     * button of the simple delete confirmation dialog that we open in the base Send component.
+     * See the 'bitMenuTriggerFor' directive for where this occurs in code.
+     */
+    event.stopPropagation();
     this.deleteSend.emit(send);
   }
 }
