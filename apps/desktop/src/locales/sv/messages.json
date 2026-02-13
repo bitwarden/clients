@@ -4486,6 +4486,9 @@
   "sessionTimeoutSettingsAction": {
     "message": "Tidsgränsåtgärd"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "sessionTimeoutHeader": {
     "message": "Sessionstidsgräns"
   },
