@@ -426,7 +426,7 @@ export class vNextMembersComponent {
 
     const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
 
-    if (!result.successful) {
+    if (result.successful.length === 0) {
       this.validationService.showError(result.failed);
     }
 
