@@ -22,6 +22,7 @@ import {
   DialogConfig,
   DialogRef,
   DialogService,
+  isAvatarColor,
   ToastService,
 } from "@bitwarden/components";
 
@@ -98,7 +99,7 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   }
 
   submit = async () => {
-    const defaultColorSelected = AvatarDefaultColors.includes(this.currentSelection);
+    const defaultColorSelected = isAvatarColor(this.currentSelection);
     const isValidHex = Utils.validateHexColor(this.currentSelection);
     const isValidSelection = this.currentSelection == null || defaultColorSelected || isValidHex;
 

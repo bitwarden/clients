@@ -13,12 +13,12 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type AvatarSizes = "2xlarge" | "xlarge" | "large" | "base" | "small";
+export type AvatarSize = "2xlarge" | "xlarge" | "large" | "base" | "small";
 
-export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"];
-export type AvatarColors = (typeof AvatarDefaultColors)[number];
+export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"] as const;
+export type AvatarColor = (typeof AvatarDefaultColors)[number];
 
-const SizeClasses: Record<AvatarSizes, string[]> = {
+const sizeClasses: Record<AvatarSize, string[]> = {
   "2xlarge": ["tw-h-16", "tw-w-16", "tw-min-w-16"],
   xlarge: ["tw-h-14", "tw-w-14", "tw-min-w-14"],
   large: ["tw-h-11", "tw-w-11", "tw-min-w-11"],
@@ -32,7 +32,7 @@ const SizeClasses: Record<AvatarSizes, string[]> = {
  * We reference color variables defined in tw-theme.css to ensure the avatar color handles light and
  * dark mode.
  */
-export const DefaultAvatarColors: Record<AvatarColors, string> = {
+export const defaultAvatarColors: Record<AvatarColor, string> = {
   teal: "tw-bg-bg-avatar-teal",
   coral: "tw-bg-bg-avatar-coral",
   brand: "tw-bg-bg-avatar-brand",
@@ -45,13 +45,21 @@ export const DefaultAvatarColors: Record<AvatarColors, string> = {
  * color variables defined in tw-theme.css to ensure the avatar color handles light and
  * dark mode.
  */
-const DefaultAvatarHoverColors: Record<AvatarColors, string> = {
+const defaultAvatarHoverColors: Record<AvatarColor, string> = {
   teal: "tw-bg-bg-avatar-teal-hover",
   coral: "tw-bg-bg-avatar-coral-hover",
   brand: "tw-bg-bg-avatar-brand-hover",
   green: "tw-bg-bg-avatar-green-hover",
   purple: "tw-bg-bg-avatar-purple-hover",
 };
+
+// Typeguard to check if a given color is an AvatarColor
+export function isAvatarColor(color: string | undefined): color is AvatarColor {
+  if (color === undefined) {
+    return false;
+  }
+  return AvatarDefaultColors.includes(color as AvatarColor);
+}
 
 /**
  * The avatar component is a visual representation of a user profile. Color variations help users
@@ -83,7 +91,7 @@ export class AvatarComponent {
    *
    * If no color is provided, a color will be generated based on the id or text.
    */
-  readonly color = input<AvatarColors | string>();
+  readonly color = input<AvatarColor | string>();
 
   /**
    * Unique identifier used to generate a consistent background color. Takes precedence over text
@@ -105,7 +113,7 @@ export class AvatarComponent {
   /**
    * Size of the avatar.
    */
-  readonly size = input<AvatarSizes>("base");
+  readonly size = input<AvatarSize>("base");
 
   /**
    * For button element avatars, whether the button is disabled. No effect for non-button avatars
@@ -145,7 +153,7 @@ export class AvatarComponent {
 
   protected readonly svgClass = computed(() => {
     return ["tw-rounded-full"]
-      .concat(SizeClasses[this.size()] ?? [])
+      .concat(sizeClasses[this.size()] ?? [])
       .concat(this.showDisabledStyles() ? ["tw-bg-bg-disabled"] : this.avatarBackgroundColor());
   });
 
@@ -162,12 +170,13 @@ export class AvatarComponent {
   protected readonly showHoverColor = computed(() => this.isInteractive() && this.isHovering());
 
   protected readonly usingCustomColor = computed(() => {
-    if (Utils.isNullOrWhitespace(this.color())) {
+    const color = this.color();
+
+    if (Utils.isNullOrWhitespace(color)) {
       return false;
     }
 
-    const defaultColorKeys = Object.keys(DefaultAvatarColors) as AvatarColors[];
-    return !defaultColorKeys.includes(this.color() as AvatarColors);
+    return !isAvatarColor(color);
   });
 
   /**
@@ -182,13 +191,20 @@ export class AvatarComponent {
       return "";
     }
 
+    /**
+     * At this point we're either using a passed-in avatar color or choosing a default based on id
+     * or text, but Typescript doesn't know that. Use the type guard to confirm that the passed-in
+     * value is an avatar color, or use a generated default.
+     */
+    const color = this.color();
+    const colorIsAvatarColor = isAvatarColor(color);
+    const chosenAvatarColor = colorIsAvatarColor ? color : this.avatarDefaultColorKey();
+
     if (this.showHoverColor()) {
-      return DefaultAvatarHoverColors[
-        (this.color() as AvatarColors) ?? this.avatarDefaultColorKey()
-      ];
+      return defaultAvatarHoverColors[chosenAvatarColor];
     }
 
-    return DefaultAvatarColors[(this.color() as AvatarColors) ?? this.avatarDefaultColorKey()];
+    return defaultAvatarColors[chosenAvatarColor];
   });
 
   /**
@@ -286,14 +302,12 @@ export class AvatarComponent {
       magicString = this.text()?.toUpperCase() ?? "";
     }
 
-    const colorKeys = Object.keys(DefaultAvatarColors) as AvatarColors[];
-
     let hash = 0;
-    for (let i = 0; i < magicString.length; i++) {
-      hash = magicString.charCodeAt(i) + ((hash << 5) - hash);
+    for (const char of magicString) {
+      hash = char.charCodeAt(0) + ((hash << 5) - hash);
     }
 
-    const index = Math.abs(hash) % colorKeys.length;
-    return colorKeys[index];
+    const index = Math.abs(hash) % AvatarDefaultColors.length;
+    return AvatarDefaultColors[index];
   });
 }

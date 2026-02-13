@@ -4,7 +4,7 @@ import { Component, Input, OnDestroy } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { AvatarSizes } from "@bitwarden/components";
+import { AvatarSize } from "@bitwarden/components";
 
 import { SharedModule } from "../shared";
 
@@ -37,7 +37,7 @@ export class DynamicAvatarComponent implements OnDestroy {
   @Input() title: string;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() size: AvatarSizes = "base";
+  @Input() size: AvatarSize = "base";
   private destroy$ = new Subject<void>();
 
   color$ = this.avatarService.avatarColor$;
