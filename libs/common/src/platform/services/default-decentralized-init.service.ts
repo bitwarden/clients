@@ -16,7 +16,7 @@ import { topologicalSort } from "./init-utils";
  * - Executes init() methods sequentially in dependency order
  *
  * Works in both Angular (via AngularInjectorAdapter) and non-Angular contexts
- * (via BackgroundInjector or any Injector implementation).
+ * (via ManualInjector or any Injector implementation).
  */
 export class DefaultDecentralizedInitService {
   constructor(

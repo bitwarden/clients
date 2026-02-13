@@ -123,7 +123,7 @@ import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Dependency } from "@bitwarden/common/platform/abstractions/injector";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/initializable";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
@@ -134,6 +134,7 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SyncDependency } from "@bitwarden/common/platform/abstractions/sync-initializable";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
@@ -322,7 +323,6 @@ import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender
 import { OffscreenDocumentService } from "../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
-import { BackgroundInjector } from "../platform/services/background-injector";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
@@ -330,6 +330,7 @@ import BrowserMemoryStorageService from "../platform/services/browser-memory-sto
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
+import { ManualInjector } from "../platform/services/manual-injector";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
@@ -1548,32 +1549,24 @@ export default class MainBackground {
     // subscriptions to the notification chrome events.
     this.initNotificationSubscriptions();
 
-    // Setup decentralized initialization for background services
-    const backgroundInjector = new BackgroundInjector();
-
-    // Register Phase 1 services for decentralized initialization
-    backgroundInjector.register(SdkLoadService, this.sdkLoadService);
-
-    const initServiceTokens: Dependency[] = [SdkLoadService];
+    // Setup async initialization for background services
+    const asyncInjector = new ManualInjector<AsyncDependency>();
+    asyncInjector.register(SdkLoadService, this.sdkLoadService);
 
     this.decentralizedInitService = new DefaultDecentralizedInitService(
-      initServiceTokens,
-      backgroundInjector,
+      asyncInjector.getRegisteredTokens(),
+      asyncInjector,
     );
 
     // Setup synchronous initialization for Chrome API event listeners
     // These run BEFORE async init to ensure listeners are registered
     // before the service worker can be terminated (Manifest V3 requirement)
-    const syncBackgroundInjector = new BackgroundInjector();
-
-    // Register services that need sync init (Chrome API listeners)
-    syncBackgroundInjector.register(CommandsBackground, this.commandsBackground);
-
-    const syncInitServiceTokens: Dependency[] = [CommandsBackground];
+    const syncInjector = new ManualInjector<SyncDependency>();
+    syncInjector.register(CommandsBackground, this.commandsBackground);
 
     this.syncInitService = new DefaultSyncInitService(
-      syncInitServiceTokens,
-      syncBackgroundInjector,
+      syncInjector.getRegisteredTokens(),
+      syncInjector,
     );
   }
 
