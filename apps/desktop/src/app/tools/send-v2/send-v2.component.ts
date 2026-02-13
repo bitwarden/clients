@@ -1,14 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
@@ -28,7 +20,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
+import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
   SendItemsService,
@@ -36,6 +28,7 @@ import {
   SendListState,
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
+  SendItemDialogResult,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -92,10 +85,9 @@ export class SendV2Component {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
-  private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  private activeDrawerRef: any = null;
+  private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
