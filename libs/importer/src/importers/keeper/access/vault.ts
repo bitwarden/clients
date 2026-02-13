@@ -138,25 +138,33 @@ export class Vault {
       sharedFolderKeys,
     );
 
-    // 6. All record keys.
-    const allRecordKeys = new Map([...recordKeys, ...sharedRecordKeys]);
+    // 6. Now all records can be decrypted.
+    const [records, failedRecords] = await Vault.decryptRecords(
+      merged.records,
+      new Map([...recordKeys, ...sharedRecordKeys]),
+    );
 
-    // 7. Now all records can be decrypted.
-    const [records, failedRecords] = await Vault.decryptRecords(merged.records, allRecordKeys);
-
-    // 8. Decrypt shared folder subfolder names.
-    const sharedFolderFolderNames = await Vault.decryptSharedFolderFolderNames(
+    // 7. Decrypt shared folder subfolder names.
+    const sharedFolderSubfolderNames = await Vault.decryptSharedFolderFolderNames(
       merged.sharedFolderFolders,
       sharedFolderKeys,
     );
 
-    // 9. Build full folder paths
+    // 8. Build full folder paths
     const folderPaths = Vault.buildRecordFolderPaths(
       merged.userFolders,
       merged.sharedFolders,
       merged.sharedFolderFolders,
       merged.userFolderSharedFolders,
-      new Map([...folders, ...sharedFolders]),
+      new Map([...folders, ...sharedFolders, ...sharedFolderSubfolderNames]),
+    );
+
+    // 9. Collect all folder paths for each record.
+    const recordFolders = Vault.buildRecordFolders(
+      merged.userFolderRecords,
+      merged.sharedFolderRecords,
+      merged.sharedFolderFolderRecords,
+      folderPaths,
     );
 
     // 10. Combine records with their folder paths into VaultItems.
@@ -165,7 +173,7 @@ export class Vault {
       items.push({
         ...record,
         id: uid,
-        folders: [],
+        folders: recordFolders.get(uid) ?? [],
       });
     }
 
@@ -340,7 +348,17 @@ export class Vault {
       childToParent.set(uid, folderUid);
     }
 
-    // 3. Walk up the parent chain to build full paths for every folder.
+    // 3. Shared folder subfolders. Defines the relationship between a subfolder and its parent (shared folder or another subfolder).
+    for (const sff of sharedFoldersFolder) {
+      const uid = base64UrlEncode(sff.folderUid);
+      const parentUid =
+        sff.parentUid.length > 0
+          ? base64UrlEncode(sff.parentUid)
+          : base64UrlEncode(sff.sharedFolderUid);
+      childToParent.set(uid, parentUid);
+    }
+
+    // 4. Walk up the parent chain to build full paths for every folder.
     const getPath = (uid: string): string => {
       if (paths.has(uid)) {
         return paths.get(uid)!;
@@ -362,6 +380,42 @@ export class Vault {
     }
 
     return paths;
+  }
+
+  private static buildRecordFolders(
+    userFolderRecords: UserFolderRecord[],
+    sharedFolderRecords: SharedFolderRecord[],
+    sharedFolderFolderRecords: SharedFolderFolderRecord[],
+    folderPaths: Map<string, string>,
+  ): Map<string, string[]> {
+    const result = new Map<string, string[]>();
+
+    const addPath = (recordUid: string, folderUid: string) => {
+      const path = folderPaths.get(folderUid);
+      if (!result.has(recordUid)) {
+        result.set(recordUid, []);
+      }
+      if (path) {
+        result.get(recordUid)!.push(path);
+      }
+    };
+
+    // Records in normal folders
+    for (const r of userFolderRecords) {
+      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.folderUid));
+    }
+
+    // Records in the root of shared folders
+    for (const r of sharedFolderRecords) {
+      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.sharedFolderUid));
+    }
+
+    // Records in subfolders of shared folders
+    for (const r of sharedFolderFolderRecords) {
+      addPath(base64UrlEncode(r.recordUid), base64UrlEncode(r.folderUid));
+    }
+
+    return result;
   }
 
   private static async decryptJsonV1<T>(data: Uint8Array, key: Uint8Array): Promise<T> {
