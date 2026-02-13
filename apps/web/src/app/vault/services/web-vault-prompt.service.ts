@@ -53,11 +53,9 @@ export class WebVaultPromptService {
       return;
     }
 
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
-    if (await this.welcomeDialogService.conditionallyShowWelcomeDialog()) {
-      return;
-    }
+    await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     this.checkForAutoConfirm();
   }

@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   ButtonModule,
   DialogModule,
@@ -55,14 +56,8 @@ export class VaultWelcomeDialogComponent {
   }
 
   private async setAcknowledged(): Promise<void> {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (account) {
-      await this.stateProvider.setUserState(
-        VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY,
-        true,
-        account.id,
-      );
-    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.stateProvider.setUserState(VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY, true, userId);
   }
 
   static open(dialogService: DialogService): DialogRef<VaultWelcomeDialogResult> {

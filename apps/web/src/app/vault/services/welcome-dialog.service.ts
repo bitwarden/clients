@@ -32,26 +32,26 @@ export class WelcomeDialogService {
    *
    * @returns true if the dialog was shown, false otherwise
    */
-  async conditionallyShowWelcomeDialog(): Promise<boolean> {
+  async conditionallyShowWelcomeDialog() {
     const account = await firstValueFrom(this.accountService.activeAccount$);
     if (!account) {
-      return false;
+      return;
     }
 
     const enabled = await this.configService.getFeatureFlag(FeatureFlag.PM29437_WelcomeDialog);
     if (!enabled) {
-      return false;
+      return;
     }
 
     const createdAt = account.creationDate;
     if (!createdAt) {
-      return false;
+      return;
     }
 
     const ageMs = Date.now() - createdAt.getTime();
     const isNewUser = ageMs >= 0 && ageMs <= THIRTY_DAY_MS;
     if (!isNewUser) {
-      return false;
+      return;
     }
 
     const acknowledged = await firstValueFrom(
@@ -61,12 +61,12 @@ export class WelcomeDialogService {
     );
 
     if (acknowledged) {
-      return false;
+      return;
     }
 
     const dialogRef = VaultWelcomeDialogComponent.open(this.dialogService);
     await firstValueFrom(dialogRef.closed);
 
-    return true;
+    return;
   }
 }
