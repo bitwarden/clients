@@ -53,13 +53,12 @@ describe("VaultWelcomeDialogComponent", () => {
       expect(close).toHaveBeenCalledWith(VaultWelcomeDialogResult.Dismissed);
     });
 
-    it("should not set state if no active account", async () => {
+    it("should throw if no active account", async () => {
       activeAccount$.next(null);
 
-      await component["onDismiss"]();
+      await expect(component["onDismiss"]()).rejects.toThrow("Null or undefined account");
 
       expect(setUserState).not.toHaveBeenCalled();
-      expect(close).toHaveBeenCalledWith(VaultWelcomeDialogResult.Dismissed);
     });
   });
 
@@ -77,13 +76,12 @@ describe("VaultWelcomeDialogComponent", () => {
       expect(close).toHaveBeenCalledWith(VaultWelcomeDialogResult.GetStarted);
     });
 
-    it("should not set state if no active account", async () => {
+    it("should throw if no active account", async () => {
       activeAccount$.next(null);
 
-      await component["onPrimaryCta"]();
+      await expect(component["onPrimaryCta"]()).rejects.toThrow("Null or undefined account");
 
       expect(setUserState).not.toHaveBeenCalled();
-      expect(close).toHaveBeenCalledWith(VaultWelcomeDialogResult.GetStarted);
     });
   });
 });
