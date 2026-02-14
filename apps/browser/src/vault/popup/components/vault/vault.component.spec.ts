@@ -48,7 +48,6 @@ import { VaultPopupLoadingService } from "../../services/vault-popup-loading.ser
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 
-import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
@@ -116,14 +115,6 @@ class BlockedInjectionBannerStubComponent {}
 class VaultAtRiskCalloutStubComponent {}
 
 @Component({
-  selector: "app-autofill-vault-list-items",
-  standalone: true,
-  template: "",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class AutofillVaultListItemsStubComponent {}
-
-@Component({
   selector: "app-vault-list-items-container",
   standalone: true,
   template: "",
@@ -135,6 +126,10 @@ class VaultListItemsContainerStubComponent {
   readonly id = input<string>();
   readonly disableSectionMargin = input<boolean>();
   readonly collapsibleKey = input<string>();
+  readonly showRefresh = input<boolean>();
+  readonly description = input<string>();
+  readonly disableDescriptionMargin = input<boolean>();
+  readonly groupByType = input<boolean>();
 }
 
 const mockDialogRef = {
@@ -178,6 +173,8 @@ describe("VaultComponent", () => {
     filteredCiphers$: new BehaviorSubject<any[]>([]),
     cipherCount$: new BehaviorSubject<number>(0),
     hasSearchText$: new BehaviorSubject<boolean>(false),
+    hasFilterApplied$: new BehaviorSubject<boolean>(false),
+    autoFillCiphers$: new BehaviorSubject<any[]>([]),
   } as Partial<VaultPopupItemsService>;
 
   const filtersSvc: any = {
@@ -278,7 +275,11 @@ describe("VaultComponent", () => {
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
           provide: VaultPopupAutofillService,
-          useValue: mock<VaultPopupAutofillService>(),
+          useValue: {
+            currentTabIsOnBlocklist$: new BehaviorSubject<boolean>(false),
+            autofillAllowed$: new BehaviorSubject<boolean>(true),
+            refreshCurrentTab: jest.fn(),
+          },
         },
         { provide: TaskService, useValue: mock<TaskService>() },
         { provide: StateProvider, useValue: mock<StateProvider>() },
@@ -308,7 +309,6 @@ describe("VaultComponent", () => {
           PopOutComponent,
           BlockedInjectionBanner,
           AtRiskPasswordCalloutComponent,
-          AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
         ],
         providers: [
@@ -324,7 +324,6 @@ describe("VaultComponent", () => {
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
-          AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
@@ -599,8 +598,12 @@ describe("VaultComponent", () => {
     expect(spotlights.length).toBe(0);
   }));
 
-  it("does not render app-autofill-vault-list-items or favorites item container when hasSearchText$ is true", () => {
+  it("renders all ciphers in a single container when hasSearchText$ is true", () => {
+    itemsSvc.emptyVault$.next(false);
+    itemsSvc.noFilteredResults$.next(false);
+    itemsSvc.showDeactivatedOrg$.next(false);
     itemsSvc.hasSearchText$.next(true);
+    loadingSvc.loading$.next(false);
 
     const fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
@@ -613,14 +616,17 @@ describe("VaultComponent", () => {
     allFilters$.next({});
     fixture.detectChanges();
 
-    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
-    expect(autofillElement).toBeFalsy();
+    const containers = fixture.debugElement.queryAll(By.css("app-vault-list-items-container"));
+    expect(containers.length).toBe(1);
+
+    const searchResultsContainer = containers[0];
+    expect(searchResultsContainer.attributes["id"]).toBe("allItems");
 
     const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
     expect(favoritesElement).toBeFalsy();
   });
 
-  it("does render app-autofill-vault-list-items and favorites item container when hasSearchText$ is false", () => {
+  it("renders autofill suggestions and favorites containers when hasSearchText$ is false", () => {
     // Ensure vaultState is null (not Empty, NoResults, or DeactivatedOrg)
     itemsSvc.emptyVault$.next(false);
     itemsSvc.noFilteredResults$.next(false);
@@ -639,9 +645,11 @@ describe("VaultComponent", () => {
     allFilters$.next({});
     fixture.detectChanges();
 
-    const autofillElement = fixture.debugElement.query(By.css("app-autofill-vault-list-items"));
-    expect(autofillElement).toBeTruthy();
+    // Should have multiple containers (autofill suggestions, favorites, all items)
+    const containers = fixture.debugElement.queryAll(By.css("app-vault-list-items-container"));
+    expect(containers.length).toBeGreaterThanOrEqual(2);
 
+    // Check for favorites container
     const favoritesElement = fixture.debugElement.query(By.css("#favorites"));
     expect(favoritesElement).toBeTruthy();
   });

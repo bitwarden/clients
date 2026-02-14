@@ -117,7 +117,20 @@
               collapsibleKey="allItems"
             ></app-vault-list-items-container>
           } @else {
-            <app-autofill-vault-list-items></app-autofill-vault-list-items>
+            <app-vault-list-items-container
+              *ngIf="autofillCiphers$ | async as ciphers"
+              [ciphers]="ciphers"
+              [title]="
+                ((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n
+              "
+              [showRefresh]="showRefresh"
+              (onRefresh)="refreshCurrentTab()"
+              [description]="
+                (showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined
+              "
+              [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
+              [groupByType]="autofillGroupByType$ | async"
+            ></app-vault-list-items-container>
             <app-vault-list-items-container
               [title]="'favorites' | i18n"
               [ciphers]="(favoriteCiphers$ | async) || []"

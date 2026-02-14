@@ -97,7 +97,7 @@
             (click)="onCipherSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
-              cipherItemTitleKey()(cipher)
+              cipherItemTitleKey(cipher)
                 | i18n: cipher.name : CipherViewLikeUtils.getLogin(cipher)?.username
             "
             class="{{ itemHeightClass }}"
@@ -125,16 +125,18 @@
           </button>
 
           <ng-container slot="end">
-            @if (showFillTextOnHover()) {
+            @if (showFillTextOnHover(cipher)) {
               <bit-item-action>
-                <span
-                  class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100 tw-cursor-pointer"
+                <button
+                  type="button"
+                  (click)="doAutofill(cipher)"
+                  class="tw-opacity-0 tw-text-primary-600 tw-px-2 tw-bg-transparent tw-border-0 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
                 >
                   {{ "fill" | i18n }}
-                </span>
+                </button>
               </bit-item-action>
             }
-            @if (showAutofillBadge()) {
+            @if (showAutofillBadge(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -148,7 +150,7 @@
                 </button>
               </bit-item-action>
             }
-            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+            @if (showLaunchButton(cipher) && CipherViewLikeUtils.canLaunch(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -162,8 +164,8 @@
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             <app-item-more-options
               [cipher]="cipher"
-              [showAutofill]="showAutofillInMenu()"
-              [showViewOption]="showViewInMenu()"
+              [showAutofill]="showAutofillInMenu(cipher)"
+              [showViewOption]="showViewInMenu(cipher)"
             ></app-item-more-options>
           </ng-container>
         </bit-item>

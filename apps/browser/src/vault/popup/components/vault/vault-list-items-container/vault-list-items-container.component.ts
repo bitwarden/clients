@@ -16,7 +16,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,6 +28,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -56,6 +57,7 @@ import {
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
   VaultPopupSectionService,
   PopupSectionOpen,
@@ -91,12 +93,37 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
   private configService = inject(ConfigService);
+  private vaultSettingsService = inject(VaultSettingsService);
+  private vaultPopupItemsService = inject(VaultPopupItemsService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
     { initialValue: false },
+  );
+
+  /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * User setting for whether clicking items should autofill.
+   * Used when feature flag is disabled.
+   */
+  private readonly clickItemsToAutofillVaultView = toSignal(
+    this.vaultSettingsService.clickItemsToAutofillVaultView$.pipe(
+      startWith(true), // Start with true to avoid flashing the fill button on first load
+    ),
+    { initialValue: true },
+  );
+
+  /**
+   * Set of cipher IDs that are in the autofill list (match the current URL).
+   * Used to determine per-cipher autofill behavior.
+   */
+  private readonly autofillCipherIds = toSignal(
+    this.vaultPopupItemsService.autoFillCiphers$.pipe(
+      map((ciphers) => new Set(ciphers.map((c) => c.id).filter((id) => id != null))),
+    ),
+    { initialValue: new Set<string>() },
   );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -235,110 +262,127 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   readonly currentUriIsBlocked = toSignal(this.vaultPopupAutofillService.currentTabIsOnBlocklist$);
 
   /**
-   * Resolved i18n key to use for suggested cipher items
+   * Checks if a cipher is in the autofill list (matches the current URL).
    */
-  readonly cipherItemTitleKey = computed(() => {
-    return (cipher: CipherViewLike) => {
-      const login = CipherViewLikeUtils.getLogin(cipher);
-      const hasUsername = login?.username != null;
-      // Use autofill title when autofill is the primary action
-      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
-      return hasUsername ? `${key}WithField` : key;
-    };
-  });
+  isAutofillCipher(cipher: PopupCipherViewLike): boolean {
+    return cipher.id != null && this.autofillCipherIds().has(cipher.id as string);
+  }
+
+  /**
+   * Resolved i18n key to use for suggested cipher items.
+   * Returns a function that takes a cipher and returns the appropriate title key.
+   */
+  cipherItemTitleKey(cipher: CipherViewLike): string {
+    const login = CipherViewLikeUtils.getLogin(cipher);
+    const hasUsername = login?.username != null;
+    // Use autofill title when autofill is the primary action for this cipher
+    const key = this.canAutofill(cipher as PopupCipherViewLike) ? "autofillTitle" : "viewItemTitle";
+    return hasUsername ? `${key}WithField` : key;
+  }
 
   /**
    * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Option to show the autofill button for each item.
-   * Used when feature flag is disabled.
+   * Whether to show the autofill button for a cipher.
+   * Shows button when cipher is in autofill list but user prefers click-to-view.
    */
-  readonly showAutofillButton = input(false, { transform: booleanAttribute });
+  showAutofillButton(cipher: PopupCipherViewLike): boolean {
+    return this.isAutofillCipher(cipher) && !this.clickItemsToAutofillVaultView();
+  }
 
   /**
    * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Whether to show the autofill badge button (old behavior).
+   * Whether to show the autofill badge button (old behavior) for a cipher.
    * Only shown when feature flag is disabled AND conditions are met.
    */
-  readonly showAutofillBadge = computed(
-    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
-  );
+  showAutofillBadge(cipher: PopupCipherViewLike): boolean {
+    return !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(cipher);
+  }
 
   /**
    * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Flag indicating whether the cipher item autofill menu options should be shown or not.
-   * Used when feature flag is disabled.
+   * Flag indicating whether the cipher item autofill menu options should be hidden.
    */
-  readonly hideAutofillMenuOptions = computed(
-    () => this.currentUriIsBlocked() || this.showAutofillButton(),
-  );
+  hideAutofillMenuOptions(cipher: PopupCipherViewLike): boolean {
+    return this.currentUriIsBlocked() || this.showAutofillButton(cipher);
+  }
 
   /**
    * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Option to perform autofill operation as the primary action for autofill suggestions.
-   * Used when feature flag is disabled.
+   * Whether clicking performs autofill as the primary action for a cipher.
+   * True when cipher is in autofill list AND user prefers click-to-autofill.
    */
-  readonly primaryActionAutofill = input(false, { transform: booleanAttribute });
+  primaryActionAutofill(cipher: PopupCipherViewLike): boolean {
+    return this.isAutofillCipher(cipher) && this.clickItemsToAutofillVaultView();
+  }
 
   /**
    * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
-   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
+   * Flag indicating whether the suggested cipher item autofill button should be hidden.
    * Used when feature flag is disabled.
    */
-  readonly hideAutofillButton = computed(
-    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
-  );
-
-  /**
-   * Option to mark this container as an autofill list.
-   */
-  readonly isAutofillList = input(false, { transform: booleanAttribute });
+  hideAutofillButton(cipher: PopupCipherViewLike): boolean {
+    return (
+      !this.showAutofillButton(cipher) ||
+      this.currentUriIsBlocked() ||
+      this.primaryActionAutofill(cipher)
+    );
+  }
 
   /**
    * Computed property whether the cipher action may perform autofill.
-   * When feature flag is enabled, uses isAutofillList.
+   * When feature flag is enabled, uses isAutofillCipher.
    * When feature flag is disabled, uses primaryActionAutofill.
    */
-  readonly canAutofill = computed(() => {
+  canAutofill(cipher: PopupCipherViewLike): boolean {
     if (this.currentUriIsBlocked()) {
       return false;
     }
-    return this.isAutofillList()
-      ? this.simplifiedItemActionEnabled()
-      : this.primaryActionAutofill();
-  });
+    if (this.simplifiedItemActionEnabled()) {
+      // New behavior: autofill on click for autofill ciphers
+      return this.isAutofillCipher(cipher);
+    }
+    // Old behavior: autofill on click based on user preference
+    return this.primaryActionAutofill(cipher);
+  }
 
   /**
    * Whether to show the "Fill" text on hover.
-   * Only shown when feature flag is enabled AND this is an autofill list.
+   * Only shown when feature flag is enabled AND this is an autofill cipher.
    */
-  readonly showFillTextOnHover = computed(
-    () => this.simplifiedItemActionEnabled() && this.canAutofill(),
-  );
+  showFillTextOnHover(cipher: PopupCipherViewLike): boolean {
+    return this.simplifiedItemActionEnabled() && this.canAutofill(cipher);
+  }
 
   /**
    * Whether to show the launch button.
    */
-  readonly showLaunchButton = computed(() =>
-    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.showAutofillButton(),
-  );
+  showLaunchButton(cipher: PopupCipherViewLike): boolean {
+    return this.simplifiedItemActionEnabled()
+      ? !this.isAutofillCipher(cipher)
+      : !this.showAutofillButton(cipher);
+  }
 
   /**
    * Whether to show the "Autofill" option in the more options menu.
-   * New behavior: show for non-autofill list items.
+   * New behavior: show for non-autofill ciphers.
    * Old behavior: show when not hidden by hideAutofillMenuOptions.
    */
-  readonly showAutofillInMenu = computed(() =>
-    this.simplifiedItemActionEnabled() ? !this.canAutofill() : !this.hideAutofillMenuOptions(),
-  );
+  showAutofillInMenu(cipher: PopupCipherViewLike): boolean {
+    return this.simplifiedItemActionEnabled()
+      ? !this.canAutofill(cipher)
+      : !this.hideAutofillMenuOptions(cipher);
+  }
 
   /**
    * Whether to show the "View" option in the more options menu.
-   * New behavior: show for autofill list items (since click = autofill).
+   * New behavior: show for autofill ciphers (since click = autofill).
    * Old behavior: show when primary action is autofill.
    */
-  readonly showViewInMenu = computed(() =>
-    this.simplifiedItemActionEnabled() ? this.isAutofillList() : this.primaryActionAutofill(),
-  );
+  showViewInMenu(cipher: PopupCipherViewLike): boolean {
+    return this.simplifiedItemActionEnabled()
+      ? this.isAutofillCipher(cipher)
+      : this.primaryActionAutofill(cipher);
+  }
 
   /**
    * Remove the bottom margin from the bit-section in this component
@@ -389,7 +433,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
-    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
+    return this.canAutofill(cipher) ? this.doAutofill(cipher) : this.onViewCipher(cipher);
   }
 
   /**

@@ -40,6 +40,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   ButtonModule,
@@ -56,14 +57,17 @@ import {
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
+import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
+import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
@@ -76,7 +80,7 @@ import {
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
-import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
+import { VaultListItemsContainerComponent } from ".";
 
 const VaultState = {
   Empty: 0,
@@ -100,7 +104,6 @@ type VaultState = UnionOfValues<typeof VaultState>;
     NoItemsModule,
     JslibModule,
     CommonModule,
-    AutofillVaultListItemsComponent,
     VaultListItemsContainerComponent,
     ButtonModule,
     NewItemDropdownComponent,
@@ -165,6 +168,32 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
+
+  protected autofillCiphers$: Observable<PopupCipherViewLike[]> =
+    this.vaultPopupItemsService.autoFillCiphers$;
+
+  protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
+
+  protected currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
+  protected showEmptyAutofillTip$: Observable<boolean> = combineLatest([
+    this.vaultPopupItemsService.hasFilterApplied$,
+    this.autofillCiphers$,
+    this.vaultPopupAutofillService.autofillAllowed$,
+  ]).pipe(
+    map(
+      ([hasFilter, ciphers, canAutoFill]) =>
+        !hasFilter &&
+        canAutoFill &&
+        ciphers.filter((c) => CipherViewLikeUtils.getType(c) == CipherType.Login).length === 0,
+    ),
+  );
+
+  protected autofillGroupByType$ = this.vaultPopupItemsService.hasFilterApplied$.pipe(
+    map((hasFilter) => !hasFilter),
+  );
+
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
   protected hasPremium$ = this.activeUserId$.pipe(
@@ -267,6 +296,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private searchService: SearchService,
     private vaultItemsTransferService: VaultItemsTransferService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -372,6 +402,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async dismissVaultNudgeSpotlight(type: NudgeType) {
     await this.nudgesService.dismissNudge(type, this.activeUserId as UserId);
+  }
+
+  /**
+   * Refreshes the current tab to re-populate the autofill ciphers.
+   */
+  protected refreshCurrentTab() {
+    this.vaultPopupAutofillService.refreshCurrentTab();
   }
 
   protected readonly FeatureFlag = FeatureFlag;
