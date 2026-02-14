@@ -90,7 +90,13 @@
       </ng-container>
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
+        <bit-item
+          *cdkVirtualFor="let cipher of group.ciphers"
+          class="tw-group/vault-item"
+          [ngClass]="{
+            'hover:tw-bg-hover-default hover:tw-cursor-pointer': showFillTextOnHover(cipher),
+          }"
+        >
           <button
             bit-item-content
             type="button"
