@@ -11,13 +11,24 @@ import { BaseImporter } from "../base-importer";
 
 import { Vault, VaultField, VaultItem } from "./access";
 
+type Reference = {
+  id: string;
+  type: string;
+};
+
 export class KeeperDirectImporter extends BaseImporter {
+  private references = new Map<string, Reference[]>();
+  private idToCipher = new Map<string, CipherView>();
+
   convertVaultToImportResult(vault: Vault, includeSharedFolders: boolean): ImportResult {
     const result = new ImportResult();
 
+    this.references.clear();
+    this.idToCipher.clear();
+
     const items = vault.getItems();
     this.parseRecords(items, result, includeSharedFolders);
-    // TODO: resolveReferences (requires vault.ts to expose references from V3 record data)
+    this.resolveReferences();
 
     if (this.organization) {
       this.moveFoldersToCollections(result);
@@ -44,7 +55,7 @@ export class KeeperDirectImporter extends BaseImporter {
     }
 
     const cipher = this.initLoginCipher();
-    cipher.name = this.getValueOrDefault(item.title, "--");
+    cipher.name = this.getValueOrDefault(item.title);
     cipher.notes = this.getValueOrDefault(item.notes);
 
     // Track consumed fields by index so they aren't processed again
@@ -69,11 +80,17 @@ export class KeeperDirectImporter extends BaseImporter {
     }
 
     this.importFields(item, cipher, consumedFieldIndices);
+    this.collectReferences(item);
 
     this.convertToNoteIfNeeded(cipher);
     this.cleanupCipher(cipher);
 
     result.ciphers.push(cipher);
+
+    // This is needed for resolving references later
+    if (item.id) {
+      this.idToCipher.set(item.id, cipher);
+    }
   }
 
   private getFirstFieldValue(item: VaultItem, fieldType: string): string | undefined {
@@ -199,8 +216,51 @@ export class KeeperDirectImporter extends BaseImporter {
     }
   }
 
+  private collectReferences(item: VaultItem): void {
+    const refs: Reference[] = [];
+
+    for (const field of [...item.fields, ...item.custom]) {
+      if (field.type.endsWith("Ref") && field.value.length > 0) {
+        const type = field.type.slice(0, -3);
+        for (const uid of field.value) {
+          refs.push({ id: String(uid), type });
+        }
+      }
+    }
+
+    if (refs.length > 0) {
+      this.references.set(item.id, refs);
+    }
+  }
+
+  private resolveReferences(): void {
+    for (const [uid, refs] of this.references) {
+      const cipher = this.idToCipher.get(uid);
+      if (!cipher) {
+        continue;
+      }
+
+      for (const { id, type } of refs) {
+        const refCipher = this.idToCipher.get(id);
+        if (!refCipher) {
+          continue;
+        }
+
+        const value = refCipher.fields?.find((f) => f.name === type)?.value;
+        if (value) {
+          this.addField(cipher, type, value);
+        }
+      }
+    }
+  }
+
   private importField(cipher: CipherView, field: VaultField): void {
     if (!field.value || field.value.length === 0) {
+      return;
+    }
+
+    // Reference fields are resolved separately after all records are parsed
+    if (field.type.endsWith("Ref")) {
       return;
     }
 

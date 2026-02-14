@@ -118,10 +118,9 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "email")?.value).toBe("emily.chen@smc.org");
     expect(getField(cipher, "phone")?.value).toBe("(AF) 5415558723 ext. 5577 (Work)");
 
-    // TODO: resolved reference field (requires vault.ts reference support)
-    // expect(getField(cipher, "address")?.value).toBe(
-    //   "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
-    // );
+    expect(getField(cipher, "address")?.value).toBe(
+      "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+    );
   });
 
   it("should parse databaseCredentials", () => {
@@ -286,11 +285,15 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "special secret")?.value).toBe("big secret");
     expect(getField(cipher, "special secret")?.type).toBe(FieldType.Hidden);
 
-    // 16-17: address reference fields (unresolved, contain raw record UIDs)
-    // Once reference resolution is implemented, these should contain formatted addresses:
-    //   "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US"
-    //   "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US"
-    expect(getFields(cipher, "addressRef").length).toBe(2);
+    // 16-17: resolved address references
+    expect(
+      getFields(cipher, "address")
+        .map((x) => x.value)
+        .sort(),
+    ).toEqual([
+      "1428 Elm Street, Suite 200, Portland, Oregon, 97204, US",
+      "742 Evergreen Terrace, Apt 3B, Springfield, Oregon, 97477, US",
+    ]);
   });
 
   it("should parse membership", () => {
