@@ -19,21 +19,7 @@
     >
       <p class="tw-text-sm tw-font-medium tw-mb-2 tw-text-main">Connect to PqP Network</p>
       <div class="tw-grid tw-gap-2">
-        <button
-          type="button"
-          bitButton
-          block
-          [buttonType]="pqpGoogleDriveLoggedIn ? 'secondary' : 'primary'"
-          (click)="handleGoogleDriveLogin()"
-          [disabled]="pqpGoogleDriveLoggedIn"
-        >
-          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpGoogleDriveLoggedIn" aria-hidden="true"></i>
-          {{
-            pqpGoogleDriveLoggedIn
-              ? pqpUserEmail || "Google Drive Connected"
-              : "Login to Google Drive"
-          }}
-        </button>
+
         <button
           type="button"
           bitButton

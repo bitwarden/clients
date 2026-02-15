@@ -105,9 +105,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ssoRequired = false;
 
   // PqP Pre-Login State (via service)
-  get pqpGoogleDriveLoggedIn(): boolean {
-    return this.pqpAuthService.googleDriveLoggedIn;
-  }
+
   get pqpNetworkLoggedIn(): boolean {
     return this.pqpAuthService.networkLoggedIn;
   }
@@ -594,27 +592,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  async handleGoogleDriveLogin(): Promise<void> {
-    const success = await this.pqpAuthService.loginToGoogleDrive();
-    if (success) {
-      const email = this.pqpAuthService.userEmail;
-      if (email) {
-        this.formGroup.controls.email.setValue(email);
-        await this.loginEmailService.setLoginEmail(email);
-      }
-      this.toastService.showToast({
-        variant: "success",
-        title: "Connected",
-        message: "Google Drive connected successfully",
-      });
-    } else {
-      this.toastService.showToast({
-        variant: "error",
-        title: "Error",
-        message: "Failed to connect to Google Drive",
-      });
-    }
-  }
+
 
   async handlePqpNetworkLogin(): Promise<void> {
     this.toastService.showToast({

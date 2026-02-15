@@ -57,7 +57,8 @@
     "webNavigation",
     "webRequest",
     "webRequestBlocking",
-    "notifications"
+    "notifications",
+    "identity"
   ],
   "__safari__permissions": [
     "<all_urls>",

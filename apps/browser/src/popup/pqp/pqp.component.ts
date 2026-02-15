@@ -6,9 +6,6 @@ import {
   getMessages,
   setMessages,
   clearBadge,
-  isGoogleDriveLoggedIn,
-  googleDriveLogin,
-  manualRestoreFromDrive,
   loadPeerIndex,
   getOrchestrationState,
   PeerIndex,
@@ -37,8 +34,8 @@ const ONLINE_THRESHOLD_MS = 60000;
     "app-pqp .peer-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 6px; cursor: pointer; transition: background-color 0.15s; border: 1px solid transparent; margin-bottom: 4px; }",
     "app-pqp .peer-row:hover { background-color: #f1f3f5; }",
     "app-pqp .peer-self { background-color: #e8f0fe; border-color: #d2e3fc; }",
-    "app-pqp .peer-slot { font-weight: 700; color: #555; width: 30px; font-size: 12px; }",
-    "app-pqp .peer-id { flex: 1; text-align: left; margin-left: 10px; font-family: 'Roboto Mono', monospace; font-size: 13px; color: #333; }",
+    "app-pqp .peer-slot { font-weight: 700; color: #555; width: auto; min-width: 30px; font-size: 12px; margin-right: 8px; }",
+    "app-pqp .peer-id { flex: 1; text-align: left; font-family: 'Roboto Mono', monospace; font-size: 13px; color: #333; }",
     "app-pqp .peer-status { width: 10px; height: 10px; border-radius: 50%; margin-left: 10px; background: #e9ecef; flex-shrink: 0; }",
     "app-pqp .peers-empty { color: #6c757d; font-size: 14px; padding: 15px 0; font-style: italic; }",
     "app-pqp .peers-discovering { color: #175ddc; font-size: 14px; padding: 10px 0; font-weight: 500; display: flex; flex-direction: column; align-items: center; }",
@@ -87,10 +84,12 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
     const peerIndex = await loadPeerIndex();
     const orchestrationState = await getOrchestrationState();
 
-    // Extract Tier-0 peers
-    const tier0Peers = Object.values(peerIndex.peers)
-      .filter((p) => p.tier?.tier === 0)
-      .sort((a, b) => a.tier.position - b.tier.position);
+    // Sort peers by Tier structure (tier asc, then path)
+    const sortedPeers = Object.values(peerIndex.peers).sort((a, b) => {
+      if (a.tier.tier !== b.tier.tier) return a.tier.tier - b.tier.tier;
+      // Compare paths
+      return (a.tier.path || []).join('.').localeCompare((b.tier.path || []).join('.'));
+    });
 
     let html = '';
 
@@ -102,7 +101,7 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
     }
 
     // Discovering Indicator
-    if (orchestrationState && orchestrationState.status === 'JOINING_TIER0') {
+    if (orchestrationState && orchestrationState.status === 'JOINING') {
       let progressHtml = '';
       if (orchestrationState.joinCompletionCheckTime) {
         const startTime = orchestrationState.joinStartTime || orchestrationState.joinCompletionCheckTime - 100000;
@@ -111,16 +110,16 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
         const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
         progressHtml = `<div class="discovery-loader-container"><div class="discovery-loader-bar" style="width: ${progress}%"></div></div>`;
       }
-      html += `<div class="peers-discovering">Discovering peers...</div>${progressHtml}`;
+      html += `<div class="peers-discovering">Joining Network...</div>${progressHtml}`;
     }
 
     // List
-    if (tier0Peers.length === 0) {
-      if (orchestrationState?.status !== 'JOINING_TIER0') {
-        html += `<div class="peers-empty">No Tier-0 peers discovered yet.</div>`;
+    if (sortedPeers.length === 0) {
+      if (orchestrationState?.status !== 'JOINING') {
+        html += `<div class="peers-empty">No peers discovered yet.</div>`;
       }
     } else {
-      tier0Peers.forEach((peer) => {
+      sortedPeers.forEach((peer) => {
         const elapsed = Date.now() - peer.lastSeen;
         const isOnline = elapsed < ONLINE_THRESHOLD_MS;
         const remainingPercent = Math.max(0, Math.min(100, ((ONLINE_THRESHOLD_MS - elapsed) / ONLINE_THRESHOLD_MS) * 100));
@@ -129,14 +128,18 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
           ? `background: conic-gradient(#4caf50 ${degrees}deg, #f0f0f0 ${degrees}deg);`
           : `background: #9e9e9e; opacity: 0.5;`;
 
-        const truncatedId = peer.queueId.substring(0, 12) + '...';
+        const truncatedId = peer.queueId.substring(0, 8) + '...';
         const isSelf = peerIndex.self && peerIndex.self.queueId === peer.queueId;
         const selfLabel = isSelf ? ' <strong>(You)</strong>' : '';
         const rowClass = isSelf ? 'peer-row peer-self' : 'peer-row';
 
+        // Display path like "192.168..."
+        const pathStr = peer.tier.path ? peer.tier.path.slice().reverse().join('.') : '???';
+        const tierBadge = `<span style="font-size:10px; background:#ddd; padding:1px 4px; border-radius:3px;">T${peer.tier.tier}</span>`;
+
         html += `
           <div class="${rowClass}" data-queue-id="${peer.queueId}">
-            <span class="peer-slot">p${peer.tier.position}</span>
+            <span class="peer-slot" title="Path: ${pathStr}">${tierBadge} ${pathStr}</span>
             <span class="peer-id">${truncatedId}${selfLabel}</span>
             <span class="peer-status" style="${timerStyle}" title="${Math.round(remainingPercent)}% freshness"></span>
           </div>
@@ -169,11 +172,13 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
       case 'LOGGED_OUT': return 'Not logged in';
       case 'LOGGED_IN': return 'Logged in';
       case 'BOOTSTRAPPING': return 'Bootstrapping assets...';
-      case 'JOINING_TIER0': return 'Joining tier-0...';
-      case 'JOINED_TIER0':
-        return peerIndex.self?.tier?.position !== undefined
-          ? `Joined as p${peerIndex.self.tier.position}`
-          : 'Joined';
+      case 'JOINING': return 'Joining network...';
+      case 'JOINED': {
+        const selfPath = peerIndex.self?.tier?.path
+          ? peerIndex.self.tier.path.slice().reverse().join('.')
+          : 'Unknown';
+        return `Joined: ${selfPath}`;
+      }
       case 'ERROR': return `Error: ${state.lastError || 'Unknown'}`;
       default: return 'Unknown state';
     }
@@ -181,7 +186,7 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
 
   getOrchestrationStatusClass(status: string): string {
     switch (status) {
-      case 'JOINED_TIER0': return 'status-success';
+      case 'JOINED': return 'status-success';
       case 'ERROR': return 'status-error';
       case 'LOGGED_OUT': return 'status-warning';
       default: return 'status-info';
@@ -294,60 +299,7 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
       setTimeout(() => this.checkStatus(), 1000);
     });
 
-    // Drive Backup
-    const driveStatusEl = document.getElementById('driveStatus');
-    const driveLoginBtn = document.getElementById('driveLoginBtn') as HTMLButtonElement;
-    const driveRestoreBtn = document.getElementById('driveRestoreBtn') as HTMLButtonElement;
 
-    const checkDriveStatus = async () => {
-      try {
-        const loggedIn = await isGoogleDriveLoggedIn();
-        if (driveStatusEl) {
-          driveStatusEl.textContent = loggedIn ? '✅ Connected to Google Drive' : '❌ Not connected';
-          driveStatusEl.style.color = loggedIn ? '#4caf50' : '#666';
-        }
-        if (driveLoginBtn) {
-          driveLoginBtn.textContent = loggedIn ? 'Connected' : 'Login to Drive';
-          driveLoginBtn.disabled = loggedIn;
-        }
-        if (driveRestoreBtn) {
-          driveRestoreBtn.disabled = !loggedIn;
-        }
-      } catch {
-        if (driveStatusEl) {
-          driveStatusEl.textContent = 'Error checking status';
-          driveStatusEl.style.color = '#f44336';
-        }
-      }
-    };
-
-    checkDriveStatus();
-
-    driveLoginBtn?.addEventListener('click', async () => {
-      driveLoginBtn.disabled = true;
-      driveLoginBtn.textContent = 'Connecting...';
-      try {
-        const success = await googleDriveLogin();
-        if (!success) alert('Google Drive login cancelled or failed.');
-      } catch (err) {
-        alert('Google Drive login failed: ' + err);
-      }
-      checkDriveStatus();
-    });
-
-    driveRestoreBtn?.addEventListener('click', async () => {
-      driveRestoreBtn.disabled = true;
-      driveRestoreBtn.textContent = 'Restoring...';
-      try {
-        const success = await manualRestoreFromDrive();
-        if (success) alert('Keys restored from Google Drive!');
-        else alert('No keys found in Google Drive.');
-      } catch (err) {
-        alert('Restore failed: ' + err);
-      }
-      driveRestoreBtn.textContent = 'Restore Keys';
-      checkDriveStatus();
-    });
 
     // RTC snapshot
     (async () => {

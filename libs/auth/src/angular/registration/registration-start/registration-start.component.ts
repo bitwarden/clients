@@ -92,9 +92,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   showErrorSummary = false;
 
   // PqP Pre-Login State (via service)
-  get pqpGoogleDriveLoggedIn(): boolean {
-    return this.pqpAuthService.googleDriveLoggedIn;
-  }
+
   get pqpNetworkLoggedIn(): boolean {
     return this.pqpAuthService.networkLoggedIn;
   }
@@ -240,15 +238,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
   }
 
-  async handleGoogleDriveLogin(): Promise<void> {
-    const success = await this.pqpAuthService.loginToGoogleDrive();
-    if (success) {
-      const email = this.pqpAuthService.userEmail;
-      if (email) {
-        this.formGroup.controls.email.setValue(email);
-      }
-    }
-  }
+
 
   async handlePqpNetworkLogin(): Promise<void> {
     await this.pqpAuthService.loginToPqpNetwork();

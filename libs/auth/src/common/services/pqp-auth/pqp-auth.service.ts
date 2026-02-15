@@ -1,7 +1,5 @@
 import { Injectable } from "@angular/core";
 import {
-  googleDriveLogin,
-  isGoogleDriveLoggedIn,
   getGoogleUserInfo,
   login as pqpLogin,
   isLoggedIn as isPqpLoggedIn,
@@ -10,7 +8,6 @@ import {
 } from "@ovrlab/pqp-network";
 
 export interface PqpAuthState {
-  googleDriveLoggedIn: boolean;
   networkLoggedIn: boolean;
   userEmail: string | null;
   derivedPassword: string | null;
@@ -19,19 +16,14 @@ export interface PqpAuthState {
 
 /**
  * Shared service for PqP authentication functionality.
- * Centralizes Google Drive login, PqP Network login, and password derivation.
+ * Centralizes PqP Network login and password derivation.
  * Platform-agnostic - can be used across browser, electron, and CLI.
  */
 @Injectable({ providedIn: "root" })
 export class PqpAuthService {
-  private _googleDriveLoggedIn = false;
   private _networkLoggedIn = false;
   private _userEmail: string | null = null;
   private _derivedPassword: string | null = null;
-
-  get googleDriveLoggedIn(): boolean {
-    return this._googleDriveLoggedIn;
-  }
 
   get networkLoggedIn(): boolean {
     return this._networkLoggedIn;
@@ -46,12 +38,11 @@ export class PqpAuthService {
   }
 
   get isReady(): boolean {
-    return this._googleDriveLoggedIn && this._networkLoggedIn;
+    return this._networkLoggedIn;
   }
 
   getState(): PqpAuthState {
     return {
-      googleDriveLoggedIn: this._googleDriveLoggedIn,
       networkLoggedIn: this._networkLoggedIn,
       userEmail: this._userEmail,
       derivedPassword: this._derivedPassword,
@@ -61,64 +52,33 @@ export class PqpAuthService {
 
   /**
    * Check the current PqP authentication status.
-   * Fetches Google Drive and PqP Network login states, user info, and derives password if ready.
+   * Fetches PqP Network login states, user info, and derives password if ready.
    * Clears stale data when login state becomes invalid.
    */
   async checkStatus(): Promise<PqpAuthState> {
     try {
-      this._googleDriveLoggedIn = await isGoogleDriveLoggedIn();
       this._networkLoggedIn = await isPqpLoggedIn();
 
-      // Fetch or clear user info based on Google Drive login state
-      if (this._googleDriveLoggedIn) {
+      // Fetch or clear user info based on network login state
+      if (this._networkLoggedIn) {
         const userInfo = await getGoogleUserInfo();
         if (userInfo) {
           this._userEmail = userInfo.email || null;
         }
-      } else {
-        // Clear stale user info when Google Drive is logged out
-        this._userEmail = null;
-      }
-
-      // Derive or clear password based on ready state
-      if (this.isReady) {
         await this.derivePassword();
       } else {
-        // Clear stale password when either service is logged out
+        // Clear stale data when logged out
+        this._userEmail = null;
         this._derivedPassword = null;
       }
     } catch {
       // Reset all state on error to prevent stale data from being reused
-      this._googleDriveLoggedIn = false;
       this._networkLoggedIn = false;
       this._userEmail = null;
       this._derivedPassword = null;
     }
 
     return this.getState();
-  }
-
-  /**
-   * Login to Google Drive.
-   * Returns true if successful.
-   */
-  async loginToGoogleDrive(): Promise<boolean> {
-    try {
-      const success = await googleDriveLogin();
-      if (success) {
-        this._googleDriveLoggedIn = true;
-        const userInfo = await getGoogleUserInfo();
-        if (userInfo) {
-          this._userEmail = userInfo.email || null;
-        }
-        if (this.isReady) {
-          await this.derivePassword();
-        }
-      }
-      return success;
-    } catch {
-      return false;
-    }
   }
 
   /**
@@ -147,9 +107,7 @@ export class PqpAuthService {
           resolved = true;
           cleanup();
           this._networkLoggedIn = true;
-          if (this.isReady) {
-            await this.derivePassword();
-          }
+          await this.derivePassword();
           resolve(true);
         } else if (focusCount >= 2) {
           // User has returned focus without completing login - treat as cancelled
@@ -197,7 +155,6 @@ export class PqpAuthService {
    * Reset all state (for logout scenarios).
    */
   reset(): void {
-    this._googleDriveLoggedIn = false;
     this._networkLoggedIn = false;
     this._userEmail = null;
     this._derivedPassword = null;
