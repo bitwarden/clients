@@ -24,12 +24,12 @@ const spinnerLockupLayoutStyles: Record<
   }
 > = {
   horizontal: {
-    container: ["tw-flex", "tw-flex-row", "tw-items-center", "tw-gap-3"],
-    textContainer: ["tw-flex", "tw-flex-col"],
+    container: ["tw-flex-row", "tw-gap-3"],
+    textContainer: [],
   },
   vertical: {
-    container: ["tw-flex", "tw-flex-col", "tw-items-center", "tw-gap-2"],
-    textContainer: ["tw-flex", "tw-flex-col", "tw-items-center"],
+    container: ["tw-flex-col", "tw-gap-2"],
+    textContainer: ["tw-items-center"],
   },
 };
 
@@ -54,7 +54,11 @@ export class SpinnerLockupComponent {
     };
   });
 
-  // readonly layoutClasses = computed(() => spinnerLockupLayoutStyles[this.layout()]);
-
-  readonly layoutClasses = computed(() => spinnerLockupLayoutStyles[this.layout()]);
+  readonly layoutClasses = computed(() => {
+    const layoutStyles = spinnerLockupLayoutStyles[this.layout()];
+    return {
+      container: [...layoutStyles.container, "tw-flex", "tw-items-center"],
+      textContainer: [...layoutStyles.textContainer, "tw-flex", "tw-flex-col"],
+    };
+  });
 }
