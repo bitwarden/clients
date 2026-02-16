@@ -13,9 +13,6 @@ export default {
       imports: [CommonModule, BadgeComponent],
     }),
   ],
-  args: {
-    truncate: false,
-  },
   parameters: {
     design: {
       type: "figma",
@@ -30,9 +27,16 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge containing lengthy text</span>
+      <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge text</span>
     `,
   }),
+};
+
+export const StartIcon: Story = {
+  ...Default,
+  args: {
+    startIcon: "bwi-check",
+  },
 };
 
 // export const Primary: Story = {
@@ -97,10 +101,64 @@ export const Default: Story = {
 // };
 
 export const Truncated: Story = {
-  ...Default,
-  args: {
-    truncate: true,
-  },
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <div>
+          <span class="tw-text-main tw-block tw-mb-2">Short text (no truncation, no tooltip):</span>
+          <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Short</span>
+        </div>
+        <div>
+          <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with tooltip on hover):</span>
+          <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</span>
+        </div>
+        <div>
+          <span class="tw-text-main tw-block tw-mb-2">With icon and long text:</span>
+          <span bitBadge startIcon="bwi-check" ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge with icon and lengthy text content</span>
+        </div>
+      </div>
+    `,
+  }),
+};
+
+export const VariousLengths: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Hi</span>
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Medium</span>
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Fits perfectly</span>
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This one will overflow</span>
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is definitely going to be truncated</span>
+        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Supercalifragilisticexpialidocious</span>
+      </div>
+      <p class="tw-text-main tw-mt-4 tw-text-sm">
+        Hover over the longer badges to see the tooltip with full text. Shorter badges won't show tooltips.
+      </p>
+    `,
+  }),
+};
+
+export const ManyBadges: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      items: Array.from({ length: 100 }, (_, i) => i),
+    },
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-wrap tw-gap-2">
+        @for (item of items; track item) {
+          <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge {{ item }} with text that may overflow</span>
+        }
+      </div>
+      <p class="tw-text-main tw-mt-4">
+        100 badges rendered. Resize browser window to test performance.
+        Open DevTools Performance tab to profile.
+      </p>
+    `,
+  }),
 };
 
 // export const VariantsAndInteractionStates: Story = {
