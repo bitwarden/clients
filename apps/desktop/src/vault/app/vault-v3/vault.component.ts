@@ -12,8 +12,8 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -398,14 +398,6 @@ export class VaultComponent<C extends CipherViewLike>
         replaceUrl: true,
       });
     }
-
-    // Subscribe to filter changes from router params via the bridge service
-    // Use combineLatest to react to changes in both the filter and archive flag
-    combineLatest([
-      this.routedVaultFilterBridgeService.activeFilter$,
-      this.routedVaultFilterService.filter$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    ]).subscribe();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       void this.ngZone.run(async () => {
