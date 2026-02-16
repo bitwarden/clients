@@ -554,17 +554,23 @@ export class AutofillComponent implements OnInit {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
     if (!valueChange || !isAdvanced) {
-      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
-    }
-    AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[current],
-      onContinue: async () => {
-        this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
+      if (current != null) {
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      }
+      return;
+    }
+    const currentStrategy = current;
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedOptionWarningMap[currentStrategy],
+      onContinue: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(currentStrategy);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(currentStrategy);
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        if (previous != null) {
+          await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        }
       },
     });
   }
