@@ -42,11 +42,11 @@ export type BadgeSize = "small" | "large";
 const variantStyles: Record<BadgeVariant, string[]> = {
   primary: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
   info: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
-  subtle: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  subtle: ["tw-bg-bg-secondary", "tw-border-border-base", "tw-text-fg-body"],
   secondary: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
-  success: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
-  warning: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
-  danger: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  success: ["tw-bg-bg-success-soft", "tw-border-border-success-soft", "tw-text-fg-success-strong"],
+  warning: ["tw-bg-bg-warning-soft", "tw-border-border-warning-soft", "tw-text-fg-warning-strong"],
+  danger: ["tw-bg-bg-danger-soft", "tw-border-border-danger-soft", "tw-text-fg-danger-strong"],
   "accent-primary": [
     "tw-bg-bg-accent-primary-soft",
     "tw-border-border-accent-primary-soft",
@@ -66,6 +66,7 @@ const commonStyles = [
   "tw-rounded-full",
   "tw-border",
   "tw-font-medium",
+  "tw-cursor-default",
 ];
 
 /**
@@ -134,7 +135,6 @@ export class BadgeComponent implements OnDestroy {
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
   readonly startIcon = input<BitwardenIcon>();
-  readonly endIcon = input<BitwardenIcon>();
 
   constructor() {
     // Set up overflow detection after initial render
