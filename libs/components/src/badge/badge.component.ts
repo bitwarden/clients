@@ -17,6 +17,16 @@ import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
+/**
+ * @deprecated Use 'primary' instead. This variant will be removed in a future version.
+ */
+export type LegacyInfoVariant = "info";
+
+/**
+ * @deprecated Use 'subtle' instead. This variant will be removed in a future version.
+ */
+export type LegacySecondaryVariant = "secondary";
+
 export type BadgeVariant =
   | "primary"
   | "subtle"
@@ -24,68 +34,23 @@ export type BadgeVariant =
   | "danger"
   | "warning"
   | "accent-primary"
-  // legacy variants - still supported for backwards compatibility
-  | "secondary"
-  | "info";
+  | LegacyInfoVariant
+  | LegacySecondaryVariant;
 
 export type BadgeSize = "small" | "large";
 
 const variantStyles: Record<BadgeVariant, string[]> = {
-  primary: [
-    "tw-bg-bg-brand-softer",
-    "tw-border-border-brand-soft",
-    "tw-text-fg-brand-strong",
-    "[&:is(button,a)]:hover:tw-bg-bg-brand-soft",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-brand-soft",
-  ],
-  info: [
-    "tw-bg-bg-brand-softer",
-    "tw-border-border-brand-soft",
-    "tw-text-fg-brand-strong",
-    "[&:is(button,a)]:hover:tw-bg-bg-brand-soft",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-brand-soft",
-  ],
-  subtle: [
-    "tw-bg-bg-primary",
-    "tw-border-border-base",
-    "tw-text-fg-body",
-    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
-  ],
-  secondary: [
-    "tw-bg-bg-primary",
-    "tw-border-border-base",
-    "tw-text-fg-body",
-    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
-  ],
-  success: [
-    "tw-bg-bg-primary",
-    "tw-border-border-base",
-    "tw-text-fg-body",
-    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
-  ],
-  warning: [
-    "tw-bg-bg-primary",
-    "tw-border-border-base",
-    "tw-text-fg-body",
-    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
-  ],
-  danger: [
-    "tw-bg-bg-primary",
-    "tw-border-border-base",
-    "tw-text-fg-body",
-    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
-  ],
+  primary: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
+  info: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
+  subtle: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  secondary: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  success: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  warning: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  danger: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
   "accent-primary": [
     "tw-bg-bg-accent-primary-soft",
     "tw-border-border-accent-primary-soft",
     "tw-text-fg-accent-primary-strong",
-    "[&:is(button,a)]:hover:tw-bg-bg-accent-primary-medium",
-    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-accent-primary-medium",
   ],
 };
 
