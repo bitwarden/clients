@@ -1,0 +1,69 @@
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./spinner-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { SpinnerLockupComponent } from "@bitwarden/components";
+```
+
+# Spinner Lockup
+
+Spinner Lockup combines a spinner with title and body text for comprehensive loading states with
+context.
+
+<Canvas of={stories.PrimaryVariant} />
+
+## Layout
+
+Two layout options control the arrangement of spinner and text:
+
+- `horizontal` - Spinner and text side-by-side (default)
+- `vertical` - Spinner above text, centered
+
+## Variants
+
+All 7 spinner variants are supported: `primary`, `subtle`, `success`, `warning`, `danger`,
+`contrast`.
+
+<Canvas of={stories.AllVerticalVariants} />
+
+## Sizes
+
+4 sizes are supported alongside Spinner: `sm`, `md`, `base`, `lg`.
+
+Text sizing scales automatically with the spinner size
+
+<Canvas of={stories.AllVerticalSizes} />
+
+## Content Slots
+
+Slots support HTML content for emphasis and formatting:
+
+- `[title]` - Bold heading slot using semantic heading color
+- `[body]` - Normal body slot using semantic body color
+
+## Examples
+
+```html
+<!-- Horizontal layout -->
+<bit-spinner-lockup variant="primary" size="base" layout="horizontal">
+  <span title>Processing</span>
+  <span body>Please wait...</span>
+</bit-spinner-lockup>
+
+<!-- Vertical layout -->
+<bit-spinner-lockup variant="primary" size="base" layout="vertical">
+  <span title>Processing</span>
+  <span body>Please wait...</span>
+</bit-spinner-lockup>
+```
+
+```html
+<!-- Rich Text -->
+<bit-spinner-lockup variant="danger" size="base" layout="vertical">
+  <span title><strong>Processing</strong> your request</span>
+  <span body>Please <em>do not</em> refresh the page.</span>
+</bit-spinner-lockup>
+```

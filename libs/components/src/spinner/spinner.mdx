@@ -1,0 +1,80 @@
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./spinner.stories";
+
+<Meta of={stories} />
+
+```ts
+import { SpinnerComponent } from "@bitwarden/components";
+```
+
+# Spinner
+
+Spinners provide visual feedback during loading states with support for multiple variants and sizes.
+
+<Canvas of={stories.Primary} />
+
+## Variants
+
+7 supported color variants
+
+<Canvas of={stories.AllVariants} />
+
+### Primary
+
+Used for brand-colored indicators and primary visual elements.
+
+### Success
+
+Indicates successful operations, positive status, or completed states.
+
+### Danger
+
+Represents errors, destructive actions, or critical warnings.
+
+### Warning
+
+Used for caution states, alerts, or situations requiring attention.
+
+### Subtle
+
+Low-emphasis indicators on standard backgrounds, used for secondary or muted content.
+
+### Dark
+
+High-contrast indicators on light backgrounds, used for emphasis or navigation elements.
+
+### Contrast
+
+Used on colored or contrasting backgrounds to maintain visibility.
+
+<Canvas of={stories.AllVariants} />
+
+## Sizes
+
+Four sizes are available:
+
+- **sm** (16px) - Small indicators for list items or compact cards
+- **md** (24px) - Medium size for use cases where Default is to large
+- **base** (56px) - Default size for most use cases
+- **lg** (80px) - Extra large for hero sections or feature highlights
+
+<Canvas of={stories.SmallSize} />
+
+<Canvas of={stories.MediumSize} />
+
+<Canvas of={stories.BaseSize} />
+
+<Canvas of={stories.LargeSize} />
+
+## Accessibility
+
+The spinner includes an optional `title` input for screen readers. Defaults to "Loading" from i18n
+service.
+
+```html
+<bit-spinner variant="primary" size="base" title="Processing payment"></bit-spinner>
+```
+
+When a title is provided, the SVG element receives `aria-label` and `aria-hidden` attributes for
+proper accessibility support.
