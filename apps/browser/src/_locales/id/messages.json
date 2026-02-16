@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Butir yang diarsipkan akan muncul di sini dan akan dikecualikan dari hasil pencarian umum dan saran isi otomatis."
   },
-  "itemWasSentToArchive": {
-    "message": "Butir dikirim ke arsip"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arsipkan butir"

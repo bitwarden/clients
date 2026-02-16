@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Το στοιχείο στάλθηκε στην αρχειοθήκη"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Το στοιχείο επαναφέρθηκε από την αρχειοθήκη"
-  },
-  "itemUnarchived": {
-    "message": "Το στοιχείο επαναφέρθηκε από την αρχειοθήκη"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Αρχειοθέτηση στοιχείου"

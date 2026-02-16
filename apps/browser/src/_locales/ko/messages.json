@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "보관된 항목은 여기에 표시되며 일반 검색 결과 및 자동 완성 제안에서 제외됩니다."
   },
-  "itemWasSentToArchive": {
-    "message": "항목이 보관함으로 이동되었습니다"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "항목이 보관 해제되었습니다"
-  },
-  "itemUnarchived": {
-    "message": "항목 보관 해제됨"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "항목 보관"
