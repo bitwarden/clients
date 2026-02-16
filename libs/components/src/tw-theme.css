@@ -249,11 +249,11 @@
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-700);
-  --color-fg-success-strong: var(--color-green-900);
+  --color-fg-success-strong: var(--color-green-800);
   --color-fg-danger: var(--color-red-700);
-  --color-fg-danger-strong: var(--color-red-900);
+  --color-fg-danger-strong: var(--color-red-800);
   --color-fg-warning: var(--color-orange-600);
-  --color-fg-warning-strong: var(--color-orange-900);
+  --color-fg-warning-strong: var(--color-orange-700);
   --color-fg-sensitive: var(--color-pink-600);
 
   /* Accent Foreground */
@@ -469,11 +469,11 @@
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-400);
-  --color-fg-success-strong: var(--color-green-100);
+  --color-fg-success-strong: var(--color-green-200);
   --color-fg-danger: var(--color-red-400);
-  --color-fg-danger-strong: var(--color-red-100);
+  --color-fg-danger-strong: var(--color-red-200);
   --color-fg-warning: var(--color-orange-400);
-  --color-fg-warning-strong: var(--color-orange-100);
+  --color-fg-warning-strong: var(--color-orange-200);
   --color-fg-sensitive: var(--color-pink-300);
 
   /* Accent Foreground */
