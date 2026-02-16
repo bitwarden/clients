@@ -69,6 +69,19 @@ const commonStyles = [
   "tw-cursor-default",
 ];
 
+const defaultIconMap: Record<BadgeVariant, BitwardenIcon> = {
+  info: "bwi-info-circle",
+  subtle: "bwi-info-circle",
+  secondary: "bwi-info-circle",
+  primary: "bwi-info-circle",
+  success: "bwi-check-circle",
+  warning: "bwi-exclamation-triangle",
+  danger: "bwi-error",
+  "accent-primary": "bwi-clock",
+};
+
+const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[variant];
+
 /**
  * Badges are primarily used as labels, counters, and small buttons.
  *
@@ -135,6 +148,10 @@ export class BadgeComponent implements OnDestroy {
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
   readonly startIcon = input<BitwardenIcon>();
+
+  protected readonly computedIcon = computed(() => {
+    return this.startIcon() || getDefaultIconForVariant(this.variant());
+  });
 
   constructor() {
     // Set up overflow detection after initial render

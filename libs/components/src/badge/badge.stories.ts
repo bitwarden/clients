@@ -45,32 +45,32 @@ export const AllVariants: Story = {
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Primary</h3>
-          <span bitBadge variant="primary" startIcon="bwi-info-circle">Primary</span>
+          <span bitBadge variant="primary">Primary</span>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Subtle</h3>
-          <span bitBadge variant="subtle" startIcon="bwi-folder">Subtle</span>
+          <span bitBadge variant="subtle">Subtle</span>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Success</h3>
-          <span bitBadge variant="success" startIcon="bwi-check">Success</span>
+          <span bitBadge variant="success">Success</span>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Warning</h3>
-          <span bitBadge variant="warning" startIcon="bwi-exclamation-triangle">Warning</span>
+          <span bitBadge variant="warning">Warning</span>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Danger</h3>
-          <span bitBadge variant="danger" startIcon="bwi-error">Danger</span>
+          <span bitBadge variant="danger">Danger</span>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary</h3>
-          <span bitBadge variant="accent-primary" startIcon="bwi-info-circle">Accent Primary</span>
+          <span bitBadge variant="accent-primary">Accent Primary</span>
         </div>
       </div>
     `,
@@ -98,30 +98,7 @@ export const Truncated: Story = {
           <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with tooltip on hover):</span>
           <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</span>
         </div>
-        <div>
-          <span class="tw-text-main tw-block tw-mb-2">With icon and long text:</span>
-          <span bitBadge startIcon="bwi-check" ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge with icon and lengthy text content</span>
-        </div>
       </div>
-    `,
-  }),
-};
-
-export const VariousLengths: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <div class="tw-flex tw-flex-wrap tw-gap-2">
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Hi</span>
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Medium</span>
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Fits perfectly</span>
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This one will overflow</span>
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is definitely going to be truncated</span>
-        <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Supercalifragilisticexpialidocious</span>
-      </div>
-      <p class="tw-text-main tw-mt-4 tw-text-sm">
-        Hover over the longer badges to see the tooltip with full text. Shorter badges won't show tooltips.
-      </p>
     `,
   }),
 };
