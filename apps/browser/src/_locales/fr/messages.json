@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
-  "itemWasSentToArchive": {
-    "message": "L'élément a été envoyé à l'archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "L'élément a été désarchivé"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
