@@ -560,8 +560,12 @@ export class AutofillComponent implements OnInit {
       return;
     }
     const currentStrategy = current;
+    const contentKey = this.advancedOptionWarningMap[currentStrategy];
+    if (!contentKey) {
+      return;
+    }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[currentStrategy],
+      contentKey,
       onContinue: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(currentStrategy);
         await this.domainSettingsService.setDefaultUriMatchStrategy(currentStrategy);
@@ -603,7 +607,10 @@ export class AutofillComponent implements OnInit {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.advancedOptionWarningMap[strategy]);
+      const hint = this.advancedOptionWarningMap[strategy];
+      if (hint) {
+        hints.push(hint);
+      }
     }
     return hints;
   }
