@@ -14,7 +14,9 @@ import {
 
 import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
+import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
 import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
+import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor-method-select.component";
 
 @Injectable({
   providedIn: "root",
@@ -72,12 +74,20 @@ export class KeeperDirectImportUIService implements Ui {
   async selectTwoFactorMethod(
     methods: TwoFactorMethod[],
   ): Promise<TwoFactorMethod | typeof Cancel> {
-    // For now, auto-select the first available method
-    // TODO: Show a selection dialog if multiple methods are available
     if (methods.length === 0) {
       return Cancel;
     }
-    return methods[0];
+
+    if (methods.length === 1) {
+      return methods[0];
+    }
+
+    this.dialogRef = KeeperTwoFactorMethodSelectComponent.open(this.dialogService, {
+      methods,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+    return result === undefined ? Cancel : (result as TwoFactorMethod);
   }
 
   async provideTwoFactorCode(
@@ -113,13 +123,22 @@ export class KeeperDirectImportUIService implements Ui {
 
   async selectDuoMethod(
     methods: DuoMethod[],
-    _phoneNumber: string,
+    phoneNumber: string,
   ): Promise<DuoMethod | typeof Cancel> {
-    // For now, auto-select the first available method
-    // TODO: Show a selection dialog for Duo methods
     if (methods.length === 0) {
       return Cancel;
     }
-    return methods[0];
+
+    if (methods.length === 1) {
+      return methods[0];
+    }
+
+    this.dialogRef = KeeperDuoMethodSelectComponent.open(this.dialogService, {
+      methods,
+      phoneNumber,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+    return result === undefined ? Cancel : (result as DuoMethod);
   }
 }
