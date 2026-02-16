@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Nemáte oprávnění upravit tuto položku"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Zkontrolujte ohrožená hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s ohroženými hesly."
+  "reviewAccessIntelligence": {
+    "message": "Prohlédněte si bezpečnostní zprávy, abyste odhalili a opravili rizika související s přihlašovacími údaji, než se zhorší."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Zkontrolovat ohrožená přihlášení"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ aplikací označených jako kritických",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ aplikací označených jako kritických",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ aplikací označených jako nekritických",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Označit $COUNT$ jako kritických",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Označit $COUNT$ jako nekritických",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3302,6 +3338,15 @@
   "reinstated": {
     "message": "Předplatné bylo obnoveno."
   },
+  "resubscribe": {
+    "message": "Obnovit odběr"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Vaše předplatné vypršelo"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Vaše předplatné je zrušeno"
+  },
   "cancelConfirmation": {
     "message": "Opravdu chcete zrušit předplatné? Na konci fakturačního období přijdete o veškeré výhody plynoucí z vybraného plánu."
   },
@@ -3548,7 +3593,7 @@
     "message": "Pro osobní použití a sdílení s rodinou či přáteli."
   },
   "planNameTeams": {
-    "message": "Týmy"
+    "message": "Teams"
   },
   "planDescTeams": {
     "message": "Pro společnosti a různé týmy."
@@ -5394,7 +5439,7 @@
   "minimumNumberOfWords": {
     "message": "Minimální počet slov"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6393,6 +6438,10 @@
     "message": "Zobrazit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Ověřte svůj e-mail pro zobrazení tohoto Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Uživatel Bitwardenu, který vytvořil tento Send, se rozhodl skrýt svou e-mailovou adresu. Před použitím nebo stažením jeho obsahu byste se měli ujistit, že zdroji tohoto odkazu důvěřujete.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6637,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 pozvánka odeslána"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ pozvánek odesláno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ z $SELECTEDCOUNT$ uživatelů bylo znovu pozváno. $EXCLUDEDCOUNT$ nebylo pozváno z důvodu limitu pozvánky: $LIMIT$.",
     "placeholders": {
@@ -6653,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ z $TOTAL$ pozvánek odesláno...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Ponechte tuto stránku otevřenou, dokud nebude vše odesláno."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ pozvánek nebylo odesláno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 pozvánka nebyla odeslána"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Při odesílání pozvánek pro $COUNT$ z $TOTAL$ členů došlo k chybě. Zkuste je odeslat znovu a pokud problém přetrvává,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Úspěšně odebráno"
@@ -10092,6 +10197,9 @@
   "assignTasks": {
     "message": "Přiřadit úkoly"
   },
+  "allTasksAssigned": {
+    "message": "Všechny úkoly byly přiřazeny"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Odeslat oznámení pro změnu hesla"
   },
@@ -11801,16 +11909,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemWasSentToArchive": {
-    "message": "Položka byla přesunuta do archivu"
+  "itemArchiveToast": {
+    "message": "Položka archivována"
   },
-  "itemsWereSentToArchive": {
-    "message": "Položky byly přesunuty do archivu"
-  },
-  "itemWasUnarchived": {
-    "message": "Položka byla odebrána z archivu"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Položka byla odebrána z archivu"
   },
   "bulkArchiveItems": {
@@ -12490,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Opravdu chcete pokračovat?"
   },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nelze dešifrovat"
+  },
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
@@ -12794,5 +12899,54 @@
   },
   "perUser": {
     "message": "za uživatele"
+  },
+  "upgradeToTeams": {
+    "message": "Aktualizovat na Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Aktualizovat na Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Sdílejte ještě více s rodinami, nebo získejte mocné, důvěryhodné zabezpečení s Teams nebo Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Ceny nezahrnují daň a účtují se každoročně."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Při generování náhledu faktury došlo k chybě."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Poměrná část členství $PLAN$: ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Kredit předplatného Premium"
+  },
+  "enterpriseMembership": {
+    "message": "Členství Enterprise"
+  },
+  "teamsMembership": {
+    "message": "Členství Teams"
+  },
+  "plansUpdated": {
+    "message": "Aktualizovali jste na $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Při aktualizaci Vaší platební metody došlo k chybě."
   }
 }

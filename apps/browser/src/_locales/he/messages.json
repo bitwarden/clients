@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
   },
-  "itemWasSentToArchive": {
-    "message": "הפריט נשלח לארכיון"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "הפריט שוחזר מהארכיב"
-  },
-  "itemUnarchived": {
-    "message": "הפריט הוסר מהארכיון"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "העבר פריט לארכיון"
@@ -2746,9 +2743,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden לא יבקש לשמור פרטי כניסה עבור הדומיינים האלה. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden לא יבקש לשמור פרטי כניסה עבור הדומיינים האלה עבור כל החשבונות המחוברים. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
   },
   "blockedDomainsDesc": {
     "message": "לא יוצעו מילוי אוטומטי ותכונות קשורות אחרות עבור האתרים האלה. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
@@ -5966,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "מספר כרטיס"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6126,6 +6123,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"
