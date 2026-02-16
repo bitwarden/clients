@@ -27,15 +27,11 @@ Two layout options control the arrangement of spinner and text:
 All 7 spinner variants are supported: `primary`, `subtle`, `success`, `warning`, `danger`,
 `contrast`.
 
-<Canvas of={stories.AllVerticalVariants} />
-
 ## Sizes
 
 4 sizes are supported alongside Spinner: `sm`, `md`, `base`, `lg`.
 
 Text sizing scales automatically with the spinner size
-
-<Canvas of={stories.AllVerticalSizes} />
 
 ## Content Slots
 
@@ -44,26 +40,22 @@ Slots support HTML content for emphasis and formatting:
 - `[title]` - Bold heading slot using semantic heading color
 - `[body]` - Normal body slot using semantic body color
 
-## Examples
+## All Vertical Variants
 
-```html
-<!-- Horizontal layout -->
-<bit-spinner-lockup variant="primary" size="base" layout="horizontal">
-  <span title>Processing</span>
-  <span body>Please wait...</span>
-</bit-spinner-lockup>
+<Canvas of={stories.AllVerticalVariants} />
 
-<!-- Vertical layout -->
-<bit-spinner-lockup variant="primary" size="base" layout="vertical">
-  <span title>Processing</span>
-  <span body>Please wait...</span>
-</bit-spinner-lockup>
-```
+## All Vertical Sizes
 
-```html
-<!-- Rich Text -->
-<bit-spinner-lockup variant="danger" size="base" layout="vertical">
-  <span title><strong>Processing</strong> your request</span>
-  <span body>Please <em>do not</em> refresh the page.</span>
-</bit-spinner-lockup>
-```
+<Canvas of={stories.AllVerticalSizes} />
+
+## Vertical With Rich Content Danger Variant
+
+<Canvas of={stories.VerticalWithRichContentDangerVariant} />
+
+## All Horizontal Variants
+
+<Canvas of={stories.AllHorizontalVariants} />
+
+## All Horizontal Sizes
+
+<Canvas of={stories.AllHorizontalSizes} />
