@@ -157,7 +157,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   /** Non-null asserted. */
