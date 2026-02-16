@@ -13,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ButtonModule, I18nMockService, SvgModule, ToastService } from "@bitwarden/components";
 
@@ -50,6 +51,7 @@ describe("SendCreatedComponent", () => {
 
     sendView = {
       id: sendId,
+      authType: AuthType.None,
       deletionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       type: SendType.Text,
       accessId: "abc",
@@ -101,6 +103,13 @@ describe("SendCreatedComponent", () => {
               sendExpiresInDays: (days) => `sendExpiresInDays ${days}`,
               sendExpiresInDaysSingle: "sendExpiresInDaysSingle",
               sendLinkCopied: "sendLinkCopied",
+              oneHour: "one hour",
+              durationTimeHours: (hours) => `${hours} hours`,
+              oneDay: "one day",
+              days: (days) => `${days} days`,
+              sendCreatedDescriptionV2: (time) => `Send ready for ${time}`,
+              sendCreatedDescriptionPassword: (time) => `Password-protected Send ready for ${time}`,
+              sendCreatedDescriptionEmail: (time) => `Email-verified Send ready for ${time}`,
             });
           },
         },
@@ -147,37 +156,66 @@ describe("SendCreatedComponent", () => {
     });
   });
 
-  describe("formatExpirationDate", () => {
-    it("returns days plural if expiry is more than 24 hours", () => {
-      sendView.deletionDate = new Date(Date.now() + 168 * 60 * 60 * 1000);
+  describe("formattedExpirationTime", () => {
+    it("returns formatted time for hours plural", () => {
+      sendView.deletionDate = new Date(Date.now() + 5 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
-      expect(component.formatExpirationDate()).toBe("sendExpiresInDays 7");
+      expect(component.formattedExpirationTime).toBe("5 hours");
     });
 
-    it("returns days singular if expiry is 24 hours", () => {
-      sendView.deletionDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInDaysSingle");
-    });
-
-    it("returns hours plural if expiry is more than 1 hour but less than 24", () => {
-      sendView.deletionDate = new Date(Date.now() + 2 * 60 * 60 * 1000);
-      sendViewsSubject.next([sendView]);
-      fixture.detectChanges();
-
-      expect(component.formatExpirationDate()).toBe("sendExpiresInHours 2");
-    });
-
-    it("returns hours singular if expiry is in 1 hour", () => {
+    it("returns formatted time for hours singular", () => {
       sendView.deletionDate = new Date(Date.now() + 1 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
-      expect(component.formatExpirationDate()).toBe("sendExpiresInHoursSingle");
+      expect(component.formattedExpirationTime).toBe("one hour");
+    });
+
+    it("returns formatted time for days plural", () => {
+      sendView.deletionDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      sendViewsSubject.next([sendView]);
+      fixture.detectChanges();
+
+      expect(component.formattedExpirationTime).toBe("7 days");
+    });
+
+    it("returns formatted time for days singular", () => {
+      sendView.deletionDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      sendViewsSubject.next([sendView]);
+      fixture.detectChanges();
+
+      expect(component.formattedExpirationTime).toBe("one day");
+    });
+  });
+
+  describe("auth type specific messages", () => {
+    it("should show the correct message for Sends with no authentication", () => {
+      sendView.authType = AuthType.None;
+      sendViewsSubject.next([sendView]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("createdSendSuccessfully");
+      expect(fixture.nativeElement.textContent).toContain("Send ready for");
+    });
+
+    it("should show the correct message for Sends with password authentication", () => {
+      sendView.authType = AuthType.Password;
+      sendViewsSubject.next([sendView]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("createdSendSuccessfully");
+      expect(fixture.nativeElement.textContent).toContain("Password-protected Send ready for");
+    });
+
+    it("should show the correct message for Sends with email authentication", () => {
+      sendView.authType = AuthType.Email;
+      sendViewsSubject.next([sendView]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("createdSendSuccessfully");
+      expect(fixture.nativeElement.textContent).toContain("Email-verified Send ready for");
     });
   });
 
