@@ -23,7 +23,10 @@ export type BadgeVariant =
   | "success"
   | "danger"
   | "warning"
-  | "accent-primary";
+  | "accent-primary"
+  // legacy variants - still supported for backwards compatibility
+  | "secondary"
+  | "info";
 
 export type BadgeSize = "small" | "large";
 
@@ -35,7 +38,21 @@ const variantStyles: Record<BadgeVariant, string[]> = {
     "[&:is(button,a)]:hover:tw-bg-bg-brand-soft",
     "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-brand-soft",
   ],
+  info: [
+    "tw-bg-bg-brand-softer",
+    "tw-border-border-brand-soft",
+    "tw-text-fg-brand-strong",
+    "[&:is(button,a)]:hover:tw-bg-bg-brand-soft",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-brand-soft",
+  ],
   subtle: [
+    "tw-bg-bg-primary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:has(button:hover:not([bitChipDismissButton]),a:hover)]:tw-bg-bg-quaternary",
+  ],
+  secondary: [
     "tw-bg-bg-primary",
     "tw-border-border-base",
     "tw-text-fg-body",
