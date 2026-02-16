@@ -559,16 +559,15 @@ export class AutofillComponent implements OnInit {
       }
       return;
     }
-    const currentStrategy = current;
-    const contentKey = this.advancedOptionWarningMap[currentStrategy];
+    const contentKey = this.advancedOptionWarningMap[current];
     if (!contentKey) {
       return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
       contentKey,
       onContinue: async () => {
-        this.additionalOptionsForm.controls.defaultUriMatch.setValue(currentStrategy);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(currentStrategy);
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
