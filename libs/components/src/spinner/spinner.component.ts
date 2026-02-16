@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
-// import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 export type SpinnerVariant = "primary" | "subtle" | "success" | "warning" | "danger" | "contrast";
 
@@ -46,12 +46,11 @@ const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; backgro
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerComponent {
+  private i18nService = inject(I18nService);
+
   readonly variant = input<SpinnerVariant>("primary");
   readonly size = input<SpinnerSize>("base");
-  readonly title = input<string>("Loading"); // for accessibility, not visually rendered
-
-  // Injected dependencies
-  // private i18nService = inject(I18nService);
+  readonly title = input<string>(this.i18nService.t("loading")); // for accessibility, not visually rendered
 
   readonly variantClasses = computed(() => spinnerVariantStyles[this.variant()]);
   readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);

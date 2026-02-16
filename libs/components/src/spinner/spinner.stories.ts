@@ -91,9 +91,9 @@ export const AllVariants: Story = {
         </div>
 
         <!-- Contrast Column -->
-        <div class="tw-items-center tw-text-center">
-          <span class="tw-text-sm tw-font-semibold tw-text-base">Contrast</span>
-          <div class="tw-bg-black tw-flex tw-flex-col tw-gap-4 tw-items-center tw-p-4 tw-rounded">
+        <div class="tw-bg-bg-contrast">
+          <div class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-text-fg-contrast">
+            <span class="tw-text-sm tw-font-semibold tw-text-base">Contrast</span>
             <bit-spinner variant="contrast" size="sm" />
             <bit-spinner variant="contrast" size="md" />
             <bit-spinner variant="contrast" size="base" />

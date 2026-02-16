@@ -7,9 +7,31 @@ import {
   SpinnerComponent,
 } from "../spinner/spinner.component";
 
-// import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
 type SpinnerLockupLayout = "horizontal" | "vertical";
+
+const spinnerLockupTextStyles: Record<SpinnerSize, { fontSize: string; lineHeight: string }> = {
+  sm: { fontSize: "tw-text-xs", lineHeight: "tw-leading-4" },
+  md: { fontSize: "tw-text-sm", lineHeight: "tw-leading-5" },
+  base: { fontSize: "tw-text-base", lineHeight: "tw-leading-6" },
+  lg: { fontSize: "tw-text-xl", lineHeight: "tw-leading-7" },
+};
+
+const spinnerLockupLayoutStyles: Record<
+  SpinnerLockupLayout,
+  {
+    container: string[];
+    textContainer: string[];
+  }
+> = {
+  horizontal: {
+    container: ["tw-flex", "tw-flex-row", "tw-items-center", "tw-gap-3"],
+    textContainer: ["tw-flex", "tw-flex-col"],
+  },
+  vertical: {
+    container: ["tw-flex", "tw-flex-col", "tw-items-center", "tw-gap-2"],
+    textContainer: ["tw-flex", "tw-flex-col", "tw-items-center"],
+  },
+};
 
 @Component({
   selector: "bit-spinner-lockup",
@@ -18,24 +40,21 @@ type SpinnerLockupLayout = "horizontal" | "vertical";
   imports: [SpinnerComponent],
 })
 export class SpinnerLockupComponent {
-  // Inputs
   readonly size = input<SpinnerSize>("base");
   readonly variant = input<SpinnerVariant>("primary");
   readonly layout = input<SpinnerLockupLayout>("horizontal");
-  readonly title = input<string>();
-  readonly body = input<string>();
 
-  // private i18nService = inject(I18nService);
+  readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);
 
-  readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()].join(" "));
+  readonly textClasses = computed(() => {
+    const sizeStyles = spinnerLockupTextStyles[this.size()];
+    return {
+      title: [sizeStyles.fontSize, sizeStyles.lineHeight, "tw-font-medium", "tw-text-fg-heading"],
+      body: [sizeStyles.fontSize, sizeStyles.lineHeight, "tw-font-normal", "tw-text-fg-body"],
+    };
+  });
 
-  readonly layoutClasses = computed(() =>
-    this.layout() === "horizontal"
-      ? "tw-flex tw-flex-row tw-items-center tw-gap-3"
-      : "tw-flex tw-flex-col tw-items-center tw-gap-2",
-  );
+  // readonly layoutClasses = computed(() => spinnerLockupLayoutStyles[this.layout()]);
 
-  protected readonly textContainerClasses = computed(() =>
-    this.layout() === "vertical" ? "tw-flex tw-flex-col tw-items-center" : "tw-flex tw-flex-col",
-  );
+  readonly layoutClasses = computed(() => spinnerLockupLayoutStyles[this.layout()]);
 }
