@@ -8,7 +8,7 @@
 
 ### 2FA
 
-- [ ] TOTP
+- [x] TOTP
 - [ ] Duo
 - [ ] WebAuthn
 - [ ] Keeper DNA

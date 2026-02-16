@@ -4623,6 +4623,63 @@
   "keeperMFAPushDesc": {
     "message": "Approve the login request in your authentication app. This dialog will close automatically."
   },
+  "keeperSelectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "keeperSelectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "keeperTwoFactorTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "keeperTwoFactorSms": {
+    "message": "Text message (SMS)"
+  },
+  "keeperTwoFactorDuo": {
+    "message": "Duo Security"
+  },
+  "keeperTwoFactorRsa": {
+    "message": "RSA SecurID"
+  },
+  "keeperTwoFactorBackup": {
+    "message": "Backup codes"
+  },
+  "keeperTwoFactorU2f": {
+    "message": "Security key (U2F)"
+  },
+  "keeperTwoFactorWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperTwoFactorKeeperPush": {
+    "message": "Keeper Push"
+  },
+  "keeperTwoFactorKeeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperTwoFactorUnknown": {
+    "message": "Unknown method"
+  },
+  "keeperSelectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "keeperSelectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "keeperDuoPush": {
+    "message": "Duo Push"
+  },
+  "keeperDuoSms": {
+    "message": "Text message (SMS)"
+  },
+  "keeperDuoVoice": {
+    "message": "Phone call"
+  },
+  "keeperDuoPasscode": {
+    "message": "Passcode"
+  },
+  "keeperDuoUnknown": {
+    "message": "Unknown method"
+  },
   "noKeeperDataFound": {
     "message": "No Keeper data found"
   },
