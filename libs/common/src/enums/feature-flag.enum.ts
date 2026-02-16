@@ -12,9 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
-  MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
@@ -73,7 +71,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  PM31019_ItemActionInExtension = "pm-31019-item-action-in-extension",
+  PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -109,9 +107,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
-  [FeatureFlag.MembersComponentRefactor]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
@@ -120,6 +116,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
@@ -141,7 +138,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
-  [FeatureFlag.PM31019_ItemActionInExtension]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,

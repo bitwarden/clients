@@ -92,3 +92,12 @@ Once closed, focus should remain on the element which triggered the Dialog.
 
 **Note:** If a Simple Dialog is triggered from a main Dialog, be sure to make sure focus is moved to
 the Simple Dialog.
+
+## Using Forms with Dialogs
+
+When using forms with dialogs, apply the `bit-dialog` attribute directly to the `<form>` element
+instead of wrapping the dialog in a form. This ensures proper styling.
+
+```html
+<form bit-dialog>...</form>
+```

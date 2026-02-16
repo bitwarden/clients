@@ -26,7 +26,7 @@ import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
-import { ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
@@ -69,9 +69,11 @@ export class SendAuthComponent implements OnInit {
     private formBuilder: FormBuilder,
     private configService: ConfigService,
     private sendTokenService: SendTokenService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   ngOnInit() {
+    this.updatePageTitle();
     void this.onSubmit();
   }
 
@@ -160,8 +162,10 @@ export class SendAuthComponent implements OnInit {
       this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
+        this.updatePageTitle();
       } else if (emailAndOtpRequired(response.error)) {
         this.enterOtp.set(true);
+        this.updatePageTitle();
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
@@ -170,6 +174,7 @@ export class SendAuthComponent implements OnInit {
         });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
+        this.updatePageTitle();
       } else if (passwordHashB64Invalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
@@ -206,5 +211,21 @@ export class SendAuthComponent implements OnInit {
       SEND_KDF_ITERATIONS,
     );
     return Utils.fromBufferToB64(passwordHash) as SendHashedPasswordB64;
+  }
+
+  private updatePageTitle(): void {
+    const authType = this.sendAuthType();
+
+    if (authType === AuthType.Email) {
+      if (this.enterOtp()) {
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "enterTheCodeSentToYourEmail" },
+        });
+      } else {
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "verifyYourEmailToViewThisSend" },
+        });
+      }
+    }
   }
 }
