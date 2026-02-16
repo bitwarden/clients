@@ -160,15 +160,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async handleStandardSubmission(): Promise<void> {
-    if (!this.policyComponent) {
-      throw new Error("PolicyComponent not initialized.");
-    }
-
-    const request = await this.policyComponent.buildRequest();
-    await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
-  }
-
   private async handleVNextSubmission(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
