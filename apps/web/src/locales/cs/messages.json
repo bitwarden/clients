@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Předplatné bylo obnoveno."
   },
+  "resubscribe": {
+    "message": "Obnovit odběr"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Vaše předplatné vypršelo"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Vaše předplatné je zrušeno"
+  },
   "cancelConfirmation": {
     "message": "Opravdu chcete zrušit předplatné? Na konci fakturačního období přijdete o veškeré výhody plynoucí z vybraného plánu."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Zobrazit Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Ověřte svůj e-mail pro zobrazení tohoto Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,13 +11909,10 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemWasSentToArchive": {
-    "message": "Položka byla přesunuta do archivu"
+  "itemArchiveToast": {
+    "message": "Položka archivována"
   },
-  "itemWasUnarchived": {
-    "message": "Položka byla odebrána z archivu"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Položka byla odebrána z archivu"
   },
   "bulkArchiveItems": {

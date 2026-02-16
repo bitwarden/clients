@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "您的订阅已恢复。"
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "确定要取消吗？在本次计费周期结束后，您将无法使用此订阅的所有功能。"
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "查看 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemWasSentToArchive": {
-    "message": "项目已发送到归档"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "项目已取消归档"
-  },
-  "itemUnarchived": {
-    "message": "项目已取消归档"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "项目已归档"

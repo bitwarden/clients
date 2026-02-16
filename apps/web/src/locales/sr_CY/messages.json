@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Претплата је враћена."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Јесте ли сигурни да хоћете да откажете? На крају овог обрачунског циклуса изгубићете приступ свим функцијама ове претплате."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Видети Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemWasSentToArchive": {
-    "message": "Ставка је послата у архиву"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Ставка враћена из архиве"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Ставке у архиви"
