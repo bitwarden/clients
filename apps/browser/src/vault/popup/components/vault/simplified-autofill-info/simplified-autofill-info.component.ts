@@ -42,7 +42,9 @@ export class SimplifiedAutofillInfoComponent {
   readonly pingElement = viewChild<ElementRef<HTMLSpanElement>>("pingElement");
   protected readonly InfoFilledIcon = InfoFilledIcon;
 
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private activeAccount$ = this.accountService.activeAccount$;
+
+  private userId$ = this.activeAccount$.pipe(getUserId);
 
   private vaultAutofillSimplifiedIconState$ = this.userId$.pipe(
     switchMap((userId) =>
@@ -58,13 +60,17 @@ export class SimplifiedAutofillInfoComponent {
   protected shouldShowIcon$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
     this.vaultAutofillSimplifiedIconState$,
+    this.activeAccount$,
   ]).pipe(
-    map(([isFeatureEnabled, state]) => {
-      if (!isFeatureEnabled) {
+    map(([isFeatureEnabled, state, account]) => {
+      if (!isFeatureEnabled || !account) {
         return false;
       }
 
-      return !state?.hasDismissed;
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const accountIsNew = account.creationDate > new Date(sevenDaysAgo);
+
+      return !state?.hasDismissed && !accountIsNew;
     }),
   );
 

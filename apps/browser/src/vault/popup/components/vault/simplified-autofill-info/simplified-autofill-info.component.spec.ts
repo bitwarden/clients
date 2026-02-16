@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/state";
@@ -12,6 +12,8 @@ describe("SimplifiedAutofillInfoComponent", () => {
   let fixture: ComponentFixture<SimplifiedAutofillInfoComponent>;
 
   const getUserState$ = jest.fn().mockReturnValue(of(null));
+  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
+  const activeAccount$ = new BehaviorSubject({ id: "test-user-id" });
 
   beforeEach(async () => {
     // Mock getAnimations for all span elements before any components are created
@@ -25,11 +27,11 @@ describe("SimplifiedAutofillInfoComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
+          useValue: { getFeatureFlag$ },
         },
         {
           provide: AccountService,
-          useValue: { activeAccount$: new BehaviorSubject({ id: "test-user-id" }) },
+          useValue: { activeAccount$: activeAccount$ },
         },
         {
           provide: StateProvider,
@@ -80,8 +82,6 @@ describe("SimplifiedAutofillInfoComponent", () => {
 
   describe("shouldShowIcon$", () => {
     it("renders the icon button when feature flag is enabled and not dismissed", async () => {
-      const configService = TestBed.inject(ConfigService);
-      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
       getUserState$.mockReturnValue(of({ hasSeen: false, hasDismissed: false }));
 
       const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);
@@ -93,8 +93,7 @@ describe("SimplifiedAutofillInfoComponent", () => {
     });
 
     it("does not render icon button when dismissed", async () => {
-      const configService = TestBed.inject(ConfigService);
-      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
+      getFeatureFlag$.mockReturnValue(of(true));
       getUserState$.mockReturnValue(of({ hasSeen: true, hasDismissed: true }));
 
       const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);
@@ -103,6 +102,42 @@ describe("SimplifiedAutofillInfoComponent", () => {
 
       const button = newFixture.nativeElement.querySelector("button[type='button']");
       expect(button).toBeFalsy();
+    });
+
+    it("does not render icon button when account is new (less than 7 days old)", async () => {
+      getUserState$.mockReturnValue(of({ hasSeen: false, hasDismissed: false }));
+
+      // Create an account that's 3 days old (should be considered new)
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      activeAccount$.next({
+        id: "test-user-id",
+        creationDate: threeDaysAgo,
+      } as Account);
+
+      const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);
+      newFixture.detectChanges();
+      await newFixture.whenStable();
+
+      const button = newFixture.nativeElement.querySelector("button[type='button']");
+      expect(button).toBeFalsy();
+    });
+
+    it("renders icon button when account is old (more than 7 days old)", async () => {
+      getUserState$.mockReturnValue(of({ hasSeen: false, hasDismissed: false }));
+
+      // Create an account that's 30 days old (should be considered old)
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      activeAccount$.next({
+        id: "test-user-id",
+        creationDate: thirtyDaysAgo,
+      } as Account);
+
+      const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);
+      newFixture.detectChanges();
+      await newFixture.whenStable();
+
+      const button = newFixture.nativeElement.querySelector("button[type='button']");
+      expect(button).toBeTruthy();
     });
   });
 
