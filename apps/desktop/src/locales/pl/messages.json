@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemWasSentToArchive": {
-    "message": "Element został przeniesiony do archiwum"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Element został usunięty z archiwum"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiwizuj element"
@@ -4487,7 +4487,7 @@
     "message": "Timeout action"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Błąd: Nie można odszyfrować"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"

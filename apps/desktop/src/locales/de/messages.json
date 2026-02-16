@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde archiviert"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -4487,7 +4487,7 @@
     "message": "Timeout-Aktion"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fehler: Entschlüsselung nicht möglich"
   },
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
