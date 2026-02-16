@@ -1,5 +1,19 @@
 ## Direct Keeper importer
 
+### Device approval
+
+- [x] Email link click
+- [x] Email code
+- [x] Keeper push
+
+### 2FA
+
+- [ ] TOTP
+- [ ] Duo
+- [ ] WebAuthn
+- [ ] Keeper DNA
+- [ ] RSA?
+
 ### TODO
 
 - [ ] Empty folders might be ignored because they are added from items. Empty folders get lost
