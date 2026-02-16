@@ -69,6 +69,9 @@ export class SendViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.layoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "sendAccessContentTitle" },
+    });
     void this.load();
   }
 

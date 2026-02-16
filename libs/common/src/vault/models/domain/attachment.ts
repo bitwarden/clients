@@ -47,6 +47,12 @@ export class Attachment extends Domain {
     if (this.key != null) {
       view.key = await this.decryptAttachmentKey(decryptionKey);
       view.encryptedKey = this.key; // Keep the encrypted key for the view
+
+      // When the attachment key couldn't be decrypted, mark a decryption error
+      // The file won't be able to be downloaded in these cases
+      if (!view.key) {
+        view.hasDecryptionError = true;
+      }
     }
 
     return view;

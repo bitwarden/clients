@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  computed,
   NgZone,
   OnDestroy,
   OnInit,
@@ -12,6 +13,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -49,7 +51,7 @@ import {
   getNestedCollectionTree,
   getFlatCollectionTree,
 } from "@bitwarden/common/admin-console/utils";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -243,7 +245,6 @@ export class VaultComponent<C extends CipherViewLike>
   private addCollectionIds: string[] | null = null;
   private activeUserId: UserId | null = null;
   private passwordReprompted: boolean = false;
-  organizationId: OrganizationId | null = null;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
@@ -257,11 +258,29 @@ export class VaultComponent<C extends CipherViewLike>
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
 
+  readonly userHasPremium = toSignal(
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
   );
+
+  protected readonly submitButtonText = computed(() => {
+    return this.cipher()?.isArchived &&
+      !this.userHasPremium() &&
+      this.cipherArchiveService.hasArchiveFlagEnabled$
+      ? this.i18nService.t("unArchiveAndSave")
+      : this.i18nService.t("save");
+  });
 
   protected hasArchivedCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
@@ -379,6 +398,14 @@ export class VaultComponent<C extends CipherViewLike>
         replaceUrl: true,
       });
     }
+
+    // Subscribe to filter changes from router params via the bridge service
+    // Use combineLatest to react to changes in both the filter and archive flag
+    combineLatest([
+      this.routedVaultFilterBridgeService.activeFilter$,
+      this.routedVaultFilterService.filter$,
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
+    ]).subscribe();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       void this.ngZone.run(async () => {
@@ -656,7 +683,7 @@ export class VaultComponent<C extends CipherViewLike>
   }
 
   async openAttachmentsDialog(cipherId?: CipherId) {
-    if (!this.userHasPremiumAccess) {
+    if (!this.userHasPremium()) {
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
@@ -839,7 +866,7 @@ export class VaultComponent<C extends CipherViewLike>
   async cancelCipher() {
     this.cipherId = null;
     this.cipher.set(null);
-    this.action.set(null);
+    this.action.set(this.cipherId ? "view" : null);
     await this.go();
   }
 
