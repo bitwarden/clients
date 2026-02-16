@@ -11,5 +11,5 @@
   [showAutofillButton]="(clickItemsToAutofillVaultView$ | async) === false"
   [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
 >
-  <app-simplified-autofill-info></app-simplified-autofill-info>
+  <app-simplified-autofill-info slot="title-end"></app-simplified-autofill-info>
 </app-vault-list-items-container>

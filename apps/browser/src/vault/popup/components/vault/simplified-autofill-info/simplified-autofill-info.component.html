@@ -1,20 +1,24 @@
-<div slot="title-end">
-  <button
-    type="button"
-    class="tw-border-none tw-p-0"
-    [bitPopoverTriggerFor]="popover"
-    [position]="'below-center'"
-    #triggerRef="popoverTrigger"
-    [appA11yTitle]="'openSimplifiedAutofillPopover' | i18n"
-    bitLink
-  >
-    <div
-      class="tw-flex tw-items-center tw-justify-center tw-relative tw-size-4 before:tw-content-[''] before:tw-absolute before:tw-inset-0 before:tw-rounded-full before:tw-bg-primary-600 before:tw-animate-pulse"
-    >
-      <bit-icon name="bwi-info-circle" class="bwi-sm tw-z-[1]"></bit-icon>
-    </div>
-  </button>
-</div>
+<button
+  type="button"
+  class="tw-block tw-border-none tw-p-0"
+  [bitPopoverTriggerFor]="popover"
+  [position]="'below-center'"
+  #triggerRef="popoverTrigger"
+  [appA11yTitle]="'openSimplifiedAutofillPopover' | i18n"
+  bitLink
+>
+  <div class="tw-size-[0.8125rem] tw-items-center tw-relative">
+    <span
+      class="tw-content-[''] tw-absolute tw-inset-0 tw-rounded-full tw-bg-primary-600 motion-safe:tw-animate-ping"
+    ></span>
+    <!-- :before element is to create a background that matches the page background, otherwise the ping would be visible behind the icon -->
+    <bit-svg
+      class="tw-items-center tw-relative before:tw-content-[''] before:tw-absolute before:tw-inset-[15%] before:tw-size-[70%] before:tw-rounded-full before:tw-bg-background-alt before:tw-z-[-1]"
+      [content]="InfoFilledIcon"
+      aria-hidden="true"
+    ></bit-svg>
+  </div>
+</button>
 
 <bit-popover [title]="'simplifiedAutofill' | i18n" #popover>
   <p>
