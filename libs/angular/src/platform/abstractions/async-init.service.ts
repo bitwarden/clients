@@ -6,17 +6,15 @@ import { SafeProvider } from "../utils/safe-provider";
 /**
  * Multi-provider token for registering service classes that need async initialization.
  * Register the service class/token (not the instance) and Angular's Injector will resolve them.
- * Services register themselves by adding to their library's provider bundle:
+ * Services register themselves by adding to their module's safeProvider array:
  *
  * @example
  * ```typescript
- * export const VAULT_PROVIDERS = [
+ * const safeProviders: SafeProvider[] = [
  *   asyncInitializableProvider(SyncService),
  *   asyncInitializableProvider(VaultTimeoutService),
  * ];
  * ```
- *
- * Note: Use useValue (not useExisting) to register the class token itself.
  */
 export const ASYNC_INIT_SERVICES = new SafeInjectionToken<AsyncDependency[]>("ASYNC_INIT_SERVICES");
 
