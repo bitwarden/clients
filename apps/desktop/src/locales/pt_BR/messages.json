@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais de busca e das sugestões de preenchimento automático."
   },
-  "itemWasSentToArchive": {
-    "message": "O item foi enviado para o arquivo"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "O item foi desarquivado"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -4485,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Ação do limite de tempo"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Limite de tempo da sessão"

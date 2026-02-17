@@ -21,6 +21,8 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -88,7 +90,14 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+  private configService = inject(ConfigService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+
+  /** Signal for the feature flag that controls simplified item action behavior */
+  protected readonly simplifiedItemActionEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
+    { initialValue: false },
+  );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -136,24 +145,18 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   private viewCipherTimeout?: number;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  ciphers = input<PopupCipherViewLike[]>([]);
+  readonly ciphers = input<PopupCipherViewLike[]>([]);
 
   /**
    * If true, we will group ciphers by type (Login, Card, Identity)
    * within subheadings in a single container, converted to a WritableSignal.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  groupByType = input<boolean | undefined>(false);
+  readonly groupByType = input<boolean | undefined>(false);
 
   /**
    * Computed signal for a grouped list of ciphers with an optional header
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  cipherGroups = computed<
+  readonly cipherGroups = computed<
     {
       subHeaderKey?: string;
       ciphers: PopupCipherViewLike[];
@@ -195,9 +198,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Title for the vault list item section.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  title = input<string | undefined>(undefined);
+  readonly title = input<string | undefined>(undefined);
 
   /**
    * Optionally allow the items to be collapsed.
@@ -205,24 +206,20 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    * The key must be added to the state definition in `vault-popup-section.service.ts` since the
    * collapsed state is stored locally.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  collapsibleKey = input<keyof PopupSectionOpen | undefined>(undefined);
+  readonly collapsibleKey = input<keyof PopupSectionOpen | undefined>(undefined);
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
    * no ciphers are available.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  description = input<string | undefined>(undefined);
+
+  readonly description = input<string | undefined>(undefined);
 
   /**
    * Option to show a refresh button in the section header.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  showRefresh = input(false, { transform: booleanAttribute });
+
+  readonly showRefresh = input(false, { transform: booleanAttribute });
 
   /**
    * Event emitted when the refresh button is clicked.
@@ -235,71 +232,124 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Flag indicating that the current tab location is blocked
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  currentURIIsBlocked = toSignal(this.vaultPopupAutofillService.currentTabIsOnBlocklist$);
+  readonly currentUriIsBlocked = toSignal(this.vaultPopupAutofillService.currentTabIsOnBlocklist$);
 
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  cipherItemTitleKey = computed(() => {
+  readonly cipherItemTitleKey = computed(() => {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      const key =
-        this.primaryActionAutofill() && !this.currentURIIsBlocked()
-          ? "autofillTitle"
-          : "viewItemTitle";
+      // Use autofill title when autofill is the primary action
+      const key = this.canAutofill() ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
 
   /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
    * Option to show the autofill button for each item.
+   * Used when feature flag is disabled.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  showAutofillButton = input(false, { transform: booleanAttribute });
+  readonly showAutofillButton = input(false, { transform: booleanAttribute });
 
   /**
-   * Flag indicating whether the suggested cipher item autofill button should be shown or not
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * Whether to show the autofill badge button (old behavior).
+   * Only shown when feature flag is disabled AND conditions are met.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  hideAutofillButton = computed(
-    () => !this.showAutofillButton() || this.currentURIIsBlocked() || this.primaryActionAutofill(),
+  readonly showAutofillBadge = computed(
+    () => !this.simplifiedItemActionEnabled() && !this.hideAutofillButton(),
   );
 
   /**
-   * Flag indicating whether the cipher item autofill menu options should be shown or not
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * Flag indicating whether the cipher item autofill menu options should be shown or not.
+   * Used when feature flag is disabled.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  hideAutofillMenuOptions = computed(() => this.currentURIIsBlocked() || this.showAutofillButton());
+  readonly hideAutofillMenuOptions = computed(
+    () => this.currentUriIsBlocked() || this.showAutofillButton(),
+  );
 
   /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
    * Option to perform autofill operation as the primary action for autofill suggestions.
+   * Used when feature flag is disabled.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  primaryActionAutofill = input(false, { transform: booleanAttribute });
+  readonly primaryActionAutofill = input(false, { transform: booleanAttribute });
+
+  /**
+   * @deprecated - To be removed when PM31039ItemActionInExtension is fully rolled out
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not.
+   * Used when feature flag is disabled.
+   */
+  readonly hideAutofillButton = computed(
+    () => !this.showAutofillButton() || this.currentUriIsBlocked() || this.primaryActionAutofill(),
+  );
+
+  /**
+   * Option to mark this container as an autofill list.
+   */
+  readonly isAutofillList = input(false, { transform: booleanAttribute });
+
+  /**
+   * Computed property whether the cipher action may perform autofill.
+   * When feature flag is enabled, uses isAutofillList.
+   * When feature flag is disabled, uses primaryActionAutofill.
+   */
+  readonly canAutofill = computed(() => {
+    if (this.currentUriIsBlocked()) {
+      return false;
+    }
+    return this.isAutofillList()
+      ? this.simplifiedItemActionEnabled()
+      : this.primaryActionAutofill();
+  });
+
+  /**
+   * Whether to show the "Fill" text on hover.
+   * Only shown when feature flag is enabled AND this is an autofill list.
+   */
+  readonly showFillTextOnHover = computed(
+    () => this.simplifiedItemActionEnabled() && this.canAutofill(),
+  );
+
+  /**
+   * Whether to show the launch button.
+   */
+  readonly showLaunchButton = computed(() =>
+    this.simplifiedItemActionEnabled() ? !this.isAutofillList() : !this.showAutofillButton(),
+  );
+
+  /**
+   * Whether to show the "Autofill" option in the more options menu.
+   * New behavior: show for non-autofill list items.
+   * Old behavior: show when not hidden by hideAutofillMenuOptions.
+   */
+  readonly showAutofillInMenu = computed(() =>
+    this.simplifiedItemActionEnabled() ? !this.canAutofill() : !this.hideAutofillMenuOptions(),
+  );
+
+  /**
+   * Whether to show the "View" option in the more options menu.
+   * New behavior: show for autofill list items (since click = autofill).
+   * Old behavior: show when primary action is autofill.
+   */
+  readonly showViewInMenu = computed(() =>
+    this.simplifiedItemActionEnabled() ? this.isAutofillList() : this.primaryActionAutofill(),
+  );
 
   /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  disableSectionMargin = input(false, { transform: booleanAttribute });
+  readonly disableSectionMargin = input(false, { transform: booleanAttribute });
 
   /**
    * Remove the description margin
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  disableDescriptionMargin = input(false, { transform: booleanAttribute });
+  readonly disableDescriptionMargin = input(false, { transform: booleanAttribute });
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
@@ -313,9 +363,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return collections[0]?.name;
   }
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  protected autofillShortcutTooltip = signal<string | undefined>(undefined);
+  protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
 
   constructor(
     private i18nService: I18nService,
@@ -340,10 +388,8 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     }
   }
 
-  primaryActionOnSelect(cipher: PopupCipherViewLike) {
-    return this.primaryActionAutofill() && !this.currentURIIsBlocked()
-      ? this.doAutofill(cipher)
-      : this.onViewCipher(cipher);
+  onCipherSelect(cipher: PopupCipherViewLike) {
+    return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
   }
 
   /**
