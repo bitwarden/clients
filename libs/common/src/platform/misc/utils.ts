@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+import "core-js/proposals/array-buffer-base64";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -137,7 +139,9 @@ export class Utils {
     if (arr == null) {
       return null;
     }
-    return this.fromBufferToHex(arr.buffer as ArrayBuffer);
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toHex();
   }
 
   /**
@@ -150,7 +154,8 @@ export class Utils {
       return null;
     }
 
-    return this.fromBufferToB64(arr.buffer as ArrayBuffer);
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64" });
   }
 
   /**
@@ -163,7 +168,8 @@ export class Utils {
       return null;
     }
 
-    return this.fromBufferToUrlB64(arr.buffer as ArrayBuffer);
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64url" });
   }
 
   /**
@@ -172,11 +178,15 @@ export class Utils {
    * @returns The byte string representation, or null if the input is null.
    */
   static fromArrayToByteString(arr: Uint8Array | null): string | null {
-    if (arr == null) {  
+    if (arr == null) {
       return null;
     }
 
-    return this.fromBufferToByteString(arr.buffer as ArrayBuffer);
+    let byteString = "";
+    for (let i = 0; i < arr.length; i++) {
+      byteString += String.fromCharCode(arr[i]);
+    }
+    return byteString;
   }
 
   /**
