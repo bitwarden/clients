@@ -25,7 +25,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     private sdkService: SdkService,
     private logService: LogService,
     private dialogService: DialogService,
-  ) { }
+  ) {}
 
   async changePasswordAndRotateUserKey(
     currentMasterPassword: string,
@@ -57,7 +57,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
                 old_password: currentMasterPassword,
                 password: newMasterPassword,
                 hint: hint,
-              }
+              },
             },
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,

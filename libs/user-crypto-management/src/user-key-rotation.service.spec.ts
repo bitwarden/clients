@@ -94,11 +94,7 @@ describe("DefaultUserKeyRotationService", () => {
 
     mockSdkService.userClient$.mockReturnValue(of(mockSdkClient as any));
 
-    service = new DefaultUserKeyRotationService(
-      mockSdkService,
-      mockLogService,
-      mockDialogService,
-    );
+    service = new DefaultUserKeyRotationService(mockSdkService, mockLogService, mockDialogService);
 
     KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
     EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;

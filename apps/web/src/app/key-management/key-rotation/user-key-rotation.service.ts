@@ -71,7 +71,7 @@ type MasterPasswordAuthenticationAndUnlockData = {
  * A token provider that exposes a null access token to the SDK.
  */
 class NoopTokenProvider implements TokenProvider {
-  constructor() { }
+  constructor() {}
 
   async get_access_token(): Promise<string | undefined> {
     // Ignore from the test coverage, since this is called by the SDK
@@ -106,7 +106,7 @@ export class UserKeyRotationService {
     private securityStateService: SecurityStateService,
     private sdkService: SdkService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-  ) { }
+  ) {}
 
   /**
    * Creates a new user key and re-encrypts all required data with the it.
