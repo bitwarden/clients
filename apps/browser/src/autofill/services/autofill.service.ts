@@ -763,7 +763,7 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
-    let fillScript: AutofillScript | null = new AutofillScript();
+    const fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
     const fields = options.cipher.fields;
 
@@ -781,8 +781,7 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
         const fieldOpid = field.opid;
-        // eslint-disable-next-line
-        if (filledFields.hasOwnProperty(fieldOpid)) {
+        if (Object.prototype.hasOwnProperty.call(filledFields, fieldOpid)) {
           return;
         }
 
@@ -796,7 +795,7 @@ export default class AutofillService implements AutofillServiceInterface {
         }
 
         const matchingIndex = this.findMatchingFieldIndex(field, fieldNames);
-        if (matchingIndex > -1 && fillScript != null) {
+        if (matchingIndex > -1) {
           const matchingField: FieldView = fields[matchingIndex];
           let val: string;
           if (matchingField.type === FieldType.Linked) {
@@ -824,26 +823,17 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
+    let result: AutofillScript | null = null;
     switch (options.cipher.type) {
       case CipherType.Login:
-        fillScript = await this.generateLoginFillScript(
-          fillScript!,
-          pageDetails,
-          filledFields,
-          options,
-        );
+        result = await this.generateLoginFillScript(fillScript, pageDetails, filledFields, options);
         break;
       case CipherType.Card:
-        fillScript = await this.generateCardFillScript(
-          fillScript!,
-          pageDetails,
-          filledFields,
-          options,
-        );
+        result = await this.generateCardFillScript(fillScript, pageDetails, filledFields, options);
         break;
       case CipherType.Identity:
-        fillScript = await this.generateIdentityFillScript(
-          fillScript!,
+        result = await this.generateIdentityFillScript(
+          fillScript,
           pageDetails,
           filledFields,
           options,
@@ -853,10 +843,7 @@ export default class AutofillService implements AutofillServiceInterface {
         return null;
     }
 
-    if (fillScript == null) {
-      return null;
-    }
-    return fillScript;
+    return result;
   }
 
   /**
@@ -975,12 +962,7 @@ export default class AutofillService implements AutofillServiceInterface {
     ) {
       if (!Object.prototype.hasOwnProperty.call(filledFields, focusedUsernameField.opid)) {
         filledFields[focusedUsernameField.opid] = focusedUsernameField;
-        const usernameVal =
-          typeof login.username === "string"
-            ? login.username
-            : login.username != null
-              ? String(login.username)
-              : undefined;
+        const usernameVal = login.username;
         if (usernameVal != null) {
           AutofillService.fillByOpid(fillScript, focusedUsernameField, usernameVal);
         }
@@ -1133,12 +1115,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[uOpid] = u;
-      const usernameVal =
-        typeof login.username === "string"
-          ? login.username
-          : login.username != null
-            ? String(login.username)
-            : undefined;
+      const usernameVal = login.username;
       if (usernameVal != null) {
         AutofillService.fillByOpid(fillScript, u, usernameVal);
       }
@@ -1341,7 +1318,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // There is an expiration year field and the cipher has an expiration year value
     if (fillFields.expYear && card.expYear != null && AutofillService.hasValue(card.expYear)) {
-      let expYear: string | null = card.expYear;
+      let expYear: string = card.expYear;
       if (fillFields.expYear.selectInfo && fillFields.expYear.selectInfo.options) {
         for (let i = 0; i < fillFields.expYear.selectInfo.options.length; i++) {
           const o: [string, string] = fillFields.expYear.selectInfo.options[i];
@@ -1371,18 +1348,21 @@ export default class AutofillService implements AutofillServiceInterface {
         fillFields.expYear.maxLength === 4
       ) {
         if (expYear.length === 2) {
-          expYear = normalizeExpiryYearFormat(expYear);
+          const normalized = normalizeExpiryYearFormat(expYear);
+          if (normalized != null) {
+            expYear = normalized;
+          }
         }
       } else if (
         this.fieldAttrsContain(fillFields.expYear, "yy") ||
         fillFields.expYear.maxLength === 2
       ) {
-        if (expYear != null && expYear.length === 4) {
+        if (expYear.length === 4) {
           expYear = expYear.substring(2);
         }
       }
 
-      if (fillFields.expYear.opid != null && expYear != null) {
+      if (fillFields.expYear.opid != null) {
         filledFields[fillFields.expYear.opid] = fillFields.expYear;
         AutofillService.fillByOpid(fillScript, fillFields.expYear, expYear);
       }
@@ -1398,7 +1378,7 @@ export default class AutofillService implements AutofillServiceInterface {
     ) {
       const combinedExpiryFillValue = this.generateCombinedExpiryValue(card, fillFields.exp);
 
-      if (combinedExpiryFillValue != null && fillFields.exp != null) {
+      if (combinedExpiryFillValue != null) {
         this.makeScriptActionWithValue(
           fillScript,
           combinedExpiryFillValue,
