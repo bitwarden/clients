@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package GraphSync;
+
+enum RefType {
+  RFT_GENERAL = 0;
+  RFT_USER = 1;
+  RFT_DEVICE = 2;
+  RFT_REC = 3;
+  RFT_FOLDER = 4;
+  RFT_TEAM = 5;
+  RFT_ENTERPRISE = 6;
+  RFT_PAM_DIRECTORY = 7;
+  RFT_PAM_MACHINE = 8;
+  RFT_PAM_DATABASE = 9;
+  RFT_PAM_USER = 10;
+  RFT_PAM_NETWORK = 11;
+  RFT_PAM_BROWSER = 12;
+  RFT_CONNECTION = 13;
+  RFT_WORKFLOW = 14;
+  RFT_NOTIFICATION = 15;
+  RFT_USER_INFO = 16;
+  RFT_TEAM_INFO = 17;
+  RFT_ROLE = 18;
+}
+
+enum GraphSyncDataType {
+  GSE_DATA = 0;
+  GSE_KEY = 1;
+  GSE_LINK = 2;
+  GSE_ACL = 3;
+  GSE_DELETION = 4;
+}
+
+enum GraphSyncActorType {
+  GSA_USER = 0;
+  GSA_SERVICE = 1;
+  GSA_PAM_GATEWAY = 2;
+}
+
+message GraphSyncRef {
+  RefType type = 1;
+  bytes value = 2;
+  string name = 3;
+}
+
+message GraphSyncActor {
+  GraphSyncActorType type = 1;
+  bytes id = 2;
+  string name = 3;
+  bytes effectiveUserId = 4;
+}
+
+message GraphSyncData {
+  GraphSyncDataType type = 1;
+  GraphSyncRef ref = 2;
+  GraphSyncRef parentRef = 3;
+  bytes content = 4;
+  string path = 5;
+}
+
+message GraphSyncDataPlus {
+  GraphSyncData data = 1;
+  int64 timestamp = 2;
+  GraphSyncActor actor = 3;
+}
+
+message GraphSyncQuery {
+  bytes streamId = 1;
+  bytes origin = 2;
+  int64 syncPoint = 3;
+  int32 maxCount = 4;
+}
+
+message GraphSyncResult {
+  bytes streamId = 2;
+  int64 syncPoint = 3;
+  repeated GraphSyncDataPlus data = 4;
+  bool hasMore = 5;
+}
+
+message GraphSyncMultiQuery {
+  repeated GraphSyncQuery queries = 1;
+}
+
+message GraphSyncMultiResult {
+  repeated GraphSyncResult results = 1;
+}
+
+message GraphSyncAddDataRequest {
+  GraphSyncRef origin = 1;
+  repeated GraphSyncData data = 2;
+}
+
+message GraphSyncLeafsQuery {
+  repeated bytes vertices = 2;
+}
+
+message GraphSyncRefsResult {
+  repeated GraphSyncRef refs = 1;
+}
+

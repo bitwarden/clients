@@ -1,0 +1,1401 @@
+syntax = "proto3";
+
+package Authentication;
+
+import "enterprise.proto";
+
+enum SupportedLanguage {
+  ENGLISH = 0;
+  ARABIC = 1;
+  BRITISH = 2;
+  CHINESE = 3;
+  CHINESE_HONG_KONG = 4;
+  CHINESE_TAIWAN = 5;
+  DUTCH = 6;
+  FRENCH = 7;
+  GERMAN = 8;
+  GREEK = 9;
+  HEBREW = 10;
+  ITALIAN = 11;
+  JAPANESE = 12;
+  KOREAN = 13;
+  POLISH = 14;
+  PORTUGUESE = 15;
+  PORTUGUESE_BRAZIL = 16;
+  ROMANIAN = 17;
+  RUSSIAN = 18;
+  SLOVAK = 19;
+  SPANISH = 20;
+  FINNISH = 21;
+  SWEDISH = 22;
+}
+
+enum LoginType {
+  NORMAL = 0;
+  SSO = 1;
+  BIO = 2;
+  ALTERNATE = 3;
+  OFFLINE = 4;
+  FORGOT_PASSWORD = 5;
+  PASSKEY_BIO = 6;
+}
+
+enum DeviceStatus {
+  DEVICE_NEEDS_APPROVAL = 0;
+  DEVICE_OK = 1;
+  DEVICE_DISABLED_BY_USER = 2;
+  DEVICE_LOCKED_BY_ADMIN = 3;
+}
+
+enum LicenseStatus {
+  OTHER = 0;
+  ACTIVE = 1;
+  EXPIRED = 2;
+  DISABLED = 3;
+}
+
+enum AccountType {
+  CONSUMER = 0;
+  FAMILY = 1;
+  ENTERPRISE = 2;
+}
+
+enum SessionTokenType {
+  NO_RESTRICTION = 0;
+  ACCOUNT_RECOVERY = 1;
+  SHARE_ACCOUNT = 2;
+  PURCHASE = 3;
+  RESTRICT = 4;
+  ACCEPT_INVITE = 5;
+  SUPPORT_SERVER = 6;
+  ENTERPRISE_CREATION = 7;
+  EXPIRED_BUT_ALLOWED_TO_SYNC = 8;
+  ACCEPT_FAMILY_INVITE = 9;
+  ENTERPRISE_CREATION_PURCHASED = 10;
+  EMERGENCY_ACCESS = 11;
+}
+
+enum Version {
+  invalid_version = 0;
+  default_version = 1;
+  second_version = 2;
+}
+
+enum MasterPasswordReentryActionType {
+  UNMASK = 0;
+  COPY = 1;
+}
+
+enum LoginMethod {
+  INVALID_LOGINMETHOD = 0;
+  EXISTING_ACCOUNT = 1;
+  SSO_DOMAIN = 2;
+  AFTER_SSO = 3;
+  NEW_ACCOUNT = 4;
+}
+
+enum LoginState {
+  INVALID_LOGINSTATE = 0;
+  LOGGED_OUT = 1;
+  DEVICE_APPROVAL_REQUIRED = 2;
+  DEVICE_LOCKED = 3;
+  ACCOUNT_LOCKED = 4;
+  DEVICE_ACCOUNT_LOCKED = 5;
+  UPGRADE = 6;
+  LICENSE_EXPIRED = 7;
+  REGION_REDIRECT = 8;
+  REDIRECT_CLOUD_SSO = 9;
+  REDIRECT_ONSITE_SSO = 10;
+  REQUIRES_2FA = 12;
+  REQUIRES_AUTH_HASH = 13;
+  REQUIRES_USERNAME = 14;
+  AFTER_CLOUD_SSO_LOGIN = 15;
+  REQUIRES_ACCOUNT_CREATION = 16;
+  REQUIRES_DEVICE_ENCRYPTED_DATA_KEY = 17;
+  LOGIN_TOKEN_EXPIRED = 18;
+  PASSKEY_INITIATE_CHALLENGE = 19;
+  PASSKEY_AUTH_REQUIRED = 20;
+  PASSKEY_VERIFY_AUTHENTICATION = 21;
+  AFTER_PASSKEY_LOGIN = 22;
+  LOGGED_IN = 99;
+}
+
+enum EncryptedDataKeyType {
+  NO_KEY = 0;
+  BY_DEVICE_PUBLIC_KEY = 1;
+  BY_PASSWORD = 2;
+  BY_ALTERNATE = 3;
+  BY_BIO = 4;
+}
+
+enum PasswordMethod {
+  ENTERED = 0;
+  BIOMETRICS = 1;
+}
+
+enum TwoFactorPushType {
+  TWO_FA_PUSH_NONE = 0;
+  TWO_FA_PUSH_SMS = 1;
+  TWO_FA_PUSH_KEEPER = 2;
+  TWO_FA_PUSH_DUO_PUSH = 3;
+  TWO_FA_PUSH_DUO_TEXT = 4;
+  TWO_FA_PUSH_DUO_CALL = 5;
+  TWO_FA_PUSH_DNA = 6;
+}
+
+enum TwoFactorValueType {
+  TWO_FA_CODE_NONE = 0;
+  TWO_FA_CODE_TOTP = 1;
+  TWO_FA_CODE_SMS = 2;
+  TWO_FA_CODE_DUO = 3;
+  TWO_FA_CODE_RSA = 4;
+  TWO_FA_RESP_U2F = 5;
+  TWO_FA_RESP_WEBAUTHN = 6;
+  TWO_FA_CODE_DNA = 7;
+}
+
+enum TwoFactorChannelType {
+  TWO_FA_CT_NONE = 0;
+  TWO_FA_CT_TOTP = 1;
+  TWO_FA_CT_SMS = 2;
+  TWO_FA_CT_DUO = 3;
+  TWO_FA_CT_RSA = 4;
+  TWO_FA_CT_BACKUP = 5;
+  TWO_FA_CT_U2F = 6;
+  TWO_FA_CT_WEBAUTHN = 7;
+  TWO_FA_CT_KEEPER = 8;
+  TWO_FA_CT_DNA = 9;
+}
+
+enum TwoFactorExpiration {
+  TWO_FA_EXP_IMMEDIATELY = 0;
+  TWO_FA_EXP_5_MINUTES = 1;
+  TWO_FA_EXP_12_HOURS = 2;
+  TWO_FA_EXP_24_HOURS = 3;
+  TWO_FA_EXP_30_DAYS = 4;
+  TWO_FA_EXP_NEVER = 5;
+}
+
+enum LicenseType {
+  VAULT = 0;
+  CHAT = 1;
+  STORAGE = 2;
+  BREACHWATCH = 3;
+}
+
+enum ObjectTypes {
+  RECORD = 0;
+  SHARED_FOLDER_USER = 1;
+  SHARED_FOLDER_TEAM = 2;
+  USER_FOLDER = 3;
+  TEAM_USER = 4;
+}
+
+enum EncryptedObjectType {
+  EOT_UNSPECIFIED = 0;
+  EOT_RECORD_KEY = 1;
+  EOT_SHARED_FOLDER_USER_KEY = 2;
+  EOT_SHARED_FOLDER_TEAM_KEY = 3;
+  EOT_TEAM_USER_KEY = 4;
+  EOT_USER_FOLDER_KEY = 5;
+  EOT_SECURITY_DATA = 6;
+  EOT_SECURITY_DATA_MASTER_PASSWORD = 7;
+  EOT_EMERGENCY_ACCESS_KEY = 8;
+  EOT_V2_RECORD_KEY = 9;
+}
+
+enum MasterPasswordReentryStatus {
+  MP_UNKNOWN = 0;
+  MP_SUCCESS = 1;
+  MP_FAILURE = 2;
+}
+
+enum AlternateAuthenticationType {
+  ALTERNATE_MASTER_PASSWORD = 0;
+  BIOMETRIC = 1;
+  ACCOUNT_RECOVER = 2;
+}
+
+enum ThrottleType {
+  PASSWORD_RETRY_THROTTLE = 0;
+  PASSWORD_RETRY_LEGACY_THROTTLE = 1;
+  TWO_FA_THROTTLE = 2;
+  TWO_FA_LEGACY_THROTTLE = 3;
+  QA_RETRY_THROTTLE = 4;
+  ACCOUNT_RECOVER_THROTTLE = 5;
+  VALIDATE_DEVICE_VERIFICATION_CODE_THROTTLE = 6;
+  VALIDATE_CREATE_USER_VERIFICATION_CODE_THROTTLE = 7;
+}
+
+enum Region {
+  UNKNOWN = 0;
+  eu = 1;
+  us = 2;
+  usgov = 3;
+  au = 4;
+  jp = 5;
+  ca = 6;
+}
+
+enum ApplicationShareType {
+  SHARE_TYPE_RECORD = 0;
+  SHARE_TYPE_FOLDER = 1;
+}
+
+enum TimeLimitedAccessType {
+  INVALID_TIME_LIMITED_ACCESS_TYPE = 0;
+  USER_ACCESS_TO_RECORD = 1;
+  USER_OR_TEAM_ACCESS_TO_SHAREDFOLDER = 2;
+  RECORD_ACCESS_TO_SHAREDFOLDER = 3;
+}
+
+enum BackupKeyType {
+  BKT_SEC_ANSWER = 0;
+  BKT_PASSPHRASE_HASH = 1;
+}
+
+enum GenericStatus {
+  SUCCESS = 0;
+  INVALID_OBJECT = 1;
+  ALREADY_EXISTS = 2;
+  ACCESS_DENIED = 3;
+}
+
+enum AuthenticatorAttachment {
+  CROSS_PLATFORM = 0;
+  PLATFORM = 1;
+  ALL_SUPPORTED = 2;
+}
+
+enum PasskeyPurpose {
+  PK_LOGIN = 0;
+  PK_REAUTH = 1;
+}
+
+enum ClientFormFactor {
+  FF_EMPTY = 0;
+  FF_PHONE = 1;
+  FF_TABLET = 2;
+  FF_WATCH = 3;
+}
+
+message ApiRequest {
+  bytes encryptedTransmissionKey = 1;
+  int32 publicKeyId = 2;
+  string locale = 3;
+  bytes encryptedPayload = 4;
+  int32 encryptionType = 5;
+  string recaptcha = 6;
+  string subEnvironment = 7;
+}
+
+message ApiRequestPayload {
+  bytes payload = 1;
+  bytes encryptedSessionToken = 2;
+  bytes timeToken = 3;
+  int32 apiVersion = 4;
+}
+
+message Transform {
+  bytes key = 1;
+  bytes encryptedDeviceToken = 2;
+}
+
+message DeviceRequest {
+  string clientVersion = 1;
+  string deviceName = 2;
+  string devicePlatform = 3;
+  ClientFormFactor clientFormFactor = 4;
+  string username = 5;
+}
+
+message AuthRequest {
+  string clientVersion = 1;
+  string username = 2;
+  bytes encryptedDeviceToken = 3;
+}
+
+message NewUserMinimumParams {
+  int32 minimumIterations = 1;
+  repeated string passwordMatchRegex = 2;
+  repeated string passwordMatchDescription = 3;
+  bool isEnterpriseDomain = 4;
+  bytes enterpriseEccPublicKey = 5;
+  bool forbidKeyType2 = 6;
+}
+
+message PreLoginRequest {
+  AuthRequest authRequest = 1;
+  LoginType loginType = 2;
+  bytes twoFactorToken = 3;
+}
+
+message LoginRequest {
+  AuthRequest authRequest = 1;
+  LoginType loginType = 2;
+  bytes authenticationHashPrime = 3;
+  bytes encryptedLoginToken = 4;
+  bytes authResponse = 5;
+  int32 mcEnterpriseId = 6;
+  string push_token = 7;
+  string platform = 8;
+}
+
+message DeviceResponse {
+  bytes encryptedDeviceToken = 1;
+  DeviceStatus status = 2;
+}
+
+message Salt {
+  int32 iterations = 1;
+  bytes salt = 2;
+  int32 algorithm = 3;
+  bytes uid = 4;
+  string name = 5;
+}
+
+message TwoFactorChannel {
+  int32 type = 1;
+}
+
+message StartLoginRequest {
+  bytes encryptedDeviceToken = 1;
+  string username = 2;
+  string clientVersion = 3;
+  bytes messageSessionUid = 4;
+  bytes encryptedLoginToken = 5;
+  LoginType loginType = 6;
+  int32 mcEnterpriseId = 7;
+  LoginMethod loginMethod = 8;
+  bool forceNewLogin = 9;
+  bytes cloneCode = 10;
+  string v2TwoFactorToken = 11;
+  bytes accountUid = 12;
+  bytes fromSessionToken = 13;
+}
+
+message LoginResponse {
+  LoginState loginState = 1;
+  bytes accountUid = 2;
+  string primaryUsername = 3;
+  bytes encryptedDataKey = 4;
+  EncryptedDataKeyType encryptedDataKeyType = 5;
+  bytes encryptedLoginToken = 6;
+  bytes encryptedSessionToken = 7;
+  SessionTokenType sessionTokenType = 8;
+  string message = 9;
+  string url = 10;
+  repeated TwoFactorChannelInfo channels = 11;
+  repeated Salt salt = 12;
+  bytes cloneCode = 13;
+  string stateSpecificValue = 14;
+  string ssoClientVersion = 15;
+  string sessionTokenTypeModifier = 16;
+}
+
+message SwitchListElement {
+  string username = 1;
+  string fullName = 2;
+  bool authRequired = 3;
+  bool isLinked = 4;
+}
+
+message SwitchListResponse {
+  repeated SwitchListElement elements = 1;
+}
+
+message SsoUserInfo {
+  string companyName = 1;
+  string samlRequest = 2;
+  string samlRequestType = 3;
+  string ssoDomainName = 4;
+  string loginUrl = 5;
+  string logoutUrl = 6;
+}
+
+message PreLoginResponse {
+  DeviceStatus deviceStatus = 1;
+  repeated Salt salt = 2;
+  repeated TwoFactorChannel OBSOLETE_FIELD = 3;
+  SsoUserInfo ssoUserInfo = 4;
+}
+
+message LoginAsUserRequest {
+  string username = 1;
+}
+
+message LoginAsUserResponse {
+  bytes encryptedSessionToken = 1;
+  bytes encryptedSharedAccountKey = 2;
+}
+
+message ValidateAuthHashRequest {
+  PasswordMethod passwordMethod = 1;
+  bytes authResponse = 2;
+  bytes encryptedLoginToken = 3;
+}
+
+message TwoFactorChannelInfo {
+  TwoFactorChannelType channelType = 1;
+  bytes channel_uid = 2;
+  string channelName = 3;
+  string challenge = 4;
+  repeated string capabilities = 5;
+  string phoneNumber = 6;
+  TwoFactorExpiration maxExpiration = 7;
+  int64 createdOn = 8;
+  TwoFactorExpiration lastFrequency = 9;
+}
+
+message TwoFactorDuoStatus {
+  repeated string capabilities = 1;
+  string phoneNumber = 2;
+  string enroll_url = 3;
+  string message = 4;
+}
+
+message TwoFactorAddRequest {
+  TwoFactorChannelType channelType = 1;
+  bytes channel_uid = 2;
+  string channelName = 3;
+  string phoneNumber = 4;
+  TwoFactorPushType duoPushType = 5;
+}
+
+message TwoFactorRenameRequest {
+  bytes channel_uid = 1;
+  string channelName = 2;
+}
+
+message TwoFactorAddResponse {
+  string challenge = 1;
+  repeated string backupKeys = 2;
+}
+
+message TwoFactorDeleteRequest {
+  bytes channel_uid = 1;
+}
+
+message TwoFactorListResponse {
+  repeated TwoFactorChannelInfo channels = 1;
+  int64 expireOn = 2;
+}
+
+message TwoFactorUpdateExpirationRequest {
+  TwoFactorExpiration expireIn = 1;
+}
+
+message TwoFactorValidateRequest {
+  bytes encryptedLoginToken = 1;
+  TwoFactorValueType valueType = 2;
+  string value = 3;
+  bytes channel_uid = 4;
+  TwoFactorExpiration expireIn = 5;
+}
+
+message TwoFactorValidateResponse {
+  bytes encryptedLoginToken = 1;
+}
+
+message TwoFactorSendPushRequest {
+  bytes encryptedLoginToken = 1;
+  TwoFactorPushType pushType = 2;
+  bytes channel_uid = 3;
+  TwoFactorExpiration expireIn = 4;
+}
+
+message License {
+  int64 created = 1;
+  int64 expiration = 2;
+  LicenseStatus licenseStatus = 3;
+  bool paid = 4;
+  string message = 5;
+}
+
+message OwnerlessRecord {
+  bytes recordUid = 1;
+  bytes recordKey = 2;
+  int32 status = 3;
+}
+
+message OwnerlessRecords {
+  repeated OwnerlessRecord ownerlessRecord = 1;
+}
+
+message UserAuthRequest {
+  bytes uid = 1;
+  bytes salt = 2;
+  int32 iterations = 3;
+  bytes encryptedClientKey = 4;
+  bytes authHash = 5;
+  bytes encryptedDataKey = 6;
+  LoginType loginType = 7;
+  string name = 8;
+  int32 algorithm = 9;
+}
+
+message UidRequest {
+  repeated bytes uid = 1;
+}
+
+message DeviceUpdateRequest {
+  bytes encryptedDeviceToken = 1;
+  string clientVersion = 2;
+  string deviceName = 3;
+  bytes devicePublicKey = 4;
+  DeviceStatus deviceStatus = 5;
+  string devicePlatform = 6;
+  ClientFormFactor clientFormFactor = 7;
+}
+
+message DeviceUpdateResponse {
+  bytes encryptedDeviceToken = 1;
+  string clientVersion = 2;
+  string deviceName = 3;
+  bytes devicePublicKey = 4;
+  DeviceStatus deviceStatus = 5;
+  string devicePlatform = 6;
+  ClientFormFactor clientFormFactor = 7;
+}
+
+message RegisterDeviceInRegionRequest {
+  bytes encryptedDeviceToken = 1;
+  string clientVersion = 2;
+  string deviceName = 3;
+  bytes devicePublicKey = 4;
+  string devicePlatform = 5;
+  ClientFormFactor clientFormFactor = 6;
+}
+
+message RegistrationRequest {
+  AuthRequest authRequest = 1;
+  UserAuthRequest userAuthRequest = 2;
+  bytes encryptedClientKey = 3;
+  bytes encryptedPrivateKey = 4;
+  bytes publicKey = 5;
+  string verificationCode = 6;
+  bytes deprecatedAuthHashHash = 7;
+  bytes deprecatedEncryptedClientKey = 8;
+  bytes deprecatedEncryptedPrivateKey = 9;
+  bytes deprecatedEncryptionParams = 10;
+}
+
+message ConvertUserToV3Request {
+  AuthRequest authRequest = 1;
+  UserAuthRequest userAuthRequest = 2;
+  bytes encryptedClientKey = 3;
+  bytes encryptedPrivateKey = 4;
+  bytes publicKey = 5;
+}
+
+message RevisionResponse {
+  int64 revision = 1;
+}
+
+message ChangeEmailRequest {
+  string newEmail = 1;
+}
+
+message ChangeEmailResponse {
+  bytes encryptedChangeEmailToken = 1;
+}
+
+message EmailVerificationLinkResponse {
+  bool emailVerified = 1;
+}
+
+message SecurityData {
+  bytes uid = 1;
+  bytes data = 2;
+}
+
+message SecurityScoreData {
+  bytes uid = 1;
+  bytes data = 2;
+  int64 revision = 3;
+}
+
+message SecurityDataRequest {
+  repeated SecurityData recordSecurityData = 1;
+  repeated SecurityData masterPasswordSecurityData = 2;
+  Enterprise.EncryptedKeyType encryptionType = 3;
+  repeated SecurityScoreData recordSecurityScoreData = 4;
+}
+
+message SecurityReportIncrementalData {
+  int64 enterpriseUserId = 1;
+  bytes currentSecurityData = 2;
+  int64 currentSecurityDataRevision = 3;
+  bytes oldSecurityData = 4;
+  int64 oldSecurityDataRevision = 5;
+  Enterprise.EncryptedKeyType currentDataEncryptionType = 6;
+  Enterprise.EncryptedKeyType oldDataEncryptionType = 7;
+  bytes recordUid = 8;
+}
+
+message SecurityReport {
+  int64 enterpriseUserId = 1;
+  bytes encryptedReportData = 2;
+  int64 revision = 3;
+  string twoFactor = 4;
+  int64 lastLogin = 5;
+  int32 numberOfReusedPassword = 6;
+  repeated SecurityReportIncrementalData securityReportIncrementalData = 7;
+  int32 userId = 8;
+  bool hasOldEncryption = 9;
+}
+
+message SecurityReportSaveRequest {
+  repeated SecurityReport securityReport = 1;
+  bytes continuationToken = 2;
+}
+
+message SecurityReportRequest {
+  int64 fromPage = 1;
+}
+
+message SecurityReportResponse {
+  bytes enterprisePrivateKey = 1;
+  repeated SecurityReport securityReport = 2;
+  int64 asOfRevision = 3;
+  int64 fromPage = 4;
+  int64 toPage = 5;
+  bool complete = 6;
+  bytes enterpriseEccPrivateKey = 7;
+  bool hasIncrementalData = 8;
+}
+
+message IncrementalSecurityDataRequest {
+  bytes continuationToken = 1;
+}
+
+message IncrementalSecurityDataResponse {
+  repeated SecurityReportIncrementalData securityReportIncrementalData = 1;
+  bytes continuationToken = 2;
+}
+
+message ReusedPasswordsRequest {
+  int32 count = 1;
+}
+
+message SummaryConsoleReport {
+  int32 reportType = 1;
+  bytes reportData = 2;
+}
+
+message ChangeToKeyTypeOne {
+  ObjectTypes objectType = 1;
+  bytes primaryUid = 2;
+  bytes secondaryUid = 3;
+  bytes key = 4;
+}
+
+message ChangeToKeyTypeOneRequest {
+  repeated ChangeToKeyTypeOne changeToKeyTypeOne = 1;
+}
+
+message ChangeToKeyTypeOneStatus {
+  bytes uid = 1;
+  string type = 2;
+  string status = 3;
+  string reason = 4;
+}
+
+message ChangeToKeyTypeOneResponse {
+  repeated ChangeToKeyTypeOneStatus changeToKeyTypeOneStatus = 1;
+}
+
+message GetChangeKeyTypesRequest {
+  repeated EncryptedObjectType onlyTheseObjects = 1;
+  int32 limit = 2;
+  bool includeRecommended = 3;
+  bool includeKeys = 4;
+  bool includeAllowedKeyTypes = 5;
+}
+
+message GetChangeKeyTypesResponse {
+  repeated ChangeKeyType keys = 1;
+  repeated AllowedKeyTypes allowedKeyTypes = 2;
+}
+
+message AllowedKeyTypes {
+  EncryptedObjectType objectType = 1;
+  repeated Enterprise.EncryptedKeyType allowedKeyTypes = 2;
+}
+
+message ChangeKeyTypes {
+  repeated ChangeKeyType keys = 1;
+}
+
+message ChangeKeyType {
+  EncryptedObjectType objectType = 1;
+  bytes uid = 2;
+  bytes secondaryUid = 3;
+  bytes key = 4;
+  Enterprise.EncryptedKeyType keyType = 5;
+  GenericStatus status = 6;
+}
+
+message SetKey {
+  int64 id = 1;
+  bytes key = 2;
+}
+
+message SetKeyRequest {
+  repeated SetKey keys = 1;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  bytes authVerifier = 2;
+  bytes encryptionParams = 3;
+  bytes rsaPublicKey = 4;
+  bytes rsaEncryptedPrivateKey = 5;
+  bytes eccPublicKey = 6;
+  bytes eccEncryptedPrivateKey = 7;
+  bytes encryptedDeviceToken = 8;
+  bytes encryptedClientKey = 9;
+  string clientVersion = 10;
+  bytes encryptedDeviceDataKey = 11;
+  bytes encryptedLoginToken = 12;
+  bytes messageSessionUid = 13;
+  string installReferrer = 14;
+  int32 mccMNC = 15;
+  string mfg = 16;
+  string model = 17;
+  string brand = 18;
+  string product = 19;
+  string device = 20;
+  string carrier = 21;
+  string verificationCode = 22;
+  Enterprise.EnterpriseRegistration enterpriseRegistration = 23;
+  bytes encryptedVerificationToken = 24;
+  bytes enterpriseUsersDataKey = 25;
+}
+
+message NodeEnforcementAddOrUpdateRequest {
+  int64 nodeId = 1;
+  string enforcement = 2;
+  string value = 3;
+}
+
+message NodeEnforcementRemoveRequest {
+  int64 nodeId = 1;
+  string enforcement = 2;
+}
+
+message ApiRequestByKey {
+  int32 keyId = 1;
+  bytes payload = 2;
+  string username = 3;
+  string locale = 4;
+  SupportedLanguage supportedLanguage = 5;
+  int32 type = 6;
+}
+
+message ApiRequestByKAtoKAKey {
+  Region sourceRegion = 1;
+  bytes payload = 2;
+  SupportedLanguage supportedLanguage = 3;
+  Region destinationRegion = 4;
+}
+
+message MemcacheRequest {
+  string key = 1;
+  int32 userId = 2;
+}
+
+message MemcacheResponse {
+  string key = 1;
+  string value = 2;
+}
+
+message MasterPasswordReentryRequest {
+  string pbkdf2Password = 1;
+  MasterPasswordReentryActionType action = 2;
+}
+
+message MasterPasswordReentryResponse {
+  MasterPasswordReentryStatus status = 1;
+}
+
+message DeviceRegistrationRequest {
+  string clientVersion = 1;
+  string deviceName = 2;
+  bytes devicePublicKey = 3;
+  string devicePlatform = 4;
+  ClientFormFactor clientFormFactor = 5;
+}
+
+message DeviceVerificationRequest {
+  bytes encryptedDeviceToken = 1;
+  string username = 2;
+  string verificationChannel = 3;
+  bytes messageSessionUid = 4;
+  string clientVersion = 5;
+}
+
+message DeviceVerificationResponse {
+  bytes encryptedDeviceToken = 1;
+  string username = 2;
+  bytes messageSessionUid = 3;
+  string clientVersion = 4;
+  DeviceStatus deviceStatus = 5;
+}
+
+message DeviceApprovalRequest {
+  string email = 1;
+  string twoFactorChannel = 2;
+  string clientVersion = 3;
+  string locale = 4;
+  bytes encryptedDeviceToken = 5;
+  string totpCode = 6;
+  string deviceIp = 7;
+  string deviceTokenExpireDays = 8;
+}
+
+message DeviceApprovalResponse {
+  bytes encryptedTwoFactorToken = 1;
+}
+
+message ApproveDeviceRequest {
+  bytes encryptedDeviceToken = 1;
+  bytes encryptedDeviceDataKey = 2;
+  bool denyApproval = 3;
+  bool linkDevice = 4;
+}
+
+message EnterpriseUserAliasRequest {
+  int64 enterpriseUserId = 1;
+  string alias = 2;
+}
+
+message EnterpriseUserAddAliasRequest {
+  int64 enterpriseUserId = 1;
+  string alias = 2;
+  bool primary = 3;
+}
+
+message EnterpriseUserAddAliasRequestV2 {
+  repeated EnterpriseUserAddAliasRequest enterpriseUserAddAliasRequest = 1;
+}
+
+message EnterpriseUserAddAliasStatus {
+  int64 enterpriseUserId = 1;
+  string status = 2;
+}
+
+message EnterpriseUserAddAliasResponse {
+  repeated EnterpriseUserAddAliasStatus status = 1;
+}
+
+message Device {
+  bytes encryptedDeviceToken = 1;
+}
+
+message RegisterDeviceDataKeyRequest {
+  bytes encryptedDeviceToken = 1;
+  bytes encryptedDeviceDataKey = 2;
+}
+
+message ValidateCreateUserVerificationCodeRequest {
+  string username = 1;
+  string clientVersion = 2;
+  string verificationCode = 3;
+}
+
+message ValidateDeviceVerificationCodeRequest {
+  string username = 1;
+  string clientVersion = 2;
+  string verificationCode = 3;
+  bytes messageSessionUid = 4;
+  bytes encryptedDeviceToken = 5;
+}
+
+message SendSessionMessageRequest {
+  bytes messageSessionUid = 1;
+  string command = 2;
+  string username = 3;
+}
+
+message GlobalUserAccount {
+  string username = 1;
+  bytes accountUid = 2;
+  string regionName = 3;
+}
+
+message AccountUsername {
+  string username = 1;
+  string dateActive = 2;
+}
+
+message SsoServiceProviderRequest {
+  string name = 1;
+  string clientVersion = 2;
+  string locale = 3;
+}
+
+message SsoServiceProviderResponse {
+  string name = 1;
+  string spUrl = 2;
+  bool isCloud = 3;
+  string clientVersion = 4;
+}
+
+message UserSettingRequest {
+  string setting = 1;
+  string value = 2;
+}
+
+message ThrottleState {
+  ThrottleType type = 1;
+  string key = 2;
+  string value = 3;
+  bool state = 4;
+}
+
+message ThrottleState2 {
+  string key = 1;
+  string keyDescription = 2;
+  string value = 3;
+  string valueDescription = 4;
+  string identifier = 5;
+  bool locked = 6;
+  bool includedInAllClear = 7;
+  int32 expireSeconds = 8;
+}
+
+message DeviceInformation {
+  int64 deviceId = 1;
+  string deviceName = 2;
+  string clientVersion = 3;
+  int64 lastLogin = 4;
+  DeviceStatus deviceStatus = 5;
+}
+
+message UserSetting {
+  string name = 1;
+  bool value = 2;
+}
+
+message UserDataKeyRequest {
+  repeated int64 enterpriseUserId = 1;
+}
+
+message UserDataKeyByNodeRequest {
+  repeated int64 nodeIds = 1;
+}
+
+message EnterpriseUserIdDataKeyPair {
+  int64 enterpriseUserId = 1;
+  bytes encryptedDataKey = 2;
+  Enterprise.EncryptedKeyType keyType = 3;
+}
+
+message UserDataKey {
+  int64 roleId = 1;
+  bytes roleKey = 2;
+  string privateKey = 3;
+  repeated EnterpriseUserIdDataKeyPair enterpriseUserIdDataKeyPairs = 4;
+}
+
+message UserDataKeyResponse {
+  repeated UserDataKey userDataKeys = 1;
+  repeated int64 accessDenied = 2;
+  repeated int64 noEncryptedDataKey = 3;
+}
+
+message MasterPasswordRecoveryVerificationRequest {
+  bytes encryptedLoginToken = 1;
+}
+
+message GetSecurityQuestionV3Request {
+  bytes encryptedLoginToken = 1;
+  string verificationCode = 2;
+}
+
+message GetSecurityQuestionV3Response {
+  string securityQuestion = 1;
+  int64 backupKeyDate = 2;
+  bytes salt = 3;
+  int32 iterations = 4;
+}
+
+message GetDataKeyBackupV3Request {
+  bytes encryptedLoginToken = 1;
+  string verificationCode = 2;
+  bytes securityAnswerHash = 3;
+}
+
+message PasswordRules {
+  string ruleType = 1;
+  bool match = 2;
+  string pattern = 3;
+  string description = 4;
+  int32 minimum = 5;
+  string value = 6;
+}
+
+message GetDataKeyBackupV3Response {
+  bytes dataKeyBackup = 1;
+  int64 dataKeyBackupDate = 2;
+  bytes publicKey = 3;
+  bytes encryptedPrivateKey = 4;
+  bytes clientKey = 5;
+  bytes encryptedSessionToken = 6;
+  repeated PasswordRules passwordRules = 7;
+  string passwordRulesIntro = 8;
+  int32 minimumPbkdf2Iterations = 9;
+  Enterprise.KeyType keyType = 10;
+}
+
+message GetPublicKeysRequest {
+  repeated string usernames = 1;
+}
+
+message PublicKeyResponse {
+  string username = 1;
+  bytes publicKey = 2;
+  bytes publicEccKey = 3;
+  string message = 4;
+  string errorCode = 5;
+}
+
+message GetPublicKeysResponse {
+  repeated PublicKeyResponse keyResponses = 1;
+}
+
+message SetEccKeyPairRequest {
+  bytes publicKey = 1;
+  bytes encryptedPrivateKey = 2;
+}
+
+message SetEccKeyPairsRequest {
+  repeated TeamEccKeyPair teamKeys = 1;
+}
+
+message SetEccKeyPairsResponse {
+  repeated TeamEccKeyPairResponse teamKeys = 1;
+}
+
+message TeamEccKeyPair {
+  bytes teamUid = 1;
+  bytes publicKey = 2;
+  bytes encryptedPrivateKey = 3;
+}
+
+message TeamEccKeyPairResponse {
+  bytes teamUid = 1;
+  GenericStatus status = 2;
+}
+
+message GetKsmPublicKeysRequest {
+  repeated bytes clientIds = 1;
+  repeated bytes controllerUids = 2;
+}
+
+message DevicePublicKeyResponse {
+  bytes clientId = 1;
+  bytes publicKey = 2;
+  bytes controllerUid = 3;
+}
+
+message GetKsmPublicKeysResponse {
+  repeated DevicePublicKeyResponse keyResponses = 1;
+}
+
+message AddAppSharesRequest {
+  bytes appRecordUid = 1;
+  repeated AppShareAdd shares = 2;
+}
+
+message RemoveAppSharesRequest {
+  bytes appRecordUid = 1;
+  repeated bytes shares = 2;
+}
+
+message AppShareAdd {
+  bytes secretUid = 2;
+  ApplicationShareType shareType = 3;
+  bytes encryptedSecretKey = 4;
+  bool editable = 5;
+}
+
+message AppShare {
+  bytes secretUid = 1;
+  ApplicationShareType shareType = 2;
+  bool editable = 3;
+  int64 createdOn = 4;
+  bytes data = 5;
+}
+
+message AddAppClientRequest {
+  bytes appRecordUid = 1;
+  bytes encryptedAppKey = 2;
+  bytes clientId = 3;
+  bool lockIp = 4;
+  int64 firstAccessExpireOn = 5;
+  int64 accessExpireOn = 6;
+  string id = 7;
+  Enterprise.AppClientType appClientType = 8;
+}
+
+message RemoveAppClientsRequest {
+  bytes appRecordUid = 1;
+  repeated bytes clients = 2;
+}
+
+message AddExternalShareRequest {
+  bytes recordUid = 1;
+  bytes encryptedRecordKey = 2;
+  bytes clientId = 3;
+  int64 accessExpireOn = 4;
+  string id = 5;
+  bool isSelfDestruct = 6;
+  bool isEditable = 7;
+}
+
+message AppClient {
+  string id = 1;
+  bytes clientId = 2;
+  int64 createdOn = 3;
+  int64 firstAccess = 4;
+  int64 lastAccess = 5;
+  bytes publicKey = 6;
+  bool lockIp = 7;
+  string ipAddress = 8;
+  int64 firstAccessExpireOn = 9;
+  int64 accessExpireOn = 10;
+  Enterprise.AppClientType appClientType = 11;
+  bool canEdit = 12;
+}
+
+message GetAppInfoRequest {
+  repeated bytes appRecordUid = 1;
+}
+
+message AppInfo {
+  bytes appRecordUid = 1;
+  repeated AppShare shares = 2;
+  repeated AppClient clients = 3;
+  bool isExternalShare = 4;
+}
+
+message GetAppInfoResponse {
+  repeated AppInfo appInfo = 1;
+}
+
+message ApplicationSummary {
+  bytes appRecordUid = 1;
+  int64 lastAccess = 2;
+  int32 recordShares = 3;
+  int32 folderShares = 4;
+  int32 folderRecords = 5;
+  int32 clientCount = 6;
+  int32 expiredClientCount = 7;
+  string username = 8;
+  bytes appData = 9;
+}
+
+message GetApplicationsSummaryResponse {
+  repeated ApplicationSummary applicationSummary = 1;
+}
+
+message GetVerificationTokenRequest {
+  string username = 1;
+}
+
+message GetVerificationTokenResponse {
+  bytes encryptedVerificationToken = 1;
+}
+
+message SendShareInviteRequest {
+  string email = 1;
+}
+
+message TimeLimitedAccessRequest {
+  repeated bytes accountUid = 1;
+  repeated bytes teamUid = 2;
+  repeated bytes recordUid = 3;
+  bytes sharedObjectUid = 4;
+  TimeLimitedAccessType timeLimitedAccessType = 5;
+  int64 expiration = 6;
+}
+
+message TimeLimitedAccessStatus {
+  bytes uid = 1;
+  string message = 2;
+}
+
+message TimeLimitedAccessResponse {
+  int64 revision = 1;
+  repeated TimeLimitedAccessStatus userAccessStatus = 2;
+  repeated TimeLimitedAccessStatus teamAccessStatus = 3;
+  repeated TimeLimitedAccessStatus recordAccessStatus = 4;
+}
+
+message RequestDownloadRequest {
+  repeated string fileNames = 1;
+}
+
+message RequestDownloadResponse {
+  string result = 1;
+  string message = 2;
+  repeated Download downloads = 3;
+}
+
+message Download {
+  string fileName = 1;
+  string url = 2;
+  int32 successStatusCode = 3;
+}
+
+message DeleteUserRequest {
+  string reason = 1;
+}
+
+message ChangeMasterPasswordRequest {
+  bytes authVerifier = 1;
+  bytes encryptionParams = 2;
+  bool fromServiceProvider = 3;
+  bool iterationsChange = 4;
+}
+
+message ChangeMasterPasswordResponse {
+  bytes encryptedSessionToken = 1;
+}
+
+message AccountRecoverySetupRequest {
+  bytes recoveryEncryptedDataKey = 1;
+  bytes recoveryAuthHash = 2;
+}
+
+message AccountRecoveryVerifyCodeResponse {
+  BackupKeyType backupKeyType = 1;
+  int64 backupKeyDate = 2;
+  string securityQuestion = 3;
+  bytes salt = 4;
+  int32 iterations = 5;
+}
+
+message EmergencyAccessLoginRequest {
+  string owner = 1;
+}
+
+message EmergencyAccessLoginResponse {
+  bytes sessionToken = 1;
+  Enterprise.TypedKey dataKey = 2;
+  Enterprise.TypedKey rsaPrivateKey = 3;
+  Enterprise.TypedKey eccPrivateKey = 4;
+}
+
+message UserTeamKey {
+  bytes teamUid = 1;
+  string username = 2;
+  int64 enterpriseUserId = 3;
+  bytes encryptedTeamKeyRSA = 4;
+  bytes encryptedTeamKeyEC = 5;
+  GenericStatus status = 6;
+}
+
+message GenericRequestResponse {
+  repeated bytes request = 1;
+}
+
+message PasskeyRegistrationRequest {
+  AuthenticatorAttachment authenticatorAttachment = 1;
+}
+
+message PasskeyRegistrationResponse {
+  bytes challengeToken = 1;
+  string pkCreationOptions = 2;
+}
+
+message PasskeyRegistrationFinalization {
+  oneof _friendlyName {
+    string friendlyName = 3;
+  }
+
+  bytes challengeToken = 1;
+  string authenticatorResponse = 2;
+}
+
+message PasskeyAuthenticationRequest {
+  oneof _username {
+    string username = 5;
+  }
+
+  oneof _encryptedLoginToken {
+    bytes encryptedLoginToken = 6;
+  }
+
+  AuthenticatorAttachment authenticatorAttachment = 1;
+  PasskeyPurpose passkeyPurpose = 2;
+  string clientVersion = 3;
+  bytes encryptedDeviceToken = 4;
+}
+
+message PasskeyAuthenticationResponse {
+  oneof _encryptedLoginToken {
+    bytes encryptedLoginToken = 3;
+  }
+
+  string pkRequestOptions = 1;
+  bytes challengeToken = 2;
+}
+
+message PasskeyValidationRequest {
+  oneof _encryptedLoginToken {
+    bytes encryptedLoginToken = 4;
+  }
+
+  bytes challengeToken = 1;
+  bytes assertionResponse = 2;
+  PasskeyPurpose passkeyPurpose = 3;
+}
+
+message PasskeyValidationResponse {
+  bool isValid = 1;
+  bytes encryptedLoginToken = 2;
+}
+
+message UpdatePasskeyRequest {
+  oneof _friendlyName {
+    string friendlyName = 3;
+  }
+
+  int32 userId = 1;
+  bytes credentialId = 2;
+}
+
+message PasskeyListRequest {
+  bool includeDisabled = 1;
+}
+
+message PasskeyInfo {
+  int32 userId = 1;
+  bytes credentialId = 2;
+  string friendlyName = 3;
+  string AAGUID = 4;
+  int64 createdAtMillis = 5;
+  int64 lastUsedMillis = 6;
+  int64 disabledAtMillis = 7;
+}
+
+message PasskeyListResponse {
+  repeated PasskeyInfo passkeyInfo = 1;
+}
+
+message TranslationInfo {
+  string translationKey = 1;
+  string translationValue = 2;
+}
+
+message TranslationRequest {
+  repeated string translationKey = 1;
+}
+
+message TranslationResponse {
+  repeated TranslationInfo translationInfo = 1;
+}
+

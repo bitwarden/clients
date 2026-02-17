@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package Tokens;
+
+enum BreachWatchInfoType {
+  RECORD = 0;
+  ALTERNATE_PASSWORD = 1;
+}
+
+enum BWStatus {
+  GOOD = 0;
+  CHANGED = 1;
+  WEAK = 2;
+  BREACHED = 3;
+  IGNORE = 4;
+}
+
+message BreachWatchUpdateRequest {
+  repeated BreachWatchRecordRequest breachWatchRecordRequest = 1;
+  bytes encryptedData = 2;
+}
+
+message BreachWatchRecordRequest {
+  bytes recordUid = 1;
+  bytes encryptedData = 2;
+  BreachWatchInfoType breachWatchInfoType = 3;
+  bool updateUserWhoScanned = 4;
+}
+
+message BreachWatchData {
+  repeated BWPassword passwords = 1;
+  repeated BWPassword emails = 2;
+  repeated BWPassword domains = 3;
+}
+
+message BWPassword {
+  string value = 1;
+  uint64 resolved = 2;
+  BWStatus status = 3;
+  bytes euid = 4;
+}
+

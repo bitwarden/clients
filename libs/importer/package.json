@@ -14,8 +14,9 @@
   "license": "GPL-3.0",
   "scripts": {
     "test": "jest",
-    "clean": "rimraf dist",
-    "build": "npm run clean && tsc",
+    "clean": "rimraf dist src/importers/keeper/access/generated/*.ts",
+    "build:proto": "protoc --ts_opt ts_nocheck --ts_out src/importers/keeper/access/generated --proto_path src/importers/keeper/access/proto src/importers/keeper/access/proto/*.proto",
+    "build": "npm run clean && npm run build:proto && tsc",
     "build:watch": "npm run clean && tsc -watch"
   }
 }
