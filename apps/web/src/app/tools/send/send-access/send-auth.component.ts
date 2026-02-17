@@ -105,11 +105,27 @@ export class SendAuthComponent implements OnInit {
     } catch (e) {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
+          if (this.sendAuthType() === AuthType.Password) {
+            // Password was already required, so this is an invalid password error
+            const passwordControl = this.sendAccessForm.get("password");
+            if (passwordControl) {
+              passwordControl.setErrors({
+                invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
+              });
+              passwordControl.markAsTouched();
+            }
+          }
+          // Set auth type to Password (either first time or refresh)
           this.sendAuthType.set(AuthType.Password);
-          this.sendAccessForm.controls.password?.setErrors({
-            invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
-          });
-          this.sendAccessForm.controls.password?.markAsTouched();
+        } else if (e.statusCode === 400 && this.sendAuthType() === AuthType.Password) {
+          // Server returns 400 for SendAccessResult.PasswordInvalid
+          const passwordControl = this.sendAccessForm.get("password");
+          if (passwordControl) {
+            passwordControl.setErrors({
+              invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
+            });
+            passwordControl.markAsTouched();
+          }
         } else if (e.statusCode === 404) {
           this.unavailable.set(true);
         } else {
