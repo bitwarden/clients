@@ -123,7 +123,6 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
 export class DisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<BitwardenSubscriber>();
   readonly paymentMethod = input.required<MaskedPaymentMethod | null>();
-  readonly updatePaymentInParent = input<boolean>(false);
   readonly externalFormGroup = input<FormGroup | null>(null);
 
   readonly updated = output<MaskedPaymentMethod>();
