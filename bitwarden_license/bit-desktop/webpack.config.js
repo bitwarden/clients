@@ -31,6 +31,12 @@ module.exports = (webpackConfig, context) => {
         ),
       },
       outputPath: path.resolve(context.context.root, context.options.outputPath),
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
     });
   } else {
     return buildConfig({
@@ -48,6 +54,12 @@ module.exports = (webpackConfig, context) => {
         entry: path.resolve(__dirname, "src/preload.ts"),
         tsConfig: path.resolve(__dirname, "tsconfig.preload.json"),
       },
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
     });
   }
 };
