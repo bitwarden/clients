@@ -21,7 +21,11 @@ import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  SpinnerComponent,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
@@ -32,7 +36,7 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule],
+  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
