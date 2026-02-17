@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "รายการที่จัดเก็บถาวรจะปรากฏที่นี่ และจะไม่ถูกรวมในผลการค้นหาทั่วไปหรือคำแนะนำการป้อนอัตโนมัติ"
   },
-  "itemWasSentToArchive": {
-    "message": "ย้ายรายการไปที่จัดเก็บถาวรแล้ว"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "เลิกจัดเก็บถาวรรายการแล้ว"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "จัดเก็บรายการถาวร"
