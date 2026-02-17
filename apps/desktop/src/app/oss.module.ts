@@ -60,6 +60,5 @@ import { SharedModule } from "./shared/shared.module";
       useClass: DesktopPremiumUpgradePromptService,
     },
   ],
-  bootstrap: [],
 })
 export class OssModule {}
