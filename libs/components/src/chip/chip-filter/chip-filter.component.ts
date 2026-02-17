@@ -98,19 +98,6 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input(undefined, { transform: booleanAttribute });
 
-  /**
-   * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
-   */
-  protected readonly focusVisibleWithin = signal(false);
-
-  protected onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
-  }
-
-  protected onFocusOut() {
-    this.focusVisibleWithin.set(false);
-  }
-
   protected readonly classList = computed(() => {
     return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"].join(" ");
   });
