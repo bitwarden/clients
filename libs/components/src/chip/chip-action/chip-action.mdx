@@ -24,14 +24,14 @@ For general information about chips, their types, and usage guidelines, see the
 ## Basic Usage
 
 The chip action component can be applied to both `<button>` and `<a>` elements using the
-`bitChipAction` directive.
+`bit-chip-action` directive.
 
 ### As a Button
 
 Use `<button>` when the chip triggers an action on the current page.
 
 ```html
-<button bitChipAction label="Filter" startIcon="bwi-filter" (click)="applyFilter()"></button>
+<button bit-chip-action label="Filter" startIcon="bwi-filter" (click)="applyFilter()"></button>
 ```
 
 ### As a Link
@@ -39,7 +39,7 @@ Use `<button>` when the chip triggers an action on the current page.
 Use `<a>` when the chip navigates to a new page.
 
 ```html
-<a bitChipAction label="View all" endIcon="bwi-arrow-right" [routerLink]="['/items']"> </a>
+<a bit-chip-action label="View all" endIcon="bwi-arrow-right" [routerLink]="['/items']"> </a>
 ```
 
 ## Variants
@@ -58,7 +58,7 @@ The primary variant uses brand colors for high emphasis actions.
 The subtle variant uses muted colors for lower emphasis actions.
 
 ```html
-<button bitChipAction label="Subtle" variant="subtle" startIcon="bwi-folder"></button>
+<button bit-chip-action label="Subtle" variant="subtle" startIcon="bwi-folder"></button>
 ```
 
 ### Accent Primary
@@ -66,7 +66,7 @@ The subtle variant uses muted colors for lower emphasis actions.
 The accent primary variant uses accent brand colors.
 
 ```html
-<button bitChipAction label="Info" variant="accent-primary" startIcon="bwi-info-circle"></button>
+<button bit-chip-action label="Info" variant="accent-primary" startIcon="bwi-info-circle"></button>
 ```
 
 ### Accent Secondary
@@ -75,7 +75,7 @@ The accent secondary variant uses secondary accent colors.
 
 ```html
 <button
-  bitChipAction
+  bit-chip-action
   label="Warning"
   variant="accent-secondary"
   startIcon="bwi-exclamation-triangle"
@@ -97,7 +97,7 @@ Action chips support both start and end icons to provide visual context for the 
 ### Start Icon
 
 ```html
-<button bitChipAction label="Add" startIcon="bwi-plus"></button>
+<button bit-chip-action label="Add" startIcon="bwi-plus"></button>
 ```
 
 <Canvas of={stories.WithStartIcon} />
@@ -105,7 +105,7 @@ Action chips support both start and end icons to provide visual context for the 
 ### End Icon
 
 ```html
-<button bitChipAction label="Next" endIcon="bwi-arrow-right"></button>
+<button bit-chip-action label="Next" endIcon="bwi-arrow-right"></button>
 ```
 
 <Canvas of={stories.WithEndIcon} />
@@ -115,7 +115,7 @@ Action chips support both start and end icons to provide visual context for the 
 Action chips can be disabled to prevent interaction.
 
 ```html
-<button bitChipAction label="Inactive" [disabled]="true" startIcon="bwi-filter"></button>
+<button bit-chip-action label="Inactive" [disabled]="true" startIcon="bwi-filter"></button>
 ```
 
 <Canvas of={stories.Inactive} />
@@ -125,7 +125,7 @@ Action chips can be disabled to prevent interaction.
 Action chips can expand to fill their container width.
 
 ```html
-<button bitChipAction label="Full width" [fullWidth]="true"></button>
+<button bit-chip-action label="Full width" [fullWidth]="true"></button>
 ```
 
 ## Groups of Action Chips
@@ -134,9 +134,9 @@ When displaying multiple action chips together, use consistent spacing:
 
 ```html
 <div class="tw-flex tw-flex-wrap tw-gap-2">
-  <button bitChipAction label="Filter" startIcon="bwi-filter"></button>
-  <button bitChipAction label="Sort" startIcon="bwi-sort"></button>
-  <button bitChipAction label="Export" startIcon="bwi-download"></button>
+  <button bit-chip-action label="Filter" startIcon="bwi-filter"></button>
+  <button bit-chip-action label="Sort" startIcon="bwi-sort"></button>
+  <button bit-chip-action label="Export" startIcon="bwi-download"></button>
 </div>
 ```
 
