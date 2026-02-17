@@ -57,10 +57,15 @@ describe("Password Depot 17 Xml Importer", () => {
     const importer = new PasswordDepot17XmlImporter();
     const folder = new FolderView();
     folder.name = "tempDB";
-    const actual = [folder];
 
     const result = await importer.parse(PasswordTestData);
-    expect(result.folders).toEqual(actual);
+    expect(result.folders).toEqual([
+      expect.objectContaining({
+        id: "",
+        name: "tempDB",
+        revisionDate: expect.any(Date),
+      }),
+    ]);
   });
 
   it("should parse password type into logins", async () => {

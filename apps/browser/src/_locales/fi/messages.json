@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arkistoi kohde"
@@ -2747,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näille verkkotunnuksille. Päivitä sivu ottaaksesi muutokset käyttöön."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
-  },
   "blockedDomainsDesc": {
     "message": "Näille sivustoille ei tarjota automaattista täyttöä eikä muita siihen liittyviä ominaisuuksia. Sinun on päivitettävä sivu, jotta muutokset tulevat voimaan."
   },
@@ -3035,10 +3029,6 @@
   "custom": {
     "message": "Mukautettu"
   },
-  "sendPasswordDescV3": {
-    "message": "Lisää valinnainen salasana vastaanottajille tähän Sendiin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Uusi Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3088,8 @@
     "message": "Send tallennettiin",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Irrota laajennus?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Irrota laajennus uuteen ikkunaan luodaksesi tiedosto-Sendin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Jotta voit valita tiedoston, avaa laajennus sivupalkkiin (jos mahdollista) tai erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Jotta voit valita tiedoston käyttäen Firefoxia, avaa laajennus sivupalkkiin tai erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
-  "sendSafariFileWarning": {
-    "message": "Jotta voit valita tiedoston käyttäen Safaria, avaa laajennus erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
   "popOut": {
     "message": "Irrota"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Ennen kuin aloitat"
   },
   "expirationDateIsInvalid": {
     "message": "Määritetty erääntymismisajankohta on virheellinen."
@@ -5990,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Kortin numero"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6127,6 +6100,12 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6123,15 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
