@@ -199,7 +199,7 @@ export class Utils {
       return null;
     }
 
-    return this.fromBufferToUtf8(arr.buffer as ArrayBuffer);
+    return BufferLib.from(arr).toString("utf8");
   }
 
   /**
