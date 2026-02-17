@@ -91,7 +91,7 @@
     },
     "serve": {
       "executor": "nx:run-commands",
-      "dependsOn": ["build-native"],
+      "dependsOn": ["build-native", "@bitwarden/importer:build"],
       "options": {
         "command": "node scripts/nx-serve.js",
         "cwd": "apps/desktop"
