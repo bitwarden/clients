@@ -1602,7 +1602,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Download Browser artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
@@ -1914,7 +1914,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Download Browser artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
