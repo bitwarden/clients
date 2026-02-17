@@ -14,13 +14,8 @@ export function getRandomBytes(length: number): Uint8Array {
   return arr;
 }
 
-export async function generateEncryptionKey(): Promise<Uint8Array> {
-  const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, [
-    "encrypt",
-    "decrypt",
-  ]);
-  const rawKey = await crypto.subtle.exportKey("raw", key);
-  return new Uint8Array(rawKey);
+export function generateEncryptionKey(): Uint8Array {
+  return getRandomBytes(32);
 }
 
 export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
@@ -29,7 +24,7 @@ export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<U
   const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
     "decrypt",
   ]);
-  const decrypted = await crypto.subtle.decrypt({ name: "AES-CBC", iv: iv }, cryptoKey, encrypted);
+  const decrypted = await crypto.subtle.decrypt({ name: "AES-CBC", iv }, cryptoKey, encrypted);
   return new Uint8Array(decrypted);
 }
 
@@ -169,8 +164,8 @@ export async function deriveKeyV1(
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
-      salt: salt,
-      iterations: iterations,
+      salt,
+      iterations,
       hash: "SHA-256",
     },
     passwordKey,
@@ -255,7 +250,7 @@ async function decryptAesNoPadding(
 
   // Now decrypt - Web Crypto will find valid PKCS7 padding
   const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-CBC", iv: iv },
+    { name: "AES-CBC", iv },
     cryptoKey,
     paddedCiphertext,
   );
@@ -295,36 +290,6 @@ export async function decryptKeeperKey(
 
     default:
       throw new Error(`Unknown key type: ${keyType}`);
-  }
-}
-
-export async function decryptRecordData(
-  encryptedData: Uint8Array,
-  recordKey: Uint8Array,
-  version: number,
-): Promise<unknown> {
-  const decrypted =
-    version >= 3
-      ? await decryptAesV2(encryptedData, recordKey)
-      : await decryptAesV1(encryptedData, recordKey);
-
-  try {
-    return JSON.parse(new TextDecoder().decode(decrypted));
-  } catch (error) {
-    throw new Error(`Failed to parse record data: ${error}`);
-  }
-}
-
-export async function decryptFolderData(
-  encryptedData: Uint8Array,
-  folderKey: Uint8Array,
-): Promise<unknown> {
-  const decrypted = await decryptAesV1(encryptedData, folderKey);
-
-  try {
-    return JSON.parse(new TextDecoder().decode(decrypted));
-  } catch (error) {
-    throw new Error(`Failed to parse folder data: ${error}`);
   }
 }
 
