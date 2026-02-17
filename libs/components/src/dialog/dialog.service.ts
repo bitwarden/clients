@@ -261,7 +261,7 @@ export class DialogService {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
-      closeOnNavigation: config?.closeOnNavigation ?? false,
+      closeOnNavigation: config?.closeOnNavigation,
       injector,
       ...config,
     };
