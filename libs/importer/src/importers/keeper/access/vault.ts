@@ -1,17 +1,6 @@
 import { Client, ClientOptions } from "./client";
 import { base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./crypto";
-import {
-  SharedFolder,
-  SharedFolderFolder,
-  SharedFolderFolderRecord,
-  SyncDownResponse,
-  UserFolder,
-  UserFolderRecord,
-  UserFolderSharedFolder,
-  Record,
-  RecordMetaData,
-  SharedFolderRecord,
-} from "./generated/SyncDown";
+import * as sd from "./generated/SyncDown";
 
 //
 // New models
@@ -58,7 +47,7 @@ export class Vault {
 
   private constructor(private readonly items: VaultItem[]) {}
 
-  private static mergeSyncDownPages(pages: SyncDownResponse[]): SyncDownResponse {
+  private static mergeSyncDownPages(pages: sd.SyncDownResponse[]): sd.SyncDownResponse {
     if (pages.length === 1) {
       return pages[0];
     }
@@ -115,7 +104,10 @@ export class Vault {
     return merged;
   }
 
-  private static async processNew(merged: SyncDownResponse, masterKey: Uint8Array): Promise<Vault> {
+  private static async processNew(
+    merged: sd.SyncDownResponse,
+    masterKey: Uint8Array,
+  ): Promise<Vault> {
     // 1. Each folder is encrypted with its own folder key that is encrypted with the master key.
     //    We only need the folder names.
     const folders = await Vault.decryptFolderNames(merged.userFolders, masterKey);
@@ -182,7 +174,7 @@ export class Vault {
   }
 
   private static async decryptFolderNames(
-    userFolders: UserFolder[],
+    userFolders: sd.UserFolder[],
     masterKey: Uint8Array,
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
@@ -196,7 +188,7 @@ export class Vault {
   }
 
   private static async decryptSharedFolderKeys(
-    sharedFolders: SharedFolder[],
+    sharedFolders: sd.SharedFolder[],
     masterKey: Uint8Array,
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
@@ -213,7 +205,7 @@ export class Vault {
   }
 
   private static async decryptSharedFolderNames(
-    sharedFolders: SharedFolder[],
+    sharedFolders: sd.SharedFolder[],
     keys: Map<string, Uint8Array>,
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
@@ -236,7 +228,7 @@ export class Vault {
   }
 
   private static async decryptSharedFolderRecordKeys(
-    sharedFolderRecords: SharedFolderRecord[],
+    sharedFolderRecords: sd.SharedFolderRecord[],
     sharedFolderKeys: Map<string, Uint8Array>,
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
@@ -261,7 +253,7 @@ export class Vault {
   }
 
   private static async decryptRecordKeys(
-    metaData: RecordMetaData[],
+    metaData: sd.RecordMetaData[],
     masterKey: Uint8Array,
   ): Promise<Map<string, Uint8Array>> {
     const result = new Map<string, Uint8Array>();
@@ -274,11 +266,11 @@ export class Vault {
   }
 
   private static async decryptRecords(
-    records: Record[],
+    records: sd.Record[],
     keys: Map<string, Uint8Array>,
-  ): Promise<[Map<string, RecordV3>, Record[]]> {
+  ): Promise<[Map<string, RecordV3>, sd.Record[]]> {
     const result = new Map<string, RecordV3>();
-    const failed: Record[] = [];
+    const failed: sd.Record[] = [];
     for (const record of records) {
       const uid = uidToString(record.recordUid);
       const key = keys.get(uid);
@@ -303,7 +295,7 @@ export class Vault {
   }
 
   private static async decryptSharedFolderFolderNames(
-    sharedFolderFolders: SharedFolderFolder[],
+    sharedFolderFolders: sd.SharedFolderFolder[],
     sharedFolderKeys: Map<string, Uint8Array>,
   ): Promise<Map<string, string>> {
     const result = new Map<string, string>();
@@ -325,10 +317,10 @@ export class Vault {
   }
 
   private static buildRecordFolderPaths(
-    folders: UserFolder[],
-    sharedFolders: SharedFolder[],
-    sharedFoldersFolder: SharedFolderFolder[],
-    sharedFolderSharedFolders: UserFolderSharedFolder[],
+    folders: sd.UserFolder[],
+    sharedFolders: sd.SharedFolder[],
+    sharedFoldersFolder: sd.SharedFolderFolder[],
+    sharedFolderSharedFolders: sd.UserFolderSharedFolder[],
     folderNames: Map<string, string>,
   ): Map<string, string> {
     const paths = new Map<string, string>();
@@ -381,9 +373,9 @@ export class Vault {
   }
 
   private static buildRecordFolders(
-    userFolderRecords: UserFolderRecord[],
-    sharedFolderRecords: SharedFolderRecord[],
-    sharedFolderFolderRecords: SharedFolderFolderRecord[],
+    userFolderRecords: sd.UserFolderRecord[],
+    sharedFolderRecords: sd.SharedFolderRecord[],
+    sharedFolderFolderRecords: sd.SharedFolderFolderRecord[],
     folderPaths: Map<string, string>,
   ): Map<string, string[]> {
     const result = new Map<string, string[]>();
@@ -456,12 +448,12 @@ function joinPath(parent: string, child: string): string {
 // TODO: Remove this debug function
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function dumpSyncDownResponse(
-  merged: SyncDownResponse,
+  merged: sd.SyncDownResponse,
   recordKeys: Map<string, Uint8Array>,
 ): Promise<void> {
   const fs = await import("fs");
   const { base64UrlDecode } = await import("./crypto");
-  const json = (SyncDownResponse as any).toJson(merged) as Record<string, unknown>;
+  const json = (sd.SyncDownResponse as any).toJson(merged) as Record<string, unknown>;
   for (const record of (json.records as Array<Record<string, unknown>>) ?? []) {
     const uid = uidToString(base64UrlDecode(record.recordUid as string));
     const key = recordKeys.get(uid);

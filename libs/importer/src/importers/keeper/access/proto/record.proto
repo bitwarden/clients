@@ -1,0 +1,583 @@
+syntax = "proto3";
+
+package Records;
+
+enum RecordTypeScope {
+  RT_STANDARD = 0;
+  RT_USER = 1;
+  RT_ENTERPRISE = 2;
+  RT_PAM = 3;
+  RT_PAM_CONFIGURATION = 4;
+}
+
+enum RecordKeyType {
+  NO_KEY = 0;
+  ENCRYPTED_BY_DATA_KEY = 1;
+  ENCRYPTED_BY_PUBLIC_KEY = 2;
+  ENCRYPTED_BY_DATA_KEY_GCM = 3;
+  ENCRYPTED_BY_PUBLIC_KEY_ECC = 4;
+  ENCRYPTED_BY_ROOT_KEY_CBC = 5;
+  ENCRYPTED_BY_ROOT_KEY_GCM = 6;
+}
+
+enum RecordFolderType {
+  user_folder = 0;
+  shared_folder = 1;
+  shared_folder_folder = 2;
+}
+
+enum RecordModifyResult {
+  RS_SUCCESS = 0;
+  RS_OUT_OF_SYNC = 1;
+  RS_ACCESS_DENIED = 2;
+  RS_SHARE_DENIED = 3;
+  RS_RECORD_EXISTS = 4;
+  RS_OLD_RECORD_VERSION_TYPE = 5;
+  RS_NEW_RECORD_VERSION_TYPE = 6;
+  RS_FILES_NOT_MATCH = 7;
+  RS_RECORD_NOT_SHAREABLE = 8;
+  RS_ATTACHMENT_NOT_SHAREABLE = 9;
+  RS_FILE_LIMIT_REACHED = 10;
+  RS_SIZE_EXCEEDED_LIMIT = 11;
+  RS_ONLY_OWNER_CAN_MODIFY_SCRIPTS = 12;
+}
+
+enum FileAddResult {
+  FA_SUCCESS = 0;
+  FA_ERROR = 1;
+}
+
+enum FileGetResult {
+  FG_SUCCESS = 0;
+  FG_ERROR = 1;
+  FG_ACCESS_DENIED = 2;
+}
+
+enum RecordDetailsInclude {
+  DATA_PLUS_SHARE = 0;
+  DATA_ONLY = 1;
+  SHARE_ONLY = 2;
+}
+
+enum CheckShareAdminObjectType {
+  CHECK_SA_INVALID_TYPE = 0;
+  CHECK_SA_ON_SF = 1;
+  CHECK_SA_ON_RECORD = 2;
+}
+
+enum ShareStatus {
+  ACTIVE = 0;
+  BLOCK = 1;
+  INVITED = 2;
+}
+
+enum RecordTransactionType {
+  RTT_GENERAL = 0;
+  RTT_ROTATION = 1;
+}
+
+enum TimeLimitedAccessType {
+  INVALID_TIME_LIMITED_ACCESS_TYPE = 0;
+  USER_ACCESS_TO_RECORD = 1;
+  USER_OR_TEAM_ACCESS_TO_SHAREDFOLDER = 2;
+  RECORD_ACCESS_TO_SHAREDFOLDER = 3;
+  USER_ACCESS_TO_SHAREDFOLDER = 4;
+  TEAM_ACCESS_TO_SHAREDFOLDER = 5;
+}
+
+enum TimerNotificationType {
+  NOTIFICATION_OFF = 0;
+  NOTIFY_OWNER = 1;
+  NOTIFY_PRIVILEGED_USERS = 2;
+}
+
+message RecordType {
+  int32 recordTypeId = 1;
+  string content = 2;
+  RecordTypeScope scope = 3;
+}
+
+message RecordTypesRequest {
+  bool standard = 1;
+  bool user = 2;
+  bool enterprise = 3;
+  bool pam = 4;
+}
+
+message RecordTypesResponse {
+  repeated RecordType recordTypes = 1;
+  int32 standardCounter = 2;
+  int32 userCounter = 3;
+  int32 enterpriseCounter = 4;
+  int32 pamCounter = 5;
+}
+
+message RecordTypeModifyResponse {
+  int32 recordTypeId = 1;
+  int32 counter = 2;
+}
+
+message RecordsGetRequest {
+  repeated bytes record_uids = 1;
+  int64 client_time = 2;
+}
+
+message Record {
+  bytes record_uid = 1;
+  bytes record_key = 2;
+  RecordKeyType record_key_type = 3;
+  bytes data = 4;
+  bytes extra = 5;
+  int32 version = 6;
+  int64 client_modified_time = 7;
+  int64 revision = 8;
+  repeated bytes file_ids = 9;
+}
+
+message FolderRecordKey {
+  bytes folder_uid = 1;
+  bytes record_uid = 2;
+  bytes record_key = 3;
+}
+
+message Folder {
+  bytes folder_uid = 1;
+  bytes folder_key = 2;
+  RecordKeyType folder_key_type = 3;
+}
+
+message Team {
+  bytes team_uid = 1;
+  bytes team_key = 2;
+  bytes team_private_key = 3;
+  RecordKeyType team_key_type = 4;
+  repeated Folder folders = 5;
+}
+
+message RecordsGetResponse {
+  repeated Record records = 1;
+  repeated FolderRecordKey folder_record_keys = 2;
+  repeated Folder folders = 3;
+  repeated Team teams = 4;
+}
+
+message RecordLink {
+  bytes record_uid = 1;
+  bytes record_key = 2;
+}
+
+message RecordAudit {
+  int32 version = 1;
+  bytes data = 2;
+}
+
+message SecurityData {
+  bytes data = 1;
+}
+
+message SecurityScoreData {
+  bytes data = 1;
+}
+
+message RecordAdd {
+  bytes record_uid = 1;
+  bytes record_key = 2;
+  int64 client_modified_time = 3;
+  bytes data = 4;
+  bytes non_shared_data = 5;
+  RecordFolderType folder_type = 6;
+  bytes folder_uid = 7;
+  bytes folder_key = 8;
+  repeated RecordLink record_links = 9;
+  RecordAudit audit = 10;
+  SecurityData securityData = 11;
+  SecurityScoreData securityScoreData = 12;
+}
+
+message RecordsAddRequest {
+  repeated RecordAdd records = 1;
+  int64 client_time = 2;
+  RecordKeyType security_data_key_type = 3;
+}
+
+message RecordUpdate {
+  bytes record_uid = 1;
+  int64 client_modified_time = 2;
+  int64 revision = 3;
+  bytes data = 4;
+  bytes non_shared_data = 5;
+  repeated RecordLink record_links_add = 6;
+  repeated bytes record_links_remove = 7;
+  RecordAudit audit = 8;
+  SecurityData securityData = 9;
+  SecurityScoreData securityScoreData = 10;
+}
+
+message RecordsUpdateRequest {
+  repeated RecordUpdate records = 1;
+  int64 client_time = 2;
+  RecordKeyType security_data_key_type = 3;
+}
+
+message RecordFileForConversion {
+  bytes record_uid = 1;
+  string file_file_id = 2;
+  string thumb_file_id = 3;
+  bytes data = 4;
+  bytes record_key = 5;
+  bytes link_key = 6;
+}
+
+message RecordFolderForConversion {
+  bytes folder_uid = 1;
+  bytes record_folder_key = 2;
+}
+
+message RecordConvertToV3 {
+  bytes record_uid = 1;
+  int64 client_modified_time = 2;
+  int64 revision = 3;
+  bytes data = 4;
+  bytes non_shared_data = 5;
+  RecordAudit audit = 6;
+  repeated RecordFileForConversion record_file = 7;
+  repeated RecordFolderForConversion folder_key = 8;
+}
+
+message RecordsConvertToV3Request {
+  repeated RecordConvertToV3 records = 1;
+  int64 client_time = 2;
+}
+
+message RecordsRemoveRequest {
+  repeated bytes records = 1;
+}
+
+message RecordRevert {
+  bytes record_uid = 1;
+  int64 revert_to_revision = 2;
+}
+
+message RecordsRevertRequest {
+  repeated RecordRevert records = 1;
+}
+
+message RecordLinkError {
+  bytes record_uid = 1;
+  RecordModifyResult status = 2;
+  string message = 3;
+}
+
+message RecordModifyStatus {
+  bytes record_uid = 1;
+  RecordModifyResult status = 2;
+  string message = 3;
+  repeated RecordLinkError link_errors = 4;
+}
+
+message RecordsModifyResponse {
+  repeated RecordModifyStatus records = 1;
+  int64 revision = 2;
+}
+
+message RecordAddAuditData {
+  bytes record_uid = 1;
+  int64 revision = 2;
+  bytes data = 3;
+  int32 version = 4;
+}
+
+message AddAuditDataRequest {
+  repeated RecordAddAuditData records = 1;
+}
+
+message File {
+  bytes record_uid = 1;
+  bytes record_key = 2;
+  bytes data = 3;
+  int64 fileSize = 4;
+  int32 thumbSize = 5;
+  bool is_script = 6;
+}
+
+message FilesAddRequest {
+  repeated File files = 1;
+  int64 client_time = 2;
+}
+
+message FileAddStatus {
+  bytes record_uid = 1;
+  FileAddResult status = 2;
+  string url = 3;
+  string parameters = 4;
+  string thumbnail_parameters = 5;
+  int32 success_status_code = 6;
+}
+
+message FilesAddResponse {
+  repeated FileAddStatus files = 1;
+  int64 revision = 2;
+}
+
+message FilesGetRequest {
+  repeated bytes record_uids = 1;
+  bool for_thumbnails = 2;
+  string emergency_access_account_owner = 3;
+}
+
+message FileGetStatus {
+  bytes record_uid = 1;
+  FileGetResult status = 2;
+  string url = 3;
+  int32 success_status_code = 4;
+  RecordKeyType fileKeyType = 5;
+}
+
+message FilesGetResponse {
+  repeated FileGetStatus files = 1;
+}
+
+message ApplicationAddRequest {
+  bytes app_uid = 1;
+  bytes record_key = 2;
+  int64 client_modified_time = 3;
+  bytes data = 4;
+  RecordAudit audit = 5;
+}
+
+message GetRecordDataWithAccessInfoRequest {
+  int64 clientTime = 1;
+  repeated bytes recordUid = 2;
+  RecordDetailsInclude recordDetailsInclude = 3;
+}
+
+message UserPermission {
+  string username = 1;
+  bool owner = 2;
+  bool shareAdmin = 3;
+  bool sharable = 4;
+  bool editable = 5;
+  bool awaitingApproval = 6;
+  int64 expiration = 7;
+  bytes accountUid = 8;
+  TimerNotificationType timerNotificationType = 9;
+  bool rotateOnExpiration = 10;
+}
+
+message SharedFolderPermission {
+  bytes sharedFolderUid = 1;
+  bool resharable = 2;
+  bool editable = 3;
+  int64 revision = 4;
+  int64 expiration = 5;
+  TimerNotificationType timerNotificationType = 6;
+  bool rotateOnExpiration = 7;
+}
+
+message RecordData {
+  int64 revision = 1;
+  int32 version = 2;
+  bool shared = 3;
+  string encryptedRecordData = 4;
+  string encryptedExtraData = 5;
+  int64 clientModifiedTime = 6;
+  string nonSharedData = 7;
+  repeated RecordData linkedRecordData = 8;
+  repeated bytes fileId = 9;
+  int64 fileSize = 10;
+  int64 thumbnailSize = 11;
+  RecordKeyType recordKeyType = 12;
+  bytes recordKey = 13;
+  bytes recordUid = 14;
+}
+
+message RecordDataWithAccessInfo {
+  bytes recordUid = 1;
+  RecordData recordData = 2;
+  repeated UserPermission userPermission = 3;
+  repeated SharedFolderPermission sharedFolderPermission = 4;
+}
+
+message GetRecordDataWithAccessInfoResponse {
+  repeated RecordDataWithAccessInfo recordDataWithAccessInfo = 1;
+  repeated bytes noPermissionRecordUid = 2;
+}
+
+message IsObjectShareAdmin {
+  bytes uid = 1;
+  bool isAdmin = 2;
+  CheckShareAdminObjectType objectType = 3;
+}
+
+message AmIShareAdmin {
+  repeated IsObjectShareAdmin isObjectShareAdmin = 1;
+}
+
+message RecordShareUpdateRequest {
+  repeated SharedRecord addSharedRecord = 1;
+  repeated SharedRecord updateSharedRecord = 2;
+  repeated SharedRecord removeSharedRecord = 3;
+  string pt = 4;
+}
+
+message SharedRecord {
+  string toUsername = 1;
+  bytes recordUid = 2;
+  bytes recordKey = 3;
+  bytes sharedFolderUid = 4;
+  bytes teamUid = 5;
+  bool editable = 6;
+  bool shareable = 7;
+  bool transfer = 8;
+  bool useEccKey = 9;
+  bool removeVaultData = 10;
+  int64 expiration = 11;
+  TimerNotificationType timerNotificationType = 12;
+  bool rotateOnExpiration = 13;
+}
+
+message RecordShareUpdateResponse {
+  repeated SharedRecordStatus addSharedRecordStatus = 1;
+  repeated SharedRecordStatus updateSharedRecordStatus = 2;
+  repeated SharedRecordStatus removeSharedRecordStatus = 3;
+}
+
+message SharedRecordStatus {
+  bytes recordUid = 1;
+  string status = 2;
+  string message = 3;
+  string username = 4;
+}
+
+message GetRecordPermissionsRequest {
+  repeated bytes recordUids = 1;
+  bool isShareAdmin = 2;
+}
+
+message GetRecordPermissionsResponse {
+  repeated RecordPermission recordPermissions = 1;
+}
+
+message RecordPermission {
+  bytes recordUid = 1;
+  bool owner = 2;
+  bool canEdit = 3;
+  bool canShare = 4;
+  bool canTransfer = 5;
+}
+
+message GetShareObjectsRequest {
+  string startWith = 1;
+  string contains = 2;
+  bool filtered = 3;
+  bytes sharedFolderUid = 4;
+}
+
+message GetShareObjectsResponse {
+  repeated ShareUser shareRelationships = 1;
+  repeated ShareUser shareFamilyUsers = 2;
+  repeated ShareUser shareEnterpriseUsers = 3;
+  repeated ShareTeam shareTeams = 4;
+  repeated ShareTeam shareMCTeams = 5;
+  repeated ShareUser shareMCEnterpriseUsers = 6;
+  repeated ShareEnterprise shareEnterpriseNames = 7;
+}
+
+message ShareUser {
+  string username = 1;
+  string fullname = 2;
+  int32 enterpriseId = 3;
+  ShareStatus status = 4;
+  bool isShareAdmin = 5;
+  bool isAdminOfSharedFolderOwner = 6;
+}
+
+message ShareTeam {
+  string teamname = 1;
+  int32 enterpriseId = 2;
+  bytes teamUid = 3;
+}
+
+message ShareEnterprise {
+  string enterprisename = 1;
+  int32 enterpriseId = 2;
+}
+
+message RecordsOnwershipTransferRequest {
+  repeated TransferRecord transferRecords = 1;
+}
+
+message TransferRecord {
+  string username = 1;
+  bytes recordUid = 2;
+  bytes recordKey = 3;
+  bool useEccKey = 4;
+}
+
+message RecordsOnwershipTransferResponse {
+  repeated TransferRecordStatus transferRecordStatus = 1;
+}
+
+message TransferRecordStatus {
+  string username = 1;
+  bytes recordUid = 2;
+  string status = 3;
+  string message = 4;
+}
+
+message RecordsUnshareRequest {
+  repeated RecordsUnshareFolder sharedFolders = 1;
+  repeated RecordsUnshareUser users = 2;
+}
+
+message RecordsUnshareResponse {
+  repeated RecordsUnshareFolderStatus sharedFolders = 1;
+  repeated RecordsUnshareUserStatus users = 2;
+}
+
+message RecordsUnshareFolder {
+  bytes recordUid = 1;
+  bytes sharedFolderUid = 2;
+}
+
+message RecordsUnshareUser {
+  bytes recordUid = 1;
+  bytes accountUid = 2;
+}
+
+message RecordsUnshareFolderStatus {
+  bytes recordUid = 1;
+  bytes sharedFolderUid = 2;
+}
+
+message RecordsUnshareUserStatus {
+  bytes recordUid = 1;
+  bytes accountUid = 2;
+}
+
+message TimedAccessCallbackPayload {
+  TimeLimitedAccessType timeLimitedAccessType = 1;
+}
+
+message TimeLimitedAccessRequest {
+  repeated bytes accountUid = 1;
+  repeated bytes teamUid = 2;
+  repeated bytes recordUid = 3;
+  bytes sharedObjectUid = 4;
+  TimeLimitedAccessType timeLimitedAccessType = 5;
+  int64 expiration = 6;
+  TimerNotificationType timerNotificationType = 7;
+}
+
+message TimeLimitedAccessStatus {
+  bytes uid = 1;
+  string message = 2;
+}
+
+message TimeLimitedAccessResponse {
+  int64 revision = 1;
+  repeated TimeLimitedAccessStatus userAccessStatus = 2;
+  repeated TimeLimitedAccessStatus teamAccessStatus = 3;
+  repeated TimeLimitedAccessStatus recordAccessStatus = 4;
+}
+
