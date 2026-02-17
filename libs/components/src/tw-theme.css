@@ -522,6 +522,7 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-sidenav-hover: rgba(var(--color-gray-950-rgb), 0.4);
   --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
