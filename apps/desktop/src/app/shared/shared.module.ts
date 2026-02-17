@@ -7,6 +7,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconModule } from "@bitwarden/components";
 
 import { AvatarComponent } from "../components/avatar.component";
 import { ServicesModule } from "../services/services.module";
@@ -17,6 +18,7 @@ import { ServicesModule } from "../services/services.module";
     A11yModule,
     DragDropModule,
     FormsModule,
+    IconModule,
     JslibModule,
     OverlayModule,
     ReactiveFormsModule,
@@ -30,6 +32,7 @@ import { ServicesModule } from "../services/services.module";
     DatePipe,
     DragDropModule,
     FormsModule,
+    IconModule,
     JslibModule,
     OverlayModule,
     ReactiveFormsModule,

@@ -80,7 +80,7 @@ describe("ArchiveCipherUtilitiesService", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "itemWasSentToArchive",
+        message: "itemArchiveToast",
       });
     });
 
@@ -106,7 +106,7 @@ describe("ArchiveCipherUtilitiesService", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "itemWasUnarchived",
+        message: "itemUnarchivedToast",
       });
     });
 
@@ -119,6 +119,20 @@ describe("ArchiveCipherUtilitiesService", () => {
         variant: "error",
         message: "errorOccurred",
       });
+    });
+
+    it("calls password reprompt check when unarchiving", async () => {
+      await service.unarchiveCipher(mockCipher);
+
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(mockCipher);
+    });
+
+    it("returns early when password reprompt fails on unarchive", async () => {
+      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
+
+      await service.unarchiveCipher(mockCipher);
+
+      expect(cipherArchiveService.unarchiveWithServer).not.toHaveBeenCalled();
     });
   });
 });

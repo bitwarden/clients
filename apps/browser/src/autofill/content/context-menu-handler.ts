@@ -1,3 +1,5 @@
+import { EventSecurity } from "../utils/event-security";
+
 const inputTags = ["input", "textarea", "select"];
 const labelTags = ["label", "span"];
 const attributeKeys = ["id", "name", "label-aria", "placeholder"];
@@ -52,6 +54,12 @@ function isNullOrEmpty(s: string | null) {
 // We only have access to the element that's been clicked when the context menu is first opened.
 // Remember it for use later.
 document.addEventListener("contextmenu", (event) => {
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   */
+  if (!EventSecurity.isEventTrusted(event)) {
+    return;
+  }
   clickedElement = event.target as HTMLElement;
 });
 

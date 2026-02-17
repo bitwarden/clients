@@ -2,7 +2,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
-import { Icon, LockIcon } from "@bitwarden/assets/svg";
+import { BitSvg, LockIcon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,7 +23,7 @@ type StoryArgs = AnonLayoutComponent & {
   contentLength: "normal" | "long" | "thin";
   showSecondary: boolean;
   useDefaultIcon: boolean;
-  icon: Icon;
+  icon: BitSvg;
   includeHeaderActions: boolean;
 };
 

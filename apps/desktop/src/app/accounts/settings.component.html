@@ -16,16 +16,10 @@
                 [attr.aria-expanded]="showSecurity"
                 appAutofocus
               >
-                <i
-                  *ngIf="!showSecurity"
-                  class="bwi bwi-angle-right bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
-                <i
-                  *ngIf="showSecurity"
-                  class="bwi bwi-angle-down bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
+                <bit-icon
+                  [name]="showSecurity ? 'bwi-angle-down' : 'bwi-angle-right'"
+                  class="bwi-sm icon"
+                ></bit-icon>
                 {{ "security" | i18n }}
               </button>
             </h2>
@@ -147,16 +141,10 @@
                 (click)="showAccountPreferences = !showAccountPreferences"
                 [attr.aria-expanded]="showAccountPreferences"
               >
-                <i
-                  *ngIf="!showAccountPreferences"
-                  class="bwi bwi-angle-right bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
-                <i
-                  *ngIf="showAccountPreferences"
-                  class="bwi bwi-angle-down bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
+                <bit-icon
+                  [name]="showAccountPreferences ? 'bwi-angle-down' : 'bwi-angle-right'"
+                  class="bwi-sm icon"
+                ></bit-icon>
                 {{ "accountPreferences" | i18n }}
               </button>
             </h2>
@@ -222,16 +210,10 @@
                 (click)="showAppPreferences = !showAppPreferences"
                 [attr.aria-expanded]="showAppPreferences"
               >
-                <i
-                  *ngIf="!showAppPreferences"
-                  class="bwi bwi-angle-right bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
-                <i
-                  *ngIf="showAppPreferences"
-                  class="bwi bwi-angle-down bwi-sm icon"
-                  aria-hidden="true"
-                ></i>
+                <bit-icon
+                  [name]="showAppPreferences ? 'bwi-angle-down' : 'bwi-angle-right'"
+                  class="bwi-sm icon"
+                ></bit-icon>
                 {{ "appPreferences" | i18n }}
               </button>
             </h2>

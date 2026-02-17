@@ -116,7 +116,9 @@ const routes: Routes = [
           },
           {
             path: "billing",
-            canActivate: [providerPermissionsGuard()],
+            canActivate: [
+              providerPermissionsGuard((provider: Provider) => provider.isProviderAdmin),
+            ],
             children: [
               {
                 path: "",
