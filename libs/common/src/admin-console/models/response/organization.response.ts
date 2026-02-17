@@ -41,6 +41,7 @@ export class OrganizationResponse extends BaseResponse {
   useDisableSMAdsForUsers: boolean;
   useAccessIntelligence: boolean;
   usePhishingBlocker: boolean;
+  useMyItems: boolean;
 
   constructor(response: any) {
     super(response);
@@ -86,5 +87,8 @@ export class OrganizationResponse extends BaseResponse {
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
+    // Default to enabled to preserve existing functionality in the event of a new server + old client combination.
+    // It won't have any effect unless it's an enterprise organization anyway, so it is a safe default.
+    this.useMyItems = this.getResponseProperty("UseMyItems") ?? true;
   }
 }
