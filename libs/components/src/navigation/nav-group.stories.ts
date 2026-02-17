@@ -5,7 +5,6 @@ import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
-import { BerryComponent } from "../berry";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
@@ -35,7 +34,6 @@ export default {
         DummyContentComponent,
         LayoutComponent,
         IconButtonModule,
-        BerryComponent,
       ],
       providers: [
         {
@@ -220,14 +218,6 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child B" route="bb"></bit-nav-item>
           <bit-nav-item text="Child C" route="cc"></bit-nav-item>
           <span slot="end"> 12 </span>
-        </bit-nav-group>
-          <bit-nav-group text="With Trailing Berry" [route]="['aaa']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="aaa"></bit-nav-item>
-          <bit-nav-item text="Child B" route="bbb"></bit-nav-item>
-          <bit-nav-item text="Child C" route="ccc"></bit-nav-item>
-          <span slot="end">
-            <bit-berry type="count" variant="danger" value="5"></bit-berry>
-          </span>
         </bit-nav-group>
       </bit-side-nav>
     `,
