@@ -60,7 +60,7 @@ export type ChipFilterOption<T> = Option<T> & {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    "[class]": "classList()",
+    class: "tw-inline-block",
   },
 })
 export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
@@ -95,10 +95,6 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input(undefined, { transform: booleanAttribute });
-
-  protected readonly classList = computed(() => {
-    return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"].join(" ");
-  });
 
   /** Tree constructed from `this.options` */
   private rootTree?: ChipFilterOption<T> | null;
