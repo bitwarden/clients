@@ -5,7 +5,7 @@ import { IconComponent } from "../icon/icon.component";
 import { ariaDisableElement } from "../utils/aria-disable-element";
 
 @Component({
-  selector: "button[bitChipDismissButton]",
+  selector: "button[bit-chip-dismiss-button]",
   standalone: true,
   imports: [IconComponent],
   host: {

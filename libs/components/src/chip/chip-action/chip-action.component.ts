@@ -5,7 +5,7 @@ import { BaseChipDirective } from "../base-chip.directive";
 import { ChipContentComponent } from "../chip-content.component";
 
 @Component({
-  selector: "a[bitChipAction], button[bitChipAction]",
+  selector: "a[bit-chip-action], button[bit-chip-action]",
   imports: [ChipContentComponent],
   templateUrl: "./chip-action.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
