@@ -21,20 +21,6 @@
       [originalSendView]="originalSendView"
     ></tools-send-file-details>
 
-    <bit-form-field *ngIf="sendLink">
-      <bit-label>{{ "sendLink" | i18n }}</bit-label>
-      <input data-testid="send-link" bitInput type="text" [value]="sendLink" disabled />
-      <button
-        type="button"
-        bitSuffix
-        showToast
-        bitIconButton="bwi-clone"
-        [appCopyClick]="sendLink"
-        [valueLabel]="'sendLink' | i18n"
-        [label]="'copySendLink' | i18n"
-      ></button>
-    </bit-form-field>
-
     <bit-form-field>
       <bit-label>{{ "deletionDate" | i18n }}</bit-label>
       <bit-select
@@ -126,6 +112,20 @@
         <bit-hint>{{ "enterMultipleEmailsSeparatedByComma" | i18n }}</bit-hint>
       </bit-form-field>
     }
+
+    <bit-form-field *ngIf="sendLink" class="tw-mt-4">
+      <bit-label>{{ "sendLink" | i18n }}</bit-label>
+      <input data-testid="send-link" bitInput type="text" [value]="sendLink" disabled />
+      <button
+        type="button"
+        bitSuffix
+        showToast
+        bitIconButton="bwi-clone"
+        [appCopyClick]="sendLink"
+        [valueLabel]="'sendLink' | i18n"
+        [label]="'copySendLink' | i18n"
+      ></button>
+    </bit-form-field>
   </bit-card>
   <tools-send-options [config]="config" [originalSendView]="originalSendView"></tools-send-options>
 </bit-section>

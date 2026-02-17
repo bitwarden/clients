@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Het abonnement is opnieuw geactiveerd."
   },
+  "resubscribe": {
+    "message": "Opnieuw abonneren"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Je abonnement is verlopen"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Je abonnement is geannuleerd"
+  },
   "cancelConfirmation": {
     "message": "Weet je zeker dat je wilt opzeggen? Je verliest toegang tot alle functionaliteiten van dit abonnement aan het einde van deze betalingscyclus."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Send weergeven",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verifieer je e-mailadres om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
-  },
-  "itemUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "bulkArchiveItems": {
     "message": "Items gearchiveerd"

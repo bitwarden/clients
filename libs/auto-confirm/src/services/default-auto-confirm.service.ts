@@ -8,10 +8,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
@@ -66,26 +67,44 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
 
   async autoConfirmUser(
     userId: UserId,
-    confirmingUserId: UserId,
-    organization: Organization,
+    confirmedUserId: UserId,
+    organizationId: OrganizationId,
   ): Promise<void> {
+    const canManage = await firstValueFrom(this.canManageAutoConfirm$(userId));
+
+    if (!canManage) {
+      return;
+    }
+
+    // Only initiate auto confirmation if the local client setting has been turned on
+    const autoConfirmEnabled = await firstValueFrom(
+      this.configuration$(userId).pipe(map((state) => state.enabled)),
+    );
+
+    if (!autoConfirmEnabled) {
+      return;
+    }
+
+    const organization$ = this.organizationService.organizations$(userId).pipe(
+      getById(organizationId),
+      map((organization) => {
+        if (organization == null) {
+          throw new Error("Organization not found");
+        }
+        return organization;
+      }),
+    );
+
+    const publicKeyResponse = await this.apiService.getUserPublicKey(userId);
+    const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+
     await firstValueFrom(
-      this.canManageAutoConfirm$(userId).pipe(
-        map((canManage) => {
-          if (!canManage) {
-            throw new Error("Cannot automatically confirm user (insufficient permissions)");
-          }
-          return canManage;
-        }),
-        switchMap(() => this.apiService.getUserPublicKey(userId)),
-        map((publicKeyResponse) => Utils.fromB64ToArray(publicKeyResponse.publicKey)),
-        switchMap((publicKey) =>
-          this.organizationUserService.buildConfirmRequest(organization, publicKey),
-        ),
+      organization$.pipe(
+        switchMap((org) => this.organizationUserService.buildConfirmRequest(org, publicKey)),
         switchMap((request) =>
-          this.organizationUserApiService.postOrganizationUserConfirm(
-            organization.id,
-            confirmingUserId,
+          this.organizationUserApiService.postOrganizationUserAutoConfirm(
+            organizationId,
+            confirmedUserId,
             request,
           ),
         ),

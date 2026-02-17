@@ -773,7 +773,7 @@
     "message": "Añadir adjunto"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elementos transferidos"
   },
   "fixEncryption": {
     "message": "Corregir cifrado"
@@ -2089,7 +2089,7 @@
     "message": "Elemento eliminado de forma permanente"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Elemento archivado restaurado"
   },
   "restoredItem": {
     "message": "Elemento restaurado"
@@ -4009,7 +4009,7 @@
     "message": "No, no lo tengo"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Sí, puedo acceder a mi correo electrónico de forma fiable"
   },
   "turnOnTwoStepLogin": {
     "message": "Turn on two-step login"
@@ -4075,10 +4075,10 @@
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Contraseña vulnerable."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Cambiar ahora"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -4109,7 +4109,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Ningún resultado de búsqueda devuelto"
   },
   "sendsBodyNoItems": {
     "message": "Comparte archivos y datos de forma segura con cualquiera, en cualquier plataforma. Tu información permanecerá encriptada de extremo a extremo, limitando su exposición.",
@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Los elementos archivados aparecerán aquí y se excluirán de los resultados de búsqueda generales y de sugerencias de autocompletado."
   },
-  "itemWasSentToArchive": {
-    "message": "El elemento fue archivado"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "El elemento fue desarchivado"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archivar elemento"
@@ -4403,7 +4403,7 @@
     "message": "Desarchivar y guardar"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Reiniciar Premium"
   },
   "premiumSubscriptionEnded": {
     "message": "Tu suscripción Premium ha terminado"
@@ -4537,10 +4537,10 @@
     "message": "Set an unlock method to change your timeout action"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Actualizar"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "¿Estás seguro de que quieres salir?"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
@@ -4558,10 +4558,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "¿Cómo gestiono mi caja fuerte?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Transferir elementos a $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4579,13 +4579,13 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Aceptar transferencia"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Rechazar y salir"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "¿Por qué estoy viendo esto?"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -4595,25 +4595,25 @@
     "message": "Email protected"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Correos electrónicos"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Cualquiera con el enlace"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Quién puede ver"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Personas específicas"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Introduce varios correos electrónicos separándolos con una coma."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

@@ -440,7 +440,7 @@
     "message": "Synchronizacja"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synchronizuj teraz"
   },
   "lastSync": {
     "message": "Ostatnia synchronizacja:"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemWasSentToArchive": {
-    "message": "Element został przeniesiony do archiwum"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Element został usunięty z archiwum"
-  },
-  "itemUnarchived": {
-    "message": "Element został usunięty z archiwum"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiwizuj element"
@@ -6128,7 +6125,7 @@
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Pobierz aplikacje Bitwarden"
   },
   "emailProtected": {
     "message": "Email protected"

@@ -100,7 +100,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore?: (c: CipherViewLike) => Promise<boolean>;
+  restore?: (c: CipherViewLike) => Promise<void>;
 }
 
 export const VaultItemDialogResult = {

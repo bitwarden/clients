@@ -10,6 +10,7 @@ import {
   LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
+import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { CardView } from "../models/view/card.view";
@@ -289,6 +290,71 @@ export class CipherViewLikeUtils {
    */
   static decryptionFailure = (cipher: CipherViewLike): boolean => {
     return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
+  };
+
+  /**
+   * Returns the notes from the cipher.
+   *
+   * @param cipher - The cipher to extract notes from (either `CipherView` or `CipherListView`)
+   * @returns The notes string if present, or `undefined` if not set
+   */
+  static getNotes = (cipher: CipherViewLike): string | undefined => {
+    return cipher.notes;
+  };
+
+  /**
+   * Returns the fields from the cipher.
+   *
+   * @param cipher - The cipher to extract fields from (either `CipherView` or `CipherListView`)
+   * @returns Array of field objects with `name` and `value` properties, `undefined` if not set
+   */
+  static getFields = (
+    cipher: CipherViewLike,
+  ): { name?: string | null; value?: string | undefined }[] | undefined => {
+    if (this.isCipherListView(cipher)) {
+      return cipher.fields;
+    }
+    return cipher.fields;
+  };
+
+  /**
+   * Returns attachment filenames from the cipher.
+   *
+   * @param cipher - The cipher to extract attachment names from (either `CipherView` or `CipherListView`)
+   * @returns Array of attachment filenames, `undefined` if attachments are not present
+   */
+  static getAttachmentNames = (cipher: CipherViewLike): string[] | undefined => {
+    if (this.isCipherListView(cipher)) {
+      return cipher.attachmentNames;
+    }
+
+    return cipher.attachments
+      ?.map((a) => a.fileName)
+      .filter((name): name is string => name != null);
+  };
+
+  /**
+   * Extracts hostname from a login URI.
+   *
+   * @param uri - The URI object (either `LoginUriView` class or `LoginListUriView`)
+   * @returns The hostname if available, `undefined` otherwise
+   *
+   * @remarks
+   * - For `LoginUriView` (CipherView): Uses the built-in `hostname` getter
+   * - For `LoginListUriView` (CipherListView): Computes hostname using `Utils.getHostname()`
+   * - Returns `undefined` for RegularExpression match types or when hostname cannot be extracted
+   */
+  static getUriHostname = (uri: LoginListUriView | LoginUriView): string | undefined => {
+    if ("hostname" in uri && typeof uri.hostname !== "undefined") {
+      return uri.hostname ?? undefined;
+    }
+
+    if (uri.match !== UriMatchStrategy.RegularExpression && uri.uri) {
+      const hostname = Utils.getHostname(uri.uri);
+      return hostname === "" ? undefined : hostname;
+    }
+
+    return undefined;
   };
 }
 

@@ -3,14 +3,14 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwardenen logoa"
   },
   "extName": {
     "message": "Bitwarden pasahitz kudeatzailea",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Etxean, lanean edo bidean, Bitwardenek zure pasahitz, giltz orokor edo informazio delikatua erraz gordetzen du",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -23,19 +23,19 @@
     "message": "Sortu kontua"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Berria Bitwardenen?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Sartu giltz orokorrarekin"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Ireki giltz orokorrarekin"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Erabili SSO"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Zure erakundeak SSO erabiltzera behartzen du."
   },
   "welcomeBack": {
     "message": "Ongi etorri berriro ere"
@@ -71,7 +71,7 @@
     "message": "Pasahitz nagusia ahazten baduzu, pista batek pasahitza gogoratzen lagunduko dizu."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Zure pasahitza ahazten bazaizu, pasahitzaren pista emailez bidal dezakegu. Gehienez $CURRENT$/$MAXIMUM$ karaktere.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -90,7 +90,7 @@
     "message": "Pasahitz nagusirako pista (aukerakoa)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Pasahitzaren sendotasun puntuazioa $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -99,10 +99,10 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Erakundearen kide egin"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$-ren kide egin",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -111,7 +111,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Bukatu erakunde honen kide egitea pasahitz nagusi bat ezarriz."
   },
   "tab": {
     "message": "Fitxak"
@@ -138,7 +138,7 @@
     "message": "Kopiatu pasahitza"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopiatu esaldi-gakoa"
   },
   "copyNote": {
     "message": "Kopiatu oharra"
@@ -159,28 +159,28 @@
     "message": "Izena kopiatu"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopiatu enpresa"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopiatu segurtasun sozialaren zenbakia"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopiatu pasaporte zenbakia"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopiatu lizentzia zenbakia"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiatu gako pribatua"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiatu gako publikoa"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopiatu hatz-marka"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopiatu $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -189,7 +189,7 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopiatu webgunea"
   },
   "copyNotes": {
     "message": "Kopiatu oharrak"
@@ -206,7 +206,7 @@
     "message": "Auto-betetzea"
   },
   "autoFillLogin": {
-    "message": "Autofill login"
+    "message": "Saio-hasiera autobetetzea"
   },
   "autoFillCard": {
     "message": "Auto-bete txartela"
@@ -261,16 +261,16 @@
     "message": "Gehitu elementua"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Kontuaren e-maila"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Argibidea eskatu"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Pasahitz-laguntza eskatu"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Idatzi zure kontuaren e-maila eta pasahitzaren argibidea bidaliko dizugu"
   },
   "getMasterPasswordHint": {
     "message": "Jaso pasahitz nagusiaren pista"
@@ -297,10 +297,10 @@
     "message": "Aldatu pasahitz nagusia"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Web aplikaziora jarraitu?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Esploratu zure Bitwarden kontuaren funtzio gehiago web-aplikazioan."
   },
   "continueToHelpCenter": {
     "message": "Continue to Help Center?"
@@ -332,7 +332,7 @@
     "message": "Itxi saioa"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Bitwardeni buruz"
   },
   "about": {
     "message": "Honi buruz"
@@ -398,10 +398,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Karpeta berria"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Karpetaren izena"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -440,7 +440,7 @@
     "message": "Sinkronizatu"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sinkronizatu orain"
   },
   "lastSync": {
     "message": "Azken sinkronizazioa:"
@@ -456,7 +456,7 @@
     "message": "Automatikoki pasahitz sendo eta bakarrak sortzen ditu zure saio-hasieratarako."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Bitwarden web aplikazioa"
   },
   "select": {
     "message": "Hautatu"
@@ -489,11 +489,11 @@
     "message": "Luzera"
   },
   "include": {
-    "message": "Include",
+    "message": "Sartu",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Sartu letra maiuskulak",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -501,7 +501,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Sartu letra minuskulak",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -509,7 +509,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Sartu zenbakiak",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -517,7 +517,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Sartu karaktere bereziak",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -607,16 +604,16 @@
     "message": "Erakutsi"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Ikusi denak"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Dena erakutsi"
   },
   "viewLess": {
     "message": "View less"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Ikusi saio-hasiera"
   },
   "noItemsInList": {
     "message": "Ez dago erakusteko elementurik."
@@ -946,16 +943,16 @@
     "message": "Saioa amaitu da."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Hasi saioa"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Sartu Bitwardenera"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Sartu e-mailera bidali dizugun kodea"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Sartu zure egiaztapenerako aplikazioko kodea"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -1344,11 +1341,11 @@
     "message": "Export from"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Esportatu",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Esportatu",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
@@ -1768,7 +1765,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Autobetetzeko iradokizunak"
   },
   "autofillSpotlightTitle": {
     "message": "Easily find autofill suggestions"
@@ -2165,7 +2162,7 @@
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Ikusi saio-hasiera",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
@@ -2203,7 +2200,7 @@
     "message": "Bildumak"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ bilduma",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2928,7 +2925,7 @@
     }
   },
   "send": {
-    "message": "Send",
+    "message": "Bidali",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
@@ -4019,7 +4016,7 @@
     "message": "required"
   },
   "search": {
-    "message": "Search"
+    "message": "Bilatu"
   },
   "inputMinLength": {
     "message": "Input must be at least $COUNT$ characters long.",
@@ -4346,7 +4343,7 @@
     "message": "Select a folder"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Bilduma bat aukeratu"
   },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
@@ -4525,7 +4522,7 @@
     "message": "Try again or look for an email from LastPass to verify it's you."
   },
   "collection": {
-    "message": "Collection"
+    "message": "Bilduma"
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
@@ -4686,7 +4683,7 @@
     "message": "Passkey removed"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Autobetetzeko proposamenak"
   },
   "itemSuggestions": {
     "message": "Suggested items"
@@ -4812,7 +4809,7 @@
     "message": "No values to copy"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Esleitu bildumetan"
   },
   "copyEmail": {
     "message": "Copy email"
@@ -4904,7 +4901,7 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Berria"
   },
   "removeItem": {
     "message": "Remove $NAME$",
@@ -4942,10 +4939,10 @@
     "message": "Additional information"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Aldaketen historia"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Azken edizioa"
   },
   "ownerYou": {
     "message": "Owner: You"
@@ -5029,7 +5026,7 @@
     "message": "Filters"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Iragazi kutxa gotorra"
   },
   "filterApplied": {
     "message": "One filter applied"
@@ -5066,13 +5063,13 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Saio-hasierako kredentzialak"
   },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Autobetetzeko aukerak"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -5866,7 +5863,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Sortu pasahitzak azkar"
   },
   "generatorNudgeBodyOne": {
     "message": "Easily create strong and unique passwords by clicking on",
@@ -5879,7 +5876,7 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Sortu erraz pasahitz sendo eta bakarrak Sortu pasahitza botoian klik eginez, zure saio-hasierak seguru mantentzen laguntzeko.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
@@ -6107,7 +6104,7 @@
     "message": "Items"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Bilaketaren emaitzak"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"

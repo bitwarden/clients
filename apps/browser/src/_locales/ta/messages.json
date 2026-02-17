@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் இங்கே தோன்றும், மேலும் அவை பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்படும்."
   },
-  "itemWasSentToArchive": {
-    "message": "ஆவணம் காப்பகத்திற்கு அனுப்பப்பட்டது"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "காப்பகம் மீட்டெடுக்கப்பட்டது"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "உருப்படியைக் காப்பகப்படுத்து"

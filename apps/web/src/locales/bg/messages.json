@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Абонаментът е подновен."
   },
+  "resubscribe": {
+    "message": "Подновявана на абонамента"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Абонаментът Ви е изтекъл"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Абонаментът Ви е прекратен"
+  },
   "cancelConfirmation": {
     "message": "Уверени ли сте, че искате да прекратите абонамента? След края на последно платения период ще загубите всички допълнителни преимущества."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Преглед на изпращането",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Потвърдете е-пощата си, за да видите това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemWasSentToArchive": {
-    "message": "Елементът беше преместен в архива"
+  "itemArchiveToast": {
+    "message": "Елементът е преместен в архива"
   },
-  "itemWasUnarchived": {
-    "message": "Елементът беше изваден от архива"
-  },
-  "itemUnarchived": {
-    "message": "Елементът беше изваден от архива"
+  "itemUnarchivedToast": {
+    "message": "Елементът е изваден от архива"
   },
   "bulkArchiveItems": {
     "message": "Елементите са архивирани"

@@ -12,7 +12,7 @@ import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import AutofillService from "@bitwarden/browser/autofill/services/autofill.service";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";

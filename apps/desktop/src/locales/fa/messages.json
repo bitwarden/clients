@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "آیتم‌های بایگانی‌شده در اینجا نمایش داده می‌شوند و از نتایج جستجوی عمومی و پیشنهاد ها پر کردن خودکار حذف خواهند شد."
   },
-  "itemWasSentToArchive": {
-    "message": "آیتم به بایگانی فرستاده شد"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "آیتم از بایگانی خارج شد"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "بایگانی آیتم"

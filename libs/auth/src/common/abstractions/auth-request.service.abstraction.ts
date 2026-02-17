@@ -72,7 +72,7 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: ArrayBuffer,
+    authReqPrivateKey: Uint8Array,
     userId: UserId,
   ): Promise<void>;
   /**
@@ -83,7 +83,7 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract setKeysAfterDecryptingSharedMasterKeyAndHash(
     authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: ArrayBuffer,
+    authReqPrivateKey: Uint8Array,
     userId: UserId,
   ): Promise<void>;
   /**
@@ -94,7 +94,7 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract decryptPubKeyEncryptedUserKey(
     pubKeyEncryptedUserKey: string,
-    privateKey: ArrayBuffer,
+    privateKey: Uint8Array,
   ): Promise<UserKey>;
   /**
    * Decrypts a `MasterKey` and `MasterKeyHash` from a public key encrypted `MasterKey` and `MasterKeyHash`.
@@ -106,7 +106,7 @@ export abstract class AuthRequestServiceAbstraction {
   abstract decryptPubKeyEncryptedMasterKeyAndHash(
     pubKeyEncryptedMasterKey: string,
     pubKeyEncryptedMasterKeyHash: string,
-    privateKey: ArrayBuffer,
+    privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
 
   /**

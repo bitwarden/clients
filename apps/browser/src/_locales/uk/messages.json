@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Запис архівовано"
   },
-  "itemWasUnarchived": {
-    "message": "Запис розархівовано"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Запис розархівовано"
   },
   "archiveItem": {
@@ -5964,7 +5961,7 @@
     "message": "Номер картки"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Помилка: неможливо розшифрувати"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
@@ -6128,7 +6125,7 @@
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Завантажити програми Bitwarden"
   },
   "emailProtected": {
     "message": "Е-пошту захищено"

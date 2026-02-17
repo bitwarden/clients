@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Los elementos archivados aparecerán aquí y se excluirán de los resultados de búsqueda generales y de sugerencias de autocompletado."
   },
-  "itemWasSentToArchive": {
-    "message": "El elemento fue archivado"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "El elemento fue desarchivado"
-  },
-  "itemUnarchived": {
-    "message": "El elemento fue desarchivado"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archivar elemento"
@@ -6113,7 +6110,7 @@
     "message": "Resize side navigation"
   },
   "whoCanView": {
-    "message": "Quien puede ver"
+    "message": "Quién puede ver"
   },
   "specificPeople": {
     "message": "Personas específicas"

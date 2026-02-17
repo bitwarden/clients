@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Abonelik sürdürüldü."
   },
+  "resubscribe": {
+    "message": "Yeniden abone ol"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Aboneliğiniz sona erdi"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Aboneliğiniz iptal edildi"
+  },
   "cancelConfirmation": {
     "message": "İptal etmek istediğinden emin misin? Bu fatura döneminin sonunda bu aboneliğin tüm özelliklerine erişiminizi kaybedeceksiniz."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Send'i görüntüle",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Bu Send'i görmek için e-posta adresinizi doğrulayın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,13 +11909,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünür ve genel arama sonuçları ile otomatik doldurma önerilerinden hariç tutulur."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemWasUnarchived": {
-    "message": "Kayıt arşivden çıkarıldı"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "bulkArchiveItems": {

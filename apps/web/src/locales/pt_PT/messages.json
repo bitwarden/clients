@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "A subscrição foi restabelecida."
   },
+  "resubscribe": {
+    "message": "Renovar a subscrição"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "A sua subscrição expirou"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "A sua subscrição foi cancelada"
+  },
   "cancelConfirmation": {
     "message": "Tem a certeza de que pretende cancelar? Perderá o acesso a todas as funcionalidades desta subscrição no final deste ciclo de faturação."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Ver Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Confirme o seu e-mail para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemWasSentToArchive": {
-    "message": "O item foi movido para o arquivo"
+  "itemArchiveToast": {
+    "message": "Item arquivado"
   },
-  "itemWasUnarchived": {
-    "message": "O item foi desarquivado"
-  },
-  "itemUnarchived": {
-    "message": "O item foi desarquivado"
+  "itemUnarchivedToast": {
+    "message": "Item desarquivado"
   },
   "bulkArchiveItems": {
     "message": "Itens arquivados"
