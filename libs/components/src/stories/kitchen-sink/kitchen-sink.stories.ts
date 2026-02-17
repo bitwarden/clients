@@ -13,6 +13,7 @@ import {
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../../layout";
@@ -69,6 +70,13 @@ export default {
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
             });
+          },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
           },
         },
         {

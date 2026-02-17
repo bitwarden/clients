@@ -1,7 +1,11 @@
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
+import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
@@ -21,11 +25,18 @@ export class AccountBillingClient {
     return this.apiService.send("GET", path, null, true, true);
   };
 
-  getSubscription = async (): Promise<BitwardenSubscription> => {
+  getSubscription = async (): Promise<Maybe<BitwardenSubscription>> => {
     const path = `${this.endpoint}/subscription`;
-    const json = await this.apiService.send("GET", path, null, true, true);
-    const response = new BitwardenSubscriptionResponse(json);
-    return response.toDomain();
+    try {
+      const json = await this.apiService.send("GET", path, null, true, true);
+      const response = new BitwardenSubscriptionResponse(json);
+      return response.toDomain();
+    } catch (error: any) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   };
 
   purchaseSubscription = async (
@@ -52,5 +63,28 @@ export class AccountBillingClient {
   updateSubscriptionStorage = async (additionalStorageGb: number): Promise<void> => {
     const path = `${this.endpoint}/subscription/storage`;
     await this.apiService.send("PUT", path, { additionalStorageGb }, true, false);
+  };
+
+  upgradePremiumToOrganization = async (
+    organizationName: string,
+    organizationKey: string,
+    planTier: ProductTierType,
+    cadence: SubscriptionCadence,
+    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+  ): Promise<void> => {
+    const path = `${this.endpoint}/upgrade`;
+    await this.apiService.send(
+      "POST",
+      path,
+      {
+        organizationName,
+        key: organizationKey,
+        targetProductTierType: planTier,
+        cadence,
+        billingAddress,
+      },
+      true,
+      false,
+    );
   };
 }

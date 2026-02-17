@@ -256,7 +256,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.lockService.lock(message.userId);
+            await this.lockService.lock(message.userId ?? this.activeUserId);
             break;
           case "lockAllVaults": {
             await this.lockService.lockAll();

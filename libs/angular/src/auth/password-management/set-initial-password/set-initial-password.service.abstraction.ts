@@ -1,5 +1,5 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
@@ -55,10 +55,38 @@ export interface SetInitialPasswordCredentials {
   salt: MasterPasswordSalt;
 }
 
+export interface SetInitialPasswordTdeUserWithPermissionCredentials {
+  newPassword: string;
+  salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
+  newPasswordHint: string;
+  orgSsoIdentifier: string;
+  orgId: OrganizationId;
+  resetPasswordAutoEnroll: boolean;
+}
+
 export interface SetInitialPasswordTdeOffboardingCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
   newPasswordHint: string;
+}
+
+/**
+ * Credentials required to initialize a just-in-time (JIT) provisioned user with a master password.
+ */
+export interface InitializeJitPasswordCredentials {
+  /** Hint for the new master password */
+  newPasswordHint: string;
+  /** SSO identifier for the organization */
+  orgSsoIdentifier: string;
+  /** Organization ID */
+  orgId: OrganizationId;
+  /** Whether to auto-enroll the user in account recovery (reset password) */
+  resetPasswordAutoEnroll: boolean;
+  /** The new master password */
+  newPassword: string;
+  /** Master password salt (typically the user's email) */
+  salt: MasterPasswordSalt;
 }
 
 /**
@@ -69,6 +97,8 @@ export interface SetInitialPasswordTdeOffboardingCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -84,6 +114,19 @@ export abstract class SetInitialPasswordService {
   ) => Promise<void>;
 
   /**
+   * Sets an initial password for an existing authed TDE user who has been given the
+   * Manage Account Recovery permission:
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object not found, or if userKey is not found
+   */
+  abstract setInitialPasswordTdeUserWithPermission: (
+    credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
    * Sets an initial password for a user who logs in after their org offboarded from
    * trusted device encryption and is now a master-password-encryption org:
    * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
@@ -95,4 +138,14 @@ export abstract class SetInitialPasswordService {
     credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) => Promise<void>;
+
+  /**
+   * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
+   * @param credentials The credentials needed to initialize the JIT password user
+   * @param userId The account userId
+   */
+  abstract initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void>;
 }

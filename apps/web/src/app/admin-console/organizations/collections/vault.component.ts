@@ -27,19 +27,22 @@ import {
   takeUntil,
 } from "rxjs/operators";
 
-import {
-  CollectionAdminService,
-  CollectionAdminView,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
+import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionView,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getFlatCollectionTree,
+  getNestedCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -81,6 +84,13 @@ import {
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  createFilterFunction,
+  All,
+  RoutedVaultFilterModel,
+  VaultFilter,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -102,15 +112,6 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
-import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
-import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
@@ -126,7 +127,6 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -472,7 +472,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               collections,
               filter.collectionId,
             );
-            searchableCollectionNodes = selectedCollection.children ?? [];
+            searchableCollectionNodes = selectedCollection?.children ?? [];
           }
 
           let collectionsToReturn: CollectionAdminView[] = [];
@@ -920,14 +920,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const organization = await firstValueFrom(this.organization$);
-    const disableForm = cipher ? !cipher.edit && !organization.canEditAllCiphers : false;
-    // If the form is disabled, force the mode into `view`
-    const dialogMode = disableForm ? "view" : mode;
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode: dialogMode,
+      mode,
       formConfig,
-      disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
@@ -967,10 +962,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike): Promise<boolean> => {
+  restore = async (c: CipherViewLike): Promise<void> => {
     const organization = await firstValueFrom(this.organization$);
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (
@@ -979,11 +974,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       !organization.allowAdminAccessToAllCollectionItems
     ) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     // Allow restore of an Unassigned Item
@@ -1001,10 +996,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("restoredItem"),
       });
       this.refresh();
-      return true;
+      return;
     } catch (e) {
       this.logService.error(e);
-      return false;
+      return;
     }
   };
 
@@ -1318,7 +1313,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });

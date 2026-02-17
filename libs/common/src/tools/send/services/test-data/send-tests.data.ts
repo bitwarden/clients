@@ -20,6 +20,7 @@ export function testSendViewData(id: string, name: string) {
   data.deletionDate = null;
   data.notes = "Notes!!";
   data.key = null;
+  data.emails = [];
   return data;
 }
 
@@ -39,6 +40,7 @@ export function createSendData(value: Partial<SendData> = {}) {
     expirationDate: "2024-09-04",
     deletionDate: "2024-09-04",
     password: "password",
+    emails: "",
     disabled: false,
     hideEmail: false,
   };
@@ -62,6 +64,7 @@ export function testSendData(id: string, name: string) {
   data.deletionDate = null;
   data.notes = "Notes!!";
   data.key = null;
+  data.emails = "";
   return data;
 }
 
@@ -77,5 +80,6 @@ export function testSend(id: string, name: string) {
   data.deletionDate = null;
   data.notes = new EncString("Notes!!");
   data.key = null;
+  data.emails = "";
   return data;
 }

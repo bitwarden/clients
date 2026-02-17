@@ -1,4 +1,5 @@
-import { Collection } from "./collection";
+import { Collection } from "@bitwarden/common/admin-console/models/collections";
+
 import { BaseCollectionRequest } from "./collection.request";
 
 export class CollectionWithIdRequest extends BaseCollectionRequest {

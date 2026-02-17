@@ -192,7 +192,7 @@ export class MenuTriggerForDirective implements OnDestroy {
       return;
     }
 
-    const escKey = this.overlayRef.keydownEvents().pipe(
+    const keyEvents = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
         const keys = this.menu().ariaRole() === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
@@ -202,8 +202,8 @@ export class MenuTriggerForDirective implements OnDestroy {
     const detachments = this.overlayRef.detachments();
 
     const closeEvents = isContextMenu
-      ? merge(detachments, escKey, menuClosed)
-      : merge(detachments, escKey, this.overlayRef.backdropClick(), menuClosed);
+      ? merge(detachments, keyEvents, menuClosed)
+      : merge(detachments, keyEvents, this.overlayRef.backdropClick(), menuClosed);
 
     this.closedEventsSub = closeEvents
       .pipe(takeUntil(this.overlayRef.detachments()))
@@ -215,9 +215,9 @@ export class MenuTriggerForDirective implements OnDestroy {
           event.preventDefault();
         }
 
-        if (event instanceof KeyboardEvent && (event.key === "Tab" || event.key === "Escape")) {
-          this.elementRef.nativeElement.focus();
-        }
+        // Move focus to the menu trigger, since any active menu items are about to be destroyed
+        this.elementRef.nativeElement.focus();
+
         this.destroyMenu();
       });
   }

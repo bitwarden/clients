@@ -1,30 +1,29 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
+import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import {
+  PasswordRepromptService,
+  CipherFormConfigService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+} from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
-import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../exposed-passwords-report.component";
 
@@ -42,13 +41,13 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
 })
 export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent
   implements OnInit
 {
-  manageableCiphers: Cipher[];
+  private manageableCiphers: Cipher[] = [];
 
   constructor(
     cipherService: CipherService,
@@ -79,24 +78,32 @@ export class ExposedPasswordsReportComponent
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(params.organizationId)),
-      );
-      this.manageableCiphers = await this.cipherService.getAll(userId);
-    });
+    this.route.parent?.parent?.params
+      .pipe(
+        tap(async (params) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+          this.organization = await firstValueFrom(
+            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+          );
+          this.manageableCiphers = await this.cipherService.getAll(userId);
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
-  getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+  async getAllCiphers(): Promise<CipherView[]> {
+    if (this.organization) {
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+    }
+    return [];
   }
 
   canManageCipher(c: CipherView): boolean {
     if (c.collectionIds.length === 0) {
+      return true;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
     return this.manageableCiphers.some((x) => x.id === c.id);
