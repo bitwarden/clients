@@ -49,7 +49,7 @@
 
         @if (open) {
           <div
-            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-1 [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-border-focus [&>*]:tw-text-fg-sidenav-text empty:tw-hidden"
+            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-1 [&>*]:tw-text-fg-sidenav-text empty:tw-hidden"
             (click)="$event.stopPropagation()"
           >
             <ng-content select="[slot=end]"></ng-content>
