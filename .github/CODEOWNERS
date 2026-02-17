@@ -66,6 +66,7 @@ apps/web/src/locales @bitwarden/team-platform-dev
 apps/browser/src/vault @bitwarden/team-vault-dev
 apps/cli/src/vault @bitwarden/team-vault-dev
 apps/desktop/src/vault @bitwarden/team-vault-dev
+apps/web/src/app/shared/components/onboarding @bitwarden/team-vault-dev
 apps/web/src/app/vault @bitwarden/team-vault-dev
 libs/angular/src/vault @bitwarden/team-vault-dev
 libs/common/src/vault @bitwarden/team-vault-dev
