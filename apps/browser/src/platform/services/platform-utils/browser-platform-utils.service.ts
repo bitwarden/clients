@@ -150,37 +150,47 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   /**
-   * Identifies if the vault popup is currently open. This is done by sending a
-   * message to the popup and waiting for a response. If a response is received,
-   * the view is open.
+   * Identifies if the vault popup is currently open and active.
+   *
+   * For popout windows, only returns true if the popout has focus.
+   * Unfocused popout windows should not prevent vault timeout (PM-24047).
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (service worker context)
+   * and `chrome.extension.getViews()` on MV2/Safari (background page context).
    */
   async isPopupOpen(): Promise<boolean> {
-    if (this.isSafari()) {
-      // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
-      return BrowserApi.isPopupOpen();
+    if (BrowserApi.isManifestVersion(3) && !this.isSafari()) {
+      return this.isPopupOpenMV3();
     }
 
-    return new Promise<boolean>((resolve, reject) => {
-      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
-        if (chrome.runtime.lastError != null) {
-          // This error means that nothing was there to listen to the message,
-          // meaning the view is not open.
-          if (
-            chrome.runtime.lastError.message ===
-            "Could not establish connection. Receiving end does not exist."
-          ) {
-            resolve(false);
-            return;
-          }
+    // MV2 (Firefox) and Safari — background page can use getExtensionViews
+    return BrowserApi.isPopupOpen();
+  }
 
-          // All unhandled errors still reject
-          reject(chrome.runtime.lastError);
-          return;
+  private async isPopupOpenMV3(): Promise<boolean> {
+    const contexts = await chrome.runtime.getContexts({});
+
+    for (const context of contexts) {
+      // Main popup — always considered open (auto-closes on blur)
+      if (context.contextType === "POPUP") {
+        return true;
+      }
+
+      // Side panel — always considered open
+      if (context.contextType === "SIDE_PANEL") {
+        return true;
+      }
+
+      // Tab context — check if it's a popout window with focus
+      if (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
         }
+      }
+    }
 
-        resolve(Boolean(response));
-      });
-    });
+    return false;
   }
 
   lockTimeout(): number {

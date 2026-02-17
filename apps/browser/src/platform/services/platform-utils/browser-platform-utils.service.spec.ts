@@ -145,39 +145,94 @@ describe("Browser Utils Service", () => {
   });
 
   describe("isViewOpen", () => {
-    it("returns false if a heartbeat response is not received", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        callback(undefined);
+    describe("MV3 (getContexts)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(3);
+        jest
+          .spyOn(browserPlatformUtilsService, "getDevice")
+          .mockReturnValue(DeviceType.ChromeExtension);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
 
-      expect(isViewOpen).toBe(false);
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+          ]);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+      });
+
+      it("returns true when a SIDE_PANEL context exists", async () => {
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "SIDE_PANEL", documentUrl: "chrome-extension://id/popup/index.html" },
+          ]);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+      });
+
+      it("returns true when a popout TAB context has a focused window", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: true }));
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false when a popout TAB context has an unfocused window", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: false }));
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([]);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(false);
+      });
     });
 
-    it("returns true if a heartbeat response is received", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        callback(message.command === "checkVaultPopupHeartbeat");
+    describe("MV2 / Safari (getExtensionViews)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(2);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
-
-      expect(isViewOpen).toBe(true);
-    });
-
-    it("returns false if special error is sent", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        (chrome.runtime.lastError as any) = new Error(
-          "Could not establish connection. Receiving end does not exist.",
-        );
-        callback(undefined);
+      afterEach(() => {
+        jest.clearAllMocks();
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
+      it("delegates to BrowserApi.isPopupOpen", async () => {
+        const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
 
-      expect(isViewOpen).toBe(false);
-
-      (chrome.runtime.lastError as any) = null;
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 

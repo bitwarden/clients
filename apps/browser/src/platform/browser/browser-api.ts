@@ -464,10 +464,27 @@ export class BrowserApi {
 
   /**
    * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * and returns whether any are currently open and active.
+   *
+   * For popout windows (identified by `uilocation=popout` in the URL),
+   * only returns true if the popout has focus. Unfocused popout windows
+   * should not prevent vault timeout (PM-24047).
+   *
+   * Main popup and sidebar views are always considered active since
+   * the main popup auto-closes on blur and the sidebar is always visible.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    const views = BrowserApi.getExtensionViews({ type: "popup" });
+    for (const view of views) {
+      const isPopout = view.location.href.includes("uilocation=popout");
+      if (!isPopout) {
+        return true;
+      }
+      if (view.document.hasFocus()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
