@@ -6155,16 +6155,19 @@
     "message": "I accept these risks and policy updates"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Automatic user confirmation enabled by admin"
+    "message": "Turned on Automatic user confirmation setting"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Automatic user confirmation disabled by admin"
+    "message": "Turned off Automatic user confirmation setting"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Automatic user confirmation enabled by Bitwarden"
+    "message": "Added Automatic user confirmation policy"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Automatic user confirmation disabled by Bitwarden"
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Remove individual vault"
