@@ -18,6 +18,7 @@ mod windowing;
 /// This function returns an `anyhow::Error` if there is any
 /// issue obtaining the window title. Detailed reasons will
 /// vary based on platform implementation.
+/// hi
 pub fn get_foreground_window_title() -> Result<String> {
     windowing::get_foreground_window_title()
 }
