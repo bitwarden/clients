@@ -123,6 +123,12 @@ export class BaseChipDirective {
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input(false, { transform: booleanAttribute });
 
+  /**
+   * Tailwind max-width class to apply when truncating is enabled.
+   * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
+   */
+  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
+
   /** Disabled state of the chip */
   readonly disabled = input(false, { transform: booleanAttribute });
 
@@ -130,10 +136,12 @@ export class BaseChipDirective {
    * Computed class list based on variant, size, and state
    */
   protected readonly classList = computed(() => {
+    const maxWidth = this.maxWidthClass() || "tw-max-w-52";
+
     const classes = [
       ...commonStyles,
       ...sizeStyles[this.size()],
-      this.fullWidth() ? "tw-w-full" : "tw-max-w-52",
+      this.fullWidth() ? "tw-w-full" : maxWidth,
     ];
 
     if (this.selected()) {
