@@ -3,6 +3,11 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService } from "@bitwarden/components";
+import {
+  AccountRecoveryTrustComponent,
+  EmergencyAccessTrustComponent,
+  KeyRotationTrustInfoComponent,
+} from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
@@ -48,11 +53,6 @@ jest.mock("@bitwarden/key-management-ui", () => ({
   },
 }));
 
-import {
-  AccountRecoveryTrustComponent,
-  EmergencyAccessTrustComponent,
-  KeyRotationTrustInfoComponent,
-} from "@bitwarden/key-management-ui";
 
 describe("DefaultUserKeyRotationService", () => {
   let service: DefaultUserKeyRotationService;
