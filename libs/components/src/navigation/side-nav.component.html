@@ -30,9 +30,9 @@
         <button
           #toggleButton
           type="button"
-          class="tw-mx-auto tw-block tw-max-w-fit"
+          class="tw-mx-auto tw-block"
           [bitIconButton]="open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="nav-contrast"
+          buttonType="side-nav"
           size="small"
           (click)="sideNavService.toggle()"
           [label]="'toggleSideNavigation' | i18n"

@@ -19,7 +19,7 @@ let nextId = 0;
  * <button
  *   type="button"
  *   bitIconButton="bwi-sliders"
- *   buttonType="muted"
+ *   buttonType="primaryGhost"
  *   [bitDisclosureTriggerFor]="disclosureRef"
  *   [label]="'Settings' | i18n"
  * ></button>
