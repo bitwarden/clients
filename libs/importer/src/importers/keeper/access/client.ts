@@ -528,8 +528,8 @@ export class Client {
 
       case TwoFactorChannelType.TWO_FA_CT_DUO: {
         const duoMethods = channel.capabilities
-          .map((cap) => this.duoCapabilityToMethod.get(cap))
-          .filter((x) => x !== undefined);
+          .map((cap: string) => this.duoCapabilityToMethod.get(cap))
+          .filter((x: DuoMethod | undefined): x is DuoMethod => x !== undefined);
 
         const duoMethod = this.throwIfCancel(
           await this.ui.selectDuoMethod(duoMethods, channel.phoneNumber),

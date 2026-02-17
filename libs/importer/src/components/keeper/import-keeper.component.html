@@ -10,13 +10,4 @@
       <bit-option *ngFor="let r of regions" [value]="r.value" [label]="r.label" />
     </bit-select>
   </bit-form-field>
-  <bit-form-control>
-    <input
-      bitCheckbox
-      type="checkbox"
-      formControlName="includeSharedFolders"
-      id="import-keeper_input_includeSharedFolders"
-    />
-    <bit-label>{{ "includeSharedFolders" | i18n }}</bit-label>
-  </bit-form-control>
 </div>
