@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Проанализируйте пароли, подверженные риску (слабые, скомпрометированные или повторно используемые), во всех приложениях. Выберите наиболее критичные приложения, чтобы определить приоритетные меры безопасности для пользователей, направленные на устранение подверженных риску паролей."
+  "reviewAccessIntelligence": {
+    "message": "Просматривайте отчеты по безопасности, чтобы выявлять и устранять риски, связанные с учетными данными, до того, как они приведут к серьезным последствиям."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Обзор логинов, подверженных риску"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "Помечены как критичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "Помечены как критичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "Помечены как некритичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Пометить как критичное: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Пометить как некритичное: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3302,6 +3338,15 @@
   "reinstated": {
     "message": "Подписка восстановлена."
   },
+  "resubscribe": {
+    "message": "Возобновить подписку"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Срок действия вашей подписки истек"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Ваша подписка отменена"
+  },
   "cancelConfirmation": {
     "message": "Вы действительно хотите отменить? Вы потеряете доступ ко всем возможностям этой подписки в конце этого платежного периода."
   },
@@ -5394,7 +5439,7 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Тип пароля",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6393,6 +6438,10 @@
     "message": "Просмотр Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Подтвердите свой адрес email, чтобы просмотреть эту Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Пользователь Bitwarden, создавший эту Send, решил скрыть свой адрес email. Вы должны убедиться, что доверяете источнику этой ссылки, прежде чем использовать или скачивать ее содержимое.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6637,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ из $SELECTEDCOUNT$ пользователей повторно приглашены. $EXCLUDEDCOUNT$ не был приглашен из-за лимита приглашений $LIMIT$.",
     "placeholders": {
@@ -6653,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Удален(-о) успешно"
@@ -10092,6 +10197,9 @@
   "assignTasks": {
     "message": "Назначить задачи"
   },
+  "allTasksAssigned": {
+    "message": "Все задачи были назначены"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Отправляйте уведомления о смене паролей"
   },
@@ -11801,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemsWereSentToArchive": {
-    "message": "Элементы были отправлены в архив"
-  },
-  "itemWasUnarchived": {
-    "message": "Элемент был разархивирован"
-  },
-  "itemUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "bulkArchiveItems": {
     "message": "Элементы архивированы"
@@ -12490,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Вы действительно хотите продолжить?"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
@@ -12794,5 +12899,54 @@
   },
   "perUser": {
     "message": "на пользователя"
+  },
+  "upgradeToTeams": {
+    "message": "Перейти на Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Перейти на Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Цены указаны без учета налогов и оплачиваются ежегодно."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Обнаружена ошибка при создании предварительного просмотра счета."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Кредит на Премиум"
+  },
+  "enterpriseMembership": {
+    "message": "Членство в организации"
+  },
+  "teamsMembership": {
+    "message": "Членство в команде"
+  },
+  "plansUpdated": {
+    "message": "Вы обновились до $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Произошла ошибка при обновлении способа оплаты."
   }
 }

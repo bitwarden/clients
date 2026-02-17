@@ -10,6 +10,7 @@
           [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
           (change)="selectAllChanged($event.target)"
           [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+          [disabled]="dataSource().filteredData?.length === 0"
         />
       </th>
       <th bitCell></th>
