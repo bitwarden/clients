@@ -684,10 +684,6 @@ export default tseslint.config(
 
       "scripts/*.js",
       "jest.preset.js",
-
-      // TODO: See if we can get rid of this!
-      // Generated protobuf files for Keeper direct import
-      "libs/importer/src/importers/keeper/access/generated/**",
     ],
   },
 );
