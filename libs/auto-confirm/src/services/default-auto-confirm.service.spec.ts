@@ -397,7 +397,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       } as UserKeyResponse);
       jest.spyOn(Utils, "fromB64ToArray").mockReturnValue(mockPublicKeyArray);
       organizationUserService.buildConfirmRequest.mockReturnValue(of(mockConfirmRequest));
-      organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue(undefined);
+      organizationUserApiService.postOrganizationUserAutoConfirm.mockResolvedValue(undefined);
     });
 
     it("should successfully auto-confirm a user with organizationId", async () => {
@@ -408,7 +408,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         mockOrganization,
         mockPublicKeyArray,
       );
-      expect(organizationUserApiService.postOrganizationUserConfirm).toHaveBeenCalledWith(
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).toHaveBeenCalledWith(
         mockOrganizationId,
         mockConfirmingUserId,
         mockConfirmRequest,
@@ -421,7 +421,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 
       expect(apiService.getUserPublicKey).not.toHaveBeenCalled();
-      expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
     });
 
     it("should return early when auto-confirm is disabled in configuration", async () => {
@@ -436,7 +436,22 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 
       expect(apiService.getUserPublicKey).not.toHaveBeenCalled();
-      expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
+    });
+
+    it("should return early when auto-confirm is disabled in configuration", async () => {
+      const disabledConfig = new AutoConfirmState();
+      disabledConfig.enabled = false;
+      await stateProvider.setUserState(
+        AUTO_CONFIRM_STATE,
+        { [mockUserId]: disabledConfig },
+        mockUserId,
+      );
+
+      await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
+
+      expect(apiService.getUserPublicKey).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
     });
 
     it("should build confirm request with organization and public key", async () => {
@@ -451,7 +466,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should call API with correct parameters", async () => {
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 
-      expect(organizationUserApiService.postOrganizationUserConfirm).toHaveBeenCalledWith(
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).toHaveBeenCalledWith(
         mockOrganizationId,
         mockConfirmingUserId,
         mockConfirmRequest,
@@ -466,7 +481,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId),
       ).rejects.toThrow("API Error");
 
-      expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
     });
 
     it("should handle buildConfirmRequest errors gracefully", async () => {
@@ -477,7 +492,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId),
       ).rejects.toThrow("Build Error");
 
-      expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
     });
   });
 });
