@@ -35,6 +35,8 @@ export const Default: Story = {
         [startIcon]="startIcon"
         [endIcon]="endIcon"
         [label]="label"
+        [variant]="variant"
+        [size]="size"
       ></button>
     `,
   }),
