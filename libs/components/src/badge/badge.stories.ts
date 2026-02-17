@@ -75,6 +75,14 @@ export const AllVariants: Story = {
       </div>
     `,
   }),
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
+  },
 };
 
 export const Small: Story = {
