@@ -93,7 +93,7 @@ export class Client {
         : await this.registerDevice();
 
     const messageSessionUid = getRandomBytes(16);
-    const transmissionKey = await generateEncryptionKey();
+    const transmissionKey = generateEncryptionKey();
     let socket: SocketListener | null = null;
 
     try {
@@ -740,7 +740,7 @@ export class Client {
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const transmissionKey = await generateEncryptionKey();
+        const transmissionKey = generateEncryptionKey();
         const payloadBytes = ApiRequestPayload.toBinary(payload);
         const encryptedPayload = await encryptAesV2(new Uint8Array(payloadBytes), transmissionKey);
         const encryptedKey = await encryptWithKeeperKey(transmissionKey, keyId);
