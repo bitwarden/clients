@@ -1,6 +1,6 @@
 import { ArgTypes } from "@storybook/angular";
 
-import { BITWARDEN_ICONS } from "../shared/icon";
+import { BITWARDEN_ICONS } from "../../shared/icon";
 
 import { CHIP_SIZES, CHIP_VARIANTS } from "./base-chip.directive";
 

@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, input, inject } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
-import { BaseChipDirective } from "../base-chip.directive";
-import { ChipContentComponent } from "../chip-content.component";
+import { BaseChipDirective } from "../shared/base-chip.directive";
+import { ChipContentComponent } from "../shared/chip-content.component";
 
 @Component({
   selector: "a[bit-chip-action], button[bit-chip-action]",

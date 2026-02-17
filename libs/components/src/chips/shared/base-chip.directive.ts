@@ -1,7 +1,7 @@
 import { Directive, ElementRef, booleanAttribute, computed, inject, input } from "@angular/core";
 
-import { AriaDisableDirective } from "../a11y/aria-disable.directive";
-import { ariaDisableElement } from "../utils/aria-disable-element";
+import { AriaDisableDirective } from "../../a11y/aria-disable.directive";
+import { ariaDisableElement } from "../../utils/aria-disable-element";
 
 export type ChipVariant = "primary" | "subtle" | "accent-primary" | "accent-secondary";
 
