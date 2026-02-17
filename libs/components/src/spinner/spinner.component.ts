@@ -35,8 +35,8 @@ const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; backgro
     background: "tw-stroke-bg-quaternary",
   },
   contrast: {
-    foreground: "tw-stroke-bg-white",
-    background: "tw-stroke-bg-contrast",
+    foreground: "tw-stroke-bg-primary",
+    background: "tw-stroke-bg-contrast-soft",
   },
 };
 

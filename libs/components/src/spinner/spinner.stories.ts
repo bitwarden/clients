@@ -26,7 +26,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A16956",
+      url: "https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=33686-93406",
     },
   },
 } as Meta<SpinnerComponent>;
