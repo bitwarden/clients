@@ -44,12 +44,19 @@ export interface LoginResult {
   dataKey: Uint8Array;
 }
 
+export const KeeperRegion = Object.freeze({
+  Us: "keepersecurity.com",
+  Eu: "keepersecurity.eu",
+  Au: "keepersecurity.com.au",
+  Ca: "keepersecurity.ca",
+  Jp: "keepersecurity.jp",
+  UsGov: "govcloud.keepersecurity.us",
+} as const);
+export type KeeperRegion = (typeof KeeperRegion)[keyof typeof KeeperRegion];
+
 export interface ClientOptions {
-  // TODO: Make all not optional
-  server?: string;
-  clientVersion?: string;
-  deviceName?: string;
-  ui?: Ui;
+  region: KeeperRegion;
+  ui: Ui;
 
   // Cache for testing. Not needed in production use.
   deviceToken?: string; // Base64
@@ -64,17 +71,15 @@ interface DeviceCredentials {
 
 export class Client {
   private server: string;
-  private readonly clientVersion: string;
-  private readonly deviceName: string;
+  private readonly clientVersion: string = "ts17.0.0";
+  private readonly deviceName: string = "TypeScript Keeper SDK";
   private readonly ui: Ui;
   private serverKeyId: number = 7;
   private readonly locale: string = "en_US";
 
-  constructor(options: ClientOptions = {}) {
-    this.server = options.server || "keepersecurity.eu";
-    this.clientVersion = options.clientVersion || "ts17.0.0";
-    this.deviceName = options.deviceName || "TypeScript Keeper SDK";
-    this.ui = options.ui || ({} as Ui);
+  constructor(options: ClientOptions) {
+    this.server = options.region;
+    this.ui = options.ui;
   }
 
   async login(username: string, password: string, options: ClientOptions): Promise<LoginResult> {
