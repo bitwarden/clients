@@ -15,7 +15,7 @@
     "message": "Nessuna applicazione critica a rischio"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Rilevanza critica ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +24,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Rilevanza standard ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Intelligence sugli accessi"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Rischio password"
@@ -41,8 +47,8 @@
   "noEditPermissions": {
     "message": "Non hai il permesso per modificare questo elemento"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Controlla le password a rischio (deboli, esposte o riutilizzate). Seleziona le applicazioni critiche per determinare la priorità delle azioni di sicurezza."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Rivedi i login a rischio"
@@ -262,6 +268,42 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Impossibile contrassegnare le applicazioni come critiche"
   },
@@ -269,7 +311,7 @@
     "message": "Applicazione"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Applicazioni"
   },
   "atRiskPasswords": {
     "message": "Password a rischio"
@@ -608,7 +650,7 @@
     "message": "Email"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Indirizzi email"
   },
   "phone": {
     "message": "Telefono"
@@ -1241,6 +1283,9 @@
   "selectAll": {
     "message": "Seleziona tutto"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Deseleziona tutto"
   },
@@ -1390,10 +1435,10 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Chiunque abbia il link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Chiunque abbia una password impostata da te"
   },
   "location": {
     "message": "Luogo"
@@ -3293,6 +3338,15 @@
   "reinstated": {
     "message": "L'abbonamento è stato ripristinato."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Sei sicuro di voler annullare il tuo abbonamento? Alla fine di questo ciclo di fatturazione perderai l'accesso a tutte le funzionalità aggiuntive date dall'abbonamento."
   },
@@ -3312,7 +3366,7 @@
     "message": "Prossimo addebito"
   },
   "nextChargeDate": {
-    "message": "Next charge date"
+    "message": "Data del prossimo addebito"
   },
   "plan": {
     "message": "Piano"
@@ -3801,6 +3855,9 @@
   },
   "editCollection": {
     "message": "Modifica raccolta"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "Informazioni raccolta"
@@ -5382,8 +5439,8 @@
   "minimumNumberOfWords": {
     "message": "Numero minimo di parole"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Tipo di password",
+  "passwordTypePolicyOverride": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5639,10 +5696,6 @@
   "sendTypeText": {
     "message": "Testo"
   },
-  "sendPasswordDescV3": {
-    "message": "Richiedi ai destinatari una parola d'accesso opzionale per aprire questo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nuovo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5661,6 +5714,26 @@
   },
   "sendCreatedDescriptionV2": {
     "message": "Copia e condividi questo link di invio. Sarà disponibile a chiunque ne sia a disposizione la prossima $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6365,6 +6438,10 @@
     "message": "Visualizza Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "L'utente Bitwarden che ha creato questo Send ha nascosto il suo indirizzo email. Devi essere sicuro di fidarti della fonte di questo link prima di usare o scaricare il suo contenuto.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6609,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ utenti su $SELECTEDCOUNT$ ri-invitati. $EXCLUDEDCOUNT$ non hanno ricevuto l'invito a causa del limite di $LIMIT$ inviti.",
     "placeholders": {
@@ -6625,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Rimosso"
@@ -6959,16 +7092,16 @@
     "message": "Una o più politiche dell'organizzazione ti impediscono di esportare la tua cassaforte personale."
   },
   "activateAutofillPolicy": {
-    "message": "Activate autofill"
+    "message": "Attiva riempimento automatico"
   },
   "activateAutofillPolicyDescription": {
     "message": "Attiva il completamento automatico sulla pagina di caricamento delle impostazioni dell'estensione browser per tutti i membri nuovi ed esistenti."
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "Siti compromessi o inaffidabili possono sfruttare il riempimento automatico al caricamento della pagina."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "Ulteriori informazioni sul riempimento automatico"
   },
   "selectType": {
     "message": "Seleziona tipo di SSO"
@@ -10064,6 +10197,9 @@
   "assignTasks": {
     "message": "Assegna attività"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Invia notifiche ai membri per invitarli a modificare le loro password"
   },
@@ -10466,10 +10602,13 @@
     "message": "Invia i dati dell'evento della cassaforte all'istanza di Datadog"
   },
   "huntressEventIntegrationDesc": {
-    "message": "Send event data to your Huntress SIEM instance"
+    "message": "Invia i dati dell'evento all'istanza di Huntress SIEM"
   },
   "failedToSaveIntegration": {
     "message": "Impossibile salvare l'integrazione. Riprova più tardi."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Devi essere il proprietario dell'organizzazione per eseguire questa azione."
@@ -11770,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
   },
-  "itemWasSentToArchive": {
-    "message": "Elemento archiviato"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Elementi archiviati"
-  },
-  "itemWasUnarchived": {
-    "message": "Elemento estratto dall'archivio"
-  },
-  "itemUnarchived": {
-    "message": "Elemento estratto dall'archivio"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Elementi archiviati"
@@ -12153,7 +12286,7 @@
     "message": "Impossibile sbloccare con passkey. Riprova o utilizza un altro metodo."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock."
+    "message": "Non sono disponibili chiavi PRF abilitate per lo sblocco."
   },
   "additionalStorageGB": {
     "message": "Spazio di archiviazione aggiuntivo (GB)"
@@ -12459,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Vuoi davvero continuare?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
   },
@@ -12722,22 +12858,31 @@
     "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Chi può visualizzare"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Persone specifiche"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Inserisci più indirizzi email separandoli con virgole."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Sei un utente Premium"
@@ -12746,6 +12891,62 @@
     "message": "Email protetta"
   },
   "invalidSendPassword": {
-    "message": "Invalid Send password"
+    "message": "Password del Send non valida"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade to Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgrade to Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "You've upgraded to $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }

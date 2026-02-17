@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçlarından ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemWasUnarchived": {
-    "message": "Kayıt arşivden çıkarıldı"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -2747,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden bu alan adlarında hesaplarınızı kaydetmeyi sormayacaktır. Değişikliklerin etkili olması için sayfayı yenilemelisiniz."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden, oturum açmış tüm hesaplar için bu alan adlarının hesap bilgilerini kaydetmeyi sormayacaktır. Değişikliklerin etkili olması için sayfayı yenilemeniz gerekir."
-  },
   "blockedDomainsDesc": {
     "message": "Bu siteler için otomatik doldurma ve diğer ilgili özellikler önerilmeyecektir. Değişikliklerin devreye girmesi için sayfayı yenilemelisiniz."
   },
@@ -3035,10 +3029,6 @@
   "custom": {
     "message": "Özel"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3088,8 @@
     "message": "Send kaydedildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Uzantı dışarı alınsın mı?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Dosya Send'i oluşturmak için uzantıyı yeni bir pencere halinde dışarı almalısınız.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Dosya seçmek için eklentiyi kenar çubuğunda açın (mümkünse) veya bu banner'a tıklayarak yeni bir pencerede açın."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox ile dosya seçmek için eklentiyi kenar çubuğunda açın veya bu banner'a tıklayarak yeni bir pencerede açın."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari ile dosya seçmek için bu banner'a tıklayarak eklentiyi yeni bir pencerede açın."
-  },
   "popOut": {
     "message": "Dışarı al"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Başlamadan önce"
   },
   "expirationDateIsInvalid": {
     "message": "Belirtilen son kullanma tarihi geçersiz."
@@ -5990,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Kart numarası"
   },
+  "errorCannotDecrypt": {
+    "message": "Hata: Deşifre edilemiyor"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6127,6 +6100,12 @@
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
   },
+  "items": {
+    "message": "Kayıtlar"
+  },
+  "searchResults": {
+    "message": "Arama sonuçları"
+  },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
   },
@@ -6144,5 +6123,15 @@
   },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Bitwarden uygulamalarını indir"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
