@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "המנוי הופעל מחדש."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "האם אתה בטוח שברצונך לבטל? ביטול המנוי יגרום לאיבוד כל האפשרויות השמורות למנויים בסיום מחזור החיוב הנוכחי."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "הצג סֵנְד",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
   },
-  "itemWasSentToArchive": {
-    "message": "הפריט נשלח לארכיון"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "הפריט הוסר מהארכיון"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "הפריטים הועברו לארכיון"
