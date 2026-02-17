@@ -1,8 +1,6 @@
 import {
   Component,
   ElementRef,
-  HostBinding,
-  HostListener,
   booleanAttribute,
   computed,
   effect,
@@ -61,6 +59,11 @@ export type ChipFilterOption<T> = Option<T> & {
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "(focusin)": "onFocusIn($event.target)",
+    "(focusout)": "onFocusOut()",
+    "[class]": "classList()",
+  },
 })
 export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private readonly cdr = inject(ChangeDetectorRef);
@@ -99,19 +102,18 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
   protected readonly focusVisibleWithin = signal(false);
-  @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
+
+  protected onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
-  @HostListener("focusout")
-  onFocusOut() {
+
+  protected onFocusOut() {
     this.focusVisibleWithin.set(false);
   }
 
-  @HostBinding("class")
-  get classList() {
-    return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"];
-  }
+  protected readonly classList = computed(() => {
+    return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"].join(" ");
+  });
 
   /** Tree constructed from `this.options` */
   private rootTree?: ChipFilterOption<T> | null;
