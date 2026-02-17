@@ -4,6 +4,9 @@ import { AriaDisableDirective } from "../../a11y/aria-disable.directive";
 import { IconComponent } from "../../icon/icon.component";
 import { ariaDisableElement } from "../../utils/aria-disable-element";
 
+/**
+ * @internal This component is intended for internal use within the Chip component and is not exported for public use.
+ */
 @Component({
   selector: "button[bit-chip-dismiss-button]",
   standalone: true,
