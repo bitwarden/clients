@@ -22,6 +22,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { KeeperRegion } from "../../importers/keeper/access";
 import { ImportResult } from "../../models";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
@@ -47,12 +48,12 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   private _parentFormGroup: FormGroup;
 
   protected readonly regions = [
-    { value: "keepersecurity.com", label: "US" },
-    { value: "keepersecurity.eu", label: "EU" },
-    { value: "keepersecurity.com.au", label: "AU" },
-    { value: "keepersecurity.ca", label: "CA" },
-    { value: "keepersecurity.jp", label: "JP" },
-    { value: "govcloud.keepersecurity.us", label: "US (GOV)" },
+    { value: KeeperRegion.Us, label: "US" },
+    { value: KeeperRegion.Eu, label: "EU" },
+    { value: KeeperRegion.Au, label: "AU" },
+    { value: KeeperRegion.Ca, label: "CA" },
+    { value: KeeperRegion.Jp, label: "JP" },
+    { value: KeeperRegion.UsGov, label: "US (GOV)" },
   ];
 
   protected formGroup = this.formBuilder.group({
@@ -64,7 +65,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         updateOn: "submit",
       },
     ],
-    region: ["keepersecurity.com"],
+    region: [KeeperRegion.Us],
     includeSharedFolders: [false],
   });
   protected emailHint$ = this.formGroup.controls.email.statusChanges.pipe(
@@ -106,7 +107,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
       try {
         const importResult = await this.keeperDirectImportService.handleImport(
           this.formGroup.controls.email.value,
-          this.formGroup.controls.region.value,
+          this.formGroup.controls.region.value as KeeperRegion,
           this.formGroup.controls.includeSharedFolders.value,
         );
         this.importCompleted.emit(importResult);
