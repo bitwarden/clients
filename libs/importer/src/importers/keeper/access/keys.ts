@@ -54,7 +54,7 @@ export async function getKeeperEcKey(keyId: number): Promise<CryptoKey> {
 
 export async function encryptWithKeeperKey(data: Uint8Array, keyId: number): Promise<Uint8Array> {
   if (keyId >= 1 && keyId <= 6) {
-    return await encryptRsa(data, getKeeperRsaKeyBytes(keyId));
+    return encryptRsa(data, getKeeperRsaKeyBytes(keyId));
   } else if (keyId >= 7 && keyId <= 17) {
     const ecKey = await getKeeperEcKey(keyId);
     return await encryptEc(data, ecKey);

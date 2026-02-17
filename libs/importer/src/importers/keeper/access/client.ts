@@ -92,7 +92,7 @@ export class Client {
         ? await this.loadDeviceCredentials(options.deviceToken, options.devicePrivateKey)
         : await this.registerDevice();
 
-    const messageSessionUid = await getRandomBytes(16);
+    const messageSessionUid = getRandomBytes(16);
     const transmissionKey = await generateEncryptionKey();
     let socket: SocketListener | null = null;
 
