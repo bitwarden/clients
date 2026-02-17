@@ -189,7 +189,7 @@ describe("AutofillService", () => {
           sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
           tab,
         },
-        null,
+        undefined,
         true,
       );
     });
