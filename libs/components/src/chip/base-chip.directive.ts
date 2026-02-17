@@ -95,7 +95,10 @@ const commonStyles = [
   ...focusRing,
   ...inactiveStyles,
 ];
-
+/**
+ * Provides base styling and behavior for chip components, including variant and size options, disabled state handling, and accessibility features.
+ * @internal only to be used within lib/components
+ */
 @Directive({
   selector: "[bitBaseChip]",
   standalone: true,
