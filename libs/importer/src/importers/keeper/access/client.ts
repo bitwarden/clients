@@ -500,7 +500,24 @@ export class Client {
       case TwoFactorChannelType.TWO_FA_CT_TOTP: {
         // TODO: We only give one attempt for TOTP codes at the moment. Should we allow retries?
         const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
-        currentLoginToken = await this.validate2FA(currentLoginToken, code, channel.channelUid);
+        currentLoginToken = await this.validate2FA(
+          currentLoginToken,
+          code,
+          channel.channelUid,
+          TwoFactorValueType.TWO_FA_CODE_TOTP,
+        );
+        break;
+      }
+
+      case TwoFactorChannelType.TWO_FA_CT_SMS: {
+        await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
+        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms);
+        currentLoginToken = await this.validate2FA(
+          currentLoginToken,
+          code,
+          channel.channelUid,
+          TwoFactorValueType.TWO_FA_CODE_SMS,
+        );
         break;
       }
 
@@ -522,7 +539,12 @@ export class Client {
             break;
           case DuoMethod.Passcode: {
             const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
-            currentLoginToken = await this.validate2FA(currentLoginToken, code, channel.channelUid);
+            currentLoginToken = await this.validate2FA(
+              currentLoginToken,
+              code,
+              channel.channelUid,
+              TwoFactorValueType.TWO_FA_CODE_TOTP,
+            );
             break;
           }
           default:
@@ -572,11 +594,12 @@ export class Client {
     encryptedLoginToken: Uint8Array,
     code: string,
     channelUid: Uint8Array,
+    valueType: TwoFactorValueType,
   ): Promise<Uint8Array> {
     const request = TwoFactorValidateRequest.create({
       encryptedLoginToken,
       value: code,
-      valueType: TwoFactorValueType.TWO_FA_CODE_TOTP,
+      valueType,
       channelUid,
       expireIn: TwoFactorExpiration.TWO_FA_EXP_IMMEDIATELY,
     });
