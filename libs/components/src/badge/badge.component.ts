@@ -55,10 +55,21 @@ const variantStyles: Record<BadgeVariant, string[]> = {
   ],
 };
 
+type SizeStyle = {
+  label: string[];
+  icon: string[];
+}
+
 // Size mappings
-const sizeStyles: Record<BadgeSize, string[]> = {
-  small: ["tw-text-xs/4", "tw-px-1", "tw-py-0.5"],
-  large: ["tw-text-sm/5", "tw-px-1.5", "tw-py-1"],
+const sizeStyles: Record<BadgeSize, SizeStyle> = {
+  small: {
+    label: ["tw-text-xs/4", "tw-px-1", "tw-py-0.5"],
+    icon: ["tw-text-sm/3"],
+  },
+  large: {
+    label: ["tw-text-sm/5", "tw-px-1.5", "tw-py-1"],
+    icon: ["tw-text-base/5"],
+  },
 };
 
 const commonStyles = [
@@ -172,8 +183,12 @@ export class BadgeComponent implements OnDestroy {
     });
   }
 
+  protected readonly iconSizeStyles = computed(() => {
+    return sizeStyles[this.size()]?.icon;
+  });
+
   protected readonly classList = computed(() => {
-    return [...commonStyles, ...sizeStyles[this.size()], ...variantStyles[this.variant()]].concat(
+    return [...commonStyles, ...sizeStyles[this.size()].label, ...variantStyles[this.variant()]].concat(
       this.maxWidthClass(),
     );
   });
