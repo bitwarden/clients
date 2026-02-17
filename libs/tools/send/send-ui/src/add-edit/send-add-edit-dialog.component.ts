@@ -188,6 +188,7 @@ export class SendAddEditDialogComponent {
       SendAddEditDialogComponent,
       {
         data: params,
+        closeOnNavigation: true,
       },
     );
   }
