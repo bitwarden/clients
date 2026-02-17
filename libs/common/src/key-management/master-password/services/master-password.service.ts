@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, iif, map, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -12,8 +12,10 @@ import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
@@ -102,9 +104,29 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     assertNonNullish(userId, "userId");
-    return this.accountService.accounts$.pipe(
-      map((accounts) => accounts[userId].email),
-      map((email) => this.emailToSalt(email)),
+
+    // Note: We can't use the config service as an abstraction here because it creates a circular dependency: ConfigService -> ConfigApiService -> ApiService -> VaultTimeoutSettingsService -> KeyService -> MP service.
+    return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$.pipe(
+      map((serverConfig) =>
+        getFeatureFlagValue(serverConfig, FeatureFlag.PM31088_MasterPasswordServiceEmitSalt),
+      ),
+      switchMap((enabled) =>
+        iif(
+          () => enabled,
+          this.masterPasswordUnlockData$(userId).pipe(
+            map((unlockData) => {
+              if (unlockData == null) {
+                throw new Error("Master password unlock data not found for user.");
+              }
+              return unlockData.salt;
+            }),
+          ),
+          this.accountService.accounts$.pipe(
+            map((accounts) => accounts[userId].email),
+            map((email) => this.emailToSalt(email)),
+          ),
+        ),
+      ),
     );
   }
 
