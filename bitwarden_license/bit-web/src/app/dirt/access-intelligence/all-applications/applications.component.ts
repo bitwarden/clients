@@ -235,7 +235,7 @@ export class ApplicationsComponent implements OnInit {
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
           this.criticalApplicationsCount.set(
-            response.data.summaryData.totalCriticalApplicationCount,
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
           );
         },
         error: () => {
@@ -267,7 +267,7 @@ export class ApplicationsComponent implements OnInit {
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
           this.criticalApplicationsCount.set(
-            response.data.summaryData.totalCriticalApplicationCount,
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
           );
         },
         error: () => {
