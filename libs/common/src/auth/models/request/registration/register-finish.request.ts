@@ -20,6 +20,8 @@ export class RegisterFinishRequest {
     public kdfMemory?: number,
     public kdfParallelism?: number,
 
+    public salt?: string,
+
     public emailVerificationToken?: string,
     public orgSponsoredFreeFamilyPlanToken?: string,
     public acceptEmergencyAccessInviteToken?: string,

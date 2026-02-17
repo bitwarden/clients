@@ -19,6 +19,7 @@ export class SetPasswordRequest {
   kdfMemory?: number;
   kdfParallelism?: number;
   orgIdentifier: string;
+  salt?: string;
 
   constructor(
     masterPasswordHash: string,
@@ -65,6 +66,7 @@ export class SetPasswordRequest {
       keys,
       unlockData.kdf,
     );
+    request.salt = unlockData.salt;
     return request;
   }
 }

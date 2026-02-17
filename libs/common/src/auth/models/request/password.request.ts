@@ -11,6 +11,7 @@ export class PasswordRequest extends SecretVerificationRequest {
   newMasterPasswordHash: string;
   masterPasswordHint: string;
   key: string;
+  salt?: string;
 
   authenticationData?: MasterPasswordAuthenticationData;
   unlockData?: MasterPasswordUnlockData;
@@ -24,6 +25,7 @@ export class PasswordRequest extends SecretVerificationRequest {
     const request = new PasswordRequest();
     request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
     request.key = unlockData.masterKeyWrappedUserKey;
+    request.salt = unlockData.salt;
     request.authenticationData = authenticationData;
     request.unlockData = unlockData;
     return request;
