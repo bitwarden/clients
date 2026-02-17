@@ -115,8 +115,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected goBack = output<void>();
   protected complete = output<PremiumOrgUpgradePaymentResult>();
 
-  readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
-  readonly paymentMethodComponent = viewChild.required(DisplayPaymentMethodInlineComponent);
+  readonly cartSummaryComponent = viewChild.required<CartSummaryComponent>("cartSummaryComponent");
+  readonly paymentMethodComponent =
+    viewChild.required<DisplayPaymentMethodInlineComponent>("paymentMethodComponent");
 
   protected formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),

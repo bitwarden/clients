@@ -16,6 +16,7 @@
 
         <div class="tw-pb-8 !tw-mx-0">
           <app-display-payment-method-inline
+            #paymentMethodComponent
             [subscriber]="subscriber()"
             [paymentMethod]="paymentMethod()"
             [externalFormGroup]="formGroup.controls.paymentMethodForm"
