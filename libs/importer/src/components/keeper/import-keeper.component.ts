@@ -15,7 +15,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   CalloutModule,
-  CheckboxModule,
   FormFieldModule,
   IconButtonModule,
   SelectModule,
@@ -40,7 +39,6 @@ import { KeeperDirectImportService } from "./keeper-direct-import.service";
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
-    CheckboxModule,
     SelectModule,
   ],
 })
@@ -66,7 +64,6 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
       },
     ],
     region: [KeeperRegion.Us],
-    includeSharedFolders: [false],
   });
   protected emailHint$ = this.formGroup.controls.email.statusChanges.pipe(
     map((status) => {
@@ -108,7 +105,6 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         const importResult = await this.keeperDirectImportService.handleImport(
           this.formGroup.controls.email.value,
           this.formGroup.controls.region.value as KeeperRegion,
-          this.formGroup.controls.includeSharedFolders.value,
         );
         this.importCompleted.emit(importResult);
         return null;

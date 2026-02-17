@@ -27,7 +27,7 @@ describe("Keeper Direct Importer", () => {
     );
 
     const importer = new KeeperDirectImporter();
-    result = importer.convertVaultToImportResult(vault, true);
+    result = importer.convertVaultToImportResult(vault);
   });
 
   it("should parse address", () => {

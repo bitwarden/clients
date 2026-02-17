@@ -20,14 +20,14 @@ export class KeeperDirectImporter extends BaseImporter {
   private references = new Map<string, Reference[]>();
   private idToCipher = new Map<string, CipherView>();
 
-  convertVaultToImportResult(vault: Vault, includeSharedFolders: boolean): ImportResult {
+  convertVaultToImportResult(vault: Vault): ImportResult {
     const result = new ImportResult();
 
     this.references.clear();
     this.idToCipher.clear();
 
     const items = vault.getItems();
-    this.parseRecords(items, result, includeSharedFolders);
+    this.parseRecords(items, result);
     this.resolveReferences();
 
     if (this.organization) {
@@ -38,12 +38,7 @@ export class KeeperDirectImporter extends BaseImporter {
     return result;
   }
 
-  private parseRecords(
-    items: VaultItem[],
-    result: ImportResult,
-    includeSharedFolders: boolean,
-  ): void {
-    // TODO: Filter out shared folder records when includeSharedFolders is false
+  private parseRecords(items: VaultItem[], result: ImportResult): void {
     for (const item of items) {
       this.parseRecord(item, result);
     }

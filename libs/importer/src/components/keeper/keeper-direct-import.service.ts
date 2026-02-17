@@ -18,11 +18,7 @@ export class KeeperDirectImportService {
     private dialogService: DialogService,
   ) {}
 
-  async handleImport(
-    email: string,
-    region: KeeperRegion,
-    includeSharedFolders: boolean,
-  ): Promise<ImportResult> {
+  async handleImport(email: string, region: KeeperRegion): Promise<ImportResult> {
     const password = await KeeperPasswordPromptComponent.open(this.dialogService);
 
     if (!password) {
@@ -36,6 +32,6 @@ export class KeeperDirectImportService {
 
     const vault = await Vault.open(email, password, options);
 
-    return new KeeperDirectImporter().convertVaultToImportResult(vault, includeSharedFolders);
+    return new KeeperDirectImporter().convertVaultToImportResult(vault);
   }
 }
