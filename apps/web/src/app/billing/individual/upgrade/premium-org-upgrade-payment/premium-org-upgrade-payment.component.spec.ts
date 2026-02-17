@@ -1,11 +1,4 @@
-import {
-  Component,
-  input,
-  ChangeDetectionStrategy,
-  CUSTOM_ELEMENTS_SCHEMA,
-  signal,
-  output,
-} from "@angular/core";
+import { Component, input, ChangeDetectionStrategy, signal, output } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { mock } from "jest-mock-extended";
@@ -47,8 +40,7 @@ import { PremiumOrgUpgradeService } from "./services/premium-org-upgrade.service
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "billing-cart-summary",
-  template: `<h1>Mock Cart Summary</h1>`,
-  providers: [{ provide: CartSummaryComponent, useClass: MockCartSummaryComponent }],
+  template: "",
 })
 class MockCartSummaryComponent {
   readonly cart = input.required<any>();
@@ -60,13 +52,7 @@ class MockCartSummaryComponent {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-display-payment-method-inline",
-  template: `<h1>Mock Display Payment Method</h1>`,
-  providers: [
-    {
-      provide: DisplayPaymentMethodInlineComponent,
-      useClass: MockDisplayPaymentMethodInlineComponent,
-    },
-  ],
+  template: "",
 })
 class MockDisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<any>();
@@ -215,18 +201,17 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         },
         { provide: SyncService, useValue: { fullSync: jest.fn().mockResolvedValue(undefined) } },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
       .overrideComponent(PremiumOrgUpgradePaymentComponent, {
+        remove: {
+          imports: [DisplayPaymentMethodInlineComponent, CartSummaryComponent],
+          providers: [PremiumOrgUpgradeService],
+        },
         add: {
           imports: [MockDisplayPaymentMethodInlineComponent, MockCartSummaryComponent],
           providers: [
             { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
           ],
-        },
-        remove: {
-          imports: [DisplayPaymentMethodInlineComponent, CartSummaryComponent],
-          providers: [PremiumOrgUpgradeService],
         },
       })
       .compileComponents();
