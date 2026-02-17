@@ -1,5 +1,6 @@
 import {
   afterNextRender,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -147,9 +148,14 @@ export class BadgeComponent implements OnDestroy {
    */
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
-  readonly startIcon = input<BitwardenIcon>();
+  readonly startIcon = input<BitwardenIcon>(undefined);
+  readonly hideStartIcon = input(false, { transform: booleanAttribute });
 
   protected readonly computedIcon = computed(() => {
+    if (this.hideStartIcon()) {
+      return undefined;
+    }
+
     return this.startIcon() || getDefaultIconForVariant(this.variant());
   });
 

@@ -32,10 +32,10 @@ export const Default: Story = {
   }),
 };
 
-export const StartIcon: Story = {
+export const NoStartIcon: Story = {
   ...Default,
   args: {
-    startIcon: "bwi-folder",
+    hideStartIcon: true,
   },
 };
 
