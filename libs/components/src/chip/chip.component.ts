@@ -24,10 +24,16 @@ import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
 export class ChipComponent {
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
+  /**
+   * The label text for the chip.
+   */
   readonly label = input<string>("");
 
   readonly startIcon = input<BitwardenIcon | undefined>();
 
+  /**
+   * Output event emitted when the dismiss button is clicked. Does not emit if the chip is disabled.
+   */
   readonly chipDismissed = output<void>();
 
   protected handleDismiss(event: MouseEvent) {

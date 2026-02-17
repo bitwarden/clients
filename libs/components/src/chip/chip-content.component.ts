@@ -8,6 +8,8 @@ import { ChipSize, ChipSizes } from "./base-chip.directive";
 /**
  * `<bit-chip-content>` is a content wrapper component that provides consistent chip styling
  * and layout with support for icons, custom content slots, and dismiss functionality.
+ *
+ * @internal only to be used within lib/components
  */
 @Component({
   selector: "bit-chip-content, [bitChipContent]",
