@@ -176,7 +176,7 @@ export class Vault {
     }
 
     // TODO: Remove this debug dump
-    await dumpSyncDownResponse(merged, allRecordKeys);
+    // await dumpSyncDownResponse(merged, allRecordKeys);
 
     return new Vault(items);
   }
@@ -454,6 +454,7 @@ function joinPath(parent: string, child: string): string {
 }
 
 // TODO: Remove this debug function
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function dumpSyncDownResponse(
   merged: SyncDownResponse,
   recordKeys: Map<string, Uint8Array>,
