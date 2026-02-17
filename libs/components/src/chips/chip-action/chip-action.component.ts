@@ -12,7 +12,7 @@ import { ChipContentComponent } from "../shared/chip-content.component";
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["variant", "size", "disabled"],
+      inputs: ["variant", "size", "disabled", "maxWidthClass"],
     },
   ],
 })
