@@ -306,6 +306,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         newPaymentMethod,
         billingAddress,
       );
+    } else if (!this.paymentMethod()) {
+      // If user is not changing payment method but has no payment method on file
+      throw new Error("Payment method is required");
     }
 
     if (!organizationName) {

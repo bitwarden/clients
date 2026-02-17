@@ -615,6 +615,32 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockSubscriberBillingClient.updatePaymentMethod).not.toHaveBeenCalled();
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalled();
     });
+
+    it("should throw error when payment method is null and user is not changing payment", async () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(false),
+        getTokenizedPaymentMethod: jest.fn(),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
+      component["paymentMethod"].set(null);
+      component["selectedPlan"].set({
+        tier: "teams" as BusinessSubscriptionPricingTierId,
+        details: mockTeamsPlan,
+        cost: 48,
+      });
+
+      component["formGroup"].patchValue({
+        organizationName: "Test Organization",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      await expect(component["processUpgrade"]()).rejects.toThrow("Payment method is required");
+    });
   });
 
   describe("Plan Membership Messages", () => {
