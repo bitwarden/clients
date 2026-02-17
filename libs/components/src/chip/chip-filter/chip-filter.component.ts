@@ -60,8 +60,6 @@ export type ChipFilterOption<T> = Option<T> & {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    "(focusin)": "onFocusIn($event.target)",
-    "(focusout)": "onFocusOut()",
     "[class]": "classList()",
   },
 })
