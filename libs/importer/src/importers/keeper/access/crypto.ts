@@ -8,7 +8,7 @@ const AES_GCM_NONCE_SIZE = 12;
 const AES_GCM_TAG_SIZE = 16;
 const AES_BLOCK_SIZE = 16;
 
-export async function getRandomBytes(length: number): Promise<Uint8Array> {
+export function getRandomBytes(length: number): Uint8Array {
   const arr = new Uint8Array(length);
   crypto.getRandomValues(arr);
   return arr;
@@ -21,27 +21,6 @@ export async function generateEncryptionKey(): Promise<Uint8Array> {
   ]);
   const rawKey = await crypto.subtle.exportKey("raw", key);
   return new Uint8Array(rawKey);
-}
-
-export async function generateUid(): Promise<string> {
-  const uid = await getRandomBytes(16);
-  if ((uid[0] & 0xf8) === 0xf8) {
-    uid[0] = uid[0] & 0x7f;
-  }
-  return base64UrlEncode(uid);
-}
-
-export async function encryptAesV1(
-  data: Uint8Array,
-  key: Uint8Array,
-  iv?: Uint8Array,
-): Promise<Uint8Array> {
-  const ivBuffer = iv || (await getRandomBytes(AES_BLOCK_SIZE));
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
-    "encrypt",
-  ]);
-  const encrypted = await crypto.subtle.encrypt({ name: "AES-CBC", iv: ivBuffer }, cryptoKey, data);
-  return concatUint8Arrays(ivBuffer, new Uint8Array(encrypted));
 }
 
 export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
@@ -60,7 +39,7 @@ export async function encryptAesV2(
   nonce?: Uint8Array,
   nonceLength = AES_GCM_NONCE_SIZE,
 ): Promise<Uint8Array> {
-  const nonceBuffer = nonce || (await getRandomBytes(nonceLength));
+  const nonceBuffer = nonce || getRandomBytes(nonceLength);
   const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-GCM" }, false, [
     "encrypt",
   ]);
@@ -91,10 +70,7 @@ export async function decryptAesV2(
   return new Uint8Array(decrypted);
 }
 
-export async function encryptRsa(
-  data: Uint8Array,
-  publicKeyBytes: Uint8Array,
-): Promise<Uint8Array> {
+export function encryptRsa(data: Uint8Array, publicKeyBytes: Uint8Array): Uint8Array {
   // Use node-forge for RSA PKCS#1 v1.5 padding (required by Keeper)
   // Web Crypto API doesn't support PKCS#1 v1.5 for encryption
   const publicKeyDer = forge.util.createBuffer(uint8ArrayToByteString(publicKeyBytes));
@@ -106,10 +82,7 @@ export async function encryptRsa(
   return byteStringToUint8Array(encrypted);
 }
 
-export async function decryptRsa(
-  data: Uint8Array,
-  privateKeyBytes: Uint8Array,
-): Promise<Uint8Array> {
+export function decryptRsa(data: Uint8Array, privateKeyBytes: Uint8Array): Uint8Array {
   // Use node-forge for RSA PKCS#1 v1.5 padding
   const privateKeyDer = forge.util.createBuffer(uint8ArrayToByteString(privateKeyBytes));
   const asn1 = forge.asn1.fromDer(privateKeyDer);
@@ -125,11 +98,6 @@ export async function generateEcKey(): Promise<{ privateKey: CryptoKey; publicKe
     "deriveBits",
   ]);
   return { privateKey: keyPair.privateKey, publicKey: keyPair.publicKey };
-}
-
-export async function unloadEcPrivateKey(privateKey: CryptoKey): Promise<Uint8Array> {
-  const exported = await crypto.subtle.exportKey("pkcs8", privateKey);
-  return new Uint8Array(exported);
 }
 
 export async function unloadEcPublicKey(publicKey: CryptoKey): Promise<Uint8Array> {
@@ -314,7 +282,7 @@ export async function decryptKeeperKey(
       if (!rsaPrivateKey) {
         throw new Error("RSA private key required for ENCRYPTED_BY_PUBLIC_KEY");
       }
-      return await decryptRsa(encryptedKey, rsaPrivateKey);
+      return decryptRsa(encryptedKey, rsaPrivateKey);
 
     case RecordKeyType.ENCRYPTED_BY_DATA_KEY_GCM:
       return await decryptAesV2(encryptedKey, dataKey);
