@@ -82,11 +82,35 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+      const ctx = "Could not change password.";
+      assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
+      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+      assertTruthy(passwordInputResult.salt, "salt", ctx);
+
+      // We always update the hint along with a password change. This is because a new password
+      // implies that the old hint is now outdated. So, if the user entered a new hint, we set that
+      // as the new hint. If the user left the hint field blank, the field defaults to an empty string
+      // which gets set as the new hint.
+      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+
+      const currentAuthenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          passwordInputResult.currentPassword,
+          passwordInputResult.kdfConfig,
+          passwordInputResult.salt,
+        );
+
       const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
         passwordInputResult,
         userId,
       );
-      const request = PasswordRequest.newConstructor(newAuthenticationData, newUnlockData);
+
+      const request = PasswordRequest.newConstructor(
+        currentAuthenticationData.masterPasswordAuthenticationHash,
+        newAuthenticationData,
+        newUnlockData,
+        passwordInputResult.newPasswordHint,
+      );
 
       try {
         await this.masterPasswordApiService.postPassword(request);
