@@ -83,7 +83,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         const ciphers = await this.cipherService.getAllDecrypted(userId);
         const orgCiphers = ciphers.filter((c) => c.organizationId == organizationId);
         folders = storedFolders.filter(
-          (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
+          (f) => orgCiphers.some((oc) => oc.folderId == f.id) || !f.id,
         );
       }
 
