@@ -35,6 +35,7 @@ import {
   NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
+  RegistrationLinkExpiredComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
@@ -408,6 +409,26 @@ const routes: Routes = [
           {
             path: "",
             component: RegistrationFinishComponent,
+          },
+        ],
+      },
+      {
+        path: "signup-link-expired",
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageIcon: TwoFactorTimeoutIcon,
+          pageTitle: {
+            key: "expiredLink",
+          },
+          elevation: 1,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: RegistrationLinkExpiredComponent,
+            data: {
+              loginRoute: `/${AuthRoute.Login}`,
+            } satisfies RegistrationStartSecondaryComponentData,
           },
         ],
       },
