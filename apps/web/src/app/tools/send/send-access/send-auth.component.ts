@@ -90,6 +90,19 @@ export class SendAuthComponent implements OnInit {
     this.loading.set(false);
   }
 
+  onBackToEmail() {
+    this.enterOtp.set(false);
+    const otpControl = this.sendAccessForm.controls.otp;
+    if (otpControl) {
+      otpControl.clearValidators();
+      otpControl.setValue("");
+      otpControl.setErrors(null);
+      otpControl.markAsUntouched();
+      otpControl.markAsPristine();
+    }
+    this.updatePageTitle();
+  }
+
   private async attemptV1Access() {
     try {
       const accessRequest = new SendAccessRequest();
