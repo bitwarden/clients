@@ -1,14 +1,21 @@
 <div
-  class="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
-  [class]="bannerClass()"
+  class="tw-flex tw-items-center tw-gap-3 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
+  [class]="bannerClass() + ' ' + sizeClasses()"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
   @if (displayIcon(); as icon) {
-    <i class="bwi tw-align-middle tw-text-base" [class]="icon" aria-hidden="true"></i>
+    <bit-icon-tile
+      [icon]="icon"
+      [variant]="iconTileVariant()"
+      [size]="iconTileSize()"
+      aria-hidden="true"
+    />
   }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
-  <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
+  <span
+    class="tw-grow tw-text-sm tw-leading-5 [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main"
+  >
     <ng-content></ng-content>
   </span>
   <!-- Overriding hover and focus-visible colors for a11y against colored background -->
