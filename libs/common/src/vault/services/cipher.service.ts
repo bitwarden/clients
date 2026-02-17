@@ -77,6 +77,7 @@ import { CipherShareRequest } from "../models/request/cipher-share.request";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../models/response/delete-attachment.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
@@ -1482,16 +1483,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
-    let cipherResponse = null;
+    let response: DeleteAttachmentResponse;
     try {
-      cipherResponse = admin
+      response = admin
         ? await this.apiService.deleteCipherAttachmentAdmin(id, attachmentId)
         : await this.apiService.deleteCipherAttachment(id, attachmentId);
     } catch (e) {
       return Promise.reject((e as ErrorResponse).getSingleMessage());
     }
 
-    const cipherData = CipherData.fromJSON(cipherResponse?.cipher);
+    const cipherData = new CipherData(response.cipher);
 
     return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);
   }

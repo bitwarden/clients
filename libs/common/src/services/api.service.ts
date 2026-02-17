@@ -115,6 +115,7 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
@@ -590,18 +591,32 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
+  async deleteCipherAttachment(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
+      "DELETE",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      null,
+      true,
+      true,
+    );
+    return new DeleteAttachmentResponse(r);
   }
 
-  deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
-    return this.send(
+  async deleteCipherAttachmentAdmin(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
       true,
     );
+    return new DeleteAttachmentResponse(r);
   }
 
   postShareCipherAttachment(
