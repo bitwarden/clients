@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "פריטים בארכיון יופיעו כאן ויוחרגו מתוצאות חיפוש כללי והצעות למילוי אוטומטי."
   },
-  "itemWasSentToArchive": {
-    "message": "הפריט נשלח לארכיון"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "הפריט שוחזר מהארכיב"
-  },
-  "itemUnarchived": {
-    "message": "הפריט הוסר מהארכיון"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "העבר פריט לארכיון"

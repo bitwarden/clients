@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemWasSentToArchive": {
-    "message": "Mục đã được chuyển vào kho lưu trữ"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
-  },
-  "itemUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
