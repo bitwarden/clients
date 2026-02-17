@@ -53,7 +53,6 @@ export enum FeatureFlag {
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendEmailOTP = "pm-19051-send-email-verification",
 
@@ -120,7 +119,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendEmailOTP]: FALSE,
 
