@@ -44,13 +44,13 @@ import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
-
-import { SendFileDetailsComponent } from "./send-file-details.component";
 import {
   SendGeneratorDialogComponent,
   SendGeneratorDialogParams,
   SendGeneratorDialogResult,
 } from "../send-generator-dialog/send-generator-dialog.component";
+
+import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
 /** A preset duration (in hours) for deletion. */
