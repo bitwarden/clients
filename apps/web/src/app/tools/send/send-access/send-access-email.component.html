@@ -34,13 +34,7 @@
   >
     <span>{{ "viewSend" | i18n }} </span>
   </button>
-  <button
-    bitButton
-    type="button"
-    buttonType="secondary"
-    [block]="true"
-    (click)="backToEmail.emit(); $event.preventDefault(); $event.stopPropagation()"
-  >
+  <button bitButton type="button" buttonType="secondary" [block]="true" (click)="onBackClick()">
     <span>{{ "back" | i18n }}</span>
   </button>
 }

@@ -92,14 +92,6 @@ export class SendAuthComponent implements OnInit {
 
   onBackToEmail() {
     this.enterOtp.set(false);
-    const otpControl = this.sendAccessForm.controls.otp;
-    if (otpControl) {
-      otpControl.clearValidators();
-      otpControl.setValue("");
-      otpControl.setErrors(null);
-      otpControl.markAsUntouched();
-      otpControl.markAsPristine();
-    }
     this.updatePageTitle();
   }
 

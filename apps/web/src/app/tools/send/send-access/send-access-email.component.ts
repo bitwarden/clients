@@ -28,35 +28,43 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
 
-  constructor() {
-    // Update validators when enterOtp changes
-    effect(() => {
-      const isOtpMode = this.enterOtp();
-      if (this.email && this.otp) {
-        if (isOtpMode) {
-          // In OTP mode: email is not required (already entered), otp is required
-          this.email.clearValidators();
-          this.otp.setValidators([Validators.required]);
-        } else {
-          // In email mode: email is required, otp is not required
-          this.email.setValidators([Validators.required]);
-          this.otp.clearValidators();
-        }
-        this.email.updateValueAndValidity();
-        this.otp.updateValueAndValidity();
-      }
-    });
-  }
+  constructor() {}
 
   ngOnInit() {
     this.email = new FormControl("", Validators.required);
     this.otp = new FormControl("");
     this.formGroup().addControl("email", this.email);
     this.formGroup().addControl("otp", this.otp);
-  }
 
+    // Update validators when enterOtp changes
+    effect(() => {
+      const isOtpMode = this.enterOtp();
+      if (isOtpMode) {
+        // In OTP mode: email is not required (already entered), otp is required
+        this.email.clearValidators();
+        this.otp.setValidators([Validators.required]);
+      } else {
+        // In email mode: email is required, otp is not required
+        this.email.setValidators([Validators.required]);
+        this.otp.clearValidators();
+      }
+      this.email.updateValueAndValidity();
+      this.otp.updateValueAndValidity();
+    });
+  }
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
+  }
+
+  onBackClick() {
+    this.backToEmail.emit();
+    if (this.otp) {
+      this.otp.clearValidators();
+      this.otp.setValue("");
+      this.otp.setErrors(null);
+      this.otp.markAsUntouched();
+      this.otp.markAsPristine();
+    }
   }
 }
