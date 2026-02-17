@@ -1163,7 +1163,7 @@ jobs:
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Cache Safari
         id: safari-cache
@@ -1432,7 +1432,7 @@ jobs:
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
@@ -1736,7 +1736,7 @@ jobs:
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
+          key: ${{ runner.os }}-${{ github.run_id }}-${{ matrix.license_type }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
