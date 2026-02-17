@@ -2,16 +2,16 @@ import { ArgTypes } from "@storybook/angular";
 
 import { BITWARDEN_ICONS } from "../shared/icon";
 
-import { ChipSizes, ChipVariants } from "./base-chip.directive";
+import { CHIP_SIZES, CHIP_VARIANTS } from "./base-chip.directive";
 
 const sharedArgTypes = {
   size: {
-    options: Object.values(ChipSizes),
+    options: CHIP_SIZES,
     control: { type: "select" },
     description: "Sets the size of the chip.",
     table: {
-      type: { summary: Object.values(ChipSizes).join(" | ") },
-      defaultValue: { summary: ChipSizes.Large },
+      type: { summary: CHIP_SIZES.join(" | ") },
+      defaultValue: { summary: "large" },
     },
   },
   startIcon: {
@@ -42,12 +42,12 @@ const fullWidthArgType = {
 
 const variantArgType = {
   variant: {
-    options: Object.values(ChipVariants),
+    options: CHIP_VARIANTS,
     control: { type: "select" },
     description: "Sets the visual variant of the chip.",
     table: {
-      type: { summary: Object.values(ChipVariants).join(" | ") },
-      defaultValue: { summary: ChipVariants.Primary },
+      type: { summary: CHIP_VARIANTS.join(" | ") },
+      defaultValue: { summary: "primary" },
     },
   },
 } satisfies Partial<ArgTypes>;

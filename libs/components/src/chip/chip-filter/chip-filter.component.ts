@@ -24,7 +24,7 @@ import { Option } from "../../select/option";
 import { SharedModule } from "../../shared";
 import { BitwardenIcon } from "../../shared/icon";
 import { TypographyModule } from "../../typography";
-import { BaseChipDirective, ChipSize, ChipSizes } from "../base-chip.directive";
+import { BaseChipDirective, ChipSize } from "../base-chip.directive";
 import { ChipContentComponent } from "../chip-content.component";
 import { ChipDismissButtonComponent } from "../chip-dismiss-button.component";
 
@@ -72,7 +72,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly menuItems = viewChildren(MenuItemComponent);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
   readonly menuTrigger = viewChild(MenuTriggerForDirective);
-  readonly size = input<ChipSize>(ChipSizes.Large);
+  readonly size = input<ChipSize>("large");
 
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();

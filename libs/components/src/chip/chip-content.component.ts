@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, input, computed } from "@angular/co
 import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
 
-import { ChipSize, ChipSizes } from "./base-chip.directive";
+import { ChipSize } from "./base-chip.directive";
 
 /**
  * `<bit-chip-content>` is a content wrapper component that provides consistent chip styling
@@ -26,14 +26,12 @@ export class ChipContentComponent {
 
   readonly endIcon = input<BitwardenIcon>();
 
-  readonly size = input<ChipSize>(ChipSizes.Large);
+  readonly size = input<ChipSize>("large");
 
   readonly dismissible = input<boolean>(false);
 
-  protected readonly ChipSizes = ChipSizes;
-
   protected readonly gapClass = computed(() =>
-    this.size() === ChipSizes.Large ? "tw-gap-1.5" : "tw-gap-1",
+    this.size() === "large" ? "tw-gap-1.5" : "tw-gap-1",
   );
 
   protected readonly classList = computed(() => {
