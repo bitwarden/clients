@@ -167,9 +167,6 @@ export class Vault {
       });
     }
 
-    // TODO: Remove this debug dump
-    // await dumpSyncDownResponse(merged, allRecordKeys);
-
     return new Vault(items);
   }
 
@@ -443,30 +440,4 @@ function sanitizeFolderName(name: string): string {
 
 function joinPath(parent: string, child: string): string {
   return parent ? parent + "/" + child : child;
-}
-
-// TODO: Remove this debug function
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function dumpSyncDownResponse(
-  merged: sd.SyncDownResponse,
-  recordKeys: Map<string, Uint8Array>,
-): Promise<void> {
-  const fs = await import("fs");
-  const { base64UrlDecode } = await import("./crypto");
-  const json = (sd.SyncDownResponse as any).toJson(merged) as Record<string, unknown>;
-  for (const record of (json.records as Array<Record<string, unknown>>) ?? []) {
-    const uid = uidToString(base64UrlDecode(record.recordUid as string));
-    const key = recordKeys.get(uid);
-    if (key && record.data) {
-      try {
-        const data = base64UrlDecode(record.data as string);
-        const decrypt = (record.version as number) >= 3 ? decryptAesV2 : decryptAesV1;
-        const decrypted = await decrypt(data, key);
-        record.data = JSON.parse(new TextDecoder().decode(decrypted));
-      } catch {
-        // leave as base64
-      }
-    }
-  }
-  fs.writeFileSync("sync-down-response.json", JSON.stringify(json, null, 2));
 }
