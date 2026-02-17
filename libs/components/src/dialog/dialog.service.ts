@@ -10,7 +10,17 @@ import { ComponentPortal, Portal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, Subject, switchMap, take } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -230,7 +240,10 @@ export class DialogService {
     if (this.router) {
       this.router.events
         .pipe(
-          filter((event) => event instanceof NavigationEnd),
+          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+          map((event) => event.urlAfterRedirects.split("?")[0]),
+          startWith(this.router.url.split("?")[0]),
+          distinctUntilChanged(),
           filter(() => this.activeDrawer?.closeOnNavigation === true),
           takeUntilDestroyed(),
         )
