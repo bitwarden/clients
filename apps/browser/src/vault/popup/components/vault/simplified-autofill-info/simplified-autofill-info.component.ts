@@ -68,7 +68,9 @@ export class SimplifiedAutofillInfoComponent {
       }
 
       const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      const accountIsNew = account.creationDate > new Date(sevenDaysAgo);
+      const accountIsNew = account?.creationDate
+        ? account.creationDate > new Date(sevenDaysAgo)
+        : true;
 
       return !state?.hasDismissed && !accountIsNew;
     }),
@@ -89,7 +91,7 @@ export class SimplifiedAutofillInfoComponent {
         animation.onfinish = () => {
           // Set the ping element to hidden after the animation finishes to avoid any alignment issues with the icon.
           pingElement.hidden = true;
-          void this.updateUserState({ hasSeen: true });
+          void this.updateUserState({ hasSeen: true, hasDismissed: false });
         };
       }
     });
@@ -101,9 +103,10 @@ export class SimplifiedAutofillInfoComponent {
   }
 
   /** Updates the user's state for the simplified autofill icon */
-  private async updateUserState(
-    newState: Partial<{ hasSeen: boolean; hasDismissed: boolean }>,
-  ): Promise<void> {
+  private async updateUserState(newState: {
+    hasSeen: boolean;
+    hasDismissed: boolean;
+  }): Promise<void> {
     const userId = await firstValueFrom(this.userId$);
 
     const state = this.stateProvider.getUser(userId, VAULT_AUTOFILL_SIMPLIFIED_ICON_KEY);

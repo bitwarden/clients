@@ -13,7 +13,8 @@ describe("SimplifiedAutofillInfoComponent", () => {
 
   const getUserState$ = jest.fn().mockReturnValue(of(null));
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
-  const activeAccount$ = new BehaviorSubject({ id: "test-user-id" });
+  const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+  const activeAccount$ = new BehaviorSubject({ id: "test-user-id", creationDate: tenDaysAgo });
 
   beforeEach(async () => {
     // Mock getAnimations for all span elements before any components are created
