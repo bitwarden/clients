@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, computed } from "@angular/core";
 
-import { IconComponent } from "../icon";
-import { BitwardenIcon } from "../shared/icon";
+import { IconComponent } from "../../icon";
+import { BitwardenIcon } from "../../shared/icon";
 
 import { ChipSize } from "./base-chip.directive";
 

@@ -24,9 +24,9 @@ import { Option } from "../../select/option";
 import { SharedModule } from "../../shared";
 import { BitwardenIcon } from "../../shared/icon";
 import { TypographyModule } from "../../typography";
-import { BaseChipDirective, ChipSize } from "../base-chip.directive";
-import { ChipContentComponent } from "../chip-content.component";
-import { ChipDismissButtonComponent } from "../chip-dismiss-button.component";
+import { BaseChipDirective, ChipSize } from "../shared/base-chip.directive";
+import { ChipContentComponent } from "../shared/chip-content.component";
+import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
 /** An option that will be showed in the overlay menu of `ChipFilterComponent` */
 export type ChipFilterOption<T> = Option<T> & {

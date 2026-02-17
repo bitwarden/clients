@@ -2,10 +2,10 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { I18nMockService } from "../utils";
+import { I18nMockService } from "../../utils";
+import { sharedArgTypes } from "../shared/shared-story-arg-types";
 
 import { ChipComponent } from "./chip.component";
-import { sharedArgTypes } from "./shared-story-arg-types";
 
 export default {
   title: "Component Library/Chip",

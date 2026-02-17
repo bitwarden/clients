@@ -2,11 +2,10 @@ import { Component, ChangeDetectionStrategy, inject, input, output } from "@angu
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitwardenIcon } from "../shared/icon";
-
-import { BaseChipDirective } from "./base-chip.directive";
-import { ChipContentComponent } from "./chip-content.component";
-import { ChipDismissButtonComponent } from "./chip-dismiss-button.component";
+import { BitwardenIcon } from "../../shared/icon";
+import { BaseChipDirective } from "../shared/base-chip.directive";
+import { ChipContentComponent } from "../shared/chip-content.component";
+import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
 @Component({
   selector: "bit-chip",
