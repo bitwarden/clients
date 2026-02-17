@@ -103,8 +103,8 @@
             <Extensions>
                 <uap:Extension Category="windows.protocol">
                     <uap:Protocol Name="bitwarden">
-                      <uap:DisplayName>Bitwarden</uap:DisplayName>
-                  </uap:Protocol>
+                        <uap:DisplayName>Bitwarden</uap:DisplayName>
+                    </uap:Protocol>
                 </uap:Extension>
             </Extensions>
         </Application>
