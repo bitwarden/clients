@@ -1,0 +1,27 @@
+<div
+  class="tw-flex tw-flex-col tw-gap-4 tw-border tw-rounded-xl tw-border-solid tw-border-secondary-100 tw-p-6 tw-max-w-3xl"
+>
+  <div class="tw-flex tw-justify-between tw-items-center">
+    <h2>Risk over time</h2>
+    <button type="button" label="Download" bitIconButton="bwi-download"></button>
+  </div>
+  <div class="tw-flex tw-justify-between tw-items-center">
+    <div>
+      <bit-toggle-group aria-label="at risk chart view selector">
+        <bit-toggle value="applications">Applications</bit-toggle>
+        <bit-toggle value="passwords">Passwords</bit-toggle>
+        <bit-toggle value="members">Members</bit-toggle>
+      </bit-toggle-group>
+    </div>
+    <div>
+      <select>
+        <option>Past month</option>
+        <option>Past 3 months</option>
+        <option>Past 6 months</option>
+        <option>Past year</option>
+        <option>All time</option>
+      </select>
+    </div>
+  </div>
+  <div>CHART HERE</div>
+</div>
