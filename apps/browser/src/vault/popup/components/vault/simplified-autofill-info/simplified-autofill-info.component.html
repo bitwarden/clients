@@ -1,7 +1,7 @@
 @if (shouldShowIcon$ | async) {
   <button
     type="button"
-    class="tw-block tw-border-none tw-p-0"
+    class="tw-block tw-border-none tw-p-0 tw-ms-0.5"
     [bitPopoverTriggerFor]="popover"
     [position]="'below-center'"
     #triggerRef="popoverTrigger"
@@ -28,7 +28,12 @@
     <p>
       {{ "simplifiedAutofillDescription" | i18n }}
     </p>
-    <button type="button" bitButton buttonType="primary" (click)="triggerRef.closePopover()">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="triggerRef?.closePopover(); onPopoverClose()"
+    >
       {{ "gotIt" | i18n }}
     </button>
   </bit-popover>
