@@ -24,7 +24,6 @@ import {
   from,
   defer,
   map,
-  tap,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -251,14 +250,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
             map((paymentMethod) => ({ subscriber, paymentMethod })),
           ),
         ),
-        tap(({ subscriber, paymentMethod }) => {
-          this.subscriber.set(subscriber);
-          this.paymentMethod.set(paymentMethod);
-          this.loading.set(false);
-        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe();
+      .subscribe(({ subscriber, paymentMethod }) => {
+        this.subscriber.set(subscriber);
+        this.paymentMethod.set(paymentMethod);
+        this.loading.set(false);
+      });
   }
 
   ngAfterViewInit(): void {
