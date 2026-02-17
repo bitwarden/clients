@@ -369,14 +369,12 @@ export default class AutofillService implements AutofillServiceInterface {
           // not able to find any viewable username fields. maybe there are some "hidden" ones?
           uf = this.findUsernameField(pageDetails, formPasswordFields[0], true, true, false);
         }
-        if (uf != null) {
-          formData.push({
-            form: pageDetails.forms[formKey],
-            password: formPasswordFields[0],
-            username: uf,
-            passwords: formPasswordFields,
-          });
-        }
+        formData.push({
+          form: pageDetails.forms[formKey],
+          password: formPasswordFields[0],
+          username: uf ?? null,
+          passwords: formPasswordFields,
+        });
       }
     }
 
