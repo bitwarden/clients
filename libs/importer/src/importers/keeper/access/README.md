@@ -5,12 +5,14 @@
 - [x] Email link click
 - [x] Email code
 - [x] Keeper push
+- [ ] Keeper DNA
 
 ### 2FA
 
+- [x] SMS
 - [x] TOTP
-- [ ] Duo
-- [ ] WebAuthn
+- [-] Duo
+- [-] WebAuthn
 - [ ] Keeper DNA
 - [ ] RSA?
 
