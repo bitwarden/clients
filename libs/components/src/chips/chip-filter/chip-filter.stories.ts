@@ -11,7 +11,7 @@ import { fullWidthArgType, sharedArgTypes } from "../shared/shared-story-arg-typ
 import { ChipFilterComponent } from "./chip-filter.component";
 
 export default {
-  title: "Component Library/Chip/Chip Filter",
+  title: "Component Library/Chips/Chip Filter",
   component: ChipFilterComponent,
   decorators: [
     moduleMetadata({

@@ -5,7 +5,7 @@ import { sharedArgTypes, variantArgType, endIconArgType } from "../shared/shared
 import { ChipActionComponent } from "./chip-action.component";
 
 export default {
-  title: "Component Library/Chip/Chip Action",
+  title: "Component Library/Chips/Chip Action",
   component: ChipActionComponent,
   decorators: [
     moduleMetadata({

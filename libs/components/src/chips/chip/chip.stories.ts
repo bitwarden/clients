@@ -8,7 +8,7 @@ import { sharedArgTypes } from "../shared/shared-story-arg-types";
 import { ChipComponent } from "./chip.component";
 
 export default {
-  title: "Component Library/Chip",
+  title: "Component Library/Chips/Chip",
   component: ChipComponent,
   decorators: [
     moduleMetadata({
