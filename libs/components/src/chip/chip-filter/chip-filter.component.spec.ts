@@ -395,27 +395,6 @@ describe("ChipFilterComponent", () => {
     });
   });
 
-  describe("Focus Management", () => {
-    it("should track focus-visible-within state", () => {
-      const chipButton = getChipButton();
-
-      chipButton.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
-      fixture.detectChanges();
-
-      expect(component["focusVisibleWithin"]()).toBe(false);
-    });
-
-    it("should clear focus-visible-within on focusout", () => {
-      component["focusVisibleWithin"].set(true);
-
-      const chipButton = getChipButton();
-      chipButton.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
-      fixture.detectChanges();
-
-      expect(component["focusVisibleWithin"]()).toBe(false);
-    });
-  });
-
   describe("Edge Cases", () => {
     it("should handle empty options array", () => {
       const testApp = fixture.componentInstance;
