@@ -116,6 +116,7 @@ module.exports = {
         "accent-tertiary-medium": "var(--color-bg-accent-tertiary-medium)",
         "accent-tertiary": "var(--color-bg-accent-tertiary)",
         hover: "var(--color-bg-hover)",
+        "hover-contrast": "var(--color-bg-hover-contrast)",
         overlay: "var(--color-bg-overlay)",
         sidenav: "var(--color-sidenav-background)",
         "sidenav-active-item": "var(--color-sidenav-active-item)",
@@ -189,6 +190,7 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-border-accent-tertiary-soft)",
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
+        "focus-contrast": "var(--color-border-focus-contrast)",
       },
     },
     textColor: () => ({
