@@ -192,6 +192,7 @@ export class MemberAccessReportService {
 
   /**
    * Shared logic for getting permission text from access details
+   * @deprecated Use getPermissionTextCached with pre-built lookup map for better performance
    * @private
    */
   private getPermissionTextFromAccess(access: {
@@ -211,6 +212,33 @@ export class MemberAccessReportService {
     return this.i18nService.t(
       permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
     );
+  }
+
+  /**
+   * Get permission text using cached lookup map (performance optimized)
+   * @param access - Access details
+   * @param permissionLookup - Pre-built map of permission to label ID
+   * @private
+   */
+  private getPermissionTextCached(
+    access: {
+      groupId?: string;
+      collectionId: string;
+      readOnly: boolean;
+      hidePasswords: boolean;
+      manage: boolean;
+    },
+    permissionLookup: Map<string, string>,
+  ): string {
+    const collectionSelectionView = new CollectionAccessSelectionView({
+      id: access.groupId ?? access.collectionId,
+      readOnly: access.readOnly,
+      hidePasswords: access.hidePasswords,
+      manage: access.manage,
+    });
+    const perm = convertToPermission(collectionSelectionView);
+    const labelId = permissionLookup.get(perm);
+    return this.i18nService.t(labelId ?? "");
   }
 
   private getDistinctCount<T>(items: T[]): number {
@@ -526,6 +554,13 @@ export class MemberAccessReportService {
     const noCollection = this.i18nService.t("memberAccessReportNoCollection");
     const noCollectionPermission = this.i18nService.t("memberAccessReportNoCollectionPermission");
 
+    // Build permission lookup map once instead of calling getPermissionList() for each item
+    const permissionList = getPermissionList();
+    const permissionLookup = new Map<string, string>();
+    permissionList.forEach((p) => {
+      permissionLookup.set(p.perm, p.labelId);
+    });
+
     const exportItems: MemberAccessExportItem[] = [];
     for (const { access, cipherCount } of groupedAccess.values()) {
       const metadata = orgData.organizationUserDataMap.get(access.userId);
@@ -540,7 +575,7 @@ export class MemberAccessReportService {
         group: access.groupName || noGroup,
         collection: access.collectionName || noCollection,
         collectionPermission: access.collectionId
-          ? this.getPermissionTextFromAccess(access)
+          ? this.getPermissionTextCached(access, permissionLookup)
           : noCollectionPermission,
         totalItems: cipherCount.toString(), // Count of ciphers in this access path
       });
