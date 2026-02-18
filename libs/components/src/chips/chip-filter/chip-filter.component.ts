@@ -60,7 +60,7 @@ export type ChipFilterOption<T> = Option<T> & {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-inline-block",
+    "[class]": "classList()",
   },
 })
 export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
@@ -95,6 +95,11 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input(undefined, { transform: booleanAttribute });
+
+  /** Computed class list for host element based on fullWidth state */
+  protected readonly classList = computed(() =>
+    this.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block",
+  );
 
   /** Tree constructed from `this.options` */
   private rootTree?: ChipFilterOption<T> | null;
@@ -233,7 +238,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   /** Maps child options to their parent, to enable navigating up the tree */
   private childParentMap = new Map<ChipFilterOption<T>, ChipFilterOption<T>>();
 
-  /** For each descendant in the provided `tree`, update `_parent` to be a refrence to the parent node. This allows us to navigate back in the menu. */
+  /** For each descendant in the provided `tree`, update `_parent` to be a reference to the parent node. This allows us to navigate back in the menu. */
   private markParents(tree: ChipFilterOption<T>) {
     tree.children?.forEach((child) => {
       this.childParentMap.set(child, tree);
@@ -261,10 +266,11 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
    * the initially rendered options
    */
   protected setMenuWidth() {
-    const chipWidth = this.chipSelectButton()?.nativeElement.getBoundingClientRect().width ?? 0;
+    const chipWidth = this.chipSelectButton()?.nativeElement?.getBoundingClientRect()?.width ?? 0;
 
     const firstMenuItemWidth =
-      this.menu()?.menuItems().at(0)?.elementRef.nativeElement.getBoundingClientRect().width ?? 0;
+      this.menu()?.menuItems().at(0)?.elementRef?.nativeElement?.getBoundingClientRect()?.width ??
+      0;
 
     this.menuWidth = Math.max(chipWidth, firstMenuItemWidth);
   }
