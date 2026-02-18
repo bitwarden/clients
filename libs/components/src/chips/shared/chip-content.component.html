@@ -4,7 +4,7 @@
     gapClass()
   "
 >
-  <ng-content select="[chipStart]"></ng-content>
+  <ng-content select="[slot=chipStart]"></ng-content>
 
   @if (startIcon()) {
     <bit-icon [name]="startIcon()" class="tw-text-base/5" />
@@ -19,4 +19,4 @@
   }
 </div>
 
-<ng-content select="[chipEnd]"></ng-content>
+<ng-content select="[slot=chipEnd]"></ng-content>
