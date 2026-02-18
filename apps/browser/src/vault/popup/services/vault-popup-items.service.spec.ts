@@ -69,7 +69,7 @@ describe("VaultPopupItemsService", () => {
   const accountServiceMock = mockAccountServiceWith(userId);
   const configServiceMock = mock<ConfigService>();
   const cipherArchiveServiceMock = mock<CipherArchiveService>();
-  cipherArchiveServiceMock.userCanArchive$.mockReturnValue(of(true));
+  cipherArchiveServiceMock.hasArchiveFlagEnabled$ = of(true);
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
