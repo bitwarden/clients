@@ -1,18 +1,44 @@
-<div [ngClass]="outerBarStyles">
-  <div
-    [ngClass]="innerBarStyles"
-    role="progressbar"
-    aria-valuemin="0"
-    aria-valuemax="100"
-    attr.aria-valuenow="{{ barWidth() }}"
-    [ngStyle]="{ width: barWidth() + '%' }"
-  >
-    @if (displayText) {
-      <div class="tw-flex tw-h-full tw-flex-wrap tw-items-center tw-overflow-hidden">
-        <!-- If text is too long to fit, wrap it below to hide -->
-        <div class="tw-h-full">&nbsp;</div>
-        <div class="tw-pe-1">{{ textContent }}</div>
+<div class="tw-flex tw-w-full tw-gap-8">
+  @if (showIllustration()) {
+    <div class="tw-flex tw-justify-center tw-items-center">
+      <ng-content select="[slot=illustration]"></ng-content>
+    </div>
+  }
+  <div class="tw-flex tw-flex-col tw-justify-center tw-flex-1 tw-gap-6">
+    @if (showTitle() || showSubtitle()) {
+      <div class="tw-flex tw-flex-col tw-gap-1">
+        @if (showTitle()) {
+          <span class="tw-text-2xl">{{ title() }}</span>
+        }
+        @if (showSubtitle()) {
+          <span class="tw-text-fg-body">{{ subtitle() }}</span>
+        }
       </div>
     }
+    <div>
+      @if (showLabel()) {
+        <div class="tw-pe-1">{{ label() }}</div>
+      }
+      <div [ngClass]="outerBarStyles">
+        <div
+          [ngClass]="innerBarStyles"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          attr.aria-valuenow="{{ progressAmount() }}"
+          [ngStyle]="{ width: progressAmount() + '%' }"
+        ></div>
+      </div>
+      @if (showLeftText() || showRightText()) {
+        <div class="tw-text-sm tw-text-fg-body">
+          @if (showLeftText()) {
+            <span>{{ leftText() }}</span>
+          }
+          @if (showRightText()) {
+            <span class="tw-float-right">{{ rightText() }}</span>
+          }
+        </div>
+      }
+    </div>
   </div>
 </div>

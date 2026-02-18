@@ -1,47 +1,50 @@
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
+import { Component, computed, input, ChangeDetectionStrategy } from "@angular/core";
 
-type ProgressSizeType = "small" | "default" | "large";
-type BackgroundType = "danger" | "primary" | "success" | "warning";
-
-const SizeClasses: Record<ProgressSizeType, string[]> = {
-  small: ["tw-h-1"],
-  default: ["tw-h-4"],
-  large: ["tw-h-6"],
-};
+type BackgroundType = "primary" | "subtle" | "success" | "warning" | "danger";
 
 const BackgroundClasses: Record<BackgroundType, string[]> = {
-  danger: ["tw-bg-danger-600"],
   primary: ["tw-bg-primary-600"],
+  subtle: ["tw-bg-bg-contrast"],
   success: ["tw-bg-success-600"],
   warning: ["tw-bg-warning-600"],
+  danger: ["tw-bg-danger-600"],
 };
 
 /**
- * Progress indicators may be used to visually indicate progress or to visually measure some other value, such as a password strength indicator.
+ * The progress bar component represents a determinate progress state, visually indicating how much of an action or load has been completed and how much remains.
+ * By showing measurable progress, it helps users understand timing and sets clear expectations for more static progress indications.
+ *
+ * Progress bars can be used on their own, as in full-page loading or multi-step processes, or embedded within components like cards, panels,
+ * or dialogs when progress is tied to a specific task.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-progress",
   templateUrl: "./progress.component.html",
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProgressComponent {
-  readonly barWidth = input(0);
-  readonly bgColor = input<BackgroundType>("primary");
-  readonly showText = input(true);
-  readonly size = input<ProgressSizeType>("default");
-  readonly text = input<string>();
+export class ProgressBarComponent {
+  readonly variant = input<BackgroundType>("primary");
+  readonly showLabel = input<boolean>(false);
+  readonly label = input<string>();
+  readonly progressAmount = input<number>(0);
+  readonly showLeftText = input<boolean>(false);
+  readonly customLeftText = input<string>();
+  readonly showRightText = input<boolean>(false);
+  readonly rightText = input<string>();
+  readonly showIllustration = input<boolean>(false);
+  readonly showTitle = input<boolean>(false);
+  readonly title = input<string>();
+  readonly showSubtitle = input<boolean>(false);
+  readonly subtitle = input<string>();
 
-  get displayText() {
-    return this.showText() && this.size() !== "small";
-  }
+  protected readonly leftText = computed(() => {
+    return this.customLeftText() ?? `${this.progressAmount()}% complete`;
+  });
 
   get outerBarStyles() {
-    return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100"].concat(
-      SizeClasses[this.size()],
-    );
+    return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100", "tw-h-2"];
   }
 
   get innerBarStyles() {
@@ -54,12 +57,7 @@ export class ProgressComponent {
       "tw-font-medium",
       "tw-text-contrast",
       "tw-transition-all",
-    ]
-      .concat(SizeClasses[this.size()])
-      .concat(BackgroundClasses[this.bgColor()]);
-  }
-
-  get textContent() {
-    return this.text() || this.barWidth() + "%";
+      "tw-h-2",
+    ].concat(BackgroundClasses[this.variant()]);
   }
 }

@@ -14,19 +14,47 @@ import { ProgressModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-## Labels
+## Determinate loading state
+
+A determinate state is when the system is working to complete an action, and the load duration can
+be accurately predicted. The progress bar communicates that a process is ongoing and provides
+context for how long it will take. For loading states we we can not accurately predict a duration,
+use a Spinner component.
+
+## Usage
+
+Use progress bars for longer-running tasks where showing progress helps users stay oriented and
+confident, such as uploads, downloads, data processing, or report generation. When appropriate, pair
+the progress bar with descriptive text or a percentage to clarify what the system is doing and what
+the progress represents.
+
+Avoid using the progress bar for:
+
+- Indeterminate loading states (use a Spinner instead)
+- Very short actions where progress feedback adds unnecessary friction
+- Multiple competing progress indicators within the same view
+
+## All Variants
+
+<Canvas of={stories.AllVariants} />
+
+## With Label and Helper Texts (Left and Right)
 
 Always display a label to provide a text based description of what the indicator is measuring. This
 allows those who may not be familiar with the pattern to be able to read and digest the information.
 It also allows assistive technology to accurately describe the indicator to those who may be unable
 to see part or all of the indicator.
 
-<Canvas of={stories.Full} />
+<Canvas of={stories.WithLabelAndHelperText} />
 
-## Text label
+## With Illustration, Title and Subtitle
 
-When measuring something other than progress, such as password strength, update the label to fit the
-context of the implementation.
+<Canvas of={stories.WithIllustrationAndHeader} />
+
+## Custom Text
+
+When measuring something other than progress, such as password strength, update the `customLeftText`
+to fit the context of the implementation.
 
 <Canvas of={stories.CustomText} />
 
@@ -39,10 +67,22 @@ For a strength indicator use the following styles for fill:
 - **Good:** `primary-600`
 - **Strong:** `success-600`
 
+## Content Guidelines
+
+- Header Title and Body text are optional.
+  - If using a Title, the copy should be written verb first: “Loading” or “Loading [object]”,
+    “Uploading [object]”
+  - If using descriptive body text, should be as succinct as possible, telling the user what is
+    happening, how long it will take, why it is happening, or any actions they should consider in
+    the meantime.
+- In upload scenarios, file size is placed at the end of the bar. You don’t need to spell out the
+  size labels; write as MB or GB.
+- Leading illustration is optional.
+
 ## Accessibility
 
 Be sure to include the proper `aria-valuemin`, `aria-valuemax`, and `aria-valuenow` attributes. An
-a`ria-valuetext` should also be configurable to include the text a screen reader should read to the
+`aria-valuetext` should also be configurable to include the text a screen reader should read to the
 user.
 
 In the case of a password strength indicator; `aria-describedby` is used on the password field and

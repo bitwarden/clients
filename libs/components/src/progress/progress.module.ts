@@ -1,9 +1,9 @@
 import { NgModule } from "@angular/core";
 
-import { ProgressComponent } from "./progress.component";
+import { ProgressBarComponent } from "./progress.component";
 
 @NgModule({
-  imports: [ProgressComponent],
-  exports: [ProgressComponent],
+  imports: [ProgressBarComponent],
+  exports: [ProgressBarComponent],
 })
 export class ProgressModule {}
