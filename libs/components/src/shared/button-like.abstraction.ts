@@ -27,6 +27,7 @@ export const ButtonTypes = {
 export type ButtonType = (typeof ButtonTypes)[keyof typeof ButtonTypes];
 
 export type ButtonSize = "default" | "small" | "large";
+export type IconButtonSize = "default" | "xsmall" | "small" | "large";
 
 export abstract class ButtonLikeAbstraction {
   abstract loading: ModelSignal<boolean>;

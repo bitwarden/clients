@@ -2,7 +2,7 @@ import { booleanAttribute, computed, Directive, input, model } from "@angular/co
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
-import { ButtonSize, ButtonType } from "./button-like.abstraction";
+import { ButtonSize, IconButtonSize, ButtonType } from "./button-like.abstraction";
 
 export const focusRing = [
   "focus-visible:tw-ring-2",
@@ -12,7 +12,7 @@ export const focusRing = [
   "focus-visible:tw-z-10",
 ];
 
-export const getIconButtonSizeStyles = (size: ButtonSize): string[] => {
+export const getIconButtonSizeStyles = (size: IconButtonSize): string[] => {
   const iconButtonSizes: Record<string, string[]> = {
     xsmall: ["tw-text-base", "tw-size-6"],
     small: ["tw-text-xl", "tw-size-8"],
