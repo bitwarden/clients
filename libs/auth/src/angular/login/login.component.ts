@@ -648,13 +648,19 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.formGroup.controls.email.setValue(email);
       this.formGroup.controls.masterPassword.setValue(derivedPassword);
 
-      // Submit login directly
-      const credentials = new PasswordLoginCredentials(email, derivedPassword);
+      // Submit login directly (include org-invite policies if present, same as submit path)
+      const orgMasterPasswordPolicyOptions =
+        this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+      const credentials = new PasswordLoginCredentials(
+        email,
+        derivedPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
 
       const authResult = await this.loginStrategyService.logIn(credentials);
       await this.handleAuthResult(authResult);
     } catch (error) {
-      this.pqpAutoLoginInProgress = false;
       this.logService.error(error);
       const errorMessage =
         error instanceof ErrorResponse
@@ -667,6 +673,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         title: "Auto-login failed",
         message: `${errorMessage}. Please try logging in manually.`,
       });
+    } finally {
+      this.pqpAutoLoginInProgress = false;
     }
   }
 

@@ -116,13 +116,18 @@ export class PqpAuthService {
       // Fallback for non-extension contexts (desktop)
       try {
         await pqpLogin(provider);
-        this._networkLoggedIn = true;
         const userInfo = await getUserInfo();
-        if (userInfo) {
-          this._userEmail = userInfo.email || null;
+        if (userInfo?.email) {
+          this._userEmail = userInfo.email;
         }
         await this.derivePassword();
-        return true;
+
+        // Only mark as logged in if we actually have credentials
+        if (this._userEmail && this._derivedPassword) {
+          this._networkLoggedIn = true;
+          return true;
+        }
+        return false;
       } catch {
         return false;
       }
