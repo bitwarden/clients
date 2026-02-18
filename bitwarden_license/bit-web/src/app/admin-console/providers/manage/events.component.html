@@ -70,7 +70,7 @@
       </tr>
     </ng-container>
     <ng-template body>
-      <tr bitRow *ngFor="let e of events" alignContent="top">
+      <tr bitRow *ngFor="let e of events()" alignContent="top">
         <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
         <td bitCell>
           <i
