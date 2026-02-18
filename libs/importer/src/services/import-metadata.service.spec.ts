@@ -1,9 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
-import { DeviceType } from "@bitwarden/common/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
@@ -17,13 +15,10 @@ describe("ImportMetadataService", () => {
   let systemServiceProvider: MockProxy<SystemServiceProvider>;
 
   beforeEach(() => {
-    const configService = mock<ConfigService>();
-
     const environment = mock<PlatformUtilsService>();
     environment.getClientType.mockReturnValue(ClientType.Desktop);
 
     systemServiceProvider = mock<SystemServiceProvider>({
-      configService,
       environment,
       log: jest.fn().mockReturnValue({ debug: jest.fn() }),
     });
@@ -34,7 +29,6 @@ describe("ImportMetadataService", () => {
   describe("metadata$", () => {
     let typeSubject: Subject<ImportType>;
     let mockLogger: { debug: jest.Mock };
-    let featureFlagSubject: BehaviorSubject<boolean>;
 
     const environment = mock<PlatformUtilsService>();
     environment.getClientType.mockReturnValue(ClientType.Desktop);
@@ -42,13 +36,8 @@ describe("ImportMetadataService", () => {
     beforeEach(() => {
       typeSubject = new Subject<ImportType>();
       mockLogger = { debug: jest.fn() };
-      featureFlagSubject = new BehaviorSubject<boolean>(false);
-
-      const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
 
       systemServiceProvider = mock<SystemServiceProvider>({
-        configService,
         environment,
         log: jest.fn().mockReturnValue(mockLogger),
       });
@@ -78,7 +67,6 @@ describe("ImportMetadataService", () => {
 
     afterEach(() => {
       typeSubject.complete();
-      featureFlagSubject.complete();
     });
 
     it("should emit metadata when type$ emits", async () => {
@@ -128,87 +116,6 @@ describe("ImportMetadataService", () => {
         { importType: testType, capabilities: expect.any(Object) },
         "capabilities updated",
       );
-    });
-
-    it("should update when feature flag changes", async () => {
-      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      const testType: ImportType = "bravecsv"; // Use bravecsv which supports chromium loader
-      const emissions: ImporterMetadata[] = [];
-
-      const subscription = sut.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      typeSubject.next(testType);
-      featureFlagSubject.next(true);
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(emissions).toHaveLength(2);
-      // Disable ABE - chromium loader should be excluded
-      expect(emissions[0].loaders).not.toContain(Loader.chromium);
-      // Enabled ABE - chromium loader should be included
-      expect(emissions[1].loaders).toContain(Loader.chromium);
-
-      subscription.unsubscribe();
-    });
-
-    it("should exclude chromium loader when ABE is disabled and on Windows Desktop", async () => {
-      environment.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
-    it("should exclude chromium loader when ABE is disabled and getDevice throws error", async () => {
-      environment.getDevice.mockImplementation(() => {
-        throw new Error("Device detection failed");
-      });
-      const testType: ImportType = "bravecsv";
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
-    it("should include chromium loader when ABE is disabled and not on Windows Desktop", async () => {
-      environment.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
-    it("should include chromium loader when ABE is enabled regardless of device", async () => {
-      environment.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(true);
-
-      const metadataPromise = firstValueFrom(sut.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).toContain(Loader.chromium);
     });
   });
 });
