@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ copied",
     "description": "Value has been copied to the clipboard.",
