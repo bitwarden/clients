@@ -102,6 +102,13 @@ chrome.webNavigation.onCommitted.addListener(
     }
 
     const queryString = hashMatch[1];
+
+    // Only redirect email verification links (fromEmail=true).
+    // Org invite flows also use /finish-signup but rely on web-only services.
+    const params = new URLSearchParams(queryString);
+    if (params.get("fromEmail") !== "true") {
+      return;
+    }
     const extensionUrl = chrome.runtime.getURL(`popup/index.html#/finish-signup?${queryString}`);
 
     try {
