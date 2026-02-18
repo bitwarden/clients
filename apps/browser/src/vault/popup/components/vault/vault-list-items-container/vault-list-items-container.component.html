@@ -90,7 +90,13 @@
       </ng-container>
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
+        <bit-item
+          *cdkVirtualFor="let cipher of group.ciphers"
+          class="tw-group/vault-item"
+          [ngClass]="{
+            'hover:tw-bg-hover-default hover:tw-cursor-pointer': showFillTextOnHover(),
+          }"
+        >
           <button
             bit-item-content
             type="button"
@@ -127,11 +133,13 @@
           <ng-container slot="end">
             @if (showFillTextOnHover()) {
               <bit-item-action>
-                <span
-                  class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100 tw-cursor-pointer"
+                <button
+                  type="button"
+                  (click)="doAutofill(cipher)"
+                  class="tw-opacity-0 tw-text-primary-600 tw-px-2 tw-bg-transparent tw-border-0 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
                 >
                   {{ "fill" | i18n }}
-                </span>
+                </button>
               </bit-item-action>
             }
             @if (showAutofillBadge()) {
