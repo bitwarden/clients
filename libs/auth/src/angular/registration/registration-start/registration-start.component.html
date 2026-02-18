@@ -45,7 +45,7 @@
       (selectedRegionChange)="handleSelectedRegionChange($event)"
     ></auth-registration-env-selector>
 
-    <bit-form-field>
+    <bit-form-field *ngIf="!pqpReady">
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
         id="register-start_form_input_email"
