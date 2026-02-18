@@ -20,12 +20,12 @@ import { DrawerContentData } from "../../models/drawer-content-data.types";
  * - Content automatically updates when parent re-derives from report changes
  */
 @Component({
-  selector: "dirt-risk-insights-drawer-v2",
+  selector: "dirt-access-intelligence-drawer-v2",
   imports: [SharedModule],
-  templateUrl: "./risk-insights-drawer-v2.component.html",
+  templateUrl: "./access-intelligence-drawer-v2.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RiskInsightsDrawerV2Component {
+export class AccessIntelligenceDrawerV2Component {
   /**
    * Drawer content derived by parent component from report$ + drawerState.
    * Parent uses view model query methods (e.g., report.getAtRiskMembers()).

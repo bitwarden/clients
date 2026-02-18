@@ -17,7 +17,7 @@ import {
   OrgAtRiskMembersData,
 } from "../../models/drawer-content-data.types";
 
-import { RiskInsightsDrawerV2Component } from "./risk-insights-drawer-v2.component";
+import { AccessIntelligenceDrawerV2Component } from "./access-intelligence-drawer-v2.component";
 
 // Sample member data
 const sampleMembers: DrawerMemberData[] = [
@@ -74,11 +74,11 @@ const mockLogService = {
 };
 
 export default {
-  title: "Access Intelligence/V2/RiskInsightsDrawerV2",
-  component: RiskInsightsDrawerV2Component,
+  title: "Access Intelligence/V2/AccessIntelligenceDrawerV2",
+  component: AccessIntelligenceDrawerV2Component,
   decorators: [
     moduleMetadata({
-      imports: [RiskInsightsDrawerV2Component],
+      imports: [AccessIntelligenceDrawerV2Component],
       providers: [
         {
           provide: I18nService,
@@ -112,9 +112,9 @@ export default {
       url: "https://www.figma.com/design/ACCESS_INTELLIGENCE_FIGMA_URL",
     },
   },
-} as Meta<RiskInsightsDrawerV2Component>;
+} as Meta<AccessIntelligenceDrawerV2Component>;
 
-type Story = StoryObj<RiskInsightsDrawerV2Component>;
+type Story = StoryObj<AccessIntelligenceDrawerV2Component>;
 
 /**
  * Organization-wide At-Risk Members Drawer
@@ -133,7 +133,7 @@ export const OrgAtRiskMembers: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -158,7 +158,7 @@ export const AppAtRiskMembers: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -182,7 +182,7 @@ export const OrgAtRiskApps: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -206,7 +206,7 @@ export const CriticalAtRiskMembers: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -230,7 +230,7 @@ export const CriticalAtRiskApps: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -281,27 +281,27 @@ export const AllDrawerTypes: Story = {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; padding: 20px;">
           <div style="border: 1px solid #ccc; padding: 15px;">
             <h3 style="margin-top: 0;">1. Org At-Risk Members</h3>
-            <dirt-risk-insights-drawer-v2 [data]="orgAtRiskMembersData"></dirt-risk-insights-drawer-v2>
+            <dirt-access-intelligence-drawer-v2 [data]="orgAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
           </div>
 
           <div style="border: 1px solid #ccc; padding: 15px;">
             <h3 style="margin-top: 0;">2. App At-Risk Members</h3>
-            <dirt-risk-insights-drawer-v2 [data]="appAtRiskMembersData"></dirt-risk-insights-drawer-v2>
+            <dirt-access-intelligence-drawer-v2 [data]="appAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
           </div>
 
           <div style="border: 1px solid #ccc; padding: 15px;">
             <h3 style="margin-top: 0;">3. Org At-Risk Apps</h3>
-            <dirt-risk-insights-drawer-v2 [data]="orgAtRiskAppsData"></dirt-risk-insights-drawer-v2>
+            <dirt-access-intelligence-drawer-v2 [data]="orgAtRiskAppsData"></dirt-access-intelligence-drawer-v2>
           </div>
 
           <div style="border: 1px solid #ccc; padding: 15px;">
             <h3 style="margin-top: 0;">4. Critical At-Risk Members</h3>
-            <dirt-risk-insights-drawer-v2 [data]="criticalAtRiskMembersData"></dirt-risk-insights-drawer-v2>
+            <dirt-access-intelligence-drawer-v2 [data]="criticalAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
           </div>
 
           <div style="border: 1px solid #ccc; padding: 15px;">
             <h3 style="margin-top: 0;">5. Critical At-Risk Apps</h3>
-            <dirt-risk-insights-drawer-v2 [data]="criticalAtRiskAppsData"></dirt-risk-insights-drawer-v2>
+            <dirt-access-intelligence-drawer-v2 [data]="criticalAtRiskAppsData"></dirt-access-intelligence-drawer-v2>
           </div>
         </div>
       `,
@@ -325,7 +325,7 @@ export const EmptyMembers: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -348,7 +348,7 @@ export const EmptyApplications: Story = {
       },
       template: `
         <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };
@@ -382,7 +382,7 @@ export const LargeDataset: Story = {
       },
       template: `
         <div style="max-width: 400px; max-height: 600px; border: 1px solid #ccc; padding: 20px; overflow-y: auto;">
-          <dirt-risk-insights-drawer-v2 [data]="data"></dirt-risk-insights-drawer-v2>
+          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
         </div>
       `,
     };

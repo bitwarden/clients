@@ -74,7 +74,7 @@ export interface CriticalAtRiskAppsData {
 
 /**
  * Union type of all possible drawer content data.
- * Used as input to RiskInsightsDrawerV2Component.
+ * Used as input to AccessIntelligenceDrawerV2Component.
  *
  * Components derive this content from report$ observable + drawerState signal
  * using view model query methods (e.g., report.getAtRiskMembers()).

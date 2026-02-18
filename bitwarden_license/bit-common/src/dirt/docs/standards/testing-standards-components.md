@@ -39,7 +39,7 @@
 **V2 Reference Components:**
 
 - `risk-insights-v2.component.spec.ts` - Container with state management
-- `risk-insights-drawer-v2.component.spec.ts` - Pure presentation component
+- `access-intelligence-drawer-v2.component.spec.ts` - Pure presentation component
 
 ---
 
@@ -793,7 +793,7 @@ Use this checklist for each component:
 
 - `v2/risk-insights-v2.component.ts` - Container with state management
   - Tests: Signal inputs, service integration, user actions
-- `v2/shared/risk-insights-drawer-v2.component.ts` - Pure presentation
+- `v2/shared/access-intelligence-drawer-v2.component.ts` - Pure presentation
   - Tests: Signal inputs/outputs, conditional rendering
 
 **Study these for patterns:**

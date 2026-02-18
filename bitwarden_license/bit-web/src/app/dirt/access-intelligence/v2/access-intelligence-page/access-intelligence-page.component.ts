@@ -54,7 +54,7 @@ import {
   OrgAtRiskAppsData,
   OrgAtRiskMembersData,
 } from "../models/drawer-content-data.types";
-import { RiskInsightsDrawerV2Component } from "../shared/risk-insights-drawer-v2/risk-insights-drawer-v2.component";
+import { AccessIntelligenceDrawerV2Component } from "../shared/access-intelligence-drawer-v2/access-intelligence-drawer-v2.component";
 
 @Component({
   selector: "app-access-intelligence-page",
@@ -118,7 +118,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
   protected IMPORT_ICON = "bwi bwi-download";
 
-  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerV2Component> | null = null;
+  protected currentDialogRef: DialogRef<unknown, AccessIntelligenceDrawerV2Component> | null = null;
 
   // Computed values from report
   protected readonly hasReportData = computed(() => {
@@ -270,9 +270,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       )
       .subscribe((content) => {
         if (content) {
-          this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerV2Component, {
-            data: content,
-          });
+          this.currentDialogRef = this.dialogService.openDrawer(
+            AccessIntelligenceDrawerV2Component,
+            {
+              data: content,
+            },
+          );
         } else {
           this.currentDialogRef?.close();
         }

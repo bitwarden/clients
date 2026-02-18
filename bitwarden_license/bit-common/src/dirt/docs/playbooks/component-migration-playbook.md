@@ -127,10 +127,10 @@ Does component depend on OLD services?
 
 ### V2 Reference Components (Use as Examples)
 
-| #   | Component                 | Status  | Use For                             |
-| --- | ------------------------- | ------- | ----------------------------------- |
-| 17  | `risk-insights-v2`        | ✅ Done | Container pattern reference         |
-| 18  | `risk-insights-drawer-v2` | ✅ Done | Pure presentation pattern reference |
+| #   | Component                       | Status  | Use For                             |
+| --- | ------------------------------- | ------- | ----------------------------------- |
+| 17  | `risk-insights-v2`              | ✅ Done | Container pattern reference         |
+| 18  | `access-intelligence-drawer-v2` | ✅ Done | Pure presentation pattern reference |
 
 ---
 
@@ -153,7 +153,7 @@ Does component depend on OLD services?
 - [ ] Read [Component Audit](./component-standardization-audit.md) for this component
 - [ ] Verify component does NOT use old services (RiskInsightsDataService)
 - [ ] Check current OnPush/Signal status
-- [ ] Review V2 reference components (`risk-insights-v2`, `risk-insights-drawer-v2`)
+- [ ] Review V2 reference components (`risk-insights-v2`, `access-intelligence-drawer-v2`)
 - [ ] (Optional) Create session log: `~/Documents/bitwarden-notes/access-intelligence-sessions/component-updates/YYYY-MM-DD-<component>.md`
 
 ---
@@ -991,7 +991,7 @@ Based on [Component Audit](./component-standardization-audit.md):
 ### Phase 4: V2 References (2 components, already done)
 
 15. **risk-insights-v2** ✅ - Reference implementation
-16. **risk-insights-drawer-v2** ✅ - Reference implementation
+16. **access-intelligence-drawer-v2** ✅ - Reference implementation
 
 ### Phase 5: V1 Deprecation (2 components, future)
 
