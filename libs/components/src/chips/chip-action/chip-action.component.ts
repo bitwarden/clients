@@ -20,6 +20,5 @@ export class ChipActionComponent {
   readonly baseChip = inject(BaseChipDirective, { host: true });
 
   readonly startIcon = input<BitwardenIcon>();
-  readonly endIcon = input<BitwardenIcon>();
   readonly label = input<string>("");
 }
