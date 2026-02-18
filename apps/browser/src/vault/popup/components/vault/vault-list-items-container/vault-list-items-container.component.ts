@@ -302,8 +302,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     if (this.currentUriIsBlocked()) {
       return false;
     }
-    return this.isAutofillList()
-      ? this.simplifiedItemActionEnabled()
+
+    return this.simplifiedItemActionEnabled()
+      ? this.isAutofillList()
       : this.primaryActionAutofill();
   });
 

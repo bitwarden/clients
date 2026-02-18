@@ -6,8 +6,8 @@
   (onRefresh)="refreshCurrentTab()"
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
   isAutofillList
+  showAutofillButton
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
   [groupByType]="groupByType()"
-  [showAutofillButton]="(clickItemsToAutofillVaultView$ | async) === false"
   [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
 ></app-vault-list-items-container>
