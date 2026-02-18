@@ -109,17 +109,15 @@ describe("ReusedPasswordsReportComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it('should get ciphers with reused passwords that the user has "Can Edit" access to', async () => {
-    const expectedIdOne: any = "cbea34a8-bde4-46ad-9d19-b05001228ab2";
-    const expectedIdTwo = "cbea34a8-bde4-46ad-9d19-b05001228cd3";
+  it("should get ciphers with reused passwords regardless of edit access", async () => {
     jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
     await component.setCiphers();
 
-    expect(component.ciphers.length).toEqual(2);
-    expect(component.ciphers[0].id).toEqual(expectedIdOne);
-    expect(component.ciphers[0].edit).toEqual(true);
-    expect(component.ciphers[1].id).toEqual(expectedIdTwo);
-    expect(component.ciphers[1].edit).toEqual(true);
+    const cipherIds = component.ciphers.map((c) => c.id);
+    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001228ab1");
+    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001228ab2");
+    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001228cd3");
+    expect(component.ciphers.length).toEqual(3);
   });
 
   it("should call fullSync method of syncService", () => {

@@ -71,14 +71,12 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
     this.filterStatus = [0];
 
     ciphers.forEach((ciph) => {
-      const { type, login, isDeleted, edit, viewPassword } = ciph;
+      const { type, login, isDeleted } = ciph;
       if (
         type !== CipherType.Login ||
         login.password == null ||
         login.password === "" ||
-        isDeleted ||
-        (!this.organization && !edit) ||
-        !viewPassword
+        isDeleted
       ) {
         return;
       }
