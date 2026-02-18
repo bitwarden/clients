@@ -1,6 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { RedirectFocusDirection } from "../../../../enums/autofill-overlay.enum";
+import { EventSecurity } from "../../../../utils/event-security";
 import {
   AutofillInlineMenuPageElementWindowMessage,
   AutofillInlineMenuPageElementWindowMessageHandlers,
@@ -163,7 +164,10 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    */
   private handleDocumentKeyDownEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Tab", "Escape", "ArrowUp", "ArrowDown"]);
-    if (!listenedForKeys.has(event.code)) {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event) || !listenedForKeys.has(event.code)) {
       return;
     }
 

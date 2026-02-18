@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { ButtonModule, SvgModule, ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -38,6 +39,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
   ],
 })
 export class SendCreatedComponent {
+  readonly AuthType = AuthType;
   protected sendCreatedIcon = ActiveSendIcon;
   protected send: SendView;
   protected daysAvailable = 0;
@@ -63,15 +65,18 @@ export class SendCreatedComponent {
     });
   }
 
-  formatExpirationDate(): string {
+  get formattedExpirationTime(): string {
+    if (!this.send?.deletionDate) {
+      return "";
+    }
     if (this.hoursAvailable < 24) {
       return this.hoursAvailable === 1
-        ? this.i18nService.t("sendExpiresInHoursSingle")
-        : this.i18nService.t("sendExpiresInHours", String(this.hoursAvailable));
+        ? this.i18nService.t("oneHour").toLowerCase()
+        : this.i18nService.t("durationTimeHours", String(this.hoursAvailable)).toLowerCase();
     }
     return this.daysAvailable === 1
-      ? this.i18nService.t("sendExpiresInDaysSingle")
-      : this.i18nService.t("sendExpiresInDays", String(this.daysAvailable));
+      ? this.i18nService.t("oneDay").toLowerCase()
+      : this.i18nService.t("days", String(this.daysAvailable)).toLowerCase();
   }
 
   getHoursAvailable(send: SendView): number {
