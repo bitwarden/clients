@@ -417,12 +417,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async doAutoFill(options: AutoFillOptions): Promise<string | null> {
     const tab = options.tab;
     const tabUrl = tab?.url;
-    if (
-      !tabUrl ||
-      !options.cipher ||
-      !options.pageDetails ||
-      (options.pageDetails?.length || 0) > 0
-    ) {
+    if (!tabUrl || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
       throw new Error("Nothing to autofill.");
     }
 
