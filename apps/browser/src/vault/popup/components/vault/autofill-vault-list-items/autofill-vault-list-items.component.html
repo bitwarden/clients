@@ -1,0 +1,13 @@
+<app-vault-list-items-container
+  *ngIf="autofillCiphers$ | async as ciphers"
+  [ciphers]="ciphers"
+  [title]="((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n"
+  [showRefresh]="showRefresh"
+  (onRefresh)="refreshCurrentTab()"
+  [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
+  isAutofillList
+  showAutofillButton
+  [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
+  [groupByType]="groupByType()"
+  [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
+></app-vault-list-items-container>
