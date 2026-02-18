@@ -435,9 +435,10 @@ export class MemberAccessReportService {
    */
   private async _fetchCiphersWithTimeout(organizationId: OrganizationId): Promise<CipherView[]> {
     const TIMEOUT_MS = 300000; // 5 minutes
+    let timeoutId: NodeJS.Timeout;
 
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         reject(
           new Error(
             "Cipher fetch timed out after 5 minutes. Organization may be too large for this report. Please contact support.",
@@ -448,7 +449,9 @@ export class MemberAccessReportService {
 
     const fetchPromise = this.cipherService.getAllFromApiForOrganization(organizationId);
 
-    return Promise.race([fetchPromise, timeoutPromise]);
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
+      clearTimeout(timeoutId);
+    });
   }
 
   /**
