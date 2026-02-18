@@ -228,7 +228,7 @@
     "message": "複製自訂欄位名稱"
   },
   "noMatchingLogins": {
-    "message": "沒有符合的登入資料"
+    "message": "沒有相符的登入項目"
   },
   "noCards": {
     "message": "沒有付款卡"
@@ -252,7 +252,7 @@
     "message": "登入您的密碼庫"
   },
   "autoFillInfo": {
-    "message": "沒有可以在目前瀏覽器分頁自動填入的登入資訊。"
+    "message": "目前瀏覽器分頁沒有可自動填入的登入項目。"
   },
   "addLogin": {
     "message": "新增登入資料"
@@ -453,10 +453,10 @@
     "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
-    "message": "為您的登入資料自動產生高強度且唯一的密碼。"
+    "message": "為您的登入項目自動產生高強度且唯一的密碼。"
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden 網頁應用程式"
+    "message": "Bitwarden Web 應用程式"
   },
   "select": {
     "message": "選擇"
@@ -468,16 +468,16 @@
     "message": "產生密碼短語"
   },
   "passwordGenerated": {
-    "message": "已產生密碼"
+    "message": "密碼已產生"
   },
   "passphraseGenerated": {
-    "message": "已產生密碼"
+    "message": "密碼短語已產生"
   },
   "usernameGenerated": {
-    "message": "已產生使用者名稱"
+    "message": "使用者名稱已產生"
   },
   "emailGenerated": {
-    "message": "已產生電子郵件"
+    "message": "電子郵件已產生"
   },
   "regeneratePassword": {
     "message": "重新產生密碼"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
-  "itemWasSentToArchive": {
-    "message": "項目已移至封存"
+  "itemArchiveToast": {
+    "message": "項目已封存"
   },
-  "itemWasUnarchived": {
-    "message": "已取消封存項目"
-  },
-  "itemUnarchived": {
-    "message": "項目取消封存"
+  "itemUnarchivedToast": {
+    "message": "項目已取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
@@ -598,7 +595,7 @@
     "message": "需要進階版會員才能使用封存功能。"
   },
   "itemRestored": {
-    "message": "已還原項目"
+    "message": "項目已還原"
   },
   "edit": {
     "message": "編輯"
@@ -1215,7 +1212,7 @@
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "更新登入資料",
+    "message": "更新登入項目",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
@@ -1223,7 +1220,7 @@
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "儲存登入資料",
+    "message": "儲存登入項目",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
@@ -1231,7 +1228,7 @@
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "登入資訊已儲存",
+    "message": "登入項目已儲存",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
@@ -1305,7 +1302,7 @@
     "message": "解鎖"
   },
   "additionalOptions": {
-    "message": "額外選項"
+    "message": "其他選項"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -1567,7 +1564,7 @@
     "message": "提供密碼健全性、帳戶健康狀態及資料外洩報告，確保您的密碼庫安全。"
   },
   "ppremiumSignUpTotp": {
-    "message": "為密碼庫中的登入資料產生 TOTP 驗證碼（2FA）。"
+    "message": "為密碼庫中的登入項目產生 TOTP 驗證碼（2FA）。"
   },
   "ppremiumSignUpSupport": {
     "message": "優先客戶支援。"
@@ -1801,7 +1798,7 @@
     "message": "Bitwarden 如何保護您的資料免於網路釣魚攻擊？"
   },
   "currentWebsite": {
-    "message": "目網站"
+    "message": "目前網站"
   },
   "autofillAndAddWebsite": {
     "message": "自動填充並新增此網站"
@@ -2091,7 +2088,7 @@
     "message": "登入資料"
   },
   "typeLogins": {
-    "message": "登入資料"
+    "message": "登入項目"
   },
   "typeSecureNote": {
     "message": "安全筆記"
@@ -2227,7 +2224,7 @@
     "message": "身分"
   },
   "logins": {
-    "message": "登入資料"
+    "message": "登入項目"
   },
   "secureNotes": {
     "message": "安全筆記"
@@ -2513,7 +2510,7 @@
     "message": "項目已自動填入並且已儲存統一資源標識符（URI）"
   },
   "autoFillSuccess": {
-    "message": "項目已自動填入 "
+    "message": "項目已自動填入"
   },
   "insecurePageWarning": {
     "message": "警告：此為不安全的 HTTP 頁面，您送出的任何資訊都可能被他人查看並修改。此登入資料原本儲存在安全的（HTTPS）頁面上。"
@@ -2773,10 +2770,10 @@
     }
   },
   "atRiskPassword": {
-    "message": "具有風險的密碼"
+    "message": "有風險的密碼"
   },
   "atRiskPasswords": {
-    "message": "具有風險的密碼"
+    "message": "有風險的密碼"
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ 要求你變更一組有風險的密碼。",
@@ -2848,7 +2845,7 @@
     "message": "更新你的設定，以便能快速自動填入密碼並產生新密碼"
   },
   "reviewAtRiskLogins": {
-    "message": "檢視有風險的登入資訊"
+    "message": "檢視有風險的登入項目"
   },
   "reviewAtRiskPasswords": {
     "message": "檢視有風險的密碼"
@@ -5749,7 +5746,7 @@
     "message": "設定生物辨識解鎖及自動填入，不需要輸入任何字元就可以登入。"
   },
   "secureUser": {
-    "message": "升級您的登入體驗"
+    "message": "讓您的登入項目更升級"
   },
   "secureUserBody": {
     "message": "使用密碼產生器來建立及儲存高強度、唯一的密碼，來保護您所有的帳號。"
@@ -5964,7 +5961,7 @@
     "message": "付款卡號碼"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "錯誤：無法解密"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
