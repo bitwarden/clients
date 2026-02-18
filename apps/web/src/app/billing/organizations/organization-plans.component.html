@@ -22,11 +22,11 @@
 }
 @if (!isLoading && !selfHosted && passwordManagerPlans && secretsManagerPlans) {
   <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-pt-6">
-    <bit-section [ngClass]="{ 'tw-hidden': !isCreatingNewOrganization }">
+    <bit-section [ngClass]="{ 'tw-hidden': !createOrganization }">
       <app-org-info
         (changedBusinessOwned)="changedOwnedBusiness()"
         [formGroup]="formGroup"
-        [createOrganization]="isCreatingNewOrganization"
+        [createOrganization]="createOrganization"
         [isProvider]="!!providerId()"
         [acceptingSponsorship]="acceptingSponsorship()"
       >
@@ -64,7 +64,7 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (trialPeriodDays && isCreatingNewOrganization) {
+                    @if (trialPeriodDays && createOrganization) {
                       <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
                     }
                   </ul>
