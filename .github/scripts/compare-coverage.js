@@ -42,23 +42,19 @@ const baseSummary = readSummary(basePath);
 
 const headPct = getPct(headSummary, metric);
 const basePct = getPct(baseSummary, metric);
-const normalizedHeadPct = Math.ceil(headPct);
-const normalizedBasePct = Math.trunc(basePct);
-const diff = normalizedHeadPct - normalizedBasePct;
+const diff = headPct - basePct;
 
-if (normalizedHeadPct + tolerance < normalizedBasePct) {
+if (headPct + tolerance < basePct) {
   console.error(
-    `Coverage regression detected for ${metric}: PR ${normalizedHeadPct}% (raw ${headPct.toFixed(
+    `Coverage regression detected for ${metric}: PR ${headPct.toFixed(2)}% < base ${basePct.toFixed(
       2,
-    )}%) < base ${normalizedBasePct}% (raw ${basePct.toFixed(2)}%)`,
+    )}% (diff ${diff.toFixed(2)}pp)`,
   );
   process.exit(1);
 }
 
 console.log(
-  `Coverage check passed for ${metric}: PR ${normalizedHeadPct}% (raw ${headPct.toFixed(
+  `Coverage check passed for ${metric}: PR ${headPct.toFixed(2)}% (base ${basePct.toFixed(
     2,
-  )}%) (base ${normalizedBasePct}% (raw ${basePct.toFixed(
-    2,
-  )}%), diff ${diff}pp${tolerance ? `, tolerance ${tolerance}` : ""}).`,
+  )}%, diff ${diff.toFixed(2)}pp${tolerance ? `, tolerance ${tolerance}` : ""}).`,
 );
