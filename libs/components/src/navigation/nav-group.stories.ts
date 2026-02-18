@@ -208,7 +208,7 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
             class="tw-ms-auto"
             bitIconButton="bwi-pencil-square"
             buttonType="side-nav"
-            size="small"
+            size="xsmall"
             label="Edit"
             (click)="handleEditClick()"
           ></button>
