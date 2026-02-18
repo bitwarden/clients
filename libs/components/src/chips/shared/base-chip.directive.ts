@@ -3,18 +3,12 @@ import { Directive, ElementRef, booleanAttribute, computed, inject, input } from
 import { AriaDisableDirective } from "../../a11y/aria-disable.directive";
 import { ariaDisableElement } from "../../utils/aria-disable-element";
 
-export type ChipVariant = "primary" | "subtle" | "accent-primary" | "accent-secondary";
-
-export type ChipSize = "small" | "large";
-
 // Helper constants for Storybook and default values
-export const CHIP_VARIANTS: ChipVariant[] = [
-  "primary",
-  "subtle",
-  "accent-primary",
-  "accent-secondary",
-];
-export const CHIP_SIZES: ChipSize[] = ["small", "large"];
+export const CHIP_VARIANTS = ["primary", "subtle", "accent-primary", "accent-secondary"] as const;
+export type ChipVariant = (typeof CHIP_VARIANTS)[number];
+
+export const CHIP_SIZES = ["small", "large"] as const;
+export type ChipSize = (typeof CHIP_SIZES)[number];
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -145,7 +139,7 @@ export class BaseChipDirective {
     if (this.selected()) {
       classes.push(...variantStyles["primary"]);
     } else {
-      classes.push(...variantStyles[this.variant()]);
+      classes.push(...variantStyles[this.variant() || "primary"]);
     }
 
     return classes.join(" ");
