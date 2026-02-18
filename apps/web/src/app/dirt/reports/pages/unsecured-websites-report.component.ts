@@ -71,12 +71,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
    * @param cipher Current cipher with unsecured uri
    */
   private cipherContainsUnsecured(cipher: CipherView): boolean {
-    if (
-      cipher.type !== CipherType.Login ||
-      !cipher.login.hasUris ||
-      cipher.isDeleted ||
-      (!this.organization && !cipher.edit)
-    ) {
+    if (cipher.type !== CipherType.Login || !cipher.login.hasUris || cipher.isDeleted) {
       return false;
     }
 
