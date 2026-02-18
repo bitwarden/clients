@@ -1,4 +1,10 @@
-import { Component, ChangeDetectionStrategy, input, computed } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  computed,
+  booleanAttribute,
+} from "@angular/core";
 
 import { IconComponent } from "../../icon";
 import { BitwardenIcon } from "../../shared/icon";
@@ -28,7 +34,7 @@ export class ChipContentComponent {
 
   readonly size = input<ChipSize>("large");
 
-  readonly dismissible = input<boolean>(false);
+  readonly dismissible = input<boolean>(false, { transform: booleanAttribute });
 
   protected readonly gapClass = computed(() =>
     this.size() === "large" ? "tw-gap-1.5" : "tw-gap-1",
