@@ -7,17 +7,28 @@
     >
       <p class="tw-text-sm tw-font-medium tw-mb-2 tw-text-main">Connect to PqP Network</p>
       <div class="tw-grid tw-gap-2">
+        <button
+          type="button"
+          bitButton
+          block
+          [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
+          (click)="handlePqpGoogleLogin()"
+          [disabled]="pqpNetworkLoggedIn"
+        >
+          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
+          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Google" }}
+        </button>
 
         <button
           type="button"
           bitButton
           block
           [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
-          (click)="handlePqpNetworkLogin()"
+          (click)="handlePqpMicrosoftLogin()"
           [disabled]="pqpNetworkLoggedIn"
         >
           <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
-          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Login to PqP Network" }}
+          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Microsoft" }}
         </button>
       </div>
     </div>

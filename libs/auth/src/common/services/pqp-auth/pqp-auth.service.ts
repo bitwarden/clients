@@ -1,11 +1,6 @@
 import { Injectable } from "@angular/core";
-import {
-  getGoogleUserInfo,
-  login as pqpLogin,
-  isLoggedIn as isPqpLoggedIn,
-  localStateRepository,
-  sha256,
-} from "@ovrlab/pqp-network";
+import { getUserInfo, localStateRepository, sha256 } from "@ovrlab/pqp-network";
+import type { IdentityProvider } from "@ovrlab/pqp-network";
 
 export interface PqpAuthState {
   networkLoggedIn: boolean;
@@ -57,11 +52,12 @@ export class PqpAuthService {
    */
   async checkStatus(): Promise<PqpAuthState> {
     try {
-      this._networkLoggedIn = await isPqpLoggedIn();
+      const response = await chrome.runtime.sendMessage({ type: "CHECK_STATUS" });
+      this._networkLoggedIn = response?.loggedIn ?? false;
 
       // Fetch or clear user info based on network login state
       if (this._networkLoggedIn) {
-        const userInfo = await getGoogleUserInfo();
+        const userInfo = await getUserInfo();
         if (userInfo) {
           this._userEmail = userInfo.email || null;
         }
@@ -86,7 +82,9 @@ export class PqpAuthService {
    * Opens login in new tab. Returns a promise that resolves when login is detected via focus event.
    * If the user returns without completing login, resolves false after the second focus check.
    */
-  async loginToPqpNetwork(): Promise<boolean> {
+  async loginToPqpNetwork(provider: IdentityProvider = "google"): Promise<boolean> {
+    const messageType = provider === "microsoft" ? "LOGIN_MICROSOFT" : "LOGIN";
+
     return new Promise((resolve) => {
       let resolved = false;
       let focusCount = 0;
@@ -101,24 +99,30 @@ export class PqpAuthService {
         }
 
         focusCount++;
-        const isLoggedIn = await isPqpLoggedIn();
-
-        if (isLoggedIn) {
-          resolved = true;
-          cleanup();
-          this._networkLoggedIn = true;
-          await this.derivePassword();
-          resolve(true);
-        } else if (focusCount >= 2) {
-          // User has returned focus without completing login - treat as cancelled
-          resolved = true;
-          cleanup();
-          resolve(false);
+        try {
+          const response = await chrome.runtime.sendMessage({ type: "CHECK_STATUS" });
+          if (response?.loggedIn) {
+            resolved = true;
+            cleanup();
+            this._networkLoggedIn = true;
+            await this.derivePassword();
+            resolve(true);
+          } else if (focusCount >= 2) {
+            resolved = true;
+            cleanup();
+            resolve(false);
+          }
+        } catch {
+          if (focusCount >= 2) {
+            resolved = true;
+            cleanup();
+            resolve(false);
+          }
         }
       };
 
       try {
-        pqpLogin();
+        void chrome.runtime.sendMessage({ type: messageType });
         window.addEventListener("focus", checkLoginStatus);
 
         // Also check immediately after a short delay (in case already logged in)

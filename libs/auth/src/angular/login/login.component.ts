@@ -592,15 +592,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
+  async handlePqpGoogleLogin(): Promise<void> {
+    await this.handlePqpLogin("google");
+  }
 
+  async handlePqpMicrosoftLogin(): Promise<void> {
+    await this.handlePqpLogin("microsoft");
+  }
 
-  async handlePqpNetworkLogin(): Promise<void> {
+  private async handlePqpLogin(provider: "google" | "microsoft"): Promise<void> {
+    const providerName = provider === "google" ? "Google" : "Microsoft";
     this.toastService.showToast({
       variant: "info",
       title: "PqP Network",
-      message: "Complete login in the new tab, then return here",
+      message: `Complete ${providerName} login in the new tab, then return here`,
     });
-    const success = await this.pqpAuthService.loginToPqpNetwork();
+    const success = await this.pqpAuthService.loginToPqpNetwork(provider);
     if (success) {
       this.toastService.showToast({
         variant: "success",

@@ -238,10 +238,12 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
   }
 
+  async handlePqpGoogleLogin(): Promise<void> {
+    await this.pqpAuthService.loginToPqpNetwork("google");
+  }
 
-
-  async handlePqpNetworkLogin(): Promise<void> {
-    await this.pqpAuthService.loginToPqpNetwork();
+  async handlePqpMicrosoftLogin(): Promise<void> {
+    await this.pqpAuthService.loginToPqpNetwork("microsoft");
   }
 
   ngOnDestroy(): void {
