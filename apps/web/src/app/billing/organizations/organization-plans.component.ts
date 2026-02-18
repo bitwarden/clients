@@ -828,7 +828,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+      const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
       if (!paymentMethod) {
         throw new Error("Payment method validation failed");
       }
