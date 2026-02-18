@@ -153,7 +153,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
     this.continuationToken = result.continuationToken;
     events = result.events;
 
-    if (!clearExisting && this.events != null && this.events().length > 0) {
+    if (!clearExisting && this.events() != null && this.events().length > 0) {
       this.events.update((current) => {
         return [...current, ...events];
       });
