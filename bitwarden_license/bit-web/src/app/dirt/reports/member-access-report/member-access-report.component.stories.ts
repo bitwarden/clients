@@ -39,7 +39,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, ScrollLayoutHostDirective } from "@bitwarden/components";
+import { DialogService, ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -61,10 +61,10 @@ function createMockMember(index: number): MemberAccessReportView {
     name: names[index % names.length] || `User ${index}`,
     email: `user${index}@example.com`,
     avatarColor: colors[index % colors.length],
-    collectionsCount: Math.floor(Math.random() * 10) + 1,
-    groupsCount: Math.floor(Math.random() * 5) + 1,
-    itemsCount: Math.floor(Math.random() * 200) + 1,
-    usesKeyConnector: Math.random() > 0.5,
+    collectionsCount: ((index * 3) % 10) + 1, // Deterministic: 1-10
+    groupsCount: ((index * 2) % 5) + 1, // Deterministic: 1-5
+    itemsCount: ((index * 17) % 200) + 1, // Deterministic: 1-200
+    usesKeyConnector: index % 2 === 0, // Deterministic: alternating true/false
   };
 }
 
@@ -121,6 +121,7 @@ export default {
         // File and Dialog Services
         { provide: FileDownloadService, useValue: { download: () => {} } },
         { provide: DialogService, useValue: { open: () => ({ closed: of(null) }) } },
+        { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: UserNamePipe, useValue: { transform: (user: any) => user.name || user.email } },
 
         // Billing Services

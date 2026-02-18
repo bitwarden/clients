@@ -114,7 +114,7 @@ describe("MemberAccessReportService", () => {
     id,
     organizationId: mockOrganizationId,
     name,
-    externalId: null,
+    externalId: null as string | null,
   });
 
   // Scenario helpers to reduce test duplication
