@@ -1,22 +1,15 @@
 import {
-  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   ElementRef,
   inject,
   input,
-  NgZone,
-  OnDestroy,
-  signal,
-  viewChild,
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
-import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 /**
  * @deprecated Use 'primary' instead. This variant will be removed in a future version.
@@ -58,7 +51,7 @@ const variantStyles: Record<BadgeVariant, string[]> = {
 type SizeStyle = {
   label: string[];
   icon: string[];
-}
+};
 
 // Size mappings
 const sizeStyles: Record<BadgeSize, SizeStyle> = {
@@ -98,37 +91,19 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
  * Badges are primarily used as labels, counters, and small buttons.
  *
  * The Badge directive can only be used on a `<span>` tag
- *
  */
 @Component({
   selector: "span[bitBadge]",
   imports: [IconComponent],
   templateUrl: "badge.component.html",
-  hostDirectives: [TooltipDirective],
   host: {
     "[class]": "classList()",
+    "[attr.title]": "titleContent()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BadgeComponent implements OnDestroy {
+export class BadgeComponent {
   private readonly el = inject(ElementRef<HTMLElement>);
-  private readonly tooltipDirective = inject(TooltipDirective);
-  private readonly zone = inject(NgZone);
-
-  /**
-   * Reference to the text container element for overflow detection
-   */
-  private readonly textContainer = viewChild<ElementRef<HTMLElement>>("textContainer");
-
-  /**
-   * Signal tracking whether the badge content is overflowing
-   */
-  private readonly hasOverflow = signal(false);
-
-  /**
-   * ResizeObserver instance for detecting content changes
-   */
-  private resizeObserver?: ResizeObserver;
 
   /**
    * Optional override for the tooltip content when content overflows.
@@ -148,8 +123,8 @@ export class BadgeComponent implements OnDestroy {
   readonly size = input<BadgeSize>("large");
 
   /**
-   * @deprecated This input is no longer used. Truncation is now automatic based on content overflow.
-   * The input remains for backwards compatibility but has no effect.
+   * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
+   * When enabled, a title attribute is automatically added for accessibility.
    */
   readonly truncate = input(true);
 
@@ -170,37 +145,22 @@ export class BadgeComponent implements OnDestroy {
     return this.startIcon() || getDefaultIconForVariant(this.variant());
   });
 
-  constructor() {
-    // Set up overflow detection after initial render
-    afterNextRender(() => {
-      this.checkOverflow();
-      this.setupResizeObserver();
-    });
-
-    // Update tooltip content when overflow state or title changes
-    effect(() => {
-      this.tooltipDirective.tooltipContent.set(this.tooltipContent());
-    });
-  }
-
   protected readonly iconSizeStyles = computed(() => {
     return sizeStyles[this.size()]?.icon;
   });
 
   protected readonly classList = computed(() => {
-    return [...commonStyles, ...sizeStyles[this.size()].label, ...variantStyles[this.variant()]].concat(
-      this.maxWidthClass(),
-    );
+    return [
+      ...commonStyles,
+      ...sizeStyles[this.size()].label,
+      ...variantStyles[this.variant()],
+    ].concat(this.maxWidthClass());
   });
 
   /**
-   * Computed tooltip content - only shows when content is overflowing
+   * Computed title content - only shows when content is overflowing
    */
-  protected readonly tooltipContent = computed(() => {
-    if (!this.hasOverflow()) {
-      return "";
-    }
-
+  protected readonly titleContent = computed(() => {
     // Use custom title if provided, otherwise use text content
     const customTitle = this.title();
     if (customTitle !== undefined) {
@@ -209,54 +169,6 @@ export class BadgeComponent implements OnDestroy {
 
     return this.el.nativeElement?.textContent?.trim() || "";
   });
-
-  /**
-   * Check if text content is overflowing the container
-   */
-  private checkOverflow() {
-    const containerRef = this.textContainer();
-    if (!containerRef) {
-      return;
-    }
-
-    const container = containerRef.nativeElement;
-    // Compare scrollWidth with clientWidth to detect horizontal overflow
-    const isOverflowing = container.scrollWidth > container.clientWidth;
-
-    // Only re-enter zone and trigger change detection if state actually changed
-    if (isOverflowing !== this.hasOverflow()) {
-      this.zone.run(() => {
-        this.hasOverflow.set(isOverflowing);
-      });
-    }
-  }
-
-  /**
-   * Set up ResizeObserver to detect content changes
-   * Runs outside Angular zone to prevent automatic change detection.
-   * We manually trigger CD only when overflow state changes.
-   * Pattern follows table-scroll.component.ts
-   */
-  private setupResizeObserver() {
-    const containerRef = this.textContainer();
-    if (!containerRef) {
-      return;
-    }
-
-    const container = containerRef.nativeElement;
-    // Run observer outside Angular zone to prevent automatic CD
-    this.zone.runOutsideAngular(() => {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.checkOverflow();
-      });
-
-      this.resizeObserver.observe(container);
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
-  }
 
   getFocusTarget() {
     return this.el.nativeElement;
