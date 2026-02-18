@@ -225,8 +225,8 @@ jobs:
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
           _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: |
-          cd "./dist/${{ matrix.license_type.build_prefix }}/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}"
-          ditto -c -k --sequesterRsrc ./bw "../../bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip"
+          cd "./dist/${{ matrix.license_type.build_prefix }}"
+          ditto -c -k --keepParent --sequesterRsrc "$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}/bw" "../bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip"
 
       - name: Package Linux binary with zip
         if: ${{ matrix.os.base == 'linux' }}
@@ -269,7 +269,13 @@ jobs:
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: |
           unzip "./dist/bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip" -d "./test"
-          testVersion=$(./test/bw -v)
+          # macOS archives use --keepParent, so binary is in a subdirectory
+          # Linux archives use zip, so binary is at root
+          if [[ "${{ matrix.os.base }}" == "mac" ]]; then
+            testVersion=$(./test/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}/bw -v)
+          else
+            testVersion=$(./test/bw -v)
+          fi
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
           if [[ $testVersion != "$_PACKAGE_VERSION" ]]; then
