@@ -38,7 +38,7 @@ export class BerryComponent {
   });
 
   protected readonly textColor = computed(() => {
-    return this.variant() === "contrast" ? "tw-text-fg-dark" : "tw-text-fg-white";
+    return this.variant() === "contrast" ? "tw-text-fg-heading" : "tw-text-fg-contrast";
   });
 
   protected readonly padding = computed(() => {
@@ -67,7 +67,7 @@ export class BerryComponent {
       warning: "tw-bg-bg-warning",
       danger: "tw-bg-bg-danger",
       accentPrimary: "tw-bg-fg-accent-primary-strong",
-      contrast: "tw-bg-bg-white",
+      contrast: "tw-bg-bg-primary",
     };
 
     return [
