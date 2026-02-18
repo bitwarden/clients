@@ -99,13 +99,10 @@ The base chip component displays a label with an optional start icon and a dismi
   selector: "app-my-component",
   template: `
     <div class="tw-flex tw-flex-wrap tw-gap-2">
-      <bit-chip
-        *ngFor="let tag of tags"
-        [label]="tag.name"
-        startIcon="bwi-tag"
-        (chipDismissed)="removeTag(tag)"
-      >
-      </bit-chip>
+      @for (tag of tags; track tag.id) {
+        <bit-chip [label]="tag.name" startIcon="bwi-tag" (chipDismissed)="removeTag(tag)">
+        </bit-chip>
+      }
     </div>
   `,
 })
