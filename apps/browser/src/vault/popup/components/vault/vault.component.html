@@ -127,7 +127,7 @@
             <!--Change the title header when a filter is applied-->
             <app-vault-list-items-container
               [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
-              [ciphers]="(remainingCiphers$ | async) || []"
+              [ciphers]="(filteredCiphers$ | async) || []"
               id="allItems"
               disableSectionMargin
               collapsibleKey="allItems"

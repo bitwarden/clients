@@ -370,37 +370,6 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  describe("remainingCiphers$", () => {
-    beforeEach(() => {
-      searchService.isSearchable.mockImplementation(async (text) => text.length > 2);
-    });
-
-    it("should exclude autofill and favorite ciphers", (done) => {
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // 2 autofill ciphers, 2 favorite ciphers = 6 remaining ciphers to show
-        expect(ciphers.length).toBe(6);
-        done();
-      });
-    });
-
-    it("should filter remainingCiphers$ down to search term", (done) => {
-      const cipherList = Object.values(allCiphers);
-      const searchText = "Login";
-
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
-
-      service.remainingCiphers$.subscribe((ciphers) => {
-        // There are 6 remaining ciphers but only 2 with "Login" in the name
-        expect(ciphers.length).toBe(2);
-        done();
-      });
-    });
-  });
-
   describe("emptyVault$", () => {
     it("should return true if there are no ciphers", (done) => {
       cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
@@ -493,8 +462,8 @@ describe("VaultPopupItemsService", () => {
       // Start tracking loading$ emissions
       tracked = new ObservableTracker(service.loading$);
 
-      // Track remainingCiphers$ to make cipher observables active
-      trackedCiphers = new ObservableTracker(service.remainingCiphers$);
+      // Track favoriteCiphers$ to make cipher observables active
+      trackedCiphers = new ObservableTracker(service.favoriteCiphers$);
     });
 
     it("should initialize with true first", async () => {
