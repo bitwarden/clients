@@ -94,11 +94,12 @@ describe("FoldersComponent", () => {
     fixture.detectChanges();
   });
 
-  it("removes the last option in the folder array", (done) => {
+  it("should show all folders", (done) => {
     component.folders$.subscribe((folders) => {
       expect(folders).toEqual([
         { id: "1", name: "Folder 1" },
         { id: "2", name: "Folder 2" },
+        { id: "0", name: "No Folder" },
       ]);
       done();
     });

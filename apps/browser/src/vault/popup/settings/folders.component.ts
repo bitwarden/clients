@@ -53,13 +53,6 @@ export class FoldersComponent {
     this.folders$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId !== null),
       switchMap((userId) => this.folderService.folderViews$(userId)),
-      map((folders) => {
-        // Remove the last folder, which is the "no folder" option folder
-        if (folders.length > 0) {
-          return folders.slice(0, folders.length - 1);
-        }
-        return folders;
-      }),
     );
   }
 
