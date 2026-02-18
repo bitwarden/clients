@@ -90,6 +90,7 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherMiniResponse, CipherResponse } from "../vault/models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
@@ -239,8 +240,14 @@ export abstract class ApiService {
     id: string,
     request: AttachmentRequest,
   ): Promise<AttachmentUploadDataResponse>;
-  abstract deleteCipherAttachment(id: string, attachmentId: string): Promise<any>;
-  abstract deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any>;
+  abstract deleteCipherAttachment(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse>;
+  abstract deleteCipherAttachmentAdmin(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse>;
   abstract postShareCipherAttachment(
     id: string,
     attachmentId: string,
