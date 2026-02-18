@@ -60,7 +60,7 @@
 </ng-container>
 <ng-container *ngIf="loaded">
   <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
-  <bit-table *ngIf="events && events.length">
+  <bit-table *ngIf="events && events.length" data-testid="events-table">
     <ng-container header>
       <tr>
         <th bitCell>{{ "timestamp" | i18n }}</th>
