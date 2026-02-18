@@ -37,7 +37,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -57,7 +57,7 @@ function createMockMember(index: number): MemberAccessReportView {
   const colors = ["#175ddc", "#7c5cdb", "#c93d63", "#d1860a", "#178d5c"];
 
   return {
-    userGuid: `user-${index}` as any,
+    userGuid: `user-${index}` as Guid,
     name: names[index % names.length] || `User ${index}`,
     email: `user${index}@example.com`,
     avatarColor: colors[index % colors.length],
@@ -122,7 +122,12 @@ export default {
         { provide: FileDownloadService, useValue: { download: () => {} } },
         { provide: DialogService, useValue: { open: () => ({ closed: of(null) }) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
-        { provide: UserNamePipe, useValue: { transform: (user: any) => user.name || user.email } },
+        {
+          provide: UserNamePipe,
+          useValue: {
+            transform: (user: { name?: string; email?: string }) => user.name || user.email,
+          },
+        },
 
         // Billing Services
         { provide: BillingApiServiceAbstraction, useValue: {} },

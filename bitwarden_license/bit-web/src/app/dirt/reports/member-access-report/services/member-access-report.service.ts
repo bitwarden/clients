@@ -19,6 +19,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
 import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
@@ -275,7 +276,7 @@ export class MemberAccessReportService {
     ]);
 
     // Build collection map
-    const collectionMap = new Map<string, any>();
+    const collectionMap = new Map<string, CollectionAdminView>();
     collections.forEach((c) => collectionMap.set(c.id, c));
 
     // Build group name lookup map
@@ -334,7 +335,7 @@ export class MemberAccessReportService {
    * @returns Map of access paths with cipher ID sets
    */
   private _mapCiphersToMembersV2(
-    ciphers: any[],
+    ciphers: CipherView[],
     orgData: MemberAccessDataV2,
   ): Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }> {
     const accessMap = new Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }>();
@@ -432,7 +433,7 @@ export class MemberAccessReportService {
    * Fetch ciphers with 5-minute timeout protection
    * @private
    */
-  private async _fetchCiphersWithTimeout(organizationId: OrganizationId): Promise<any[]> {
+  private async _fetchCiphersWithTimeout(organizationId: OrganizationId): Promise<CipherView[]> {
     const TIMEOUT_MS = 300000; // 5 minutes
 
     const timeoutPromise = new Promise<never>((_, reject) => {

@@ -18,7 +18,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
-import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  GroupApiService,
+  GroupView,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 import {
@@ -110,12 +113,14 @@ describe("MemberAccessReportService", () => {
     collectionIds,
   });
 
-  const createMockGroup = (id: string, name: string) => ({
-    id,
-    organizationId: mockOrganizationId,
-    name,
-    externalId: null as string | null,
-  });
+  const createMockGroup = (id: string, name: string): GroupView => {
+    const group = new GroupView();
+    group.id = id;
+    group.organizationId = mockOrganizationId;
+    group.name = name;
+    group.externalId = "";
+    return group;
+  };
 
   // Scenario helpers to reduce test duplication
   const setupSingleUserWithDirectAccess = (
