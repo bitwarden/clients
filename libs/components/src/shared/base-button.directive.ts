@@ -14,6 +14,7 @@ export const focusRing = [
 
 export const getIconButtonSizeStyles = (size: ButtonSize): string[] => {
   const iconButtonSizes: Record<string, string[]> = {
+    xsmall: ["tw-text-base", "tw-size-6"],
     small: ["tw-text-xl", "tw-size-8"],
     default: ["tw-text-2xl", "tw-size-10"],
     large: ["tw-text-[2rem]", "tw-size-11"],

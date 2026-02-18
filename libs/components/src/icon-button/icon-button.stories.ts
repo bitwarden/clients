@@ -56,11 +56,11 @@ export default {
       },
     },
     size: {
-      options: ["small", "default"],
+      options: ["xsmall", "small", "default"],
       control: { type: "radio" },
       description: "The size of the icon button",
       table: {
-        type: { summary: '"small" | "default"' },
+        type: { summary: '"xsmall" | "small" | "default"' },
         defaultValue: { summary: "default" },
       },
     },
