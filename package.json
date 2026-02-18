@@ -21,6 +21,7 @@
     "test": "jest",
     "test:watch": "jest --clearCache && jest --watch",
     "test:watch:all": "jest --watchAll",
+    "test:pqp": "jest --config test/jest.config.js",
     "test:types": "node ./scripts/test-types.js",
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
