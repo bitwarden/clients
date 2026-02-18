@@ -25,7 +25,7 @@
               {{ s.name }}
               @if (s.disabled) {
                 <i
-                  class="bwi bwi-exclamation-triangle"
+                  class="bwi bwi-exclamation-triangle tw-text-muted"
                   appStopProp
                   title="{{ 'disabled' | i18n }}"
                   aria-hidden="true"
@@ -36,7 +36,7 @@
                 @let titleKey =
                   s.authType === authType.Email ? "emailProtected" : "passwordProtected";
                 <i
-                  class="bwi bwi-lock"
+                  class="bwi bwi-lock tw-text-muted"
                   appStopProp
                   title="{{ titleKey | i18n }}"
                   aria-hidden="true"
@@ -45,7 +45,7 @@
               }
               @if (s.maxAccessCountReached) {
                 <i
-                  class="bwi bwi-exclamation-triangle"
+                  class="bwi bwi-exclamation-triangle tw-text-muted"
                   appStopProp
                   title="{{ 'maxAccessCountReached' | i18n }}"
                   aria-hidden="true"
@@ -54,7 +54,7 @@
               }
               @if (s.expired) {
                 <i
-                  class="bwi bwi-clock"
+                  class="bwi bwi-clock tw-text-muted"
                   appStopProp
                   title="{{ 'expired' | i18n }}"
                   aria-hidden="true"
@@ -63,7 +63,7 @@
               }
               @if (s.pendingDelete) {
                 <i
-                  class="bwi bwi-trash"
+                  class="bwi bwi-trash tw-text-muted"
                   appStopProp
                   title="{{ 'pendingDeletion' | i18n }}"
                   aria-hidden="true"
