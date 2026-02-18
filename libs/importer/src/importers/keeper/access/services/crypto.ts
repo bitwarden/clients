@@ -2,7 +2,7 @@ import * as forge from "node-forge";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { RecordKeyType } from "./generated/record";
+import { RecordKeyType } from "../generated/record";
 
 const AES_GCM_NONCE_SIZE = 12;
 const AES_GCM_TAG_SIZE = 16;

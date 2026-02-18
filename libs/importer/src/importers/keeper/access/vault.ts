@@ -1,29 +1,6 @@
-import { Client, ClientOptions } from "./client";
-import { base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./crypto";
 import * as sd from "./generated/SyncDown";
-
-export type VaultItem = RecordV3 & {
-  id: string;
-  folders: string[];
-};
-
-export type VaultField = {
-  type: string;
-  value: unknown[];
-  label?: string;
-};
-
-// TODO: Add RecordV2!
-
-type RecordV3 = {
-  type: string;
-  title: string;
-  notes: string;
-  fields: VaultField[];
-  custom: VaultField[];
-};
-
-type Decryptor = (data: Uint8Array, key: Uint8Array) => Promise<Uint8Array>;
+import { ClientOptions, Decryptor, RecordV3, VaultItem } from "./models";
+import { Client, base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./services";
 
 export class Vault {
   static async open(username: string, password: string, options: ClientOptions): Promise<Vault> {

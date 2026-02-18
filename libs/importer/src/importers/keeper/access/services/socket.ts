@@ -1,24 +1,9 @@
+import { ApiRequest, ApiRequestPayload } from "../generated/APIRequest";
+import { WssClientResponse, WssConnectionRequest } from "../generated/push";
+import { PendingMessage, PushMessage, SocketListener } from "../models";
+
 import { base64UrlEncode, decryptAesV2, encryptAesV2 } from "./crypto";
-import { ApiRequest, ApiRequestPayload } from "./generated/APIRequest";
-import { MessageType, WssClientResponse, WssConnectionRequest } from "./generated/push";
 import { encryptWithKeeperKey } from "./keys";
-
-export { MessageType };
-
-export interface PushMessage {
-  messageType: MessageType;
-  message: Record<string, unknown>;
-}
-
-export interface SocketListener {
-  waitForMessage(): Promise<PushMessage>;
-  disconnect(): void;
-}
-
-interface PendingMessage {
-  resolve: (message: PushMessage) => void;
-  reject: (error: Error) => void;
-}
 
 export async function connectPushSocket(
   server: string,
