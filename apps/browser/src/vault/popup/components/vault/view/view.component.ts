@@ -391,6 +391,8 @@ export class ViewComponent {
       return;
     }
 
+    //this tab checking should be moved into the vault-popup-autofill service in case the current tab is changed
+    //ticket: https://bitwarden.atlassian.net/browse/PM-32467
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
 
     if (!currentTab?.url) {
