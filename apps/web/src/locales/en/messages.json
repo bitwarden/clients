@@ -12853,7 +12853,7 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
-    "extensionPromptHeading": {
+  "extensionPromptHeading": {
     "message": "Get the extension for easy vault access"
   },
   "extensionPromptBody": {
