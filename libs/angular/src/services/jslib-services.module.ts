@@ -56,6 +56,10 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -859,7 +863,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      CryptoFunctionServiceAbstraction,
       ConfigService,
     ],
   }),
@@ -1062,6 +1065,19 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiServiceAbstraction,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+      InternalPolicyService,
+    ],
+  }),
+  safeProvider({
     provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? NoopServerNotificationsService
@@ -1080,6 +1096,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      AutomaticUserConfirmationService,
     ],
   }),
   safeProvider({
@@ -1511,7 +1528,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
+    deps: [BillingApiServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,

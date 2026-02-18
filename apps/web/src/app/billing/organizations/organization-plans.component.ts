@@ -113,8 +113,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentPlan: PlanResponse;
 
-  selectedFile: File;
-
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
@@ -675,9 +673,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         const collectionCt = collection.encryptedString;
         const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
-        orgId = this.selfHosted
-          ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
+        orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -951,27 +947,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else {
       return (await this.organizationApiService.create(request)).id;
     }
-  }
-
-  private async createSelfHosted(key: string, collectionCt: string, orgKeys: [string, EncString]) {
-    if (!this.selectedFile) {
-      throw new Error(this.i18nService.t("selectFile"));
-    }
-
-    const fd = new FormData();
-    fd.append("license", this.selectedFile);
-    fd.append("key", key);
-    fd.append("collectionName", collectionCt);
-    const response = await this.organizationApiService.createLicense(fd);
-    const orgId = response.id;
-
-    await this.apiService.refreshIdentityToken();
-
-    // Org Keys live outside of the OrganizationLicense - add the keys to the org here
-    const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
-    await this.organizationApiService.updateKeys(orgId, request);
-
-    return orgId;
   }
 
   private billingSubLabelText(): string {

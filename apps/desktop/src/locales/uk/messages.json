@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
-  "itemWasSentToArchive": {
-    "message": "Запис архівовано"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Запис розархівовано"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Архівувати запис"
@@ -4485,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
