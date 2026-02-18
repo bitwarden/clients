@@ -202,7 +202,8 @@ export class LockComponent implements OnInit, OnDestroy {
     timer(0, 1000)
       .pipe(
         mergeMap(async () => {
-          if (this.activeAccount?.id != null) {
+          // Only perform polling after the component has loaded. This prevents multiple sources setting the default active unlock option on initialization.
+          if (this.loading === false && this.activeAccount?.id != null) {
             const prevBiometricsEnabled = this.unlockOptions?.biometrics.enabled;
 
             this.unlockOptions = await firstValueFrom(
@@ -210,7 +211,6 @@ export class LockComponent implements OnInit, OnDestroy {
             );
 
             if (this.activeUnlockOption == null) {
-              this.loading = false;
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
             } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
@@ -275,19 +275,18 @@ export class LockComponent implements OnInit, OnDestroy {
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
 
-    const canUseBiometrics = [
-      BiometricsStatus.Available,
-      ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
-    ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
-    if (
-      !this.unlockOptions?.masterPassword.enabled &&
-      !this.unlockOptions?.pin.enabled &&
-      !canUseBiometrics
-    ) {
-      // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
-      this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
-      await this.logoutService.logout(activeAccount.id);
-      return;
+    // The canUseBiometrics query is an expensive operation. Only call if both PIN and master password unlock are unavailable.
+    if (!this.unlockOptions?.masterPassword.enabled && !this.unlockOptions?.pin.enabled) {
+      const canUseBiometrics = [
+        BiometricsStatus.Available,
+        ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
+      ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
+      if (!canUseBiometrics) {
+        // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
+        this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
+        await this.logoutService.logout(activeAccount.id);
+        return;
+      }
     }
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
