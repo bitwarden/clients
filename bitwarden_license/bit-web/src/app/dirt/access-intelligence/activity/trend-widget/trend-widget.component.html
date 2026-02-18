@@ -7,7 +7,7 @@
   </div>
   <div class="tw-flex tw-justify-between tw-items-center">
     <div>
-      <bit-toggle-group aria-label="at risk chart view selector">
+      <bit-toggle-group [(selected)]="selectedView" aria-label="at risk chart view selector">
         <bit-toggle value="applications">Applications</bit-toggle>
         <bit-toggle value="passwords">Passwords</bit-toggle>
         <bit-toggle value="members">Members</bit-toggle>
@@ -24,6 +24,6 @@
     </div>
   </div>
   <div class="tw-relative tw-h-96">
-    <canvas #chartCanvas></canvas>
+    <line-chart [lines]="lineChartData()"></line-chart>
   </div>
 </div>
