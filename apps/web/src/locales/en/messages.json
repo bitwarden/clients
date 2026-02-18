@@ -11844,6 +11844,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
