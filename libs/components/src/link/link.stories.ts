@@ -2,7 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
-import { AnchorLinkDirective, ButtonLinkDirective, LinkTypes } from "./link.directive";
+import { LinkComponent, LinkTypes } from "./link.component";
 import { LinkModule } from "./link.module";
 
 export default {
@@ -26,7 +26,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<ButtonLinkDirective>;
+type Story = StoryObj<LinkComponent>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -40,9 +40,9 @@ export const Default: Story = {
             : "tw-bg-transparent",
     },
     template: /*html*/ `
-      <div class="tw-p-2" [class]="backgroundClass">
-        <a bitLink href="" ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
-      </div>
+    <div class="tw-p-2" [class]="backgroundClass">
+      <a bitLink href="#" ${formatArgsForCodeSnippet<LinkComponent>(args)}>Your text here</a>
+    </div>
     `,
   }),
   args: {
@@ -181,14 +181,12 @@ export const Buttons: Story = {
         <button type="button" bitLink [linkType]="linkType">Button</button>
       </div>
       <div class="tw-block tw-p-2">
-        <button type="button" bitLink [linkType]="linkType">
-          <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-plus-circle">
           Add Icon Button
         </button>
       </div>
       <div class="tw-block tw-p-2">
-        <button type="button" bitLink [linkType]="linkType">
-          <i class="bwi bwi-fw bwi-sm bwi-angle-right" aria-hidden="true"></i>
+        <button type="button" bitLink [linkType]="linkType" endIcon="bwi-angle-right">
           Chevron Icon Button
         </button>
       </div>
@@ -203,7 +201,7 @@ export const Buttons: Story = {
   },
 };
 
-export const Anchors: StoryObj<AnchorLinkDirective> = {
+export const Anchors: StoryObj<LinkComponent> = {
   render: (args) => ({
     props: {
       linkType: args.linkType,
@@ -220,14 +218,12 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
         <a bitLink [linkType]="linkType" href="#">Anchor</a>
       </div>
       <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#">
-          <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-plus-circle">
           Add Icon Anchor
         </a>
       </div>
       <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#">
-          <i class="bwi bwi-fw bwi-sm bwi-angle-right" aria-hidden="true"></i>
+        <a bitLink [linkType]="linkType" href="#" endIcon="bwi-angle-right">
           Chevron Icon Anchor
         </a>
       </div>
@@ -247,20 +243,57 @@ export const Inline: Story = {
     props: args,
     template: /*html*/ `
       <span class="tw-text-main">
-        On the internet paragraphs often contain <a bitLink href="#">inline links</a>, but few know that <button type="button" bitLink>buttons</button> can be used for similar purposes.
+        On the internet paragraphs often contain <a bitLink href="#">inline links with very long text that might break</a>, but few know that <button type="button" bitLink>buttons</button> can be used for similar purposes.
       </span>
     `,
   }),
 };
 
-export const Inactive: Story = {
+export const WithIcons: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button type="button" bitLink disabled linkType="primary" class="tw-me-2">Primary</button>
-      <button type="button" bitLink disabled linkType="secondary" class="tw-me-2">Secondary</button>
-      <div class="tw-bg-bg-contrast tw-p-2 tw-inline-block">
-        <button type="button" bitLink disabled linkType="contrast">Contrast</button>
+    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
+      <div class="tw-block tw-p-2">
+        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-star">Start icon link</a>
+      </div>
+      <div class="tw-block tw-p-2">
+        <a bitLink [linkType]="linkType" href="#" endIcon="bwi-external-link">External link</a>
+      </div>
+      <div class="tw-block tw-p-2">
+        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-angle-left" endIcon="bwi-angle-right">Both icons</a>
+      </div>
+      <div class="tw-block tw-p-2">
+        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-plus-circle">Add item</button>
+      </div>
+      <div class="tw-block tw-p-2">
+        <button type="button" bitLink [linkType]="linkType" endIcon="bwi-angle-right">Next</button>
+      </div>
+      <div class="tw-block tw-p-2">
+        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-download" endIcon="bwi-check">Download complete</button>
+      </div>
+    </div>
+    `,
+  }),
+  args: {
+    linkType: "primary",
+  },
+};
+
+export const Inactive: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      onClick: () => {
+        alert("Button clicked! (This should not appear when disabled)");
+      },
+    },
+    template: /*html*/ `
+      <button type="button" bitLink (click)="onClick()" disabled linkType="primary" class="tw-me-2">Primary button</button>
+      <a bitLink href="" disabled linkType="primary" class="tw-me-2">Links can not be inactive</a>
+      <button type="button" bitLink disabled linkType="secondary" class="tw-me-2">Secondary button</button>
+      <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">
+        <button type="button" bitLink disabled linkType="contrast">Contrast button</button>
       </div>
     `,
   }),

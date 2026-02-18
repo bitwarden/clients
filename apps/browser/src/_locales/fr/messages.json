@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
   },
@@ -570,20 +573,17 @@
   "noItemsInArchiveDesc": {
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
-  "itemWasSentToArchive": {
-    "message": "L'élément a été envoyé à l'archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "L'élément a été désarchivé"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -986,6 +986,12 @@
   },
   "no": {
     "message": "Non"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Emplacement"
@@ -2045,6 +2051,9 @@
   "email": {
     "message": "Courriel"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Téléphone"
   },
@@ -2473,6 +2482,9 @@
   "permanentlyDeletedItem": {
     "message": "Élément définitivement supprimé"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Restaurer l'élément"
   },
@@ -2731,9 +2743,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines. Vous devez actualiser la page pour que les modifications prennent effet."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines pour tous les comptes connectés. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "blockedDomainsDesc": {
     "message": "La saisie automatique et d'autres fonctionnalités connexes ne seront pas proposées pour ces sites web. Vous devez actualiser la page pour que les modifications soient prises en compte."
@@ -3020,10 +3029,6 @@
   "custom": {
     "message": "Personnalisé"
   },
-  "sendPasswordDescV3": {
-    "message": "Ajouter un mot de passe facultatif pour que les destinataires puissent accéder à ce Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nouveau Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3083,28 +3088,8 @@
     "message": "Send sauvegardé",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Détacher l'extension ?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Pour créer un envoi de fichier Send, vous devez détacher l'extension dans une nouvelle fenêtre.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Pour choisir un fichier, ouvrez l'extension dans la barre latérale (si possible) ou ouvrez une nouvelle fenêtre en cliquant sur cette bannière."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Afin de choisir un fichier en utilisant Firefox, ouvrez l'extension dans la barre latérale ou ouvrez une nouvelle fenêtre en cliquant sur cette bannière."
-  },
-  "sendSafariFileWarning": {
-    "message": "Pour choisir un fichier avec Safari, ouvrez une nouvelle fenêtre en cliquant sur cette bannière."
-  },
   "popOut": {
     "message": "Détacher"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Avant de commencer"
   },
   "expirationDateIsInvalid": {
     "message": "La date d'expiration indiquée n'est pas valide."
@@ -3363,6 +3348,12 @@
   },
   "error": {
     "message": "Erreur"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Erreur de déchiffrement"
@@ -4739,6 +4730,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Plus d'options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +4980,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Télécharger Bitwarden"
   },
@@ -5125,14 +5122,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Masquer la détection de correspondance $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Saisir automatiquement lors du chargement de la page ?"
@@ -5670,6 +5664,9 @@
   "extraWide": {
     "message": "Très large"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Le mot de passe saisi est incorrect."
   },
@@ -5963,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Numéro de carte"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
   },
@@ -6100,7 +6100,38 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

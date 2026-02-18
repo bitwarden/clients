@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "முக்கியமான பயன்பாடுகளில் ஆபத்து ஏதும் இல்லை"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "அணுகல் நுண்ணறிவு"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "கடவுச்சொல் ஆபத்து"
@@ -23,8 +47,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "reviewAtRiskPasswords": {
-    "message": "பயன்பாடுகள் முழுவதும் ஆபத்தான கடவுச்சொற்களை (பலவீனமான, அம்பலப்படுத்தப்பட்ட, அல்லது மீண்டும் பயன்படுத்தப்பட்ட) மதிப்பாய்வு செய்யவும். உங்கள் பயனர்களுக்கான ஆபத்தான கடவுச்சொற்களை நிவர்த்தி செய்ய பாதுகாப்பு நடவடிக்கைகளுக்கு முன்னுரிமை அளிக்க, உங்கள் மிக முக்கியமான பயன்பாடுகளைத் தேர்ந்தெடுக்கவும்."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Review at-risk logins"
@@ -244,11 +268,50 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "பயன்பாடு"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "ஆபத்தான கடவுச்சொற்கள்"
@@ -585,6 +648,9 @@
   },
   "email": {
     "message": "மின்னஞ்சல்"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "தொலைபேசி"
@@ -1217,6 +1283,9 @@
   "selectAll": {
     "message": "அனைத்தையும் தேர்ந்தெடு"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "தேர்ந்தெடுத்ததை நீக்கு"
   },
@@ -1364,6 +1433,12 @@
   },
   "no": {
     "message": "இல்லை"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "இடம்"
@@ -3263,6 +3338,15 @@
   "reinstated": {
     "message": "சந்தா மீட்டெடுக்கப்பட்டது."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "நீங்கள் ரத்துசெய்ய விரும்புகிறீர்களா? இந்த பில்லிங் சுழற்சியின் முடிவில் இந்தச் சந்தாவின் அனைத்து அம்சங்களுக்கான அணுகலையும் நீங்கள் இழப்பீர்கள்."
   },
@@ -3280,6 +3364,9 @@
   },
   "nextChargeHeader": {
     "message": "Next Charge"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Plan"
@@ -3768,6 +3855,9 @@
   },
   "editCollection": {
     "message": "சேகரிப்பைத் திருத்து"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "சேகரிப்பு தகவல்"
@@ -5349,8 +5439,8 @@
   "minimumNumberOfWords": {
     "message": "குறைந்தபட்ச சொற்களின் எண்ணிக்கை"
   },
-  "overridePasswordTypePolicy": {
-    "message": "கடவுச்சொல் வகை",
+  "passwordTypePolicyOverride": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5417,6 +5507,12 @@
   },
   "restoreSelected": {
     "message": "தேர்ந்தெடுக்கப்பட்டதை மீட்டமை"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
   },
   "restoredItem": {
     "message": "உருப்படி மீட்டமைக்கப்பட்டது"
@@ -5600,10 +5696,6 @@
   "sendTypeText": {
     "message": "உரை"
   },
-  "sendPasswordDescV3": {
-    "message": "பெறுநர்கள் இந்த Send-ஐ அணுகுவதற்கு ஒரு விருப்ப கடவுச்சொல்லைச் சேர்க்கவும்.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "புதிய Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5620,13 +5712,33 @@
     "message": "Send created successfully!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
     "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +6020,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "நிறுவன தரவு உரிமையை அமல்படுத்து"
@@ -6295,6 +6438,10 @@
     "message": "Send ஐப் பார்க்கவும்",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "இந்த Send-ஐ உருவாக்கிய Bitwarden பயனர் தங்கள் மின்னஞ்சல் முகவரியை மறைக்கத் தேர்ந்தெடுத்துள்ளார். இதன் உள்ளடக்கத்தைப் பயன்படுத்துவதற்கு அல்லது பதிவிறக்குவதற்கு முன், இந்த இணைப்பின் மூலத்தை நீங்கள் நம்புகிறீர்கள் என்பதை உறுதிப்படுத்த வேண்டும்.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6539,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
     "placeholders": {
@@ -6555,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "வெற்றிகரமாக அகற்றப்பட்டது"
@@ -6888,17 +7091,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவன கொள்கைகள் உங்கள் தனிப்பட்ட பெட்டகத்தை ஏற்றுமதி செய்வதைத் தடுக்கின்றன."
   },
-  "activateAutofill": {
-    "message": "தானாக நிரப்புவதை செயல்படுத்து"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "ஏற்கனவே உள்ள மற்றும் புதிய அனைத்து உறுப்பினர்களுக்கும் உலாவி நீட்டிப்பில் பக்கம் ஏற்றப்படும்போது தானாக நிரப்பும் அமைப்பைச் செயல்படுத்து."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "சந்தேகத்திற்குரிய அல்லது நம்பத்தகாத வலைத்தளங்கள் பக்கம் ஏற்றப்படும்போது தானாக நிரப்புவதைப் பயன்படுத்திக் கொள்ளலாம்."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "தானாக நிரப்புதல் பற்றி மேலும் அறிக"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "SSO வகையைத் தேர்ந்தெடுக்கவும்"
@@ -9994,6 +10197,9 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
   },
@@ -10395,8 +10601,14 @@
   "datadogEventIntegrationDesc": {
     "message": "Send vault event data to your Datadog instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "ஒருங்கிணைப்பைச் சேமிக்கத் தவறிவிட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "You must be the organization owner to perform this action."
@@ -10505,6 +10717,12 @@
   },
   "index": {
     "message": "குறியீடு"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "ஒரு திட்டத்தைத் தேர்ந்தெடுக்கவும்"
@@ -11320,6 +11538,18 @@
   "automaticDomainClaimProcess": {
     "message": "முதல் 72 மணிநேரத்திற்குள் 3 முறை டொமைனைக் கோர Bitwarden முயற்சிக்கும். டொமைனைக் கோர முடியவில்லையெனில், உங்கள் ஹோஸ்டில் உள்ள DNS பதிவைச் சரிபார்த்து, கைமுறையாகக் கோரவும். டொமைன் கோரப்படாவிட்டால் 7 நாட்களில் உங்கள் அமைப்பிலிருந்து அகற்றப்படும்."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ கோரப்படவில்லை. உங்கள் DNS பதிவுகளைச் சரிபார்க்கவும்.",
     "placeholders": {
@@ -11332,8 +11562,8 @@
   "domainStatusClaimed": {
     "message": "கோரப்பட்டது"
   },
-  "domainStatusUnderVerification": {
-    "message": "சரிபார்ப்பில் உள்ளது"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "உறுப்பினர் கணக்குகளைச் சொந்தமாக்க ஒரு டொமைனைக் கோரவும். கோரப்பட்ட டொமைன்கள் கொண்ட உறுப்பினர்களுக்காக உள்நுழையும் போது SSO அடையாளங்காட்டி பக்கம் தவிர்க்கப்படும், மேலும் நிர்வாகிகள் கோரப்பட்ட கணக்குகளை நீக்க முடியும்."
@@ -11679,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Items archived"
@@ -11701,8 +11925,8 @@
     "message": "Archive item",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Archive items",
@@ -12055,6 +12279,15 @@
   "verifyNow": {
     "message": "Verify now."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Additional storage GB"
   },
@@ -12359,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
@@ -12621,13 +12857,96 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "You have Premium"
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade to Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgrade to Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "You've upgraded to $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }

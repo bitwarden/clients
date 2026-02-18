@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Không có ứng dụng quan trọng nào bị đe dọa"
   },
+  "critical": {
+    "message": "Critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Not critical ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Critical"
+  },
   "accessIntelligence": {
     "message": "Trí tuệ truy cập"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "No applications match these filters"
   },
   "passwordRisk": {
     "message": "Mật khẩu rủi ro"
@@ -23,8 +47,8 @@
   "noEditPermissions": {
     "message": "Bạn không có quyền chỉnh sửa mục này"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Kiểm tra các mật khẩu có rủi ro (yếu, bị lộ hoặc được sử dụng lại) trên các ứng dụng. Chọn các ứng dụng quan trọng nhất của bạn để ưu tiên các biện pháp bảo mật cho người dùng nhằm giải quyết các mật khẩu có rủi ro."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Xem lại các đăng nhập có rủi ro"
@@ -244,11 +268,50 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Không thể đánh dấu các ứng dụng là quan trọng"
   },
   "application": {
     "message": "Ứng dụng"
+  },
+  "applications": {
+    "message": "Applications"
   },
   "atRiskPasswords": {
     "message": "Mật khẩu có rủi ro cao"
@@ -585,6 +648,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Điện thoại"
@@ -1217,6 +1283,9 @@
   "selectAll": {
     "message": "Chọn tất cả"
   },
+  "deselectAll": {
+    "message": "Deselect all"
+  },
   "unselectAll": {
     "message": "Bỏ chọn tất cả"
   },
@@ -1364,6 +1433,12 @@
   },
   "no": {
     "message": "Không"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Vị trí"
@@ -1973,11 +2048,11 @@
     "message": "Khóa mã hóa tài khoản là duy nhất cho mỗi tài khoản Bitwarden, vì vậy bạn không thể nhập tệp xuất được mã hóa vào một tài khoản khác."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2306,11 +2381,11 @@
     "message": "Công cụ"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2541,7 +2616,7 @@
     "message": "Kích hoạt"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Kích hoạt"
   },
   "restoreAccess": {
     "message": "Khôi phục quyền truy cập"
@@ -3153,7 +3228,7 @@
     "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Mục đã được khôi phục"
   },
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
@@ -3263,6 +3338,15 @@
   "reinstated": {
     "message": "Đã kích hoạt lại gói."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Bạn có chắc muốn hủy không? Bạn sẽ mất hết quyền truy cập tất cả các tính năng của thuê bao này khi kì thanh toán kết thúc."
   },
@@ -3280,6 +3364,9 @@
   },
   "nextChargeHeader": {
     "message": "Lần thanh toán tiếp theo"
+  },
+  "nextChargeDate": {
+    "message": "Next charge date"
   },
   "plan": {
     "message": "Gói"
@@ -3768,6 +3855,9 @@
   },
   "editCollection": {
     "message": "Chỉnh sửa bộ sư tập"
+  },
+  "viewCollection": {
+    "message": "View collection"
   },
   "collectionInfo": {
     "message": "Thông tin bộ sưu tập"
@@ -5349,8 +5439,8 @@
   "minimumNumberOfWords": {
     "message": "Số từ tối thiểu"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Loại mật khẩu",
+  "passwordTypePolicyOverride": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5417,6 +5507,12 @@
   },
   "restoreSelected": {
     "message": "Khôi phục những mục đã chọn"
+  },
+  "archivedItemRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
+  },
+  "archivedItemsRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
   },
   "restoredItem": {
     "message": "Mục đã được khôi phục"
@@ -5600,10 +5696,6 @@
   "sendTypeText": {
     "message": "Văn bản"
   },
-  "sendPasswordDescV3": {
-    "message": "Thêm mật khẩu tùy chọn để người nhận truy cập Send này.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Tạo Send mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5617,16 +5709,36 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Đã tạo Send thành công!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
     "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5640,11 +5752,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "Send văn bản mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "Send tập tin mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5687,7 +5799,7 @@
     "message": "Đã thu hồi"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "Đã chấp nhận"
   },
   "sendLink": {
     "message": "Liên kết Send",
@@ -5908,6 +6020,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Lợi ích"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Thực thi quyền sở hữu dữ liệu của tổ chức"
@@ -6295,6 +6438,10 @@
     "message": "Xem Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Người dùng Bitwarden đã tạo Send này đã chọn ẩn địa chỉ email của họ. Bạn nên đảm bảo rằng bạn tin tưởng nguồn của liên kết này trước khi sử dụng hoặc tải xuống nội dung của nó.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6539,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "Đã mời lại $LIMIT$ trong số $SELECTEDCOUNT$ người dùng. $EXCLUDEDCOUNT$ người đã không được mời do giới hạn mời là $LIMIT$.",
     "placeholders": {
@@ -6555,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Đã xóa thành công"
@@ -6888,17 +7091,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Các chính sách của tổ chức ngăn cản bạn xuất kho lưu trữ cá nhân của mình."
   },
-  "activateAutofill": {
-    "message": "Bật tính năng tự động điền"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Bật tính năng tự động điền khi tải trang trên tiện ích mở rộng trình duyệt cho tất cả thành viên hiện tại và mới."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Các trang web bị xâm phạm hoặc không đáng tin cậy có thể khai thác tính năng tự động điền khi tải trang."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Tìm hiểu thêm về tự động điền"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Chọn loại SSO"
@@ -9994,6 +10197,9 @@
   "assignTasks": {
     "message": "Giao tác vụ"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Gửi thông báo thay đổi mật khẩu"
   },
@@ -10395,8 +10601,14 @@
   "datadogEventIntegrationDesc": {
     "message": "Gửi dữ liệu sự kiện kho bảo mật đến phiên bản Datadog của bạn"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Không thể lưu tích hợp. Vui lòng thử lại sau."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "You must be an Organization Owner or Admin to perform this action."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Bạn phải là chủ sở hữu tổ chức để thực hiện hành động này."
@@ -10505,6 +10717,12 @@
   },
   "index": {
     "message": "Mục lục"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Chọn một gói"
@@ -11320,6 +11538,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden sẽ thử xác nhận tên miền 3 lần trong 72 giờ đầu tiên. Nếu tên miền không thể được xác nhận, hãy kiểm tra bản ghi DNS trong máy chủ của bạn và tự xác nhận. Tên miền sẽ bị xóa khỏi tổ chức của bạn trong 7 ngày nếu không được xác nhận."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ chưa được xác nhận. Vui lòng kiểm tra bản ghi DNS của bạn.",
     "placeholders": {
@@ -11332,8 +11562,8 @@
   "domainStatusClaimed": {
     "message": "Đã xác nhận"
   },
-  "domainStatusUnderVerification": {
-    "message": "Đang trong quá trình xác minh"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Xác nhận một tên miền để sở hữu tài khoản của thành viên. Trang định danh SSO sẽ bị bỏ qua trong quá trình đăng nhập cho các thành viên có tên miền đã xác nhận và quản trị viên sẽ có thể xóa các tài khoản đã xác nhận."
@@ -11621,10 +11851,10 @@
     "message": "Mục đăng nhập này có nguy cơ bị lộ và thiếu trang web. Thêm trang web và thay đổi mật khẩu để tăng cường bảo mật."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Thay đổi ngay"
   },
   "missingWebsite": {
     "message": "Thiếu trang web"
@@ -11665,10 +11895,10 @@
     "message": "Hủy lưu trữ"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Đã lưu trữ"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Bỏ lưu trữ và lưu"
   },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
@@ -11679,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemWasSentToArchive": {
-    "message": "Mục đã được chuyển vào kho lưu trữ"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Các mục đã được chuyển vào lưu trữ"
-  },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Các mục đã được lưu trữ"
@@ -11701,8 +11925,8 @@
     "message": "Lưu trữ mục",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  "archiveItemDialogContent": {
+    "message": "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "archiveBulkItems": {
     "message": "Lưu trữ các mục",
@@ -12055,6 +12279,15 @@
   "verifyNow": {
     "message": "Xác minh ngay."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "GB lưu trữ bổ sung"
   },
@@ -12315,40 +12548,40 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Tiếp tục đăng nhập"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Không tiếp tục"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Tên miền"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Tên miền này sẽ lưu trữ các khóa mã hóa tài khoản của bạn, vì vậy hãy đảm bảo bạn tin tưởng nó. Nếu bạn không chắc chắn, hãy kiểm tra với quản trị viên của bạn."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Xác minh tổ chức của bạn để đăng nhập"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Tổ chức đã được xác minh"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Tên miền đã được xác minh"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Nếu bạn không xác minh tổ chức của mình, quyền truy cập vào tổ chức sẽ bị thu hồi."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Rời khỏi ngay"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Xác minh tên miền của bạn để đăng nhập"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tên miền này."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
     "message": "To continue with log in, verify the organization and domain."
@@ -12358,6 +12591,9 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Bạn có chắc chắn muốn tiếp tục không?"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "userVerificationFailed": {
     "message": "Xác minh người dùng thất bại."
@@ -12621,13 +12857,96 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "You have Premium"
   },
   "emailProtected": {
     "message": "Email protected"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade to Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgrade to Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "You've upgraded to $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }

@@ -49,3 +49,12 @@ Simple dialogs can support scrolling content if necessary, but typically with la
 content a [Dialog component](?path=/docs/component-library-dialogs-dialog--docs).
 
 <Canvas of={stories.ScrollingContent} />
+
+## Using Forms with Dialogs
+
+When using forms with dialogs, apply the `bit-simple-dialog` attribute directly to the `<form>`
+element instead of wrapping the dialog in a form. This ensures proper styling.
+
+```html
+<form bit-simple-dialog>...</form>
+```

@@ -56,6 +56,10 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -303,6 +307,7 @@ import {
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -321,6 +326,7 @@ import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
@@ -591,6 +597,11 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider, PolicyServiceAbstraction, AccountService],
   }),
   safeProvider({
+    provide: CipherSdkService,
+    useClass: DefaultCipherSdkService,
+    deps: [SdkService, LogService],
+  }),
+  safeProvider({
     provide: CipherServiceAbstraction,
     useFactory: (
       keyService: KeyService,
@@ -607,6 +618,7 @@ const safeProviders: SafeProvider[] = [
       logService: LogService,
       cipherEncryptionService: CipherEncryptionService,
       messagingService: MessagingServiceAbstraction,
+      cipherSdkService: CipherSdkService,
     ) =>
       new CipherService(
         keyService,
@@ -623,6 +635,7 @@ const safeProviders: SafeProvider[] = [
         logService,
         cipherEncryptionService,
         messagingService,
+        cipherSdkService,
       ),
     deps: [
       KeyService,
@@ -639,6 +652,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       CipherEncryptionService,
       MessagingServiceAbstraction,
+      CipherSdkService,
     ],
   }),
   safeProvider({
@@ -757,12 +771,13 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
     provide: SecurityStateService,
     useClass: DefaultSecurityStateService,
-    deps: [StateProvider],
+    deps: [AccountCryptographicStateService],
   }),
   safeProvider({
     provide: RestrictedItemTypesService,
@@ -848,6 +863,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -886,7 +902,7 @@ const safeProviders: SafeProvider[] = [
       FolderApiServiceAbstraction,
       InternalOrganizationServiceAbstraction,
       SendApiServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
       AvatarServiceAbstraction,
       LOGOUT_CALLBACK,
       BillingAccountProfileStateService,
@@ -1049,6 +1065,19 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiServiceAbstraction,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+      InternalPolicyService,
+    ],
+  }),
+  safeProvider({
     provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? NoopServerNotificationsService
@@ -1067,6 +1096,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      AutomaticUserConfirmationService,
     ],
   }),
   safeProvider({
@@ -1692,6 +1722,7 @@ const safeProviders: SafeProvider[] = [
       SdkService,
       ApiServiceAbstraction,
       ConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
