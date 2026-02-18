@@ -76,8 +76,10 @@ describe("ChipFilterComponent", () => {
     });
 
     it("should display placeholder icon when no option is selected", () => {
-      const icon = fixture.debugElement.query(By.css('i[aria-hidden="true"]'));
-      expect(icon).toBeTruthy();
+      const icons = fixture.debugElement.queryAll(By.css("bit-icon"));
+      const startIcon = icons[0]; // Start icon is rendered first
+
+      expect(startIcon).toBeTruthy();
     });
 
     it("should disable chip button when disabled", () => {
@@ -307,8 +309,9 @@ describe("ChipFilterComponent", () => {
       component.writeValue("opt1");
       fixture.detectChanges();
 
-      const icon = fixture.debugElement.query(By.css('i[aria-hidden="true"]'));
-      expect(icon).toBeTruthy();
+      const icons = fixture.debugElement.queryAll(By.css("bit-icon"));
+      const startIcon = icons[0]; // Start icon is rendered first
+      expect(startIcon).toBeTruthy();
     });
   });
 
@@ -391,7 +394,7 @@ describe("ChipFilterComponent", () => {
       fixture.detectChanges();
 
       const clearButton = getClearButton();
-      expect(clearButton.disabled).toBe(true);
+      expect(clearButton.getAttribute("aria-disabled")).toBe("true");
     });
   });
 
