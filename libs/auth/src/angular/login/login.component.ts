@@ -105,9 +105,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ssoRequired = false;
 
   // PqP Pre-Login State (via service)
-  get pqpGoogleDriveLoggedIn(): boolean {
-    return this.pqpAuthService.googleDriveLoggedIn;
-  }
+
   get pqpNetworkLoggedIn(): boolean {
     return this.pqpAuthService.networkLoggedIn;
   }
@@ -594,35 +592,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  async handleGoogleDriveLogin(): Promise<void> {
-    const success = await this.pqpAuthService.loginToGoogleDrive();
-    if (success) {
-      const email = this.pqpAuthService.userEmail;
-      if (email) {
-        this.formGroup.controls.email.setValue(email);
-        await this.loginEmailService.setLoginEmail(email);
-      }
-      this.toastService.showToast({
-        variant: "success",
-        title: "Connected",
-        message: "Google Drive connected successfully",
-      });
-    } else {
-      this.toastService.showToast({
-        variant: "error",
-        title: "Error",
-        message: "Failed to connect to Google Drive",
-      });
-    }
+  async handlePqpGoogleLogin(): Promise<void> {
+    await this.handlePqpLogin("google");
   }
 
-  async handlePqpNetworkLogin(): Promise<void> {
+  async handlePqpMicrosoftLogin(): Promise<void> {
+    await this.handlePqpLogin("microsoft");
+  }
+
+  private async handlePqpLogin(provider: "google" | "microsoft"): Promise<void> {
+    const providerName = provider === "google" ? "Google" : "Microsoft";
     this.toastService.showToast({
       variant: "info",
       title: "PqP Network",
-      message: "Complete login in the new tab, then return here",
+      message: `Complete ${providerName} login in the new tab, then return here`,
     });
-    const success = await this.pqpAuthService.loginToPqpNetwork();
+    const success = await this.pqpAuthService.loginToPqpNetwork(provider);
     if (success) {
       this.toastService.showToast({
         variant: "success",

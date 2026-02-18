@@ -11,27 +11,24 @@
           type="button"
           bitButton
           block
-          [buttonType]="pqpGoogleDriveLoggedIn ? 'secondary' : 'primary'"
-          (click)="handleGoogleDriveLogin()"
-          [disabled]="pqpGoogleDriveLoggedIn"
+          [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
+          (click)="handlePqpGoogleLogin()"
+          [disabled]="pqpNetworkLoggedIn"
         >
-          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpGoogleDriveLoggedIn" aria-hidden="true"></i>
-          {{
-            pqpGoogleDriveLoggedIn
-              ? pqpUserEmail || "Google Drive Connected"
-              : "Login to Google Drive"
-          }}
+          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
+          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Google" }}
         </button>
+
         <button
           type="button"
           bitButton
           block
           [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
-          (click)="handlePqpNetworkLogin()"
+          (click)="handlePqpMicrosoftLogin()"
           [disabled]="pqpNetworkLoggedIn"
         >
           <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
-          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Login to PqP Network" }}
+          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Microsoft" }}
         </button>
       </div>
     </div>
