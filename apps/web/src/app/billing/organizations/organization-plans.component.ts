@@ -214,7 +214,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       await this.setupProviderConfiguration();
     }
 
-    if (!this.isCreatingNewOrganization) {
+    if (!this.createOrganization) {
       this.upgradeFlowPrefillForm();
     } else {
       this.formGroup.controls.name.addValidators([Validators.required, Validators.maxLength(50)]);
@@ -275,7 +275,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return this.singleOrgPolicyAppliesToActiveUser && !this.hasProvider;
   }
 
-  get isCreatingNewOrganization() {
+  get createOrganization() {
     return this.organizationId() == null;
   }
 
