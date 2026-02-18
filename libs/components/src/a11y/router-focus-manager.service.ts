@@ -6,6 +6,8 @@ import { skip, filter, combineLatestWith, tap, map, firstValueFrom } from "rxjs"
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+import { queryForAutofocusDescendents } from "../input";
+
 @Injectable({ providedIn: "root" })
 export class RouterFocusManagerService {
   private router = inject(Router);
@@ -56,7 +58,14 @@ export class RouterFocusManagerService {
 
   private focusTargetEl(elSelector: string) {
     const targetEl = document.querySelector<HTMLElement>(elSelector);
-    if (targetEl) {
+    const mainEl = document.querySelector<HTMLElement>("main");
+
+    const pageHasAutofocusEl = mainEl && queryForAutofocusDescendents(mainEl).length > 0;
+
+    if (pageHasAutofocusEl) {
+      // do nothing because autofocus will handle the focus
+      return;
+    } else if (targetEl) {
       targetEl.focus();
     } else {
       // eslint-disable-next-line no-console
