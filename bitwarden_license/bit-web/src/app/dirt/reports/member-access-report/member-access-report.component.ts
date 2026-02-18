@@ -21,7 +21,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, SearchModule, TableDataSource, IconModule } from "@bitwarden/components";
+import {
+  DialogService,
+  SearchModule,
+  TableDataSource,
+  IconModule,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
@@ -80,6 +86,9 @@ export class MemberAccessReportComponent implements OnInit {
     protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
     protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private logService: LogService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
@@ -90,24 +99,53 @@ export class MemberAccessReportComponent implements OnInit {
   async ngOnInit() {
     this.isLoading$.next(true);
 
-    const params = await firstValueFrom(this.route.params);
-    this.organizationId = params.organizationId;
+    try {
+      const params = await firstValueFrom(this.route.params);
+      this.organizationId = params.organizationId;
 
-    const billingMetadata = await firstValueFrom(
-      this.organizationMetadataService.getOrganizationMetadata$(this.organizationId),
-    );
+      // Handle billing metadata with fallback
+      try {
+        const billingMetadata = await firstValueFrom(
+          this.organizationMetadataService.getOrganizationMetadata$(this.organizationId),
+        );
+        this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+      } catch (billingError: unknown) {
+        // Log but don't block - billing metadata is not critical for report
+        this.logService.warning(
+          "[MemberAccessReportComponent] Failed to load billing metadata, using defaults",
+          billingError,
+        );
+        this.orgIsOnSecretsManagerStandalone = false;
+      }
 
-    this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
-
-    await this.load();
-
-    this.isLoading$.next(false);
+      await this.load();
+    } catch (error: unknown) {
+      this.logService.error(
+        "[MemberAccessReportComponent] Failed to load member access report",
+        error,
+      );
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("memberAccessReportLoadError"),
+      });
+      // Set empty data so table doesn't break
+      this.dataSource.data = [];
+    } finally {
+      this.isLoading$.next(false);
+    }
   }
 
   async load() {
-    this.dataSource.data = await this.reportService.generateMemberAccessReportViewV2(
-      this.organizationId,
-    );
+    try {
+      const reportData = await this.reportService.generateMemberAccessReportViewV2(
+        this.organizationId,
+      );
+      this.dataSource.data = reportData;
+    } catch (error) {
+      this.logService.error("[MemberAccessReportComponent] Report generation failed", error);
+      throw error;
+    }
   }
 
   exportReportAction = async (): Promise<void> => {
