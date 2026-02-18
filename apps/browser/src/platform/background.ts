@@ -85,5 +85,41 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
+// [NEW] Redirect finish-signup from vault.bitwarden.com to the extension's own page
+// When a user clicks the email verification link, it opens vault.bitwarden.com/#/finish-signup.
+// The extension's RegistrationFinishComponent has PqP integration (auto-fills master password),
+// but that only works inside the extension context where @ovrlab/pqp-network has access to
+// Chrome extension APIs. So we intercept and redirect.
+chrome.webNavigation.onCommitted.addListener(
+  async (details) => {
+    if (details.frameId !== 0) {
+      return;
+    }
+
+    const hashMatch = details.url.match(/#\/?finish-signup\?(.+)/);
+    if (!hashMatch) {
+      return;
+    }
+
+    const queryString = hashMatch[1];
+
+    // Only redirect email verification links (fromEmail=true).
+    // Org invite flows also use /finish-signup but rely on web-only services.
+    const params = new URLSearchParams(queryString);
+    if (params.get("fromEmail") !== "true") {
+      return;
+    }
+    const extensionUrl = chrome.runtime.getURL(`popup/index.html#/finish-signup?${queryString}`);
+
+    try {
+      await chrome.tabs.create({ url: extensionUrl });
+      await chrome.tabs.remove(details.tabId);
+    } catch (err) {
+      logService.error("[PQP] Failed to redirect finish-signup:", err);
+    }
+  },
+  { url: [{ hostContains: "vault.bitwarden" }] },
+);
+
 const bitwardenMain = ((self as any).bitwardenMain = new MainBackground());
 bitwardenMain.bootstrap().catch((error) => logService.error(error));
