@@ -1,12 +1,27 @@
 import { NgModule } from "@angular/core";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
+  AccessIntelligenceDataService,
   AllActivitiesService,
+  CipherHealthService,
   CriticalAppsApiService,
+  DefaultAccessIntelligenceDataService,
+  DefaultCipherHealthService,
+  DefaultDrawerStateService,
+  DefaultLegacyReportMigrationService,
+  DefaultMemberCipherMappingService,
+  DefaultReportGenerationService,
+  DefaultReportPersistenceService,
+  DrawerStateService,
+  LegacyReportMigrationService,
   MemberCipherDetailsApiService,
+  MemberCipherMappingService,
   PasswordHealthService,
+  ReportGenerationService,
+  ReportPersistenceService,
   RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
@@ -31,9 +46,25 @@ import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.m
 import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { RiskInsightsComponent } from "./risk-insights.component";
 import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
+// AccessIntelligencePageComponent loaded via routing - no import needed
 
 @NgModule({
-  imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule, NewApplicationsDialogComponent],
+  imports: [
+    // Routing
+    AccessIntelligenceRoutingModule,
+
+    // V1 root component (keep until migration complete)
+    RiskInsightsComponent,
+
+    // V2 root component loaded via routing (no import needed - standalone component)
+    // AccessIntelligencePageComponent is loaded by featureFlaggedRoute in routing module
+
+    // Shared components (reused by both V1 and V2)
+    NewApplicationsDialogComponent,
+
+    // Note: Child components (AllApplications, CriticalApplications, etc.) are imported
+    // directly by their parent root components, not by this module
+  ],
   providers: [
     safeProvider({
       provide: CriticalAppsApiService,
@@ -103,6 +134,59 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
       deps: [RiskInsightsDataService],
+    }),
+    // V2 Services (Access Intelligence new architecture)
+    safeProvider({
+      provide: LegacyReportMigrationService,
+      useClass: DefaultLegacyReportMigrationService,
+      deps: [
+        RiskInsightsApiService,
+        RiskInsightsEncryptionService,
+        AccountServiceAbstraction,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: AccessIntelligenceDataService,
+      useClass: DefaultAccessIntelligenceDataService,
+      deps: [
+        CipherService,
+        OrganizationUserApiService,
+        ReportGenerationService,
+        ReportPersistenceService,
+        LegacyReportMigrationService,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: DrawerStateService,
+      useClass: DefaultDrawerStateService,
+      deps: [],
+    }),
+    safeProvider({
+      provide: ReportGenerationService,
+      useClass: DefaultReportGenerationService,
+      deps: [CipherHealthService, MemberCipherMappingService, LogService],
+    }),
+    safeProvider({
+      provide: ReportPersistenceService,
+      useClass: DefaultReportPersistenceService,
+      deps: [
+        RiskInsightsApiService,
+        RiskInsightsEncryptionService,
+        AccountServiceAbstraction,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: CipherHealthService,
+      useClass: DefaultCipherHealthService,
+      deps: [AuditService, PasswordStrengthServiceAbstraction],
+    }),
+    safeProvider({
+      provide: MemberCipherMappingService,
+      useClass: DefaultMemberCipherMappingService,
+      deps: [],
     }),
   ],
 })

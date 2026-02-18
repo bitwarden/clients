@@ -1,0 +1,205 @@
+import { Component, inject, ChangeDetectionStrategy, computed, input, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
+import { lastValueFrom } from "rxjs";
+
+import {
+  AccessIntelligenceDataService,
+  DrawerStateService,
+  DrawerType,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { DialogService } from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
+
+import { ActivityCardComponent } from "../activity/activity-card.component";
+import { PasswordChangeMetricComponent } from "../activity/activity-cards/password-change-metric.component";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
+
+import {
+  NewApplicationsDialogV2Component,
+  NewApplicationsDialogResultType,
+} from "./new-applications-dialog-v2.component";
+
+/**
+ * AllActivityV2Component - Activity dashboard for Access Intelligence V2 architecture
+ *
+ * Displays high-level metrics and cards for:
+ * - Password change progress
+ * - At-risk members in critical applications
+ * - Critical applications health
+ * - New applications needing review
+ *
+ * Key V2 patterns:
+ * - Uses toSignal() to convert service observables to signals
+ * - All state management via signals and computed() (no manual subscriptions)
+ * - Integrates with AccessIntelligenceDataService for reactive data updates
+ */
+@Component({
+  selector: "app-all-activity-v2",
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: "./all-activity-v2.component.html",
+  imports: [
+    ReportLoadingComponent,
+    SharedModule,
+    ActivityCardComponent,
+    PasswordChangeMetricComponent,
+  ],
+})
+export class AllActivityV2Component {
+  // Services
+  private accessIntelligenceService = inject(AccessIntelligenceDataService);
+  private drawerStateService = inject(DrawerStateService);
+  private activatedRoute = inject(ActivatedRoute);
+  private dialogService = inject(DialogService);
+
+  // Inputs
+  readonly organizationId = input.required<OrganizationId>();
+
+  // Convert service observables to signals
+  protected readonly report = toSignal(this.accessIntelligenceService.report$);
+  protected readonly loading = toSignal(this.accessIntelligenceService.loading$, {
+    initialValue: false,
+  });
+
+  // Local state signals
+  protected readonly extendPasswordChangeWidget = signal(false);
+
+  // Computed summary metrics from report
+  protected readonly totalCriticalAppsAtRiskMemberCount = computed(() => {
+    const report = this.report();
+    if (!report) {
+      return 0;
+    }
+
+    const criticalApps = report.getCriticalApplications();
+    const atRiskMemberIds = new Set<string>();
+
+    criticalApps.forEach((app) => {
+      Object.entries(app.memberRefs)
+        .filter(([_, isAtRisk]) => isAtRisk)
+        .forEach(([memberId]) => atRiskMemberIds.add(memberId));
+    });
+
+    return atRiskMemberIds.size;
+  });
+
+  protected readonly totalCriticalAppsCount = computed(() => {
+    const report = this.report();
+    return report?.getCriticalApplications().length ?? 0;
+  });
+
+  protected readonly totalCriticalAppsAtRiskCount = computed(() => {
+    const report = this.report();
+    if (!report) {
+      return 0;
+    }
+
+    const criticalApps = report.getCriticalApplications();
+    return criticalApps.filter((app) => app.isAtRisk()).length;
+  });
+
+  protected readonly totalApplicationCount = computed(() => {
+    const report = this.report();
+    return report?.reports.length ?? 0;
+  });
+
+  protected readonly newApplications = computed(() => {
+    const report = this.report();
+    if (!report) {
+      return [];
+    }
+
+    return report.getNewApplications();
+  });
+
+  protected readonly newApplicationsCount = computed(() => {
+    return this.newApplications().length;
+  });
+
+  protected readonly allAppsHaveReviewDate = computed(() => {
+    const report = this.report();
+    if (!report || report.applications.length === 0) {
+      return false;
+    }
+
+    return report.applications.every((app) => app.reviewedDate != null);
+  });
+
+  protected readonly hasLoadedApplicationData = computed(() => {
+    const report = this.report();
+    return report != null && report.reports.length > 0;
+  });
+
+  protected readonly isAllCaughtUp = computed(() => {
+    return (
+      this.hasLoadedApplicationData() &&
+      this.newApplicationsCount() === 0 &&
+      this.allAppsHaveReviewDate()
+    );
+  });
+
+  protected readonly showNeedsReviewState = computed(() => {
+    return (
+      this.hasLoadedApplicationData() &&
+      this.totalApplicationCount() > 0 &&
+      this.newApplicationsCount() === this.totalApplicationCount()
+    );
+  });
+
+  /**
+   * Handles the review new applications button click.
+   * Opens V2 dialog showing the list of new applications that can be marked as critical.
+   */
+  onReviewNewApplications = async () => {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+
+    if (!organizationId) {
+      return;
+    }
+
+    const dialogRef = NewApplicationsDialogV2Component.open(this.dialogService, {
+      newApplications: this.newApplications(),
+      organizationId: organizationId as OrganizationId,
+      hasExistingCriticalApplications: this.totalCriticalAppsCount() > 0,
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result === NewApplicationsDialogResultType.Complete) {
+      // Report data automatically refreshes via AccessIntelligenceDataService.report$
+      // No manual refresh needed - service emits updated report after mutations
+    }
+  };
+
+  /**
+   * Handles the "View at-risk members" link click.
+   * Opens the at-risk members drawer for critical applications only.
+   */
+  onViewAtRiskMembers = async () => {
+    this.drawerStateService.openDrawer(
+      DrawerType.CriticalAtRiskMembers,
+      "activityTabAtRiskMembers",
+    );
+  };
+
+  /**
+   * Handles the "View at-risk applications" link click.
+   * Opens the at-risk applications drawer for critical applications only.
+   */
+  onViewAtRiskApplications = async () => {
+    this.drawerStateService.openDrawer(
+      DrawerType.CriticalAtRiskApps,
+      "activityTabAtRiskApplications",
+    );
+  };
+
+  /**
+   * Callback for PasswordChangeMetricComponent to control layout.
+   * When the password widget has a progress bar, it should span 2 columns.
+   */
+  setExtendPasswordWidget = (hasProgressBar: boolean) => {
+    this.extendPasswordChangeWidget.set(hasProgressBar);
+  };
+}
