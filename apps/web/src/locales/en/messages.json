@@ -12946,8 +12946,13 @@
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
   },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendExpiresOn": {
     "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -12957,7 +12962,6 @@
         "content": "$2",
         "example": "Jan 1, 1970"
       }
-    },
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    }
   }
 }
