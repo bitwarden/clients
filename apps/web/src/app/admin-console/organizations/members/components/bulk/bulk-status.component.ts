@@ -9,7 +9,6 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
@@ -34,7 +33,7 @@ type BulkStatusEntry = {
 type BulkStatusDialogData = {
   users: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
   filteredUsers: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
-  request: Promise<ListResponse<OrganizationUserBulkResponse | ProviderUserBulkResponse>>;
+  request: Promise<OrganizationUserBulkResponse[] | ProviderUserBulkResponse[]>;
   successfulMessage: string;
 };
 
@@ -63,7 +62,7 @@ export class BulkStatusComponent implements OnInit {
   async showBulkStatus(data: BulkStatusDialogData) {
     try {
       const response = await data.request;
-      const keyedErrors: any = response.data
+      const keyedErrors: any = (response ?? [])
         .filter((r) => r.error !== "")
         .reduce((a, x) => ({ ...a, [x.id]: x.error }), {});
       const keyedFilteredUsers: any = data.filteredUsers.reduce(
