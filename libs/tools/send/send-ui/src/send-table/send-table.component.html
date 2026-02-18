@@ -26,10 +26,9 @@
             </button>
             @if (s.disabled) {
               <i
-                class="bwi bwi-exclamation-triangle tw-text-muted"
+                class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'disabled' | i18n }}"
-                role="img"
                 aria-label="{{ 'disabled' | i18n }}"
                 tabindex="0"
               ></i>
@@ -38,40 +37,36 @@
               @let titleKey =
                 s.authType === authType.Email ? "emailProtected" : "passwordProtected";
               <i
-                class="bwi bwi-lock tw-text-muted"
+                class="bwi bwi-lock"
                 appStopProp
                 title="{{ titleKey | i18n }}"
-                role="img"
                 aria-label="{{ titleKey | i18n }}"
                 tabindex="0"
               ></i>
             }
             @if (s.maxAccessCountReached) {
               <i
-                class="bwi bwi-exclamation-triangle tw-text-muted"
+                class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'maxAccessCountReached' | i18n }}"
-                role="img"
                 aria-label="{{ 'maxAccessCountReached' | i18n }}"
                 tabindex="0"
               ></i>
             }
             @if (s.expired) {
               <i
-                class="bwi bwi-clock tw-text-muted"
+                class="bwi bwi-clock"
                 appStopProp
                 title="{{ 'expired' | i18n }}"
-                role="img"
                 aria-label="{{ 'expired' | i18n }}"
                 tabindex="0"
               ></i>
             }
             @if (s.pendingDelete) {
               <i
-                class="bwi bwi-trash tw-text-muted"
+                class="bwi bwi-trash"
                 appStopProp
                 title="{{ 'pendingDeletion' | i18n }}"
-                role="img"
                 aria-label="{{ 'pendingDeletion' | i18n }}"
                 tabindex="0"
               ></i>
