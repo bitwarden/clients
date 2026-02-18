@@ -6,19 +6,47 @@
   </bit-section-header>
 
   <bit-card>
-    <bit-form-field>
-      <bit-label>{{ "username" | i18n }}</bit-label>
-      <input bitInput formControlName="username" />
-      <button
-        type="button"
-        bitIconButton="bwi-generate"
-        bitSuffix
-        *ngIf="loginDetailsForm.controls.username.enabled"
-        data-testid="generate-username-button"
-        [label]="'generateUsername' | i18n"
-        [bitAction]="generateUsername"
-      ></button>
-    </bit-form-field>
+    <div class="tw-relative">
+      <bit-form-field>
+        <bit-label>{{ "username" | i18n }}</bit-label>
+        <input
+          #usernameInput
+          bitInput
+          role="combobox"
+          aria-autocomplete="list"
+          [attr.aria-expanded]="showAutocompleteSuggestions()"
+          [attr.aria-controls]="autocompleteListId()"
+          [attr.aria-activedescendant]="activeDescendantId()"
+          aria-haspopup="listbox"
+          formControlName="username"
+          type="search"
+          autocomplete="username"
+          [attr.name]="'username-' + usernameFieldId"
+          (focus)="onUsernameFocus()"
+          (input)="onUsernameInput($event)"
+          (keydown)="onUsernameKeydown($event)"
+          (blur)="onUsernameBlur()"
+        />
+        <button
+          type="button"
+          bitIconButton="bwi-generate"
+          bitSuffix
+          *ngIf="loginDetailsForm.controls.username.enabled"
+          data-testid="generate-username-button"
+          [label]="'generateUsername' | i18n"
+          [bitAction]="generateUsername"
+        ></button>
+      </bit-form-field>
+
+      <vault-username-autocomplete
+        [suggestions]="filteredSuggestions()"
+        [visible]="showAutocompleteSuggestions()"
+        [activeIndex]="activeSuggestionIndex()"
+        [idPrefix]="autocompleteIdPrefix"
+        [headerText]="'recentUsernames' | i18n"
+        (selected)="onUsernameSelected($event)"
+      ></vault-username-autocomplete>
+    </div>
 
     <bit-form-field>
       <bit-label>{{ "password" | i18n }}</bit-label>

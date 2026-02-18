@@ -1,16 +1,28 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe, NgIf } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  Optional,
+  signal,
+  viewChild,
+  computed,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -25,6 +37,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { UsernameAutocompleteComponent } from "../../../components/autocomplete/username-autocomplete.component";
+import { RecentUsernamesService } from "../../../services/recent-usernames.service";
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -48,15 +62,33 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
     PopoverModule,
     AutofillOptionsComponent,
     LinkModule,
+    UsernameAutocompleteComponent,
   ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
   EventType = EventType;
+
   loginDetailsForm = this.formBuilder.group({
     username: [""],
     password: [""],
     totp: [""],
   });
+
+  readonly usernameInput = viewChild<ElementRef<HTMLInputElement>>("usernameInput");
+
+  // State for username autocomplete functionality
+  readonly showAutocompleteSuggestions = signal(false);
+  readonly filteredSuggestions = signal<string[]>([]);
+  readonly activeSuggestionIndex = signal(-1);
+  readonly usernameFieldId = Math.random().toString(36).substring(2); // random ID to prevent browser autocomplete
+  readonly autocompleteIdPrefix = `username-${this.usernameFieldId}`;
+  readonly autocompleteListId = computed(() => `${this.autocompleteIdPrefix}-listbox`);
+  readonly activeDescendantId = computed(() => {
+    const idx = this.activeSuggestionIndex();
+    return idx >= 0 ? `${this.autocompleteIdPrefix}-option-${idx}` : null;
+  });
+  private currentUserId: UserId | null = null;
+  private usernameRequestId = 0;
 
   /**
    * Flag indicating whether a new password has been generated for the current form.
@@ -117,7 +149,11 @@ export class LoginDetailsSectionComponent implements OnInit {
     private auditService: AuditService,
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
     @Optional() private totpCaptureService?: TotpCaptureService,
+    // NOTE: RecentUsernamesService is intentionally not exported from libs/vault/src/index.ts.
+    // It is used here as an internal, optional dependency to provide username autocomplete.
+    @Optional() private recentUsernamesService?: RecentUsernamesService, // to load recent usernames for autocomplete
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
 
@@ -140,7 +176,15 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Get current user ID for encrypted storage
+    try {
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+      this.currentUserId = activeAccount?.id ?? null;
+    } catch {
+      // Silently fail - user ID will be null
+    }
+
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     if (prefillCipher) {
@@ -293,4 +337,134 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
     }
   };
+
+  /**
+   * Show autocomplete on focus
+   */
+  onUsernameFocus = async () => {
+    if (!this.currentUserId || !this.recentUsernamesService) {
+      return;
+    }
+
+    await this.loadAndFilterUsernames("");
+  };
+
+  /**
+   * Filter suggestions on input
+   */
+  onUsernameInput = async (event: Event) => {
+    if (!this.currentUserId || !this.recentUsernamesService) {
+      return;
+    }
+
+    const input = (event.target as HTMLInputElement).value.toLowerCase();
+    await this.loadAndFilterUsernames(input);
+  };
+
+  /**
+   * Handle selection from autocomplete
+   */
+  onUsernameSelected = async (username: string) => {
+    this.loginDetailsForm.controls.username.setValue(username);
+    this.showAutocompleteSuggestions.set(false);
+    this.activeSuggestionIndex.set(-1);
+
+    // Save selected username (encrypted) for future use
+    if (this.currentUserId && this.recentUsernamesService) {
+      await this.recentUsernamesService.addUsername(this.currentUserId, username);
+    }
+
+    // Blur the input to close autocomplete completely
+    const inputEl = this.usernameInput();
+    if (inputEl) {
+      inputEl.nativeElement.blur();
+    }
+  };
+
+  onUsernameBlur = () => {
+    void this.persistUsernameBestEffort();
+    // Hide autocomplete immediately on blur
+    this.showAutocompleteSuggestions.set(false);
+    this.activeSuggestionIndex.set(-1);
+    this.usernameRequestId++;
+  };
+
+  onUsernameKeydown = async (event: KeyboardEvent) => {
+    const suggestions = this.filteredSuggestions();
+
+    if (!this.showAutocompleteSuggestions() || suggestions.length === 0) {
+      return;
+    }
+
+    const current = this.activeSuggestionIndex();
+
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        this.activeSuggestionIndex.set((current + 1) % suggestions.length);
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        this.activeSuggestionIndex.set(current <= 0 ? suggestions.length - 1 : current - 1);
+        break;
+      case "Enter":
+      case "NumpadEnter": {
+        event.preventDefault();
+        const indexToUse = current >= 0 ? current : 0;
+        await this.onUsernameSelected(suggestions[indexToUse]);
+        break;
+      }
+      case "Escape":
+        event.preventDefault();
+        this.showAutocompleteSuggestions.set(false);
+        this.activeSuggestionIndex.set(-1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  private setSuggestions(list: string[]) {
+    this.filteredSuggestions.set(list);
+    this.showAutocompleteSuggestions.set(list.length > 0);
+    this.activeSuggestionIndex.set(-1);
+  }
+
+  private async loadAndFilterUsernames(query: string) {
+    // sequence token to discard stale responses
+    const requestId = ++this.usernameRequestId;
+
+    if (!this.currentUserId || !this.recentUsernamesService) {
+      return;
+    }
+
+    const all = await this.recentUsernamesService.getRecent(this.currentUserId, 20);
+
+    if (requestId !== this.usernameRequestId) {
+      return; // stale response
+    }
+
+    if (!query) {
+      this.setSuggestions(all.slice(0, 4));
+      return;
+    }
+
+    const filtered = all.filter((u) => u.toLowerCase().includes(query)).slice(0, 4);
+    this.setSuggestions(filtered);
+  }
+
+  private async persistUsernameBestEffort() {
+    try {
+      if (!this.currentUserId || !this.recentUsernamesService) {
+        return;
+      }
+      const value = this.loginDetailsForm.controls.username.value?.trim();
+      if (!value) {
+        return;
+      }
+      await this.recentUsernamesService.addUsername(this.currentUserId, value);
+    } catch {
+      // ignore persistence errors
+    }
+  }
 }
