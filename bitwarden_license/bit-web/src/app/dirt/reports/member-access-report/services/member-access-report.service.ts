@@ -474,10 +474,7 @@ export class MemberAccessReportService {
     // Get all org ciphers with timeout protection
     const ciphers = await this._fetchCiphersWithTimeout(organizationId);
 
-    // Log response size
-    this.logService.info(
-      `[MemberAccessReport V2] Fetched ${ciphers.length} ciphers (estimated ${Math.round((JSON.stringify(ciphers).length / 1024 / 1024) * 100) / 100} MB)`,
-    );
+    this.logService.info(`[MemberAccessReport V2] Fetched ${ciphers.length} ciphers`);
 
     // Map ciphers to members
     const accessMap = this._mapCiphersToMembersV2(ciphers, orgData);
