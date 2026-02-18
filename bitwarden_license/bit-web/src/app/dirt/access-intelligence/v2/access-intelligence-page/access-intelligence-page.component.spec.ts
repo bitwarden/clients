@@ -21,16 +21,16 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
-import { RiskInsightsTabType } from "../models/risk-insights.models";
-
-import { AccessIntelligencePageComponent } from "./access-intelligence-page.component";
+import { RiskInsightsTabType } from "../../models/risk-insights.models";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
   CriticalAtRiskMembersData,
   OrgAtRiskAppsData,
   OrgAtRiskMembersData,
-} from "./models/drawer-content-data.types";
+} from "../models/drawer-content-data.types";
+
+import { AccessIntelligencePageComponent } from "./access-intelligence-page.component";
 
 /**
  * Mock type for AccessIntelligenceDataService that uses BehaviorSubjects

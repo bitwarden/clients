@@ -40,12 +40,11 @@ import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { EmptyStateCardComponent } from "../empty-state-card.component";
-import { RiskInsightsTabType } from "../models/risk-insights.models";
-import { ReportLoadingComponent } from "../shared/report-loading.component";
-
-import { AllActivityV2Component } from "./all-activity-v2.component";
-import { ApplicationsV2Component } from "./applications-v2.component";
+import { EmptyStateCardComponent } from "../../empty-state-card.component";
+import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { ReportLoadingComponent } from "../../shared/report-loading.component";
+import { AllActivityV2Component } from "../all-activity-v2/all-activity-v2.component";
+import { ApplicationsV2Component } from "../applications-v2/applications-v2.component";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -54,8 +53,8 @@ import {
   DrawerMemberData,
   OrgAtRiskAppsData,
   OrgAtRiskMembersData,
-} from "./models/drawer-content-data.types";
-import { RiskInsightsDrawerV2Component } from "./shared/risk-insights-drawer-v2.component";
+} from "../models/drawer-content-data.types";
+import { RiskInsightsDrawerV2Component } from "../shared/risk-insights-drawer-v2/risk-insights-drawer-v2.component";
 
 @Component({
   selector: "app-access-intelligence-page",

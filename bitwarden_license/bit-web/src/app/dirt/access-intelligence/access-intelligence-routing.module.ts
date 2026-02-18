@@ -7,7 +7,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
 import { RiskInsightsComponent } from "./risk-insights.component";
-import { AccessIntelligencePageComponent } from "./v2/access-intelligence-page.component";
+import { AccessIntelligencePageComponent } from "./v2/access-intelligence-page/access-intelligence-page.component";
 
 const routes: Routes = [
   // Feature-flagged routing: V1 (default) vs V2 (when flag is ON)

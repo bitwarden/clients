@@ -310,6 +310,41 @@ services/
 - **Playbooks:** `[topic]-playbook.md`
 - **ADRs:** `NNN-descriptive-title.md`
 
+### Component Folder Structure
+
+**Rule:** Every component MUST have its own folder (as of 2026-02-18).
+
+**Pattern:**
+
+```
+components/
+├── my-component/
+│   ├── my-component.component.ts
+│   ├── my-component.component.html
+│   ├── my-component.component.spec.ts
+│   └── my-component.component.stories.ts
+└── shared/
+    ├── shared-component/
+    │   └── [component files]
+    └── test-helpers/
+        └── [test utilities]
+```
+
+**Folder Naming:**
+
+- Match component file name exactly (without `.component.ts`)
+- Use kebab-case
+- Keep version suffixes if present (e.g., `all-activity-v2/`)
+
+**Rationale:**
+
+- Reduces visual clutter in directories
+- Groups related files together
+- Easier to find and navigate components
+- Matches modern Angular component organization patterns
+
+**Barrel Exports:** NOT required for app components. Optional for library components.
+
 ---
 
 ## Comment and Documentation Standards

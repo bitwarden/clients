@@ -20,11 +20,12 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { AllActivityV2Component } from "./all-activity-v2.component";
 import {
   NewApplicationsDialogResultType,
   NewApplicationsDialogV2Component,
-} from "./new-applications-dialog-v2.component";
+} from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
+
+import { AllActivityV2Component } from "./all-activity-v2.component";
 
 /**
  * Mock type for AccessIntelligenceDataService that uses BehaviorSubjects

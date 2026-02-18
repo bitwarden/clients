@@ -11,7 +11,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { I18nMockService } from "@bitwarden/components/utils";
 
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
+import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
 
 import {
   NewApplicationsDialogV2Component,

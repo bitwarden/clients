@@ -9,7 +9,7 @@ import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { DrawerContentData } from "../models/drawer-content-data.types";
+import { DrawerContentData } from "../../models/drawer-content-data.types";
 
 /**
  * V2 Drawer Component - Pure Presentation

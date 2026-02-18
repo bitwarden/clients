@@ -15,7 +15,7 @@ import {
   DrawerApplicationData,
   OrgAtRiskAppsData,
   OrgAtRiskMembersData,
-} from "../models/drawer-content-data.types";
+} from "../../models/drawer-content-data.types";
 
 import { RiskInsightsDrawerV2Component } from "./risk-insights-drawer-v2.component";
 

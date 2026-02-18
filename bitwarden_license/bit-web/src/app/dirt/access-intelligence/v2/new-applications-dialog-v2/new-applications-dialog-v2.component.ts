@@ -27,10 +27,9 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AssignTasksViewComponent } from "../activity/application-review-dialog/assign-tasks-view.component";
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
-
-import { ReviewApplicationsViewV2Component } from "./shared/review-applications-view-v2.component";
+import { AssignTasksViewComponent } from "../../activity/application-review-dialog/assign-tasks-view.component";
+import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { ReviewApplicationsViewV2Component } from "../shared/review-applications-view-v2/review-applications-view-v2.component";
 
 /**
  * V2 Dialog Data - Works directly with RiskInsightsReportView

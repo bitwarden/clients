@@ -310,6 +310,12 @@ export const Loading: Story = {
 
 ## Component Test Structure
 
+**File Location:** Tests MUST be in same folder as component.
+
+Pattern: `[component-folder]/[component-name].component.spec.ts`
+
+See: [Component Folder Structure](./code-organization-standards.md#component-folder-structure)
+
 ### Recommended Test Organization
 
 ```typescript

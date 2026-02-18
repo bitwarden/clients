@@ -32,13 +32,12 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { ReportLoadingComponent } from "../shared/report-loading.component";
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
-
+import { ReportLoadingComponent } from "../../shared/report-loading.component";
+import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
 import {
   ApplicationsTableV2Component,
   ApplicationTableRowV2,
-} from "./shared/applications-table-v2.component";
+} from "../shared/applications-table-v2/applications-table-v2.component";
 
 export const ApplicationFilterOption = {
   All: "all",

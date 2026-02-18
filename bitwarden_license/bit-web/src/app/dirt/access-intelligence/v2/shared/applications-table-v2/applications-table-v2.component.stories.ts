@@ -5,7 +5,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TableDataSource } from "@bitwarden/components";
 import { I18nMockService } from "@bitwarden/components/utils";
 
-import { createApplicationHandlers } from "../test-helpers/story-callbacks";
+import { createApplicationHandlers } from "../../test-helpers/story-callbacks";
 
 import {
   ApplicationsTableV2Component,

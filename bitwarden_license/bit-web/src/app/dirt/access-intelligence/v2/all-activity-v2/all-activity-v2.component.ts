@@ -12,14 +12,13 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { ActivityCardComponent } from "../activity/activity-card.component";
-import { PasswordChangeMetricComponent } from "../activity/activity-cards/password-change-metric.component";
-import { ReportLoadingComponent } from "../shared/report-loading.component";
-
+import { ActivityCardComponent } from "../../activity/activity-card.component";
+import { PasswordChangeMetricComponent } from "../../activity/activity-cards/password-change-metric.component";
+import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import {
   NewApplicationsDialogV2Component,
   NewApplicationsDialogResultType,
-} from "./new-applications-dialog-v2.component";
+} from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
 
 /**
  * AllActivityV2Component - Activity dashboard for Access Intelligence V2 architecture
