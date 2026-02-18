@@ -325,15 +325,19 @@ export class MemberAccessReportService {
 
   /**
    * Maps ciphers to members using frontend collection mapping (V2)
+   *
+   * Groups by (user, collection, group) access path and tracks cipher IDs in Sets
+   * to avoid creating redundant objects for large organizations.
+   *
    * @param ciphers - Array of cipher views
    * @param orgData - Organization data containing collections, users, and groups
-   * @returns Array of member cipher access records
+   * @returns Map of access paths with cipher ID sets
    */
   private _mapCiphersToMembersV2(
     ciphers: any[],
     orgData: MemberAccessDataV2,
-  ): MemberCipherAccess[] {
-    const accessList: MemberCipherAccess[] = [];
+  ): Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }> {
+    const accessMap = new Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }>();
 
     for (const cipher of ciphers) {
       // Skip ciphers without collections or with placeholder/invalid IDs (matches V1 behavior)
@@ -354,16 +358,29 @@ export class MemberAccessReportService {
 
         // Process direct user access
         for (const userAccess of collection.users) {
-          accessList.push({
-            userId: userAccess.id,
-            cipherId: cipher.id,
-            collectionId: collection.id,
-            collectionName: collection.name,
-            accessType: "direct",
-            readOnly: userAccess.readOnly,
-            hidePasswords: userAccess.hidePasswords,
-            manage: userAccess.manage,
-          });
+          const key = `${userAccess.id}|${collection.id}|direct`;
+          let entry = accessMap.get(key);
+
+          if (!entry) {
+            // First cipher for this access path - create new entry
+            entry = {
+              access: {
+                userId: userAccess.id,
+                cipherId: cipher.id, // Representative cipher (for backward compatibility)
+                collectionId: collection.id,
+                collectionName: collection.name,
+                accessType: "direct",
+                readOnly: userAccess.readOnly,
+                hidePasswords: userAccess.hidePasswords,
+                manage: userAccess.manage,
+              },
+              cipherIds: new Set([cipher.id]),
+            };
+            accessMap.set(key, entry);
+          } else {
+            // Add cipher to existing access path
+            entry.cipherIds.add(cipher.id);
+          }
         }
 
         // Process group access
@@ -374,28 +391,41 @@ export class MemberAccessReportService {
           }
 
           for (const userId of groupData.memberIds) {
-            accessList.push({
-              userId,
-              cipherId: cipher.id,
-              collectionId: collection.id,
-              collectionName: collection.name,
-              groupId: groupAccess.id,
-              groupName: groupData.groupName,
-              accessType: "group",
-              readOnly: groupAccess.readOnly,
-              hidePasswords: groupAccess.hidePasswords,
-              manage: groupAccess.manage,
-            });
+            const key = `${userId}|${collection.id}|${groupAccess.id}`;
+            let entry = accessMap.get(key);
+
+            if (!entry) {
+              // First cipher for this access path - create new entry
+              entry = {
+                access: {
+                  userId,
+                  cipherId: cipher.id, // Representative cipher (for backward compatibility)
+                  collectionId: collection.id,
+                  collectionName: collection.name,
+                  groupId: groupAccess.id,
+                  groupName: groupData.groupName,
+                  accessType: "group",
+                  readOnly: groupAccess.readOnly,
+                  hidePasswords: groupAccess.hidePasswords,
+                  manage: groupAccess.manage,
+                },
+                cipherIds: new Set([cipher.id]),
+              };
+              accessMap.set(key, entry);
+            } else {
+              // Add cipher to existing access path
+              entry.cipherIds.add(cipher.id);
+            }
           }
         }
       }
     }
 
     this.logService.debug(
-      `[MemberAccessReportService V2] Mapped ${ciphers.length} ciphers to ${accessList.length} access records`,
+      `[MemberAccessReportService V2] Mapped ${ciphers.length} ciphers to ${accessMap.size} access paths`,
     );
 
-    return accessList;
+    return accessMap;
   }
 
   /**
@@ -450,7 +480,7 @@ export class MemberAccessReportService {
     );
 
     // Map ciphers to members
-    const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
+    const accessMap = this._mapCiphersToMembersV2(ciphers, orgData);
 
     // Aggregate by user
     const userAccessMap = new Map<
@@ -462,7 +492,7 @@ export class MemberAccessReportService {
       }
     >();
 
-    for (const access of accessList) {
+    for (const { access, cipherIds } of accessMap.values()) {
       let userData = userAccessMap.get(access.userId);
       if (!userData) {
         userData = {
@@ -477,7 +507,10 @@ export class MemberAccessReportService {
       if (access.groupId) {
         userData.groups.add(access.groupId);
       }
-      userData.items.add(access.cipherId);
+      // Add all ciphers from this access path
+      for (const cipherId of cipherIds) {
+        userData.items.add(cipherId);
+      }
     }
 
     // Build report views
@@ -519,27 +552,7 @@ export class MemberAccessReportService {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const orgData = await this._loadOrganizationDataV2(organizationId, userId);
     const ciphers = await this._fetchCiphersWithTimeout(organizationId);
-    const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
-
-    // Group access records by (userId, collectionId, groupId)
-    // Optimization: Store count + metadata instead of full array to reduce memory
-    const groupedAccess = new Map<
-      string,
-      {
-        access: MemberCipherAccess;
-        cipherCount: number;
-      }
-    >();
-    for (const access of accessList) {
-      // Use groupId if present, otherwise use "direct" to distinguish direct access
-      const key = `${access.userId}|${access.collectionId}|${access.groupId ?? "direct"}`;
-      const existing = groupedAccess.get(key);
-      if (!existing) {
-        groupedAccess.set(key, { access, cipherCount: 1 });
-      } else {
-        existing.cipherCount++;
-      }
-    }
+    const accessMap = this._mapCiphersToMembersV2(ciphers, orgData);
 
     // Pre-fetch i18n strings to avoid repeated lookups
     const twoFactorEnabledTrue = this.i18nService.t("memberAccessReportTwoFactorEnabledTrue");
@@ -562,7 +575,7 @@ export class MemberAccessReportService {
     });
 
     const exportItems: MemberAccessExportItem[] = [];
-    for (const { access, cipherCount } of groupedAccess.values()) {
+    for (const { access, cipherIds } of accessMap.values()) {
       const metadata = orgData.organizationUserDataMap.get(access.userId);
 
       exportItems.push({
@@ -577,7 +590,7 @@ export class MemberAccessReportService {
         collectionPermission: access.collectionId
           ? this.getPermissionTextCached(access, permissionLookup)
           : noCollectionPermission,
-        totalItems: cipherCount.toString(), // Count of ciphers in this access path
+        totalItems: cipherIds.size.toString(),
       });
     }
 
