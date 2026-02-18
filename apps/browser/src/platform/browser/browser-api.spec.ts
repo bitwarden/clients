@@ -231,7 +231,6 @@ describe("BrowserApi", () => {
     it("returns true if the main popup is open", async () => {
       const mainPopupView = {
         location: { href: "chrome-extension://id/popup/index.html" },
-        document: { hasFocus: jest.fn().mockReturnValue(true) },
       };
       chrome.extension.getViews = jest.fn().mockReturnValue([mainPopupView]);
 
@@ -239,43 +238,94 @@ describe("BrowserApi", () => {
 
       expect(result).toBe(true);
     });
+  });
 
-    it("returns true if a focused popout view is open", async () => {
-      const popoutView = {
-        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
-        document: { hasFocus: jest.fn().mockReturnValue(true) },
-      };
-      chrome.extension.getViews = jest.fn().mockReturnValue([popoutView]);
+  describe("isAnyViewFocused", () => {
+    it("returns false if no views are open", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValue([]);
 
-      const result = await BrowserApi.isPopupOpen();
-
-      expect(result).toBe(true);
-    });
-
-    it("returns false if only unfocused popout views are open", async () => {
-      const popoutView = {
-        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
-        document: { hasFocus: jest.fn().mockReturnValue(false) },
-      };
-      chrome.extension.getViews = jest.fn().mockReturnValue([popoutView]);
-
-      const result = await BrowserApi.isPopupOpen();
+      const result = await BrowserApi.isAnyViewFocused();
 
       expect(result).toBe(false);
     });
 
-    it("returns true if main popup is open alongside an unfocused popout", async () => {
-      const popoutView = {
-        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
-        document: { hasFocus: jest.fn().mockReturnValue(false) },
-      };
+    it("returns true if the main popup is open", async () => {
       const mainPopupView = {
         location: { href: "chrome-extension://id/popup/index.html" },
         document: { hasFocus: jest.fn().mockReturnValue(true) },
       };
-      chrome.extension.getViews = jest.fn().mockReturnValue([mainPopupView, popoutView]);
+      // First call (popup views) returns the main popup; second call (tab views) returns nothing
+      chrome.extension.getViews = jest
+        .fn()
+        .mockReturnValueOnce([mainPopupView])
+        .mockReturnValueOnce([]);
 
-      const result = await BrowserApi.isPopupOpen();
+      const result = await BrowserApi.isAnyViewFocused();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true if a focused popout tab view is open", async () => {
+      const popoutView = {
+        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+        document: { hasFocus: jest.fn().mockReturnValue(true) },
+      };
+      // No popup views; popout returned as tab view
+      chrome.extension.getViews = jest
+        .fn()
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([popoutView]);
+
+      const result = await BrowserApi.isAnyViewFocused();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false if only an unfocused popout tab view is open", async () => {
+      const popoutView = {
+        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+        document: { hasFocus: jest.fn().mockReturnValue(false) },
+      };
+      chrome.extension.getViews = jest
+        .fn()
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([popoutView]);
+
+      const result = await BrowserApi.isAnyViewFocused();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true if a sidebar tab view is open", async () => {
+      const sidebarView = {
+        location: { href: "chrome-extension://id/popup/index.html?uilocation=sidebar" },
+        document: { hasFocus: jest.fn().mockReturnValue(false) },
+      };
+      chrome.extension.getViews = jest
+        .fn()
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([sidebarView]);
+
+      const result = await BrowserApi.isAnyViewFocused();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true if main popup is open alongside an unfocused popout", async () => {
+      const mainPopupView = {
+        location: { href: "chrome-extension://id/popup/index.html" },
+        document: { hasFocus: jest.fn().mockReturnValue(true) },
+      };
+      const popoutView = {
+        location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+        document: { hasFocus: jest.fn().mockReturnValue(false) },
+      };
+      chrome.extension.getViews = jest
+        .fn()
+        .mockReturnValueOnce([mainPopupView])
+        .mockReturnValueOnce([popoutView]);
+
+      const result = await BrowserApi.isAnyViewFocused();
 
       expect(result).toBe(true);
     });

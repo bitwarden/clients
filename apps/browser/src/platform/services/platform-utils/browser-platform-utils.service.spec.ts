@@ -169,46 +169,6 @@ describe("Browser Utils Service", () => {
         expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
       });
 
-      it("returns true when a SIDE_PANEL context exists", async () => {
-        (chrome.runtime as any).getContexts = jest
-          .fn()
-          .mockResolvedValue([
-            { contextType: "SIDE_PANEL", documentUrl: "chrome-extension://id/popup/index.html" },
-          ]);
-
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
-      });
-
-      it("returns true when a popout TAB context has a focused window", async () => {
-        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
-          {
-            contextType: "TAB",
-            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
-            windowId: 1,
-          },
-        ]);
-        chrome.windows.get = jest
-          .fn()
-          .mockImplementation((_id, _opts, cb) => cb({ focused: true }));
-
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
-      });
-
-      it("returns false when a popout TAB context has an unfocused window", async () => {
-        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
-          {
-            contextType: "TAB",
-            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
-            windowId: 1,
-          },
-        ]);
-        chrome.windows.get = jest
-          .fn()
-          .mockImplementation((_id, _opts, cb) => cb({ focused: false }));
-
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(false);
-      });
-
       it("returns false when no contexts exist", async () => {
         (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([]);
 
@@ -231,6 +191,98 @@ describe("Browser Utils Service", () => {
         const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
 
         expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("isAnyViewFocused", () => {
+    describe("MV3 (getContexts)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(3);
+        jest
+          .spyOn(browserPlatformUtilsService, "getDevice")
+          .mockReturnValue(DeviceType.ChromeExtension);
+      });
+
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+          ]);
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true when a SIDE_PANEL context exists", async () => {
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "SIDE_PANEL", documentUrl: "chrome-extension://id/popup/index.html" },
+          ]);
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns true when a popout TAB context has a focused window", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: true }));
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(true);
+      });
+
+      it("returns false when a popout TAB context has an unfocused window", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+            windowId: 1,
+          },
+        ]);
+        chrome.windows.get = jest
+          .fn()
+          .mockImplementation((_id, _opts, cb) => cb({ focused: false }));
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([]);
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(false);
+      });
+    });
+
+    describe("MV2 / Safari (getExtensionViews)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(2);
+      });
+
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it("delegates to BrowserApi.isAnyViewFocused", async () => {
+        const spy = jest.spyOn(BrowserApi, "isAnyViewFocused").mockResolvedValue(true);
+
+        expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(true);
         expect(spy).toHaveBeenCalled();
       });
     });

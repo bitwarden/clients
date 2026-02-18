@@ -150,33 +150,49 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   /**
-   * Identifies if the vault popup is currently open and active.
-   *
-   * For popout windows, only returns true if the popout has focus.
-   * Unfocused popout windows should not prevent vault timeout (PM-24047).
+   * Identifies if the main extension popup is currently open.
    *
    * Uses `chrome.runtime.getContexts()` on MV3 (service worker context)
    * and `chrome.extension.getViews()` on MV2/Safari (background page context).
    */
   async isPopupOpen(): Promise<boolean> {
     if (BrowserApi.isManifestVersion(3) && !this.isSafari()) {
-      return this.isPopupOpenMV3();
+      const contexts = await chrome.runtime.getContexts({ contextTypes: ["POPUP"] });
+      return contexts.length > 0;
     }
 
     // MV2 (Firefox) and Safari — background page can use getExtensionViews
     return BrowserApi.isPopupOpen();
   }
 
-  private async isPopupOpenMV3(): Promise<boolean> {
+  /**
+   * Identifies if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Side panel: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused (PM-24047).
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (service worker context)
+   * and `chrome.extension.getViews()` on MV2/Safari (background page context).
+   */
+  async isAnyViewFocused(): Promise<boolean> {
+    if (BrowserApi.isManifestVersion(3) && !this.isSafari()) {
+      return this.isAnyViewFocusedMV3();
+    }
+
+    return BrowserApi.isAnyViewFocused();
+  }
+
+  private async isAnyViewFocusedMV3(): Promise<boolean> {
     const contexts = await chrome.runtime.getContexts({});
 
     for (const context of contexts) {
-      // Main popup — always considered open (auto-closes on blur)
+      // Main popup — always considered focused (auto-closes on blur)
       if (context.contextType === "POPUP") {
         return true;
       }
 
-      // Side panel — always considered open
+      // Side panel — always considered focused (always visible)
       if (context.contextType === "SIDE_PANEL") {
         return true;
       }

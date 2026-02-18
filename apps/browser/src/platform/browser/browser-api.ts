@@ -464,26 +464,38 @@ export class BrowserApi {
 
   /**
    * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open and active.
-   *
-   * For popout windows (identified by `uilocation=popout` in the URL),
-   * only returns true if the popout has focus. Unfocused popout windows
-   * should not prevent vault timeout (PM-24047).
-   *
-   * Main popup and sidebar views are always considered active since
-   * the main popup auto-closes on blur and the sidebar is always visible.
+   * and returns whether any are currently open.
    */
   static async isPopupOpen(): Promise<boolean> {
     const views = BrowserApi.getExtensionViews({ type: "popup" });
-    for (const view of views) {
-      const isPopout = view.location.href.includes("uilocation=popout");
-      if (!isPopout) {
+    return views.length > 0;
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar tab view: always considered focused (always visible).
+   * - Popout tab view: only focused if `document.hasFocus()` is true.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    // Popup auto-closes on blur — if any popup view exists, it is focused
+    const popupViews = BrowserApi.getExtensionViews({ type: "popup" });
+    if (popupViews.length > 0) {
+      return true;
+    }
+
+    // Check tab views (popouts and sidebar)
+    const tabViews = BrowserApi.getExtensionViews({ type: "tab" });
+    for (const view of tabViews) {
+      if (view.location.href.includes("uilocation=sidebar")) {
         return true;
       }
-      if (view.document.hasFocus()) {
+      if (view.location.href.includes("uilocation=popout") && view.document.hasFocus()) {
         return true;
       }
     }
+
     return false;
   }
 
