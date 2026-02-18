@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { sharedArgTypes, variantArgType, endIconArgType } from "../shared/shared-story-arg-types";
+import { sharedArgTypes, variantArgType } from "../shared/shared-story-arg-types";
 
 import { ChipActionComponent } from "./chip-action.component";
 
@@ -19,7 +19,6 @@ export default {
   argTypes: {
     ...sharedArgTypes,
     ...variantArgType,
-    ...endIconArgType,
   },
 } as Meta;
 
@@ -33,7 +32,6 @@ export const Default: Story = {
         bit-chip-action
         [disabled]="disabled"
         [startIcon]="startIcon"
-        [endIcon]="endIcon"
         [label]="label"
         [variant]="variant"
         [size]="size"
@@ -46,13 +44,6 @@ export const WithStartIcon: Story = {
   ...Default,
   args: {
     startIcon: "bwi-check-circle",
-  },
-};
-
-export const WithEndIcon: Story = {
-  ...Default,
-  args: {
-    endIcon: "bwi-check-circle",
   },
 };
 
