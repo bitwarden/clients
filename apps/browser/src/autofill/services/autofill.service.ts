@@ -775,10 +775,10 @@ export default class AutofillService implements AutofillServiceInterface {
       });
 
       pageDetails.fields.forEach((field) => {
-        if (field.opid == null) {
+        const fieldOpid = field.opid;
+        if (fieldOpid == null) {
           return;
         }
-        const fieldOpid = field.opid;
         if (Object.prototype.hasOwnProperty.call(filledFields, fieldOpid)) {
           return;
         }
@@ -870,11 +870,13 @@ export default class AutofillService implements AutofillServiceInterface {
     let username: AutofillField | null = null;
     let totp: AutofillField | null = null;
     const login = options.cipher.login;
-    fillScript.savedUrls =
-      login?.uris
-        ?.filter((u) => u.match != UriMatchStrategy.Never)
-        ?.map((u) => u.uri)
-        ?.filter((uri): uri is string => uri != null) ?? [];
+    const loginURIs = login?.uris ?? [];
+    fillScript.savedUrls = loginURIs.reduce<string[]>((acc, savedURI) => {
+      if (savedURI.match != UriMatchStrategy.Never && savedURI.uri != null) {
+        acc.push(savedURI.uri);
+      }
+      return acc;
+    }, []);
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
