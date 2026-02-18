@@ -6,14 +6,20 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { StateProvider } from "@bitwarden/state";
+import { StateProvider, UserKeyDefinition, WELCOME_EXTENSION_DIALOG_DISK } from "@bitwarden/state";
 
-import {
-  WELCOME_EXTENSION_DIALOG_DISMISSED,
-  WebVaultExtensionPromptDialogComponent,
-} from "../components/web-vault-extension-prompt/web-vault-extension-prompt-dialog.component";
+import { WebVaultExtensionPromptDialogComponent } from "../components/web-vault-extension-prompt/web-vault-extension-prompt-dialog.component";
 
 import { WebBrowserInteractionService } from "./web-browser-interaction.service";
+
+export const WELCOME_EXTENSION_DIALOG_DISMISSED = new UserKeyDefinition<boolean>(
+  WELCOME_EXTENSION_DIALOG_DISK,
+  "vaultWelcomeExtensionDialogDismissed",
+  {
+    deserializer: (dismissed) => dismissed,
+    clearOn: [],
+  },
+);
 
 @Injectable({ providedIn: "root" })
 export class WebVaultExtensionPromptService {
@@ -41,9 +47,7 @@ export class WebVaultExtensionPromptService {
     );
 
     const hasDismissedExtensionPrompt = await firstValueFrom(
-      this.stateProvider
-        .getUser(userId, WELCOME_EXTENSION_DIALOG_DISMISSED)
-        .state$.pipe(map((dismissed) => dismissed ?? false)),
+      this.getDialogDismissedState(userId).state$.pipe(map((dismissed) => dismissed ?? false)),
     );
     if (hasDismissedExtensionPrompt) {
       return false;
@@ -62,6 +66,11 @@ export class WebVaultExtensionPromptService {
     await firstValueFrom(dialogRef.closed);
 
     return true;
+  }
+
+  /** Returns the SingleUserState for the dialog dismissed state */
+  getDialogDismissedState(userId: UserId) {
+    return this.stateProvider.getUser(userId, WELCOME_EXTENSION_DIALOG_DISMISSED);
   }
 
   /**

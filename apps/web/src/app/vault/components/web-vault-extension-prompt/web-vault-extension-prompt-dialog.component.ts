@@ -13,17 +13,9 @@ import {
   DialogService,
   IconComponent,
 } from "@bitwarden/components";
-import { StateProvider, UserKeyDefinition, WELCOME_EXTENSION_DIALOG_DISK } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export const WELCOME_EXTENSION_DIALOG_DISMISSED = new UserKeyDefinition<boolean>(
-  WELCOME_EXTENSION_DIALOG_DISK,
-  "vaultWelcomeExtensionDialogDismissed",
-  {
-    deserializer: (dismissed) => dismissed,
-    clearOn: [],
-  },
-);
+import { WebVaultExtensionPromptService } from "../../services/web-vault-extension-prompt.service";
 
 @Component({
   selector: "web-vault-extension-prompt-dialog",
@@ -34,9 +26,9 @@ export const WELCOME_EXTENSION_DIALOG_DISMISSED = new UserKeyDefinition<boolean>
 export class WebVaultExtensionPromptDialogComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
-    private stateProvider: StateProvider,
     private accountService: AccountService,
     private dialogRef: DialogRef<void>,
+    private webVaultExtensionPromptService: WebVaultExtensionPromptService,
   ) {}
 
   /** Download Url for the extension based on the browser */
@@ -48,7 +40,7 @@ export class WebVaultExtensionPromptDialogComponent implements OnInit {
 
   async dismissPrompt() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.stateProvider.getUser(userId, WELCOME_EXTENSION_DIALOG_DISMISSED).update(() => true);
+    await this.webVaultExtensionPromptService.getDialogDismissedState(userId).update(() => true);
     this.dialogRef.close();
   }
 

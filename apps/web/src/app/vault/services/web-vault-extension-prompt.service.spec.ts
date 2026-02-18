@@ -26,6 +26,7 @@ describe("WebVaultExtensionPromptService", () => {
     id: mockUserId,
     creationDate: mockAccountCreationDate,
   });
+  const getUser = jest.fn().mockReturnValue({ state$: mockStateSubject.asObservable() });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,9 +41,7 @@ describe("WebVaultExtensionPromptService", () => {
         {
           provide: StateProvider,
           useValue: {
-            getUser: jest.fn().mockReturnValue({
-              state$: mockStateSubject.asObservable(),
-            }),
+            getUser,
           },
         },
         {
@@ -144,6 +143,11 @@ describe("WebVaultExtensionPromptService", () => {
         .mockResolvedValueOnce(0); // Min age days
       mockStateSubject.next(false);
       extensionInstalled$.next(false);
+
+      // Set account creation date to be within threshold (15 days old)
+      const validCreationDate = new Date();
+      validCreationDate.setDate(validCreationDate.getDate() - 15);
+      activeAccountSubject.next({ id: mockUserId, creationDate: validCreationDate });
 
       const dialogClosedSubject = new BehaviorSubject<void>(undefined);
       const openSpy = jest
@@ -248,6 +252,19 @@ describe("WebVaultExtensionPromptService", () => {
 
       // Account created "now" should be within thresholds (0 days old, less than 30)
       expect(result).toBe(true);
+    });
+  });
+
+  describe("getDialogDismissedState", () => {
+    it("returns the SingleUserState for the dialog dismissed state", () => {
+      service.getDialogDismissedState(mockUserId);
+
+      expect(getUser).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({
+          key: "vaultWelcomeExtensionDialogDismissed",
+        }),
+      );
     });
   });
 });
