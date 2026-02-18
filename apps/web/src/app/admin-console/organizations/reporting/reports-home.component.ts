@@ -85,6 +85,26 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.overlayRef?.dispose();
   }
 
+  returnFocusToPage(event: Event): void {
+    if ((event as KeyboardEvent).shiftKey) {
+      return; // Allow natural Shift+Tab behavior
+    }
+    event.preventDefault();
+    const firstFocusable = document.querySelector(
+      "[cdktrapfocus] a:not([tabindex='-1'])",
+    ) as HTMLElement;
+    firstFocusable?.focus();
+  }
+
+  focusOverlayButton(event: Event): void {
+    if ((event as KeyboardEvent).shiftKey) {
+      return; // Allow natural Shift+Tab behavior
+    }
+    event.preventDefault();
+    const button = this.overlayRef?.overlayElement?.querySelector("a") as HTMLElement;
+    button?.focus();
+  }
+
   private updateOverlay(): void {
     if (this.isReportsHomepageRouteUrl(this.router.url)) {
       this.overlayRef?.dispose();

@@ -21,6 +21,8 @@ import { filter } from "rxjs/operators";
   standalone: false,
 })
 export class ReportsLayoutComponent implements AfterViewInit, OnDestroy {
+  homepage = true;
+
   private readonly backButtonTemplate =
     viewChild.required<TemplateRef<unknown>>("backButtonTemplate");
 
@@ -46,11 +48,33 @@ export class ReportsLayoutComponent implements AfterViewInit, OnDestroy {
     this.overlayRef?.dispose();
   }
 
+  returnFocusToPage(event: Event): void {
+    if ((event as KeyboardEvent).shiftKey) {
+      return; // Allow natural Shift+Tab behavior
+    }
+    event.preventDefault();
+    const firstFocusable = document.querySelector(
+      "[cdktrapfocus] a:not([tabindex='-1'])",
+    ) as HTMLElement;
+    firstFocusable?.focus();
+  }
+
+  focusOverlayButton(event: Event): void {
+    if ((event as KeyboardEvent).shiftKey) {
+      return; // Allow natural Shift+Tab behavior
+    }
+    event.preventDefault();
+    const button = this.overlayRef?.overlayElement?.querySelector("a") as HTMLElement;
+    button?.focus();
+  }
+
   private updateOverlay(): void {
     if (this.router.url === "/reports") {
+      this.homepage = true;
       this.overlayRef?.dispose();
       this.overlayRef = null;
     } else if (!this.overlayRef) {
+      this.homepage = false;
       this.overlayRef = this.overlay.create({
         positionStrategy: this.overlay.position().global().bottom("20px").right("32px"),
       });
