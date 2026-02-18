@@ -22,9 +22,8 @@ Options are passed to the select via an `options` input.
 
 ```ts
 @Component({
-  selector: `
-    <bit-chip-filter options=[options]></bit-chip-filter>
-  `,
+  selector: "your-component",
+  template: ` <bit-chip-filter options="[options]"></bit-chip-filter> `,
 })
 class MyComponent {
   protected options = [
