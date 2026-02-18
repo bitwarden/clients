@@ -61,22 +61,17 @@ export const Base: Story = {
 };
 
 export const AllVariants: Story = {
-  render: (args) => ({
-    props: args,
+  render: () => ({
     template: `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="primary" label="primary" [progressAmount]=20></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="subtle" label="subtle" [progressAmount]=40></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="success" label="success" [progressAmount]=60></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="warning" label="warning" [progressAmount]=80></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="danger" label="danger" [progressAmount]=100></bit-progress>
+        <bit-progress variant="primary" showLabel="true" label="primary" [progressAmount]=20></bit-progress>
+        <bit-progress variant="subtle" showLabel="true" label="subtle" [progressAmount]=40></bit-progress>
+        <bit-progress variant="success" showLabel="true" label="success" [progressAmount]=60></bit-progress>
+        <bit-progress variant="warning" showLabel="true" label="warning" [progressAmount]=80></bit-progress>
+        <bit-progress variant="danger" showLabel="true" label="danger" [progressAmount]=100></bit-progress>
       </div>
     `,
   }),
-  args: {
-    showLeftText: false,
-    showRightText: false,
-  },
 };
 
 export const WithLabelAndHelperText: Story = {
@@ -105,7 +100,13 @@ export const WithIllustrationAndHeader: Story = {
 export const Empty: Story = {
   ...Base,
   args: {
+    showLabel: true,
+    label: "File name",
     progressAmount: 0,
+    showLeftText: false,
+    customLeftText: undefined,
+    showRightText: false,
+    rightText: "50MB",
   },
 };
 
@@ -117,20 +118,14 @@ export const Full: Story = {
 };
 
 export const CustomText: Story = {
-  render: (args) => ({
-    props: args,
+  render: () => ({
     template: `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="danger" label="danger" [progressAmount]=25 customLeftText="Weak"></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="warning" label="warning" [progressAmount]=50 customLeftText="Weak2"></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="primary" label="primary" [progressAmount]=75 customLeftText="Good"></bit-progress>
-        <bit-progress ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} variant="success" label="success" [progressAmount]=100 customLeftText="Strong"></bit-progress>
+        <bit-progress variant="danger" label="danger" [progressAmount]=25 showLeftText="true" customLeftText="Weak"></bit-progress>
+        <bit-progress variant="warning" label="warning" [progressAmount]=50 showLeftText="true" customLeftText="Weak2"></bit-progress>
+        <bit-progress variant="primary" label="primary" [progressAmount]=75 showLeftText="true" customLeftText="Good"></bit-progress>
+        <bit-progress variant="success" label="success" [progressAmount]=100 showLeftText="true" customLeftText="Strong"></bit-progress>
       </div>
     `,
   }),
-  args: {
-    showLabel: false,
-    progressAmount: 15,
-    showRightText: false,
-  },
 };
