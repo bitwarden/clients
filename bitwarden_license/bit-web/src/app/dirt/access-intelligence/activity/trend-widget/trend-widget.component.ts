@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, output, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from "@angular/core";
 
 import {
   ButtonModule,
@@ -26,6 +26,16 @@ export const TrendWidgetTimespan = Object.freeze({
 } as const);
 export type TrendWidgetTimespan = (typeof TrendWidgetTimespan)[keyof typeof TrendWidgetTimespan];
 
+export interface TrendWidgetData {
+  timeframe: string;
+  dataView: string;
+  dataPoints: Array<{
+    timestamp: string;
+    atRisk: number;
+    total: number;
+  }>;
+}
+
 @Component({
   selector: "trend-widget",
   templateUrl: "./trend-widget.component.html",
@@ -42,6 +52,10 @@ export type TrendWidgetTimespan = (typeof TrendWidgetTimespan)[keyof typeof Tren
 export class TrendWidgetComponent {
   protected readonly ViewType = TrendWidgetViewType;
   protected readonly Timespan = TrendWidgetTimespan;
+
+  readonly data = input.required<TrendWidgetData>();
+  readonly loading = input<boolean>(false);
+  readonly error = input<string | null>(null);
 
   readonly selectedView = signal<TrendWidgetViewType>(TrendWidgetViewType.Applications);
   readonly selectedTimespan = signal<TrendWidgetTimespan>(TrendWidgetTimespan.PastMonth);
@@ -73,38 +87,40 @@ export class TrendWidgetComponent {
         return "All time";
     }
   });
-  readonly inputData = signal<LineData[]>([
-    {
-      label: "Primary",
-      pointData: [
-        { x: new Date(2026, 1, 2), y: 50 },
-        { x: new Date(2026, 1, 4), y: 60 },
-      ],
-      color: "#175DDC",
-      fillColor: "#DBE5F6",
-    },
-    {
-      label: "Secondary",
-      pointData: [
-        { x: new Date(2026, 1, 2), y: 100 },
-        { x: new Date(2026, 1, 4), y: 150 },
-      ],
-      color: "#E5E7EB",
-      fillColor: "#F3F6F9",
-    },
-  ]);
-  readonly lineChartData = computed<LineData[]>(() => {
-    const view = this.selectedView();
-
-    switch (view) {
+  protected readonly viewLabel = computed(() => {
+    switch (this.selectedView()) {
       case TrendWidgetViewType.Applications:
-        return this.inputData();
+        return "Applications";
       case TrendWidgetViewType.Passwords:
-        return this.inputData();
+        return "Passwords";
       case TrendWidgetViewType.Members:
-        return this.inputData();
+        return "Members";
     }
+  });
 
-    return this.inputData();
+  protected readonly lineChartData = computed<LineData[]>(() => {
+    const dataPoints = this.data().dataPoints;
+    const label = this.viewLabel();
+
+    return [
+      {
+        label: `${label} at risk`,
+        pointData: dataPoints.map((point) => ({
+          x: new Date(point.timestamp),
+          y: point.atRisk,
+        })),
+        color: "#175DDC",
+        fillColor: "#DBE5F6",
+      },
+      {
+        label: `All ${label.toLowerCase()}`,
+        pointData: dataPoints.map((point) => ({
+          x: new Date(point.timestamp),
+          y: point.total,
+        })),
+        color: "#E5E7EB",
+        fillColor: "#F3F6F9",
+      },
+    ];
   });
 }
