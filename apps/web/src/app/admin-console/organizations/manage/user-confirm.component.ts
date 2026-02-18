@@ -2,11 +2,8 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -17,8 +14,6 @@ export type UserConfirmDialogData = {
   name: string;
   userId: string;
   publicKey: Uint8Array;
-  // @TODO remove this when doing feature flag cleanup for members component refactor.
-  confirmUser?: (publicKey: Uint8Array) => Promise<void>;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -46,7 +41,6 @@ export class UserConfirmComponent implements OnInit {
     private keyService: KeyService,
     private logService: LogService,
     private organizationManagementPreferencesService: OrganizationManagementPreferencesService,
-    private configService: ConfigService,
   ) {
     this.name = data.name;
     this.userId = data.userId;
@@ -74,13 +68,6 @@ export class UserConfirmComponent implements OnInit {
 
     if (this.formGroup.value.dontAskAgain) {
       await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
-    }
-
-    const membersComponentRefactorEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.MembersComponentRefactor),
-    );
-    if (!membersComponentRefactorEnabled) {
-      await this.data.confirmUser(this.publicKey);
     }
 
     this.dialogRef.close(true);

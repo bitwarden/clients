@@ -4387,10 +4387,10 @@
   "noItemsInArchiveDesc": {
     "message": "Tu sa zobrazia archivované položky, ktoré budú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Položka bola archivovaná"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Položka bola odobraná z archívu"
   },
   "archiveItem": {
@@ -4485,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Akcia pri vypršaní časového limitu"
+  },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nedá sa dešifrovať"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
