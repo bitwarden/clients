@@ -22,6 +22,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
+import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
@@ -52,6 +53,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     private organizationUserApiService: OrganizationUserApiService,
     private reportGenerationService: ReportGenerationService,
     private reportPersistenceService: ReportPersistenceService,
+    private legacyMigrationService: LegacyReportMigrationService,
     private logService: LogService,
   ) {
     super();
@@ -73,16 +75,63 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
+    // Try V2 load first
     return this.reportPersistenceService.loadReport$(orgId).pipe(
-      tap((report) => {
-        this._report.next(report);
-        this._loading.next(false);
+      switchMap((v2Report) => {
+        if (v2Report) {
+          // V2 report exists - use it
+          this.logService.debug("[DefaultAccessIntelligenceDataService] V2 report loaded");
+          this._report.next(v2Report);
+          this._loading.next(false);
+          return of(undefined as void);
+        }
+
+        // No V2 report - try V1 migration
         this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] Initialization complete",
-          report ? "Report loaded" : "No existing report",
+          "[DefaultAccessIntelligenceDataService] No V2 report, trying V1 migration",
+        );
+
+        return this.legacyMigrationService.migrateV1Report$(orgId).pipe(
+          switchMap((v1Report) => {
+            if (v1Report) {
+              // V1 report migrated - emit without saving for testing
+              // TODO: UNCOMMENT SAVE LOGIC BEFORE PRODUCTION
+              // This is temporarily disabled to allow repeated testing with fresh V1 data
+              // without polluting the database with V2 reports
+              this.logService.info(
+                "[DefaultAccessIntelligenceDataService] V1 report migrated (NOT SAVED - testing only)",
+              );
+
+              // Emit the migrated report without persisting
+              this._report.next(v1Report);
+              this._loading.next(false);
+              return of(undefined as void);
+
+              // TODO: UNCOMMENT THIS BLOCK BEFORE PRODUCTION
+              // Production behavior: automatically save migrated V1 report as V2
+              /*
+              return this.reportPersistenceService.saveReport$(v1Report, orgId).pipe(
+                tap((reportId) => {
+                  v1Report.id = reportId;
+                  this._report.next(v1Report);
+                  this._loading.next(false);
+                  this.logService.info(
+                    "[DefaultAccessIntelligenceDataService] V1 report saved as V2",
+                  );
+                }),
+                map(() => undefined as void),
+              );
+              */
+            }
+
+            // No V1 or V2 report - null state
+            this.logService.debug("[DefaultAccessIntelligenceDataService] No reports found");
+            this._report.next(null);
+            this._loading.next(false);
+            return of(undefined as void);
+          }),
         );
       }),
-      map(() => undefined as void),
       catchError((error: unknown) => {
         this.logService.error(
           "[DefaultAccessIntelligenceDataService] Initialization failed",

@@ -11,7 +11,6 @@ import {
 } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-
 import {
   DecryptedReportData,
   OrganizationReportApplication,

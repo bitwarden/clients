@@ -158,6 +158,13 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       report.memberCount = allMemberIds.size;
       report.atRiskMemberCount = atRiskMemberIds.size;
 
+      // Pre-compute icon metadata from first cipher for display efficiency
+      if (cipherGroup.length > 0) {
+        const firstCipher = cipherGroup[0];
+        report.iconCipherId = firstCipher.id;
+        report.iconUri = firstCipher.login?.uris?.[0]?.uri ?? applicationName;
+      }
+
       reports.push(report);
     });
 

@@ -2,6 +2,7 @@
 export * from "./abstractions/access-intelligence-data.service";
 export * from "./abstractions/cipher-health.service";
 export * from "./abstractions/drawer-state.service";
+export * from "./abstractions/legacy-report-migration.service";
 export * from "./abstractions/member-cipher-mapping.service";
 export * from "./abstractions/report-generation.service";
 export * from "./abstractions/report-persistence.service";
@@ -23,6 +24,7 @@ export * from "./domain/risk-insights-report.service";
 export * from "./implementations/default-access-intelligence-data.service";
 export * from "./implementations/default-cipher-health.service";
 export * from "./implementations/default-drawer-state.service";
+export * from "./implementations/default-legacy-report-migration.service";
 export * from "./implementations/default-member-cipher-mapping.service";
 export * from "./implementations/default-report-generation.service";
 export * from "./implementations/default-report-persistence.service";
