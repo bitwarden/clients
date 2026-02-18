@@ -115,9 +115,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
 
       // when the options change, we need to change our selectedOption
       // to reflect the changed options.
-      if (currentSelection !== undefined && currentSelection !== null) {
-        const selection = this.findOption(this.rootTree, currentSelection.value);
-        this.selectedOption = selection;
+      if (
+        currentSelection !== undefined &&
+        currentSelection !== null &&
+        currentSelection.value !== null
+      ) {
+        this.selectedOption = this.findOption(this.rootTree, currentSelection.value);
       }
 
       // If there's a pending value, apply it now that options are available
