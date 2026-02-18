@@ -1,5 +1,12 @@
 import { Injectable } from "@angular/core";
-import { getUserInfo, localStateRepository, sha256 } from "@ovrlab/pqp-network";
+import {
+  getUserInfo,
+  isLoggedIn as isPqpLoggedIn,
+  login as pqpLogin,
+  localStateRepository,
+  ServiceLocator,
+  sha256,
+} from "@ovrlab/pqp-network";
 import type { IdentityProvider } from "@ovrlab/pqp-network";
 
 export interface PqpAuthState {
@@ -12,7 +19,7 @@ export interface PqpAuthState {
 /**
  * Shared service for PqP authentication functionality.
  * Centralizes PqP Network login and password derivation.
- * Platform-agnostic - can be used across browser, electron, and CLI.
+ * Platform-agnostic - uses ServiceLocator.getMessaging() for cross-context communication.
  */
 @Injectable({ providedIn: "root" })
 export class PqpAuthService {
@@ -47,13 +54,20 @@ export class PqpAuthService {
 
   /**
    * Check the current PqP authentication status.
-   * Fetches PqP Network login states, user info, and derives password if ready.
-   * Clears stale data when login state becomes invalid.
+   * Uses ServiceLocator messaging when available, falls back to direct API call.
    */
   async checkStatus(): Promise<PqpAuthState> {
     try {
-      const response = await chrome.runtime.sendMessage({ type: "CHECK_STATUS" });
-      this._networkLoggedIn = response?.loggedIn ?? false;
+      let loggedIn = false;
+      try {
+        const messaging = ServiceLocator.getMessaging();
+        const response = await messaging.sendWithResponse("CHECK_STATUS");
+        loggedIn = response?.loggedIn ?? false;
+      } catch {
+        // Messaging not available (e.g. background context or desktop) — use direct API
+        loggedIn = await isPqpLoggedIn();
+      }
+      this._networkLoggedIn = loggedIn;
 
       // Fetch or clear user info based on network login state
       if (this._networkLoggedIn) {
@@ -79,8 +93,8 @@ export class PqpAuthService {
 
   /**
    * Login to PqP Network.
-   * Opens login in new tab. Returns a promise that resolves when login is detected via focus event.
-   * If the user returns without completing login, resolves false after the second focus check.
+   * Uses ServiceLocator messaging when available (browser extension), falls back to direct API.
+   * Returns a promise that resolves when login is detected via focus event.
    */
   async loginToPqpNetwork(provider: IdentityProvider = "google"): Promise<boolean> {
     const messageType = provider === "microsoft" ? "LOGIN_MICROSOFT" : "LOGIN";
@@ -100,11 +114,23 @@ export class PqpAuthService {
 
         focusCount++;
         try {
-          const response = await chrome.runtime.sendMessage({ type: "CHECK_STATUS" });
-          if (response?.loggedIn) {
+          let loggedIn = false;
+          try {
+            const messaging = ServiceLocator.getMessaging();
+            const response = await messaging.sendWithResponse("CHECK_STATUS");
+            loggedIn = response?.loggedIn ?? false;
+          } catch {
+            loggedIn = await isPqpLoggedIn();
+          }
+
+          if (loggedIn) {
             resolved = true;
             cleanup();
             this._networkLoggedIn = true;
+            const userInfo = await getUserInfo();
+            if (userInfo) {
+              this._userEmail = userInfo.email || null;
+            }
             await this.derivePassword();
             resolve(true);
           } else if (focusCount >= 2) {
@@ -122,7 +148,13 @@ export class PqpAuthService {
       };
 
       try {
-        void chrome.runtime.sendMessage({ type: messageType });
+        // Try messaging (browser extension), fall back to direct API (desktop/other)
+        try {
+          const messaging = ServiceLocator.getMessaging();
+          messaging.send(messageType);
+        } catch {
+          void pqpLogin(provider);
+        }
         window.addEventListener("focus", checkLoginStatus);
 
         // Also check immediately after a short delay (in case already logged in)
