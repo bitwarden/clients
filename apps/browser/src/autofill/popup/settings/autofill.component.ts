@@ -554,7 +554,7 @@ export class AutofillComponent implements OnInit {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
     if (!valueChange || !isAdvanced) {
-      if (current != null) {
+      if (current !== null) {
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
       }
       return;
@@ -571,7 +571,7 @@ export class AutofillComponent implements OnInit {
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        if (previous != null) {
+        if (previous !== null) {
           await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
         }
       },
