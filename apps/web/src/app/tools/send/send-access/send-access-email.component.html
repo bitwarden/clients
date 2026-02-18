@@ -16,9 +16,6 @@
     </button>
   </div>
 } @else {
-  @if (email.value) {
-    <p bitTypography="body1" class="tw-text-center tw-mb-6">{{ email.value }}</p>
-  }
   <bit-form-field>
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
     <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
