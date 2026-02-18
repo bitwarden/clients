@@ -152,7 +152,7 @@ export class NativeMessagingBackground {
             if (this.connecting) {
               reject(new Error("startDesktop"));
             }
-            this.port?.disconnect();
+            this.disconnect();
             // reject all
             for (const callback of this.callbacks.values()) {
               callback.rejecter("disconnected");
@@ -200,7 +200,7 @@ export class NativeMessagingBackground {
               "[Native Messaging IPC] Secure channel encountered an error; disconnecting and wiping keys...",
             );
 
-            this.port?.disconnect();
+            this.disconnect();
 
             if (message.messageId != null) {
               if (this.callbacks.has(message.messageId)) {
@@ -439,5 +439,13 @@ export class NativeMessagingBackground {
     this.messagingService.send("showNativeMessagingFingerprintDialog", {
       fingerprint: fingerprint,
     });
+  }
+
+  private disconnect() {
+    // Clear state immediately in case the disconnect callback fails.
+    this.secureChannel = undefined;
+    this.connected = false;
+    this.connecting = false;
+    this.port?.disconnect();
   }
 }
