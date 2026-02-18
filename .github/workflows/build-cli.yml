@@ -219,7 +219,17 @@ jobs:
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --entitlements ./entitlements.plist --timestamp "./dist/${{ matrix.license_type.build_prefix }}/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}/bw"
 
-      - name: Zip Unix
+      - name: Package macOS binary with ditto
+        if: ${{ matrix.os.base == 'mac' }}
+        env:
+          _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
+        run: |
+          cd "./dist/${{ matrix.license_type.build_prefix }}/$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}"
+          ditto -c -k --sequesterRsrc ./bw "../../bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip"
+
+      - name: Package Linux binary with zip
+        if: ${{ matrix.os.base == 'linux' }}
         env:
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
           _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
