@@ -2,16 +2,9 @@ import { Client, ClientOptions } from "./client";
 import { base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./crypto";
 import * as sd from "./generated/SyncDown";
 
-//
-// New models
-//
-
-type RecordV3 = {
-  type: string;
-  title: string;
-  notes: string;
-  fields: VaultField[];
-  custom: VaultField[];
+export type VaultItem = RecordV3 & {
+  id: string;
+  folders: string[];
 };
 
 export type VaultField = {
@@ -20,9 +13,14 @@ export type VaultField = {
   label?: string;
 };
 
-export type VaultItem = RecordV3 & {
-  id: string;
-  folders: string[];
+// TODO: Add RecordV2!
+
+type RecordV3 = {
+  type: string;
+  title: string;
+  notes: string;
+  fields: VaultField[];
+  custom: VaultField[];
 };
 
 type Decryptor = (data: Uint8Array, key: Uint8Array) => Promise<Uint8Array>;
@@ -34,7 +32,7 @@ export class Vault {
 
     const pages = await client.syncDown(loginResult.sessionToken);
     const merged = Vault.mergeSyncDownPages(pages);
-    return await Vault.processNew(merged, loginResult.dataKey);
+    return await Vault.processMergedSyncDownPages(merged, loginResult.dataKey);
   }
 
   getItems(): VaultItem[] {
@@ -47,6 +45,7 @@ export class Vault {
 
   private constructor(private readonly items: VaultItem[]) {}
 
+  // SyncDown can return multiple pages of data. This function merges them into a single response.
   private static mergeSyncDownPages(pages: sd.SyncDownResponse[]): sd.SyncDownResponse {
     if (pages.length === 1) {
       return pages[0];
@@ -104,7 +103,8 @@ export class Vault {
     return merged;
   }
 
-  private static async processNew(
+  // Processes the merged SyncDown response and decrypts all data to build the Vault.
+  private static async processMergedSyncDownPages(
     merged: sd.SyncDownResponse,
     masterKey: Uint8Array,
   ): Promise<Vault> {
