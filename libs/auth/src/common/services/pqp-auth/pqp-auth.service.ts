@@ -93,78 +93,40 @@ export class PqpAuthService {
 
   /**
    * Login to PqP Network.
-   * Uses ServiceLocator messaging when available (browser extension), falls back to direct API.
-   * Returns a promise that resolves when login is detected via focus event.
+   * Uses sendWithResponse to wait for the background script to complete the OAuth flow.
    */
   async loginToPqpNetwork(provider: IdentityProvider = "google"): Promise<boolean> {
     const messageType = provider === "microsoft" ? "LOGIN_MICROSOFT" : "LOGIN";
 
-    return new Promise((resolve) => {
-      let resolved = false;
-      let focusCount = 0;
+    try {
+      const messaging = ServiceLocator.getMessaging();
+      const response = await messaging.sendWithResponse(messageType);
 
-      const cleanup = () => {
-        window.removeEventListener("focus", checkLoginStatus);
-      };
-
-      const checkLoginStatus = async () => {
-        if (resolved) {
-          return;
+      if (response?.success) {
+        this._networkLoggedIn = true;
+        const userInfo = await getUserInfo();
+        if (userInfo) {
+          this._userEmail = userInfo.email || null;
         }
-
-        focusCount++;
-        try {
-          let loggedIn = false;
-          try {
-            const messaging = ServiceLocator.getMessaging();
-            const response = await messaging.sendWithResponse("CHECK_STATUS");
-            loggedIn = response?.loggedIn ?? false;
-          } catch {
-            loggedIn = await isPqpLoggedIn();
-          }
-
-          if (loggedIn) {
-            resolved = true;
-            cleanup();
-            this._networkLoggedIn = true;
-            const userInfo = await getUserInfo();
-            if (userInfo) {
-              this._userEmail = userInfo.email || null;
-            }
-            await this.derivePassword();
-            resolve(true);
-          } else if (focusCount >= 2) {
-            resolved = true;
-            cleanup();
-            resolve(false);
-          }
-        } catch {
-          if (focusCount >= 2) {
-            resolved = true;
-            cleanup();
-            resolve(false);
-          }
-        }
-      };
-
-      try {
-        // Try messaging (browser extension), fall back to direct API (desktop/other)
-        try {
-          const messaging = ServiceLocator.getMessaging();
-          messaging.send(messageType);
-        } catch {
-          void pqpLogin(provider);
-        }
-        window.addEventListener("focus", checkLoginStatus);
-
-        // Also check immediately after a short delay (in case already logged in)
-        setTimeout(() => void checkLoginStatus(), 500);
-      } catch {
-        resolved = true;
-        cleanup();
-        resolve(false);
+        await this.derivePassword();
+        return true;
       }
-    });
+      return false;
+    } catch {
+      // Fallback for non-extension contexts (desktop)
+      try {
+        await pqpLogin(provider);
+        this._networkLoggedIn = true;
+        const userInfo = await getUserInfo();
+        if (userInfo) {
+          this._userEmail = userInfo.email || null;
+        }
+        await this.derivePassword();
+        return true;
+      } catch {
+        return false;
+      }
+    }
   }
 
   /**
