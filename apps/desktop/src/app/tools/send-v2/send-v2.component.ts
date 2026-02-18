@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, computed, inject, signal, viewChild } from "@angular/core";
+import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
@@ -20,7 +20,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
+import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
   SendItemsService,
@@ -28,6 +28,7 @@ import {
   SendListState,
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
+  SendItemDialogResult,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -84,6 +85,9 @@ export class SendV2Component {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
+  private destroyRef = inject(DestroyRef);
+
+  private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
@@ -128,6 +132,12 @@ export class SendV2Component {
     { initialValue: null },
   );
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.activeDrawerRef?.close();
+    });
+  }
+
   protected readonly selectedSendType = computed(() => {
     const action = this.action();
 
@@ -143,11 +153,12 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
@@ -173,11 +184,12 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       if (sendId === this.sendId() && this.action() === Action.Edit) {
         return;
