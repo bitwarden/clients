@@ -20,6 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
+import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   getPermissionList,
   convertToPermission,
@@ -76,6 +77,7 @@ export class MemberAccessReportService {
     private organizationUserApiService: OrganizationUserApiService,
     private cipherService: CipherService,
     private logService: LogService,
+    private groupApiService: GroupApiService,
   ) {}
   /**
    * Transforms user data into a MemberAccessReportView.
@@ -233,19 +235,24 @@ export class MemberAccessReportService {
   ): Promise<MemberAccessDataV2> {
     this.logService.debug("[MemberAccessReportService V2] Loading organization data");
 
-    // Fetch collections and users in parallel
-    const [collections, orgUsersResponse] = await Promise.all([
+    // Fetch collections, users, and groups in parallel
+    const [collections, orgUsersResponse, groups] = await Promise.all([
       firstValueFrom(
         this.collectionAdminService
           .collectionAdminViews$(organizationId, currentUserId)
           .pipe(take(1)),
       ),
       this.organizationUserApiService.getAllUsers(organizationId, { includeGroups: true }),
+      this.groupApiService.getAll(organizationId),
     ]);
 
     // Build collection map
     const collectionMap = new Map<string, any>();
     collections.forEach((c) => collectionMap.set(c.id, c));
+
+    // Build group name lookup map
+    const groupNameMap = new Map<string, string>();
+    groups.forEach((g) => groupNameMap.set(g.id, g.name));
 
     // Build user metadata and group member maps
     const organizationUserDataMap = new Map<string, OrganizationUserData>();
@@ -270,7 +277,10 @@ export class MemberAccessReportService {
         for (const groupId of orgUser.groups) {
           let groupData = groupMemberMap.get(groupId);
           if (!groupData) {
-            groupData = { groupName: "", memberIds: [] };
+            groupData = {
+              groupName: groupNameMap.get(groupId) || "",
+              memberIds: [],
+            };
             groupMemberMap.set(groupId, groupData);
           }
           groupData.memberIds.push(orgUser.id);
@@ -484,14 +494,23 @@ export class MemberAccessReportService {
     const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
 
     // Group access records by (userId, collectionId, groupId)
-    const groupedAccess = new Map<string, MemberCipherAccess[]>();
+    // Optimization: Store count + metadata instead of full array to reduce memory
+    const groupedAccess = new Map<
+      string,
+      {
+        access: MemberCipherAccess;
+        cipherCount: number;
+      }
+    >();
     for (const access of accessList) {
       // Use groupId if present, otherwise use "direct" to distinguish direct access
       const key = `${access.userId}|${access.collectionId}|${access.groupId ?? "direct"}`;
-      if (!groupedAccess.has(key)) {
-        groupedAccess.set(key, []);
+      const existing = groupedAccess.get(key);
+      if (!existing) {
+        groupedAccess.set(key, { access, cipherCount: 1 });
+      } else {
+        existing.cipherCount++;
       }
-      groupedAccess.get(key).push(access);
     }
 
     // Pre-fetch i18n strings to avoid repeated lookups
@@ -508,9 +527,7 @@ export class MemberAccessReportService {
     const noCollectionPermission = this.i18nService.t("memberAccessReportNoCollectionPermission");
 
     const exportItems: MemberAccessExportItem[] = [];
-    for (const accesses of groupedAccess.values()) {
-      // All records in this group share the same user/collection/group, so use the first for metadata
-      const access = accesses[0];
+    for (const { access, cipherCount } of groupedAccess.values()) {
       const metadata = orgData.organizationUserDataMap.get(access.userId);
 
       exportItems.push({
@@ -525,7 +542,7 @@ export class MemberAccessReportService {
         collectionPermission: access.collectionId
           ? this.getPermissionTextFromAccess(access)
           : noCollectionPermission,
-        totalItems: accesses.length.toString(), // Count of ciphers in this access path
+        totalItems: cipherCount.toString(), // Count of ciphers in this access path
       });
     }
 

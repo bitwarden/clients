@@ -30,7 +30,10 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
-import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  CoreOrganizationModule,
+  GroupApiService,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   openUserAddEditDialog,
   MemberDialogResult,
@@ -67,6 +70,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
         OrganizationUserApiService,
         CipherService,
         LogService,
+        GroupApiService,
       ],
     }),
   ],

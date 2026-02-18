@@ -18,6 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 import {
@@ -37,6 +38,7 @@ describe("MemberAccessReportService", () => {
   const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
   const mockCipherService = mock<CipherService>();
   const mockLogService = mock<LogService>();
+  const mockGroupApiService = mock<GroupApiService>();
   let memberAccessReportService: MemberAccessReportService;
   const i18nMock = mock<I18nService>({
     t(key) {
@@ -51,6 +53,8 @@ describe("MemberAccessReportService", () => {
     reportApiService.getMemberAccessData.mockImplementation(() =>
       Promise.resolve(memberAccessReportsMock),
     );
+    // Default: mock groups as empty array (tests can override)
+    mockGroupApiService.getAll.mockResolvedValue([]);
     memberAccessReportService = new MemberAccessReportService(
       reportApiService,
       i18nMock,
@@ -61,6 +65,7 @@ describe("MemberAccessReportService", () => {
       mockOrganizationUserApiService,
       mockCipherService,
       mockLogService,
+      mockGroupApiService,
     );
   });
 
@@ -103,6 +108,13 @@ describe("MemberAccessReportService", () => {
   const createMockCipher = (id: string, collectionIds: string[]): Partial<CipherView> => ({
     id,
     collectionIds,
+  });
+
+  const createMockGroup = (id: string, name: string) => ({
+    id,
+    organizationId: mockOrganizationId,
+    name,
+    externalId: null,
   });
 
   // Scenario helpers to reduce test duplication
@@ -155,6 +167,7 @@ describe("MemberAccessReportService", () => {
     userOptions: {
       email?: string;
       name?: string;
+      groupName?: string;
     } = {},
   ) => {
     mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
@@ -180,6 +193,11 @@ describe("MemberAccessReportService", () => {
         ),
       ],
     } as ListResponse<OrganizationUserUserDetailsResponse>);
+
+    // Mock group data with actual group name
+    mockGroupApiService.getAll.mockResolvedValue([
+      createMockGroup(groupId, userOptions.groupName ?? "Test Group"),
+    ]);
 
     mockCipherService.getAllFromApiForOrganization.mockResolvedValue(
       cipherIds.map((id) => createMockCipher(id, [collectionId])) as CipherView[],
@@ -411,6 +429,9 @@ describe("MemberAccessReportService", () => {
         ],
       } as ListResponse<OrganizationUserUserDetailsResponse>);
 
+      // Mock groups with actual group name
+      mockGroupApiService.getAll.mockResolvedValue([createMockGroup(groupId1, "Test Group")]);
+
       // Mock ciphers
       mockCipherService.getAllFromApiForOrganization.mockResolvedValue([
         createMockCipher(cipherId1, [collectionId1]),
@@ -575,14 +596,15 @@ describe("MemberAccessReportService", () => {
       setupUserWithGroupAccess("user-1", "group-1", "collection-1", ["cipher-1"], {
         email: "user1@test.com",
         name: "User One",
+        groupName: "Engineering Team",
       });
 
       const result =
         await memberAccessReportService.generateUserReportExportItemsV2(mockOrganizationId);
 
       expect(result).toHaveLength(1);
-      // Group name falls back to "No Group" translation when not populated
-      expect(result[0].group).toBe("memberAccessReportNoGroup");
+      // Group name should be populated from API
+      expect(result[0].group).toBe("Engineering Team");
     });
 
     it("should group multiple ciphers and count totalItems correctly", async () => {
@@ -637,6 +659,11 @@ describe("MemberAccessReportService", () => {
           }),
         ],
       } as ListResponse<OrganizationUserUserDetailsResponse>);
+
+      // Mock groups
+      mockGroupApiService.getAll.mockResolvedValue([
+        createMockGroup(groupId1, "Mixed Access Group"),
+      ]);
 
       mockCipherService.getAllFromApiForOrganization.mockResolvedValue([
         createMockCipher(cipherId1, [collectionId1]),
@@ -696,6 +723,71 @@ describe("MemberAccessReportService", () => {
         collection: "memberAccessReportNoCollection", // Falls back to translation key
         group: "memberAccessReportNoGroup", // Falls back to translation key
       });
+    });
+
+    it("should populate group names from GroupApiService", async () => {
+      const userId1 = "user-1";
+      const groupId1 = "group-1";
+      const groupId2 = "group-2";
+      const collectionId1 = "collection-1";
+      const collectionId2 = "collection-2";
+
+      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
+        of([
+          createMockCollection(
+            collectionId1,
+            "Engineering Collection",
+            [],
+            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+          ),
+          createMockCollection(
+            collectionId2,
+            "Marketing Collection",
+            [],
+            [{ id: groupId2, readOnly: false, hidePasswords: false, manage: false }],
+          ),
+        ] as CollectionAdminView[]),
+      );
+
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [
+          createMockOrganizationUser(userId1, "user1@test.com", "User One", {
+            twoFactorEnabled: true,
+            usesKeyConnector: false,
+            resetPasswordEnrolled: true,
+            groups: [groupId1, groupId2],
+          }),
+        ],
+      } as ListResponse<OrganizationUserUserDetailsResponse>);
+
+      // Mock groups with actual names
+      mockGroupApiService.getAll.mockResolvedValue([
+        createMockGroup(groupId1, "Engineering Team"),
+        createMockGroup(groupId2, "Marketing Team"),
+      ]);
+
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([
+        createMockCipher("cipher-1", [collectionId1]),
+        createMockCipher("cipher-2", [collectionId2]),
+      ] as CipherView[]);
+
+      const result =
+        await memberAccessReportService.generateUserReportExportItemsV2(mockOrganizationId);
+
+      // Should have 2 rows, one per group
+      expect(result).toHaveLength(2);
+
+      // Verify group names are populated correctly
+      const groups = result.map((item) => item.group).sort();
+      expect(groups).toEqual(["Engineering Team", "Marketing Team"]);
+
+      // Verify collections match groups
+      expect(result.find((item) => item.group === "Engineering Team")?.collection).toBe(
+        "Engineering Collection",
+      );
+      expect(result.find((item) => item.group === "Marketing Team")?.collection).toBe(
+        "Marketing Collection",
+      );
     });
 
     it("should skip ciphers with zero GUID", async () => {
