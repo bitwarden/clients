@@ -199,22 +199,22 @@ describe("DefaultChangeEmailService", () => {
       });
 
       it("should throw if KDF config is null", async () => {
+        masterPasswordService.mock.saltForUser$.mockReturnValue(of(existingSalt));
         kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
 
         await expect(
           sut.requestEmailToken(mockMasterPassword, mockNewEmail, mockUserId),
-        ).rejects.toThrow();
+        ).rejects.toThrow("kdf is null or undefined.");
       });
 
       it("should throw if salt is null", async () => {
-        kdfConfigService.getKdfConfig$.mockReturnValue(of(kdfConfig));
         masterPasswordService.mock.saltForUser$.mockReturnValue(
           of(null as unknown as MasterPasswordSalt),
         );
 
         await expect(
           sut.requestEmailToken(mockMasterPassword, mockNewEmail, mockUserId),
-        ).rejects.toThrow();
+        ).rejects.toThrow("salt is null or undefined.");
       });
     });
 
@@ -698,7 +698,7 @@ describe("DefaultChangeEmailService", () => {
 
         await expect(
           sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId),
-        ).rejects.toThrow();
+        ).rejects.toThrow("kdf is null or undefined.");
       });
 
       it("should throw if user key is null", async () => {
@@ -707,7 +707,7 @@ describe("DefaultChangeEmailService", () => {
 
         await expect(
           sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId),
-        ).rejects.toThrow();
+        ).rejects.toThrow("userKey is null or undefined.");
       });
 
       it("should throw if existing salt is null", async () => {
@@ -722,7 +722,7 @@ describe("DefaultChangeEmailService", () => {
 
         await expect(
           sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId),
-        ).rejects.toThrow();
+        ).rejects.toThrow("salt is null or undefined.");
       });
 
       /**
