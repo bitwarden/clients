@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。"
   },
-  "itemWasSentToArchive": {
-    "message": "アイテムはアーカイブに送信されました"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "アイテムはアーカイブから解除されました"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "アイテムをアーカイブ"
