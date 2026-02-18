@@ -134,7 +134,6 @@ export const FullWidth: Story = {
       ...args,
     },
     template: /* html */ `
-    <div class="tw-w-40">
       <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
@@ -142,7 +141,6 @@ export const FullWidth: Story = {
         [ngModel]="value"
         fullWidth
       ></bit-chip-filter>
-    </div>
     `,
   }),
   args: {
