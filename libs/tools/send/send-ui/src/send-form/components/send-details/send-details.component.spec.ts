@@ -127,4 +127,57 @@ describe("SendDetailsComponent", () => {
     expect(emailsControl?.validator).toBeNull();
     expect(passwordControl?.validator).toBeNull();
   });
+
+  it("should show validation error when emails are cleared while authType is Email", () => {
+    // Set authType to Email with valid emails
+    component.sendDetailsForm.patchValue({
+      authType: AuthType.Email,
+      emails: "test@example.com",
+    });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
+
+    // Clear emails - should trigger validation error
+    component.sendDetailsForm.patchValue({ emails: "" });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
+      true,
+    );
+  });
+
+  it("should clear validation error when authType is changed from Email after clearing emails", () => {
+    // Set authType to Email and then clear emails
+    component.sendDetailsForm.patchValue({
+      authType: AuthType.Email,
+      emails: "test@example.com",
+    });
+    component.sendDetailsForm.patchValue({ emails: "" });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+
+    // Change authType to None - emails field should become valid (no longer required)
+    component.sendDetailsForm.patchValue({ authType: AuthType.None });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
+  });
+
+  it("should force user to change authType by blocking form submission when emails are cleared", () => {
+    // Set up a send with email verification
+    component.sendDetailsForm.patchValue({
+      name: "Test Send",
+      authType: AuthType.Email,
+      emails: "user@example.com",
+    });
+    expect(component.sendDetailsForm.valid).toBe(true);
+
+    // User clears emails field
+    component.sendDetailsForm.patchValue({ emails: "" });
+
+    // Form should now be invalid, preventing save
+    expect(component.sendDetailsForm.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
+      true,
+    );
+
+    // User must change authType to continue
+    component.sendDetailsForm.patchValue({ authType: AuthType.None });
+    expect(component.sendDetailsForm.valid).toBe(true);
+  });
 });
