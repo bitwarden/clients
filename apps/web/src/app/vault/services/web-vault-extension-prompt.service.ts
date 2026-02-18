@@ -79,10 +79,14 @@ export class WebVaultExtensionPromptService {
    */
   private async profileIsWithinThresholds() {
     const creationDate = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map((account) => account?.creationDate ?? new Date()),
-      ),
+      this.accountService.activeAccount$.pipe(map((account) => account?.creationDate)),
     );
+
+    // When account or creationDate is not available for some reason,
+    // default to not showing the prompt to avoid disrupting the user.
+    if (!creationDate) {
+      return false;
+    }
 
     const minAccountAgeDays = await this.configService.getFeatureFlag(
       FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge,

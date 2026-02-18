@@ -244,14 +244,13 @@ describe("WebVaultExtensionPromptService", () => {
       expect(result).toBe(true);
     });
 
-    it("defaults to current date when account creation date is null", async () => {
+    it("defaults to false", async () => {
       getFeatureFlag.mockResolvedValueOnce(0);
       activeAccountSubject.next({ id: mockUserId, creationDate: null });
 
       const result = await service["profileIsWithinThresholds"]();
 
-      // Account created "now" should be within thresholds (0 days old, less than 30)
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
   });
 
