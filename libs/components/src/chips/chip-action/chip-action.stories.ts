@@ -55,6 +55,14 @@ export const Inactive: Story = {
   },
 };
 
+export const WithLongLabel: Story = {
+  ...Default,
+  args: {
+    startIcon: "bwi-filter",
+    label: "This is a chip action with a very long label that should truncate",
+  },
+};
+
 export const AllVariants: Story = {
   render: () => ({
     template: `

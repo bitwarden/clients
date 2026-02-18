@@ -71,3 +71,12 @@ export const Small: Story = {
     size: "small",
   },
 };
+
+export const WithLongLabel: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    startIcon: "bwi-filter",
+    label: "This is a chip with a very long label that should truncate",
+  },
+};
