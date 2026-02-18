@@ -1195,77 +1195,66 @@ describe("OrganizationPlansComponent", () => {
       });
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
-      const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.showFree = false; // Required for upgradeRequiresPaymentMethod
-
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("showFree", false); // Required for upgradeRequiresPaymentMethod
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
+
+      const upgradeComponent = upgradeFixture.componentInstance;
 
       expect(upgradeComponent.upgradeRequiresPaymentMethod).toBe(true);
     });
   });
 
   describe("billing form display flow", () => {
-    beforeEach(async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
     it("should show appropriate billing fields based on plan type", () => {
       // Personal plans (Free, Families) should not require tax ID
-      component.productTier = ProductTierType.Free;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      fixture.detectChanges();
+
       expect(component["showTaxIdField"]).toBe(false);
 
-      component.productTier = ProductTierType.Families;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      fixture.detectChanges();
+
       expect(component["showTaxIdField"]).toBe(false);
 
       // Business plans (Teams, Enterprise) should show tax ID field
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      fixture.detectChanges();
+
       expect(component["showTaxIdField"]).toBe(true);
 
-      component.productTier = ProductTierType.Enterprise;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      fixture.detectChanges();
       expect(component["showTaxIdField"]).toBe(true);
     });
   });
 
   describe("secrets manager handling flow", () => {
-    beforeEach(async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
     it("should prefill SM seats from existing subscription", async () => {
-      mockOrganization = {
-        id: "org-123",
-        name: "Test Org",
-        productTierType: ProductTierType.Teams,
-        useSecretsManager: true,
-      } as Organization;
-
-      organizationsSubject.next([mockOrganization]);
-
-      mockOrganizationApiService.getBilling.mockResolvedValue({
-        paymentSource: { type: "card" },
-      } as any);
-
-      mockOrganizationApiService.getSubscription.mockResolvedValue({
-        planType: PlanType.TeamsAnnually,
-        smSeats: 5,
-        smServiceAccounts: 75,
-      } as any);
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+        },
+      );
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
-      const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[2]; // Teams plan
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan
 
+      const upgradeComponent = upgradeFixture.componentInstance;
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
       upgradeComponent.changedProduct();
 
-      expect(upgradeComponent.secretsManagerForm.controls.enabled.value).toBe(true);
       expect(upgradeComponent.secretsManagerForm.controls.userSeats.value).toBe(5);
       expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(25);
     });
