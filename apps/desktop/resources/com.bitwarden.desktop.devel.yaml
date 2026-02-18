@@ -53,4 +53,8 @@ modules:
           - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
           - export ZYPAK_LD_PRELOAD="/app/bin/libprocess_isolation.so"
           - export PROCESS_ISOLATION_LD_PRELOAD="/app/bin/libprocess_isolation.so"
-          - exec zypak-wrapper /app/bin/bitwarden-app "$@"
+          - PARAMS="--enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
+          - if [ "$USE_X11" != "false" ]; then
+          - PARAMS="--ozone-platform=x11"
+          - fi
+          - exec zypak-wrapper /app/bin/bitwarden-app "$@" "$PARAMS"
