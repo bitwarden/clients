@@ -52,11 +52,11 @@
 </div>
 @if (!loaded()) {
   <ng-container>
-    <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
-      title="{{ 'loading' | i18n }}"
+    <bit-icon
+      class="bwi-lg bwi-spin tw-text-muted"
+      name="bwi-spinner"
       aria-hidden="true"
-    ></i>
+    ></bit-icon>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 }
@@ -99,12 +99,13 @@
     }
     @if (continuationToken) {
       <button bitButton type="button" buttonType="primary" [bitAction]="loadMoreEvents">
-        <i
-          *ngIf="loading"
-          class="bwi bwi-spinner bwi-spin"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
+        @if (loading()) {
+          <bit-icon
+            class="bwi-lg bwi-spin tw-text-muted"
+            name="bwi-spinner"
+            aria-hidden="true"
+          ></bit-icon>
+        }
         <span>{{ "loadMore" | i18n }}</span>
       </button>
     }
