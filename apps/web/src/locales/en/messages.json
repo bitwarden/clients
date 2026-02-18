@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Review at-risk logins"
@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "The subscription has been reinstated."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Are you sure you want to cancel? You will lose access to all of this subscription's features at the end of this billing cycle."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
-  },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Items archived"
@@ -12585,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Are you sure you want to continue?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
@@ -12903,7 +12913,7 @@
     "message": "Prices exclude tax and are billed annually."
   },
   "invoicePreviewErrorMessage": {
-    "message": "Encountered an error while generating the invoice preview." 
+    "message": "Encountered an error while generating the invoice preview."
   },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
@@ -12938,5 +12948,19 @@
   },
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    },
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

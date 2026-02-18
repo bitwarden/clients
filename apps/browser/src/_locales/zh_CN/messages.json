@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemWasSentToArchive": {
-    "message": "项目已发送到归档"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "项目已取消归档"
-  },
-  "itemUnarchived": {
-    "message": "项目已取消归档"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "归档项目"
@@ -2746,9 +2743,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden 将不会提示保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden 将不会提示为所有已登录账户保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
   },
   "blockedDomainsDesc": {
     "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
@@ -5966,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "卡号"
   },
+  "errorCannotDecrypt": {
+    "message": "错误：无法解密"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
   },
@@ -6127,8 +6124,11 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "downloadBitwardenApps": {
+    "message": "下载 Bitwarden App"
+  },
   "emailProtected": {
-    "message": "电子邮件受保护"
+    "message": "电子邮箱保护"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",

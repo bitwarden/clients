@@ -5,8 +5,9 @@
   [showRefresh]="showRefresh"
   (onRefresh)="refreshCurrentTab()"
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
+  isAutofillList
   showAutofillButton
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
-  [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
   [groupByType]="groupByType()"
+  [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
 ></app-vault-list-items-container>

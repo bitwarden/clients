@@ -4387,11 +4387,11 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemWasSentToArchive": {
-    "message": "Vienums tika ievietots arhīvā"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Vienums tika izņemts no arhīva"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
@@ -4485,6 +4485,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Noildzes darbība"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"

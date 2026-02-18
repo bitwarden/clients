@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemWasSentToArchive": {
-    "message": "Objektet skickades till arkivet"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Objektet har avarkiverats"
-  },
-  "itemUnarchived": {
-    "message": "Objektet har avarkiverats"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -2746,9 +2743,6 @@
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden kommer inte att fråga om att få spara inloggningsuppgifter för dessa domäner. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
-  },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden kommer inte att be om att få spara inloggningsuppgifter för dessa domäner för alla inloggade konton. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
   },
   "blockedDomainsDesc": {
     "message": "Autofyll och andra relaterade funktioner kommer inte att erbjudas för dessa webbplatser. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
@@ -5966,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Kortnummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
   },
@@ -6126,6 +6123,9 @@
   },
   "emailPlaceholder": {
     "message": "användare@bitwarden.com , användare@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"
