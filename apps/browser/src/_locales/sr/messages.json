@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
-  "itemWasSentToArchive": {
-    "message": "Ставка је послата у архиву"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Ставка враћена из архиве"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
@@ -2747,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden неће тражити да сачува податке за пријављивање за ове домене. Морате освежити страницу да би промене ступиле на снагу."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden неће тражити да сачува податке за пријављивање за ове домене за све пријављене налоге. Морате освежити страницу да би промене ступиле на снагу."
-  },
   "blockedDomainsDesc": {
     "message": "Аутоматско попуњавање и сродне функције неће бити понуђене за ове веб сајтове. Морате освежити страницу да би се измене примениле."
   },
@@ -3035,10 +3029,6 @@
   "custom": {
     "message": "Друго"
   },
-  "sendPasswordDescV3": {
-    "message": "Додајте опционалну лозинку за примаоце да приступе овом Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Креирај нови „Send“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3088,8 @@
     "message": "Измењено слање",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Искачући додатак?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Да бисте креирали датотеку Send, потребно је да искочите екстензију у нови прозор.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Да бисте изабрали датотеку, отворите екстензију на бочној траци (ако је могуће) или отворите у нови прозор кликом на овај банер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Да бисте изабрали датотеку са Firefox-ом, отворите екстензију на бочној траци или отворите у нови прозор кликом на овај банер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Да бисте изабрали датотеку са Safari-ом, отворите у нови прозор кликом на овај банер."
-  },
   "popOut": {
     "message": "Искочити"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Пре него што почнеш"
   },
   "expirationDateIsInvalid": {
     "message": "Наведени датум истека није исправан."
@@ -5990,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Број картице"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организација више не користи главне лозинке за пријаву на Bitwarden. Да бисте наставили, верификујте организацију и домен."
   },
@@ -6127,6 +6100,12 @@
   "whyAmISeeingThis": {
     "message": "Зашто видите ово?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6144,5 +6123,15 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

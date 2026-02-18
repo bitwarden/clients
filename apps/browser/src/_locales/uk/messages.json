@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Запис архівовано"
   },
-  "itemWasUnarchived": {
-    "message": "Запис розархівовано"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Запис розархівовано"
   },
   "archiveItem": {
@@ -2747,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів. Потрібно оновити сторінку для застосування змін."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаповнення та інші пов'язані функції не пропонуватимуться для цих вебсайтів. Вам слід оновити сторінку для застосування змін."
   },
@@ -3035,10 +3029,6 @@
   "custom": {
     "message": "Власний"
   },
-  "sendPasswordDescV3": {
-    "message": "За бажання додайте пароль для отримувачів цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Нове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3088,8 @@
     "message": "Відправлення збережено",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Відкріпити розширення?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Щоб створити відправлення файлу, необхідно відкріпити розширення в окреме вікно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Щоб вибрати файл, відкрийте розширення в бічній панелі (якщо можливо) або в новому вікні, натиснувши цей банер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Щоб вибрати файл з використанням Firefox, відкрийте розширення в бічній панелі або в новому вікні, натиснувши цей банер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Щоб вибрати файл з використанням Safari, відкрийте розширення в новому вікні, натиснувши на цей банер."
-  },
   "popOut": {
     "message": "Відкріпити"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед початком"
   },
   "expirationDateIsInvalid": {
     "message": "Вказано недійсний термін дії."
@@ -5990,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Номер картки"
   },
+  "errorCannotDecrypt": {
+    "message": "Помилка: неможливо розшифрувати"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
   },
@@ -6127,6 +6100,12 @@
   "whyAmISeeingThis": {
     "message": "Чому я це бачу?"
   },
+  "items": {
+    "message": "Записи"
+  },
+  "searchResults": {
+    "message": "Результати пошуку"
+  },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
   },
@@ -6144,5 +6123,15 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Завантажити програми Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Е-пошту захищено"
+  },
+  "sendPasswordHelperText": {
+    "message": "Особам необхідно ввести пароль для перегляду цього відправлення",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

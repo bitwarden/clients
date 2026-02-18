@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemWasSentToArchive": {
-    "message": "Objektet skickades till arkivet"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Objektet har avarkiverats"
-  },
-  "itemUnarchived": {
-    "message": "Objektet har avarkiverats"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -2747,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden kommer inte att fråga om att få spara inloggningsuppgifter för dessa domäner. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden kommer inte att be om att få spara inloggningsuppgifter för dessa domäner för alla inloggade konton. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
-  },
   "blockedDomainsDesc": {
     "message": "Autofyll och andra relaterade funktioner kommer inte att erbjudas för dessa webbplatser. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
   },
@@ -3035,10 +3029,6 @@
   "custom": {
     "message": "Anpassad"
   },
-  "sendPasswordDescV3": {
-    "message": "Lägg till ett valfritt lösenord för att mottagarna ska få åtkomst till detta meddelande.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Ny Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3088,8 @@
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out-förlängning?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "För att skapa en fil Skicka, måste du popa ut förlängningen till ett nytt fönster.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "För att välja en fil, öppna tillägget i sidofältet (om möjligt) eller skapa ett nytt fönster genom att klicka på denna banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "För att välja en fil med Firefox, öppna tillägget i sidofältet eller öppna ett nytt fönster genom att klicka på denna banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "För att välja en fil med Safari, öppna ett nytt fönster genom att klicka på denna banner."
-  },
   "popOut": {
     "message": "Popa ut"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Innan du börjar"
   },
   "expirationDateIsInvalid": {
     "message": "Det angivna utgångsdatumet är inte giltigt."
@@ -5990,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Kortnummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
   },
@@ -6127,6 +6100,12 @@
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
   },
+  "items": {
+    "message": "Objekt"
+  },
+  "searchResults": {
+    "message": "Sökresultat"
+  },
   "resizeSideNavigation": {
     "message": "Ändra storlek på sidnavigering"
   },
@@ -6144,5 +6123,15 @@
   },
   "emailPlaceholder": {
     "message": "användare@bitwarden.com , användare@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individer måste ange lösenordet för att visa denna Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
