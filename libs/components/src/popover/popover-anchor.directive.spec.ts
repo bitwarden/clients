@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, NgZone, TemplateRef, viewChild } fr
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { Subject } from "rxjs";
 
-import { PopoverTriggerForDirective } from "./popover-trigger-for.directive";
+import { PopoverAnchorDirective } from "./popover-anchor.directive";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
@@ -18,35 +18,61 @@ import { SpotlightService } from "./spotlight.service";
 @Component({
   standalone: true,
   template: `
-    <button
-      type="button"
-      [bitPopoverTriggerFor]="popoverComponent"
-      [(popoverOpen)]="isOpen"
-      #trigger="popoverTrigger"
-    >
-      Trigger
-    </button>
+    <div [bitPopoverAnchor]="popoverComponent" [(popoverOpen)]="isOpen" #anchor="popoverAnchor">
+      Anchor Element
+    </div>
     <bit-popover #popoverComponent></bit-popover>
   `,
-  imports: [PopoverTriggerForDirective, PopoverComponent],
+  imports: [PopoverAnchorDirective, PopoverComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestPopoverTriggerComponent {
+class TestPopoverAnchorComponent {
   isOpen = false;
-  readonly directive = viewChild("trigger", { read: PopoverTriggerForDirective });
+  readonly directive = viewChild("anchor", { read: PopoverAnchorDirective });
   readonly popoverComponent = viewChild("popoverComponent", { read: PopoverComponent });
-  readonly templateRef = viewChild("trigger", { read: TemplateRef });
+  readonly templateRef = viewChild("anchor", { read: TemplateRef });
 }
 
-describe("PopoverTriggerForDirective", () => {
-  let fixture: ComponentFixture<TestPopoverTriggerComponent>;
-  let component: TestPopoverTriggerComponent;
-  let directive: PopoverTriggerForDirective;
+@Component({
+  standalone: true,
+  template: `
+    <div
+      [bitPopoverAnchor]="popoverComponent"
+      [(popoverOpen)]="isOpen"
+      [spotlight]="true"
+      [spotlightPadding]="12"
+      #anchor="popoverAnchor"
+      style="position: absolute; top: 100px; left: 100px; width: 200px; height: 100px;"
+    >
+      Anchor Element with Spotlight
+    </div>
+    <bit-popover #popoverComponent></bit-popover>
+  `,
+  imports: [PopoverAnchorDirective, PopoverComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestPopoverAnchorWithSpotlightComponent {
+  isOpen = false;
+  readonly directive = viewChild("anchor", { read: PopoverAnchorDirective });
+  readonly popoverComponent = viewChild("popoverComponent", { read: PopoverComponent });
+}
+
+describe("PopoverAnchorDirective", () => {
+  let fixture: ComponentFixture<TestPopoverAnchorComponent>;
+  let component: TestPopoverAnchorComponent;
+  let directive: PopoverAnchorDirective;
   let overlayRef: Partial<OverlayRef>;
   let overlay: Partial<Overlay>;
   let ngZone: NgZone;
 
   beforeEach(async () => {
+    // Mock ResizeObserver for test environment
+    global.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    }));
+
     // Create mock overlay ref
     overlayRef = {
       backdropElement: document.createElement("div"),
@@ -72,15 +98,16 @@ describe("PopoverTriggerForDirective", () => {
       position: jest.fn().mockReturnValue(mockPositionStrategy),
       scrollStrategies: {
         reposition: jest.fn().mockReturnValue({}),
+        block: jest.fn().mockReturnValue({}),
       } as any,
     };
 
     await TestBed.configureTestingModule({
-      imports: [TestPopoverTriggerComponent],
+      imports: [TestPopoverAnchorComponent],
       providers: [{ provide: Overlay, useValue: overlay }, SpotlightService],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestPopoverTriggerComponent);
+    fixture = TestBed.createComponent(TestPopoverAnchorComponent);
     component = fixture.componentInstance;
     ngZone = TestBed.inject(NgZone);
     fixture.detectChanges();
@@ -88,7 +115,7 @@ describe("PopoverTriggerForDirective", () => {
   });
 
   afterEach(() => {
-    fixture?.destroy();
+    fixture.destroy();
   });
 
   describe("Initial popover open with RAF delay", () => {
@@ -131,10 +158,11 @@ describe("PopoverTriggerForDirective", () => {
       expect(overlay.create).toHaveBeenCalledTimes(1);
       jest.mocked(overlay.create).mockClear();
 
-      // Close by clicking
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-      fixture.detectChanges();
+      // Close programmatically
+      ngZone.run(() => {
+        directive.popoverOpen.set(false);
+        fixture.detectChanges();
+      });
 
       // Second open should skip RAF delay (hasInitialized is now true)
       ngZone.run(() => {
@@ -144,6 +172,62 @@ describe("PopoverTriggerForDirective", () => {
       // Only need tick(0) to flush microtasks - NO RAF delay on subsequent opens
       tick(0);
       expect(overlay.create).toHaveBeenCalledTimes(1);
+
+      flush();
+    }));
+  });
+
+  describe("Programmatic control", () => {
+    it("should open popover when popoverOpen is set to true", fakeAsync(() => {
+      ngZone.run(() => {
+        directive.popoverOpen.set(true);
+        fixture.detectChanges();
+      });
+      tick(16);
+      tick(16);
+
+      expect(component.isOpen).toBe(true);
+      expect(overlay.create).toHaveBeenCalled();
+
+      flush();
+    }));
+
+    it("should close popover when popoverOpen is set to false", fakeAsync(() => {
+      // Open first
+      ngZone.run(() => {
+        directive.popoverOpen.set(true);
+        fixture.detectChanges();
+      });
+      tick(16);
+      tick(16);
+
+      // Close
+      ngZone.run(() => {
+        directive.popoverOpen.set(false);
+        fixture.detectChanges();
+      });
+
+      expect(component.isOpen).toBe(false);
+      expect(overlayRef.dispose).toHaveBeenCalled();
+
+      flush();
+    }));
+
+    it("should close popover when closePopover is called", fakeAsync(() => {
+      // Open first
+      ngZone.run(() => {
+        directive.popoverOpen.set(true);
+        fixture.detectChanges();
+      });
+      tick(16);
+      tick(16);
+
+      // Close via method
+      directive.closePopover();
+      fixture.detectChanges();
+
+      expect(component.isOpen).toBe(false);
+      expect(overlayRef.dispose).toHaveBeenCalled();
 
       flush();
     }));
@@ -202,29 +286,6 @@ describe("PopoverTriggerForDirective", () => {
 
       flush();
     }));
-
-    it("should prevent duplicate overlays from click handler during RAF", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Click to close before RAF completes - this should cancel the RAF and prevent overlay creation
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-      fixture.detectChanges();
-
-      // Verify popoverOpen was set to false
-      expect(directive.popoverOpen()).toBe(false);
-
-      tick(16);
-      tick(16);
-
-      // Should NOT have created any overlay because RAF was canceled
-      expect(overlay.create).not.toHaveBeenCalled();
-
-      flush();
-    }));
   });
 
   describe("Component destruction during RAF", () => {
@@ -266,80 +327,6 @@ describe("PopoverTriggerForDirective", () => {
 
       flush();
     }));
-
-    it("should set isDestroyed flag and prevent further operations", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
-      // Destroy the component
-      fixture.destroy();
-
-      // Try to toggle (should be blocked by isDestroyed check)
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-
-      expect(overlay.create).toHaveBeenCalledTimes(1); // Only from initial open
-
-      flush();
-    }));
-  });
-
-  describe("Click handling", () => {
-    it("should open popover on click when closed", fakeAsync(() => {
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-      fixture.detectChanges();
-
-      expect(component.isOpen).toBe(true);
-      expect(overlay.create).toHaveBeenCalled();
-
-      flush();
-    }));
-
-    it("should close popover on click when open", fakeAsync(() => {
-      // Open first
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
-      // Click to close
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-      fixture.detectChanges();
-
-      expect(component.isOpen).toBe(false);
-      expect(overlayRef.dispose).toHaveBeenCalled();
-
-      flush();
-    }));
-
-    it("should not process clicks after component is destroyed", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
-      const initialCreateCount = jest.mocked(overlay.create).mock.calls.length;
-
-      fixture.destroy();
-
-      const button = fixture.nativeElement.querySelector("button");
-      button.click();
-
-      // Should not have created additional overlay
-      expect(overlay.create).toHaveBeenCalledTimes(initialCreateCount);
-
-      flush();
-    }));
   });
 
   describe("Resource cleanup", () => {
@@ -351,10 +338,8 @@ describe("PopoverTriggerForDirective", () => {
       });
       fixture.detectChanges();
 
-      // Manually destroy to verify RAF cleanup (afterEach will be a no-op since fixture is already destroyed)
-      const tempFixture = fixture;
-      fixture = null as any; // Prevent double-destroy in afterEach
-      tempFixture.destroy();
+      // Trigger disposal while RAF is pending
+      directive.ngOnDestroy();
 
       // Should cancel animation frames
       expect(cancelAnimationFrameSpy).toHaveBeenCalled();
@@ -447,25 +432,94 @@ describe("PopoverTriggerForDirective", () => {
       flush();
     }));
   });
+});
 
-  describe("aria-expanded attribute", () => {
-    it("should set aria-expanded to false when closed", () => {
-      const button = fixture.nativeElement.querySelector("button");
-      expect(button.getAttribute("aria-expanded")).toBe("false");
-    });
+describe("PopoverAnchorDirective with Spotlight", () => {
+  let fixture: ComponentFixture<TestPopoverAnchorWithSpotlightComponent>;
+  let component: TestPopoverAnchorWithSpotlightComponent;
+  let directive: PopoverAnchorDirective;
+  let overlayRef: Partial<OverlayRef>;
+  let overlay: Partial<Overlay>;
+  let ngZone: NgZone;
 
-    it("should set aria-expanded to true when open", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
-      const button = fixture.nativeElement.querySelector("button");
-      expect(button.getAttribute("aria-expanded")).toBe("true");
-
-      flush();
+  beforeEach(async () => {
+    // Mock ResizeObserver for test environment
+    global.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
     }));
+
+    // Create mock overlay ref
+    overlayRef = {
+      backdropElement: document.createElement("div"),
+      attach: jest.fn(),
+      detach: jest.fn(),
+      dispose: jest.fn(),
+      detachments: jest.fn().mockReturnValue(new Subject()),
+      keydownEvents: jest.fn().mockReturnValue(new Subject()),
+      backdropClick: jest.fn().mockReturnValue(new Subject()),
+    };
+
+    // Create mock overlay
+    const mockPositionStrategy = {
+      flexibleConnectedTo: jest.fn().mockReturnThis(),
+      withPositions: jest.fn().mockReturnThis(),
+      withLockedPosition: jest.fn().mockReturnThis(),
+      withFlexibleDimensions: jest.fn().mockReturnThis(),
+      withPush: jest.fn().mockReturnThis(),
+    };
+
+    overlay = {
+      create: jest.fn().mockReturnValue(overlayRef),
+      position: jest.fn().mockReturnValue(mockPositionStrategy),
+      scrollStrategies: {
+        reposition: jest.fn().mockReturnValue({}),
+        block: jest.fn().mockReturnValue({}),
+      } as any,
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [TestPopoverAnchorWithSpotlightComponent],
+      providers: [{ provide: Overlay, useValue: overlay }, SpotlightService],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TestPopoverAnchorWithSpotlightComponent);
+    component = fixture.componentInstance;
+    ngZone = TestBed.inject(NgZone);
+    fixture.detectChanges();
+    directive = component.directive()!;
   });
+
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it("should use block scroll strategy when spotlight is enabled", fakeAsync(() => {
+    ngZone.run(() => {
+      directive.popoverOpen.set(true);
+      fixture.detectChanges();
+    });
+    tick(16);
+    tick(16);
+
+    expect(overlay.scrollStrategies.block).toHaveBeenCalled();
+
+    flush();
+  }));
+
+  it("should create border element when spotlight is enabled", fakeAsync(() => {
+    ngZone.run(() => {
+      directive.popoverOpen.set(true);
+      fixture.detectChanges();
+    });
+    tick(16);
+    tick(16);
+
+    const borderElement = document.querySelector('[data-spotlight-border="true"]');
+    expect(borderElement).toBeTruthy();
+    expect((borderElement as HTMLElement).style.zIndex).toBe("1001");
+
+    flush();
+  }));
 });

@@ -224,3 +224,19 @@ export const ResponsiveSidebar: Story = {
     },
   },
 };
+
+export const GuidedTour: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const tourButton = getByRole(canvas, "button", {
+      name: "Start Tour",
+    });
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(tourButton);
+  },
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+};
