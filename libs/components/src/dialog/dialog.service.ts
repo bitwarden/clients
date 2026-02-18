@@ -208,7 +208,7 @@ export class DialogService {
   private dialog = inject(CdkDialog);
   private drawerService = inject(DrawerService);
   private injector = inject(Injector);
-  private router = inject(Router, { optional: true });
+  private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
