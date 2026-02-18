@@ -235,9 +235,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     if (
       this.preSelectedProductTier() != null &&
-      this.productTier() < this.preSelectedProductTier()
+      this.formGroup.controls.productTier.value < this.preSelectedProductTier()
     ) {
-      this.productTier.set(this.preSelectedProductTier());
+      this.formGroup.controls.productTier.setValue(this.preSelectedProductTier());
     }
     if (!this.selfHosted) {
       this.changedProduct();
@@ -945,8 +945,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return plan.upgradeSortOrder === currentPlanValue.upgradeSortOrder + 1;
       });
 
-      this.plan.set(upgradedPlan.type);
-      this.productTier.set(upgradedPlan.productTier);
+      this.formGroup.controls.plan.setValue(upgradedPlan.type);
+      this.formGroup.controls.productTier.setValue(upgradedPlan.productTier);
       this.changedProduct();
     }
   }
@@ -994,8 +994,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
 
     if (
-      this.productTier() === ProductTierType.Enterprise ||
-      this.productTier() === ProductTierType.Teams
+      this.formGroup.controls.productTier.value === ProductTierType.Enterprise ||
+      this.formGroup.controls.productTier.value === ProductTierType.Teams
     ) {
       this.formGroup.controls.businessOwned.setValue(true);
     }
@@ -1018,8 +1018,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     });
 
     if (upgradedPlan) {
-      this.plan.set(upgradedPlan.type);
-      this.productTier.set(upgradedPlan.productTier);
+      this.formGroup.controls.plan.setValue(upgradedPlan.type);
+      this.formGroup.controls.productTier.setValue(upgradedPlan.productTier);
     }
   }
 
@@ -1035,8 +1035,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const providerDefaultPlan = this.passwordManagerPlans.find(
       (plan) => plan.type === PlanType.TeamsAnnually,
     );
-    this.plan.set(providerDefaultPlan.type);
-    this.productTier.set(providerDefaultPlan.productTier);
+    this.formGroup.controls.plan.setValue(providerDefaultPlan.type);
+    this.formGroup.controls.productTier.setValue(providerDefaultPlan.productTier);
   }
 
   protected async onLicenseFileUploaded(organizationId: string): Promise<void> {
