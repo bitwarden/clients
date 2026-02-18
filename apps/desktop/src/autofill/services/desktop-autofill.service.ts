@@ -16,7 +16,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -31,7 +30,6 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { parseCredentialId } from "@bitwarden/common/platform/services/fido2/credential-id-utils";
 import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -152,11 +150,13 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials = cipherViews
         .filter(
           (cipher) =>
+            !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
             cipher.login.uris.some((uri) => uri.match !== UriMatchStrategy.Never) &&
             cipher.login.uris.some((uri) => !Utils.isNullOrWhitespace(uri.uri)) &&
-            !Utils.isNullOrWhitespace(cipher.login.username),
+            !Utils.isNullOrWhitespace(cipher.login.username) &&
+            !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
@@ -258,39 +258,6 @@ export class DesktopAutofillService implements OnDestroy {
         const controller = new AbortController();
 
         try {
-          // For some reason the credentialId is passed as an empty array in the request, so we need to
-          // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
-          if (request.recordIdentifier && request.credentialId.length === 0) {
-            const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(getOptionalUserId),
-            );
-            if (!activeUserId) {
-              this.logService.error("listenPasskeyAssertion error", "Active user not found");
-              callback(new Error("Active user not found"), null);
-              return;
-            }
-
-            const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
-            if (!cipher) {
-              this.logService.error("listenPasskeyAssertion error", "Cipher not found");
-              callback(new Error("Cipher not found"), null);
-              return;
-            }
-
-            const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
-
-            const fido2Credential = decrypted.login.fido2Credentials?.[0];
-            if (!fido2Credential) {
-              this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
-              callback(new Error("Fido2Credential not found"), null);
-              return;
-            }
-
-            request.credentialId = Array.from(
-              new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
-            );
-          }
-
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
             { windowXy: normalizePosition(request.windowXy) },

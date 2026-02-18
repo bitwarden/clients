@@ -47,8 +47,8 @@
   "noEditPermissions": {
     "message": "Du har inte behörighet att redigera detta objekt"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Granska risklösenord (svaga, exponerade eller återanvända) i olika applikationer. Välj ut de mest kritiska applikationerna för att prioritera säkerhetsåtgärder för användarna för att hantera risklösenord."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Granska inloggningar i riskzonen"
@@ -261,6 +261,42 @@
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applikationer markerade som kritiska",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applications marked critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applications marked not critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Mark $COUNT$ as critical",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Mark $COUNT$ as not critical",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3302,6 +3338,15 @@
   "reinstated": {
     "message": "Abonnemanget har återupptagits."
   },
+  "resubscribe": {
+    "message": "Prenumerera igen"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Din prenumeration har löpt ut"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Din prenumeration är avbruten"
+  },
   "cancelConfirmation": {
     "message": "Är du säker på att du vill avsluta? Du kommer förlora tillgång till alla funktioner som abonnemanget erbjuder vid slutet av den nuvarande faktureringsperioden."
   },
@@ -5394,7 +5439,7 @@
   "minimumNumberOfWords": {
     "message": "Minsta antal ord"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Lösenordstyp",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6393,6 +6438,10 @@
     "message": "Visa Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Bitwarden-användaren som skapade denna Send har valt att dölja sin e-postadress. Du bör se till att du litar på källan till denna länk innan du använder eller hämtar innehållet.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6637,6 +6686,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ av $SELECTEDCOUNT$ användare återinbjudna. $EXCLUDEDCOUNT$ blev inte inbjudna på grund av gränsen på $LIMIT$ inbjudningar.",
     "placeholders": {
@@ -6653,6 +6714,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Tog bort"
@@ -10092,6 +10197,9 @@
   "assignTasks": {
     "message": "Tilldela uppgifter"
   },
+  "allTasksAssigned": {
+    "message": "All tasks have been assigned"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Skicka aviseringar om att ändra lösenord"
   },
@@ -11801,17 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt visas här och undantas från allmänna sökresultat och autofyllförslag."
   },
-  "itemWasSentToArchive": {
-    "message": "Objektet skickades till arkivet"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemsWereSentToArchive": {
-    "message": "Objekten har skickats till arkivet"
-  },
-  "itemWasUnarchived": {
-    "message": "Objektet har avarkiverats"
-  },
-  "itemUnarchived": {
-    "message": "Objektet har avarkiverats"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Objekt arkiverade"
@@ -12490,6 +12592,9 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Är du säker på att du vill fortsätta?"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
   },
@@ -12794,5 +12899,54 @@
   },
   "perUser": {
     "message": "per användare"
+  },
+  "upgradeToTeams": {
+    "message": "Uppgradera till Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Uppgradera till Företag"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prices exclude tax and are billed annually."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise membership"
+  },
+  "teamsMembership": {
+    "message": "Teams membership"
+  },
+  "plansUpdated": {
+    "message": "Du har uppgraderat till $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "There was an error updating your payment method."
   }
 }
