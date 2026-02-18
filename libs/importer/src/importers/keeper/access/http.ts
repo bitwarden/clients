@@ -3,24 +3,13 @@ export interface HttpResponse {
   data: Uint8Array;
 }
 
-export class HttpError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public data?: Uint8Array,
-  ) {
-    super(message);
-    this.name = "HttpError";
-  }
-}
-
 export async function post(url: string, body: Uint8Array): Promise<HttpResponse> {
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/octet-stream",
     },
-    body: body,
+    body,
   });
 
   const data = new Uint8Array(await response.arrayBuffer());
@@ -42,5 +31,5 @@ export async function post(url: string, body: Uint8Array): Promise<HttpResponse>
     }
   }
 
-  throw new HttpError(errorMessage, response.status, data);
+  throw new Error(errorMessage);
 }
