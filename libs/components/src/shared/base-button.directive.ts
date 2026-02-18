@@ -280,7 +280,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
 export class BaseButtonDirective {
   readonly buttonType = input<ButtonType>("secondary");
 
-  readonly size = model<ButtonSize>("default");
+  readonly size = model<ButtonSize | IconButtonSize>("default");
 
   readonly block = input(false, { transform: booleanAttribute });
 
