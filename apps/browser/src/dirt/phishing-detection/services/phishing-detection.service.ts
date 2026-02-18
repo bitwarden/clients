@@ -69,7 +69,12 @@ export class PhishingDetectionService {
       ),
       map(({ tab, tabId }) => {
         const url = new URL(tab.url!);
-        return { tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+        return {
+          tabId,
+          url,
+          ignored: this._ignoredHostnames.has(url.hostname),
+          incognito: !!tab.incognito,
+        };
       }),
       distinctUntilChanged(
         (prev, curr) =>
@@ -80,7 +85,7 @@ export class PhishingDetectionService {
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
       // Use switchMap to cancel any in-progress check when navigating to a new URL
       // This prevents race conditions where a stale check redirects the user incorrectly
-      switchMap(async ({ tabId, url, ignored }) => {
+      switchMap(async ({ tabId, url, ignored, incognito }) => {
         if (ignored) {
           // The next time this host is visited, block again
           this._ignoredHostnames.delete(url.hostname);
@@ -96,6 +101,14 @@ export class PhishingDetectionService {
             `?phishingUrl=${url.toString()}`,
         );
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
+
+        if (incognito) {
+          await BrowserApi.createWindow({
+            url: phishingWarningPage.href,
+            focused: true,
+            type: "popup",
+          });
+        }
       }),
     );
 
