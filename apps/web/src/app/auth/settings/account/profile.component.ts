@@ -18,8 +18,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { DynamicAvatarComponent } from "../../../components/dynamic-avatar.component";
+import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "../../../shared";
-import { AccountFingerprintComponent } from "../../../shared/components/account-fingerprint/account-fingerprint.component";
 
 import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 

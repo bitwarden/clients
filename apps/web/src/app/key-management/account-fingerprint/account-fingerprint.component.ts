@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from "@angular/core";
 
 import { KeyService } from "@bitwarden/key-management";
 
-import { SharedModule } from "../../shared.module";
+import { SharedModule } from "../../shared/shared.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
