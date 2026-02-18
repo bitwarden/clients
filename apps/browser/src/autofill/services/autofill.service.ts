@@ -416,19 +416,18 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   async doAutoFill(options: AutoFillOptions): Promise<string | null> {
     const tab = options.tab;
+    const tabUrl = tab?.url;
     if (
-      !tab ||
-      !tab.url ||
+      !tabUrl ||
       !options.cipher ||
       !options.pageDetails ||
-      !options.pageDetails.length
+      (options.pageDetails?.length || 0) > 0
     ) {
       throw new Error("Nothing to autofill.");
     }
 
     let totp: string | null = null;
 
-    const tabUrl = tab.url;
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     let canAccessPremium = false;
     if (activeAccount?.id) {
