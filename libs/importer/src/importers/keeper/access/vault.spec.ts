@@ -3,9 +3,9 @@
  * @jest-environment node
  */
 import { Vault } from "../../keeper/access";
+import * as fixture from "../../spec-data/keeper-direct/keeper-vault-fixture.json";
 
 import { SyncDownResponse } from "./generated/SyncDown";
-import * as fixture from "./keeper-vault-fixture.json";
 import { VaultItem } from "./vault";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.
@@ -18,7 +18,7 @@ describe("Keeper Vault", () => {
   beforeAll(async () => {
     const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
     const masterKey = new Uint8Array(Buffer.from(fixture.masterKey, "base64"));
-    vault = await (Vault as any).processNew(response, masterKey);
+    vault = await (Vault as any).processMergedSyncDownPages(response, masterKey);
   });
 
   it("should decrypt all records", () => {
