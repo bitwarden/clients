@@ -1,7 +1,9 @@
 export { Vault } from "./vault";
-export type { VaultItem, VaultField } from "./vault";
-export { Client, KeeperRegion } from "./client";
-export type { ClientOptions, LoginResult } from "./client";
-export { base64UrlEncode, base64UrlDecode } from "./crypto";
-export { DeviceApprovalChannel, TwoFactorMethod, DuoMethod, Cancel, Resend } from "./ui";
+export type { VaultItem, VaultField } from "./models";
+export { Client } from "./services";
+export { KeeperRegion } from "./enums";
+export type { ClientOptions, LoginResult } from "./models";
+export { base64UrlEncode, base64UrlDecode } from "./services";
+export { DeviceApprovalChannel, TwoFactorMethod, DuoMethod } from "./enums";
+export { Cancel, Resend } from "./ui";
 export type { Ui } from "./ui";

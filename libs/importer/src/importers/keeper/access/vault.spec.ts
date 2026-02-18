@@ -3,10 +3,10 @@
  * @jest-environment node
  */
 import { Vault } from "../../keeper/access";
-import * as fixture from "../../spec-data/keeper-direct/keeper-vault-fixture.json";
+import * as fixture from "../../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { SyncDownResponse } from "./generated/SyncDown";
-import { VaultItem } from "./vault";
+import { VaultItem } from "./models";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.
 // Later it's converted to the ImportResult format by the keeper-direct-importer. We only do some minimal testing here

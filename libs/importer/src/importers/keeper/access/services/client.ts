@@ -1,16 +1,4 @@
-import {
-  base64UrlDecode,
-  decryptAesV2,
-  decryptEc,
-  decryptEncryptionParams,
-  deriveV1KeyHash,
-  encryptAesV2,
-  generateEcKey,
-  generateEncryptionKey,
-  getRandomBytes,
-  loadEcPrivateKey,
-  unloadEcPublicKey,
-} from "./crypto";
+import { DeviceApprovalChannel, DuoMethod, TwoFactorMethod } from "../enums";
 import {
   ApiRequest,
   ApiRequestPayload,
@@ -32,42 +20,34 @@ import {
   TwoFactorValueType,
   ValidateAuthHashRequest,
   ValidateDeviceVerificationCodeRequest,
-} from "./generated/APIRequest";
-import { SyncDownRequest, SyncDownResponse } from "./generated/SyncDown";
+} from "../generated/APIRequest";
+import { SyncDownRequest, SyncDownResponse } from "../generated/SyncDown";
+import {
+  ClientOptions,
+  DeviceCredentials,
+  LoginResult,
+  MessageType,
+  PushMessage,
+  SocketListener,
+} from "../models";
+import { Cancel, Resend, Ui } from "../ui";
+
+import {
+  base64UrlDecode,
+  decryptAesV2,
+  decryptEc,
+  decryptEncryptionParams,
+  deriveV1KeyHash,
+  encryptAesV2,
+  generateEcKey,
+  generateEncryptionKey,
+  getRandomBytes,
+  loadEcPrivateKey,
+  unloadEcPublicKey,
+} from "./crypto";
 import { post } from "./http";
 import { encryptWithKeeperKey } from "./keys";
-import { connectPushSocket, MessageType, PushMessage, SocketListener } from "./socket";
-import { Cancel, DeviceApprovalChannel, DuoMethod, Resend, TwoFactorMethod, Ui } from "./ui";
-
-export interface LoginResult {
-  sessionToken: Uint8Array;
-  dataKey: Uint8Array;
-}
-
-export const KeeperRegion = Object.freeze({
-  Us: "keepersecurity.com",
-  Eu: "keepersecurity.eu",
-  Au: "keepersecurity.com.au",
-  Ca: "keepersecurity.ca",
-  Jp: "keepersecurity.jp",
-  UsGov: "govcloud.keepersecurity.us",
-} as const);
-export type KeeperRegion = (typeof KeeperRegion)[keyof typeof KeeperRegion];
-
-export interface ClientOptions {
-  region: KeeperRegion;
-  ui: Ui;
-
-  // Cache for testing. Not needed in production use.
-  deviceToken?: string; // Base64
-  devicePrivateKey?: string; // Base64
-  publicKeyId?: number;
-}
-
-interface DeviceCredentials {
-  deviceToken: Uint8Array;
-  devicePrivateKey: CryptoKey;
-}
+import { connectPushSocket } from "./socket";
 
 export class Client {
   private server: string;
@@ -219,7 +199,6 @@ export class Client {
     deviceToken: Uint8Array,
     devicePrivateKey: CryptoKey,
   ): Promise<void> {
-    // Extract public key from private key
     const publicKeyBytes = await this.getPublicKeyFromPrivate(devicePrivateKey);
 
     const request = RegisterDeviceInRegionRequest.create({
@@ -246,6 +225,7 @@ export class Client {
   private async getPublicKeyFromPrivate(privateKey: CryptoKey): Promise<Uint8Array> {
     // Export private key to JWK to extract public key components
     const jwk = await crypto.subtle.exportKey("jwk", privateKey);
+
     // Create public key JWK (remove private component 'd')
     const publicJwk: JsonWebKey = {
       kty: jwk.kty,
@@ -253,6 +233,7 @@ export class Client {
       x: jwk.x,
       y: jwk.y,
     };
+
     const publicKey = await crypto.subtle.importKey(
       "jwk",
       publicJwk,
@@ -260,6 +241,7 @@ export class Client {
       true,
       [],
     );
+
     return await unloadEcPublicKey(publicKey);
   }
 
@@ -267,6 +249,7 @@ export class Client {
     if (!response.salt || response.salt.length === 0) {
       throw new Error("No salt received from server");
     }
+
     if (!response.encryptedLoginToken || response.encryptedLoginToken.length === 0) {
       throw new Error("No login token received from server");
     }
@@ -286,6 +269,7 @@ export class Client {
     if (!response.encryptedSessionToken || response.encryptedSessionToken.length === 0) {
       throw new Error("No session token received from server");
     }
+
     if (!response.encryptedDataKey || response.encryptedDataKey.length === 0) {
       throw new Error("No data key received from server");
     }
@@ -345,7 +329,7 @@ export class Client {
 
     switch (method) {
       case DeviceApprovalChannel.KeeperPush:
-        // KeeperPush: show dialog and wait for push notification approval
+        // KeeperPush: race between code entry and push notification
         approvalResult = this.throwIfCancel(
           await Promise.race([
             this.ui.provideApprovalCode(method, "Approve the request on your Keeper device"),

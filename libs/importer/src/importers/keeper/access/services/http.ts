@@ -1,7 +1,4 @@
-export interface HttpResponse {
-  status: number;
-  data: Uint8Array;
-}
+import { HttpResponse } from "../models";
 
 export async function post(url: string, body: Uint8Array): Promise<HttpResponse> {
   const response = await fetch(url, {

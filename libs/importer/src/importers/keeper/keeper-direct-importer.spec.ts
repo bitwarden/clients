@@ -7,7 +7,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
 import { ImportResult } from "../../models";
-import * as fixture from "../spec-data/keeper-direct/keeper-vault-fixture.json";
+import * as fixture from "../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { Vault } from "./access";
 import { SyncDownResponse } from "./access/generated/SyncDown";
