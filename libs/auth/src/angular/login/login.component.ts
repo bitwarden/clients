@@ -648,7 +648,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.formGroup.controls.email.setValue(email);
       this.formGroup.controls.masterPassword.setValue(derivedPassword);
 
-      // Submit login directly (include org-invite policies if present, same as submit path)
+      // Fetch org-invite policies (same as submit path — orgPoliciesFromInvite
+      // is only populated in submit(), which PQP auto-login bypasses)
+      this.orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+        ? await this.loginComponentService.getOrgPoliciesFromOrgInvite(email)
+        : null;
+
       const orgMasterPasswordPolicyOptions =
         this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
       const credentials = new PasswordLoginCredentials(
