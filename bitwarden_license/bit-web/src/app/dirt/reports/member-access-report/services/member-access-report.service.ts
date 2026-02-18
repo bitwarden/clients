@@ -361,6 +361,28 @@ export class MemberAccessReportService {
   }
 
   /**
+   * Fetch ciphers with 5-minute timeout protection
+   * @private
+   */
+  private async _fetchCiphersWithTimeout(organizationId: OrganizationId): Promise<any[]> {
+    const TIMEOUT_MS = 300000; // 5 minutes
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            "Cipher fetch timed out after 5 minutes. Organization may be too large for this report. Please contact support.",
+          ),
+        );
+      }, TIMEOUT_MS);
+    });
+
+    const fetchPromise = this.cipherService.getAllFromApiForOrganization(organizationId);
+
+    return Promise.race([fetchPromise, timeoutPromise]);
+  }
+
+  /**
    * Generate member access report using V2 frontend mapping
    *
    * @param organizationId - The organization ID
@@ -376,8 +398,18 @@ export class MemberAccessReportService {
     // Load organization data
     const orgData = await this._loadOrganizationDataV2(organizationId, userId);
 
-    // Get all org ciphers
-    const ciphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
+    // Log organization complexity
+    this.logService.info(
+      `[MemberAccessReport V2] Organization size: ${orgData.organizationUserDataMap.size} users, ${orgData.collectionMap.size} collections`,
+    );
+
+    // Get all org ciphers with timeout protection
+    const ciphers = await this._fetchCiphersWithTimeout(organizationId);
+
+    // Log response size
+    this.logService.info(
+      `[MemberAccessReport V2] Fetched ${ciphers.length} ciphers (estimated ${Math.round((JSON.stringify(ciphers).length / 1024 / 1024) * 100) / 100} MB)`,
+    );
 
     // Map ciphers to members
     const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
@@ -448,7 +480,7 @@ export class MemberAccessReportService {
   ): Promise<MemberAccessExportItem[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const orgData = await this._loadOrganizationDataV2(organizationId, userId);
-    const ciphers = await this.cipherService.getAllFromApiForOrganization(organizationId);
+    const ciphers = await this._fetchCiphersWithTimeout(organizationId);
     const accessList = this._mapCiphersToMembersV2(ciphers, orgData);
 
     // Group access records by (userId, collectionId, groupId)
