@@ -2,9 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
-  effect,
   input,
-  model,
   OnDestroy,
   OnInit,
   output,
@@ -110,9 +108,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly preSelectedProductTier = input<ProductTierType | null>(null);
   readonly enableSecretsManagerByDefault = input<boolean>(false);
 
-  // Model signals
-  readonly productTier = model<ProductTierType>(ProductTierType.Free);
-  readonly plan = model<PlanType>(PlanType.Free);
+  // Inputs (initial values for plan/productTier; form controls are the source of truth)
+  readonly productTier = input<ProductTierType>(ProductTierType.Free);
+  readonly plan = input<PlanType>(PlanType.Free);
 
   // Outputs
   readonly onSuccess = output<OnSuccessArgs>();
@@ -192,23 +190,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
 
-    /** Effects are being used here to keep the form controls in sync with the model signals.
-     * This is necessary because there are multiple ways the form values can be updated (e.g. user input, programmatically when loading current plan, etc.)
-     * and we want to ensure that the form controls always reflect the current state of the model signals.
-     * Although the signals are not updated much after initialization
-     */
-    effect(() => {
-      const productTier = this.productTier();
-      if (productTier) {
-        this.formGroup.controls.productTier.setValue(productTier, { emitEvent: false });
-      }
-    });
-    effect(() => {
-      const plan = this.plan();
-      if (plan) {
-        this.formGroup.controls.plan.setValue(plan, { emitEvent: false });
-      }
-    });
   }
 
   async ngOnInit() {
