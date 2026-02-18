@@ -151,6 +151,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
             await inputPasswordComponent.submit();
           } catch (e) {
             this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
+          } finally {
             this.pqpAutoSubmitting = false;
           }
         } else {
