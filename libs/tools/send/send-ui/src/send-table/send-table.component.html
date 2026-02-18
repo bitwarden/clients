@@ -21,8 +21,12 @@
                 <i class="bwi bwi-fw bwi-lg bwi-file-text tw-text-muted"></i>
               }
             </span>
-            <button type="button" bitLink>
-              {{ s.name }}
+            <button
+              type="button"
+              bitLink
+              class="[&:hover>div>span]:!tw-no-underline [&:focus-visible>div>span]:!tw-no-underline [&:hover_.send-name]:!tw-underline [&:hover_.send-name]:!tw-decoration-[.125em] [&:focus-visible_.send-name]:!tw-underline [&:focus-visible_.send-name]:!tw-decoration-[.125em]"
+            >
+              <span class="send-name tw-mr-1">{{ s.name }}</span>
               @if (s.disabled) {
                 <i
                   class="bwi bwi-exclamation-triangle tw-text-muted"
