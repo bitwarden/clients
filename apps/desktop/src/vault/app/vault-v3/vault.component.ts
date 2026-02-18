@@ -592,7 +592,7 @@ export class VaultComponent<C extends CipherViewLike>
           break;
         }
         case "delete": {
-          const cipher = await this.cipherService.getFullCipherView(event.items[0] as CipherView);
+          const cipher = await this.cipherService.getFullCipherView(event.items[0].cipher);
           await this.handleDeleteEvent(cipher);
           break;
         }
