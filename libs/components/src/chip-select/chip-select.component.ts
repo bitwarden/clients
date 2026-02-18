@@ -115,9 +115,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
 
       // when the options change, we need to change our selectedOption
       // to reflect the changed options.
-      if (
-        currentSelection?.value != null
-      ) {
+      if (currentSelection?.value != null) {
         this.selectedOption = this.findOption(this.rootTree, currentSelection.value);
       }
 
