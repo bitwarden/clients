@@ -1,151 +1,49 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  input,
-  OnDestroy,
-  viewChild,
-} from "@angular/core";
-import { Chart, ChartConfiguration, registerables } from "chart.js";
-import "chartjs-adapter-date-fns";
+import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 
 import { ButtonModule, IconButtonModule, ToggleGroupModule } from "@bitwarden/components";
 
-// Register Chart.js components
-Chart.register(...registerables);
-
-export type TrendDataPoint = {
-  date: Date;
-  value: number;
-};
-
-export type TrendDataset = {
-  label: string;
-  data: TrendDataPoint[];
-  color: string;
-};
+import { LineChartComponent, LineData } from "./line-chart/line-chart.component";
 
 @Component({
   selector: "trend-widget",
   templateUrl: "./trend-widget.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconButtonModule, ButtonModule, ToggleGroupModule],
+  imports: [IconButtonModule, ButtonModule, ToggleGroupModule, LineChartComponent],
 })
-export class TrendWidgetComponent implements AfterViewInit, OnDestroy {
-  private chart: Chart | null = null;
-  private readonly chartCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>("chartCanvas");
+export class TrendWidgetComponent {
+  readonly selectedView = signal<"applications" | "passwords" | "members">("applications");
+  readonly inputData = signal<LineData[]>([
+    {
+      label: "Primary",
+      pointData: [
+        { x: new Date(2026, 1, 2), y: 50 },
+        { x: new Date(2026, 1, 4), y: 60 },
+      ],
+      color: "#175DDC",
+      fillColor: "#DBE5F6",
+    },
+    {
+      label: "Secondary",
+      pointData: [
+        { x: new Date(2026, 1, 2), y: 100 },
+        { x: new Date(2026, 1, 4), y: 150 },
+      ],
+      color: "#E5E7EB",
+      fillColor: "#F3F6F9",
+    },
+  ]);
+  readonly lineChartData = computed(() => {
+    const view = this.selectedView();
 
-  // Input signals for the two data series
-  readonly primaryDataset = input<TrendDataset>({
-    label: "Primary",
-    data: [
-      { date: new Date(2026, 1, 2), value: 50 },
-      { date: new Date(2026, 1, 4), value: 60 },
-    ],
-    color: "#175DDC",
-  });
-
-  readonly secondaryDataset = input<TrendDataset>({
-    label: "Secondary",
-    data: [
-      { date: new Date(2026, 1, 2), value: 30 },
-      { date: new Date(2026, 1, 4), value: 20 },
-    ],
-    color: "#E5E7EB",
-  });
-
-  ngAfterViewInit(): void {
-    this.initializeChart();
-  }
-
-  ngOnDestroy(): void {
-    this.chart?.destroy();
-  }
-
-  private initializeChart(): void {
-    const canvas = this.chartCanvas().nativeElement;
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      return;
+    switch (view) {
+      case "applications":
+        return this.inputData();
+      case "passwords":
+        return this.inputData();
+      case "members":
+        return this.inputData();
     }
 
-    const primaryData = this.primaryDataset();
-    const secondaryData = this.secondaryDataset();
-
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
-      data: {
-        datasets: [
-          {
-            label: primaryData.label,
-            data: primaryData.data.map((point) => ({
-              x: point.date.getTime(),
-              y: point.value,
-            })),
-            borderColor: primaryData.color,
-            backgroundColor: primaryData.color,
-            borderWidth: 2,
-          },
-          {
-            label: secondaryData.label,
-            data: secondaryData.data.map((point) => ({
-              x: point.date.getTime(),
-              y: point.value,
-            })),
-            borderColor: secondaryData.color,
-            backgroundColor: secondaryData.color,
-            borderWidth: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: "index",
-          intersect: false,
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            align: "end",
-            labels: {
-              padding: 10,
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            enabled: true,
-          },
-        },
-        scales: {
-          x: {
-            type: "time",
-            time: {
-              unit: "day",
-              displayFormats: {
-                day: "MMM d yyyy",
-              },
-            },
-            title: {
-              display: true,
-              text: "Date",
-            },
-          },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: "Value",
-            },
-          },
-        },
-      },
-    };
-
-    this.chart = new Chart(ctx, config);
-  }
+    return this.inputData();
+  });
 }
