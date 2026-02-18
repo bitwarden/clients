@@ -613,6 +613,154 @@ npm run test:types
 
 ---
 
+## ESLint Compliance for Tests and Stories
+
+**All test and story files must pass ESLint checks.**
+
+### Common ESLint Violations to Avoid
+
+#### 1. Console Statements (`no-console`)
+
+**❌ DON'T:**
+
+```typescript
+// In story files
+const mockService = {
+  save: () => {
+    console.log("Saved!"); // ❌ Violates no-console
+  },
+};
+```
+
+**✅ DO:**
+
+```typescript
+// Use Storybook action() for logging
+import { action } from "@storybook/addon-actions";
+
+const mockService = {
+  save: action("save"), // ✅ Shows in Storybook Actions panel
+};
+```
+
+#### 2. Exposed BehaviorSubjects (`rxjs/no-exposed-subjects`)
+
+**❌ DON'T:**
+
+```typescript
+// Mock service exposing subject
+class MockDataService {
+  data$ = new BehaviorSubject<Data[]>([]); // ❌ Subject exposed
+}
+```
+
+**✅ DO:**
+
+```typescript
+// Expose observable, hide subject
+class MockDataService {
+  private _data = new BehaviorSubject<Data[]>([]);
+  readonly data$ = this._data.asObservable(); // ✅ Observable exposed
+
+  updateData(data: Data[]) {
+    this._data.next(data); // Helper for tests
+  }
+}
+```
+
+#### 3. Missing Subscription Cleanup (`rxjs-angular/prefer-takeuntil`)
+
+**❌ DON'T:**
+
+```typescript
+// In component tests
+it("should handle subscription", () => {
+  component.observable$.subscribe(() => {
+    // ❌ No cleanup - memory leak
+  });
+});
+```
+
+**✅ DO:**
+
+```typescript
+// Use takeUntilDestroyed() in component code
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+constructor() {
+  this.observable$
+    .pipe(takeUntilDestroyed())  // ✅ Auto cleanup
+    .subscribe(() => {});
+}
+
+// Or use toSignal() to avoid subscriptions
+protected data = toSignal(this.service.data$);  // ✅ Preferred
+```
+
+#### 4. Floating Promises (`@typescript-eslint/no-floating-promises`)
+
+**❌ DON'T:**
+
+```typescript
+// In test files
+it("should save", () => {
+  component.save(); // ❌ Returns promise but not awaited
+});
+```
+
+**✅ DO:**
+
+```typescript
+// Await async operations
+it("should save", async () => {
+  await component.save(); // ✅ Properly awaited
+});
+```
+
+#### 5. Unused Imports/Variables (`@typescript-eslint/no-unused-vars`)
+
+**❌ DON'T:**
+
+```typescript
+import { SomeHelper, UnusedHelper } from './helpers';  // ❌ UnusedHelper not used
+
+// For unused error params
+.catch((error) => {  // ❌ error defined but not used
+  this.showError();
+});
+```
+
+**✅ DO:**
+
+```typescript
+import { SomeHelper } from './helpers';  // ✅ Only import what's used
+
+// Omit parameter if not used
+.catch(() => {  // ✅ No parameter defined
+  this.showError();
+});
+```
+
+### Pre-Commit ESLint Check
+
+**Before committing test/story files:**
+
+```bash
+npm run lint:fix
+npm run prettier
+```
+
+### Why These Rules Matter
+
+- **Security:** Console statements can leak sensitive data
+- **Memory:** Unmanaged subscriptions cause memory leaks
+- **Quality:** Proper patterns make code maintainable
+- **Consistency:** Mock services should follow production patterns
+
+**See also:** [Storybook and Test Standards in DIRT CLAUDE.md](/bitwarden_license/bit-common/src/dirt/CLAUDE.md#storybook-and-test-standards-critical)
+
+---
+
 ## Testing Checklist
 
 Use this checklist for each component:
@@ -628,7 +776,8 @@ Use this checklist for each component:
 - [ ] Async operations tested (loading, error states)
 - [ ] Edge cases tested (empty, loading, error)
 - [ ] Storybook created with all variants
-- [ ] Type check passes (npm run test:types)
+- [ ] **ESLint passes** (`npm run lint:fix`)
+- [ ] Type check passes (`npm run test:types`)
 
 ---
 
@@ -674,6 +823,6 @@ Use this checklist for each component:
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-02-18
 **Maintainer:** DIRT Team
