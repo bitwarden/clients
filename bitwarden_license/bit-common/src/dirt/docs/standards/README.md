@@ -72,6 +72,14 @@ Testing standards for Angular components including OnPush testing, Signal testin
 
 ---
 
+### Responsive Design
+
+**[responsive-design-standards.md](./responsive-design-standards.md)**
+
+Mobile-first responsive design patterns, Tailwind breakpoints, accessibility requirements, and testing guidelines.
+
+---
+
 ## 🎯 Quick Navigation
 
 **By Task:**
@@ -82,6 +90,7 @@ Testing standards for Angular components including OnPush testing, Signal testin
 | Implementing services                  | [service-standards.md](./service-standards.md)                       |
 | Working with Observables               | [rxjs-standards.md](./rxjs-standards.md)                             |
 | Building Angular components            | [angular-standards.md](./angular-standards.md)                       |
+| Building responsive layouts            | [responsive-design-standards.md](./responsive-design-standards.md)   |
 | Organizing code/naming                 | [code-organization-standards.md](./code-organization-standards.md)   |
 | Writing documentation                  | [documentation-standards.md](./documentation-standards.md)           |
 | Writing service tests                  | [testing-standards-services.md](./testing-standards-services.md)     |
@@ -113,6 +122,6 @@ Testing standards for Angular components including OnPush testing, Signal testin
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-02-18
 **Maintainer:** DIRT Team

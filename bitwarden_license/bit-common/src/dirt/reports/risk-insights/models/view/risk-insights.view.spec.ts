@@ -252,6 +252,99 @@ describe("RiskInsightsView", () => {
     });
   });
 
+  describe("getAtRiskPasswordCountForMember", () => {
+    it("should count at-risk passwords for member across all applications", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [
+        createReport("github.com", { u1: true }, { c1: true, c2: true }), // 2 at-risk
+        createReport("gitlab.com", { u1: true }, { c3: true, c4: false }), // 1 at-risk
+        createReport("bitbucket.com", { u1: false }, { c5: true }), // Not at-risk, should not count
+      ];
+
+      const count = view.getAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(3); // 2 from github + 1 from gitlab
+    });
+
+    it("should return 0 when member is not at-risk in any application", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [
+        createReport("github.com", { u1: false }, { c1: true }), // Not at-risk
+        createReport("gitlab.com", { u1: false }, { c2: true }), // Not at-risk
+      ];
+
+      const count = view.getAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(0);
+    });
+
+    it("should count passwords for specific application when applicationName provided", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [
+        createReport("github.com", { u1: true }, { c1: true, c2: true, c3: true }), // 3 at-risk
+        createReport("gitlab.com", { u1: true }, { c4: true }), // 1 at-risk
+      ];
+
+      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
+
+      expect(count).toBe(3); // Only github.com
+    });
+
+    it("should return 0 when member not at-risk in specific application", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [
+        createReport("github.com", { u1: false }, { c1: true, c2: true }), // Not at-risk
+        createReport("gitlab.com", { u1: true }, { c3: true }), // At-risk
+      ];
+
+      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
+
+      expect(count).toBe(0); // Not at-risk in github
+    });
+
+    it("should return 0 when application not found", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [createReport("github.com", { u1: true }, { c1: true })];
+
+      const count = view.getAtRiskPasswordCountForMember("u1", "nonexistent.com");
+
+      expect(count).toBe(0);
+    });
+
+    it("should return 0 when member not in any application", () => {
+      const view = new RiskInsightsView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [createReport("github.com", { u2: true }, { c1: true })];
+
+      const count = view.getAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(0);
+    });
+  });
+
   // ==================== Update Methods ====================
 
   describe("markApplicationAsCritical", () => {

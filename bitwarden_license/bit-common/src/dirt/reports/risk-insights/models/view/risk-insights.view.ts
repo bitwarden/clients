@@ -143,6 +143,36 @@ export class RiskInsightsView implements View {
     return Object.keys(this.memberRegistry).length;
   }
 
+  /**
+   * Get at-risk password count for a specific member
+   *
+   * Counts all at-risk passwords across applications where member has access.
+   * Optionally limits count to a specific application.
+   *
+   * @param memberId - Organization user ID
+   * @param applicationName - Optional: limit count to specific application
+   * @returns Count of at-risk passwords for this member
+   */
+  getAtRiskPasswordCountForMember(memberId: string, applicationName?: string): number {
+    if (applicationName) {
+      // Count only within specific application
+      const app = this.getApplicationByName(applicationName);
+      if (!app || !app.isMemberAtRisk(memberId)) {
+        return 0;
+      }
+      return app.getAtRiskCipherIds().length;
+    }
+
+    // Count across all applications where member is at-risk
+    let count = 0;
+    this.reports.forEach((report) => {
+      if (report.memberRefs[memberId] === true) {
+        count += report.getAtRiskCipherIds().length;
+      }
+    });
+    return count;
+  }
+
   // ==================== Update Methods ====================
 
   /**

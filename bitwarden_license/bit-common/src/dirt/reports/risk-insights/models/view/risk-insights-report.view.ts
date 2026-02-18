@@ -25,6 +25,15 @@ export class RiskInsightsReportView implements View {
   atRiskPasswordCount: number = 0;
 
   /**
+   * Icon metadata for display purposes
+   *
+   * Pre-computed during report generation to avoid runtime lookups.
+   * Contains the URI/hostname and cipher ID of the first cipher for icon display.
+   */
+  iconUri?: string;
+  iconCipherId?: string;
+
+  /**
    * Member references with at-risk status
    *
    * Record<OrganizationUserId, boolean> where:
@@ -128,6 +137,23 @@ export class RiskInsightsReportView implements View {
     return Object.entries(this.cipherRefs)
       .filter(([_, isAtRisk]) => isAtRisk)
       .map(([id]) => id);
+  }
+
+  /**
+   * Get the cipher ID to use for icon display
+   *
+   * Returns the pre-computed icon cipher ID if available,
+   * otherwise returns the first cipher ID from cipherRefs.
+   *
+   * @returns Cipher ID for icon display, or undefined if no ciphers
+   */
+  getIconCipherId(): string | undefined {
+    if (this.iconCipherId) {
+      return this.iconCipherId;
+    }
+
+    const cipherIds = this.getAllCipherIds();
+    return cipherIds.length > 0 ? cipherIds[0] : undefined;
   }
 
   toJSON() {

@@ -1,5 +1,9 @@
 # Adding a New Integration Configuration and Template
 
+**Purpose:** Guide for adding new integration types to the organization integrations system
+
+---
+
 This guide explains how to add a new integration type (e.g., Datadog, Splunk HEC) to the organization integrations system.
 
 ## Step 1: Define the Configuration Class
@@ -356,3 +360,9 @@ await service.save(orgId, OrganizationIntegrationType.Example, config, template)
 ```
 
 This creates a complete integration that can authenticate with the external service and format event data appropriately.
+
+---
+
+**Document Version:** 1.0
+**Last Updated:** 2026-02-17
+**Maintainer:** DIRT Team

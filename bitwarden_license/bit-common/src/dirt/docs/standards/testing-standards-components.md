@@ -199,6 +199,66 @@ it("should display report data", () => {
 
 **Every reusable component should have a Storybook.**
 
+### ⚠️ CRITICAL: Deterministic Data for Chromatic
+
+**All Storybook data MUST be deterministic (no random data).**
+
+We use **Chromatic** for visual regression testing, which takes snapshots of Storybook stories. Random data causes snapshot differences and breaks visual testing.
+
+#### ❌ DON'T - Random Data
+
+```typescript
+// ❌ BAD - Random data breaks Chromatic snapshots
+export const Example: Story = {
+  render: () => ({
+    props: {
+      items: Array.from({ length: 10 }, (_, i) => ({
+        id: i,
+        value: Math.random() * 100, // ❌ Different every time!
+      })),
+    },
+  }),
+};
+```
+
+#### ✅ DO - Deterministic Data
+
+```typescript
+// ✅ GOOD - Same data every time
+export const Example: Story = {
+  render: () => ({
+    props: {
+      items: Array.from({ length: 10 }, (_, i) => ({
+        id: i,
+        value: (i + 1) * 10, // ✅ Deterministic pattern
+      })),
+    },
+  }),
+};
+```
+
+#### Deterministic Patterns
+
+**Use these patterns instead of random data:**
+
+1. **Index-based values:** `value: i * 10` or `value: i + 1`
+2. **Modulo patterns:** `isAtRisk: i % 2 === 0` (alternating)
+3. **Fixed seed values:** Define specific test data upfront
+4. **Predictable cycles:** `value: [10, 20, 30][i % 3]`
+
+#### Example: Large Dataset
+
+```typescript
+// Generate 50 deterministic items
+const items = Array.from({ length: 50 }, (_, i) => ({
+  id: `item-${i}`,
+  name: `Item ${i + 1}`,
+  score: (i + 1) * 10, // 10, 20, 30, ...
+  isActive: i % 3 === 0, // Every 3rd item
+  priority: ["low", "medium", "high"][i % 3], // Cycle through priorities
+}));
+```
+
 ### Storybook File Structure
 
 ```typescript
@@ -439,6 +499,81 @@ it("should handle async data loading", fakeAsync(() => {
   expect(component.report()).toBe(mockData);
 }));
 ```
+
+### Testing Protected/Private Members
+
+**Pattern:** Use type assertions to access protected or private members in tests.
+
+Components use `protected` or `private` for encapsulation, but tests need access to verify internal state. Type assertions are the recommended approach per Angular testing best practices.
+
+```typescript
+describe("MyComponent", () => {
+  let component: MyComponent;
+  let fixture: ComponentFixture<MyComponent>;
+
+  /**
+   * Helper to access protected/private members for testing.
+   * Angular components use protected/private for encapsulation, but tests need access to verify internal state.
+   * Using type assertion is the recommended approach per Angular testing best practices.
+   */
+  const testAccess = (comp: MyComponent) => comp as any;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MyComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should access protected signal", () => {
+    // Component has: protected organizationId = signal<string>("org-123");
+    expect(testAccess(component).organizationId()).toBe("org-123");
+  });
+
+  it("should access protected computed signal", () => {
+    // Component has: protected hasData = computed(() => this.items().length > 0);
+    testAccess(component).items.set([1, 2, 3]);
+    expect(testAccess(component).hasData()).toBe(true);
+  });
+
+  it("should call private method", () => {
+    // Component has: private calculateTotal(): number
+    const result = testAccess(component).calculateTotal();
+    expect(result).toBe(42);
+  });
+});
+```
+
+**Why this pattern?**
+
+- ✅ **Minimal boilerplate** - Single helper function
+- ✅ **Type-safe for tests** - TypeScript allows `any` assertions in tests
+- ✅ **Follows Angular best practices** - Recommended in [Angular testing guide](https://angular.io/guide/testing-components-basics#testing-private-members)
+- ✅ **Clear intent** - `testAccess()` clearly signals "test-only access"
+
+**Alternative: Intersection Types (NOT recommended)**
+
+Avoid using intersection types to expose protected members. This pattern fails when redefining existing private/protected methods:
+
+```typescript
+// ❌ DON'T - Intersection types fail for existing members
+type TestType = MyComponent & {
+  organizationId: Signal<string>; // Error: reduces to 'never'
+  calculateTotal(): number; // Error: property is private in some constituents
+};
+```
+
+**When to use:**
+
+- Testing protected signals, computed signals, or properties
+- Testing private helper methods
+- Verifying internal state changes
+
+**Reference implementation:**
+
+- See `access-intelligence-page.component.spec.ts` for real-world example
 
 ---
 
