@@ -89,14 +89,6 @@
         [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
       />
     </div>
-  } @else {
-    <div id="logo" class="logo">
-      <div class="content">
-        <div class="inner-content">
-          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
-        </div>
-      </div>
-    </div>
   }
   @if (!["add", "edit", "view", "clone"].includes(action())) {
     <div id="logo" class="logo">
