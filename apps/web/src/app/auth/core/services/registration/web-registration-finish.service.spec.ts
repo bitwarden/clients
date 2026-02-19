@@ -373,6 +373,7 @@ describe("WebRegistrationFinishService", () => {
           kdfConfig: DEFAULT_KDF_CONFIG,
           newPasswordHint: "newPasswordHint",
           newApisWithInputPasswordFlagEnabled: true,
+          salt: salt,
         };
 
         // The service derives the master key internally when the Auth flag is ON
