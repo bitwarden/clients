@@ -231,6 +231,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     return this.originalCipherView;
   }
 
+  clearCache() {
+    this.cipherFormCacheService.clearCache();
+  }
+
   /** */
   initializedWithCachedCipher(): boolean {
     return this.cipherFormCacheService.initializedWithValue;

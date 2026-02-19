@@ -312,6 +312,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
    * Handle back button
    */
   handleBackButton = async () => {
+    this.cipherFormComponent().clearCache();
+
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
