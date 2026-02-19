@@ -467,8 +467,7 @@ export class BrowserApi {
    * and returns whether any are currently open.
    */
   static async isPopupOpen(): Promise<boolean> {
-    const views = BrowserApi.getExtensionViews({ type: "popup" });
-    return views.length > 0;
+    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
   }
 
   /**

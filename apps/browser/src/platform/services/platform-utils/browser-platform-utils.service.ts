@@ -150,18 +150,37 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   /**
-   * Identifies if the main extension popup is currently open.
-   *
-   * Uses `chrome.runtime.getContexts()` on MV3 (service worker context)
-   * and `chrome.extension.getViews()` on MV2/Safari (background page context).
+   * Identifies if the vault popup is currently open. This is done by sending a
+   * message to the popup and waiting for a response. If a response is received,
+   * the view is open.
    */
   async isPopupOpen(): Promise<boolean> {
-    if (BrowserApi.isManifestVersion(3) && !this.isSafari()) {
-      const contexts = await chrome.runtime.getContexts({ contextTypes: ["POPUP"] });
-      return contexts.length > 0;
+    if (this.isSafari()) {
+      // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
+      return BrowserApi.isPopupOpen();
     }
 
-    return BrowserApi.isPopupOpen();
+    return new Promise<boolean>((resolve, reject) => {
+      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
+        if (chrome.runtime.lastError != null) {
+          // This error means that nothing was there to listen to the message,
+          // meaning the view is not open.
+          if (
+            chrome.runtime.lastError.message ===
+            "Could not establish connection. Receiving end does not exist."
+          ) {
+            resolve(false);
+            return;
+          }
+
+          // All unhandled errors still reject
+          reject(chrome.runtime.lastError);
+          return;
+        }
+
+        resolve(Boolean(response));
+      });
+    });
   }
 
   async isAnyViewFocused(): Promise<boolean> {

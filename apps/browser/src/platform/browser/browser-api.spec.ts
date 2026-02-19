@@ -220,17 +220,20 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    it("returns false if no views are open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([]);
+    it("returns true if the popup is open", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValue([window]);
 
-      expect(await BrowserApi.isPopupOpen()).toBe(false);
+      const result = await BrowserApi.isPopupOpen();
+
+      expect(result).toBe(true);
     });
 
-    it("returns true if the main popup is open", async () => {
-      const mainPopupView = { location: { href: "chrome-extension://id/popup/index.html" } };
-      chrome.extension.getViews = jest.fn().mockReturnValue([mainPopupView]);
+    it("returns false if the popup is not open", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValue([]);
 
-      expect(await BrowserApi.isPopupOpen()).toBe(true);
+      const result = await BrowserApi.isPopupOpen();
+
+      expect(result).toBe(false);
     });
   });
 

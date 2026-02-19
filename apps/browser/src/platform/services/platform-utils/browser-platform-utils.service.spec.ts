@@ -144,55 +144,40 @@ describe("Browser Utils Service", () => {
     });
   });
 
-  describe("isPopupOpen", () => {
-    describe("MV3 (getContexts)", () => {
-      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
-
-      beforeEach(() => {
-        getManifestVersionSpy.mockReturnValue(3);
-        jest
-          .spyOn(browserPlatformUtilsService, "getDevice")
-          .mockReturnValue(DeviceType.ChromeExtension);
+  describe("isViewOpen", () => {
+    it("returns false if a heartbeat response is not received", async () => {
+      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
+        callback(undefined);
       });
 
-      afterEach(() => {
-        jest.clearAllMocks();
-      });
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
-      it("returns true when a POPUP context exists", async () => {
-        (chrome.runtime as any).getContexts = jest
-          .fn()
-          .mockResolvedValue([
-            { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
-          ]);
-
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
-      });
-
-      it("returns false when no contexts exist", async () => {
-        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([]);
-
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(false);
-      });
+      expect(isViewOpen).toBe(false);
     });
 
-    describe("MV2 / Safari (getExtensionViews)", () => {
-      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
-
-      beforeEach(() => {
-        getManifestVersionSpy.mockReturnValue(2);
+    it("returns true if a heartbeat response is received", async () => {
+      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
+        callback(message.command === "checkVaultPopupHeartbeat");
       });
 
-      afterEach(() => {
-        jest.clearAllMocks();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
+
+      expect(isViewOpen).toBe(true);
+    });
+
+    it("returns false if special error is sent", async () => {
+      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
+        (chrome.runtime.lastError as any) = new Error(
+          "Could not establish connection. Receiving end does not exist.",
+        );
+        callback(undefined);
       });
 
-      it("delegates to BrowserApi.isPopupOpen", async () => {
-        const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
-        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
-        expect(spy).toHaveBeenCalled();
-      });
+      expect(isViewOpen).toBe(false);
+
+      (chrome.runtime.lastError as any) = null;
     });
   });
 
