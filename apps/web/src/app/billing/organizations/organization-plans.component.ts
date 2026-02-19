@@ -115,7 +115,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly preSelectedProductTier = input<ProductTierType | null>(null);
   readonly enableSecretsManagerByDefault = input<boolean>(false);
 
-  // Inputs (initial values for plan/productTier; form controls are the source of truth)
+  // NOTE: Inputs (initial values for plan/productTier; form controls are the source of truth)
   readonly productTier = input<ProductTierType>(ProductTierType.Free);
   readonly plan = input<PlanType>(PlanType.Free);
 
@@ -255,13 +255,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     credit: number;
     newPlanProratedMonths: number;
     newPlanProratedAmount: number;
-  }>({
-    tax: 0,
-    total: 0,
-    credit: 0,
-    newPlanProratedMonths: 0,
-    newPlanProratedAmount: 0,
-  });
+  } | null>(null);
 
   // Estimated tax for non-premium users
   protected readonly estimatedTax = signal(0);
@@ -284,8 +278,30 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       };
     }
 
+    const hasAdditionalSeats =
+      plan.PasswordManager.hasAdditionalSeatsOption && formValues.additionalSeats;
+    const pmBaseCost = hasAdditionalSeats
+      ? plan.PasswordManager.seatPrice
+      : plan.PasswordManager.basePrice;
+    const totalSeats = hasAdditionalSeats ? formValues.additionalSeats : 1;
+
     // For prorated upgrades, use prorated amount and hide breakdown
     if (this.canUpgradeFromPremium()) {
+      if (!previewInvoice) {
+        return {
+          passwordManager: {
+            seats: {
+              translationKey: "passwordManagerPlanPrice",
+              cost: pmBaseCost,
+              quantity: totalSeats,
+              hideBreakdown: true,
+            },
+          },
+          cadence: plan.isAnnual ? "annually" : "monthly",
+          estimatedTax: 0,
+        };
+      }
+
       const translationKey = "planProratedMembershipInMonths";
       const translationParams = [
         plan.name,
@@ -308,25 +324,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       };
     } else {
       // Calculate PM base cost (includes base price, additional seats, and premium addon)
-      let pmBaseCost;
-      let totalSeats = 0;
-
-      if (plan.PasswordManager.hasAdditionalSeatsOption && formValues.additionalSeats) {
-        totalSeats += formValues.additionalSeats;
-        pmBaseCost = plan.PasswordManager.seatPrice;
-      } else {
-        totalSeats = 1;
-        pmBaseCost = plan.PasswordManager.basePrice;
-      }
+      let adjustedPmBaseCost = pmBaseCost;
 
       if (plan.PasswordManager.hasPremiumAccessOption && formValues.premiumAccessAddon) {
-        pmBaseCost += plan.PasswordManager.premiumAccessOptionPrice;
+        adjustedPmBaseCost += plan.PasswordManager.premiumAccessOptionPrice;
       }
       cart = {
         passwordManager: {
           seats: {
             translationKey: "passwordManagerPlanPrice",
-            cost: pmBaseCost,
+            cost: adjustedPmBaseCost,
             quantity: totalSeats,
           },
         },
@@ -646,7 +653,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   get paymentDesc() {
     if (this.acceptingSponsorship()) {
       return this.i18nService.t("paymentSponsored");
-    } else if (this.freeTrial() && this.createOrganization()) {
+    } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t("paymentChargedWithTrial");
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval()));
@@ -883,7 +890,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     await this.accountBillingClient.upgradePremiumToOrganization(
       organizationName,
       encryptionData.key,
-      this.productTier(),
+      this.formValues().productTier,
       SubscriptionCadenceIds.Annually,
       billingAddress,
     );
@@ -955,7 +962,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     // If premium user is upgrading to organization, get proration preview with credit
     if (this.canUpgradeFromPremium()) {
       const prorationPreview = await this.previewInvoiceClient.previewProrationForPremiumUpgrade(
-        this.productTier(),
+        this.formValues().productTier,
         {
           country: billingAddress.country,
           postalCode: billingAddress.postalCode,

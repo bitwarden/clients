@@ -65,7 +65,7 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (trialPeriodDays && createOrganization()) {
+                    @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
                       <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
                     }
                   </ul>
@@ -75,7 +75,7 @@
                       <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                       <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                       <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                      <li *ngIf="trialPeriodDays && createOrganization()">
+                      <li *ngIf="trialPeriodDays && createOrganization() && !upgradingFromPremium">
                         {{ "xDayFreeTrial" | i18n: trialPeriodDays }}
                       </li>
                     </ul>
@@ -124,7 +124,7 @@
                       @if (tier != productTypes.Free) {
                         <li>{{ "priorityCustomerSupport" | i18n }}</li>
                       }
-                      @if (trialPeriodDays && createOrganization()) {
+                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
                         <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
                       }
                     </ul>
@@ -219,27 +219,25 @@
                 </bit-form-field>
               </div>
             }
-            @if (!upgradingFromPremium) {
-              <div class="tw-grid tw-grid-cols-12 tw-gap-4">
-                <bit-form-field class="tw-col-span-6">
-                  <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
-                  <input
-                    bitInput
-                    type="number"
-                    formControlName="additionalStorage"
-                    step="1"
-                    placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
-                  />
-                  <bit-hint class="tw-text-sm">{{
-                    "additionalStorageIntervalDesc"
-                      | i18n
-                        : `${plan.PasswordManager.baseStorageGb} GB`
-                        : (additionalStoragePriceMonthly(plan) | currency: "$")
-                        : ("month" | i18n)
-                  }}</bit-hint>
-                </bit-form-field>
-              </div>
-            }
+            <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+              <bit-form-field class="tw-col-span-6">
+                <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="number"
+                  formControlName="additionalStorage"
+                  step="1"
+                  placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
+                />
+                <bit-hint class="tw-text-sm">{{
+                  "additionalStorageIntervalDesc"
+                    | i18n
+                      : `${plan.PasswordManager.baseStorageGb} GB`
+                      : (additionalStoragePriceMonthly(plan) | currency: "$")
+                      : ("month" | i18n)
+                }}</bit-hint>
+              </bit-form-field>
+            </div>
           </bit-section>
         }
         <bit-section>
