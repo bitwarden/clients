@@ -20,16 +20,18 @@
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
     <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
   </bit-form-field>
-  <div class="tw-flex">
-    <button
-      bitButton
-      bitFormButton
-      type="submit"
-      buttonType="primary"
-      [loading]="loading()"
-      [block]="true"
-    >
-      <span>{{ "viewSend" | i18n }} </span>
-    </button>
-  </div>
+  <button
+    bitButton
+    bitFormButton
+    type="submit"
+    buttonType="primary"
+    [loading]="loading()"
+    [block]="true"
+    class="tw-mb-3"
+  >
+    <span>{{ "viewSend" | i18n }} </span>
+  </button>
+  <button bitButton type="button" buttonType="secondary" [block]="true" (click)="onBackClick()">
+    <span>{{ "back" | i18n }}</span>
+  </button>
 }
