@@ -26,7 +26,6 @@ import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwa
 import { Importer } from "../importers/importer";
 import { ImportResult } from "../models/import-result";
 
-
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
 
