@@ -139,7 +139,7 @@ export class TrendWidgetComponent {
           y: point.atRisk,
         })),
         color: isDark ? "#6d9eff" : "#175DDC",
-        fillColor: isDark ? "rgba(109,158,255,0.2)" : "#DBE5F6",
+        fillColor: isDark ? "rgba(109,158,255,0.2)" : "rgba(23,93,220,0.15)",
       },
       {
         label: `All ${label.toLowerCase()}`,
@@ -148,7 +148,7 @@ export class TrendWidgetComponent {
           y: point.total,
         })),
         color: isDark ? "#4b5069" : "#E5E7EB",
-        fillColor: isDark ? "rgba(75,80,105,0.3)" : "#F3F6F9",
+        fillColor: isDark ? "rgba(75,80,105,0.3)" : "rgba(209,213,220,0.2)",
       },
     ];
   });

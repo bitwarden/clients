@@ -102,6 +102,9 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
             title: {
               display: false,
             },
+            grid: {
+              display: false,
+            },
           },
           y: {
             beginAtZero: true,
