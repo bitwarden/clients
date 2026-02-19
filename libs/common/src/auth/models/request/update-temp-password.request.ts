@@ -19,11 +19,9 @@ export class UpdateTempPasswordRequest extends OrganizationUserResetPasswordRequ
     unlockData: MasterPasswordUnlockData,
     masterPasswordHint: string,
   ): UpdateTempPasswordRequest {
-    const request = OrganizationUserResetPasswordRequest.newConstructor(
-      authenticationData,
-      unlockData,
-    ) as UpdateTempPasswordRequest;
-
+    const request = new UpdateTempPasswordRequest();
+    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
+    request.key = unlockData.masterKeyWrappedUserKey;
     request.masterPasswordHint = masterPasswordHint;
     return request;
   }
