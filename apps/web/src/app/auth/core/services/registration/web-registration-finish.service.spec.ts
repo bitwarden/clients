@@ -393,10 +393,10 @@ describe("WebRegistrationFinishService", () => {
 
         await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-        // Verify master key is derived internally (not from passwordInputResult)
+        // Verify master key is derived internally
         expect(keyService.makeMasterKey).toHaveBeenCalledWith(
           passwordInputResult.newPassword,
-          email.trim().toLowerCase(),
+          passwordInputResult.salt,
           passwordInputResult.kdfConfig,
         );
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
@@ -406,7 +406,6 @@ describe("WebRegistrationFinishService", () => {
             email,
             emailVerificationToken: emailVerificationToken,
             masterPasswordHint: passwordInputResult.newPasswordHint,
-            userSymmetricKey: userKeyEncString.encryptedString,
             userAsymmetricKeys: {
               publicKey: userKeyPair[0],
               encryptedPrivateKey: userKeyPair[1].encryptedString,

@@ -46,7 +46,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerUserId?: string,
   ): Promise<void> {
     /**
-     * "KM flag"   = (does not yet exist for registration — KM team has an in-progress PR)
+     * "KM flag"   = (KM team has ongoing work for this here: PM-24223)
      * "Auth flag" = PM27086_UpdateAuthenticationApisForInputPassword (checked in InputPasswordComponent
      *               and passed through via PasswordInputResult.newApisWithInputPasswordFlagEnabled)
      *
