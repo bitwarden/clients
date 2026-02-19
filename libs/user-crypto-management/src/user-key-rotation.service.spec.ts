@@ -53,7 +53,6 @@ jest.mock("@bitwarden/key-management-ui", () => ({
   },
 }));
 
-
 describe("DefaultUserKeyRotationService", () => {
   let service: DefaultUserKeyRotationService;
 
