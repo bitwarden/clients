@@ -491,13 +491,12 @@ export class BrowserApi {
   static async isAnyViewFocused(): Promise<boolean> {
     if (typeof (chrome.runtime as any).getContexts === "function") {
       const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
       for (const context of contexts) {
-        if (context.contextType === "POPUP") {
-          return true;
-        }
-        if (context.contextType === "SIDE_PANEL") {
-          return true;
-        }
         if (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")) {
           const win = await BrowserApi.getWindowById(context.windowId);
           if (win?.focused) {
@@ -509,22 +508,15 @@ export class BrowserApi {
     }
 
     // MV2/Safari — background page can use getExtensionViews
-    const popupViews = BrowserApi.getExtensionViews({ type: "popup" });
-    if (popupViews.length > 0) {
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
       return true;
     }
 
-    const tabViews = BrowserApi.getExtensionViews({ type: "tab" });
-    for (const view of tabViews) {
-      if (view.location.href.includes("uilocation=sidebar")) {
-        return true;
-      }
-      if (view.location.href.includes("uilocation=popout") && view.document.hasFocus()) {
-        return true;
-      }
-    }
-
-    return false;
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
