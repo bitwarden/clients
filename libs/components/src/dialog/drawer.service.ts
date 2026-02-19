@@ -3,18 +3,15 @@ import { Injectable, signal } from "@angular/core";
 
 @Injectable({ providedIn: "root" })
 export class DrawerService {
-  private readonly _portal = signal<Portal<unknown> | undefined>(undefined);
-  private readonly _pushWidthPx = signal(0);
-
   /** The portal to display */
-  portal = this._portal.asReadonly();
+  readonly portal = signal<Portal<unknown> | undefined>(undefined);
 
   /**
    * The drawer's preferred push-mode column width in px.
    * Declared by the drawer content (e.g. bit-dialog) via declarePushWidth().
    * Zero when no drawer is active or the width has not been declared yet.
    */
-  readonly pushWidthPx = this._pushWidthPx.asReadonly();
+  readonly pushWidthPx = signal(0);
 
   /**
    * Whether the drawer is currently in push mode (occupying its own grid column).
@@ -23,13 +20,13 @@ export class DrawerService {
   readonly isPushMode = signal(false);
 
   open(portal: Portal<unknown>) {
-    this._portal.set(portal);
+    this.portal.set(portal);
   }
 
   close(portal: Portal<unknown>) {
     if (portal === this.portal()) {
-      this._portal.set(undefined);
-      this._pushWidthPx.set(0);
+      this.portal.set(undefined);
+      this.pushWidthPx.set(0);
       this.isPushMode.set(false);
     }
   }
@@ -40,6 +37,6 @@ export class DrawerService {
    * without measuring the DOM (which is unreliable when the column is 1fr).
    */
   declarePushWidth(px: number) {
-    this._pushWidthPx.set(px);
+    this.pushWidthPx.set(px);
   }
 }
