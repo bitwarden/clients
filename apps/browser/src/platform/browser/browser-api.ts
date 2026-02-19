@@ -463,10 +463,17 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the main extension popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({ contextTypes: ["POPUP"] });
+      return contexts.length > 0;
+    }
+
     const views = BrowserApi.getExtensionViews({ type: "popup" });
     return views.length > 0;
   }
@@ -475,17 +482,38 @@ export class BrowserApi {
    * Returns true if any extension view is currently active/focused.
    *
    * - Main popup: always considered focused (auto-closes on blur).
-   * - Sidebar tab view: always considered focused (always visible).
-   * - Popout tab view: only focused if `document.hasFocus()` is true.
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused (PM-24047).
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
    */
   static async isAnyViewFocused(): Promise<boolean> {
-    // Popup auto-closes on blur — if any popup view exists, it is focused
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+      for (const context of contexts) {
+        if (context.contextType === "POPUP") {
+          return true;
+        }
+        if (context.contextType === "SIDE_PANEL") {
+          return true;
+        }
+        if (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")) {
+          const win = await BrowserApi.getWindowById(context.windowId);
+          if (win?.focused) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
     const popupViews = BrowserApi.getExtensionViews({ type: "popup" });
     if (popupViews.length > 0) {
       return true;
     }
 
-    // Check tab views (popouts and sidebar)
     const tabViews = BrowserApi.getExtensionViews({ type: "tab" });
     for (const view of tabViews) {
       if (view.location.href.includes("uilocation=sidebar")) {
