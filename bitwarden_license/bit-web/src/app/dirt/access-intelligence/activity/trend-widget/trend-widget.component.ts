@@ -21,7 +21,7 @@ import {
   IconModule,
 } from "@bitwarden/components";
 
-import { ChartConfig, LineChartComponent, LineData } from "./line-chart/line-chart.component";
+import { ChartConfig, LineChartComponent, LineData } from "../../shared/line-chart.component";
 
 export const TrendWidgetViewType = Object.freeze({
   Applications: "applications",
