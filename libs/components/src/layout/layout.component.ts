@@ -228,7 +228,7 @@ export class LayoutComponent {
         const navAloneCanPush = containerWidth - navWidthPx >= mainMinPx;
 
         // Can the drawer push at full width with the full nav?
-        const drawerWithNavCanPush =
+        const drawerFullWidthNavCanPush =
           drawerWidthPx > 0 && containerWidth - navWidthPx - drawerWidthPx >= mainMinPx;
 
         // Can the drawer push at full width with just the siderail?
@@ -249,7 +249,7 @@ export class LayoutComponent {
         let navPush: boolean;
         let drawerPush: boolean;
 
-        if (drawerWithNavCanPush) {
+        if (drawerFullWidthNavCanPush) {
           // Plenty of room: full nav and drawer both push at full width.
           navPush = true;
           drawerPush = true;
