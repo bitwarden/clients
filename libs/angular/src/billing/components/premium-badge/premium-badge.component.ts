@@ -8,7 +8,6 @@ import { BadgeModule } from "@bitwarden/components";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-premium-badge",
-  standalone: true,
   template: `
     <button
       type="button"

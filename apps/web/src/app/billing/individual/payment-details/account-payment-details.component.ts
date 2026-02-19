@@ -23,7 +23,6 @@ type View = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./account-payment-details.component.html",
-  standalone: true,
   imports: [
     DisplayAccountCreditComponent,
     DisplayPaymentMethodComponent,

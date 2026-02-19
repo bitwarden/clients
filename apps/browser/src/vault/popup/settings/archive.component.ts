@@ -48,7 +48,6 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../components/vault/add-edit/add-edi
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "archive.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

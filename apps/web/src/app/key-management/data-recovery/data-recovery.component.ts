@@ -43,7 +43,6 @@ interface StepState {
 @Component({
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, CommonModule, SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

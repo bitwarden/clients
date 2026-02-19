@@ -10,7 +10,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "extension-device-management",
   templateUrl: "extension-device-management.component.html",
   imports: [

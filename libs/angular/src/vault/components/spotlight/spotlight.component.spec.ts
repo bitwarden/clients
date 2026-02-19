@@ -122,7 +122,6 @@ describe("SpotlightComponent", () => {
 
   describe("content projection behavior", () => {
     @Component({
-      standalone: true,
       imports: [SpotlightComponent],
       changeDetection: ChangeDetectionStrategy.OnPush,
       template: `
@@ -150,7 +149,6 @@ describe("SpotlightComponent", () => {
 
   describe("boolean attribute transform for persistent", () => {
     @Component({
-      standalone: true,
       imports: [CommonModule, SpotlightComponent],
       changeDetection: ChangeDetectionStrategy.OnPush,
       template: `

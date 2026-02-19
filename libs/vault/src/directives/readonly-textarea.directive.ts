@@ -3,7 +3,6 @@ import { AfterViewInit, Directive, Host, NgZone } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 @Directive({
-  standalone: true,
   selector: "textarea[vaultAutosizeReadOnlyTextArea]",
   providers: [TextFieldModule],
   hostDirectives: [CdkTextareaAutosize],

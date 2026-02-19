@@ -28,7 +28,6 @@ import { LogService } from "@bitwarden/logging";
 
 @Component({
   selector: "billing-premium-upgrade-dialog",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,

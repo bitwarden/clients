@@ -25,7 +25,6 @@ import { SettingsV2Component } from "./settings-v2.component";
 
 @Component({
   selector: "app-current-account",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

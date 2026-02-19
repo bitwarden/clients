@@ -27,7 +27,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "confirm-key-connector-domain",
   templateUrl: "confirm-key-connector-domain.component.html",
-  standalone: true,
   imports: [CommonModule, ButtonModule, I18nPipe, BitActionDirective, IconButtonModule],
 })
 export class ConfirmKeyConnectorDomainComponent implements OnInit {

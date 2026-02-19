@@ -37,7 +37,6 @@ export type State = "assert" | "assertFailed";
 @Component({
   selector: "app-login-via-webauthn",
   templateUrl: "login-via-webauthn.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

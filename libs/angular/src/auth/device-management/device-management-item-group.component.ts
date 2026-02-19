@@ -11,7 +11,6 @@ import { DeviceDisplayData } from "./device-management.component";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "auth-device-management-item-group",
   templateUrl: "./device-management-item-group.component.html",
   imports: [BadgeModule, CommonModule, ItemModule, I18nPipe],

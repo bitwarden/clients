@@ -76,7 +76,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
-  standalone: true,
   providers: [
     {
       provide: PremiumUpgradePromptService,

@@ -25,7 +25,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
-  standalone: true,
   imports: [CommonModule, I18nPipe, MenuModule, LinkModule, TypographyModule],
 })
 export class EnvironmentSelectorComponent implements OnDestroy {

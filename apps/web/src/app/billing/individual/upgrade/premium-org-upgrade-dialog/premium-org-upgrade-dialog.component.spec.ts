@@ -32,7 +32,6 @@ import {
 @Component({
   selector: "app-premium-org-upgrade-plan-selection",
   template: "",
-  standalone: true,
   providers: [PremiumOrgUpgradePlanSelectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,7 +45,6 @@ class MockPremiumOrgUpgradePlanSelectionComponent {
 @Component({
   selector: "app-premium-org-upgrade-payment",
   template: "",
-  standalone: true,
   providers: [PremiumOrgUpgradePaymentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

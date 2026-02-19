@@ -54,7 +54,6 @@ import {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   templateUrl: "set-initial-password.component.html",
   imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
 })

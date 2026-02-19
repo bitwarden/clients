@@ -46,7 +46,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
       </button>
     </bit-section>
   `,
-  standalone: true,
   imports: [AddressPipe, SharedModule],
 })
 export class DisplayBillingAddressComponent {

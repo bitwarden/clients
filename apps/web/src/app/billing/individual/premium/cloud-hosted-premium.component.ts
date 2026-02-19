@@ -53,7 +53,6 @@ const RouteParamValues = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./cloud-hosted-premium.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SectionComponent,

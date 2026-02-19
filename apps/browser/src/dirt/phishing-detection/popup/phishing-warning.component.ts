@@ -27,7 +27,6 @@ import {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-phishing-warning",
-  standalone: true,
   templateUrl: "phishing-warning.component.html",
   imports: [
     CommonModule,

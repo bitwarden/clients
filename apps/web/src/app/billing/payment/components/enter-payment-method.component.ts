@@ -230,7 +230,6 @@ type PaymentMethodFormGroup = FormGroup<{
       }
     </form>
   `,
-  standalone: true,
   imports: [BillingServicesModule, PaymentLabelComponent, PopoverModule, SharedModule],
 })
 export class EnterPaymentMethodComponent implements OnInit, OnDestroy {

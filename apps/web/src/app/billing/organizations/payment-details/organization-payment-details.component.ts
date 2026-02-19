@@ -62,7 +62,6 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{ organizationId: st
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./organization-payment-details.component.html",
-  standalone: true,
   imports: [
     DisplayAccountCreditComponent,
     DisplayBillingAddressComponent,

@@ -157,7 +157,6 @@ type Scenario =
       </div>
     </form>
   `,
-  standalone: true,
   imports: [SharedModule],
 })
 export class EnterBillingAddressComponent implements OnInit, OnDestroy {

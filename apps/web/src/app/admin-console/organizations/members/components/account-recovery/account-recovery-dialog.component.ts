@@ -64,7 +64,6 @@ export type AccountRecoveryDialogResultType =
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-account-recovery-dialog",
   templateUrl: "account-recovery-dialog.component.html",
   imports: [

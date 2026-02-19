@@ -53,7 +53,6 @@ type DialogParams = {
       </bit-dialog>
     </form>
   `,
-  standalone: true,
   imports: [EnterPaymentMethodComponent, SharedModule],
   providers: [SubscriberBillingClient],
 })

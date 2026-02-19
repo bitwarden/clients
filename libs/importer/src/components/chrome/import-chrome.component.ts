@@ -60,7 +60,6 @@ type LoginImportResult = {
 @Component({
   selector: "import-chrome",
   templateUrl: "import-chrome.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

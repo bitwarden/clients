@@ -98,7 +98,6 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
 @Component({
   selector: "tools-send-details",
   templateUrl: "./send-details.component.html",
-  standalone: true,
   imports: [
     SectionComponent,
     SectionHeaderComponent,

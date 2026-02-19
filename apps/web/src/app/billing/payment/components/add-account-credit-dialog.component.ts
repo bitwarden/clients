@@ -125,7 +125,6 @@ const positiveNumberValidator =
       <input type="hidden" name="item_number" value="{{ payPalSubject }}" />
     </form>
   `,
-  standalone: true,
   imports: [SharedModule],
   providers: [SubscriberBillingClient],
 })

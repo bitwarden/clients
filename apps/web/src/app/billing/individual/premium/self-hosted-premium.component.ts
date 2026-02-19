@@ -26,7 +26,6 @@ import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./self-hosted-premium.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SectionComponent,

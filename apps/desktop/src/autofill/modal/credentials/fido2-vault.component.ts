@@ -40,7 +40,6 @@ import {
 } from "../../services/desktop-fido2-user-interface.service";
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

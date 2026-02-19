@@ -32,7 +32,6 @@ import { MaskedPaymentMethod } from "../types";
       </form>
     </bit-callout>
   `,
-  standalone: true,
   imports: [SharedModule],
   providers: [SubscriberBillingClient],
 })

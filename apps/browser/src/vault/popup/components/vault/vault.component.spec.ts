@@ -57,7 +57,6 @@ import { VaultComponent } from "./vault.component";
 
 @Component({
   selector: "popup-header",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -67,7 +66,6 @@ export class PopupHeaderStubComponent {
 
 @Component({
   selector: "app-vault-header",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -75,7 +73,6 @@ export class VaultHeaderStubComponent {}
 
 @Component({
   selector: "app-current-account",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -83,7 +80,6 @@ class CurrentAccountStubComponent {}
 
 @Component({
   selector: "app-new-item-dropdown",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -93,7 +89,6 @@ class NewItemDropdownStubComponent {
 
 @Component({
   selector: "app-pop-out",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -101,7 +96,6 @@ class PopOutStubComponent {}
 
 @Component({
   selector: "blocked-injection-banner",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -109,7 +103,6 @@ class BlockedInjectionBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -117,7 +110,6 @@ class VaultAtRiskCalloutStubComponent {}
 
 @Component({
   selector: "app-autofill-vault-list-items",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -125,7 +117,6 @@ class AutofillVaultListItemsStubComponent {}
 
 @Component({
   selector: "app-vault-list-items-container",
-  standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

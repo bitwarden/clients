@@ -36,7 +36,6 @@ const DEFAULT_ORDER = 999;
 
 @Pipe({
   name: "policyOrder",
-  standalone: true,
 })
 export class PolicyOrderPipe implements PipeTransform {
   transform(

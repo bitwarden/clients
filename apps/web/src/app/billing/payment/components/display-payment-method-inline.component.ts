@@ -113,7 +113,6 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
       }
     </bit-section>
   `,
-  standalone: true,
   imports: [SharedModule, EnterPaymentMethodComponent, IconComponent],
   providers: [SubscriberBillingClient],
 })

@@ -8,7 +8,6 @@ import { ButtonModule, LinkModule } from "@bitwarden/components";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-phishing-protected-by",
-  standalone: true,
   templateUrl: "protected-by-component.html",
   imports: [CommonModule, CommonModule, JslibModule, ButtonModule, LinkModule],
 })

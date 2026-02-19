@@ -41,7 +41,6 @@ import { OrganizationPlansComponent } from "./organization-plans.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-org-info",
   template: "",
-  standalone: true,
 })
 class MockOrgInfoComponent {
   @Input() formGroup: any;
@@ -55,7 +54,6 @@ class MockOrgInfoComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "sm-subscribe",
   template: "",
-  standalone: true,
 })
 class MockSmSubscribeComponent {
   @Input() formGroup: any;
@@ -67,7 +65,6 @@ class MockSmSubscribeComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-enter-payment-method",
   template: "",
-  standalone: true,
 })
 class MockEnterPaymentMethodComponent {
   @Input() group: any;
@@ -99,7 +96,6 @@ class MockEnterPaymentMethodComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-enter-billing-address",
   template: "",
-  standalone: true,
 })
 class MockEnterBillingAddressComponent {
   @Input() group: any;
@@ -122,7 +118,6 @@ class MockEnterBillingAddressComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "organization-self-hosting-license-uploader",
   template: "",
-  standalone: true,
 })
 class MockOrganizationSelfHostingLicenseUploaderComponent {
   @Output() onLicenseFileUploaded = new EventEmitter<string>();

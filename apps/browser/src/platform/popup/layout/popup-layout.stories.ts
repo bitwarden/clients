@@ -60,7 +60,6 @@ class ExtensionContainerComponent {}
       <ng-content></ng-content>
     </div>
   `,
-  standalone: true,
 })
 class ExtensionPoppedContainerComponent {}
 

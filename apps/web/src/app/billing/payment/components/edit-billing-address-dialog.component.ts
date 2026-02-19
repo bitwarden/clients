@@ -77,7 +77,6 @@ type DialogResult =
       </bit-dialog>
     </form>
   `,
-  standalone: true,
   imports: [EnterBillingAddressComponent, SharedModule],
   providers: [SubscriberBillingClient],
 })

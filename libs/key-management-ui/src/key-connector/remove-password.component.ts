@@ -27,7 +27,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "km-ui-remove-password",
   templateUrl: "remove-password.component.html",
-  standalone: true,
   imports: [CommonModule, ButtonModule, I18nPipe, BitActionDirective, IconButtonModule],
 })
 export class RemovePasswordComponent implements OnInit {

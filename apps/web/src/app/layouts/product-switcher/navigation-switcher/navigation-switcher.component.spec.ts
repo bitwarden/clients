@@ -23,7 +23,6 @@ import { NavigationProductSwitcherComponent } from "./navigation-switcher.compon
 @Component({
   selector: "app-upgrade-nav-button",
   template: "<div>Upgrade Nav Button</div>",
-  standalone: true,
 })
 class MockUpgradeNavButtonComponent {}
 

@@ -20,7 +20,6 @@ import {
   selector: "app-upgrade-nav-button",
   imports: [I18nPipe],
   templateUrl: "./upgrade-nav-button.component.html",
-  standalone: true,
 })
 export class UpgradeNavButtonComponent {
   private dialogService = inject(DialogService);

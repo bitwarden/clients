@@ -70,7 +70,6 @@ import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dial
       </button>
     </bit-section>
   `,
-  standalone: true,
   imports: [SharedModule],
 })
 export class DisplayPaymentMethodComponent {

@@ -32,7 +32,6 @@ import {
 @Component({
   selector: "app-upgrade-account",
   template: "",
-  standalone: true,
   providers: [UpgradeAccountComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -46,7 +45,6 @@ class MockUpgradeAccountComponent {
 @Component({
   selector: "app-upgrade-payment",
   template: "",
-  standalone: true,
   providers: [UpgradePaymentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

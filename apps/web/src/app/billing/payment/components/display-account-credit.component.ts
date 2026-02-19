@@ -23,7 +23,6 @@ import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.com
       </button>
     </bit-section>
   `,
-  standalone: true,
   imports: [SharedModule],
   providers: [SubscriberBillingClient, CurrencyPipe],
 })
