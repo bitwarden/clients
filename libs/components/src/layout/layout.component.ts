@@ -7,7 +7,6 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   ElementRef,
   inject,
   input,
@@ -87,12 +86,6 @@ export class LayoutComponent {
   private readonly containerWidthPx = signal(0);
 
   /**
-   * Whether there is enough horizontal space to show the side nav in push mode.
-   * Set by the ResizeObserver. When false the nav switches to overlay.
-   */
-  private readonly navIsPushMode = signal(false);
-
-  /**
    * Whether the siderail (closed-nav icon strip) fits in its own column.
    * Has a lower threshold than full-nav isPushMode because the siderail is
    * much narrower — it should remain visible on intermediate viewport widths.
@@ -134,7 +127,7 @@ export class LayoutComponent {
    */
   protected readonly gridTemplateColumns = computed(() => {
     const navOpen = this.sideNavService.open();
-    const navPush = this.navIsPushMode();
+    const navPush = this.sideNavService.isPushMode();
     const siderailPush = this.siderailIsPushMode();
 
     // --- Drawer push/shrink/overlay ---
@@ -192,11 +185,6 @@ export class LayoutComponent {
   });
 
   constructor() {
-    // Keep the service's isOverlay signal in sync so SideNavComponent can read it.
-    effect(() => {
-      this.sideNavService.isOverlay.set(this.sideNavService.open() && !this.navIsPushMode());
-    });
-
     afterNextRender(() => {
       const container = this.container().nativeElement;
       const drawerContainer = this.drawerContainer().nativeElement;
@@ -282,10 +270,10 @@ export class LayoutComponent {
         // Only close the nav when it is transitioning out of push mode.  If
         // the nav is already in overlay (isPushMode was already false), let it
         // remain open — it is intentionally overlaying the main content.
-        if (!navPush && this.sideNavService.open() && this.navIsPushMode()) {
+        if (!navPush && this.sideNavService.open() && this.sideNavService.isPushMode()) {
           this.sideNavService.open.set(false);
         }
-        this.navIsPushMode.set(navPush);
+        this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);
       };

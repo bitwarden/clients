@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
@@ -25,10 +25,15 @@ export class SideNavService {
   readonly open = signal(false);
 
   /**
-   * True when the nav is open but not in push mode — it overlays the content.
-   * Computed and maintained by LayoutComponent.
+   * Whether the nav is in push mode (occupies its own grid column).
+   * Set by LayoutComponent via ResizeObserver.
    */
-  readonly isOverlay = signal(false);
+  readonly isPushMode = signal(false);
+
+  /**
+   * True when the nav is open but not in push mode — it overlays the content.
+   */
+  readonly isOverlay = computed(() => this.open() && !this.isPushMode());
 
   /**
    * Local component state width
