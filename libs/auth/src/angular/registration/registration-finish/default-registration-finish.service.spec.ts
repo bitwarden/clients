@@ -84,6 +84,7 @@ describe("DefaultRegistrationFinishService", () => {
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",
+        salt: email,
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
@@ -149,6 +150,8 @@ describe("DefaultRegistrationFinishService", () => {
       let masterPasswordUnlock: MasterPasswordUnlockData;
 
       beforeEach(() => {
+        salt = "test@email.com" as MasterPasswordSalt;
+
         // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
         // and does NOT emit newMasterKey, newServerMasterKeyHash, or newLocalMasterKeyHash.
         passwordInputResult = {
@@ -156,12 +159,12 @@ describe("DefaultRegistrationFinishService", () => {
           kdfConfig: DEFAULT_KDF_CONFIG,
           newPasswordHint: "newPasswordHint",
           newApisWithInputPasswordFlagEnabled: true,
+          salt: salt,
         };
 
         // The service derives the master key internally when the Auth flag is ON
         keyService.makeMasterKey.mockResolvedValue(masterKey);
 
-        salt = "salt" as MasterPasswordSalt;
         masterPasswordAuthentication = {
           salt,
           kdf: DEFAULT_KDF_CONFIG,

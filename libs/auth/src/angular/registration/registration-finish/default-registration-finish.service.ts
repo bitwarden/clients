@@ -80,6 +80,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       const ctx = "Could not finish registration.";
       assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
       assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+      assertNonNullish(passwordInputResult.salt, "salt", ctx);
       assertTruthy(email, "email", ctx);
 
       const newMasterKey = await this.keyService.makeMasterKey(
