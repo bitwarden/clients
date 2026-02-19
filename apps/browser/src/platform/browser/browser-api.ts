@@ -497,7 +497,7 @@ export class BrowserApi {
       }
 
       const tabs = contexts.filter(
-        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=sidebar"),
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
       );
       for (const context of tabs) {
         const win = await BrowserApi.getWindowById(context.windowId);
