@@ -79,7 +79,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     private domQueryService: DomQueryService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
   ) {
-    let inputQuery = "input:not([data-bwignore])";
+    let inputQuery = "input:not([data-bwignore], [autocomplete=off])";
     for (const type of this.ignoredInputTypes) {
       inputQuery += `:not([type="${type}"])`;
     }
