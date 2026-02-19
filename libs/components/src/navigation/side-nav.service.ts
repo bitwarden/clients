@@ -1,8 +1,10 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
+
+import { getRootFontSizePx } from "../shared";
 
 const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
   deserializer: (s) => s,
@@ -49,6 +51,9 @@ export class SideNavService {
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
 
+  /** Current nav width as a signal, for use in grid column calculations. */
+  readonly widthRem = toSignal(this.width$, { initialValue: this.DEFAULT_OPEN_WIDTH });
+
   /**
    * State provider width
    *
@@ -62,7 +67,7 @@ export class SideNavService {
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
-    this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
+    this.rootFontSizePx = getRootFontSizePx();
 
     // Initialize the resizable width from state provider
     this.widthState$.pipe(first()).subscribe((width: number) => {

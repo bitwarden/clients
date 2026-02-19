@@ -13,7 +13,6 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 
 import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
@@ -71,14 +70,6 @@ export class LayoutComponent {
   private readonly drawerContainer = viewChild.required<ElementRef<HTMLElement>>("drawerContainer");
 
   /**
-   * Current nav width as a signal, sourced from the resizable width observable.
-   * Used to set the nav grid column track width.
-   */
-  private readonly navWidthRem = toSignal(this.sideNavService.width$, {
-    initialValue: this.sideNavService.DEFAULT_OPEN_WIDTH,
-  });
-
-  /**
    * Container width in px, updated by the ResizeObserver on every layout change.
    * Exposed as a signal so gridTemplateColumns can reactively compute push vs
    * overlay for the drawer without waiting for a ResizeObserver tick.
@@ -91,24 +82,6 @@ export class LayoutComponent {
    * much narrower — it should remain visible on intermediate viewport widths.
    */
   protected readonly siderailIsPushMode = signal(false);
-
-  /**
-   * Minimum drawer push width in px (= small drawer size × root font size).
-   * Set by the ResizeObserver so it scales with the user's font preference.
-   */
-  private readonly drawerMinPushWidthPx = signal(0);
-
-  /**
-   * Siderail width in px (= SIDERAIL_WIDTH_REM × root font size).
-   * Set by the ResizeObserver so it scales with the user's font preference.
-   */
-  private readonly siderailWidthPx = signal(SIDERAIL_WIDTH_REM * getRootFontSizePx());
-
-  /**
-   * Main content minimum width in px (= MAIN_MIN_WIDTH_REM × root font size).
-   * Set by the ResizeObserver so it scales with the user's font preference.
-   */
-  private readonly mainMinWidthPx = signal(MAIN_MIN_WIDTH_REM * getRootFontSizePx());
 
   /**
    * The CSS grid-template-columns value for the three-panel layout.
@@ -134,6 +107,10 @@ export class LayoutComponent {
     const drawerActive = this.drawerIsActive();
     const declaredDrawerWidth = this.drawerService.pushWidthPx();
     const containerWidth = this.containerWidthPx();
+    const rootFontSizePx = getRootFontSizePx();
+    const siderailWidthPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
+    const drawerMinWidthPx = drawerSizeToWidthRem.small * rootFontSizePx;
+    const mainMinWidthPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
 
     // Push vs overlay: switch to overlay only when the minimum push width won't fit.
     // The shrink zone between the declared max-width and the minimum is handled
@@ -149,9 +126,7 @@ export class LayoutComponent {
     if (!drawerActive) {
       drawerPush = false;
     } else if (declaredDrawerWidth > 0 && containerWidth > 0) {
-      drawerPush =
-        containerWidth - this.siderailWidthPx() - this.drawerMinPushWidthPx() >=
-        this.mainMinWidthPx();
+      drawerPush = containerWidth - siderailWidthPx - drawerMinWidthPx >= mainMinWidthPx;
     } else {
       drawerPush = this.drawerService.isPushMode();
     }
@@ -162,7 +137,7 @@ export class LayoutComponent {
     // stable without needing an explicit px value here.
     const col1 =
       navOpen && navPush
-        ? `${this.navWidthRem()}rem` // full nav, push+open
+        ? `${this.sideNavService.widthRem()}rem` // full nav, push+open
         : navPush || siderailPush
           ? "auto" // siderail in flow, size naturally
           : "0px"; // viewport too narrow even for siderail
@@ -179,7 +154,7 @@ export class LayoutComponent {
         : declaredDrawerWidth > 0
           ? `minmax(0px, ${declaredDrawerWidth}px)`
           : "auto"; // fallback before dialog's effect declares its width
-    const col2 = !drawerActive || drawerPush ? `minmax(${this.mainMinWidthPx()}px, 1fr)` : "0px";
+    const col2 = !drawerActive || drawerPush ? `minmax(${mainMinWidthPx}px, 1fr)` : "0px";
 
     return `${col1} ${col2} ${col3}`;
   });
@@ -194,12 +169,10 @@ export class LayoutComponent {
         const containerWidth = container.clientWidth;
         const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
         const mainMinPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
-        this.containerWidthPx.set(containerWidth);
-        this.drawerMinPushWidthPx.set(drawerSizeToWidthRem.small * rootFontSizePx);
-        this.siderailWidthPx.set(siderailPx);
-        this.mainMinWidthPx.set(mainMinPx);
-        const navWidthPx = this.navWidthRem() * rootFontSizePx;
+        const navWidthPx = this.sideNavService.widthRem() * rootFontSizePx;
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
+
+        this.containerWidthPx.set(containerWidth);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
@@ -230,33 +203,17 @@ export class LayoutComponent {
         // When the drawer is open and space is limited, the full nav yields first —
         // it closes to its siderail so the drawer can remain in push mode.  When even
         // the minimum push width doesn't fit, the drawer goes overlay.
-        let navPush: boolean;
-        let drawerPush: boolean;
-
-        if (drawerFullWidthNavCanPush) {
-          // Plenty of room: full nav and drawer both push at full width.
-          navPush = true;
-          drawerPush = true;
-        } else if (drawerFullWidthSiderailCanPush) {
-          // Full-width drawer fits with just the siderail: collapse the full nav.
-          navPush = false;
-          drawerPush = true;
-        } else if (drawerMinWithNavCanPush) {
-          // Shrink push with full nav: drawer narrows to fit alongside full nav + main.
-          navPush = true;
-          drawerPush = true;
-        } else if (drawerMinWithSiderailCanPush) {
-          // Shrink push with siderail: drawer narrows; nav collapses to siderail.
-          navPush = false;
-          drawerPush = true;
-        } else {
-          // Drawer can't push even at minimum width.
-          // If the drawer is active (overlay), force nav to overlay too so it
-          // doesn't squeeze the drawer's 1fr column.  Without a drawer, fall
-          // back to nav-first priority.
-          navPush = drawerWidthPx > 0 ? false : navAloneCanPush;
-          drawerPush = false;
-        }
+        // drawerPush: true if the drawer fits at any width (full or shrunk) alongside either nav or siderail.
+        // navPush: true if the full nav fits alongside the drawer; false if only the siderail fits.
+        //          When no drawer is active, falls back to navAloneCanPush.
+        const drawerPush =
+          drawerFullWidthNavCanPush ||
+          drawerFullWidthSiderailCanPush ||
+          drawerMinWithNavCanPush ||
+          drawerMinWithSiderailCanPush;
+        const navPush = drawerPush
+          ? drawerFullWidthNavCanPush || drawerMinWithNavCanPush
+          : navAloneCanPush && drawerWidthPx === 0;
 
         // In shrink-push mode the drawer occupies less than its declared max, so use
         // the actual available space as the effective drawer width for the siderail check.
