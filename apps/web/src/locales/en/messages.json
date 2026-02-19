@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Edited user $ID$.",
     "placeholders": {
@@ -6141,6 +6150,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "I accept these risks and policy updates"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Remove individual vault"
