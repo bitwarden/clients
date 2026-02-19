@@ -267,12 +267,23 @@ export class LayoutComponent {
           ? containerWidth - siderailPx - drawerEffectivePx >= mainMinPx
           : containerWidth - siderailPx >= mainMinPx;
 
-        // Only close the nav when it is transitioning out of push mode.  If
-        // the nav is already in overlay (isPushMode was already false), let it
-        // remain open — it is intentionally overlaying the main content.
-        if (!navPush && this.sideNavService.open() && this.sideNavService.isPushMode()) {
+        const wasInPushMode = this.sideNavService.isPushMode();
+
+        // Transitioning out of push mode → close the nav.
+        // (If already in overlay and open, leave it — it's intentionally overlaying content.)
+        if (!navPush && this.sideNavService.open() && wasInPushMode) {
           this.sideNavService.open.set(false);
         }
+
+        // Transitioning into push mode → reopen unless the user explicitly closed it.
+        if (
+          navPush &&
+          !wasInPushMode &&
+          this.sideNavService.userCollapsePreference() !== "closed"
+        ) {
+          this.sideNavService.open.set(true);
+        }
+
         this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);

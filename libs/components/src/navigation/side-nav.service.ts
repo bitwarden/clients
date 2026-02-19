@@ -36,6 +36,12 @@ export class SideNavService {
   readonly isOverlay = computed(() => this.open() && !this.isPushMode());
 
   /**
+   * Explicit user preference for open/closed state, set when the user manually
+   * toggles the nav. Null means no preference (auto-open when push mode allows).
+   */
+  readonly userCollapsePreference = signal<"open" | "closed" | null>(null);
+
+  /**
    * Local component state width
    *
    * This observable has immediate pixel-perfect updates for the sidebar display width to use
@@ -73,6 +79,7 @@ export class SideNavService {
    * Toggle the open/close state of the side nav
    */
   toggle() {
+    this.userCollapsePreference.set(this.open() ? "closed" : "open");
     this.open.set(!this.open());
   }
 
