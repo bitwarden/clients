@@ -3,13 +3,12 @@ import { Router, UrlTree } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
-
-import { AutomaticUserConfirmationService } from "../abstractions";
 
 import { canAccessAutoConfirmSettings } from "./automatic-user-confirmation-settings.guard";
 

@@ -46,7 +46,7 @@
           <div>
             @if (appsCount > 0) {
               <div class="tw-text-main tw-max-w-4xl tw-mb-2">
-                {{ "reviewAtRiskPasswords" | i18n }}
+                {{ "reviewAccessIntelligence" | i18n }}
               </div>
             }
             <div
@@ -85,20 +85,22 @@
                 <bit-tab label="{{ 'applications' | i18n }}">
                   <dirt-applications></dirt-applications>
                 </bit-tab>
+              } @else {
+                <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
+                  <dirt-all-applications></dirt-all-applications>
+                </bit-tab>
+                <bit-tab>
+                  <ng-template bitTabLabel>
+                    <i class="bwi bwi-star"></i>
+                    {{
+                      "criticalApplicationsWithCount"
+                        | i18n
+                          : (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
+                    }}
+                  </ng-template>
+                  <dirt-critical-applications></dirt-critical-applications>
+                </bit-tab>
               }
-              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
-                <dirt-all-applications></dirt-all-applications>
-              </bit-tab>
-              <bit-tab>
-                <ng-template bitTabLabel>
-                  <i class="bwi bwi-star"></i>
-                  {{
-                    "criticalApplicationsWithCount"
-                      | i18n: (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
-                  }}
-                </ng-template>
-                <dirt-critical-applications></dirt-critical-applications>
-              </bit-tab>
             </bit-tab-group>
           </div>
         </div>

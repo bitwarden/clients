@@ -213,7 +213,7 @@ export class ArchiveComponent {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemUnarchived"),
+      message: this.i18nService.t("itemUnarchivedToast"),
     });
   }
 
