@@ -166,7 +166,9 @@ impl PluginAddAuthenticatorOptions {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WebAuthnPluginAddAuthenticatorResponse {
+    /// Size in bytes of the public key pointed to by `pbOpSignPubKey`.
     cbOpSignPubKey: u32,
+    /// Pointer to a [BCRYPT_KEY_BLOB](windows::Win32::Security::Cryptography::BCRYPT_KEY_BLOB).
     pbOpSignPubKey: *mut u8,
 }
 
@@ -217,14 +219,27 @@ impl Drop for PluginAddAuthenticatorResponse {
 }
 
 webauthn_call!("WebAuthNPluginAddAuthenticator" as
+/// Register authenticator info for a plugin COM server.
+/// 
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments
+/// - `pPluginAddAuthenticatorOptions`: Details about the authenticator to set.
+/// - `ppPluginAddAuthenticatorResponse`:
+///    An indirect pointer to a [WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE], which will be written to on success.
+///    If the request succeeds, the data must be freed by a call to [webauthn_plugin_free_add_authenticator_response].
 fn webauthn_plugin_add_authenticator(
     pPluginAddAuthenticatorOptions: *const WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
     ppPluginAddAuthenticatorResponse: *mut *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE
 ) -> HRESULT);
 
 webauthn_call!("WebAuthNPluginFreeAddAuthenticatorResponse" as
+/// Free memory from a [WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE].
+/// 
+/// # Arguments
+/// - `pPluginAddAuthenticatorResponse`: An pointer to a [WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE] to be freed.
 fn webauthn_plugin_free_add_authenticator_response(
-    pPluginAddAuthenticatorOptions: *mut WebAuthnPluginAddAuthenticatorResponse
+    pPluginAddAuthenticatorResponse: *mut WebAuthnPluginAddAuthenticatorResponse
 ) -> ());
 
 // Credential syncing types
@@ -271,15 +286,34 @@ pub struct PluginCredentialDetails {
     pub user_display_name: String,
 }
 
-webauthn_call!("WebAuthNPluginAuthenticatorAddCredentials" as fn webauthn_plugin_authenticator_add_credentials(
+webauthn_call!("WebAuthNPluginAuthenticatorAddCredentials" as
+/// Add metadata for a list of WebAuthn credentials to the autofill store for
+/// this plugin authenticator.
+/// 
+/// This will make the credentials available for discovery in Windows Hello
+/// WebAuthn autofill dialogs.
+///
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments
+/// - `rclsid`: The CLSID corresponding to this plugin's COM server.
+/// - `cCredentialDetails`: The number of credentials in the array pointed to by `pCredentialDetails`.
+/// - `pCredentialDetails`: An array of credential metadata.
+fn webauthn_plugin_authenticator_add_credentials(
     rclsid: *const GUID,
     cCredentialDetails: u32,
     pCredentialDetails: *const WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS
 ) -> HRESULT);
 
-webauthn_call!("WebAuthNPluginAuthenticatorRemoveAllCredentials" as fn webauthn_plugin_authenticator_remove_all_credentials(
-    rclsid: *const GUID
-) -> HRESULT);
+webauthn_call!("WebAuthNPluginAuthenticatorRemoveAllCredentials" as
+/// Removes metadata for all credentials currently stored in the autofill store
+/// for this plugin authenticator.
+/// 
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments
+/// - `rclsid`: The CLSID corresponding to this plugin's COM server.
+fn webauthn_plugin_authenticator_remove_all_credentials(rclsid: *const GUID) -> HRESULT);
 
 #[repr(C)]
 #[derive(Debug)]
@@ -323,13 +357,34 @@ pub struct PluginUserVerificationResponse {
     pub signature: Vec<u8>,
 }
 
-webauthn_call!("WebAuthNPluginPerformUserVerification" as fn webauthn_plugin_perform_user_verification(
+webauthn_call!("WebAuthNPluginPerformUserVerification" as
+/// Request user verification for a WebAuthn operation.
+/// 
+/// The OS will prompt the user for verification, and if the user is
+/// successfully verified, will write a signature to `ppbResponse`, which must
+/// be freed by a call to [webauthn_plugin_free_user_verification_response].
+/// 
+/// The signature is over the SHA-256 hash of the original WebAuthn operation request buffer
+/// corresponding to `pPluginUserVerification.rguidTransactionId`. It can be
+/// verified using the user verification public key, which can be retrieved
+/// using
+/// [webauthn_plugin_get_user_verification_public_key][crate::plugin::crypto::webauthn_plugin_get_user_verification_public_key].
+///
+/// This request will block while the user interacts with the dialog.
+///
+/// # Arguments
+/// - `pPluginUserVerification`: The user verification prompt and transaction context for the request.
+/// - `pcbResponse`: Length in bytes of the signature.
+/// - `ppbResponse`: The signature of the request.
+fn webauthn_plugin_perform_user_verification(
     pPluginUserVerification: *const WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
     pcbResponse: *mut u32,
     ppbResponse: *mut *mut u8
 ) -> HRESULT);
 
-webauthn_call!("WebAuthNPluginFreeUserVerificationResponse" as fn webauthn_plugin_free_user_verification_response(
+webauthn_call!("WebAuthNPluginFreeUserVerificationResponse" as
+/// Free a user verification response received from a call to [webauthn_plugin_perform_user_verification].
+fn webauthn_plugin_free_user_verification_response(
     pbResponse: *mut u8
 ) -> ());
 
@@ -594,13 +649,32 @@ impl Drop for PluginMakeCredentialRequest {
 }
 
 // Windows API function signatures for decoding make credential requests
-webauthn_call!("WebAuthNDecodeMakeCredentialRequest" as fn webauthn_decode_make_credential_request(
+webauthn_call!("WebAuthNDecodeMakeCredentialRequest" as
+/// Decodes a CTAP CBOR `authenticatorMakeCredential` request.
+///
+/// On success, a [WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST] will be written to
+/// `ppMakeCredentialRequest`, which must be freed by a call to
+/// [webauthn_free_decoded_make_credential_request].
+/// 
+/// # Arguments
+/// - `pbEncoded`: a COM-allocated buffer pointing to a CTAP CBOR make credential request.
+/// - `ppMakeCredentialRequest`: An indirect pointer to a [WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST].
+/// 
+/// # Safety
+/// - `pbEncoded` must have been allocated by Windows COM.
+/// - `pbEncoded` must be non-null and have the length specified in cbEncoded.
+fn webauthn_decode_make_credential_request(
     cbEncoded: u32,
     pbEncoded: *const u8,
     ppMakeCredentialRequest: *mut *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST
 ) -> HRESULT);
 
-webauthn_call!("WebAuthNFreeDecodedMakeCredentialRequest" as fn webauthn_free_decoded_make_credential_request(
+webauthn_call!("WebAuthNFreeDecodedMakeCredentialRequest" as
+/// Frees a decoded make credential request from [webauthn_free_decoded_make_credential_request].
+/// 
+/// # Arguments
+/// - `pMakeCredentialRequest`: An pointer to a [WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST] to be freed.
+fn webauthn_free_decoded_make_credential_request(
     pMakeCredentialRequest: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST
 ) -> ());
 
@@ -823,10 +897,20 @@ impl TryFrom<PluginMakeCredentialResponse> for WEBAUTHN_CREDENTIAL_ATTESTATION {
     }
 }
 
-webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as fn webauthn_encode_make_credential_response(
-    cbEncoded: *const WEBAUTHN_CREDENTIAL_ATTESTATION,
-    pbEncoded: *mut u32,
-    response_bytes: *mut *mut u8
+webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as 
+/// Encode a credential attestation response to a COM-allocated byte buffer
+/// containing a CTAP CBOR `authenticatorMakeCredential` response structure.
+/// 
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments
+/// - `pCredentialAttestation`: A pointer to [WEBAUTHN_CREDENTIAL_ATTESTATION] to encode.
+/// - `pcbResp`: A pointer to a u32, which will be filled with the length of the response buffer.
+/// - `ppbResponse`: An indirect pointer to a byte buffer, which will be written to on succces.
+fn webauthn_encode_make_credential_response(
+    pCredentialAttestation: *const WEBAUTHN_CREDENTIAL_ATTESTATION,
+    pcbResp: *mut u32,
+    ppbResponse: *mut *mut u8
 ) -> HRESULT);
 
 // GetAssertion types
@@ -1044,13 +1128,32 @@ impl Drop for PluginGetAssertionRequest {
 }
 
 // Windows API function signatures for decoding get assertion requests
-webauthn_call!("WebAuthNDecodeGetAssertionRequest" as fn webauthn_decode_get_assertion_request(
+webauthn_call!("WebAuthNDecodeGetAssertionRequest" as
+/// Decodes a CTAP GetAssertion request.
+///
+/// On success, a [WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST] will be written to
+/// `ppGetAssertionRequest`, which must be freed by a call to
+/// [webauthn_free_decoded_get_assertion_request].
+/// 
+/// # Arguments
+/// - `pbEncoded`: a COM-allocated buffer pointing to a CTAP CBOR get assertion request.
+/// - `ppGetAssertionRequest`: An indirect pointer to a [WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST].
+/// 
+/// # Safety
+/// - `pbEncoded` must have been allocated by Windows COM.
+/// - `pbEncoded` must be non-null and have the length specified in cbEncoded.
+fn webauthn_decode_get_assertion_request(
     cbEncoded: u32,
     pbEncoded: *const u8,
     ppGetAssertionRequest: *mut *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST
 ) -> HRESULT);
 
-webauthn_call!("WebAuthNFreeDecodedGetAssertionRequest" as fn webauthn_free_decoded_get_assertion_request(
+webauthn_call!("WebAuthNFreeDecodedGetAssertionRequest" as
+/// Frees a decoded get assertion request from [webauthn_free_decoded_get_assertion_request].
+/// 
+/// # Arguments
+/// - `pGetAssertionRequest`: An pointer to a [WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST] to be freed.
+fn webauthn_free_decoded_get_assertion_request(
     pGetAssertionRequest: *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST
 ) -> ());
 
