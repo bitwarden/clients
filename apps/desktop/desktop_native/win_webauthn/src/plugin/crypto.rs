@@ -6,15 +6,12 @@ use std::{
 
 use windows::{
     core::{GUID, HRESULT, PCWSTR},
-    Win32::{
-        Foundation::E_INVALIDARG,
-        Security::Cryptography::{
-            BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty,
-            BCryptHashData, NCryptImportKey, NCryptOpenStorageProvider, NCryptVerifySignature,
-            BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB, BCRYPT_OBJECT_LENGTH,
-            BCRYPT_PKCS1_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
-            BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE, NCRYPT_FLAGS, NCRYPT_PAD_PKCS1_FLAG,
-        },
+    Win32::Security::Cryptography::{
+        BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty, BCryptHashData,
+        NCryptImportKey, NCryptOpenStorageProvider, NCryptVerifySignature, BCRYPT_HASH_HANDLE,
+        BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB, BCRYPT_OBJECT_LENGTH, BCRYPT_PKCS1_PADDING_INFO,
+        BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM,
+        BCRYPT_SHA256_ALG_HANDLE, NCRYPT_FLAGS, NCRYPT_PAD_PKCS1_FLAG,
     },
 };
 
@@ -33,7 +30,7 @@ webauthn_call!("WebAuthNPluginGetUserVerificationPublicKey" as
 fn webauthn_plugin_get_user_verification_public_key(
     rclsid: *const GUID,
     pcbPublicKey: *mut u32,
-    ppbPublicKey: *mut *mut u8
+    ppbPublicKey: *mut *mut BCRYPT_KEY_BLOB,
 ) -> HRESULT); // Free using WebAuthNPluginFreePublicKeyResponse
 
 webauthn_call!("WebAuthNPluginGetOperationSigningPublicKey" as
@@ -49,16 +46,16 @@ webauthn_call!("WebAuthNPluginGetOperationSigningPublicKey" as
 fn webauthn_plugin_get_operation_signing_public_key(
     rclsid: *const GUID,
     pcbOpSignPubKey: *mut u32,
-    ppbOpSignPubKey: *mut *mut u8
+    ppbOpSignPubKey: *mut *mut BCRYPT_KEY_BLOB
 ) -> HRESULT); // Free using WebAuthNPluginFreePublicKeyResponse
 
 webauthn_call!("WebAuthNPluginFreePublicKeyResponse" as
 /// Free public key memory retrieved from the OS.
 ///
 /// # Arguments
-/// - `pbOpSignPubKey`: A pointer to a [BCRYPT_PUBLIC_KEY_BLOB] retrieved from a method in this library.
+/// - `pbOpSignPubKey`: A pointer to a [BCRYPT_KEY_BLOB] retrieved from a method in this library.
 fn webauthn_plugin_free_public_key_response(
-        pbOpSignPubKey: *mut u8
+        pbOpSignPubKey: *mut BCRYPT_KEY_BLOB
     ) -> ());
 
 /// Retrieve the public key used to verify plugin operation reqeusts from the OS.
@@ -67,7 +64,7 @@ fn webauthn_plugin_free_public_key_response(
 /// - `clsid`: The CLSID corresponding to this plugin's COM server.
 pub(super) fn get_operation_signing_public_key(
     clsid: &GUID,
-) -> Result<SigningKey, WinWebAuthnError> {
+) -> Result<VerifyingKey, WinWebAuthnError> {
     let mut len = 0;
     let mut uninit = MaybeUninit::uninit();
     let data = unsafe {
@@ -85,7 +82,7 @@ pub(super) fn get_operation_signing_public_key(
     };
 
     match NonNull::new(data) {
-        Some(data) => Ok(SigningKey {
+        Some(data) => Ok(VerifyingKey {
             cbPublicKey: len,
             pbPublicKey: data,
         }),
@@ -102,7 +99,7 @@ pub(super) fn get_operation_signing_public_key(
 /// - `clsid`: The CLSID corresponding to this plugin's COM server.
 pub(super) fn get_user_verification_public_key(
     clsid: &GUID,
-) -> Result<SigningKey, WinWebAuthnError> {
+) -> Result<VerifyingKey, WinWebAuthnError> {
     let mut len = 0;
     let mut data = MaybeUninit::uninit();
     // SAFETY: We check the OS error code before using the written pointer.
@@ -117,7 +114,7 @@ pub(super) fn get_user_verification_public_key(
                 )
             })?;
         match NonNull::new(data.assume_init()) {
-            Some(data) => Ok(SigningKey {
+            Some(data) => Ok(VerifyingKey {
                 cbPublicKey: len,
                 pbPublicKey: data,
             }),
@@ -131,7 +128,7 @@ pub(super) fn get_user_verification_public_key(
 
 /// Verify a public key signature over a hash using Windows Crypto APIs.
 fn verify_signature(
-    public_key: &SigningKey,
+    public_key: &VerifyingKey,
     hash: &[u8],
     signature: &[u8],
 ) -> Result<(), windows::core::Error> {
@@ -158,12 +155,6 @@ fn verify_signature(
         )?;
         let key_handle = key_handle.assume_init();
 
-        tracing::debug!("Trying to read public key slice as key blob");
-        let public_key = public_key.as_ref();
-        if public_key.len() < size_of::<BCRYPT_KEY_BLOB>() {
-            return Err(windows::core::Error::from_hresult(E_INVALIDARG));
-        }
-
         // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
         // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
         //
@@ -175,7 +166,7 @@ fn verify_signature(
         // operations is not documented, but we have observed at least RSA
         // public keys being used. For forward compatibility, we'll implement
         // RSA, P-256, P-384 and P-512.
-        let key_blob: &BCRYPT_KEY_BLOB = &*public_key.as_ptr().cast();
+        let key_blob = public_key.pbPublicKey.as_ref();
         tracing::debug!("  got key magic: {}", key_blob.Magic);
         let (padding_info, cng_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
             tracing::debug!("Detected RSA key, adding PKCS1 padding");
@@ -302,15 +293,15 @@ impl Drop for BcryptHash {
     }
 }
 
-/// Signing key for an operation request or user verification response buffer.
-pub struct SigningKey {
+/// Public key for verifying a signature over an operation request or user verification response buffer.
+pub struct VerifyingKey {
     /// Length of buffer
     cbPublicKey: u32,
     /// Pointer to a [BCRYPT_KEY_BLOB]
-    pbPublicKey: NonNull<u8>,
+    pbPublicKey: NonNull<BCRYPT_KEY_BLOB>,
 }
 
-impl SigningKey {
+impl VerifyingKey {
     /// Verifies a signature over some data with the associated public key.
     pub fn verify_signature(&self, data: &[u8], signature: &[u8]) -> Result<(), WinWebAuthnError> {
         verify_signature(self, data, signature).map_err(|err| {
@@ -323,7 +314,7 @@ impl SigningKey {
     }
 }
 
-impl Drop for SigningKey {
+impl Drop for VerifyingKey {
     fn drop(&mut self) {
         unsafe {
             _ = webauthn_plugin_free_public_key_response(self.pbPublicKey.as_mut());
@@ -331,11 +322,11 @@ impl Drop for SigningKey {
     }
 }
 
-impl AsRef<[u8]> for SigningKey {
+impl AsRef<[u8]> for VerifyingKey {
     fn as_ref(&self) -> &[u8] {
         // SAFETY: We only support platforms where usize >= 32-bts
         let len = self.cbPublicKey as usize;
         // SAFETY: This pointer was given to us from Windows, so we trust it.
-        unsafe { std::slice::from_raw_parts(self.pbPublicKey.as_ptr(), len) }
+        unsafe { std::slice::from_raw_parts(self.pbPublicKey.as_ptr().cast(), len) }
     }
 }
