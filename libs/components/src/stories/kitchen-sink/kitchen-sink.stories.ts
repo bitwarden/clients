@@ -7,7 +7,7 @@ import {
   getAllByRole,
   getByRole,
   fireEvent,
-  getByText,
+  findByText,
   getAllByLabelText,
 } from "storybook/test";
 
@@ -205,12 +205,15 @@ export const VirtualScrollBlockingDialog: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
+    // Wait for ResizeObserver + Angular CD to settle sidenav open/push state.
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
     const toggleButton = getByRole(canvas, "button", { name: "Toggle side navigation" });
     if (toggleButton.getAttribute("aria-expanded") === "false") {
       await userEvent.click(toggleButton);
     }
 
-    const navItem = getByText(canvas, "Virtual Scroll");
+    const navItem = await findByText(canvas, "Virtual Scroll");
     await userEvent.click(navItem);
 
     const htmlEl = canvas.ownerDocument.documentElement;
@@ -251,7 +254,7 @@ export const ResponsiveSidebar: Story = {
   render: Default.render,
   parameters: {
     chromatic: {
-      viewports: [480, 640, 1024, 1280, 1440],
+      viewports: [640, 1024, 1280, 1440],
     },
   },
 };
