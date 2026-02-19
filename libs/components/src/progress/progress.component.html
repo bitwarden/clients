@@ -9,19 +9,19 @@
     </div>
     <div>
       <div class="tw-pe-1">{{ label() }}</div>
-      <div [ngClass]="outerBarStyles">
+      <div [class]="outerBarStyles">
         <div
-          [ngClass]="innerBarStyles"
+          [class]="innerBarStyles"
           role="progressbar"
           aria-valuemin="0"
           aria-valuemax="100"
           attr.aria-valuenow="{{ progressAmount() }}"
-          [ngStyle]="{ width: progressAmount() + '%' }"
+          [style]="{ width: progressAmount() + '%' }"
         ></div>
       </div>
-      <div class="tw-text-sm tw-text-fg-body">
-        <span>{{ startText() }}</span>
-        <span class="tw-float-right">{{ endText() }}</span>
+      <div class="tw-flex tw-text-sm tw-text-fg-body">
+        <span class="tw-mr-auto">{{ startText() }}</span>
+        <span class="tw-ml-auto">{{ endText() }}</span>
       </div>
     </div>
   </div>
