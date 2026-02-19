@@ -1,3 +1,24 @@
+function toURL(input: string | URL): URL | null {
+  if (input instanceof URL) {
+    return input;
+  }
+  try {
+    return new URL(input);
+  } catch {
+    return null;
+  }
+}
+
+function effectiveOrigin(url: URL): string | null {
+  // The URL spec returns "null" for .origin on non-special schemes
+  // (e.g. chrome-extension://) so we build the origin from protocol + host instead.
+  // An empty host means no meaningful origin can be compared (file:, data:, etc.).
+  if (!url.host) {
+    return null;
+  }
+  return `${url.protocol}//${url.host}`;
+}
+
 /**
  * Compares two URLs to determine whether the suspect URL originates from the
  * same host as the canonical URL.
@@ -14,27 +35,6 @@
  * @returns `true` if both URLs share the same scheme, host, and port; `false` otherwise.
  */
 export function urlOriginsMatch(canonical: string | URL, suspect: string | URL): boolean {
-  function toURL(input: string | URL): URL | null {
-    if (input instanceof URL) {
-      return input;
-    }
-    try {
-      return new URL(input);
-    } catch {
-      return null;
-    }
-  }
-
-  function effectiveOrigin(url: URL): string | null {
-    // The URL spec returns "null" for .origin on non-special schemes
-    // (e.g. chrome-extension://) so we build the origin from protocol + host instead.
-    // An empty host means no meaningful origin can be compared (file:, data:, etc.).
-    if (!url.host) {
-      return null;
-    }
-    return `${url.protocol}//${url.host}`;
-  }
-
   const canonicalUrl = toURL(canonical);
   const suspectUrl = toURL(suspect);
 
