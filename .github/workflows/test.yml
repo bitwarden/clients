@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - "**"
 
 permissions:
   contents: read
@@ -15,7 +14,7 @@ permissions:
 
 jobs:
   ci:
-    name: PQP Tests & Coverage
+    name: CI (Lint, Typecheck, Test, Build)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,6 +37,8 @@ jobs:
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- PQP Tests & Coverage ---
 
       - name: Prepare coverage directory
         run: mkdir -p coverage
