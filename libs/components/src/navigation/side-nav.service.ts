@@ -1,12 +1,8 @@
-import { computed, effect, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { inject, Injectable, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
-
-import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
-
-type CollapsePreference = "open" | "closed" | null;
 
 const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
   deserializer: (s) => s,
@@ -26,14 +22,13 @@ export class SideNavService {
   /**
    * Whether the side navigation is open or closed.
    */
-  readonly open = signal(isAtOrLargerThanBreakpoint("md"));
+  readonly open = signal(false);
 
-  private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
-  readonly isLargeScreen = toSignal(this.isLargeScreen$, { requireSync: true });
-
-  readonly userCollapsePreference = signal<CollapsePreference>(null);
-
-  readonly isOverlay = computed(() => this.open() && !this.isLargeScreen());
+  /**
+   * True when the nav is open but not in push mode — it overlays the content.
+   * Computed and maintained by LayoutComponent.
+   */
+  readonly isOverlay = signal(false);
 
   /**
    * Local component state width
@@ -58,16 +53,6 @@ export class SideNavService {
     // Get computed root font size to support user-defined a11y font increases
     this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
 
-    // Handle open/close state
-    effect(() => {
-      if (!this.isLargeScreen()) {
-        this.open.set(false);
-      } else if (this.userCollapsePreference() !== "closed") {
-        // Auto-open when user hasn't set preference (null) or prefers open
-        this.open.set(true);
-      }
-    });
-
     // Initialize the resizable width from state provider
     this.widthState$.pipe(first()).subscribe((width: number) => {
       this._width$.next(width);
@@ -83,9 +68,6 @@ export class SideNavService {
    * Toggle the open/close state of the side nav
    */
   toggle() {
-    // Store user's preference based on what state they're toggling TO
-    this.userCollapsePreference.set(this.open() ? "closed" : "open");
-
     this.open.set(!this.open());
   }
 

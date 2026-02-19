@@ -216,11 +216,36 @@ export const VirtualScrollBlockingDialog: Story = {
   },
 };
 
+export const SideNavOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await userEvent.click(getByRole(canvas, "button", { name: "Toggle side navigation" }));
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280] },
+  },
+};
+
+export const SideNavOpenDrawerOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
+    await userEvent.click(getByRole(canvas, "button", { name: "Toggle side navigation" }));
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280, 1440] },
+  },
+};
+
 export const ResponsiveSidebar: Story = {
   render: Default.render,
   parameters: {
     chromatic: {
-      viewports: [640, 1280],
+      viewports: [480, 640, 1024, 1280, 1440],
     },
   },
 };
