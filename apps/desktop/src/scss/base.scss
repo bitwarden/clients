@@ -121,7 +121,11 @@ div:not(.modal)::-webkit-scrollbar-thumb,
 #bit-side-nav::-webkit-scrollbar-thumb {
   border-radius: 10px;
   margin-right: 1px;
+}
 
+div:not(.modal)::-webkit-scrollbar-thumb,
+.cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
+.vault-filters::-webkit-scrollbar-thumb {
   @include themify($themes) {
     background-color: themed("scrollbarColor");
   }
