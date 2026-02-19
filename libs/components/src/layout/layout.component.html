@@ -1,8 +1,7 @@
 @let mainContentId = "main-content";
 <div
   #container
-  class="tw-grid tw-relative tw-size-full tw-overflow-hidden"
-  style="grid-template-rows: 1fr"
+  class="tw-grid tw-relative tw-size-full tw-overflow-hidden tw-grid-rows-[minmax(0,1fr)]"
   [style.grid-template-columns]="gridTemplateColumns()"
   [class.tw-bg-background-alt3]="rounded()"
   cdkTrapFocus
