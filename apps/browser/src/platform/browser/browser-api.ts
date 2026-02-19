@@ -6,7 +6,7 @@ import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
-import { isBrowserSafariApi } from "@bitwarden/platform";
+import { isBrowserSafariApi, urlOriginsMatch } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
@@ -34,12 +34,20 @@ export class BrowserApi {
   }
 
   /**
-   * Helper method that attempts to distinguish whether a message sender is internal to the extension or not.
+   * Returns `true` if the message sender appears to originate from within this extension.
    *
-   * Currently this is done through source origin matching, and frameId checking (only top-level frames are internal).
-   * @param sender a message sender
-   * @param logger an optional logger to log validation results
-   * @returns whether or not the sender appears to be internal to the extension
+   * Returns `false` when:
+   * - `sender` is absent or has no `origin` property
+   * - The extension's own URL cannot be determined at runtime
+   * - The sender's origin does not match the extension's origin (compared by scheme, host, and port;
+   *   senders without a host such as `file:` or `data:` URLs are always rejected)
+   * - The message comes from a sub-frame rather than the top-level frame
+   *
+   * Note: this is a best-effort check that relies on the browser correctly populating `sender.origin`.
+   *
+   * @param sender - The message sender to validate. `undefined` or a sender without `origin` returns `false`.
+   * @param logger - Optional logger; rejections are reported at `warning` level, acceptance at `info`.
+   * @returns `true` if the sender appears to be internal to the extension; `false` otherwise.
    */
   static senderIsInternal(
     sender: chrome.runtime.MessageSender | undefined,
@@ -49,28 +57,22 @@ export class BrowserApi {
       logger?.warning("[BrowserApi] Message sender has no origin");
       return false;
     }
-    const extensionUrl =
-      (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
-      (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
-      "";
+    // Empty path yields the extension's base URL; coalesce to empty string so the guard below fires on a missing runtime.
+    const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
 
     if (!extensionUrl) {
       logger?.warning("[BrowserApi] Unable to determine extension URL");
       return false;
     }
 
-    // Normalize both URLs by removing trailing slashes
-    const normalizedOrigin = sender.origin.replace(/\/$/, "").toLowerCase();
-    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "").toLowerCase();
-
-    if (!normalizedOrigin.startsWith(normalizedExtensionUrl)) {
+    if (!urlOriginsMatch(extensionUrl, sender.origin)) {
       logger?.warning(
-        `[BrowserApi] Message sender origin (${normalizedOrigin}) does not match extension URL (${normalizedExtensionUrl})`,
+        `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
       );
       return false;
     }
 
-    // We only send messages from the top-level frame, but frameId is only set if tab is set, which for popups it is not.
+    // frameId is absent for popups, so use an 'in' check rather than direct comparison.
     if ("frameId" in sender && sender.frameId !== 0) {
       logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
       return false;
