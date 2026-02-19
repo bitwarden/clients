@@ -105,6 +105,9 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
             grid: {
               display: false,
             },
+            ticks: {
+              maxTicksLimit: 6,
+            },
           },
           y: {
             beginAtZero: true,
