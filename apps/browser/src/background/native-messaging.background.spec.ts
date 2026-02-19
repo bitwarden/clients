@@ -219,6 +219,7 @@ describe("NativeMessagingBackground", () => {
 
           expect(disconnectSpy).toHaveBeenCalled();
           expectDisconnectedState();
+          expect(mockPort.disconnect).toHaveBeenCalled();
         });
 
         it("rejects all pending callbacks with 'disconnected' and clears internal callbacks", async () => {
@@ -269,6 +270,7 @@ describe("NativeMessagingBackground", () => {
 
           expect(disconnectSpy).toHaveBeenCalled();
           expectDisconnectedState();
+          expect(mockPort.disconnect).toHaveBeenCalled();
         });
 
         it("rejects the matching callback with invalidateEncryption error", async () => {
@@ -404,14 +406,20 @@ describe("NativeMessagingBackground", () => {
     });
 
     describe("with mock port", () => {
-      let mockPort: { postMessage: jest.Mock };
+      let mockPort: {
+        postMessage: jest.Mock;
+        disconnect: jest.Mock;
+      };
       const mockEncString = new EncString("2.testIv|testData|testMac");
 
       beforeEach(() => {
         // Restore the postMessage spy set up in the outer beforeEach so the real implementation runs
         jest.restoreAllMocks();
 
-        mockPort = { postMessage: jest.fn() };
+        mockPort = {
+          postMessage: jest.fn(),
+          disconnect: jest.fn(),
+        };
         (sut as any).port = mockPort;
         (sut as any).connected = true;
         (sut as any).appId = mockAppId;
@@ -449,6 +457,7 @@ describe("NativeMessagingBackground", () => {
             "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",
           );
           expectDisconnectedState();
+          expect(mockPort.disconnect).toHaveBeenCalled();
         });
       });
 

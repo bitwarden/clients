@@ -353,9 +353,7 @@ export class NativeMessagingBackground {
         "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",
       );
 
-      this.secureChannel = undefined;
-      this.connected = false;
-      this.connecting = false;
+      this.disconnect();
 
       if (messageId != null && this.callbacks.has(messageId)) {
         this.callbacks.get(messageId)!.rejecter("invalidateEncryption");
