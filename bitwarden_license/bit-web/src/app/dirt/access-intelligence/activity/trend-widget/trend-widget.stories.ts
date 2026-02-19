@@ -52,6 +52,22 @@ export default {
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
+  args: {
+    data: {
+      timeframe: "past-month",
+      dataView: "applications",
+      dataPoints: [
+        { timestamp: "2026-02-13T00:00:00Z", atRisk: 38, total: 165 },
+        { timestamp: "2026-02-14T00:00:00Z", atRisk: 42, total: 168 },
+        { timestamp: "2026-02-15T00:00:00Z", atRisk: 40, total: 170 },
+        { timestamp: "2026-02-16T00:00:00Z", atRisk: 45, total: 172 },
+        { timestamp: "2026-02-17T00:00:00Z", atRisk: 48, total: 175 },
+        { timestamp: "2026-02-18T00:00:00Z", atRisk: 52, total: 178 },
+      ],
+    },
+    loading: false,
+    error: null,
+  },
   argTypes: {
     data: {
       description:
@@ -86,6 +102,28 @@ export default {
 } as Meta<TrendWidgetComponent>;
 
 type Story = StoryObj<TrendWidgetComponent>;
+
+/**
+ * Default example showing typical usage with a week's worth of data.
+ */
+export const Default: Story = {
+  args: {
+    data: {
+      timeframe: "past-month",
+      dataView: "applications",
+      dataPoints: [
+        { timestamp: "2026-02-13T00:00:00Z", atRisk: 38, total: 165 },
+        { timestamp: "2026-02-14T00:00:00Z", atRisk: 42, total: 168 },
+        { timestamp: "2026-02-15T00:00:00Z", atRisk: 40, total: 170 },
+        { timestamp: "2026-02-16T00:00:00Z", atRisk: 45, total: 172 },
+        { timestamp: "2026-02-17T00:00:00Z", atRisk: 48, total: 175 },
+        { timestamp: "2026-02-18T00:00:00Z", atRisk: 52, total: 178 },
+      ],
+    },
+    loading: false,
+    error: null,
+  },
+};
 
 /**
  * Empty state with no data points.
@@ -148,31 +186,9 @@ export const SingleDataPoint: Story = {
 };
 
 /**
- * Six data points showing a week's worth of data.
+ * 24 data points showing a month of daily data with upward trend.
  */
-export const SixDataPoints: Story = {
-  args: {
-    data: {
-      timeframe: "past-month",
-      dataView: "applications",
-      dataPoints: [
-        { timestamp: "2026-02-13T00:00:00Z", atRisk: 38, total: 165 },
-        { timestamp: "2026-02-14T00:00:00Z", atRisk: 42, total: 168 },
-        { timestamp: "2026-02-15T00:00:00Z", atRisk: 40, total: 170 },
-        { timestamp: "2026-02-16T00:00:00Z", atRisk: 45, total: 172 },
-        { timestamp: "2026-02-17T00:00:00Z", atRisk: 48, total: 175 },
-        { timestamp: "2026-02-18T00:00:00Z", atRisk: 52, total: 178 },
-      ],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
- * Thirty data points showing a month of daily data with upward trend.
- */
-export const ThirtyDataPoints: Story = {
+export const TwentyFourDataPoints: Story = {
   args: {
     data: {
       timeframe: "past-month",
@@ -202,12 +218,6 @@ export const ThirtyDataPoints: Story = {
         { timestamp: "2026-02-10T00:00:00Z", atRisk: 170, total: 502 },
         { timestamp: "2026-02-11T00:00:00Z", atRisk: 172, total: 505 },
         { timestamp: "2026-02-12T00:00:00Z", atRisk: 175, total: 508 },
-        { timestamp: "2026-02-13T00:00:00Z", atRisk: 178, total: 510 },
-        { timestamp: "2026-02-14T00:00:00Z", atRisk: 180, total: 512 },
-        { timestamp: "2026-02-15T00:00:00Z", atRisk: 182, total: 515 },
-        { timestamp: "2026-02-16T00:00:00Z", atRisk: 185, total: 518 },
-        { timestamp: "2026-02-17T00:00:00Z", atRisk: 188, total: 520 },
-        { timestamp: "2026-02-18T00:00:00Z", atRisk: 190, total: 522 },
       ],
     },
     loading: false,
