@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
@@ -47,11 +47,13 @@ type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingIn
   imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
+  private readonly inputPasswordComponent = viewChild(InputPasswordComponent);
   private destroy$ = new Subject<void>();
 
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   loading = true;
   submitting = false;
+  pqpAutoSubmitting = false;
   email: string;
 
   /**
@@ -132,7 +134,31 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     // Check PqP status and derive password
     await this.checkPqpStatus();
 
+    // If PqP password is available, auto-submit without showing the password form
+    if (this.pqpDerivedPassword) {
+      this.pqpAutoSubmitting = true;
+    }
+
     this.loading = false;
+
+    // After loading=false, Angular renders InputPasswordComponent (hidden).
+    // ngOnChanges patches the form values. Then we trigger submit.
+    if (this.pqpAutoSubmitting) {
+      setTimeout(async () => {
+        const inputPasswordComponent = this.inputPasswordComponent();
+        if (inputPasswordComponent) {
+          try {
+            await inputPasswordComponent.submit();
+          } catch (e) {
+            this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
+          } finally {
+            this.pqpAutoSubmitting = false;
+          }
+        } else {
+          this.pqpAutoSubmitting = false;
+        }
+      });
+    }
   }
 
   private async checkPqpStatus(): Promise<void> {
