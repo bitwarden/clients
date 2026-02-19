@@ -220,20 +220,54 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    it("returns true if the popup is open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([window]);
+    describe("when chrome.runtime.getContexts is available", () => {
+      beforeEach(() => {
+        (chrome.runtime as any).getContexts = jest.fn();
+      });
 
-      const result = await BrowserApi.isPopupOpen();
+      afterEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
 
-      expect(result).toBe(true);
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false when no POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "TAB", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
     });
 
-    it("returns false if the popup is not open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([]);
+    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
+      beforeEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
 
-      const result = await BrowserApi.isPopupOpen();
+      it("returns true if the popup is open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([window]);
 
-      expect(result).toBe(false);
+        expect(await BrowserApi.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false if the popup is not open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
     });
   });
 
