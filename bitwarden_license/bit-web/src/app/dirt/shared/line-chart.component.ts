@@ -1,11 +1,11 @@
 import {
   ChangeDetectionStrategy,
   OnDestroy,
-  AfterViewInit,
   Component,
   input,
   viewChild,
   ElementRef,
+  effect,
 } from "@angular/core";
 import { Chart, ChartConfiguration, ChartDataset, registerables } from "chart.js";
 import "chartjs-adapter-date-fns";
@@ -37,25 +37,36 @@ export type ChartConfig = {
   templateUrl: "./line-chart.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LineChartComponent implements AfterViewInit, OnDestroy {
+export class LineChartComponent implements OnDestroy {
   private chart: Chart | null = null;
   private readonly chartCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>("chartCanvas");
 
-  // Input signal for input point data
+  // Input signals for chart data
   readonly lines = input<LineData[]>([]);
   readonly configuration = input<ChartConfig>({
     xAxisType: "default",
   });
 
-  ngAfterViewInit(): void {
-    this.initializeChart();
+  constructor() {
+    // Update chart when inputs change
+    effect(() => {
+      const lineData = this.lines();
+      const configuration = this.configuration();
+      const canvas = this.chartCanvas();
+
+      if (!canvas) {
+        return;
+      }
+
+      this.updateChart(lineData, configuration);
+    });
   }
 
   ngOnDestroy(): void {
     this.chart?.destroy();
   }
 
-  private initializeChart(): void {
+  private updateChart(lineData: LineData[], configuration: ChartConfig): void {
     const canvas = this.chartCanvas().nativeElement;
     const ctx = canvas.getContext("2d");
 
@@ -63,9 +74,12 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const lineData = this.lines();
-    const configuration = this.configuration();
+    if (this.chart) {
+      // Destroy existing chart before creating new one
+      this.chart.destroy();
+    }
 
+    // Initialize new chart
     const config: ChartConfiguration<"line"> = {
       type: "line",
       data: {
