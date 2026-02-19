@@ -2,7 +2,7 @@
 /* eslint-disable @angular-eslint/prefer-output-emitter-ref */
 /* eslint-disable @angular-eslint/prefer-signals */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick } from "@angular/core/testing";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
@@ -14,6 +14,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -407,6 +408,7 @@ describe("OrganizationPlansComponent", () => {
   let mockSubscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
 
   // Mock data
   let mockPasswordManagerPlans: PlanResponse[];
@@ -526,6 +528,14 @@ describe("OrganizationPlansComponent", () => {
       data: mockPasswordManagerPlans,
     } as any);
 
+    mockBillingAccountProfileService = {
+      hasPremiumFromAnyOrganization$: jest.fn().mockReturnValue(of(false)),
+      hasPremiumPersonally$: jest.fn().mockReturnValue(of(false)),
+      hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
+      canViewSubscription$: jest.fn().mockReturnValue(of(true)),
+      setHasPremium: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: ApiService, useValue: mockApiService },
@@ -546,6 +556,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
@@ -832,7 +843,7 @@ describe("OrganizationPlansComponent", () => {
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalled();
-      expect(component["estimatedTax"]).toBe(5.0);
+      expect(component["estimatedTax"]()).toBe(5.0);
     }));
 
     it("should not calculate tax with invalid billing address", fakeAsync(() => {
@@ -1109,17 +1120,17 @@ describe("OrganizationPlansComponent", () => {
     it("should restrict available plans based on business ownership and upgrade context", async () => {
       // Upgrade flow (showFree = false) should exclude Free plan
       fixture.componentRef.setInput("showFree", false);
-      let products = component.selectableProducts;
+      let products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
 
       // Create flow (showFree = true) should include Free plan
       fixture.componentRef.setInput("showFree", true);
-      products = component.selectableProducts;
+      products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
 
       // Business organizations should only see business-compatible plans
       component["formGroup"].controls.businessOwned.setValue(true);
-      products = component.selectableProducts;
+      products = component.selectableProducts();
       const nonFreeBusinessPlans = products.filter((p) => p.type !== PlanType.Free);
       nonFreeBusinessPlans.forEach((plan) => {
         expect(plan.canBeUsedByBusiness).toBe(true);
@@ -1137,7 +1148,7 @@ describe("OrganizationPlansComponent", () => {
       await fixture.whenStable();
 
       // Only Families plan should be available
-      const products = component.selectableProducts;
+      const products = component.selectableProducts();
       expect(products.length).toBe(1);
       expect(products[0].productTier).toBe(ProductTierType.Families);
 
@@ -1212,22 +1223,22 @@ describe("OrganizationPlansComponent", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
       fixture.detectChanges();
 
-      expect(component["showTaxIdField"]).toBe(false);
+      expect(component["showTaxIdField"]()).toBe(false);
 
       component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
       fixture.detectChanges();
 
-      expect(component["showTaxIdField"]).toBe(false);
+      expect(component["showTaxIdField"]()).toBe(false);
 
       // Business plans (Teams, Enterprise) should show tax ID field
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       fixture.detectChanges();
 
-      expect(component["showTaxIdField"]).toBe(true);
+      expect(component["showTaxIdField"]()).toBe(true);
 
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       fixture.detectChanges();
-      expect(component["showTaxIdField"]).toBe(true);
+      expect(component["showTaxIdField"]()).toBe(true);
     });
   });
 
@@ -1273,7 +1284,7 @@ describe("OrganizationPlansComponent", () => {
       expect(smComponent.secretsManagerForm.value.additionalServiceAccounts).toBe(0);
     });
 
-    it("should trigger tax recalculation when SM form changes", async () => {
+    it("should trigger tax recalculation when SM form changes", fakeAsync(() => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "US",
@@ -1281,7 +1292,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       fixture.detectChanges();
-      await fixture.whenStable();
+      flushMicrotasks(); // Complete async ngOnInit so the merge subscription is set up
 
       // Change SM form
       component.secretsManagerForm.patchValue({
@@ -1289,10 +1300,12 @@ describe("OrganizationPlansComponent", () => {
         userSeats: 3,
       });
 
+      tick(1200); // Wait for debounce (1000ms)
+
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   describe("form update helpers flow", () => {
@@ -1795,7 +1808,7 @@ describe("OrganizationPlansComponent", () => {
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      const products = upgradeComponent.selectableProducts;
+      const products = upgradeComponent.selectableProducts();
 
       // Should not include plans with lower or equal upgradeSortOrder
       expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
@@ -1871,11 +1884,11 @@ describe("OrganizationPlansComponent", () => {
 
     it("should determine createOrganization based on organizationId", () => {
       // Create flow - no organizationId
-      expect(component.createOrganization).toBe(true);
+      expect(component.createOrganization()).toBe(true);
 
       // Upgrade flow - has organizationId
       fixture.componentRef.setInput("organizationId", "org-123");
-      expect(component.createOrganization).toBe(false);
+      expect(component.createOrganization()).toBe(false);
     });
 
     it("should calculate passwordManagerSubtotal correctly for paid plans", () => {
@@ -1901,16 +1914,16 @@ describe("OrganizationPlansComponent", () => {
 
     it("should display tax ID field for business plans", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
-      expect(component["showTaxIdField"]).toBe(false);
+      expect(component["showTaxIdField"]()).toBe(false);
 
       component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
-      expect(component["showTaxIdField"]).toBe(false);
+      expect(component["showTaxIdField"]()).toBe(false);
 
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      expect(component["showTaxIdField"]).toBe(true);
+      expect(component["showTaxIdField"]()).toBe(true);
 
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
-      expect(component["showTaxIdField"]).toBe(true);
+      expect(component["showTaxIdField"]()).toBe(true);
     });
 
     it("should show single org policy block when applicable", () => {
@@ -2034,12 +2047,12 @@ describe("OrganizationPlansComponent", () => {
       // Free plan doesn't offer Secrets Manager
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
       component.changedProduct();
-      expect(component.planOffersSecretsManager).toBe(false);
+      expect(component.planOffersSecretsManager()).toBe(false);
 
       // Teams plan offers Secrets Manager
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      expect(component.planOffersSecretsManager).toBe(true);
+      expect(component.planOffersSecretsManager()).toBe(true);
       expect(component.secretsManagerForm.disabled).toBe(false);
     });
 
