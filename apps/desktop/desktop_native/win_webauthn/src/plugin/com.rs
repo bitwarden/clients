@@ -26,7 +26,10 @@ use super::{
     PluginAuthenticator,
 };
 use crate::{
-    plugin::{crypto, PluginGetAssertionRequest, PluginMakeCredentialRequest},
+    plugin::{
+        crypto::{self, OwnedRequestHash, RequestHash, Signature},
+        PluginGetAssertionRequest, PluginMakeCredentialRequest,
+    },
     ErrorKind, WinWebAuthnError,
 };
 
@@ -456,15 +459,14 @@ unsafe fn verify_operation_request(
     clsid: &GUID,
 ) -> Result<(), WinWebAuthnError> {
     tracing::debug!("Verifying request");
-    let request_data =
-        std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
-    let request_hash = crypto::hash_sha256(request_data).map_err(|err| {
-        WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
-    })?;
-    let signature = std::slice::from_raw_parts(
-        request.pbRequestSignature,
-        request.cbRequestSignature as usize,
-    );
+    // SAFETY: RequestHash::from_request has the same safety requiremenst as
+    // this function: the encoded request must be valid.
+    let request_hash = unsafe { OwnedRequestHash::from_request(request)? };
+
+    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements as
+    // this function: the encoded request must be valid.
+    let signature = unsafe { request.signature() };
+
     tracing::debug!("Retrieving signing key");
     let op_pub_key = crypto::get_operation_signing_public_key(clsid).map_err(|err| {
         WinWebAuthnError::with_cause(
@@ -474,5 +476,5 @@ unsafe fn verify_operation_request(
         )
     })?;
     tracing::debug!("Verifying signature");
-    op_pub_key.verify_signature(&request_hash, signature)
+    op_pub_key.verify_signature((&request_hash).into(), signature)
 }

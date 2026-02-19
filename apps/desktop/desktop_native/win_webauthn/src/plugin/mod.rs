@@ -20,7 +20,7 @@ use super::{ErrorKind, WinWebAuthnError};
 use crate::{
     plugin::{
         com::{ComBuffer, ComBufferExt},
-        crypto::VerifyingKey,
+        crypto::{RequestHash, Signature, VerifyingKey},
     },
     util::WindowsString,
 };
@@ -156,10 +156,14 @@ impl WebAuthnPlugin {
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.
+    ///
+    /// # Arguments
+    /// - `request`: UI and transaction context for the user verification prompt.
+    /// - `operation_request_hash`: The SHA-256 hash of the original operation request buffer related to this user verification request.
     pub fn perform_user_verification(
         &self,
         request: PluginUserVerificationRequest,
-        operation_request: &[u8],
+        operation_request_hash: &[u8],
     ) -> Result<PluginUserVerificationResponse, WinWebAuthnError> {
         tracing::debug!(?request, "Handling user verification request");
 
@@ -191,7 +195,10 @@ impl WebAuthnPlugin {
                     // SAFETY: Windows only runs on platforms where usize >= u32;
                     let len = response_len as usize;
                     let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
-                    pub_key.verify_signature(operation_request, &signature)?;
+                    pub_key.verify_signature(
+                        RequestHash::new(operation_request_hash),
+                        Signature::new(&signature),
+                    )?;
                     webauthn_plugin_free_user_verification_response(response_ptr)?;
                     Ok(PluginUserVerificationResponse {
                         transaction_id: request.transaction_id,

@@ -17,8 +17,11 @@ use windows::{
         BCRYPT_SHA256_ALG_HANDLE,
     },
 };
+use windows_core::Owned;
 
-use crate::{util::webauthn_call, ErrorKind, WinWebAuthnError};
+use crate::{
+    plugin::WEBAUTHN_PLUGIN_OPERATION_REQUEST, util::webauthn_call, ErrorKind, WinWebAuthnError,
+};
 
 webauthn_call!("WebAuthNPluginGetUserVerificationPublicKey" as
 /// Retrieve the public key used to verify user verification responses from the OS.
@@ -132,8 +135,8 @@ pub(super) fn get_user_verification_public_key(
 /// Verify a public key signature over a hash using Windows Crypto APIs.
 fn verify_signature(
     public_key: &VerifyingKey,
-    hash: &[u8],
-    signature: &[u8],
+    hash: RequestHash,
+    signature: Signature,
 ) -> Result<(), windows::core::Error> {
     // Verify the signature over the hash of dataBuffer using the hKey
     unsafe {
@@ -193,8 +196,8 @@ fn verify_signature(
             padding_info
                 .as_ref()
                 .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
-            hash,
-            signature,
+            &hash.0,
+            signature.0,
             bcrypt_flags,
         )
         .ok()?;
@@ -327,6 +330,44 @@ impl Drop for BcryptKey {
     }
 }
 
+pub(crate) struct Signature<'a>(&'a [u8]);
+impl<'a> Signature<'a> {
+    pub(crate) fn new(value: &'a [u8]) -> Signature<'a> {
+        Self(value)
+    }
+}
+
+pub(crate) struct OwnedRequestHash(Vec<u8>);
+impl OwnedRequestHash {
+    /// Calculate a SHA-256 hash over the request.
+    ///
+    /// # Safety
+    /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte string of length `request.cbEncodedRequest`.
+    pub(super) unsafe fn from_request(
+        request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    ) -> Result<Self, WinWebAuthnError> {
+        // SAFETY: The caller must make sure that the encoded request is valid.
+        let request_data =
+            std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+        let request_hash = hash_sha256(request_data).map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
+        })?;
+        Ok(OwnedRequestHash(request_hash))
+    }
+}
+
+impl<'a> From<&'a OwnedRequestHash> for RequestHash<'a> {
+    fn from(value: &'a OwnedRequestHash) -> RequestHash<'a> {
+        RequestHash::new(&value.0)
+    }
+}
+pub(crate) struct RequestHash<'a>(&'a [u8]);
+
+impl<'a> RequestHash<'a> {
+    pub(crate) fn new(hash: &'a [u8]) -> Self {
+        Self(hash)
+    }
+}
 /// Public key for verifying a signature over an operation request or user verification response buffer.
 pub struct VerifyingKey {
     /// Length of buffer
@@ -336,9 +377,13 @@ pub struct VerifyingKey {
 }
 
 impl VerifyingKey {
-    /// Verifies a signature over some data with the associated public key.
-    pub fn verify_signature(&self, data: &[u8], signature: &[u8]) -> Result<(), WinWebAuthnError> {
-        verify_signature(self, data, signature).map_err(|err| {
+    /// Verifies a signature over a request hash with the associated public key.
+    pub fn verify_signature(
+        &self,
+        hash: RequestHash,
+        signature: Signature,
+    ) -> Result<(), WinWebAuthnError> {
+        verify_signature(self, hash, signature).map_err(|err| {
             WinWebAuthnError::with_cause(
                 ErrorKind::WindowsInternal,
                 "Failed to verify signature",
@@ -374,7 +419,7 @@ mod tests {
         BCRYPT_RSAKEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
     };
 
-    use crate::plugin::crypto::{verify_signature, VerifyingKey};
+    use crate::plugin::crypto::{verify_signature, RequestHash, Signature, VerifyingKey};
 
     use super::hash_sha256;
 
@@ -393,7 +438,7 @@ mod tests {
     #[test]
     fn test_rsa_signature_verifies_properly() {
         // SHA-256 hash of "abc"
-        let digest = &[
+        let digest = vec![
             0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,
             0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,
             0xf2, 0x00, 0x15, 0xad,
@@ -500,13 +545,14 @@ mod tests {
             cbPublicKey: public_key_bytes.len() as u32,
             pbPublicKey: NonNull::new(public_key_bytes.as_mut_ptr().cast()).unwrap(),
         };
-        verify_signature(&verify_key, digest, signature).expect("a signature to verify properly");
+        verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
+            .expect("a signature to verify properly");
     }
 
     #[test]
     fn test_p384_signature_verifies_properly() {
         // SHA-256 hash of "abc"
-        let digest = &[
+        let digest = vec![
             0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,
             0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,
             0xf2, 0x00, 0x15, 0xad,
@@ -573,13 +619,14 @@ mod tests {
             0xcf, 0x86, 0xa7, 0x04, 0x78, 0x74, 0xb8, 0x68, 0x92, 0x46, 0x61, 0x14, 0xfd, 0x2b,
             0xa4, 0x28, 0x2a, 0xb9, 0x6d, 0x05, 0xf4, 0x61, 0xf2, 0x76, 0x32, 0x8c,
         ];
-        verify_signature(&verify_key, digest, signature).expect("a signature to verify properly");
+        verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
+            .expect("a signature to verify properly");
     }
 
     #[test]
     fn test_p256_signature_verifies_properly() {
         // SHA-256 hash of "abc"
-        let digest = &[
+        let digest = vec![
             0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,
             0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,
             0xf2, 0x00, 0x15, 0xad,
@@ -640,6 +687,7 @@ mod tests {
             0x7b, 0xac, 0xdd, 0x25, 0x08, 0x37, 0x33, 0xe4, 0xf5, 0xb6, 0xfd, 0xc2, 0x10, 0x7e,
             0xe9, 0xd0, 0xbf, 0xcd, 0x4c, 0xfe, 0xd0, 0x41,
         ];
-        verify_signature(&verify_key, digest, signature).expect("a signature to verify properly");
+        verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
+            .expect("a signature to verify properly");
     }
 }
