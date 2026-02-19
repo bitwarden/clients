@@ -6,40 +6,8 @@
     <button type="button" label="Download" bitIconButton="bwi-download"></button>
   </div>
   <div class="tw-flex tw-justify-between tw-items-center">
-    <div>
-      <bit-toggle-group
-        [(selected)]="selectedView"
-        (selectedChange)="onViewChange($event)"
-        aria-label="at risk chart view selector"
-      >
-        <bit-toggle [value]="ViewType.Applications">Applications</bit-toggle>
-        <bit-toggle [value]="ViewType.Passwords">Passwords</bit-toggle>
-        <bit-toggle [value]="ViewType.Members">Members</bit-toggle>
-      </bit-toggle-group>
-    </div>
-    <div>
-      <button type="button" bitButton buttonType="secondary" [bitMenuTriggerFor]="timespanMenu">
-        {{ timespanLabel() }}
-        <bit-icon name="bwi-angle-down" aria-hidden="true"></bit-icon>
-      </button>
-      <bit-menu #timespanMenu>
-        <button type="button" bitMenuItem (click)="onTimespanChange(Timespan.PastMonth)">
-          Past month
-        </button>
-        <button type="button" bitMenuItem (click)="onTimespanChange(Timespan.Past3Months)">
-          Past 3 months
-        </button>
-        <button type="button" bitMenuItem (click)="onTimespanChange(Timespan.Past6Months)">
-          Past 6 months
-        </button>
-        <button type="button" bitMenuItem (click)="onTimespanChange(Timespan.PastYear)">
-          Past year
-        </button>
-        <button type="button" bitMenuItem (click)="onTimespanChange(Timespan.AllTime)">
-          All time
-        </button>
-      </bit-menu>
-    </div>
+    <div>View mode toggle here</div>
+    <div>Time period selector here</div>
   </div>
   <div class="tw-relative tw-h-96">
     @if (loading()) {
