@@ -21,6 +21,7 @@ import {
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
 import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
+import { WelcomeDialogService } from "./welcome-dialog.service";
 
 @Injectable()
 export class WebVaultPromptService {
@@ -34,6 +35,7 @@ export class WebVaultPromptService {
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
   private webVaultExtensionPromptService = inject(WebVaultExtensionPromptService);
+  private welcomeDialogService = inject(WelcomeDialogService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -49,9 +51,13 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
-    await this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
+      return;
+    }
 
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+
+    await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
 

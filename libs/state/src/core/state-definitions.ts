@@ -212,6 +212,9 @@ export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_WELCOME_DIALOG_DISK = new StateDefinition("vaultWelcomeDialog", "disk", {
+  web: "disk-local",
+});
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",

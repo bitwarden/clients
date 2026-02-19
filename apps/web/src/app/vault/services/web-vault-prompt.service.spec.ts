@@ -7,7 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -22,6 +22,7 @@ import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/se
 
 import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "./web-vault-prompt.service";
+import { WelcomeDialogService } from "./welcome-dialog.service";
 
 describe("WebVaultPromptService", () => {
   let service: WebVaultPromptService;
@@ -39,18 +40,26 @@ describe("WebVaultPromptService", () => {
     );
   const upsertAutoConfirm = jest.fn().mockResolvedValue(undefined);
   const organizations$ = jest.fn().mockReturnValue(of([]));
-  const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(undefined);
+  const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(false);
   const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
+  const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const activeAccountSubject = new BehaviorSubject<{ id: UserId; creationDate: Date | null }>({
-    id: mockUserId,
-    creationDate: null,
-  });
+
+  let activeAccount$: BehaviorSubject<Account | null>;
+
+  function createAccount(overrides: Partial<Account> = {}): Account {
+    return {
+      id: mockUserId,
+      creationDate: new Date(),
+      ...overrides,
+    } as Account;
+  }
 
   beforeEach(() => {
     jest.clearAllMocks();
-    activeAccountSubject.next({ id: mockUserId, creationDate: null });
+
+    activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
 
     TestBed.configureTestingModule({
       providers: [
@@ -58,12 +67,7 @@ describe("WebVaultPromptService", () => {
         { provide: UnifiedUpgradePromptService, useValue: { displayUpgradePromptConditionally } },
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
         { provide: PolicyService, useValue: { policies$ } },
-        {
-          provide: AccountService,
-          useValue: {
-            activeAccount$: activeAccountSubject.asObservable(),
-          },
-        },
+        { provide: AccountService, useValue: { activeAccount$ } },
         {
           provide: AutomaticUserConfirmationService,
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
@@ -75,6 +79,10 @@ describe("WebVaultPromptService", () => {
         {
           provide: WebVaultExtensionPromptService,
           useValue: { conditionallyPromptUserForExtension },
+        },
+        {
+          provide: WelcomeDialogService,
+          useValue: { conditionallyShowWelcomeDialog, conditionallyPromptUserForExtension },
         },
       ],
     });
