@@ -32,7 +32,7 @@ export function legacyUsernameGenerationServiceFactory(
   accountService: AccountService,
   stateProvider: StateProvider,
 ): UsernameGenerationServiceAbstraction {
-  const randomizer = new KeyServiceRandomizer(keyService);
+  const randomizer = new KeyServiceRandomizer();
   const restClient = new RestClient(apiService, i18nService);
   const usernameRandomizer = new UsernameRandomizer(randomizer);
   const emailRandomizer = new EmailRandomizer(randomizer);

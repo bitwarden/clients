@@ -6,9 +6,9 @@ import { WordOptions } from "../types";
 
 /**
  * A randomizer backed by the SDK.
- * Note: This used to be backed by KeyService and should be renamed.
+ * Note: This should be replaced by higher level functions in the SDK eventually.
  **/
-export class KeyServiceRandomizer implements Randomizer {
+export class PureCryptoRandomizer implements Randomizer {
   /**
    * instantiates the type.
    */
@@ -33,7 +33,7 @@ export class KeyServiceRandomizer implements Randomizer {
 
     if (options?.number ?? false) {
       await SdkLoadService.Ready;
-      const num = PureCrypto.random_number(1, 9);
+      const num = (PureCrypto as any).random_number(0, 9);
       word = word + num.toString();
     }
 
@@ -69,6 +69,6 @@ export class KeyServiceRandomizer implements Randomizer {
 
   async uniform(min: number, max: number) {
     await SdkLoadService.Ready;
-    return PureCrypto.random_number(min, max);
+    return (PureCrypto as any).random_number(min, max);
   }
 }
