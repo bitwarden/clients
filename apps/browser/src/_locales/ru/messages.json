@@ -29,7 +29,7 @@
     "message": "Войти с passkey"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Разблокировать при помощи passkey"
   },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemWasUnarchived": {
-    "message": "Элемент был разархивирован"
-  },
-  "itemUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
@@ -989,6 +986,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -2048,6 +2051,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2738,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не будет предлагать сохранить логины для этих доменов. Для вступления изменений в силу необходимо обновить страницу."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
   },
@@ -3026,10 +3029,6 @@
   "custom": {
     "message": "Пользовательский"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3088,8 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Открепить расширение?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Чтобы создать файл Send, необходимо открыть расширение в новом окне.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Для выбора файла откройте расширение в боковой панели (если возможно) или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Для выбора файла с помощью Firefox, откройте расширение в боковой панели или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Для выбора файла с помощью Safari, перейдите в новое окно, нажав на этот баннер."
-  },
   "popOut": {
     "message": "Открепить"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед тем, как начать"
   },
   "expirationDateIsInvalid": {
     "message": "Срок истечения указан некорректно."
@@ -3371,10 +3350,10 @@
     "message": "Ошибка"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF. Пожалуйста, сначала авторизуйтесь, используя passkey."
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
@@ -5001,6 +4980,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Скачать вложение"
+  },
   "downloadBitwarden": {
     "message": "Скачать Bitwarden"
   },
@@ -5978,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
   },
@@ -6115,7 +6100,38 @@
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
   },
+  "items": {
+    "message": "Элементы"
+  },
+  "searchResults": {
+    "message": "Результаты поиска"
+  },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"
+  },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Скачать приложения Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

@@ -1,27 +1,25 @@
-<form [formGroup]="formGroup" [bitSubmit]="accept">
-  <bit-simple-dialog>
-    <i bitDialogIcon class="bwi tw-text-3xl" [class]="iconClasses" aria-hidden="true"></i>
+<form [formGroup]="formGroup" [bitSubmit]="accept" bit-simple-dialog>
+  <i bitDialogIcon class="bwi tw-text-3xl" [class]="iconClasses" aria-hidden="true"></i>
 
-    <span bitDialogTitle>{{ title }}</span>
+  <span bitDialogTitle>{{ title }}</span>
 
-    <div bitDialogContent>{{ content }}</div>
+  <div bitDialogContent>{{ content }}</div>
 
-    <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
-        {{ acceptButtonText }}
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton bitFormButton buttonType="primary">
+      {{ acceptButtonText }}
+    </button>
+
+    @if (showCancelButton) {
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        (click)="dialogRef.close(false)"
+      >
+        {{ cancelButtonText }}
       </button>
-
-      @if (showCancelButton) {
-        <button
-          type="button"
-          bitButton
-          bitFormButton
-          buttonType="secondary"
-          (click)="dialogRef.close(false)"
-        >
-          {{ cancelButtonText }}
-        </button>
-      }
-    </ng-container>
-  </bit-simple-dialog>
+    }
+  </ng-container>
 </form>

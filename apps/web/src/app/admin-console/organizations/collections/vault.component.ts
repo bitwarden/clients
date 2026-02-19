@@ -472,7 +472,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               collections,
               filter.collectionId,
             );
-            searchableCollectionNodes = selectedCollection.children ?? [];
+            searchableCollectionNodes = selectedCollection?.children ?? [];
           }
 
           let collectionsToReturn: CollectionAdminView[] = [];
@@ -920,14 +920,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const organization = await firstValueFrom(this.organization$);
-    const disableForm = cipher ? !cipher.edit && !organization.canEditAllCiphers : false;
-    // If the form is disabled, force the mode into `view`
-    const dialogMode = disableForm ? "view" : mode;
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode: dialogMode,
+      mode,
       formConfig,
-      disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
@@ -967,10 +962,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike): Promise<boolean> => {
+  restore = async (c: CipherViewLike): Promise<void> => {
     const organization = await firstValueFrom(this.organization$);
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (
@@ -979,11 +974,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       !organization.allowAdminAccessToAllCollectionItems
     ) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     // Allow restore of an Unassigned Item
@@ -1001,10 +996,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("restoredItem"),
       });
       this.refresh();
-      return true;
+      return;
     } catch (e) {
       this.logService.error(e);
-      return false;
+      return;
     }
   };
 
@@ -1318,7 +1313,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });

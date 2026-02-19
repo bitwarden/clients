@@ -10,14 +10,9 @@
       ></bit-progress>
     </div>
 
-    <!-- Status message and subtitle -->
-    <div class="tw-text-center tw-flex tw-flex-col tw-gap-1">
-      <span class="tw-text-main tw-text-base tw-font-medium tw-leading-4">
-        {{ stepConfig[progressStep()].message | i18n }}
-      </span>
-      <span class="tw-text-muted tw-text-sm tw-font-normal tw-leading-4">
-        {{ "thisMightTakeFewMinutes" | i18n }}
-      </span>
-    </div>
+    <!-- Status message -->
+    <span class="tw-text-main tw-text-base tw-font-medium tw-leading-4">
+      {{ stepConfig[progressStep()].message | i18n }}
+    </span>
   </div>
 </div>

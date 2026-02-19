@@ -113,6 +113,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     {
       test: /\.[cm]?js$/,
+      exclude: /\.wasm\.js$/,
       use: [
         {
           loader: "babel-loader",
@@ -165,6 +166,11 @@ module.exports.buildConfig = function buildConfig(params) {
       template: path.resolve(__dirname, "src/connectors/duo-redirect.html"),
       filename: "duo-redirect-connector.html",
       chunks: ["connectors/duo-redirect", "styles"],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/connectors/platform/proxy-cookie-redirect.html"),
+      filename: "proxy-cookie-redirect-connector.html",
+      chunks: ["connectors/platform/proxy-cookie-redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/404.html"),
@@ -403,6 +409,10 @@ module.exports.buildConfig = function buildConfig(params) {
       "connectors/sso": path.resolve(__dirname, "src/connectors/sso.ts"),
       "connectors/duo-redirect": path.resolve(__dirname, "src/connectors/duo-redirect.ts"),
       "connectors/redirect": path.resolve(__dirname, "src/connectors/redirect.ts"),
+      "connectors/platform/proxy-cookie-redirect": path.resolve(
+        __dirname,
+        "src/connectors/platform/proxy-cookie-redirect.ts",
+      ),
       styles: [
         path.resolve(__dirname, "src/scss/styles.scss"),
         path.resolve(__dirname, "src/scss/tailwind.css"),

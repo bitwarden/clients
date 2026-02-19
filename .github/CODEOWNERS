@@ -4,6 +4,10 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+## Global styles are owned by UIF
+*.scss @bitwarden/team-ui-foundation
+*.css @bitwarden/team-ui-foundation
+
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
@@ -15,6 +19,10 @@ apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-managemen
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
+# Web connectors
+apps/web/src/connectors @bitwarden/team-auth-dev
+apps/web/src/connectors/platform @bitwarden/team-platform-dev
+
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev
 apps/cli/src/auth @bitwarden/team-auth-dev
@@ -22,8 +30,6 @@ apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/app/auth @bitwarden/team-auth-dev
 libs/auth @bitwarden/team-auth-dev
 libs/user-core @bitwarden/team-auth-dev
-# web connectors used for auth
-apps/web/src/connectors @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
 libs/angular/src/auth @bitwarden/team-auth-dev
 libs/common/src/auth @bitwarden/team-auth-dev
@@ -60,6 +66,7 @@ apps/web/src/locales @bitwarden/team-platform-dev
 apps/browser/src/vault @bitwarden/team-vault-dev
 apps/cli/src/vault @bitwarden/team-vault-dev
 apps/desktop/src/vault @bitwarden/team-vault-dev
+apps/web/src/app/shared/components/onboarding @bitwarden/team-vault-dev
 apps/web/src/app/vault @bitwarden/team-vault-dev
 libs/angular/src/vault @bitwarden/team-vault-dev
 libs/common/src/vault @bitwarden/team-vault-dev
@@ -154,13 +161,16 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
 .github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-desktop-dev
-# SSH Agent
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
 
 ## UI Foundation ##
 .github/workflows/chromatic.yml @bitwarden/team-ui-foundation

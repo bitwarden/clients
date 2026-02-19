@@ -52,8 +52,8 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
+  PreviewInvoiceClient,
   SubscriberBillingClient,
-  TaxClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
@@ -87,7 +87,7 @@ const Allowed2020PlansForLegacyProviders = [
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
+  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -112,8 +112,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentPlan: PlanResponse;
-
-  selectedFile: File;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -219,7 +217,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
@@ -675,9 +673,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         const collectionCt = collection.encryptedString;
         const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
-        orgId = this.selfHosted
-          ? await this.createSelfHosted(key, collectionCt, orgKeys)
-          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
+        orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1], activeUserId);
 
         this.toastService.showToast({
           variant: "success",
@@ -793,11 +789,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       // by comparing tax on base+storage vs tax on base only
       //TODO: Move this logic to PreviewOrganizationTaxCommand - https://bitwarden.atlassian.net/browse/PM-27585
       const [baseTaxAmounts, fullTaxAmounts] = await Promise.all([
-        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           this.buildTaxPreviewRequest(0, false),
           billingAddress,
         ),
-        this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, false),
           billingAddress,
         ),
@@ -806,10 +802,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       // Tax on storage = Tax on (base + storage) - Tax on (base only)
       this.estimatedTax = fullTaxAmounts.tax - baseTaxAmounts.tax;
     } else {
-      const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-        this.buildTaxPreviewRequest(this.formGroup.value.additionalStorage, sponsoredForTaxPreview),
-        billingAddress,
-      );
+      const taxAmounts =
+        await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
+          this.buildTaxPreviewRequest(
+            this.formGroup.value.additionalStorage,
+            sponsoredForTaxPreview,
+          ),
+          billingAddress,
+        );
 
       this.estimatedTax = taxAmounts.tax;
     }
@@ -947,27 +947,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else {
       return (await this.organizationApiService.create(request)).id;
     }
-  }
-
-  private async createSelfHosted(key: string, collectionCt: string, orgKeys: [string, EncString]) {
-    if (!this.selectedFile) {
-      throw new Error(this.i18nService.t("selectFile"));
-    }
-
-    const fd = new FormData();
-    fd.append("license", this.selectedFile);
-    fd.append("key", key);
-    fd.append("collectionName", collectionCt);
-    const response = await this.organizationApiService.createLicense(fd);
-    const orgId = response.id;
-
-    await this.apiService.refreshIdentityToken();
-
-    // Org Keys live outside of the OrganizationLicense - add the keys to the org here
-    const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
-    await this.organizationApiService.updateKeys(orgId, request);
-
-    return orgId;
   }
 
   private billingSubLabelText(): string {

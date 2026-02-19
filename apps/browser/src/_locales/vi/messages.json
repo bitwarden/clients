@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemWasSentToArchive": {
-    "message": "Mục đã được chuyển vào kho lưu trữ"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
-  },
-  "itemUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -989,6 +986,12 @@
   },
   "no": {
     "message": "Không"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Vị trí"
@@ -2048,6 +2051,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Số điện thoại"
   },
@@ -2738,9 +2744,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden sẽ không yêu cầu lưu thông tin đăng nhập cho các miền này. Bạn phải làm mới trang để các thay đổi có hiệu lực."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden sẽ không yêu cầu lưu thông tin đăng nhập cho các tên miền này đối với tất cả tài khoản đã đăng nhập. Bạn phải làm mới trang để các thay đổi có hiệu lực."
-  },
   "blockedDomainsDesc": {
     "message": "Tự động điền và các tính năng liên quan khác sẽ không được cung cấp cho các trang web này. Bạn phải làm mới trang để các thay đổi có hiệu lực."
   },
@@ -3026,10 +3029,6 @@
   "custom": {
     "message": "Tùy chỉnh"
   },
-  "sendPasswordDescV3": {
-    "message": "Thêm mật khẩu tùy chọn cho người nhận để có thể truy cập vào Send này.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Tạo Send mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3088,8 @@
     "message": "Đã lưu Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Mở rộng tiện ích ra cửa sổ mới?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Để tạo Send tập tin, bạn cần mở phần mở rộng trong cửa sổ mới.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Để chọn tập tin, mở tiện ích mở rộng trong thanh bên (nếu có thể) hoặc mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Để chọn tập tin bằng Firefox, mở tiện ích mở rộng trong thanh bên hoặc mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
-  "sendSafariFileWarning": {
-    "message": "Để chọn tập tin bằng Safari, mở cửa sổ mới bằng cách nhấp vào biểu ngữ này."
-  },
   "popOut": {
     "message": "Mở rộng"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Trước khi bạn bắt đầu"
   },
   "expirationDateIsInvalid": {
     "message": "Ngày hết hạn bạn nhập không hợp lệ."
@@ -5001,6 +4980,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Tải xuống Bitwarden"
   },
@@ -5978,6 +5960,9 @@
   "cardNumberLabel": {
     "message": "Số thẻ"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
   },
@@ -6115,7 +6100,38 @@
   "whyAmISeeingThis": {
     "message": "Tại sao tôi thấy điều này?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
   "resizeSideNavigation": {
     "message": "Thay đổi kích thước thanh bên"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
