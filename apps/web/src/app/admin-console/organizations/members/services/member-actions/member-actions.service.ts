@@ -37,11 +37,7 @@ export interface MemberActionResult {
 }
 
 export class BulkActionResult {
-  constructor() {
-    this.failed = [];
-  }
-
-  successful?: OrganizationUserBulkResponse[];
+  successful: OrganizationUserBulkResponse[] = [];
   failed: { id: string; error: string }[] = [];
 }
 
@@ -316,7 +312,7 @@ export class MemberActionsService {
     }
 
     return {
-      successful: allSuccessful.length > 0 ? allSuccessful : undefined,
+      successful: allSuccessful,
       failed: allFailed,
     };
   }
