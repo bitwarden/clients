@@ -617,7 +617,7 @@ describe("OrganizationPlansComponent", () => {
       expect(component["loading"]).toBe(true);
       expect(component.showFree()).toBe(true);
       expect(component.showCancel()).toBe(false);
-      expect(component.productTier()).toBe(ProductTierType.Free);
+      expect(component.initialProductTier()).toBe(ProductTierType.Free);
     });
   });
 
@@ -2250,7 +2250,7 @@ describe("OrganizationPlansComponent", () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
         patchOrganizationForm(component, {
           name: newOrgName,
           billingEmail: "test@example.com",
@@ -2318,7 +2318,7 @@ describe("OrganizationPlansComponent", () => {
     describe("refreshSalesTax (premium upgrade proration)", () => {
       it("should call previewProrationForPremiumUpgrade instead of the standard tax endpoint", fakeAsync(() => {
         hasPremiumPersonallySubject.next(true);
-        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
         component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
         component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
 
@@ -2343,7 +2343,7 @@ describe("OrganizationPlansComponent", () => {
 
       it("should set previewInvoice signal with proration preview data", fakeAsync(() => {
         hasPremiumPersonallySubject.next(true);
-        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
         component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
         component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
 
