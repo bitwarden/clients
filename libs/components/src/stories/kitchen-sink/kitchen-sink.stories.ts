@@ -204,6 +204,12 @@ export const VirtualScrollBlockingDialog: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+
+    const toggleButton = getByRole(canvas, "button", { name: "Toggle side navigation" });
+    if (toggleButton.getAttribute("aria-expanded") === "false") {
+      await userEvent.click(toggleButton);
+    }
+
     const navItem = getByText(canvas, "Virtual Scroll");
     await userEvent.click(navItem);
 
