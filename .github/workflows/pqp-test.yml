@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - "**"
 
 permissions:
   contents: read
@@ -78,11 +77,18 @@ jobs:
         run: git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
 
       - name: Run coverage on base branch
+        id: base_coverage
         if: github.event_name == 'pull_request'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git worktree add ../base-worktree origin/${{ github.event.pull_request.base.ref }}
+          if [ ! -f ../base-worktree/test/jest.config.js ]; then
+            echo "test/jest.config.js not found on base branch — skipping base coverage"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            git worktree remove --force ../base-worktree
+            exit 0
+          fi
           pushd ../base-worktree
           npm ci
           mkdir -p coverage
@@ -93,7 +99,7 @@ jobs:
           git worktree remove --force ../base-worktree
 
       - name: Compare coverage with base branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.base_coverage.outputs.skip != 'true'
         env:
           BASE_COVERAGE_PATH: coverage/base-coverage-summary.json
           HEAD_COVERAGE_PATH: coverage/coverage-summary.json
