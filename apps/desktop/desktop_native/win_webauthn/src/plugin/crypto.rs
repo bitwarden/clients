@@ -196,36 +196,47 @@ fn verify_signature(
 
 /// Calculate a SHA-256 hash over some data.
 pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> {
-    unsafe {
-        // Hash data
-        let sha256 = BcryptHash::sha256()?;
-        BCryptHashData(sha256.handle, data, 0).ok()?;
+    // Hash data
+    let sha256 = BcryptHash::sha256()?;
+    unsafe { BCryptHashData(sha256.handle, data, 0).ok()? };
 
+    {
         // Get length of SHA256 hash output
         tracing::debug!("Getting length of hash output");
-        let mut hash_output_len_buf = [0; size_of::<u32>()];
-        let mut bytes_read = 0;
-        BCryptGetProperty(
-            BCRYPT_SHA256_ALG_HANDLE.into(),
-            BCRYPT_HASH_LENGTH,
-            Some(&mut hash_output_len_buf),
-            &mut bytes_read,
-            0,
-        )
-        .ok()?;
+        let hash_output_len = {
+            let mut hash_output_len_buf = [0; size_of::<u32>()];
+            let mut bytes_read = 0;
+            unsafe {
+                BCryptGetProperty(
+                    BCRYPT_SHA256_ALG_HANDLE.into(),
+                    BCRYPT_HASH_LENGTH,
+                    Some(&mut hash_output_len_buf),
+                    &mut bytes_read,
+                    0,
+                )
+                .ok()?;
+            }
+            u32::from_ne_bytes(hash_output_len_buf) as usize
+        };
 
-        let hash_output_len = u32::from_ne_bytes(hash_output_len_buf) as usize;
         tracing::debug!("  Length of hash output: {hash_output_len}");
 
         tracing::debug!("Completing hash");
-        let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
-        {
-            let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
-            BCryptFinishHash(sha256.handle, hash_slice, 0).ok()?;
-        }
-        // SAFETY: BCryptFinishHash initializes the buffer
-        hash_buffer.set_len(hash_output_len);
-        let hash_buffer: Vec<u8> = mem::transmute(hash_buffer);
+        let hash_buffer: Vec<u8> = {
+            let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
+            unsafe {
+                {
+                    // Temporarily treat the buffer byte slice to fit BCryptFinishHash parameter arguments.
+                    let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
+                    BCryptFinishHash(sha256.handle, hash_slice, 0).ok()?;
+                    // The hash handle is not usable after calling BCryptFinishHash, drop to clean up internal state.
+                    drop(sha256);
+                }
+                // SAFETY: BCryptFinishHash initializes the buffer
+                hash_buffer.set_len(hash_output_len);
+                mem::transmute(hash_buffer)
+            }
+        };
         tracing::debug!(" Hash: {hash_buffer:?}");
         Ok(hash_buffer)
     }
