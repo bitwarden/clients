@@ -100,15 +100,13 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
               },
             },
             title: {
-              display: true,
-              text: "Date",
+              display: false,
             },
           },
           y: {
             beginAtZero: true,
             title: {
-              display: true,
-              text: "Value",
+              display: false,
             },
           },
         },

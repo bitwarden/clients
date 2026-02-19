@@ -1,17 +1,52 @@
 import { importProvidersFrom } from "@angular/core";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+  StoryObj,
+} from "@storybook/angular";
+import { BehaviorSubject } from "rxjs";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { IconButtonModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { TrendWidgetComponent } from "./trend-widget.component";
 
+// Create shared theme observables that will be updated by the decorator
+const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
+const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
+
 export default {
   title: "Web/Access Intelligence/Trend Widget",
   component: TrendWidgetComponent,
   decorators: [
+    componentWrapperDecorator(
+      (story) => story,
+      ({ globals }) => {
+        const theme = globals["theme"] === "dark" ? ThemeType.Dark : ThemeType.Light;
+        selectedTheme$.next(theme);
+        systemTheme$.next(theme);
+        return {};
+      },
+    ),
     moduleMetadata({
       imports: [IconButtonModule],
+      providers: [
+        {
+          provide: ThemeStateService,
+          useValue: {
+            selectedTheme$,
+          },
+        },
+        {
+          provide: SYSTEM_THEME_OBSERVABLE,
+          useValue: systemTheme$,
+        },
+      ],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
