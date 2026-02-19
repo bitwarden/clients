@@ -20,17 +20,17 @@ export class PasswordRequest extends SecretVerificationRequest {
   // https://bitwarden.atlassian.net/browse/PM-23234
   static newConstructor(
     currentServerMasterKeyHash: MasterPasswordAuthenticationHash,
-    authenticationData: MasterPasswordAuthenticationData,
-    unlockData: MasterPasswordUnlockData,
-    masterPasswordHint: string,
+    newAuthenticationData: MasterPasswordAuthenticationData,
+    newUnlockData: MasterPasswordUnlockData,
+    newMasterPasswordHint: string,
   ): PasswordRequest {
     const request = new PasswordRequest();
     request.masterPasswordHash = currentServerMasterKeyHash;
-    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
-    request.key = unlockData.masterKeyWrappedUserKey;
-    request.authenticationData = authenticationData;
-    request.unlockData = unlockData;
-    request.masterPasswordHint = masterPasswordHint;
+    request.newMasterPasswordHash = newAuthenticationData.masterPasswordAuthenticationHash;
+    request.key = newUnlockData.masterKeyWrappedUserKey;
+    request.authenticationData = newAuthenticationData;
+    request.unlockData = newUnlockData;
+    request.masterPasswordHint = newMasterPasswordHint;
     return request;
   }
 }
