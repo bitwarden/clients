@@ -90,6 +90,11 @@ export class SendAuthComponent implements OnInit {
     this.loading.set(false);
   }
 
+  onBackToEmail() {
+    this.enterOtp.set(false);
+    this.updatePageTitle();
+  }
+
   private async attemptV1Access() {
     try {
       const accessRequest = new SendAccessRequest();
@@ -247,10 +252,12 @@ export class SendAuthComponent implements OnInit {
       if (this.enterOtp()) {
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "enterTheCodeSentToYourEmail" },
+          pageSubtitle: this.sendAccessForm.value.email ?? null,
         });
       } else {
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "verifyYourEmailToViewThisSend" },
+          pageSubtitle: null,
         });
       }
     } else if (authType === AuthType.Password) {
