@@ -638,6 +638,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     const derivedPassword = this.pqpAuthService.derivedPassword;
 
     if (!email || !derivedPassword) {
+      this.toastService.showToast({
+        variant: "error",
+        title: "PqP Network",
+        message: "Credentials not initialized yet. Please reload the popup.",
+      });
+      this.pqpAuthService.reset();
       return;
     }
 
