@@ -483,7 +483,7 @@ export class BrowserApi {
    *
    * - Main popup: always considered focused (auto-closes on blur).
    * - Sidebar: always considered focused (always visible).
-   * - Popout windows: only focused if the window is currently focused (PM-24047).
+   * - Popout windows: only focused if the window is currently focused.
    *
    * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
    * and falls back to `chrome.extension.getViews()` for MV2/Safari.
@@ -496,12 +496,13 @@ export class BrowserApi {
         return true;
       }
 
-      for (const context of contexts) {
-        if (context.contextType === "TAB" && context.documentUrl?.includes("uilocation=popout")) {
-          const win = await BrowserApi.getWindowById(context.windowId);
-          if (win?.focused) {
-            return true;
-          }
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=sidebar"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
         }
       }
       return false;
