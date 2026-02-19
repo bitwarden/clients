@@ -332,6 +332,12 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
+      // This is where we either get the salt, or generate it. It will either come from state for
+      // logged-in users performing operations on their own account, or if an operation is being
+      // performed for a user who is not logged in (like setting a password for a user during
+      // account recovery), we supply the email of the user that is having the operation done on.
+      // If/when we shift to using random entropy for the salt, the place to do so would be
+      // replacing: this.masterPasswordService.emailToSalt(this.email).
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))

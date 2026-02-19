@@ -1,16 +1,14 @@
-import { EncryptedString } from "../../../../key-management/crypto/models/enc-string";
 import {
   MasterPasswordAuthenticationData,
   MasterPasswordUnlockData,
 } from "../../../../key-management/master-password/types/master-password.types";
 import { KeysRequest } from "../../../../models/request/keys.request";
 
-export class RegisterFinishV2Request {
+export class RegisterFinishRequestWithAuthUnlockDataTypes {
   constructor(
     public email: string,
     public masterPasswordHint: string,
 
-    public userSymmetricKey: EncryptedString,
     public userAsymmetricKeys: KeysRequest,
 
     public masterPasswordAuthentication: MasterPasswordAuthenticationData,

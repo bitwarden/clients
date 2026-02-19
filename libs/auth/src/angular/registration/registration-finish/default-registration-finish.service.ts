@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/registration/register-finish-v2.request";
+import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import {
@@ -72,8 +72,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     // Scenario 2: KM flag OFF, Auth flag ON
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
       /**
-       * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
-       * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here.
+       * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey.
+       * So we must create it here for registration.
        *
        * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
        */
@@ -84,7 +84,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
       const newMasterKey = await this.keyService.makeMasterKey(
         passwordInputResult.newPassword,
-        email.trim().toLowerCase(),
+        passwordInputResult.salt,
         passwordInputResult.kdfConfig,
       );
 
@@ -129,7 +129,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
-  ): Promise<RegisterFinishRequest | RegisterFinishV2Request> {
+  ): Promise<RegisterFinishRequest | RegisterFinishRequestWithAuthUnlockDataTypes> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],
       userAsymmetricKeys[1].encryptedString,
@@ -139,26 +139,24 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
     if (useNewApi) {
       // New API path - use V2 request with new data types
-      const salt = this.masterPasswordService.emailToSalt(email);
 
       const masterPasswordAuthentication =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           passwordInputResult.newPassword,
           passwordInputResult.kdfConfig,
-          salt,
+          passwordInputResult.salt,
         );
 
       const masterPasswordUnlock = await this.masterPasswordService.makeMasterPasswordUnlockData(
         passwordInputResult.newPassword,
         passwordInputResult.kdfConfig,
-        salt,
+        passwordInputResult.salt,
         newUserKey,
       );
 
-      const registerFinishRequest = new RegisterFinishV2Request(
+      const registerFinishRequest = new RegisterFinishRequestWithAuthUnlockDataTypes(
         email,
         passwordInputResult.newPasswordHint,
-        encryptedUserKey,
         userAsymmetricKeysRequest,
         masterPasswordAuthentication,
         masterPasswordUnlock,

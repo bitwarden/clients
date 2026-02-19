@@ -1,7 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/registration/register-finish-v2.request";
+import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -211,11 +211,14 @@ describe("DefaultRegistrationFinishService", () => {
 
         // Verify new API fields are present
         const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-        expect(registerCall).toBeInstanceOf(RegisterFinishV2Request);
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(
-          (registerCall as RegisterFinishV2Request).masterPasswordAuthentication,
+          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes)
+            .masterPasswordAuthentication,
         ).toBeDefined();
-        expect((registerCall as RegisterFinishV2Request).masterPasswordUnlock).toBeDefined();
+        expect(
+          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
+        ).toBeDefined();
 
         // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
         expect((registerCall as any).masterPasswordHash).toBeUndefined();

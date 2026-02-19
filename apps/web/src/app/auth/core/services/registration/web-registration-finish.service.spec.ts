@@ -9,7 +9,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/registration/register-finish-v2.request";
+import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
@@ -418,11 +418,14 @@ describe("WebRegistrationFinishService", () => {
 
         // Verify new API fields are present
         const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-        expect(registerCall).toBeInstanceOf(RegisterFinishV2Request);
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(
-          (registerCall as RegisterFinishV2Request).masterPasswordAuthentication,
+          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes)
+            .masterPasswordAuthentication,
         ).toBeDefined();
-        expect((registerCall as RegisterFinishV2Request).masterPasswordUnlock).toBeDefined();
+        expect(
+          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
+        ).toBeDefined();
 
         // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
         expect((registerCall as any).masterPasswordHash).toBeUndefined();
@@ -450,7 +453,7 @@ describe("WebRegistrationFinishService", () => {
 
         // Verify new API fields are present
         const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-        expect(registerCall).toBeInstanceOf(RegisterFinishV2Request);
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
       });
 
       it("registers the user when given an org sponsored free family plan token", async () => {
