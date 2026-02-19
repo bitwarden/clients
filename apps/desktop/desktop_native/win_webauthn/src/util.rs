@@ -9,7 +9,8 @@ use windows::{
 use crate::{ErrorKind, WinWebAuthnError};
 
 macro_rules! webauthn_call {
-    ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
+    ($symbol:literal as $(#[$attr:meta])* fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
+        $(#[$attr])*
         pub(super) unsafe fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
             let library = crate::util::load_webauthn_lib()?;
             let response = unsafe {
