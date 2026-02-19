@@ -1,10 +1,9 @@
 import {
-  isGoogleDriveLoggedIn,
-  isLoggedIn,
-  getGoogleUserInfo,
-  googleDriveLogin,
+  isLoggedIn as isPqpLoggedIn,
+  getUserInfo,
   localStateRepository,
   sha256,
+  ServiceLocator,
 } from "@ovrlab/pqp-network";
 
 import {
@@ -14,23 +13,23 @@ import {
 
 // Mock the @ovrlab/pqp-network module
 jest.mock("@ovrlab/pqp-network", () => ({
-  isGoogleDriveLoggedIn: jest.fn(),
   isLoggedIn: jest.fn(),
-  getGoogleUserInfo: jest.fn(),
-  googleDriveLogin: jest.fn(),
+  getUserInfo: jest.fn(),
   login: jest.fn(),
   localStateRepository: {
     getPrivateKey: jest.fn(),
   },
   sha256: jest.fn(),
+  ServiceLocator: {
+    getMessaging: jest.fn(),
+  },
 }));
 
-const mockIsGoogleDriveLoggedIn = isGoogleDriveLoggedIn as jest.Mock;
-const mockIsPqpLoggedIn = isLoggedIn as jest.Mock;
-const mockGetGoogleUserInfo = getGoogleUserInfo as jest.Mock;
-const mockGoogleDriveLogin = googleDriveLogin as jest.Mock;
+const mockIsPqpLoggedIn = isPqpLoggedIn as jest.Mock;
+const mockGetUserInfo = getUserInfo as jest.Mock;
 const mockGetPrivateKey = localStateRepository.getPrivateKey as jest.Mock;
 const mockSha256 = sha256 as jest.Mock;
+const mockGetMessaging = ServiceLocator.getMessaging as jest.Mock;
 
 describe("PqpAuthService", () => {
   let service: PqpAuthService;
@@ -38,11 +37,14 @@ describe("PqpAuthService", () => {
   beforeEach(() => {
     service = new PqpAuthService();
     jest.clearAllMocks();
+    // Default: getMessaging throws (no messaging available — desktop/fallback path)
+    mockGetMessaging.mockImplementation(() => {
+      throw new Error("No messaging");
+    });
   });
 
   describe("initial state", () => {
     it("should have all properties set to false/null initially", () => {
-      expect(service.googleDriveLoggedIn).toBe(false);
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
       expect(service.derivedPassword).toBeNull();
@@ -55,7 +57,6 @@ describe("PqpAuthService", () => {
       const state = service.getState();
 
       expect(state).toEqual({
-        googleDriveLoggedIn: false,
         networkLoggedIn: false,
         userEmail: null,
         derivedPassword: null,
@@ -65,35 +66,47 @@ describe("PqpAuthService", () => {
   });
 
   describe("checkStatus", () => {
-    it("should check Google Drive and PqP login status", async () => {
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(false);
+    it("should check PqP login status via direct API when messaging unavailable", async () => {
       mockIsPqpLoggedIn.mockResolvedValue(false);
 
       const state = await service.checkStatus();
 
-      expect(mockIsGoogleDriveLoggedIn).toHaveBeenCalled();
       expect(mockIsPqpLoggedIn).toHaveBeenCalled();
-      expect(state.googleDriveLoggedIn).toBe(false);
       expect(state.networkLoggedIn).toBe(false);
     });
 
-    it("should fetch user info when Google Drive is logged in", async () => {
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
-      mockIsPqpLoggedIn.mockResolvedValue(false);
-      mockGetGoogleUserInfo.mockResolvedValue({
-        email: "test@example.com",
-      });
+    it("should check PqP login status via messaging when available", async () => {
+      const mockMessaging = {
+        sendWithResponse: jest.fn().mockResolvedValue({ loggedIn: true }),
+      };
+      mockGetMessaging.mockReturnValue(mockMessaging);
+      mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
+      mockGetPrivateKey.mockResolvedValue("key");
+      mockSha256.mockResolvedValue("hash");
 
       const state = await service.checkStatus();
 
-      expect(mockGetGoogleUserInfo).toHaveBeenCalled();
+      expect(mockMessaging.sendWithResponse).toHaveBeenCalledWith("CHECK_STATUS");
+      expect(state.networkLoggedIn).toBe(true);
+    });
+
+    it("should fetch user info when logged in", async () => {
+      mockIsPqpLoggedIn.mockResolvedValue(true);
+      mockGetUserInfo.mockResolvedValue({
+        email: "test@example.com",
+      });
+      mockGetPrivateKey.mockResolvedValue("key");
+      mockSha256.mockResolvedValue("hash");
+
+      const state = await service.checkStatus();
+
+      expect(mockGetUserInfo).toHaveBeenCalled();
       expect(state.userEmail).toBe("test@example.com");
     });
 
-    it("should derive password when both services are logged in", async () => {
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
+    it("should derive password when logged in", async () => {
       mockIsPqpLoggedIn.mockResolvedValue(true);
-      mockGetGoogleUserInfo.mockResolvedValue({ email: "test@example.com" });
+      mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
       mockGetPrivateKey.mockResolvedValue("mock-private-key");
       mockSha256.mockResolvedValue("derived-password-hash");
 
@@ -105,95 +118,32 @@ describe("PqpAuthService", () => {
       expect(state.derivedPassword).toBe("derived-password-hash");
     });
 
-    it("should clear stale userEmail when Google Drive is logged out", async () => {
-      // First, log in to Google Drive
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
-      mockIsPqpLoggedIn.mockResolvedValue(false);
-      mockGetGoogleUserInfo.mockResolvedValue({ email: "test@example.com" });
-      await service.checkStatus();
-      expect(service.userEmail).toBe("test@example.com");
-
-      // Now simulate Google Drive logout
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(false);
-      const state = await service.checkStatus();
-
-      expect(state.userEmail).toBeNull();
-    });
-
-    it("should clear stale derivedPassword when isReady becomes false", async () => {
-      // First, log in to both services
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
+    it("should clear stale data when logged out", async () => {
+      // First, log in
       mockIsPqpLoggedIn.mockResolvedValue(true);
-      mockGetGoogleUserInfo.mockResolvedValue({ email: "test@example.com" });
+      mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
       mockGetPrivateKey.mockResolvedValue("key");
       mockSha256.mockResolvedValue("password");
       await service.checkStatus();
-      expect(service.derivedPassword).toBe("password");
+      expect(service.userEmail).toBe("test@example.com");
 
-      // Now simulate PqP Network logout
+      // Now simulate logout
       mockIsPqpLoggedIn.mockResolvedValue(false);
       const state = await service.checkStatus();
 
+      expect(state.userEmail).toBeNull();
       expect(state.derivedPassword).toBeNull();
     });
 
     it("should handle errors gracefully", async () => {
-      mockIsGoogleDriveLoggedIn.mockRejectedValue(new Error("Network error"));
+      mockIsPqpLoggedIn.mockRejectedValue(new Error("Network error"));
 
       const state = await service.checkStatus();
 
-      // Should not throw, just return current state
-      expect(state.googleDriveLoggedIn).toBe(false);
-    });
-  });
-
-  describe("loginToGoogleDrive", () => {
-    it("should return true on successful login", async () => {
-      mockGoogleDriveLogin.mockResolvedValue(true);
-      mockGetGoogleUserInfo.mockResolvedValue({
-        email: "user@example.com",
-      });
-
-      const result = await service.loginToGoogleDrive();
-
-      expect(result).toBe(true);
-      expect(service.googleDriveLoggedIn).toBe(true);
-      expect(service.userEmail).toBe("user@example.com");
-    });
-
-    it("should return false on failed login", async () => {
-      mockGoogleDriveLogin.mockResolvedValue(false);
-
-      const result = await service.loginToGoogleDrive();
-
-      expect(result).toBe(false);
-      expect(service.googleDriveLoggedIn).toBe(false);
-    });
-
-    it("should return false on error", async () => {
-      mockGoogleDriveLogin.mockRejectedValue(new Error("Login failed"));
-
-      const result = await service.loginToGoogleDrive();
-
-      expect(result).toBe(false);
-    });
-
-    it("should derive password if both services become ready", async () => {
-      // First, set network as logged in via checkStatus
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(false);
-      mockIsPqpLoggedIn.mockResolvedValue(true);
-      await service.checkStatus();
-
-      // Now login to Google Drive
-      mockGoogleDriveLogin.mockResolvedValue(true);
-      mockGetGoogleUserInfo.mockResolvedValue({ email: "test@example.com" });
-      mockGetPrivateKey.mockResolvedValue("private-key");
-      mockSha256.mockResolvedValue("password-hash");
-
-      await service.loginToGoogleDrive();
-
-      expect(service.isReady).toBe(true);
-      expect(service.derivedPassword).toBe("password-hash");
+      // Should not throw, resets state
+      expect(state.networkLoggedIn).toBe(false);
+      expect(state.userEmail).toBeNull();
+      expect(state.derivedPassword).toBeNull();
     });
   });
 
@@ -230,9 +180,8 @@ describe("PqpAuthService", () => {
   describe("reset", () => {
     it("should reset all state to initial values", async () => {
       // First, set some state
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
       mockIsPqpLoggedIn.mockResolvedValue(true);
-      mockGetGoogleUserInfo.mockResolvedValue({
+      mockGetUserInfo.mockResolvedValue({
         email: "test@example.com",
       });
       mockGetPrivateKey.mockResolvedValue("key");
@@ -244,7 +193,6 @@ describe("PqpAuthService", () => {
       // Now reset
       service.reset();
 
-      expect(service.googleDriveLoggedIn).toBe(false);
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
       expect(service.derivedPassword).toBeNull();
@@ -253,22 +201,21 @@ describe("PqpAuthService", () => {
   });
 
   describe("isReady", () => {
-    it("should return true only when both services are logged in", async () => {
+    it("should return true when network is logged in", async () => {
       expect(service.isReady).toBe(false);
 
-      // Only Google Drive
-      mockIsGoogleDriveLoggedIn.mockResolvedValue(true);
-      mockIsPqpLoggedIn.mockResolvedValue(false);
-      mockGetGoogleUserInfo.mockResolvedValue({ email: "test@example.com" });
-      await service.checkStatus();
-      expect(service.isReady).toBe(false);
-
-      // Both services
       mockIsPqpLoggedIn.mockResolvedValue(true);
+      mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
       mockGetPrivateKey.mockResolvedValue("key");
       mockSha256.mockResolvedValue("pass");
       await service.checkStatus();
       expect(service.isReady).toBe(true);
+    });
+
+    it("should return false when network is not logged in", async () => {
+      mockIsPqpLoggedIn.mockResolvedValue(false);
+      await service.checkStatus();
+      expect(service.isReady).toBe(false);
     });
   });
 });
