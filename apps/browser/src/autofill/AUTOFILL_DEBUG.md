@@ -5,11 +5,13 @@ This document describes how to use the autofill debug mode for troubleshooting f
 ## Enabling Debug Mode
 
 1. Set the dev flag in your `.env.development` file:
+
    ```
    DEV_FLAGS={"autofillDebugMode": true}
    ```
 
 2. Rebuild the browser extension:
+
    ```bash
    npm run build:watch
    ```
@@ -19,35 +21,67 @@ This document describes how to use the autofill debug mode for troubleshooting f
 ## Using Debug Mode
 
 When debug mode is enabled, the browser console will display:
+
 ```
 [Bitwarden Debug] Autofill debug mode enabled. Use window.__BITWARDEN_AUTOFILL_DEBUG__
 ```
 
-### Available Methods
+### Right-Click Context Menu (Easiest Path)
+
+With debug mode enabled, right-clicking any element on the page reveals a **[Debug] Copy autofill debug info** item in the Bitwarden context menu. Clicking it copies a plain-text summary of all field qualification decisions for the current page to your clipboard.
+
+This summary includes:
+
+- All fields that were evaluated (both qualified and rejected)
+- Why each field passed or failed each condition
+- Human-readable explanations and fix suggestions for failures
+
+Paste the copied text directly into a support ticket or bug report. Field values are never captured.
+
+### Console API
 
 #### `exportSession(format?: 'json' | 'summary' | 'console')`
+
 Exports the current debug session in the specified format.
 
 ```javascript
 // Export as JSON (default)
-const data = __BITWARDEN_AUTOFILL_DEBUG__.exportSession('json');
+const data = __BITWARDEN_AUTOFILL_DEBUG__.exportSession("json");
 console.log(JSON.parse(data));
 
 // Export as human-readable summary
-console.log(__BITWARDEN_AUTOFILL_DEBUG__.exportSession('summary'));
+console.log(__BITWARDEN_AUTOFILL_DEBUG__.exportSession("summary"));
 
 // Output to console with pretty formatting
-__BITWARDEN_AUTOFILL_DEBUG__.exportSession('console');
+__BITWARDEN_AUTOFILL_DEBUG__.exportSession("console");
 ```
 
 #### `exportSummary()`
+
 Returns a human-readable summary of the most recent session.
 
 ```javascript
 console.log(__BITWARDEN_AUTOFILL_DEBUG__.exportSummary());
 ```
 
+#### `startSession(name?: string)`
+
+Starts a new debug session, optionally with a stable name for diffing.
+
+Named sessions produce deterministic, timestamp-prefixed IDs — useful for comparing the same page across different deploys or configurations:
+
+```javascript
+// Named session: session_2026-02-19T12-00-00-000Z_login-form-test
+__BITWARDEN_AUTOFILL_DEBUG__.startSession("login-form-test");
+
+// Anonymous session: session_2026-02-19T12-00-00-000Z_ab3f2
+__BITWARDEN_AUTOFILL_DEBUG__.startSession();
+```
+
+The ISO timestamp prefix means sessions sort naturally by date, enabling meaningful diffs between weekly deploys.
+
 #### `setTracingDepth(depth: number)`
+
 Configures how deep to trace precondition qualifiers.
 
 ```javascript
@@ -62,6 +96,7 @@ __BITWARDEN_AUTOFILL_DEBUG__.setTracingDepth(2);
 ```
 
 #### `getTracingDepth()`
+
 Returns the current tracing depth.
 
 ```javascript
@@ -70,11 +105,12 @@ console.log(`Current tracing depth: ${depth}`);
 ```
 
 #### `getSessions()`
+
 Returns an array of all session IDs in memory.
 
 ```javascript
 const sessions = __BITWARDEN_AUTOFILL_DEBUG__.getSessions();
-console.log('Active sessions:', sessions);
+console.log("Active sessions:", sessions);
 ```
 
 ## Enhanced Console Logging
@@ -82,6 +118,7 @@ console.log('Active sessions:', sessions);
 When debug mode is enabled, the console automatically displays enhanced qualification messages:
 
 ### Field Qualified
+
 ```
 ✅ Field Qualified: opid_12345
   Field: <input type="text" ...>
@@ -90,6 +127,7 @@ When debug mode is enabled, the console automatically displays enhanced qualific
 ```
 
 ### Field Rejected
+
 ```
 ❌ Field Rejected: opid_12345
   Field: <input type="text" ...>
@@ -101,19 +139,20 @@ When debug mode is enabled, the console automatically displays enhanced qualific
 ## Understanding Debug Output
 
 ### JSON Export Structure
+
 ```json
 {
-  "sessionId": "session_1234567890_abc123",
+  "sessionId": "session_2026-02-19T12-00-00-000Z_abc12",
   "startTime": 1234567890000,
   "endTime": 1234567891000,
   "url": "https://example.com/login",
   "qualifications": [
     {
       "fieldId": "opid_12345",
-      "elementSelector": "input[type='text']#username",
+      "elementSelector": "#username",
       "attempts": [
         {
-          "attemptId": "attempt_1234567890_xyz789",
+          "attemptId": "attempt_2026-02-19T12-00-00-500Z",
           "timestamp": 1234567890500,
           "vector": "inline-menu",
           "result": {
@@ -122,6 +161,7 @@ When debug mode is enabled, the console automatically displays enhanced qualific
               "pass": [
                 {
                   "name": "isUsernameField",
+                  "description": "Field is recognized as a username or email input",
                   "functionSource": "function isUsernameField(field) { ... }"
                 }
               ],
@@ -138,7 +178,7 @@ When debug mode is enabled, the console automatically displays enhanced qualific
               "tracingDepth": 0
             }
           },
-          "triggeredBy": "page-load"
+          "triggeredBy": "setupOverlayListeners"
         }
       ],
       "finalDecision": { ... }
@@ -148,30 +188,40 @@ When debug mode is enabled, the console automatically displays enhanced qualific
 ```
 
 ### Summary Export Structure
+
 ```
 ================================================================================
 Bitwarden Autofill Debug Summary
 ================================================================================
-Session ID: session_1234567890_abc123
+Session ID: session_2026-02-19T12-00-00-000Z_abc12
 URL: https://example.com/login
-Start Time: 2026-02-06T12:00:00.000Z
-End Time: 2026-02-06T12:00:01.000Z
+Start Time: 2026-02-19T12:00:00.000Z
+End Time: 2026-02-19T12:00:01.000Z
 Duration: 1.00s
 
 Total Fields Qualified: 2
 
 --------------------------------------------------------------------------------
 Field ID: opid_12345
-Selector: input[type='text']#username
+Selector: #username
 Attempts: 1
 Final Decision: ✅ QUALIFIED
 
 Passed Conditions:
-  ✓ isUsernameField
-  ✓ notCurrentlyInSandboxedIframe
+  ✓ notCurrentlyInSandboxedIframe — Field is not in a sandboxed iframe
+  ✓ isUsernameField — Field is recognized as a username or email input
 
-Vector: inline-menu
-Timestamp: 2026-02-06T12:00:00.500Z
+--------------------------------------------------------------------------------
+Field ID: opid_67890
+Selector: [name="search"]
+Attempts: 1
+Final Decision: ❌ REJECTED
+
+Passed Conditions:
+  ✓ notCurrentlyInSandboxedIframe
+Failed Conditions:
+  ✗ fieldIsForLoginForm — Field is part of a login form
+    → Fix: Add autocomplete="username" or autocomplete="email" to the field
 
 ================================================================================
 ⚠️  WARNING: This debug data may contain sensitive information.
@@ -189,32 +239,60 @@ Debug data tracks which autofill vector triggered the qualification:
 - **keyboard-shortcut**: Autofill triggered by keyboard shortcut (Ctrl+Shift+L)
 - **page-load**: Autofill triggered automatically on page load
 
+### Architectural Reality
+
+All 4 entry points (inline menu, popup, keyboard shortcut, context menu) ultimately call the same fill path in the background service worker: `autofillService.doAutoFill()` → `generateFillScript()`. They use the same core logic and do not bypass each other.
+
+However, there are **two distinct qualification systems**:
+
+| System                                | Used by                  | Where it runs             |
+| ------------------------------------- | ------------------------ | ------------------------- |
+| `InlineMenuFieldQualificationService` | Inline menu overlay only | Content script            |
+| `generateFillScript()` field matching | All 4 entry points       | Background service worker |
+
+The `InlineMenuFieldQualificationService` is used exclusively to decide **whether to show the overlay icon on a given field**. The debug session records only this decision. The actual fill logic uses simpler, independent field detection in the background.
+
+This means:
+
+- A field _rejected_ by inline menu qualification (no overlay shown) may still be _filled_ by keyboard shortcut or context menu, because the two qualification systems use different criteria.
+- A field _accepted_ by inline menu qualification may fail to fill if `generateFillScript()` doesn't match it.
+
+### Why Other Vectors Are Not Tracked
+
+The debug service lives in the content script inside `AutofillOverlayContentService`. The popup, keyboard shortcut, and context menu flows run entirely in the background service worker and only send the rendered fill script to the content script — they never invoke the content script's qualification service. There is no point in those paths where the current vector can be set.
+
+To track those vectors would require:
+
+1. A new message from the background to the content script announcing "autofill was triggered via [vector]"
+2. The content script debug service recording it against the current session
+
+This is tracked as future work.
+
 ## Precondition Tracing
 
 Some qualification functions depend on other qualifiers (preconditions). For example:
+
 - `isNewPasswordField` depends on `isPasswordField`
 - `isCurrentPasswordField` depends on `isPasswordField`
 
 The tracing depth controls how deep to capture these dependencies:
 
 ### Depth = 0 (No Tracing)
+
 Only captures the top-level condition result. Fastest, minimal data.
 
 ### Depth = 1 (Immediate Preconditions) - Default
+
 Captures the direct preconditions of the qualification.
 
 Example: For `isNewPasswordField`, captures:
+
 - `isNewPasswordField` (top level)
 - `isPasswordField` (immediate precondition)
 
 ### Depth = 2+ (Full Chain)
-Captures the entire chain of preconditions recursively.
 
-Example: For a complex qualification, captures:
-- `isFieldForLoginForm` (top level)
-- `isUsernameFieldForLoginForm` (precondition)
-- `isUsernameField` (precondition of precondition)
-- ... (and so on)
+Captures the entire chain of preconditions recursively.
 
 ## Performance Impact
 
@@ -235,47 +313,84 @@ Example: For a complex qualification, captures:
 ⚠️ **Never share debug output publicly or with untrusted parties**
 
 While field values are redacted, debug output still contains:
+
 - Page URLs
 - Field IDs, names, and attributes
 - Form structure
 - Qualification logic (function source code)
 
 This information could be used to identify:
+
 - Internal applications
 - Custom form fields
 - Business logic patterns
 
+## QA / Regression Workflow
+
+Use named sessions for deterministic, diffable output across deployments:
+
+```javascript
+// Before a deploy
+__BITWARDEN_AUTOFILL_DEBUG__.startSession("checkout-form-baseline");
+// Focus fields on the page to trigger qualification
+const before = __BITWARDEN_AUTOFILL_DEBUG__.exportSession("json");
+
+// After a deploy
+__BITWARDEN_AUTOFILL_DEBUG__.startSession("checkout-form-after-deploy");
+// Focus same fields
+const after = __BITWARDEN_AUTOFILL_DEBUG__.exportSession("json");
+
+// Diff — attempt IDs and timestamps in conditions are stable; only real changes show up
+```
+
+Session IDs use ISO timestamps (`session_2026-02-19T12-00-00-000Z_name`) so they sort naturally and identify when each capture was taken.
+
 ## Troubleshooting Common Issues
 
 ### Debug API Not Available
+
 ```javascript
-typeof window.__BITWARDEN_AUTOFILL_DEBUG__ === 'undefined'
+typeof window.__BITWARDEN_AUTOFILL_DEBUG__ === "undefined";
 ```
 
 **Solution**: Verify that:
+
 1. Dev flag is set correctly in `.env.development`
 2. Extension was rebuilt after setting the flag
 3. You're on a page where autofill is active (not a chrome:// or browser settings page)
 
 ### No Sessions Found
+
 ```javascript
-__BITWARDEN_AUTOFILL_DEBUG__.getSessions() // returns []
+__BITWARDEN_AUTOFILL_DEBUG__.getSessions(); // returns []
 ```
 
 **Solution**:
+
 1. Focus a form field to trigger qualification
 2. Sessions expire after 5 minutes - check timing
 3. Verify debug mode is enabled (check console for initialization message)
 
 ### Missing Precondition Data
+
 ```javascript
 // result.meta.preconditions is undefined
 ```
 
 **Solution**: Increase tracing depth:
+
 ```javascript
 __BITWARDEN_AUTOFILL_DEBUG__.setTracingDepth(2);
 ```
+
+### Empty qualifications Array in Export
+
+If `exportSession('json')` shows `"qualifications": []`, the session captured no field evaluations.
+
+**Solution**: The session may have started after fields were already evaluated. Either:
+
+1. Start a named session before navigating: `startSession('my-test')` — then navigate to the page
+2. Or refresh the page after enabling debug mode so all fields are re-evaluated
 
 ## Example Workflow
 
@@ -296,16 +411,6 @@ __BITWARDEN_AUTOFILL_DEBUG__.setTracingDepth(2);
 8. Focus the field again to capture with higher depth
 9. Export and analyze:
    ```javascript
-   const json = __BITWARDEN_AUTOFILL_DEBUG__.exportSession('json');
+   const json = __BITWARDEN_AUTOFILL_DEBUG__.exportSession("json");
    // Save to file or analyze
    ```
-
-## Future Enhancements
-
-Planned features (not yet implemented):
-- Visual debug panel UI in popup/options
-- Download JSON button
-- Copy to clipboard functionality
-- JSON-DSL representation of conditions
-- Filter by field type or qualification result
-- Session replay/comparison

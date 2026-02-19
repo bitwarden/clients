@@ -3,6 +3,8 @@ export const AutofillMessageCommand = {
   collectPageDetailsResponse: "collectPageDetailsResponse",
 } as const;
 
+export const COPY_AUTOFILL_DEBUG_ID = "copy-autofill-debug";
+
 export type AutofillMessageCommandType =
   (typeof AutofillMessageCommand)[keyof typeof AutofillMessageCommand];
 

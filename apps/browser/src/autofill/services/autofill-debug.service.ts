@@ -1,12 +1,13 @@
-import AutofillField from "../models/autofill-field";
-import AutofillPageDetails from "../models/autofill-page-details";
+/* eslint-disable no-console */
+import { devFlagEnabled } from "../../platform/flags";
 import {
   AutofillDebugSession,
   DebugExportFormat,
-  FieldQualificationRecord,
   QualificationAttempt,
 } from "../models/autofill-debug-data";
-import { devFlagEnabled } from "../../platform/flags";
+import AutofillField from "../models/autofill-field";
+import AutofillPageDetails from "../models/autofill-page-details";
+
 import {
   AutofillVector,
   QualificationResult,
@@ -40,8 +41,11 @@ export class AutofillDebugService {
     this.tracingDepth = depth;
   }
 
-  startSession(url: string): string {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  startSession(url: string, sessionName?: string): string {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const sessionId = sessionName
+      ? `session_${timestamp}_${sessionName}`
+      : `session_${timestamp}_${Math.random().toString(36).substring(2, 7)}`;
     this.currentSession = {
       sessionId,
       startTime: Date.now(),
@@ -92,7 +96,7 @@ export class AutofillDebugService {
     }
 
     const attempt: QualificationAttempt = {
-      attemptId: `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      attemptId: `attempt_${new Date().toISOString().replace(/[:.]/g, "-")}`,
       timestamp: Date.now(),
       vector,
       result,
@@ -105,7 +109,9 @@ export class AutofillDebugService {
 
   exportCurrentSession(format: DebugExportFormat = "json"): string {
     if (!this.currentSession) {
-      return format === "json" ? JSON.stringify({ error: "No active session" }) : "No active session";
+      return format === "json"
+        ? JSON.stringify({ error: "No active session" })
+        : "No active session";
     }
 
     return this.exportSession(this.currentSession.sessionId, format);
@@ -115,7 +121,9 @@ export class AutofillDebugService {
     const session = this.sessionStore.get(sessionId);
 
     if (!session) {
-      return format === "json" ? JSON.stringify({ error: "Session not found" }) : "Session not found";
+      return format === "json"
+        ? JSON.stringify({ error: "Session not found" })
+        : "Session not found";
     }
 
     switch (format) {
@@ -168,7 +176,8 @@ export class AutofillDebugService {
           lines.push("");
           lines.push("Passed Conditions:");
           for (const condition of fieldRecord.finalDecision.conditions.pass) {
-            lines.push(`  ✓ ${condition.name}`);
+            const desc = condition.description ? ` — ${condition.description}` : "";
+            lines.push(`  ✓ ${condition.name}${desc}`);
           }
         }
 
@@ -176,14 +185,20 @@ export class AutofillDebugService {
           lines.push("");
           lines.push("Failed Conditions:");
           for (const condition of fieldRecord.finalDecision.conditions.fail) {
-            lines.push(`  ✗ ${condition.name}`);
+            const desc = condition.description ? ` — ${condition.description}` : "";
+            lines.push(`  ✗ ${condition.name}${desc}`);
+            if (condition.suggestion) {
+              lines.push(`    → Fix: ${condition.suggestion}`);
+            }
           }
         }
 
         if (fieldRecord.finalDecision.meta) {
           lines.push("");
           lines.push(`Vector: ${fieldRecord.finalDecision.meta.vector}`);
-          lines.push(`Timestamp: ${new Date(fieldRecord.finalDecision.meta.timestamp).toISOString()}`);
+          lines.push(
+            `Timestamp: ${new Date(fieldRecord.finalDecision.meta.timestamp).toISOString()}`,
+          );
         }
       }
 
@@ -230,7 +245,9 @@ export class AutofillDebugService {
         if (fieldRecord.finalDecision.conditions.pass.length > 0) {
           console.group("✓ Passed Conditions");
           for (const condition of fieldRecord.finalDecision.conditions.pass) {
-            console.log(`${condition.name}`);
+            console.log(
+              `${condition.name}${condition.description ? ` — ${condition.description}` : ""}`,
+            );
             if (condition.functionSource) {
               console.log(`Function:`, condition.functionSource);
             }
@@ -241,7 +258,12 @@ export class AutofillDebugService {
         if (fieldRecord.finalDecision.conditions.fail.length > 0) {
           console.group("✗ Failed Conditions");
           for (const condition of fieldRecord.finalDecision.conditions.fail) {
-            console.log(`${condition.name}`);
+            console.log(
+              `${condition.name}${condition.description ? ` — ${condition.description}` : ""}`,
+            );
+            if (condition.suggestion) {
+              console.log(`  → Fix: ${condition.suggestion}`);
+            }
             if (condition.functionSource) {
               console.log(`Function:`, condition.functionSource);
             }
@@ -252,7 +274,9 @@ export class AutofillDebugService {
         if (fieldRecord.finalDecision.meta) {
           console.group("Metadata");
           console.log(`Vector: ${fieldRecord.finalDecision.meta.vector}`);
-          console.log(`Timestamp: ${new Date(fieldRecord.finalDecision.meta.timestamp).toISOString()}`);
+          console.log(
+            `Timestamp: ${new Date(fieldRecord.finalDecision.meta.timestamp).toISOString()}`,
+          );
           console.log(`Field Snapshot:`, fieldRecord.finalDecision.meta.fieldSnapshot);
           if (fieldRecord.finalDecision.meta.pageSnapshot) {
             console.log(`Page Snapshot:`, fieldRecord.finalDecision.meta.pageSnapshot);

@@ -16,8 +16,8 @@ import {
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
-import AutofillService from "./autofill.service";
 import { AutofillDebugService } from "./autofill-debug.service";
+import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
@@ -159,6 +159,116 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     return this.debugService?.isDebugEnabled() ?? false;
   }
 
+  private static readonly conditionDescriptions: Record<
+    string,
+    { description?: string; suggestion?: string }
+  > = {
+    isUsernameField: {
+      description: "Field is recognized as a username or email input",
+      suggestion: 'Add autocomplete="username" or autocomplete="email" to the field',
+    },
+    isCurrentPasswordField: {
+      description: "Field is recognized as an existing (login) password field",
+      suggestion: 'Add autocomplete="current-password" to the field',
+    },
+    isNewPasswordField: {
+      description: "Field is recognized as a new password field (account creation)",
+      suggestion: 'Add autocomplete="new-password" to the field',
+    },
+    isPasswordField: {
+      description: "Field has type='password' or matches password heuristics",
+      suggestion: "Set type='password' on the field",
+    },
+    isFieldForCardholderName: {
+      description: "Field is recognized as a cardholder name field",
+      suggestion: 'Add autocomplete="cc-name" to the field',
+    },
+    isFieldForCardNumber: {
+      description: "Field is recognized as a credit card number field",
+      suggestion: 'Add autocomplete="cc-number" to the field',
+    },
+    isFieldForCardExpirationDate: {
+      description: "Field is recognized as a card expiration date field",
+      suggestion: 'Add autocomplete="cc-exp" to the field',
+    },
+    isFieldForCardExpirationMonth: {
+      description: "Field is recognized as a card expiration month field",
+      suggestion: 'Add autocomplete="cc-exp-month" to the field',
+    },
+    isFieldForCardExpirationYear: {
+      description: "Field is recognized as a card expiration year field",
+      suggestion: 'Add autocomplete="cc-exp-year" to the field',
+    },
+    isFieldForCardCvv: {
+      description: "Field is recognized as a card CVV/security code field",
+      suggestion: 'Add autocomplete="cc-csc" to the field',
+    },
+    isFieldForIdentityTitle: {
+      description: "Field is recognized as an honorific title field",
+      suggestion: 'Add autocomplete="honorific-prefix" to the field',
+    },
+    isFieldForIdentityFirstName: {
+      description: "Field is recognized as a first name field",
+      suggestion: 'Add autocomplete="given-name" to the field',
+    },
+    isFieldForIdentityMiddleName: {
+      description: "Field is recognized as a middle name field",
+      suggestion: 'Add autocomplete="additional-name" to the field',
+    },
+    isFieldForIdentityLastName: {
+      description: "Field is recognized as a last name field",
+      suggestion: 'Add autocomplete="family-name" to the field',
+    },
+    isFieldForIdentityFullName: {
+      description: "Field is recognized as a full name field",
+      suggestion: 'Add autocomplete="name" to the field',
+    },
+    isFieldForIdentityAddress1: {
+      description: "Field is recognized as a primary address line field",
+      suggestion: 'Add autocomplete="address-line1" to the field',
+    },
+    isFieldForIdentityAddress2: {
+      description: "Field is recognized as a secondary address line field",
+      suggestion: 'Add autocomplete="address-line2" to the field',
+    },
+    isFieldForIdentityAddress3: {
+      description: "Field is recognized as a third address line field",
+      suggestion: 'Add autocomplete="address-line3" to the field',
+    },
+    isFieldForIdentityCity: {
+      description: "Field is recognized as a city field",
+      suggestion: 'Add autocomplete="address-level2" to the field',
+    },
+    isFieldForIdentityState: {
+      description: "Field is recognized as a state or province field",
+      suggestion: 'Add autocomplete="address-level1" to the field',
+    },
+    isFieldForIdentityPostalCode: {
+      description: "Field is recognized as a postal or ZIP code field",
+      suggestion: 'Add autocomplete="postal-code" to the field',
+    },
+    isFieldForIdentityCountry: {
+      description: "Field is recognized as a country field",
+      suggestion: 'Add autocomplete="country" to the field',
+    },
+    isFieldForIdentityCompany: {
+      description: "Field is recognized as a company or organization field",
+      suggestion: 'Add autocomplete="organization" to the field',
+    },
+    isFieldForIdentityPhone: {
+      description: "Field is recognized as a phone number field",
+      suggestion: 'Add autocomplete="tel" to the field',
+    },
+    isFieldForIdentityEmail: {
+      description: "Field is recognized as an email address field",
+      suggestion: 'Add autocomplete="email" to the field',
+    },
+    isFieldForIdentityUsername: {
+      description: "Field is recognized as a username field for identity",
+      suggestion: 'Add autocomplete="username" to the field',
+    },
+  };
+
   setCurrentVector(vector: AutofillVector): void {
     this.currentVector = vector;
   }
@@ -192,8 +302,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     const maxDepth = this.debugService?.getTracingDepth() ?? 1;
     const shouldTrace = currentDepth < maxDepth;
 
+    const descMeta = InlineMenuFieldQualificationService.conditionDescriptions[name];
     const condition = {
       name,
+      description: descMeta?.description,
+      suggestion: result ? undefined : descMeta?.suggestion,
       functionSource: shouldTrace ? fn.toString() : undefined,
     };
 
@@ -640,104 +753,97 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    *
    * @param field - The field to validate
    */
-  isFieldForCardholderName = (field: AutofillField): boolean => {
-    if (this.fieldContainsAutocompleteValues(field, this.creditCardNameAutocompleteValues)) {
-      return true;
-    }
+  isFieldForCardholderName = (field: AutofillField): boolean =>
+    this.isFieldForCardholderNameWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(
-      field,
-      CreditCardAutoFillConstants.CardHolderFieldNames,
-      false,
-    );
-  };
+  isFieldForCardholderNameWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(field, this.creditCardNameAutocompleteValues) ||
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames, false);
+    return this.wrapQualifier("isFieldForCardholderName", () => result, field);
+  }
 
   /**
    * Validates the provided field as a credit card number field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardNumber = (field: AutofillField): boolean => {
-    if (this.fieldContainsAutocompleteValues(field, this.creditCardNumberAutocompleteValue)) {
-      return true;
-    }
+  isFieldForCardNumber = (field: AutofillField): boolean =>
+    this.isFieldForCardNumberWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(
-      field,
-      CreditCardAutoFillConstants.CardNumberFieldNames,
-      false,
-    );
-  };
+  isFieldForCardNumberWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(field, this.creditCardNumberAutocompleteValue) ||
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames, false);
+    return this.wrapQualifier("isFieldForCardNumber", () => result, field);
+  }
 
   /**
    * Validates the provided field as a credit card expiration date field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationDate = (field: AutofillField): boolean => {
-    if (
-      this.fieldContainsAutocompleteValues(field, this.creditCardExpirationDateAutocompleteValue)
-    ) {
-      return true;
-    }
+  isFieldForCardExpirationDate = (field: AutofillField): boolean =>
+    this.isFieldForCardExpirationDateWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(
-      field,
-      CreditCardAutoFillConstants.CardExpiryFieldNames,
-      false,
-    );
-  };
+  isFieldForCardExpirationDateWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(field, this.creditCardExpirationDateAutocompleteValue) ||
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false);
+    return this.wrapQualifier("isFieldForCardExpirationDate", () => result, field);
+  }
 
   /**
    * Validates the provided field as a credit card expiration month field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationMonth = (field: AutofillField): boolean => {
-    if (
-      this.fieldContainsAutocompleteValues(field, this.creditCardExpirationMonthAutocompleteValue)
-    ) {
-      return true;
-    }
+  isFieldForCardExpirationMonth = (field: AutofillField): boolean =>
+    this.isFieldForCardExpirationMonthWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(
-      field,
-      CreditCardAutoFillConstants.ExpiryMonthFieldNames,
-      false,
-    );
-  };
+  isFieldForCardExpirationMonthWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(
+        field,
+        this.creditCardExpirationMonthAutocompleteValue,
+      ) ||
+      this.keywordsFoundInFieldData(
+        field,
+        CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+        false,
+      );
+    return this.wrapQualifier("isFieldForCardExpirationMonth", () => result, field);
+  }
 
   /**
    * Validates the provided field as a credit card expiration year field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationYear = (field: AutofillField): boolean => {
-    if (
-      this.fieldContainsAutocompleteValues(field, this.creditCardExpirationYearAutocompleteValue)
-    ) {
-      return true;
-    }
+  isFieldForCardExpirationYear = (field: AutofillField): boolean =>
+    this.isFieldForCardExpirationYearWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(
-      field,
-      CreditCardAutoFillConstants.ExpiryYearFieldNames,
-      false,
-    );
-  };
+  isFieldForCardExpirationYearWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(field, this.creditCardExpirationYearAutocompleteValue) ||
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false);
+    return this.wrapQualifier("isFieldForCardExpirationYear", () => result, field);
+  }
 
   /**
    * Validates the provided field as a credit card CVV field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardCvv = (field: AutofillField): boolean => {
-    if (this.fieldContainsAutocompleteValues(field, this.creditCardCvvAutocompleteValue)) {
-      return true;
-    }
+  isFieldForCardCvv = (field: AutofillField): boolean =>
+    this.isFieldForCardCvvWithResult(field).result;
 
-    return this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false);
-  };
+  isFieldForCardCvvWithResult(field: AutofillField): QualificationResult {
+    const result =
+      this.fieldContainsAutocompleteValues(field, this.creditCardCvvAutocompleteValue) ||
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false);
+    return this.wrapQualifier("isFieldForCardCvv", () => result, field);
+  }
 
   /**
    * Validates the provided field as an identity title type field.
