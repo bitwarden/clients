@@ -28,8 +28,8 @@ export type LineData = {
 export type ChartConfig = {
   xAxisLabel?: string;
   yAxisLabel?: string;
-  xAxisType: "time" | "default";
-  timeLabelFormat?: string;
+  xAxisType: "datetime" | "default";
+  timeDisplayFormat?: string;
 };
 
 @Component({
@@ -64,6 +64,8 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
     }
 
     const lineData = this.lines();
+    const configuration = this.configuration();
+
     const config: ChartConfiguration<"line"> = {
       type: "line",
       data: {
@@ -92,15 +94,10 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
         },
         scales: {
           x: {
-            type: "time",
-            time: {
-              unit: "day",
-              displayFormats: {
-                day: "MMM d yyyy",
-              },
-            },
+            type: configuration.xAxisType === "datetime" ? "time" : "linear",
             title: {
-              display: false,
+              display: !!configuration.xAxisLabel,
+              text: configuration.xAxisLabel,
             },
             grid: {
               display: false,
@@ -112,12 +109,22 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
           y: {
             beginAtZero: true,
             title: {
-              display: false,
+              display: !!configuration.yAxisLabel,
+              text: configuration.yAxisLabel,
             },
           },
         },
       },
     };
+
+    if (config.options?.scales?.x?.type === "time") {
+      config.options.scales.x.time = {
+        unit: "day",
+        displayFormats: {
+          day: configuration.timeDisplayFormat ?? "MMM d yyyy",
+        },
+      };
+    }
 
     this.chart = new Chart(ctx, config);
   }
