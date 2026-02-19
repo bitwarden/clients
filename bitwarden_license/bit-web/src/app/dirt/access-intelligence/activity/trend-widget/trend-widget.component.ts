@@ -27,8 +27,8 @@ export const TrendWidgetTimespan = Object.freeze({
 export type TrendWidgetTimespan = (typeof TrendWidgetTimespan)[keyof typeof TrendWidgetTimespan];
 
 export interface TrendWidgetData {
-  timeframe: string;
-  dataView: string;
+  timeframe: TrendWidgetTimespan;
+  dataView: TrendWidgetViewType;
   dataPoints: Array<{
     timestamp: string;
     atRisk: number;
