@@ -21,7 +21,7 @@ import {
   IconModule,
 } from "@bitwarden/components";
 
-import { LineChartComponent, LineData } from "./line-chart/line-chart.component";
+import { ChartConfig, LineChartComponent, LineData } from "./line-chart/line-chart.component";
 
 export const TrendWidgetViewType = Object.freeze({
   Applications: "applications",
@@ -152,4 +152,8 @@ export class TrendWidgetComponent {
       },
     ];
   });
+
+  protected readonly lineChartConfiguration: ChartConfig = {
+    xAxisType: "datetime",
+  };
 }
