@@ -171,7 +171,7 @@ export class LayoutComponent {
     // When the nav enters overlay mode (position:fixed) it leaves the grid's normal
     // flow.  A dummy placeholder div in the template keeps the col 1 auto track
     // stable without needing an explicit px value here.
-    const navCol =
+    const col1 =
       navOpen && navPush
         ? `${this.navWidthRem()}rem` // full nav, push+open
         : navPush || siderailPush
@@ -192,7 +192,7 @@ export class LayoutComponent {
           : "auto"; // fallback before dialog's effect declares its width
     const col2 = !drawerActive || drawerPush ? `minmax(${this.mainMinWidthPx()}px, 1fr)` : "0px";
 
-    return `${navCol} ${col2} ${col3}`;
+    return `${col1} ${col2} ${col3}`;
   });
 
   constructor() {
@@ -233,7 +233,7 @@ export class LayoutComponent {
           drawerWidthPx > 0 && containerWidth - navWidthPx - drawerWidthPx >= mainMinPx;
 
         // Can the drawer push at full width with just the siderail?
-        const drawerWithSiderailCanPush =
+        const drawerFullWidthSiderailCanPush =
           drawerWidthPx > 0 && containerWidth - siderailPx - drawerWidthPx >= mainMinPx;
 
         // Can the drawer push at minimum width with the full nav (shrink zone)?
@@ -254,7 +254,7 @@ export class LayoutComponent {
           // Plenty of room: full nav and drawer both push at full width.
           navPush = true;
           drawerPush = true;
-        } else if (drawerWithSiderailCanPush) {
+        } else if (drawerFullWidthSiderailCanPush) {
           // Full-width drawer fits with just the siderail: collapse the full nav.
           navPush = false;
           drawerPush = true;

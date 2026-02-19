@@ -85,7 +85,7 @@ export class DialogComponent implements AfterViewInit {
       if (!this.dialogRef?.isDrawer) {
         return;
       }
-      const size = this.dialogSize() ?? "default";
+      const size = this.dialogSize();
       const rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       this.drawerService.declarePushWidth((drawerSizeToWidthRem[size] ?? 32) * rootFontSizePx);
     });
@@ -144,7 +144,7 @@ export class DialogComponent implements AfterViewInit {
   private readonly animationCompleted = signal(false);
 
   protected readonly width = computed(() => {
-    const size = this.dialogSize() ?? "default";
+    const size = this.dialogSize();
     const isDrawer = this.dialogRef?.isDrawer;
 
     if (isDrawer) {
@@ -168,7 +168,7 @@ export class DialogComponent implements AfterViewInit {
           "tw-max-h-[90vh]", // needed to prevent dialogs from overlapping the desktop header
         ];
 
-    const size = this.dialogSize() ?? "default";
+    const size = this.dialogSize();
     const animationClasses =
       this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
         ? []
