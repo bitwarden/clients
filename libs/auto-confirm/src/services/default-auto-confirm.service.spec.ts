@@ -439,6 +439,21 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
     });
 
+    it("should return early when auto-confirm is disabled in configuration", async () => {
+      const disabledConfig = new AutoConfirmState();
+      disabledConfig.enabled = false;
+      await stateProvider.setUserState(
+        AUTO_CONFIRM_STATE,
+        { [mockUserId]: disabledConfig },
+        mockUserId,
+      );
+
+      await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
+
+      expect(apiService.getUserPublicKey).not.toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAutoConfirm).not.toHaveBeenCalled();
+    });
+
     it("should build confirm request with organization and public key", async () => {
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 

@@ -355,6 +355,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_AutomaticallyConfirmed:
+        msg = this.i18nService.t("automaticallyConfirmedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "automaticallyConfirmedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -457,6 +464,18 @@ export class EventService {
         break;
       case EventType.Organization_ItemOrganization_Declined:
         msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        break;
+      case EventType.Organization_AutoConfirmEnabled_Admin:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
+        break;
+      case EventType.Organization_AutoConfirmDisabled_Admin:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByAdmin");
+        break;
+      case EventType.Organization_AutoConfirmEnabled_Portal:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByPortal");
+        break;
+      case EventType.Organization_AutoConfirmDisabled_Portal:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByPortal");
         break;
 
       // Policies

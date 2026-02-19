@@ -20,8 +20,11 @@ import {
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventType } from "@bitwarden/common/enums";
 import {
   BitIconButtonComponent,
   CardComponent,
@@ -69,6 +72,8 @@ export class AdminSettingsComponent implements OnInit {
     private destroyRef: DestroyRef,
     private dialogService: DialogService,
     private nudgesService: NudgesService,
+    private eventCollectionService: EventCollectionService,
+    private organizationService: InternalOrganizationServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -88,14 +93,26 @@ export class AdminSettingsComponent implements OnInit {
           }
           return of(false);
         }),
-        withLatestFrom(this.autoConfirmService.configuration$(userId)),
-        switchMap(([newValue, existingState]) =>
-          this.autoConfirmService.upsert(userId, {
+        withLatestFrom(
+          this.autoConfirmService.configuration$(userId),
+          this.organizationService.organizations$(userId),
+        ),
+        switchMap(async ([newValue, existingState, organizations]) => {
+          await this.autoConfirmService.upsert(userId, {
             ...existingState,
             enabled: newValue,
             showBrowserNotification: false,
-          }),
-        ),
+          });
+
+          // Auto-confirm users can only belong to one organization
+          const organization = organizations[0];
+          if (organization?.id) {
+            const eventType = newValue
+              ? EventType.Organization_AutoConfirmEnabled_Admin
+              : EventType.Organization_AutoConfirmDisabled_Admin;
+            await this.eventCollectionService.collect(eventType, undefined, true, organization.id);
+          }
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
