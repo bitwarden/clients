@@ -22,6 +22,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { queryForAutofocusDescendents } from "../../input";
+import { getRootFontSizePx } from "../../shared";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
@@ -86,7 +87,7 @@ export class DialogComponent implements AfterViewInit {
         return;
       }
       const size = this.dialogSize();
-      const rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const rootFontSizePx = getRootFontSizePx();
       this.drawerService.declarePushWidth((drawerSizeToWidthRem[size] ?? 32) * rootFontSizePx);
     });
   }

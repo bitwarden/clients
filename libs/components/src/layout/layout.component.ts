@@ -20,7 +20,7 @@ import { RouterModule } from "@angular/router";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { SharedModule } from "../shared";
+import { getRootFontSizePx, SharedModule } from "../shared";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
@@ -113,13 +113,13 @@ export class LayoutComponent {
    * Siderail width in px (= SIDERAIL_WIDTH_REM × root font size).
    * Set by the ResizeObserver so it scales with the user's font preference.
    */
-  private readonly siderailWidthPx = signal(SIDERAIL_WIDTH_REM * getBaseFontSizePx());
+  private readonly siderailWidthPx = signal(SIDERAIL_WIDTH_REM * getRootFontSizePx());
 
   /**
    * Main content minimum width in px (= MAIN_MIN_WIDTH_REM × root font size).
    * Set by the ResizeObserver so it scales with the user's font preference.
    */
-  private readonly mainMinWidthPx = signal(MAIN_MIN_WIDTH_REM * getBaseFontSizePx());
+  private readonly mainMinWidthPx = signal(MAIN_MIN_WIDTH_REM * getRootFontSizePx());
 
   /**
    * The CSS grid-template-columns value for the three-panel layout.
@@ -206,8 +206,7 @@ export class LayoutComponent {
       const drawerContainer = this.drawerContainer().nativeElement;
 
       const update = () => {
-        const rootFontSizePx =
-          parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
         const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
         const mainMinPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
@@ -325,11 +324,6 @@ export class LayoutComponent {
     }
   }
 }
-
-const getBaseFontSizePx = (): number =>
-  typeof document !== "undefined"
-    ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-    : 16;
 
 const isNothingFocused = (): boolean => {
   return [document.documentElement, document.body, null].includes(
