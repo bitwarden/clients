@@ -263,8 +263,8 @@ export class RiskInsightsDataService {
     return this.orchestrator.saveCriticalApplications$(selectedUrls);
   }
 
-  removeCriticalApplication(hostname: string) {
-    return this.orchestrator.removeCriticalApplication$(hostname);
+  removeCriticalApplications(selectedUrls: Set<string>) {
+    return this.orchestrator.removeCriticalApplications$(selectedUrls);
   }
 
   saveApplicationReviewStatus(selectedCriticalApps: OrganizationReportApplication[]) {
