@@ -1211,7 +1211,7 @@ describe("OrganizationPlansComponent", () => {
 
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
+        title: undefined,
         message: "organizationUpgraded",
       });
     });
