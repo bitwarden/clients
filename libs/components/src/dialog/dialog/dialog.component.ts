@@ -46,8 +46,8 @@ const drawerSizeToWidth = {
   large: "md:tw-max-w-2xl",
 } as const;
 
-/** Push-mode column width in rem, keyed by drawer size. Mirrors drawerSizeToWidth. */
-const drawerSizeToWidthRem: Record<string, number> = {
+/** Width in rem for each drawer size, used to declare push-mode column widths. */
+export const drawerSizeToWidthRem: Record<string, number> = {
   small: 24,
   default: 32,
   large: 42,

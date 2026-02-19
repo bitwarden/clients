@@ -17,6 +17,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 
+import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
@@ -30,11 +31,6 @@ const MAIN_MIN_WIDTH_REM = 24;
 /** Approximate rendered width of the closed nav (siderail / icon strip).
  *  Derived from tw-w-[3.75rem] + tw-mx-0.5 margins in side-nav.component.html. */
 const SIDERAIL_WIDTH_REM = 4;
-
-/** Minimum drawer push-mode width in rem, matching drawerSizeToWidthRem.small in
- *  dialog.component.  The drawer shrinks from its declared max down to this before
- *  switching to overlay mode. */
-const DRAWER_MIN_PUSH_WIDTH_REM = 24;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -211,11 +207,11 @@ export class LayoutComponent {
         const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
         const mainMinPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
         this.containerWidthPx.set(containerWidth);
-        this.drawerMinPushWidthPx.set(DRAWER_MIN_PUSH_WIDTH_REM * rootFontSizePx);
+        this.drawerMinPushWidthPx.set(drawerSizeToWidthRem.small * rootFontSizePx);
         this.siderailWidthPx.set(siderailPx);
         this.mainMinWidthPx.set(mainMinPx);
         const navWidthPx = this.navWidthRem() * rootFontSizePx;
-        const drawerMinPx = DRAWER_MIN_PUSH_WIDTH_REM * rootFontSizePx;
+        const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
