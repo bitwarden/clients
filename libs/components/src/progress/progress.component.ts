@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
-type BackgroundType = "primary" | "subtle" | "success" | "warning" | "danger";
+export type BackgroundType = "primary" | "subtle" | "success" | "warning" | "danger";
 
 const BackgroundClasses: Record<BackgroundType, string[]> = {
   primary: ["tw-bg-primary-600"],
@@ -30,8 +30,6 @@ export class ProgressBarComponent {
   readonly progressAmount = input<number>(0);
   readonly startText = input<string>();
   readonly endText = input<string>();
-  readonly title = input<string>();
-  readonly subtitle = input<string>();
 
   get outerBarStyles() {
     return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100", "tw-h-2"];

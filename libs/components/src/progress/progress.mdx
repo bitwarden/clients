@@ -38,7 +38,7 @@ Avoid using the progress bar for:
 
 <Canvas of={stories.AllVariants} />
 
-## With Label and Helper Texts (Left and Right)
+## With Label and Helper Texts (Start and End)
 
 Always display a label to provide a text based description of what the indicator is measuring. This
 allows those who may not be familiar with the pattern to be able to read and digest the information.
@@ -47,16 +47,12 @@ to see part or all of the indicator.
 
 <Canvas of={stories.WithLabelAndHelperText} />
 
-## With Illustration, Title and Subtitle
+## Start Text
 
-<Canvas of={stories.WithIllustrationAndHeader} />
+When measuring something other than progress, such as password strength, update the `startText` to
+fit the context of the implementation.
 
-## Custom Text
-
-When measuring something other than progress, such as password strength, update the `customLeftText`
-to fit the context of the implementation.
-
-<Canvas of={stories.CustomText} />
+<Canvas of={stories.StartText} />
 
 ### Strength indicator styles
 
@@ -69,15 +65,8 @@ For a strength indicator use the following styles for fill:
 
 ## Content Guidelines
 
-- Header Title and Body text are optional.
-  - If using a Title, the copy should be written verb first: “Loading” or “Loading [object]”,
-    “Uploading [object]”
-  - If using descriptive body text, should be as succinct as possible, telling the user what is
-    happening, how long it will take, why it is happening, or any actions they should consider in
-    the meantime.
 - In upload scenarios, file size is placed at the end of the bar. You don’t need to spell out the
   size labels; write as MB or GB.
-- Leading illustration is optional.
 
 ## Accessibility
 

@@ -1,0 +1,20 @@
+<div class="tw-flex tw-w-full tw-gap-8">
+  <div class="tw-flex tw-justify-center tw-items-center">
+    <ng-content select="[slot=illustration]"></ng-content>
+  </div>
+  <div class="tw-flex tw-flex-col tw-justify-center tw-flex-1 tw-gap-6">
+    <div class="tw-flex tw-flex-col tw-gap-1">
+      <span class="tw-text-2xl">{{ title() }}</span>
+      <span class="tw-text-fg-body">{{ subtitle() }}</span>
+    </div>
+    <div>
+      <bit-progress
+        [variant]="variant()"
+        [label]="label()"
+        [progressAmount]="progressAmount()"
+        [startText]="startText()"
+        [endText]="endText()"
+      />
+    </div>
+  </div>
+</div>

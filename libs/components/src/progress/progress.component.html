@@ -1,28 +1,15 @@
-<div class="tw-flex tw-w-full tw-gap-8">
-  <div class="tw-flex tw-justify-center tw-items-center">
-    <ng-content select="[slot=illustration]"></ng-content>
-  </div>
-  <div class="tw-flex tw-flex-col tw-justify-center tw-flex-1 tw-gap-6">
-    <div class="tw-flex tw-flex-col tw-gap-1">
-      <span class="tw-text-2xl">{{ title() }}</span>
-      <span class="tw-text-fg-body">{{ subtitle() }}</span>
-    </div>
-    <div>
-      <div class="tw-pe-1">{{ label() }}</div>
-      <div [class]="outerBarStyles">
-        <div
-          [class]="innerBarStyles"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          attr.aria-valuenow="{{ progressAmount() }}"
-          [style]="{ width: progressAmount() + '%' }"
-        ></div>
-      </div>
-      <div class="tw-flex tw-text-sm tw-text-fg-body">
-        <span class="tw-mr-auto">{{ startText() }}</span>
-        <span class="tw-ml-auto">{{ endText() }}</span>
-      </div>
-    </div>
-  </div>
+<div class="tw-pe-1">{{ label() }}</div>
+<div [class]="outerBarStyles">
+  <div
+    [class]="innerBarStyles"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    attr.aria-valuenow="{{ progressAmount() }}"
+    [style]="{ width: progressAmount() + '%' }"
+  ></div>
+</div>
+<div class="tw-flex tw-text-sm tw-text-fg-body">
+  <span class="tw-mr-auto">{{ startText() }}</span>
+  <span class="tw-ml-auto">{{ endText() }}</span>
 </div>
