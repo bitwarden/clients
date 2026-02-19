@@ -5,13 +5,16 @@ use std::{
 };
 
 use windows::{
-    core::{GUID, HRESULT, PCWSTR},
+    core::{GUID, HRESULT},
     Win32::Security::Cryptography::{
-        BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty, BCryptHashData,
-        NCryptImportKey, NCryptOpenStorageProvider, NCryptVerifySignature, BCRYPT_HASH_HANDLE,
-        BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB, BCRYPT_OBJECT_LENGTH, BCRYPT_PKCS1_PADDING_INFO,
-        BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM,
-        BCRYPT_SHA256_ALG_HANDLE, NCRYPT_FLAGS, NCRYPT_PAD_PKCS1_FLAG,
+        BCryptCreateHash, BCryptDestroyHash, BCryptDestroyKey, BCryptFinishHash, BCryptGetProperty,
+        BCryptHashData, BCryptImportKeyPair, BCryptVerifySignature,
+        BCRYPT_ECDSA_P256_ALG_HANDLE, BCRYPT_ECDSA_P384_ALG_HANDLE, BCRYPT_ECDSA_P521_ALG_HANDLE,
+        BCRYPT_ECDSA_PUBLIC_P256_MAGIC, BCRYPT_ECDSA_PUBLIC_P384_MAGIC,
+        BCRYPT_ECDSA_PUBLIC_P521_MAGIC, BCRYPT_FLAGS, BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH,
+        BCRYPT_KEY_BLOB, BCRYPT_KEY_HANDLE, BCRYPT_OBJECT_LENGTH, BCRYPT_PAD_PKCS1,
+        BCRYPT_PKCS1_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSA_ALG_HANDLE,
+        BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE,
     },
 };
 
@@ -134,27 +137,6 @@ fn verify_signature(
 ) -> Result<(), windows::core::Error> {
     // Verify the signature over the hash of dataBuffer using the hKey
     unsafe {
-        tracing::debug!("Getting provider");
-        // Get the provider
-        let mut provider = MaybeUninit::uninit();
-
-        NCryptOpenStorageProvider(provider.as_mut_ptr(), PCWSTR::null(), 0)?;
-        let provider = provider.assume_init();
-
-        tracing::debug!("Getting key handle");
-        // Create a NCrypt key handle from the public key
-        let mut key_handle = MaybeUninit::uninit();
-        NCryptImportKey(
-            provider,
-            None,
-            BCRYPT_PUBLIC_KEY_BLOB,
-            None,
-            key_handle.as_mut_ptr(),
-            public_key.as_ref(),
-            NCRYPT_FLAGS(0),
-        )?;
-        let key_handle = key_handle.assume_init();
-
         // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
         // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
         //
@@ -168,27 +150,51 @@ fn verify_signature(
         // RSA, P-256, P-384 and P-512.
         let key_blob = public_key.pbPublicKey.as_ref();
         tracing::debug!("  got key magic: {}", key_blob.Magic);
-        let (padding_info, cng_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
+        let (alg_handle, padding_info, bcrypt_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
             tracing::debug!("Detected RSA key, adding PKCS1 padding");
             let padding_info = BCRYPT_PKCS1_PADDING_INFO {
                 pszAlgId: BCRYPT_SHA256_ALGORITHM,
             };
-            (Some(padding_info), NCRYPT_PAD_PKCS1_FLAG)
+            (BCRYPT_RSA_ALG_HANDLE, Some(padding_info), BCRYPT_PAD_PKCS1)
+        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P256_MAGIC {
+            tracing::debug!("Detected ECDSA P-256 key");
+            (BCRYPT_ECDSA_P256_ALG_HANDLE, None, BCRYPT_FLAGS(0))
+        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P384_MAGIC {
+            tracing::debug!("Detected ECDSA P-384 key");
+            (BCRYPT_ECDSA_P384_ALG_HANDLE, None, BCRYPT_FLAGS(0))
+        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P521_MAGIC {
+            tracing::debug!("Detected ECDSA P-521 key");
+            (BCRYPT_ECDSA_P521_ALG_HANDLE, None, BCRYPT_FLAGS(0))
         } else {
-            tracing::debug!("Non-RSA key, no PKCS1 padding added");
-            (None, NCRYPT_FLAGS(0))
+            tracing::error!("Unsupported key type: magic={}", key_blob.Magic);
+            // NTE_BAD_ALGID
+            return Err(windows::core::Error::from_hresult(HRESULT(0x80090008u32 as i32)));
         };
 
+        tracing::debug!("Getting key handle");
+        let mut key_handle = MaybeUninit::uninit();
+        BCryptImportKeyPair(
+            alg_handle,
+            None,
+            BCRYPT_PUBLIC_KEY_BLOB,
+            key_handle.as_mut_ptr(),
+            public_key.as_ref(),
+            0,
+        )
+        .ok()?;
+        let key_handle = BcryptKey(key_handle.assume_init());
+
         tracing::debug!("Verifying signature");
-        NCryptVerifySignature(
-            key_handle,
+        BCryptVerifySignature(
+            key_handle.0,
             padding_info
                 .as_ref()
                 .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
             hash,
             signature,
-            cng_flags,
-        )?;
+            bcrypt_flags,
+        )
+        .ok()?;
         tracing::debug!("Verified");
         Ok(())
     }
@@ -298,6 +304,20 @@ impl Drop for BcryptHash {
             unsafe {
                 if let Err(err) = BCryptDestroyHash(self.handle).to_hresult().ok() {
                     tracing::error!("Failed to clean up hash object: {err}");
+                }
+            }
+        }
+    }
+}
+
+struct BcryptKey(BCRYPT_KEY_HANDLE);
+
+impl Drop for BcryptKey {
+    fn drop(&mut self) {
+        if !self.0.is_invalid() {
+            unsafe {
+                if let Err(err) = BCryptDestroyKey(self.0).to_hresult().ok() {
+                    tracing::error!("Failed to clean up key handle: {err}");
                 }
             }
         }
