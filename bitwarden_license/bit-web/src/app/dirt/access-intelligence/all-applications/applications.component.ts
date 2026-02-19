@@ -117,7 +117,6 @@ export class ApplicationsComponent implements OnInit {
       icon: " ",
     },
   ]);
-  protected readonly emptyTableExplanation = signal("");
 
   readonly allSelectedAppsAreCritical = computed(() => {
     if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
@@ -174,22 +173,15 @@ export class ApplicationsComponent implements OnInit {
           }));
           this.dataSource.data = tableDataWithIcon;
           this.totalApplicationsCount.set(report.reportData.length);
+          this.criticalApplicationsCount.set(
+            report.reportData.filter((app) => app.isMarkedAsCritical).length,
+          );
         } else {
           this.dataSource.data = [];
         }
       },
       error: () => {
         this.dataSource.data = [];
-      },
-    });
-
-    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (criticalReport) => {
-        if (criticalReport != null) {
-          this.criticalApplicationsCount.set(criticalReport.reportData.length);
-        } else {
-          this.criticalApplicationsCount.set(0);
-        }
       },
     });
 
@@ -219,12 +211,6 @@ export class ApplicationsComponent implements OnInit {
           }
         });
         this.selectedUrls.set(filteredUrls);
-
-        if (this.dataSource?.filteredData?.length === 0) {
-          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
-        } else {
-          this.emptyTableExplanation.set("");
-        }
       });
   }
 
@@ -240,7 +226,7 @@ export class ApplicationsComponent implements OnInit {
       .saveCriticalApplications(Array.from(this.selectedUrls()))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.toastService.showToast({
             variant: "success",
             title: "",
@@ -248,6 +234,9 @@ export class ApplicationsComponent implements OnInit {
           });
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
+          this.criticalApplicationsCount.set(
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
+          );
         },
         error: () => {
           this.toastService.showToast({
@@ -267,7 +256,7 @@ export class ApplicationsComponent implements OnInit {
       .removeCriticalApplications(appsToUnmark)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.toastService.showToast({
             message: this.i18nService.t(
               "numApplicationsUnmarkedCriticalSuccess",
@@ -277,6 +266,9 @@ export class ApplicationsComponent implements OnInit {
           });
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
+          this.criticalApplicationsCount.set(
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
+          );
         },
         error: () => {
           this.toastService.showToast({

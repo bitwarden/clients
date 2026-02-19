@@ -84,9 +84,9 @@
       class="tw-mb-10"
     ></app-table-row-scrollable-m11>
 
-    @if (emptyTableExplanation()) {
+    @if (this.dataSource.filteredData?.length === 0) {
       <div class="tw-flex tw-mt-10 tw-justify-center">
-        <span bitTypography="body2">{{ emptyTableExplanation() }}</span>
+        <span bitTypography="body2">{{ "noApplicationsMatchTheseFilters" | i18n }}</span>
       </div>
     }
   </div>

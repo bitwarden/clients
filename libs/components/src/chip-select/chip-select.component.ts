@@ -106,7 +106,18 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   constructor() {
     // Initialize the root tree whenever options change
     effect(() => {
+      const currentSelection = this.selectedOption;
+
+      // when the options change, clear the childParentMap
+      this.childParentMap.clear();
+
       this.initializeRootTree(this.options());
+
+      // when the options change, we need to change our selectedOption
+      // to reflect the changed options.
+      if (currentSelection?.value != null) {
+        this.selectedOption = this.findOption(this.rootTree, currentSelection.value);
+      }
 
       // If there's a pending value, apply it now that options are available
       if (this.pendingValue !== undefined) {
