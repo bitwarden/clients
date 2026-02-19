@@ -145,11 +145,54 @@ describe("Browser Utils Service", () => {
   });
 
   describe("isPopupOpen", () => {
-    it("delegates to BrowserApi.isPopupOpen", async () => {
-      const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+    describe("MV3 (getContexts)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
 
-      expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
-      expect(spy).toHaveBeenCalled();
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(3);
+        jest
+          .spyOn(browserPlatformUtilsService, "getDevice")
+          .mockReturnValue(DeviceType.ChromeExtension);
+      });
+
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+          ]);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts = jest.fn().mockResolvedValue([]);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(false);
+      });
+    });
+
+    describe("MV2 / Safari (getExtensionViews)", () => {
+      const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+
+      beforeEach(() => {
+        getManifestVersionSpy.mockReturnValue(2);
+      });
+
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it("delegates to BrowserApi.isPopupOpen", async () => {
+        const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+
+        expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 

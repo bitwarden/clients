@@ -220,47 +220,17 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    describe("when chrome.runtime.getContexts is available", () => {
-      beforeEach(() => {
-        (chrome.runtime as any).getContexts = jest.fn();
-      });
+    it("returns false if no views are open", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValue([]);
 
-      afterEach(() => {
-        delete (chrome.runtime as any).getContexts;
-      });
-
-      it("returns true when a POPUP context exists", async () => {
-        (chrome.runtime as any).getContexts.mockResolvedValue([
-          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
-        ]);
-
-        expect(await BrowserApi.isPopupOpen()).toBe(true);
-      });
-
-      it("returns false when no contexts exist", async () => {
-        (chrome.runtime as any).getContexts.mockResolvedValue([]);
-
-        expect(await BrowserApi.isPopupOpen()).toBe(false);
-      });
+      expect(await BrowserApi.isPopupOpen()).toBe(false);
     });
 
-    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
-      beforeEach(() => {
-        delete (chrome.runtime as any).getContexts;
-      });
+    it("returns true if the main popup is open", async () => {
+      const mainPopupView = { location: { href: "chrome-extension://id/popup/index.html" } };
+      chrome.extension.getViews = jest.fn().mockReturnValue([mainPopupView]);
 
-      it("returns false if no views are open", async () => {
-        chrome.extension.getViews = jest.fn().mockReturnValue([]);
-
-        expect(await BrowserApi.isPopupOpen()).toBe(false);
-      });
-
-      it("returns true if the main popup is open", async () => {
-        const mainPopupView = { location: { href: "chrome-extension://id/popup/index.html" } };
-        chrome.extension.getViews = jest.fn().mockReturnValue([mainPopupView]);
-
-        expect(await BrowserApi.isPopupOpen()).toBe(true);
-      });
+      expect(await BrowserApi.isPopupOpen()).toBe(true);
     });
   });
 

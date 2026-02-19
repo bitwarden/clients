@@ -149,7 +149,18 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
+  /**
+   * Identifies if the main extension popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` on MV3 (service worker context)
+   * and `chrome.extension.getViews()` on MV2/Safari (background page context).
+   */
   async isPopupOpen(): Promise<boolean> {
+    if (BrowserApi.isManifestVersion(3) && !this.isSafari()) {
+      const contexts = await chrome.runtime.getContexts({ contextTypes: ["POPUP"] });
+      return contexts.length > 0;
+    }
+
     return BrowserApi.isPopupOpen();
   }
 

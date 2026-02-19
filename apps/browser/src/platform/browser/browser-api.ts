@@ -463,17 +463,10 @@ export class BrowserApi {
   }
 
   /**
-   * Returns true if the main extension popup is currently open.
-   *
-   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
-   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   * Queries all extension views that are of type `popup`
+   * and returns whether any are currently open.
    */
   static async isPopupOpen(): Promise<boolean> {
-    if (typeof (chrome.runtime as any).getContexts === "function") {
-      const contexts = await chrome.runtime.getContexts({ contextTypes: ["POPUP"] });
-      return contexts.length > 0;
-    }
-
     const views = BrowserApi.getExtensionViews({ type: "popup" });
     return views.length > 0;
   }
