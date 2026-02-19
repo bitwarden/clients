@@ -115,9 +115,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly preSelectedProductTier = input<ProductTierType | null>(null);
   readonly enableSecretsManagerByDefault = input<boolean>(false);
 
-  // NOTE: Inputs (initial values for plan/productTier; form controls are the source of truth)
-  readonly productTier = input<ProductTierType>(ProductTierType.Free);
-  readonly plan = input<PlanType>(PlanType.Free);
+  /**
+   * Initial product tier for form initialization only.
+   * After initialization, the form control becomes the source of truth.
+   */
+  readonly initialProductTier = input<ProductTierType>(ProductTierType.Free);
+
+  /**
+   * Initial plan for form initialization only.
+   * After initialization, the form control becomes the source of truth.
+   */
+  readonly initialPlan = input<PlanType>(PlanType.Free);
 
   // Derived signals
   readonly account = toSignal(this.accountService.activeAccount$);
@@ -417,8 +425,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     additionalStorage: [0, [Validators.min(0), Validators.max(99)]],
     additionalSeats: [0, [Validators.min(0), Validators.max(100000)]],
     clientOwnerEmail: ["", [Validators.email]],
-    plan: [this.plan()],
-    productTier: [this.productTier()],
+    plan: [this.initialPlan()],
+    productTier: [this.initialProductTier()],
     secretsManager: this.secretsManagerSubscription,
   });
 
