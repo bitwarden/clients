@@ -20,6 +20,8 @@ import {
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
+import { WelcomeDialogService } from "./welcome-dialog.service";
+
 @Injectable()
 export class WebVaultPromptService {
   private unifiedUpgradePromptService = inject(UnifiedUpgradePromptService);
@@ -31,6 +33,7 @@ export class WebVaultPromptService {
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
+  private welcomeDialogService = inject(WelcomeDialogService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -46,9 +49,13 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
-    void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+    if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
+      return;
+    }
 
-    void this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+
+    await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     this.checkForAutoConfirm();
   }
