@@ -26,6 +26,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
+  AccountBillingClient,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
@@ -405,6 +406,7 @@ describe("OrganizationPlansComponent", () => {
   let mockProviderApiService: jest.Mocked<ProviderApiServiceAbstraction>;
   let mockToastService: jest.Mocked<ToastService>;
   let mockAccountService: jest.Mocked<AccountService>;
+  let mockAccountBillingClient: jest.Mocked<AccountBillingClient>;
   let mockSubscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
@@ -415,6 +417,7 @@ describe("OrganizationPlansComponent", () => {
   let mockOrganization: Organization;
   let activeAccountSubject: BehaviorSubject<any>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
+  let hasPremiumPersonallySubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -472,6 +475,7 @@ describe("OrganizationPlansComponent", () => {
       email: "test@example.com",
     });
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    hasPremiumPersonallySubject = new BehaviorSubject<boolean>(false);
 
     mockAccountService = {
       activeAccount$: activeAccountSubject.asObservable(),
@@ -502,6 +506,10 @@ describe("OrganizationPlansComponent", () => {
       showToast: jest.fn(),
     } as any;
 
+    mockAccountBillingClient = {
+      upgradePremiumToOrganization: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     mockSubscriberBillingClient = {
       getBillingAddress: jest.fn().mockResolvedValue({
         country: "US",
@@ -514,6 +522,13 @@ describe("OrganizationPlansComponent", () => {
       previewTaxForOrganizationSubscriptionPurchase: jest.fn().mockResolvedValue({
         tax: 5.0,
         total: 50.0,
+      }),
+      previewProrationForPremiumUpgrade: jest.fn().mockResolvedValue({
+        tax: 2.5,
+        total: 25.0,
+        credit: 10.0,
+        newPlanProratedMonths: 6,
+        newPlanProratedAmount: 24.0,
       }),
     } as any;
 
@@ -530,7 +545,7 @@ describe("OrganizationPlansComponent", () => {
 
     mockBillingAccountProfileService = {
       hasPremiumFromAnyOrganization$: jest.fn().mockReturnValue(of(false)),
-      hasPremiumPersonally$: jest.fn().mockReturnValue(of(false)),
+      hasPremiumPersonally$: jest.fn().mockReturnValue(hasPremiumPersonallySubject.asObservable()),
       hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
       canViewSubscription$: jest.fn().mockReturnValue(of(true)),
       setHasPremium: jest.fn().mockResolvedValue(undefined),
@@ -553,6 +568,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: ProviderApiServiceAbstraction, useValue: mockProviderApiService },
         { provide: ToastService, useValue: mockToastService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountBillingClient, useValue: mockAccountBillingClient },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: ConfigService, useValue: mockConfigService },
@@ -569,7 +585,7 @@ describe("OrganizationPlansComponent", () => {
             EnterBillingAddressComponent,
             OrganizationSelfHostingLicenseUploaderComponent,
           ],
-          providers: [PreviewInvoiceClient, SubscriberBillingClient],
+          providers: [AccountBillingClient, PreviewInvoiceClient, SubscriberBillingClient],
         },
         add: {
           imports: [
@@ -580,6 +596,7 @@ describe("OrganizationPlansComponent", () => {
             MockOrganizationSelfHostingLicenseUploaderComponent,
           ],
           providers: [
+            { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
             { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
           ],
@@ -2190,6 +2207,219 @@ describe("OrganizationPlansComponent", () => {
       await component.submit();
 
       expect(mockOrganizationApiService.create).toHaveBeenCalled();
+    });
+  });
+
+  describe("premium to organization upgrade flow", () => {
+    describe("canUpgradeFromPremium computed signal", () => {
+      it("should be true when user has premium personally and organizationId is null", async () => {
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(true);
+      });
+
+      it("should be false when user does not have premium personally", async () => {
+        // hasPremiumPersonallySubject defaults to false
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when organizationId is set (upgrading existing org)", async () => {
+        hasPremiumPersonallySubject.next(true);
+        setupMockUpgradeOrganization(mockOrganizationApiService, organizationsSubject);
+        fixture.componentRef.setInput("organizationId", "org-123");
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
+      });
+    });
+
+    describe("submit", () => {
+      const newOrgId = "new-premium-org-id";
+      const newOrgName = "My Org";
+
+      beforeEach(async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        patchOrganizationForm(component, {
+          name: newOrgName,
+          billingEmail: "test@example.com",
+          productTier: ProductTierType.Teams,
+          plan: PlanType.TeamsAnnually,
+          additionalSeats: 3,
+        });
+        patchBillingAddress(component);
+        setupMockEncryptionKeys(mockKeyService, mockEncryptService);
+      });
+
+      it("should call accountBillingClient.upgradePremiumToOrganization() instead of create()", async () => {
+        organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
+
+        await component.submit();
+
+        expect(mockAccountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
+          newOrgName,
+          "mock-key",
+          ProductTierType.Teams,
+          expect.any(String),
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
+        expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
+
+      it("should navigate to the new org and show success toast after premium upgrade", async () => {
+        organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
+
+        await component.submit();
+
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations/" + newOrgId]);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
+
+      it("should throw when the new organization is not found after upgrade", async () => {
+        organizationsSubject.next([]);
+
+        await expect(component.submit()).rejects.toThrow(
+          "Failed to find newly created organization",
+        );
+      });
+
+      it("should not call upgradePremiumToOrganization when billing address is incomplete", async () => {
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "",
+          postalCode: "",
+        });
+
+        await component.submit();
+
+        expect(mockAccountBillingClient.upgradePremiumToOrganization).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("refreshSalesTax (premium upgrade proration)", () => {
+      it("should call previewProrationForPremiumUpgrade instead of the standard tax endpoint", fakeAsync(() => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "US",
+          postalCode: "90210",
+        });
+
+        tick(1200);
+
+        expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).toHaveBeenCalledWith(
+          ProductTierType.Teams,
+          expect.objectContaining({ country: "US", postalCode: "90210" }),
+        );
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).not.toHaveBeenCalled();
+      }));
+
+      it("should set previewInvoice signal with proration preview data", fakeAsync(() => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("productTier", ProductTierType.Teams);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "US",
+          postalCode: "12345",
+        });
+
+        tick(1200);
+
+        const invoice = component["previewInvoice"]();
+        expect(invoice.tax).toBe(2.5);
+        expect(invoice.credit).toBe(10.0);
+        expect(invoice.newPlanProratedMonths).toBe(6);
+        expect(invoice.newPlanProratedAmount).toBe(24.0);
+      }));
+    });
+
+    describe("cart computed signal (premium upgrade branch)", () => {
+      beforeEach(async () => {
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      });
+
+      it("should use prorated amount from previewInvoice for PM seats cost", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+
+        const cart = component["cart"]();
+        expect(cart.passwordManager.seats.cost).toBe(24.0);
+        expect(cart.passwordManager.seats.hideBreakdown).toBe(true);
+        expect(cart.passwordManager.seats.translationKey).toBe("planProratedMembershipInMonths");
+      });
+
+      it("should include premium subscription credit in cart", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+
+        const cart = component["cart"]();
+        expect(cart.credit).toEqual({
+          translationKey: "premiumSubscriptionCredit",
+          value: 10.0,
+        });
+      });
+
+      it("should use proration tax from previewInvoice (not estimatedTax)", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+        component["estimatedTax"].set(99);
+
+        const cart = component["cart"]();
+        expect(cart.estimatedTax).toBe(2.5);
+      });
     });
   });
 });
