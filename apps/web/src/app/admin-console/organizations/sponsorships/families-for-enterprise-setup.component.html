@@ -28,8 +28,8 @@
     </bit-form-field>
     <div *ngIf="showNewOrganization">
       <app-organization-plans
-        [plan]="familyPlan"
-        [productTier]="familyProductTier"
+        [initialPlan]="familyPlan"
+        [initialProductTier]="familyProductTier"
         [acceptingSponsorship]="true"
         [planSponsorshipType]="planSponsorshipType"
         (onSuccess)="onOrganizationCreateSuccess($event)"
