@@ -22,7 +22,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -39,10 +39,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
-import {
-  UserKeyRotationService as SdkUserKeyRotationService,
-  UserKeyRotationServiceAbstraction,
-} from "@bitwarden/user-crypto-management";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -71,7 +68,7 @@ type MasterPasswordAuthenticationAndUnlockData = {
  * A token provider that exposes a null access token to the SDK.
  */
 class NoopTokenProvider implements TokenProvider {
-  constructor() { }
+  constructor() {}
 
   async get_access_token(): Promise<string | undefined> {
     // Ignore from the test coverage, since this is called by the SDK
@@ -104,9 +101,9 @@ export class UserKeyRotationService {
     private kdfConfigService: KdfConfigService,
     private sdkClientFactory: SdkClientFactory,
     private securityStateService: SecurityStateService,
-    private sdkService: SdkService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-  ) { }
+    private sdkUserKeyRotationService: UserKeyRotationServiceAbstraction,
+  ) {}
 
   /**
    * Creates a new user key and re-encrypts all required data with the it.
@@ -126,13 +123,11 @@ export class UserKeyRotationService {
       this.logService.info(
         "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
       );
-      const sdkUserKeyRotationService: UserKeyRotationServiceAbstraction =
-        new SdkUserKeyRotationService(this.sdkService, this.logService, this.dialogService);
-      await sdkUserKeyRotationService.changePasswordAndRotateUserKey(
+      await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
         currentMasterPassword,
         newMasterPassword,
         newMasterPasswordHint,
-        user.id,
+        asUuid(user.id),
       );
       this.toastService.showToast({
         variant: "success",

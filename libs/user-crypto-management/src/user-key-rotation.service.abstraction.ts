@@ -1,4 +1,5 @@
-import { PublicKey, UserId } from "@bitwarden/sdk-internal";
+import { PublicKey } from "@bitwarden/sdk-internal";
+import { UserId } from "@bitwarden/user-core";
 
 /**
  * Result of the trust verification process.

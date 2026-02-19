@@ -1,6 +1,7 @@
 import { catchError, EMPTY, firstValueFrom, map } from "rxjs";
 
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 import {
   AccountRecoveryTrustComponent,
@@ -85,7 +86,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     // 2. Show the user a dialog for each organization and ask them to verify the trust.
     // 3. Show the user a dialog for each emergency access user and ask them to verify the trust.
     this.logService.info("[Userkey rotation] Verifying trust...");
-    const [emergencyAccessMemberships, organizationV1Memberships] = await firstValueFrom(
+    const [emergencyAccessV1Memberships, organizationV1Memberships] = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -93,22 +94,22 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
           }
 
           using ref = sdk.take();
-          const emergencyAccessMemberships = await ref.value
+          const emergencyAccessV1Memberships = await ref.value
             .user_crypto_management()
             .get_untrusted_emergency_access_public_keys();
           const organizationV1Memberships = await ref.value
             .user_crypto_management()
             .get_untrusted_organization_public_keys();
-          return [emergencyAccessMemberships, organizationV1Memberships] as const;
+          return [emergencyAccessV1Memberships, organizationV1Memberships] as const;
         }),
       ),
     );
-    this.logService.info("result", { emergencyAccessMemberships, organizationV1Memberships });
+    this.logService.info("result", { emergencyAccessV1Memberships, organizationV1Memberships });
 
-    if (organizationV1Memberships.length > 0 || emergencyAccessMemberships.length > 0) {
+    if (organizationV1Memberships.length > 0 || emergencyAccessV1Memberships.length > 0) {
       this.logService.info("[Userkey rotation] Showing trust info dialog...");
       const trustInfoDialog = KeyRotationTrustInfoComponent.open(this.dialogService, {
-        numberOfEmergencyAccessUsers: emergencyAccessMemberships.length,
+        numberOfEmergencyAccessUsers: emergencyAccessV1Memberships.length,
         orgName:
           organizationV1Memberships.length > 0 ? organizationV1Memberships[0].name : undefined,
       });
@@ -125,7 +126,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       const dialogRef = AccountRecoveryTrustComponent.open(this.dialogService, {
         name: organization.name,
         orgId: organization.organization_id as string,
-        publicKey: organization.public_key,
+        publicKey: Utils.fromB64ToArray(organization.public_key),
       });
       if (!(await firstValueFrom(dialogRef.closed))) {
         return {
@@ -136,11 +137,11 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       }
     }
 
-    for (const details of emergencyAccessMemberships) {
+    for (const details of emergencyAccessV1Memberships) {
       const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
         name: details.name,
         userId: details.id as string,
-        publicKey: details.public_key,
+        publicKey: Utils.fromB64ToArray(details.public_key),
       });
       if (!(await firstValueFrom(dialogRef.closed))) {
         return {
@@ -157,7 +158,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     return {
       wasTrustDenied: false,
       trustedOrganizationPublicKeys: organizationV1Memberships.map((d) => d.public_key),
-      trustedEmergencyAccessUserPublicKeys: emergencyAccessMemberships.map((d) => d.public_key),
+      trustedEmergencyAccessUserPublicKeys: emergencyAccessV1Memberships.map((d) => d.public_key),
     };
   }
 }
