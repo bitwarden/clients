@@ -383,8 +383,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     return false;
   }
 
-  constructor(debugService?: AutofillDebugService) {
-    this.debugService = debugService;
+  constructor() {
     void sendExtensionMessage("getUserPremiumStatus").then((premiumStatus) => {
       this.premiumEnabled = !!premiumStatus?.result;
     });

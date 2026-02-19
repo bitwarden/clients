@@ -24,9 +24,7 @@ import AutofillInit from "./autofill-init";
     const domElementVisibilityService = new DomElementVisibilityService(inlineMenuContentService);
 
     const debugService = new AutofillDebugService();
-    const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService(
-      debugService.isDebugEnabled() ? debugService : undefined,
-    );
+    const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     if (debugService.isDebugEnabled()) {
       inlineMenuFieldQualificationService.setDebugService(debugService);
     }
