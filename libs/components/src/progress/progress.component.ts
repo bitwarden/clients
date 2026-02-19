@@ -28,8 +28,8 @@ export class ProgressBarComponent {
   readonly variant = input<BackgroundType>("primary");
   readonly label = input<string>();
   readonly progressAmount = input<number>(0);
-  readonly leftText = input<string>();
-  readonly rightText = input<string>();
+  readonly startText = input<string>();
+  readonly endText = input<string>();
   readonly title = input<string>();
   readonly subtitle = input<string>();
 
