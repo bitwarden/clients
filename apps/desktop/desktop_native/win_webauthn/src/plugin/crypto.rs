@@ -39,10 +39,10 @@ pub(super) fn get_operation_signing_public_key(
     clsid: &GUID,
 ) -> Result<SigningKey, WinWebAuthnError> {
     let mut len = 0;
-    let mut data = MaybeUninit::uninit();
-    unsafe {
+    let mut uninit = MaybeUninit::uninit();
+    let data = unsafe {
         // SAFETY: We check the OS error code before using the written pointer.
-        webauthn_plugin_get_operation_signing_public_key(clsid, &mut len, data.as_mut_ptr())?
+        webauthn_plugin_get_operation_signing_public_key(clsid, &mut len, uninit.as_mut_ptr())?
             .ok()
             .map_err(|err| {
                 WinWebAuthnError::with_cause(
@@ -51,16 +51,18 @@ pub(super) fn get_operation_signing_public_key(
                     err,
                 )
             })?;
-        match NonNull::new(data.assume_init()) {
-            Some(data) => Ok(SigningKey {
-                cbPublicKey: len,
-                pbPublicKey: data,
-            }),
-            None => Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Windows returned null pointer when requesting operation signing public key",
-            )),
-        }
+        uninit.assume_init()
+    };
+
+    match NonNull::new(data) {
+        Some(data) => Ok(SigningKey {
+            cbPublicKey: len,
+            pbPublicKey: data,
+        }),
+        None => Err(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "Windows returned null pointer when requesting operation signing public key",
+        )),
     }
 }
 
