@@ -1,5 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, map, Observable } from "rxjs";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import {
   ButtonModule,
   IconButtonModule,
@@ -63,6 +76,21 @@ export class TrendWidgetComponent {
   readonly viewChanged = output<TrendWidgetViewType>();
   readonly timespanChanged = output<TrendWidgetTimespan>();
 
+  private readonly isDarkMode = toSignal(
+    combineLatest([this.themeStateService.selectedTheme$, this.systemTheme$]).pipe(
+      map(([theme, systemTheme]) => {
+        const effectiveTheme = theme === ThemeType.System ? systemTheme : theme;
+        return effectiveTheme === ThemeType.Dark;
+      }),
+    ),
+    { initialValue: false },
+  );
+
+  constructor(
+    private themeStateService: ThemeStateService,
+    @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
+  ) {}
+
   protected onViewChange(view: TrendWidgetViewType) {
     this.selectedView.set(view);
     this.viewChanged.emit(view);
@@ -101,6 +129,7 @@ export class TrendWidgetComponent {
   protected readonly lineChartData = computed<LineData[]>(() => {
     const dataPoints = this.data().dataPoints;
     const label = this.viewLabel();
+    const isDark = this.isDarkMode();
 
     return [
       {
@@ -109,8 +138,8 @@ export class TrendWidgetComponent {
           x: new Date(point.timestamp),
           y: point.atRisk,
         })),
-        color: "#175DDC",
-        fillColor: "#DBE5F6",
+        color: isDark ? "#6d9eff" : "#175DDC",
+        fillColor: isDark ? "rgba(109,158,255,0.2)" : "#DBE5F6",
       },
       {
         label: `All ${label.toLowerCase()}`,
@@ -118,8 +147,8 @@ export class TrendWidgetComponent {
           x: new Date(point.timestamp),
           y: point.total,
         })),
-        color: "#E5E7EB",
-        fillColor: "#F3F6F9",
+        color: isDark ? "#4b5069" : "#E5E7EB",
+        fillColor: isDark ? "rgba(75,80,105,0.3)" : "#F3F6F9",
       },
     ];
   });
