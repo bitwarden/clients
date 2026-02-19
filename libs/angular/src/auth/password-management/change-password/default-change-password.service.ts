@@ -36,6 +36,9 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
   }
 
+  /**
+   * @deprecated To be removed in PM-28143.
+   */
   private async preparePasswordChange(
     passwordInputResult: PasswordInputResult,
     userId: UserId | null,
