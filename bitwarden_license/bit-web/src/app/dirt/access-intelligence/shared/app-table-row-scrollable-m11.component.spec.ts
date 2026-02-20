@@ -111,7 +111,7 @@ describe("AppTableRowScrollableM11Component", () => {
       selectAllCheckboxEl = fixture.debugElement.query(By.css('[data-testid="selectAll"]'));
     });
 
-    it("should check all rows in table when checked", () => {
+    it("should emit selectAllChange event with true when checked", () => {
       // arrange
       const selectedUrls = new Set<string>();
       const dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
@@ -121,18 +121,19 @@ describe("AppTableRowScrollableM11Component", () => {
       fixture.componentRef.setInput("dataSource", dataSource);
       fixture.detectChanges();
 
+      const selectAllChangeSpy = jest.fn();
+      fixture.componentInstance.selectAllChange.subscribe(selectAllChangeSpy);
+
       // act
       selectAllCheckboxEl.nativeElement.click();
       fixture.detectChanges();
 
       // assert
-      expect(selectedUrls.has("google.com")).toBe(true);
-      expect(selectedUrls.has("facebook.com")).toBe(true);
-      expect(selectedUrls.has("twitter.com")).toBe(true);
-      expect(selectedUrls.size).toBe(3);
+      expect(selectAllChangeSpy).toHaveBeenCalledWith(true);
+      expect(selectAllChangeSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should uncheck all rows in table when unchecked", () => {
+    it("should emit selectAllChange event with false when unchecked", () => {
       // arrange
       const selectedUrls = new Set<string>(["google.com", "facebook.com", "twitter.com"]);
       const dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
@@ -142,12 +143,16 @@ describe("AppTableRowScrollableM11Component", () => {
       fixture.componentRef.setInput("dataSource", dataSource);
       fixture.detectChanges();
 
+      const selectAllChangeSpy = jest.fn();
+      fixture.componentInstance.selectAllChange.subscribe(selectAllChangeSpy);
+
       // act
       selectAllCheckboxEl.nativeElement.click();
       fixture.detectChanges();
 
       // assert
-      expect(selectedUrls.size).toBe(0);
+      expect(selectAllChangeSpy).toHaveBeenCalledWith(false);
+      expect(selectAllChangeSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should become checked when all rows in table are checked", () => {
@@ -176,6 +181,61 @@ describe("AppTableRowScrollableM11Component", () => {
 
       // assert
       expect(selectAllCheckboxEl.nativeElement.checked).toBe(false);
+    });
+  });
+
+  describe("individual row checkbox", () => {
+    it("should emit checkboxChange event with correct parameters when checkboxChanged is called", () => {
+      // arrange
+      const checkboxChangeSpy = jest.fn();
+      fixture.componentInstance.checkboxChange.subscribe(checkboxChangeSpy);
+
+      const mockTarget = { checked: true } as HTMLInputElement;
+
+      // act
+      fixture.componentInstance.checkboxChanged(mockTarget, "google.com");
+
+      // assert
+      expect(checkboxChangeSpy).toHaveBeenCalledWith({
+        applicationName: "google.com",
+        checked: true,
+      });
+      expect(checkboxChangeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should emit checkboxChange with checked=false when checkbox is unchecked", () => {
+      // arrange
+      const checkboxChangeSpy = jest.fn();
+      fixture.componentInstance.checkboxChange.subscribe(checkboxChangeSpy);
+
+      const mockTarget = { checked: false } as HTMLInputElement;
+
+      // act
+      fixture.componentInstance.checkboxChanged(mockTarget, "google.com");
+
+      // assert
+      expect(checkboxChangeSpy).toHaveBeenCalledWith({
+        applicationName: "google.com",
+        checked: false,
+      });
+      expect(checkboxChangeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should emit checkboxChange with correct applicationName for different applications", () => {
+      // arrange
+      const checkboxChangeSpy = jest.fn();
+      fixture.componentInstance.checkboxChange.subscribe(checkboxChangeSpy);
+
+      const mockTarget = { checked: true } as HTMLInputElement;
+
+      // act
+      fixture.componentInstance.checkboxChanged(mockTarget, "facebook.com");
+
+      // assert
+      expect(checkboxChangeSpy).toHaveBeenCalledWith({
+        applicationName: "facebook.com",
+        checked: true,
+      });
     });
   });
 });
