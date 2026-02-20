@@ -364,6 +364,10 @@ export class InputPasswordComponent implements OnInit {
             this.userId,
           );
           if (!currentPasswordVerified) {
+            this.toastService.showToast({
+              variant: "error",
+              message: this.i18nService.t("invalidMasterPassword"),
+            });
             return;
           }
         } else {
