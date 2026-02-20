@@ -92,7 +92,7 @@ describe("ExtensionLoginComponentService", () => {
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+      jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue(codeChallenge);
 
       await service.redirectToSsoLogin(email);
 
