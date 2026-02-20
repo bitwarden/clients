@@ -1,5 +1,5 @@
 export const errorMessage =
-  'Avoid placing icon elements (<i class="bwi ..."> or <bit-icon>) inside a bitButton. ' +
+  'Avoid placing icon elements (<i class="bwi ..."> or <bit-icon>) inside a bitButton or bitLink. ' +
   "Use the [startIcon] or [endIcon] inputs instead. " +
   'Example: <button bitButton startIcon="bwi-plus">Label</button>';
 
@@ -26,7 +26,7 @@ export default {
           ...(node.inputs?.map((input) => input.name) ?? []),
         ];
 
-        if (!allAttrNames.includes("bitButton")) {
+        if (!allAttrNames.includes("bitButton") && !allAttrNames.includes("bitLink")) {
           return;
         }
 

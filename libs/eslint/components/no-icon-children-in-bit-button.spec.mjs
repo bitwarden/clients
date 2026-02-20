@@ -38,6 +38,14 @@ ruleTester.run("no-icon-children-in-bit-button", rule.default, {
       name: "should allow <i> without bwi class inside bitButton",
       code: `<button bitButton><i class="fa fa-lock"></i> Lock</button>`,
     },
+    {
+      name: "should allow bitLink with startIcon input",
+      code: `<a bitLink startIcon="bwi-external-link" href="https://example.com">Link</a>`,
+    },
+    {
+      name: "should allow bitLink with only text content",
+      code: `<a bitLink href="https://example.com">Link</a>`,
+    },
   ],
   invalid: [
     {
@@ -74,6 +82,16 @@ ruleTester.run("no-icon-children-in-bit-button", rule.default, {
       name: "should warn on both <i> and <bit-icon> children",
       code: `<button bitButton><i class="bwi bwi-plus"></i><bit-icon name="bwi-lock"></bit-icon></button>`,
       errors: [{ message: errorMessage }, { message: errorMessage }],
+    },
+    {
+      name: "should warn on <i> with bwi class inside a[bitLink]",
+      code: `<a bitLink><i class="bwi bwi-external-link"></i> Link</a>`,
+      errors: [{ message: errorMessage }],
+    },
+    {
+      name: "should warn on <bit-icon> inside button[bitLink]",
+      code: `<button bitLink><bit-icon name="bwi-lock"></bit-icon> Lock</button>`,
+      errors: [{ message: errorMessage }],
     },
   ],
 });
