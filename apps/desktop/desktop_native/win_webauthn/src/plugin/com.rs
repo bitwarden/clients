@@ -4,7 +4,7 @@
 
 use std::{
     alloc,
-    mem::{ManuallyDrop, MaybeUninit},
+    mem::{ManuallyDrop, MaybeUninit, size_of},
     ptr::{self, NonNull},
     sync::{Arc, OnceLock},
 };
@@ -426,15 +426,24 @@ impl ComBufferExt for &[u8] {
 
 impl ComBufferExt for Vec<u16> {
     fn to_com_buffer(&self) -> ComBuffer {
-        let buffer: Vec<u8> = self.iter().flat_map(|x| x.to_le_bytes()).collect();
-        ComBuffer::from(&buffer)
+        self.as_slice().to_com_buffer()
     }
 }
 
 impl ComBufferExt for &[u16] {
     fn to_com_buffer(&self) -> ComBuffer {
-        let buffer: Vec<u8> = self.as_ref().iter().flat_map(|x| x.to_le_bytes()).collect();
-        ComBuffer::from(&buffer)
+        let byte_len = self.len() * size_of::<u16>();
+        let com_buffer = ComBuffer::alloc(byte_len, false);
+        // SAFETY: com_buffer.0 points to a valid COM allocation of byte_len bytes.
+        // We write every byte before the buffer is read.
+        unsafe {
+            let dst: *mut u8 = com_buffer.0.cast().as_ptr();
+            for (i, &word) in self.iter().enumerate() {
+                dst.add(i * size_of::<u16>())
+                    .copy_from_nonoverlapping(word.to_le_bytes().as_ptr(), size_of::<u16>());
+            }
+        }
+        com_buffer
     }
 }
 
