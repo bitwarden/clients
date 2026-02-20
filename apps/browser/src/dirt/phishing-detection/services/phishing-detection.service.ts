@@ -63,7 +63,7 @@ export class PhishingDetectionService {
     const onTabUpdated$ = this._tabUpdated$.pipe(
       filter(
         (navEvent) =>
-          navEvent.changeInfo.status === "complete" &&
+          navEvent.changeInfo.status === "loading" &&
           !!navEvent.tab.url &&
           !this._isExtensionPage(navEvent.tab.url),
       ),
