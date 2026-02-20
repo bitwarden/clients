@@ -768,7 +768,101 @@ pub struct PluginMakeCredentialResponse {
 
 impl PluginMakeCredentialResponse {
     pub fn to_ctap_response(self) -> Result<Vec<u8>, WinWebAuthnError> {
-        let attestation = self.try_into()?;
+        // Convert format type to UTF-16
+        let format_type_utf16 = self.format_type.to_utf16();
+        let pwszFormatType = format_type_utf16.as_ptr();
+
+        // Get authenticator data pointer and length
+        let pbAuthenticatorData = self.authenticator_data.as_ptr();
+        let cbAuthenticatorData = self.authenticator_data.len() as u32;
+
+        // Get optional attestation statement pointer and length
+        let (pbAttestation, cbAttestation) = match self.attestation_statement.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+
+        // Get optional attestation object pointer and length
+        let (pbAttestationObject, cbAttestationObject) = match self.attestation_object.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+
+        // Get optional credential ID pointer and length
+        let (pbCredentialId, cbCredentialId) = match self.credential_id.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+
+        // Convert extensions (TODO: implement proper extension conversion)
+        let extensions = WEBAUTHN_EXTENSIONS {
+            cExtensions: 0,
+            pExtensions: std::ptr::null(),
+        };
+
+        // Convert used transport enum to bitmask
+        let dwUsedTransport = self.used_transport as u32;
+
+        // Get optional unsigned extension outputs pointer and length
+        let (pbUnsignedExtensionOutputs, cbUnsignedExtensionOutputs) =
+            match self.unsigned_extension_outputs.as_ref() {
+                Some(data) => (data.as_ptr(), data.len() as u32),
+                None => (std::ptr::null(), 0),
+            };
+
+        // Convert optional HMAC secret (TODO: implement proper conversion)
+        let pHmacSecret = std::ptr::null();
+
+        // Convert optional transports to bitmask
+        let dwTransports = self
+            .transports
+            .as_ref()
+            .map_or(0, |t| t.iter().map(|transport| *transport as u32).sum());
+
+        // Get optional client data JSON pointer and length
+        let (pbClientDataJSON, cbClientDataJSON) = match self.client_data_json.as_ref() {
+            Some(data) => (data.as_ptr(), data.len() as u32),
+            None => (std::ptr::null(), 0),
+        };
+
+        // Get optional registration response JSON pointer and length
+        let (pbRegistrationResponseJSON, cbRegistrationResponseJSON) =
+            match self.registration_response_json.as_ref() {
+                Some(data) => (data.as_ptr(), data.len() as u32),
+                None => (std::ptr::null(), 0),
+            };
+
+        let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
+            // Use version 8 to include all fields
+            dwVersion: 8,
+            pwszFormatType,
+            cbAuthenticatorData,
+            pbAuthenticatorData,
+            cbAttestation,
+            pbAttestation,
+            // TODO: Support decode type. Just using WEBAUTHN_ATTESTATION_DECODE_NONE (0) for now.
+            dwAttestationDecodeType: 0,
+            pvAttestationDecode: std::ptr::null(),
+            cbAttestationObject,
+            pbAttestationObject,
+            cbCredentialId,
+            pbCredentialId,
+            Extensions: extensions,
+            dwUsedTransport,
+            bEpAtt: self.ep_att,
+            bLargeBlobSupported: self.large_blob_supported,
+            bResidentKey: self.resident_key,
+            bPrfEnabled: self.prf_enabled,
+            cbUnsignedExtensionOutputs,
+            pbUnsignedExtensionOutputs,
+            pHmacSecret,
+            bThirdPartyPayment: self.third_party_payment,
+            dwTransports,
+            cbClientDataJSON,
+            pbClientDataJSON,
+            cbRegistrationResponseJSON,
+            pbRegistrationResponseJSON,
+        };
         let mut response_len = 0;
         let mut response_ptr = std::ptr::null_mut();
         // SAFETY: we construct valid input and check the OS error code before using the returned
@@ -801,117 +895,6 @@ impl PluginMakeCredentialResponse {
 
             Ok(response)
         }
-    }
-}
-
-impl TryFrom<PluginMakeCredentialResponse> for WEBAUTHN_CREDENTIAL_ATTESTATION {
-    type Error = WinWebAuthnError;
-
-    fn try_from(value: PluginMakeCredentialResponse) -> Result<Self, Self::Error> {
-        // Convert format type to UTF-16
-        let format_type_utf16 = value.format_type.to_utf16();
-        let pwszFormatType = format_type_utf16.as_ptr();
-        std::mem::forget(format_type_utf16);
-
-        // Get authenticator data pointer and length
-        let pbAuthenticatorData = value.authenticator_data.as_ptr();
-        let cbAuthenticatorData = value.authenticator_data.len() as u32;
-        std::mem::forget(value.authenticator_data);
-
-        // Get optional attestation statement pointer and length
-        let (pbAttestation, cbAttestation) = match value.attestation_statement.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
-            None => (std::ptr::null(), 0),
-        };
-        std::mem::forget(value.attestation_statement);
-
-        // Get optional attestation object pointer and length
-        let (pbAttestationObject, cbAttestationObject) = match value.attestation_object.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
-            None => (std::ptr::null(), 0),
-        };
-        std::mem::forget(value.attestation_object);
-
-        // Get optional credential ID pointer and length
-        let (pbCredentialId, cbCredentialId) = match value.credential_id.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
-            None => (std::ptr::null(), 0),
-        };
-        std::mem::forget(value.credential_id);
-
-        // Convert extensions (TODO: implement proper extension conversion)
-        let extensions = WEBAUTHN_EXTENSIONS {
-            cExtensions: 0,
-            pExtensions: std::ptr::null(),
-        };
-
-        // Convert used transport enum to bitmask
-        let dwUsedTransport = value.used_transport as u32;
-
-        // Get optional unsigned extension outputs pointer and length
-        let (pbUnsignedExtensionOutputs, cbUnsignedExtensionOutputs) =
-            match value.unsigned_extension_outputs.as_ref() {
-                Some(data) => (data.as_ptr(), data.len() as u32),
-                None => (std::ptr::null(), 0),
-            };
-        std::mem::forget(value.unsigned_extension_outputs);
-
-        // Convert optional HMAC secret (TODO: implement proper conversion)
-        let pHmacSecret = std::ptr::null();
-
-        // Convert optional transports to bitmask
-        let dwTransports = value
-            .transports
-            .as_ref()
-            .map_or(0, |t| t.iter().map(|transport| *transport as u32).sum());
-
-        // Get optional client data JSON pointer and length
-        let (pbClientDataJSON, cbClientDataJSON) = match value.client_data_json.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
-            None => (std::ptr::null(), 0),
-        };
-        std::mem::forget(value.client_data_json);
-
-        // Get optional registration response JSON pointer and length
-        let (pbRegistrationResponseJSON, cbRegistrationResponseJSON) =
-            match value.registration_response_json.as_ref() {
-                Some(data) => (data.as_ptr(), data.len() as u32),
-                None => (std::ptr::null(), 0),
-            };
-        std::mem::forget(value.registration_response_json);
-
-        let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
-            // Use version 8 to include all fields
-            dwVersion: 8,
-            pwszFormatType,
-            cbAuthenticatorData,
-            pbAuthenticatorData,
-            cbAttestation,
-            pbAttestation,
-            // TODO: Support decode type. Just using WEBAUTHN_ATTESTATION_DECODE_NONE (0) for now.
-            dwAttestationDecodeType: 0,
-            pvAttestationDecode: std::ptr::null(),
-            cbAttestationObject,
-            pbAttestationObject,
-            cbCredentialId,
-            pbCredentialId,
-            Extensions: extensions,
-            dwUsedTransport,
-            bEpAtt: value.ep_att,
-            bLargeBlobSupported: value.large_blob_supported,
-            bResidentKey: value.resident_key,
-            bPrfEnabled: value.prf_enabled,
-            cbUnsignedExtensionOutputs,
-            pbUnsignedExtensionOutputs,
-            pHmacSecret,
-            bThirdPartyPayment: value.third_party_payment,
-            dwTransports,
-            cbClientDataJSON,
-            pbClientDataJSON,
-            cbRegistrationResponseJSON,
-            pbRegistrationResponseJSON,
-        };
-        Ok(attestation)
     }
 }
 
