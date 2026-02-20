@@ -7,11 +7,34 @@ import {
   ElementRef,
   effect,
 } from "@angular/core";
-import { Chart, ChartConfiguration, ChartDataset, registerables } from "chart.js";
+import {
+  Chart,
+  ChartConfiguration,
+  ChartDataset,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  TimeScale,
+  Legend,
+  Tooltip,
+  Filler,
+  Title,
+} from "chart.js";
 import "chartjs-adapter-date-fns";
 
-// Register Chart.js components
-Chart.register(...registerables);
+// Register only the Chart.js components we need
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  TimeScale,
+  Legend,
+  Tooltip,
+  Filler,
+  Title,
+);
 
 type PointData = {
   x: number | Date;
