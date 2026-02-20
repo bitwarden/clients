@@ -1166,6 +1166,7 @@ fn webauthn_free_decoded_get_assertion_request(
 ) -> ());
 
 // CancelOperation Types
+#[repr(C)]
 pub(super) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
     transactionId: GUID,
     cbRequestSignature: u32,

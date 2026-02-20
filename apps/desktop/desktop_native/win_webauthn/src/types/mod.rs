@@ -465,6 +465,7 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
     pub(crate) pbRegistrationResponseJSON: *const u8,
 }
 
+#[repr(C)]
 pub(crate) struct WEBAUTHN_HMAC_SECRET_SALT {
     /// Size of pbFirst.
     _cbFirst: u32,
