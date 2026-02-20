@@ -13,9 +13,12 @@ import {
   GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
   GetRiskInsightsSummaryResponse,
+  GetRiskOverTimeResponse,
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
+import { getMockRiskOverTimeResponse } from "../../models/mocks/mock-risk-over-time-data";
+import { RiskOverTimeDataView, RiskOverTimeTimeframe } from "../../models/risk-over-time.types";
 
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
@@ -123,5 +126,17 @@ export class RiskInsightsApiService {
     return from(dbResponse).pipe(
       map((response) => new UpdateRiskInsightsApplicationDataResponse(response)),
     );
+  }
+
+  // TODO: Replace mock data with actual API call when PM-28531 server endpoint is deployed.
+  // See solution-a-recommended.md Step 12 "When PM-28531 is deployed" for the real implementation.
+  // Also remove the getMockRiskOverTimeResponse import. [PM-28529]
+  getRiskOverTime$(
+    orgId: OrganizationId,
+    timeframe: RiskOverTimeTimeframe,
+    dataView: RiskOverTimeDataView,
+  ): Observable<GetRiskOverTimeResponse | null> {
+    const mockResponse = getMockRiskOverTimeResponse(timeframe, dataView);
+    return of(new GetRiskOverTimeResponse(mockResponse));
   }
 }
