@@ -11,7 +11,21 @@
   </popup-header>
 
   @if (cipher) {
-    <app-cipher-view [cipher]="cipher"></app-cipher-view>
+    <app-cipher-view [cipher]="cipher">
+      @if (showAutofillButton()) {
+        <button
+          type="button"
+          class="tw-mt-4"
+          slot="button"
+          bitButton
+          buttonType="primary"
+          block
+          (click)="doAutofill()"
+        >
+          {{ "autofill" | i18n }}
+        </button>
+      }
+    </app-cipher-view>
   }
 
   <popup-footer slot="footer" *ngIf="showFooter$ | async">
