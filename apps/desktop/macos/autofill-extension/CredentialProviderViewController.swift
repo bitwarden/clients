@@ -158,7 +158,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         connectionMonitorTimer = nil
     }
     
-    private func getWindowPosition() async -> Position {
+    private func getWindowDetails() async -> WindowDetails {
         let screenHeight = NSScreen.main?.frame.height ?? 1440
         
         logger.log("[autofill-extension] position: Getting window position")
@@ -195,14 +195,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
             logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
-            return Position(x: centerX, y: centerY)
+            return WindowDetails(position: Position(x: centerX, y: centerY), handle: nil)
         } else {
             // Fallback to mouse position
             let mouseLocation = NSEvent.mouseLocation
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
-            return Position(x: mouseX, y: mouseY)
+            return WindowDetails(position: Position(x: mouseX, y: mouseY), handle: nil)
         }
     }
     
@@ -298,16 +298,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     We're still using the old request type here, because we're sending the same data, we're expecting a single credential to be used
                 */
                 Task {
-                    let windowPosition = await self.getWindowPosition()
+                    let clientWindow = await self.getWindowDetails()
                     let req = PasskeyAssertionWithoutUserInterfaceRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
+                        clientDataHash: request.clientDataHash,
+                        userVerification: userVerification,
+                        clientWindow: clientWindow,
                         credentialId: passkeyIdentity.credentialID,
                         userName: passkeyIdentity.userName,
                         userHandle: passkeyIdentity.userHandle,
                         recordIdentifier: passkeyIdentity.recordIdentifier,
-                        clientDataHash: request.clientDataHash,
-                        userVerification: userVerification,
-                        windowXy: windowPosition
+                        context: nil,
                     )
                     
                     let client = await getClient()
@@ -394,16 +395,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 logger.log("[autofill-extension] prepareInterface(passkey) calling preparePasskeyRegistration")                
                 
                 Task {
-                    let windowPosition = await self.getWindowPosition()
+                    let clientWindow = await self.getWindowDetails()
                     let req = PasskeyRegistrationRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
-                        userName: passkeyIdentity.userName,
-                        userHandle: passkeyIdentity.userHandle,
                         clientDataHash: request.clientDataHash,
                         userVerification: userVerification,
+                        clientWindow: clientWindow,
+                        userName: passkeyIdentity.userName,
+                        userHandle: passkeyIdentity.userHandle,
                         supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
-                        windowXy: windowPosition,
-                        excludedCredentials: excludedCredentialIds
+                        excludedCredentials: excludedCredentialIds,
+                        context: nil,
                     )
                     
                     let client = await getClient()
@@ -464,13 +466,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let timeoutTimer = createTimer()
         
         Task {
-            let windowPosition = await self.getWindowPosition()
+            let clientWindow = await self.getWindowDetails()
             let req = PasskeyAssertionRequest(
                 rpId: requestParameters.relyingPartyIdentifier,
                 clientDataHash: requestParameters.clientDataHash,
                 userVerification: userVerification,
+                clientWindow: clientWindow,
                 allowedCredentials: requestParameters.allowedCredentials,
-                windowXy: windowPosition
+                context: nil,
                 //extensionInput: requestParameters.extensionInput, // We don't support extensions yet
             )
             
