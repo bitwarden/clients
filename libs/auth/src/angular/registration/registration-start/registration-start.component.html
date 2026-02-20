@@ -45,17 +45,6 @@
       (selectedRegionChange)="handleSelectedRegionChange($event)"
     ></auth-registration-env-selector>
 
-    <bit-form-field *ngIf="!pqpReady">
-      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input
-        id="register-start_form_input_email"
-        bitInput
-        type="email"
-        formControlName="email"
-        [class.tw-pointer-events-none]="emailReadonly || pqpUserEmail"
-      />
-    </bit-form-field>
-
     <bit-form-field>
       <bit-label>{{ "name" | i18n }}</bit-label>
       <input id="register-start_form_input_name" bitInput type="text" formControlName="name" />
@@ -90,6 +79,7 @@
       bitButton
       bitFormButton
       class="tw-mb-3"
+      [disabled]="!pqpReady"
     >
       {{ "continue" | i18n }}
     </button>
