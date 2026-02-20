@@ -52,3 +52,7 @@
 .bit-popover-spotlight-backdrop {
   @apply tw-bg-transparent tw-pointer-events-auto;
 }
+
+.bit-popover-backdrop {
+  background: rgba(13, 32, 86, 0.2);
+}
