@@ -574,10 +574,10 @@
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais de busca e das sugestões de preenchimento automático."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Item arquivado"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Item desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-mail ou código de verificação inválido"
+  },
   "valueCopied": {
     "message": "$VALUE$ copiado(a)",
     "description": "Value has been copied to the clipboard.",
@@ -988,10 +991,10 @@
     "message": "Não"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Qualquer um com o link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Qualquer pessoa com uma senha configurada por você"
   },
   "location": {
     "message": "Localização"
@@ -2052,7 +2055,7 @@
     "message": "E-mail"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefone"
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ilustração de uma lista de credenciais em risco."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Ilustração do layout da página do Cofre do Bitwarden."
+  },
   "generatePasswordSlideDesc": {
     "message": "Gere uma senha forte e única com rapidez com o menu de preenchimento automático no site em risco.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ horas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copie e compartilhe este link do Send. O Send ficará disponível para qualquer um com o link por $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copie e compartilhe este link do Send. O Send ficará disponível para qualquer um com o link e a senha por $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5961,7 +6006,7 @@
     "message": "Número do cartão"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Erro: Não é possível descriptografar"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "A sua organização não está mais usando senhas principais para se conectar ao Bitwarden. Para continuar, verifique a organização e o domínio."
@@ -6101,37 +6146,43 @@
     "message": "Por que estou vendo isso?"
   },
   "items": {
-    "message": "Items"
+    "message": "Itens"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Resultados da busca"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Quem pode visualizar"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Pessoas específicas"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Após compartilhar este link de Send, indivíduos precisarão verificar seus e-mails com um código para visualizar este Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Digite vários e-mails, separados com uma vírgula."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "usuário@bitwarden.com , usuário@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Baixar aplicativos do Bitwarden"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Protegido por e-mail"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Os indivíduos precisarão digitar a senha para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Falha na verificação do usuário."
   }
 }

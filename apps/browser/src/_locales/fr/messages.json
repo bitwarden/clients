@@ -29,7 +29,7 @@
     "message": "Se connecter avec une clé d'accès"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Déverrouiller avec une clé d'accès"
   },
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
@@ -574,28 +574,28 @@
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Élément archivé"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Élément désarchivé"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archivé"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Désarchiver et enregistrer"
   },
   "upgradeToUseArchive": {
     "message": "Une adhésion premium est requise pour utiliser Archive."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'élément a été restauré"
   },
   "edit": {
     "message": "Modifier"
@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Courriel ou code de vérification invalide"
+  },
   "valueCopied": {
     "message": "$VALUE$ copié",
     "description": "Value has been copied to the clipboard.",
@@ -988,10 +991,10 @@
     "message": "Non"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Toute personne disposant du lien"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "N'importe qui avec un mot de passe défini par vous"
   },
   "location": {
     "message": "Emplacement"
@@ -1318,7 +1321,7 @@
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Choisit la manière dont la détection des correspondances URI est gérée par défaut pour les connexions lors d'actions telles que la saisie automatique."
+    "message": "Choisissez le mode de traitement par défaut de la détection de correspondance URI, pour les connexions lors de l'exécution d'actions telles que le remplissage automatique."
   },
   "theme": {
     "message": "Thème"
@@ -1341,7 +1344,7 @@
     "message": "Exporter à partir de"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Exporter",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
@@ -1353,7 +1356,7 @@
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importer",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1552,13 +1555,13 @@
     "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Votre abonnement Premium est terminé"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Pour récupérer l'accès à vos archives, redémarrez votre abonnement Premium. Si vous modifiez les détails d'un élément archivé avant de le redémarrer, il sera déplacé dans votre coffre."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Redémarrer Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Hygiène du mot de passe, santé du compte et rapports sur les brèches de données pour assurer la sécurité de votre coffre."
@@ -2052,7 +2055,7 @@
     "message": "Courriel"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Courriels"
   },
   "phone": {
     "message": "Téléphone"
@@ -2483,7 +2486,7 @@
     "message": "Élément définitivement supprimé"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Élément archivé restauré"
   },
   "restoreItem": {
     "message": "Restaurer l'élément"
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration d'une liste de connexions à risque."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "Générez rapidement un mot de passe fort et unique grâce au menu de saisie automatique de Bitwarden sur le site à risque.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ heures",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera accessible à toute personne disposant du lien pour les prochains $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera accessible à toute personne possédant le lien et le mot de passe que vous avez défini pendant $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copiez et partagez ce lien Send. Il peut être vu par les personnes définies pendant $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -3350,10 +3395,10 @@
     "message": "Erreur"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Impossible de déverrouiller avec la clé d'accès. Veuillez réessayer ou utiliser une autre méthode de déverrouillage."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Aucune clé d'accès PRF disponible pour le déverrouillage. Veuillez vous connecter avec une clé d'accès en premier lieu."
   },
   "decryptionError": {
     "message": "Erreur de déchiffrement"
@@ -4142,7 +4187,7 @@
     "message": "Ok"
   },
   "toggleSideNavigation": {
-    "message": "Basculer la navigation latérale"
+    "message": "Activer la navigation latérale"
   },
   "skipToContent": {
     "message": "Accéder directement au contenu"
@@ -4731,7 +4776,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Plus de paramètres"
   },
   "moreOptionsTitle": {
     "message": "Plus d'options - $ITEMNAME$",
@@ -4827,46 +4872,46 @@
     "message": "Admin"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Confirmation d'utilisateur automatique"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Confirmer automatiquement les utilisateurs en attente pendant que cet appareil est déverrouillé"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Gagnez du temps grâce à la confirmation d'utilisateur automatique"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Cela peut avoir un impact sur la sécurité des données de votre organisation. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "En apprendre plus sur les risques"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Confirmer les nouveaux utilisateurs automatiquement"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Les nouveaux utilisateurs seront confirmés automatiquement pendant que cet appareil est déverrouillé."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Quels-sont les potentiels risques de sécurité ?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Confirmation automatique activée"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Disponible maintenant"
   },
   "accountSecurity": {
     "message": "Sécurité du compte"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Bloqueur d'hameçonnage"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Détection de l'hameçonnage"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Afficher un avertissement avant d'accéder à des sites soupçonnés d'hameçonnage"
   },
   "notifications": {
     "message": "Notifications"
@@ -4981,7 +5026,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Télécharger la pièce jointe"
   },
   "downloadBitwarden": {
     "message": "Télécharger Bitwarden"
@@ -5123,10 +5168,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Afficher la détection de correspondance"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Masquer la détection de correspondance"
   },
   "autoFillOnPageLoad": {
     "message": "Saisir automatiquement lors du chargement de la page ?"
@@ -5362,10 +5407,10 @@
     "message": "Emplacement de l'élément"
   },
   "fileSends": {
-    "message": "Envoi de fichiers"
+    "message": "Sends de fichier"
   },
   "textSends": {
-    "message": "Envoi de textes"
+    "message": "Sends de texte"
   },
   "accountActions": {
     "message": "Actions du compte"
@@ -5665,7 +5710,7 @@
     "message": "Très large"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Réduire"
   },
   "sshKeyWrongPassword": {
     "message": "Le mot de passe saisi est incorrect."
@@ -5716,10 +5761,10 @@
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Mot de passe vulnérable."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Changer maintenant"
   },
   "missingWebsite": {
     "message": "Site Web manquant"
@@ -5961,7 +6006,7 @@
     "message": "Numéro de carte"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Erreur : décryptage impossible"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
@@ -6092,46 +6137,52 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Accepter le transfert"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Refuser et quitter"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Pourquoi vois-je ceci ?"
   },
   "items": {
-    "message": "Items"
+    "message": "Éléments"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Résultats de la recherche"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Ajuster la taille de la navigation latérale"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Qui peut visionner"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Personnes spécifiques"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Après avoir partagé ce lien Send, les individus devront vérifier leur courriel à l'aide d'un code afin de voir ce Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Entrez plusieurs courriels en les séparant d'une virgule."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer toutes les adresses, changez le type d'accès ci-dessus."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Télécharger les applications Bitwarden"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Courriel protégé"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Les individus devront entrer le mot de passe pour visionner ce Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Échec de la vérification d'utilisateur."
   }
 }
