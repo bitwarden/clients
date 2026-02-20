@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock } from "jest-mock-extended";
