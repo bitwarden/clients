@@ -3339,13 +3339,13 @@
     "message": "Abonements tika atjaunots."
   },
   "resubscribe": {
-    "message": "Resubscribe"
+    "message": "Atsākt abonēšanu"
   },
   "yourSubscriptionIsExpired": {
-    "message": "Your subscription is expired"
+    "message": "Abonements ir beidzies"
   },
   "yourSubscriptionIsCanceled": {
-    "message": "Your subscription is canceled"
+    "message": "Abonements ir atcelts"
   },
   "cancelConfirmation": {
     "message": "Vai tiešām atcelt? Tiks zaudēta piekļuve visām abonementa iespējām pēc pašreizējā norēķinu laika posma beigām."
@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Labots lietotājs $ID$.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Izveido informāciju par Tavu piekļuvi…"
   },
-  "fetchingMemberData": {
-    "message": "Iegūst dalībnieku datus…"
-  },
-  "analyzingPasswordHealth": {
-    "message": "Izvērtē paroļu veselību…"
-  },
-  "calculatingRiskScores": {
-    "message": "Aprēķina risku novērtējumu…"
-  },
-  "generatingReportData": {
-    "message": "Izveido atskaites datus…"
-  },
-  "savingReport": {
-    "message": "Saglabā atskaiti…"
-  },
-  "compilingInsights": {
-    "message": "Apkopo ieskatus…"
-  },
   "loadingProgress": {
     "message": "Ielādē virzību"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Tas var aizņemt dažas minūtes."
+  "reviewingMemberData": {
+    "message": "Pārskata dalībnieku datus…"
+  },
+  "analyzingPasswords": {
+    "message": "Izvērtē paroles…"
+  },
+  "calculatingRisks": {
+    "message": "Aprēķina riskus…"
+  },
+  "generatingReports": {
+    "message": "Izveido pārskatus…"
+  },
+  "compilingInsightsProgress": {
+    "message": "Apkopo ieskatus…"
+  },
+  "reportGenerationDone": {
+    "message": "Gatavs."
   },
   "riskInsightsRunReport": {
     "message": "Izveidot atskaiti"
@@ -5849,10 +5855,6 @@
     "message": "Nezini paroli? Vaicā sūtītājam paroli, kas ir nepieciešama, lai piekļūtu šim Send!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Šis Send ir paslēpts pēc noklusējuma. Tā redzamību var pārslēgt ar zemāk esošo pogu.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Lejupielādēt pielikumus"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Es pieņemu šos riskus un pamatnostādnes atjauninājumus"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Personīgās īpašumtiesības"
@@ -6439,7 +6456,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "Jāapliecina sava e-pasta adrese, lai apskatītu šo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Nederīgs apliecinājuma kods"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Nederīga e-pasta adrese vai apliecinājuma kods"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domēns"
@@ -11910,10 +11930,10 @@
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Vienums ievietots arhīvā"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Vienums izņemts no arhīva"
   },
   "bulkArchiveItems": {
     "message": "Vienumi tika arhivēti"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-pasta apliecināšanai ir nepieciešama vismaz viena e-pasta adrese. Lai noņemtu visas e-pasta adreses, augstāk jānomaina piekļūšanas veids."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Cilvēkiem būs jāievada parole, lai apskatītu šo Send",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Nederīga parole. Jāvaicā nepieciešamā parole nosūtītājam, lai piekļūtu šim Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Šī Send derīgums beigsies $DATE$ plkst. $TIME$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

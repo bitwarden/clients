@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automaticky potvrzený uživatel $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Byl upraven uživatel $ID$.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Generování Vaší přístupové inteligence..."
   },
-  "fetchingMemberData": {
-    "message": "Načítání dat člena..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Analyzování zdraví hesla..."
-  },
-  "calculatingRiskScores": {
-    "message": "Výpočet skóre rizik..."
-  },
-  "generatingReportData": {
-    "message": "Generování dat hlášení..."
-  },
-  "savingReport": {
-    "message": "Ukládání hlášení..."
-  },
-  "compilingInsights": {
-    "message": "Sestavování přehledů..."
-  },
   "loadingProgress": {
     "message": "Průběh načítání"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Může to trvat několik minut."
+  "reviewingMemberData": {
+    "message": "Přezkoumávání dat členů..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzování hesel..."
+  },
+  "calculatingRisks": {
+    "message": "Výpočet rizik..."
+  },
+  "generatingReports": {
+    "message": "Generování zpráv..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Sestavování přehledů..."
+  },
+  "reportGenerationDone": {
+    "message": "Hotovo!"
   },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
@@ -5849,10 +5855,6 @@
     "message": "Neznáte heslo? Požádejte odesílatele o heslo potřebné pro přístup k tomuto Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Tento Send je ve výchozím nastavení skrytý. Viditelnost můžete přepnout pomocí tlačítka níže.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Přijímám tato rizika a aktualizace zásad"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Zapnuto Automatické potvrzování uživatele"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Vypnuto Automatické potvrzování uživatele"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Přidána zásada automatického potvrzování uživatele"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Odebrána zásada automatického potvrzování uživatele"
+  },
+  "system": {
+    "message": "Systém"
   },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
@@ -6757,7 +6774,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Zkusit odeslat znovu"
   },
   "bulkRemovedMessage": {
     "message": "Úspěšně odebráno"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Doména Key Connectoru"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadejte více e-mailů oddělených čárkou."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Neplatné heslo k Send"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Jste u nás! Vítejte v Bitwardenu"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Uložte všechna Vaše hesla a osobní informace v trezoru Bitwarden. Provedeme Vás tady."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Zahájit prohlídku"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Přeskočit"
   },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Při aktualizaci Vaší platební metody došlo k chybě."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Neplatné heslo. Požádejte odesílatele o heslo potřebné pro přístup k tomuto Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Tento Send vyprší v $TIME$ dne $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

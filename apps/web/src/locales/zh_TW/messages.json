@@ -2803,7 +2803,7 @@
     "message": "用戶端 ID"
   },
   "twoFactorDuoClientSecret": {
-    "message": "用戶端秘密"
+    "message": "用戶端機密"
   },
   "twoFactorDuoApiHostname": {
     "message": "API 主機名稱"
@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "已編輯使用者 $ID$。",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "正在產生您的 Access Intelligence……"
   },
-  "fetchingMemberData": {
-    "message": "正在擷取成員資料…"
-  },
-  "analyzingPasswordHealth": {
-    "message": "正在分析密碼安全狀況…"
-  },
-  "calculatingRiskScores": {
-    "message": "正在計算風險分數…"
-  },
-  "generatingReportData": {
-    "message": "正在產生報告資料..."
-  },
-  "savingReport": {
-    "message": "正在儲存報告..."
-  },
-  "compilingInsights": {
-    "message": "正在整理洞察結果…"
-  },
   "loadingProgress": {
     "message": "載入進度中"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "這可能需要幾分鐘。"
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "執行報告"
@@ -5849,10 +5855,6 @@
     "message": "不知道密碼？請向此 Send 的寄件者索取密碼。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "此 Send 預設為隱藏。您可使用下方的按鈕切換其可見度。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "下載附件"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "我接受這些風險與原則更新"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "停用個人密碼庫"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Key Connector 網域"
@@ -9791,7 +9811,7 @@
     }
   },
   "secretsManagerForPlanDesc": {
-    "message": "提供工程與 DevOps 團隊一套在軟體開發生命週期中，管理秘密資訊的功能。"
+    "message": "提供工程與 DevOps 團隊一套在軟體開發生命週期中，管理機密資訊的功能。"
   },
   "free2PersonOrganization": {
     "message": "免費的 2 人組織"
@@ -9833,7 +9853,7 @@
     "message": "訂閲機密管理員"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "將機密管理員加入您的升級方案，來維持先前方案建立的秘密資訊的存取權限。"
+    "message": "將機密管理員加入您的升級方案，來維持先前方案建立的機密資訊的存取權限。"
   },
   "additionalServiceAccounts": {
     "message": "額外服務帳戶"
@@ -10906,7 +10926,7 @@
     "message": "已驗證"
   },
   "viewSecret": {
-    "message": "檢視秘密"
+    "message": "檢視機密"
   },
   "noClients": {
     "message": "沒有可列出的客戶"
@@ -11910,7 +11930,7 @@
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "項目已封存"
   },
   "itemUnarchivedToast": {
     "message": "Item unarchived"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Send 密碼無效"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
