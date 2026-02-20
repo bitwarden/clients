@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "All applications"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Activity"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Password Risk"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
@@ -8283,6 +8301,9 @@
   },
   "members": {
     "message": "Members"
+  },
+  "membersAtRisk": {
+    "message": "Members at risk"
   },
   "reporting": {
     "message": "Reporting"
