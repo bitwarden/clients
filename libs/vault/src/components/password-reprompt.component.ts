@@ -18,7 +18,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-
 /**
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.
  * See UserVerificationComponent for any other situation where you need to verify the user's identity.
