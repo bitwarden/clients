@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "$ID$ felhasználó automatikusan megerősítésre került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "$ID$ azonosítójú felhasználó módosításra került.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Hozzáférési intelligencia generálása..."
   },
-  "fetchingMemberData": {
-    "message": "Tagi adatok lekérése..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "A jelszó állapot elemzése..."
-  },
-  "calculatingRiskScores": {
-    "message": "Kockázati pontszámok kiszámítása..."
-  },
-  "generatingReportData": {
-    "message": "Jelentés adatok generálása..."
-  },
-  "savingReport": {
-    "message": "Jelentés mentése..."
-  },
-  "compilingInsights": {
-    "message": "Betekintések összeállítása..."
-  },
   "loadingProgress": {
     "message": "Feldolgozás betöltése"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Ez eltarthat pár percig."
+  "reviewingMemberData": {
+    "message": "Tagi adatok lekérése..."
+  },
+  "analyzingPasswords": {
+    "message": "A jelszavak elemzése..."
+  },
+  "calculatingRisks": {
+    "message": "A kockázatok kiszámítása..."
+  },
+  "generatingReports": {
+    "message": "Jelentések generálása..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Betekintések összeállítása..."
+  },
+  "reportGenerationDone": {
+    "message": "Kész!"
   },
   "riskInsightsRunReport": {
     "message": "Jelentés futtatása"
@@ -5849,10 +5855,6 @@
     "message": "Nem ismerjük a jelszót? Kérdezzünk rá a küldőnél a Send elérésére szükséges jelszóért.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Ez a Send alapértelmezésben rejtett. Az alábbi gombbal átváltható a láthatósága.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Mellékletek letöltése"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Elfogadom ezeket a kockázatokat és a szabályzat frissítéseit."
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Az automatikus felhasználó megerősítés beállítás bekapcsolásra került."
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Az automatikus felhasználó megerősítés beállítás kikapcsolásra került."
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Az automatikus felhasználó megerősítés rendszabály hozzáadásra került."
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Az automatikus felhasználó megerősítés rendszabály eltávolításra került."
+  },
+  "system": {
+    "message": "Rendszer"
   },
   "personalOwnership": {
     "message": "Személyes tulajdon"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
   },
   "keyConnectorDomain": {
     "message": "Key Connector tartomány"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Érvénytelen a Send jelszó."
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Megérkeztünk! Üdvözlet a Bitwardenben"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Az összes jelszó és személyes adat tárolása a Bitwarden trezorban. Nézzünk körbe."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Túra elkezdése"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Kihagyás"
   },
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Hiba történt a fizetési mód frissítésekor."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "A jelszó érvénytelen. Kérjük el a feladótól a Send elem eléréséhez szükséges jelszót.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "A Send elem lejár: $DATE$ - $TIME$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
