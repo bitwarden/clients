@@ -327,9 +327,12 @@ impl UserEntityInformation<'_> {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
+    /// Version of this structure, to allow for modifications in the future.
     dwVersion: u32,
-    pwszCredentialType: NonNull<u16>, // LPCWSTR
-    lAlg: i32,                        // LONG - COSE algorithm identifier
+    /// Well-known credential type specifying a credential to create.
+    pwszCredentialType: NonNull<u16>,
+    /// Well-known COSE algorithm specifying the algorithm to use for the credential.
+    lAlg: i32,
 }
 
 impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
@@ -443,23 +446,23 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
     pub(crate) pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
 
-    // ThirdPartyPayment Credential or not.
+    /// ThirdPartyPayment Credential or not.
     pub(crate) bThirdPartyPayment: BOOL,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
     //
 
-    // Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
-    // the transports that are supported.
+    /// Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
+    /// the transports that are supported.
     pub(crate) dwTransports: u32,
 
-    // UTF-8 encoded JSON serialization of the client data.
+    /// UTF-8 encoded JSON serialization of the client data.
     pub(crate) cbClientDataJSON: u32,
     // _Field_size_bytes_(cbClientDataJSON)
     pub(crate) pbClientDataJSON: *const u8,
 
-    // UTF-8 encoded JSON serialization of the RegistrationResponse.
+    /// UTF-8 encoded JSON serialization of the RegistrationResponse.
     pub(crate) cbRegistrationResponseJSON: u32,
     // _Field_size_bytes_(cbRegistrationResponseJSON)
     pub(crate) pbRegistrationResponseJSON: *const u8,
@@ -594,10 +597,15 @@ impl TryFrom<Vec<u8>> for CredentialId {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct WEBAUTHN_CREDENTIAL_EX {
+    /// Version of this structure, to allow for modifications in the future.
     dwVersion: u32,
+    /// Size of pbID.
     cbId: u32,
+    /// Unique ID for this particular credential.
     pbId: *const u8,
-    pwszCredentialType: *const u16, // LPCWSTR
+    /// Well-known credential type specifying what this particular credential is.
+    pwszCredentialType: *const u16,
+    /// Transports. 0 implies no transport restrictions.
     dwTransports: u32,
 }
 

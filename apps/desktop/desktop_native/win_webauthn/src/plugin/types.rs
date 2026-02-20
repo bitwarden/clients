@@ -34,12 +34,13 @@ use crate::{
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS {
+    /// Version of this structure, to allow for modifications in the future.
     dwVersion: u32,
-    // LONG lUp: +1=TRUE, 0=Not defined, -1=FALSE
+    /// "up" option: +1=TRUE, 0=Not defined, -1=FALSE
     lUp: i32,
-    // LONG lUv: +1=TRUE, 0=Not defined, -1=FALSE
+    /// "uv" option: +1=TRUE, 0=Not defined, -1=FALSE
     lUv: i32,
-    // LONG lRequireResidentKey: +1=TRUE, 0=Not defined, -1=FALSE
+    /// "rk" option: +1=TRUE, 0=Not defined, -1=FALSE
     lRequireResidentKey: i32,
 }
 
@@ -98,10 +99,12 @@ pub(super) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
     /// The data should be encoded as `UTF16(BASE64(UTF8(svg_text)))`.
     pub(super) pwszDarkThemeLogoSvg: *const u16,
 
+    /// CTAP CBOR-encoded authenticatorGetInfo response (size)
     pub(super) cbAuthenticatorInfo: u32,
     /// CTAP CBOR-encoded authenticatorGetInfo output
     pub(super) pbAuthenticatorInfo: *const u8,
 
+    /// Count of supported RP IDs
     pub(super) cSupportedRpIds: u32,
     /// List of supported RP IDs (Relying Party IDs).
     ///
@@ -250,13 +253,21 @@ fn webauthn_plugin_free_add_authenticator_response(
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+    /// Credential Identifier bytes (size)
     pub credential_id_byte_count: u32,
+    /// Credential Identifier bytes (data, required)
     pub credential_id_pointer: *const u8,
+    /// Identifier for the RP (required)
     pub rpid: *const u16,
+    /// Friendly name of the Relying Party (required)
     pub rp_friendly_name: *const u16,
+    /// User Identifier bytes (size)
     pub user_id_byte_count: u32,
+    /// User Identifier bytes (data, required)
     pub user_id_pointer: *const u8,
+    /// Detailed account name (e.g., "john.p.smith@example.com")
     pub user_name: *const u16,
+    /// Friendly name for the user account (e.g., "John P. Smith")
     pub user_display_name: *const u16,
 }
 
@@ -452,23 +463,37 @@ pub enum WebAuthnPluginRequestType {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+    /// Version of this structure, to allow for modifications in the future.
     pub dwVersion: u32,
+    /// Input RP ID size (raw UTF-8 bytes before conversion)
     pub cbRpId: u32,
+    /// Input RP ID data (bytes hashed in Authenticator Data)
     pub pbRpId: *const u8,
+    /// Client Data Hash size
     pub cbClientDataHash: u32,
+    /// Client Data Hash data
     pub pbClientDataHash: *const u8,
+    /// RP Information
     pub pRpInformation: *const WEBAUTHN_RP_ENTITY_INFORMATION,
+    /// User Information
     pub pUserInformation: *const WEBAUTHN_USER_ENTITY_INFORMATION,
+    /// Crypto Parameters
     pub WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
+    /// Credentials used for exclusion
     pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    /// CBOR extensions map size
     pub cbCborExtensionsMap: u32,
+    /// CBOR extensions map data
     pub pbCborExtensionsMap: *const u8,
+    /// Authenticator Options (Optional)
     pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
 
     // Pin Auth (Optional)
     /// Indicates zero length PinAuth is included in the request
     pub fEmptyPinAuth: BOOL,
+    /// Pin Auth size
     pub cbPinAuth: u32,
+    /// Pin Auth data
     pub pbPinAuth: *const u8,
 
     /// "hmac-secret": true extension
@@ -479,7 +504,9 @@ pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
 
     /// "prf" extension
     pub lPrfExt: i32,
+    /// HMAC secret salt values size
     pub cbHmacSecretSaltValues: u32,
+    /// HMAC secret salt values data
     pub pbHmacSecretSaltValues: *const u8,
 
     /// "credProtect" extension. Nonzero if present
@@ -493,6 +520,7 @@ pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
 
     /// "credBlob" extension. Nonzero if present
     pub cbCredBlobExt: Option<NonZeroU32>,
+    /// "credBlob" extension data
     pub pbCredBlobExt: *const u8,
 
     /// "largeBlobKey": true extension
@@ -506,6 +534,7 @@ pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
 
     /// "json" extension. Nonzero if present
     pub cbJsonExt: u32,
+    /// "json" extension data
     pub pbJsonExt: *const u8,
 }
 
@@ -948,61 +977,82 @@ pub(super) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
     /// Version of this structure, to allow for modifications in the future.
     pub _dwVersion: u32,
 
-    // Platform's key agreement public key
+    /// Platform's key agreement public key
     pub _pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
 
+    /// Encrypted salt size
     pub _cbEncryptedSalt: u32,
+    /// Encrypted salt data
     pub _pbEncryptedSalt: *const u8,
 
+    /// Salt authentication size
     pub _cbSaltAuth: u32,
+    /// Salt authentication data
     pub _pbSaltAuth: *const u8,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+    /// Version of this structure, to allow for modifications in the future.
     pub dwVersion: u32,
-    pub pwszRpId: *const u16, // PCWSTR
+    /// RP ID (after UTF-8 to Unicode conversion)
+    pub pwszRpId: *const u16,
+    /// Input RP ID size (raw UTF-8 bytes before conversion)
     pub cbRpId: u32,
     /// Raw UTF-8 bytes before conversion to UTF-16 in pwszRpId. These are the
     /// bytes to be hashed in the Authenticator Data.
     pub pbRpId: *const u8,
+    /// Client Data Hash size
     pub cbClientDataHash: u32,
+    /// Client Data Hash data
     pub pbClientDataHash: *const u8,
+    /// Credentials used for inclusion
     pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    /// CBOR extensions map size
     pub cbCborExtensionsMap: u32,
+    /// CBOR extensions map data
     pub pbCborExtensionsMap: *const u8,
+    /// Authenticator Options (Optional)
     pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
 
     // Pin Auth (Optional)
     /// Zero length PinAuth is included in the request
     pub fEmptyPinAuth: BOOL,
+    /// Pin Auth size
     pub cbPinAuth: u32,
+    /// Pin Auth data
     pub pbPinAuth: *const u8,
 
-    // HMAC Salt Extension (Optional)
+    /// HMAC Salt Extension (Optional)
     pub pHmacSaltExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
 
-    // PRF Extension
+    /// PRF Extension / HMAC secret salt values size
     pub cbHmacSecretSaltValues: u32,
+    /// PRF Extension / HMAC secret salt values data
     pub pbHmacSecretSaltValues: *const u8,
 
+    /// Pin protocol
     pub dwPinProtocol: u32,
 
-    //"credBlob": true  extension
+    /// "credBlob": true extension
     pub lCredBlobExt: i32,
 
-    //"largeBlobKey": true extension
+    /// "largeBlobKey": true extension
     pub lLargeBlobKeyExt: i32,
 
-    //"largeBlob" extension
+    /// "largeBlob" extension operation
     pub dwCredLargeBlobOperation: u32,
+    /// Large blob compressed size
     pub cbCredLargeBlobCompressed: u32,
+    /// Large blob compressed data
     pub pbCredLargeBlobCompressed: *const u8,
+    /// Large blob original size
     pub dwCredLargeBlobOriginalSize: u32,
 
-    // "json" extension. Nonzero if present
+    /// "json" extension size. Nonzero if present
     pub cbJsonExt: u32,
+    /// "json" extension data
     pub pbJsonExt: *const u8,
 }
 
