@@ -92,6 +92,7 @@ export class SendAuthComponent implements OnInit {
 
   onBackToEmail() {
     this.enterOtp.set(false);
+    this.otpSubmitted = false;
     this.updatePageTitle();
   }
 
