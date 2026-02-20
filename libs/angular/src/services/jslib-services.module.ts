@@ -1199,6 +1199,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       KdfConfigService,
       BiometricsService,
+      MasterPasswordUnlockService,
     ],
   }),
   safeProvider({
