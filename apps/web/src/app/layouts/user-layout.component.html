@@ -19,6 +19,7 @@
         [bitPopoverAnchorFor]="importCoachmark.popover()"
         [popoverOpen]="importCoachmarkOpen()"
         [position]="coachmarkService.getStepPosition('importData')"
+        [closeOnBackdropClick]="false"
       ></bit-nav-item>
       <app-coachmark #importCoachmark stepId="importData" />
       <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
@@ -30,6 +31,7 @@
       [bitPopoverAnchorFor]="reportsCoachmark.popover()"
       [popoverOpen]="reportsCoachmarkOpen()"
       [position]="coachmarkService.getStepPosition('monitorSecurity')"
+      [closeOnBackdropClick]="false"
     ></bit-nav-item>
     <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
     <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
