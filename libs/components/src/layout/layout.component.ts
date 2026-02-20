@@ -139,26 +139,32 @@ export class LayoutComponent {
     // When the nav enters overlay mode (position:fixed) it leaves the grid's normal
     // flow.  A dummy placeholder div in the template keeps the col 1 auto track
     // stable without needing an explicit px value here.
-    const col1 = !this.hasSideNav()
-      ? "0px" // no side nav projected — collapse the column entirely
-      : navOpen && navPush
-        ? `${this.sideNavService.widthRem()}rem` // full nav, push+open
-        : navPush || siderailPush
-          ? "auto" // siderail in flow, size naturally
-          : "0px"; // viewport too narrow even for siderail
+    let col1: string;
+    if (!this.hasSideNav()) {
+      col1 = "0px"; // no side nav projected — collapse the column entirely
+    } else if (navOpen && navPush) {
+      col1 = `${this.sideNavService.widthRem()}rem`; // full nav, push+open
+    } else if (navPush || siderailPush) {
+      col1 = "auto"; // siderail in flow, size naturally
+    } else {
+      col1 = "0px"; // viewport too narrow even for siderail
+    }
 
     // col3: minmax(0px, declaredMax) instead of "auto" so the track is sized by its
     // explicit bounds rather than by the item's content-based size.  This lets CSS
     // grid shrink the drawer column down to 0 when the available space is limited,
     // while col2's minmax base reserves mainMinWidthPx for main first.
     // The dialog uses tw-w-full so it fills the column without overflowing it.
-    const col3 = !drawerActive
-      ? "0px"
-      : !drawerPush
-        ? "1fr"
-        : declaredDrawerWidth > 0
-          ? `minmax(0px, ${declaredDrawerWidth}px)`
-          : "auto"; // fallback before dialog's effect declares its width
+    let col3: string;
+    if (!drawerActive) {
+      col3 = "0px";
+    } else if (!drawerPush) {
+      col3 = "1fr";
+    } else if (declaredDrawerWidth > 0) {
+      col3 = `minmax(0px, ${declaredDrawerWidth}px)`;
+    } else {
+      col3 = "auto"; // fallback before dialog's effect declares its width
+    }
     const col2 = !drawerActive || drawerPush ? `minmax(${mainMinWidthPx}px, 1fr)` : "0px";
 
     return `${col1} ${col2} ${col3}`;
