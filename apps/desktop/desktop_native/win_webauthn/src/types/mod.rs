@@ -6,7 +6,7 @@
 use std::{collections::HashSet, marker::PhantomData, num::NonZeroU32, ptr::NonNull};
 
 use ciborium::Value;
-use windows_core::PCWSTR;
+use windows::core::{BOOL, PCWSTR};
 
 use crate::{util::ArrayPointerIterator, ErrorKind, WinWebAuthnError};
 
@@ -425,13 +425,13 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
-    pub(crate) bEpAtt: bool,
-    pub(crate) bLargeBlobSupported: bool,
-    pub(crate) bResidentKey: bool,
+    pub(crate) bEpAtt: BOOL,
+    pub(crate) bLargeBlobSupported: BOOL,
+    pub(crate) bResidentKey: BOOL,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
-    pub(crate) bPrfEnabled: bool,
+    pub(crate) bPrfEnabled: BOOL,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
@@ -444,7 +444,7 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
     pub(crate) pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
 
     // ThirdPartyPayment Credential or not.
-    pub(crate) bThirdPartyPayment: bool,
+    pub(crate) bThirdPartyPayment: BOOL,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
