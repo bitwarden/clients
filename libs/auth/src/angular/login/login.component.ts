@@ -103,6 +103,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
   ssoRequired = false;
+  pqpAutoLoginInProgress = false;
 
   // PqP Pre-Login State (via service)
 
@@ -585,11 +586,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // PqP Pre-Login Methods (using PqpAuthService)
   private async checkPqpStatus(): Promise<void> {
-    const state = await this.pqpAuthService.checkStatus();
-    // Auto-fill email if available
-    if (state.userEmail && !this.formGroup.controls.email.value) {
-      this.formGroup.controls.email.setValue(state.userEmail);
-    }
+    // Just refresh state — buttons will update via getters
+    // User clicks Continue to log in
+    await this.pqpAuthService.checkStatus();
   }
 
   async handlePqpGoogleLogin(): Promise<void> {
@@ -611,8 +610,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (success) {
       this.toastService.showToast({
         variant: "success",
-        title: "Connected",
-        message: "PqP Network connected successfully",
+        title: "PqP Network",
+        message: "Connected! Click Continue to log in.",
       });
     } else {
       this.toastService.showToast({
@@ -620,6 +619,73 @@ export class LoginComponent implements OnInit, OnDestroy {
         title: "Error",
         message: "Failed to connect to PqP Network",
       });
+    }
+  }
+
+  async handlePqpContinue(): Promise<void> {
+    // Re-fetch state — the private key may not have been in storage
+    // when loginToPqpNetwork returned, but it's available now
+    await this.pqpAuthService.checkStatus();
+    await this.performPqpAutoLogin();
+  }
+
+  /**
+   * Automatically submit Bitwarden login using PQP-derived credentials.
+   * Sets email and derived password into the form and triggers submit().
+   */
+  private async performPqpAutoLogin(): Promise<void> {
+    const email = this.pqpAuthService.userEmail;
+    const derivedPassword = this.pqpAuthService.derivedPassword;
+
+    if (!email || !derivedPassword) {
+      this.toastService.showToast({
+        variant: "error",
+        title: "PqP Network",
+        message: "Credentials not initialized yet. Please reload the popup.",
+      });
+      this.pqpAuthService.reset();
+      return;
+    }
+
+    this.pqpAutoLoginInProgress = true;
+
+    try {
+      // Fill form with PQP credentials
+      this.formGroup.controls.email.setValue(email);
+      this.formGroup.controls.masterPassword.setValue(derivedPassword);
+
+      // Fetch org-invite policies (same as submit path — orgPoliciesFromInvite
+      // is only populated in submit(), which PQP auto-login bypasses)
+      this.orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+        ? await this.loginComponentService.getOrgPoliciesFromOrgInvite(email)
+        : null;
+
+      const orgMasterPasswordPolicyOptions =
+        this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+      const credentials = new PasswordLoginCredentials(
+        email,
+        derivedPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
+
+      const authResult = await this.loginStrategyService.logIn(credentials);
+      await this.handleAuthResult(authResult);
+    } catch (error) {
+      this.logService.error(error);
+      const errorMessage =
+        error instanceof ErrorResponse
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : "Unknown error";
+      this.toastService.showToast({
+        variant: "error",
+        title: "Auto-login failed",
+        message: `${errorMessage}. Please try logging in manually.`,
+      });
+    } finally {
+      this.pqpAutoLoginInProgress = false;
     }
   }
 

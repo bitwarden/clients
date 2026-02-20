@@ -5,174 +5,71 @@
 
   # UI States
 
-    The template has two UI states, defined by the `LoginUiState` enum:
-      EMAIL_ENTRY: displays the email input field + continue button
-      MASTER_PASSWORD_ENTRY: displays the master password input field + login button
+    PQP Auto-Login flow:
+      1. Show PqP login buttons (Google / Microsoft)
+      2. After login or if already logged in, show spinner and auto-login
+      3. Navigate directly to vault on success
 -->
 
-<form [bitSubmit]="submit" [formGroup]="formGroup">
-  <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
-    <!-- PqP Pre-Login Section -->
-    <div
-      class="tw-mb-4 tw-p-3 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background-alt"
-      *ngIf="!pqpReady"
-    >
-      <p class="tw-text-sm tw-font-medium tw-mb-2 tw-text-main">Connect to PqP Network</p>
-      <div class="tw-grid tw-gap-2">
-        <button
-          type="button"
-          bitButton
-          block
-          [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
-          (click)="handlePqpGoogleLogin()"
-          [disabled]="pqpNetworkLoggedIn"
-        >
-          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
-          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Google" }}
-        </button>
+<!-- PQP Auto-Login in Progress (Bitwarden API call) -->
+<div
+  *ngIf="pqpAutoLoginInProgress"
+  class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-12 tw-gap-4"
+>
+  <i class="bwi bwi-spinner bwi-spin bwi-2x tw-text-primary-600" aria-hidden="true"></i>
+  <p class="tw-text-lg tw-font-medium tw-text-main">Signing in...</p>
+  <p class="tw-text-sm tw-text-muted">Logging you in with PqP Network</p>
+</div>
 
-        <button
-          type="button"
-          bitButton
-          block
-          [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
-          (click)="handlePqpMicrosoftLogin()"
-          [disabled]="pqpNetworkLoggedIn"
-        >
-          <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
-          {{ pqpNetworkLoggedIn ? "PqP Network Connected" : "Sign in with Microsoft" }}
-        </button>
-      </div>
-    </div>
-
-    <!-- PqP Ready Indicator -->
-    <div class="tw-mb-4 tw-p-2 tw-bg-success-100 tw-rounded-lg tw-text-center" *ngIf="pqpReady">
-      <span class="tw-text-success-700 tw-text-sm tw-font-medium">
-        <i class="bwi bwi-check-circle tw-mr-1" aria-hidden="true"></i>
-        PqP Connected: {{ pqpUserEmail }}
-      </span>
-    </div>
-
-    <!-- Email Address input -->
-    <bit-form-field>
-      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input
-        type="email"
-        formControlName="email"
-        bitInput
-        appAutofocus
-        (input)="onEmailInput($event)"
-        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
-        [class.tw-pointer-events-none]="pqpUserEmail"
-      />
-    </bit-form-field>
-
-    <!-- Remember Email input -->
-    <bit-form-control>
-      <input
-        type="checkbox"
-        formControlName="rememberEmail"
-        (input)="onRememberEmailInput($event)"
-        bitCheckbox
-      />
-      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
-    </bit-form-control>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Continue button -->
+<!-- PQP Login UI -->
+<div *ngIf="!pqpAutoLoginInProgress">
+  <div
+    class="tw-mb-4 tw-p-4 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background-alt"
+  >
+    <p class="tw-text-sm tw-font-medium tw-mb-3 tw-text-main">Sign in to PqP Network</p>
+    <div class="tw-grid tw-gap-2">
       <button
         type="button"
         bitButton
         block
-        buttonType="primary"
-        (click)="continuePressed()"
-        [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
-        [addTooltipToDescribedby]="ssoRequired"
-        [disabled]="ssoRequired"
+        [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
+        (click)="handlePqpGoogleLogin()"
+        [disabled]="pqpNetworkLoggedIn"
       >
-        {{ "continue" | i18n }}
+        <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
+        {{ pqpNetworkLoggedIn ? "Connected" : "Sign in with Google" }}
       </button>
 
-      <div class="tw-text-center">{{ "or" | i18n }}</div>
-
-      <!-- Button to Login with Passkey -->
-      <ng-container *ngIf="isLoginWithPasskeySupported()">
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="handleLoginWithPasskeyClick()"
-          [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
-          [addTooltipToDescribedby]="ssoRequired"
-          [disabled]="ssoRequired"
-        >
-          <i class="bwi bwi-passkey tw-mr-1" aria-hidden="true"></i>
-          {{ "logInWithPasskey" | i18n }}
-        </button>
-      </ng-container>
-
-      <!-- Button to Login with SSO -->
       <button
         type="button"
         bitButton
         block
-        [buttonType]="ssoRequired ? 'primary' : 'secondary'"
-        (click)="handleSsoClick()"
+        [buttonType]="pqpNetworkLoggedIn ? 'secondary' : 'primary'"
+        (click)="handlePqpMicrosoftLogin()"
+        [disabled]="pqpNetworkLoggedIn"
       >
-        <i class="bwi bwi-provider tw-mr-1" aria-hidden="true"></i>
-        {{ "useSingleSignOn" | i18n }}
+        <i class="bwi bwi-check tw-mr-1" *ngIf="pqpNetworkLoggedIn" aria-hidden="true"></i>
+        {{ pqpNetworkLoggedIn ? "Connected" : "Sign in with Microsoft" }}
       </button>
     </div>
   </div>
 
-  <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
-    <!-- Master Password input -->
-    <bit-form-field class="!tw-mb-1">
-      <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input
-        type="password"
-        formControlName="masterPassword"
-        bitInput
-        #masterPasswordInputRef
-        [class.tw-pointer-events-none]="shouldAutoFillPqpPassword"
-      />
-      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-    </bit-form-field>
+  <!-- Continue button — enabled only after PQP login succeeds -->
+  <button
+    type="button"
+    bitButton
+    block
+    buttonType="primary"
+    (click)="handlePqpContinue()"
+    [disabled]="!pqpReady"
+  >
+    {{ "continue" | i18n }}
+  </button>
+</div>
 
-    <!-- Link to Password Hint page - doesn't use bit-hint so that it doesn't get hidden on input validation errors -->
-    <a bitLink routerLink="/hint" (click)="goToHint()" class="tw-inline-block tw-mb-4">
-      {{ "getMasterPasswordHint" | i18n }}
-    </a>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Submit button to Login with Master Password -->
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ "loginWithMasterPassword" | i18n }}
-      </button>
-
-      <!-- Button to Login with Device -->
-      <ng-container *ngIf="isKnownDevice">
-        <div class="tw-text-center">{{ "or" | i18n }}</div>
-
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="startAuthRequestLogin()"
-        >
-          <i class="bwi bwi-mobile" aria-hidden="true"></i>
-          {{ "loginWithDevice" | i18n }}
-        </button>
-      </ng-container>
-
-      <!-- Back button -->
-      <ng-container *ngIf="shouldShowBackButton()">
-        <button type="button" bitButton block buttonType="secondary" (click)="backButtonClicked()">
-          {{ "back" | i18n }}
-        </button>
-      </ng-container>
-    </div>
-  </div>
+<!-- Hidden form (used programmatically by auto-login) -->
+<form [bitSubmit]="submit" [formGroup]="formGroup" class="tw-hidden">
+  <input type="email" formControlName="email" />
+  <input type="password" formControlName="masterPassword" />
+  <input type="checkbox" formControlName="rememberEmail" />
 </form>

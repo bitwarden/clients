@@ -1780,6 +1780,14 @@ export default class MainBackground {
        */
     ]);
 
+    // Logout from PQP Network
+    try {
+      const { logout: pqpLogout } = await import("@ovrlab/pqp-network");
+      await pqpLogout();
+    } catch {
+      /* ignore */
+    }
+
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
