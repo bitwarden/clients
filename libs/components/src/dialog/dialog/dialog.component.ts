@@ -144,14 +144,13 @@ export class DialogComponent implements AfterViewInit {
 
   private readonly animationCompleted = signal(false);
 
+  /** Max width class */
   protected readonly width = computed(() => {
     const size = this.dialogSize();
-    const isDrawer = this.dialogRef?.isDrawer;
 
-    if (isDrawer) {
-      return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "";
+    if (this.dialogRef?.isDrawer) {
+      return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "tw-max-w-[unset]";
     }
-
     return dialogSizeToWidth[size];
   });
 
