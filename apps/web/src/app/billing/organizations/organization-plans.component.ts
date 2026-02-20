@@ -133,6 +133,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.billingAccountProfileStateService.hasPremiumPersonally$(this.account()!.id),
     { initialValue: false },
   );
+  readonly premiumToOrganizationUpgradeFeatureFlagEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
+    { initialValue: false },
+  );
 
   // Computed signals
   readonly createOrganization = computed(() => this.organizationId() == null);
@@ -140,11 +144,19 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   /**
    * Determines whether the user can upgrade from Premium to an organization plan.
-   * This is true if the user has a Premium subscription personally and is creating a new organization (as opposed to being invited to an existing one).
+   * This is true if the user has a Premium subscription personally and is creating a new organization (as opposed to being invited to an existing one) or upgrading.
+   * Also checks that the relevant feature flag is enabled
    */
   readonly canUpgradeFromPremium = computed<boolean>(() => {
     const hasPremiumPersonally = this.hasPremiumPersonally();
-    return hasPremiumPersonally && this.createOrganization() ? true : false;
+    const premiumToOrganizationUpgradeFeatureFlagEnabled =
+      this.premiumToOrganizationUpgradeFeatureFlagEnabled();
+    const isCreatingOrganization = this.createOrganization();
+    return (
+      hasPremiumPersonally &&
+      isCreatingOrganization &&
+      premiumToOrganizationUpgradeFeatureFlagEnabled
+    );
   });
 
   readonly selectedPlan = computed(() =>
