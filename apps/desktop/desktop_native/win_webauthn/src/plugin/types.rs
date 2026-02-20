@@ -962,6 +962,8 @@ pub(super) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub dwVersion: u32,
     pub pwszRpId: *const u16, // PCWSTR
     pub cbRpId: u32,
+    /// Raw UTF-8 bytes before conversion to UTF-16 in pwszRpId. These are the
+    /// bytes to be hashed in the Authenticator Data.
     pub pbRpId: *const u8,
     pub cbClientDataHash: u32,
     pub pbClientDataHash: *const u8,
@@ -1013,9 +1015,12 @@ pub struct PluginGetAssertionRequest {
 
 impl PluginGetAssertionRequest {
     pub fn rp_id(&self) -> &str {
+        let inner = self.as_ref();
         unsafe {
-            let request = &*self.inner;
-            let slice = std::slice::from_raw_parts(request.pbRpId, request.cbRpId as usize);
+            // SAFETY: we only support platforms where usize >= 32;
+            let len = inner.cbRpId as usize;
+            let slice = std::slice::from_raw_parts(inner.pbRpId, len);
+            // SAFETY: Windows validates that this is valid UTF-8.
             str::from_utf8_unchecked(slice)
         }
     }
