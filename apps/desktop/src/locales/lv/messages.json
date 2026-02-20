@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Nederīgs apliecinājuma kods"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Nederīga e-pasta adrese vai apliecinājuma kods"
+  },
   "continue": {
     "message": "Turpināt"
   },
@@ -4388,10 +4391,10 @@
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Vienums ievietots arhīvā"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Vienums izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-pasta apliecināšanai ir nepieciešama vismaz viena e-pasta adrese. Lai noņemtu visas e-pasta adreses, augstāk jānomaina piekļūšanas veids."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Lietotāja apliecināšana neizdevās."
   }
 }

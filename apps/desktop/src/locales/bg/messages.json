@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Грешна е-поща или код за потвърждаване"
+  },
   "continue": {
     "message": "Продължаване"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
+  },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Проверката на потребителя беше неуспешна."
   }
 }

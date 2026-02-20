@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Neplatný verifikačný kód"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "continue": {
     "message": "Pokračovať"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Overenie e-mailu vyžaduje aspoň jednu e-mailovú adresu. Ak chcete odstrániť všetky e-maily, zmeňte typ prístupu vyššie."
+  },
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Overenie používateľa zlyhalo."
   }
 }

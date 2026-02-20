@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-posta veya doğrulama kodu geçersiz"
+  },
   "continue": {
     "message": "Devam Et"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "E-posta adreslerini virgülle ayırarak yazın."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-posta doğrulaması için en az bir e-posta adresi gerekir. Tüm e-postaları silmek için yukarıdan erişim türünü değiştirin."
+  },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Kullanıcı doğrulaması başarısız oldu."
   }
 }
