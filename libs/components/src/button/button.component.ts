@@ -1,4 +1,3 @@
-import { NgClass, NgTemplateOutlet } from "@angular/common";
 import {
   input,
   HostBinding,
@@ -72,7 +71,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass, NgTemplateOutlet, SpinnerComponent],
+  imports: [SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
@@ -124,14 +123,31 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
+  /**
+   * Style variant of the button.
+   */
   readonly buttonType = input<ButtonType>("secondary");
 
+  /**
+   * Bitwarden icon displayed **before** the button label.
+   * Spacing between the icon and label is handled automatically.
+   */
   readonly startIcon = input<BitwardenIcon | undefined>(undefined);
 
+  /**
+   * Bitwarden icon (`bwi-*`) displayed **after** the button label.
+   * Spacing between the label and icon is handled automatically.
+   */
   readonly endIcon = input<BitwardenIcon | undefined>(undefined);
 
+  /**
+   * Size variant of the button.
+   */
   readonly size = input<ButtonSize>("default");
 
+  /**
+   * When `true`, the button expands to fill the full width of its container.
+   */
   readonly block = input(false, { transform: booleanAttribute });
 
   readonly loading = model<boolean>(false);
