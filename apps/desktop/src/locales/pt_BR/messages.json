@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-mail ou código de verificação inválido"
+  },
   "continue": {
     "message": "Continuar"
   },
@@ -4388,10 +4391,10 @@
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais de busca e das sugestões de preenchimento automático."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Item arquivado"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Item desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -4487,7 +4490,7 @@
     "message": "Ação do limite de tempo"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Erro: Não é possível descriptografar"
   },
   "sessionTimeoutHeader": {
     "message": "Limite de tempo da sessão"
@@ -4588,11 +4591,11 @@
     "message": "Por que estou vendo isso?"
   },
   "sendPasswordHelperText": {
-    "message": "Indivíduos precisarão utilizar a senha para ver este Send",
+    "message": "Os indivíduos precisarão digitar a senha para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "E-mail protegido"
+    "message": "Protegido por e-mail"
   },
   "emails": {
     "message": "E-mails"
@@ -4601,7 +4604,7 @@
     "message": "Qualquer um com o link"
   },
   "anyOneWithPassword": {
-    "message": "Qualquer um com uma senha definida por você"
+    "message": "Qualquer pessoa com uma senha configurada por você"
   },
   "whoCanView": {
     "message": "Quem pode visualizar"
@@ -4613,9 +4616,15 @@
     "message": "Após compartilhar este link de Send, indivíduos precisarão verificar seus e-mails com um código para visualizar este Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Insira múltiplos e-mails separando-os com vírgula."
+    "message": "Digite vários e-mails, separados com uma vírgula."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "usuário@bitwarden.com , usuário@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Falha na verificação do usuário."
   }
 }
