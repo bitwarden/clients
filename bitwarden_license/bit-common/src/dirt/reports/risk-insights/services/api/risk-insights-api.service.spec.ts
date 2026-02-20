@@ -274,4 +274,66 @@ describe("RiskInsightsApiService", () => {
     );
     expect(result).toBeTruthy();
   });
+
+  describe("getRiskOverTime$", () => {
+    it("should call apiService.send with correct parameters and return the response", async () => {
+      const mockResponse = {
+        timeframe: "past_month",
+        dataView: "applications",
+        dataPoints: [
+          { timestamp: "2026-01-11T00:00:00Z", atRisk: 45, total: 150 },
+          { timestamp: "2026-01-18T00:00:00Z", atRisk: 52, total: 152 },
+          { timestamp: "2026-01-25T00:00:00Z", atRisk: 48, total: 155 },
+          { timestamp: "2026-02-01T00:00:00Z", atRisk: 50, total: 158 },
+          { timestamp: "2026-02-08T00:00:00Z", atRisk: 46, total: 160 },
+          { timestamp: "2026-02-15T00:00:00Z", atRisk: 42, total: 162 },
+        ],
+      };
+
+      mockApiService.send.mockResolvedValueOnce(mockResponse);
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "month", "applications"));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId.toString()}/data/risk-over-time?timeframe=month&dataView=applications`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeTruthy();
+      expect(result!.timeframe).toBe("past_month");
+      expect(result!.dataView).toBe("applications");
+      expect(result!.dataPoints).toHaveLength(6);
+      expect(result!.dataPoints[0].atRisk).toBe(45);
+      expect(result!.dataPoints[0].total).toBe(150);
+      expect(result!.dataPoints[0].timestamp).toBe("2026-01-11T00:00:00Z");
+    });
+
+    it("should return null when server responds with 404", async () => {
+      const mockError = new ErrorResponse(null, 404);
+      mockApiService.send.mockReturnValue(Promise.reject(mockError));
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "month", "applications"));
+
+      expect(result).toBeNull();
+    });
+
+    it("should propagate non-404 errors", async () => {
+      const error = { statusCode: 500, message: "Server error" };
+      mockApiService.send.mockReturnValue(Promise.reject(error));
+
+      await expect(
+        firstValueFrom(service.getRiskOverTime$(orgId, "3mo", "members")),
+      ).rejects.toEqual(error);
+    });
+
+    it("should handle null response", async () => {
+      mockApiService.send.mockResolvedValueOnce(null);
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "12mo", "passwords"));
+
+      expect(result).toBeNull();
+    });
+  });
 });

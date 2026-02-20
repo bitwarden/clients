@@ -1,6 +1,5 @@
-import { Jsonify } from "type-fest";
-
 import { View } from "@bitwarden/common/models/view/view";
+import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 import { RiskOverTime } from "../domain/risk-over-time";
 
@@ -35,7 +34,9 @@ export class RiskOverTimeView implements View {
     return this;
   }
 
-  static fromJSON(obj: Partial<Jsonify<RiskOverTimeView>>): RiskOverTimeView | undefined {
+  static fromJSON(
+    obj: Partial<DeepJsonify<RiskOverTimeView>> | undefined,
+  ): RiskOverTimeView | undefined {
     if (obj == null) {
       return undefined;
     }

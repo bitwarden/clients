@@ -1,6 +1,5 @@
-import { Jsonify } from "type-fest";
-
 import { View } from "@bitwarden/common/models/view/view";
+import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 import { RiskOverTimeDataPoint } from "../domain/risk-over-time-data-point";
 
@@ -31,7 +30,7 @@ export class RiskOverTimeDataPointView implements View {
   }
 
   static fromJSON(
-    obj: Partial<Jsonify<RiskOverTimeDataPointView>>,
+    obj: Partial<DeepJsonify<RiskOverTimeDataPointView>> | undefined,
   ): RiskOverTimeDataPointView | undefined {
     return Object.assign(new RiskOverTimeDataPointView(), obj);
   }
