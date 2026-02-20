@@ -7,7 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -21,6 +21,7 @@ import {
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
 import { WebVaultPromptService } from "./web-vault-prompt.service";
+import { WelcomeDialogService } from "./welcome-dialog.service";
 
 describe("WebVaultPromptService", () => {
   let service: WebVaultPromptService;
@@ -38,12 +39,25 @@ describe("WebVaultPromptService", () => {
     );
   const upsertAutoConfirm = jest.fn().mockResolvedValue(undefined);
   const organizations$ = jest.fn().mockReturnValue(of([]));
-  const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(undefined);
+  const displayUpgradePromptConditionally = jest.fn().mockResolvedValue(false);
   const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
+  const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
+
+  let activeAccount$: BehaviorSubject<Account | null>;
+
+  function createAccount(overrides: Partial<Account> = {}): Account {
+    return {
+      id: mockUserId,
+      creationDate: new Date(),
+      ...overrides,
+    } as Account;
+  }
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
 
     TestBed.configureTestingModule({
       providers: [
@@ -51,7 +65,7 @@ describe("WebVaultPromptService", () => {
         { provide: UnifiedUpgradePromptService, useValue: { displayUpgradePromptConditionally } },
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
         { provide: PolicyService, useValue: { policies$ } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: mockUserId }) } },
+        { provide: AccountService, useValue: { activeAccount$ } },
         {
           provide: AutomaticUserConfirmationService,
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
@@ -60,6 +74,7 @@ describe("WebVaultPromptService", () => {
         { provide: ConfigService, useValue: { getFeatureFlag$ } },
         { provide: DialogService, useValue: { open } },
         { provide: LogService, useValue: { error: logError } },
+        { provide: WelcomeDialogService, useValue: { conditionallyShowWelcomeDialog } },
       ],
     });
 

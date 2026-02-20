@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Das Abo wurde wieder aufgenommen."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Sind Sie sicher, dass Sie kündigen wollen? Am Ende dieses Abrechnungszyklus verlieren Sie den Zugriff auf alle Funktionen dieses Abos."
   },
@@ -6427,6 +6436,10 @@
   },
   "viewSend": {
     "message": "Sends anzeigen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11896,14 +11909,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde ins Archiv verschoben"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
-  },
-  "itemUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "bulkArchiveItems": {
     "message": "Einträge archiviert"
@@ -12583,7 +12593,7 @@
     "message": "Bist du sicher, dass du fortfahren möchtest?"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fehler: Entschlüsselung nicht möglich"
   },
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
