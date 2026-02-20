@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemWasSentToArchive": {
-    "message": "项目已发送到归档"
+  "itemArchiveToast": {
+    "message": "项目已归档"
   },
-  "itemWasUnarchived": {
-    "message": "项目已取消归档"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "项目已取消归档"
   },
   "archiveItem": {
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "无效的验证码"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "$VALUE$ 已复制",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden 将不会提示保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden 将不会提示为所有已登录账户保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
-  },
   "blockedDomainsDesc": {
     "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "存在风险的登录列表示意图。"
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接以及您设置的密码的任何人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，您指定的人员可查看此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "卡号"
   },
+  "errorCannotDecrypt": {
+    "message": "错误：无法解密"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
   },
@@ -6124,14 +6166,23 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "downloadBitwardenApps": {
+    "message": "下载 Bitwarden App"
+  },
   "emailProtected": {
-    "message": "电子邮件受保护"
+    "message": "电子邮箱保护"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

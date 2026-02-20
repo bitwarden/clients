@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemWasSentToArchive": {
-    "message": "Az elem az archivumba került."
+  "itemArchiveToast": {
+    "message": "Az elem archiválásra került."
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Az elem visszavételre került az archivumból."
-  },
-  "itemUnarchived": {
-    "message": "Az elemek visszavéelre kerültek az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
   },
   "valueCopied": {
     "message": "$VALUE$ másolásra került.",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "A Bitwarden nem fogja kérni a domainek bejelentkezési adatainak mentését. A változások életbe lépéséhez frissíteni kell az oldalt."
   },
-  "excludedDomainsDescAlt": {
-    "message": "A Bitwarden nem kéri a bejelentkezési adatok mentését ezeknél a tartományoknál az összes bejelentkezési fiókra vonatkozva. A változtatások életbe lépéséhez frissíteni kell az oldalt."
-  },
   "blockedDomainsDesc": {
     "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "A kockázatos bejelentkezések listájának illusztrációja."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "A Bitwarden széf oldal elrendezésének illusztrációja."
   },
   "generatePasswordSlideDesc": {
     "message": "Gyorsan generálhatunk erős, egyedi jelszót a Bitwarden automatikus kitöltési menüjével a kockázatos webhelyen.",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással és a jelszóval a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Kártya szám"
   },
+  "errorCannotDecrypt": {
+    "message": "Hiba: nem fejthető vissza."
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "A szervezet már nem használ mesterjelszavakat a Bitwardenbe bejelentkezéshez. A folytatáshoz ellenőrizzük a szervezetet és a tartományt."
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Bitwarden alkalmazások letöltése"
   },
   "emailProtected": {
     "message": "Védett email cím"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
   }
 }

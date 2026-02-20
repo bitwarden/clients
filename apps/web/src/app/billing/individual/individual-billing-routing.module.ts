@@ -19,7 +19,7 @@ const routes: Routes = [
     component: SubscriptionComponent,
     data: { titleId: "subscription" },
     children: [
-      { path: "", pathMatch: "full", redirectTo: "premium" },
+      { path: "", pathMatch: "full", redirectTo: "user-subscription" },
       ...featureFlaggedRoute({
         defaultComponent: UserSubscriptionComponent,
         flaggedComponent: AccountSubscriptionComponent,

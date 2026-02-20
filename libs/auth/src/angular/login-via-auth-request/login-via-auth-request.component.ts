@@ -676,7 +676,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
   private async decryptViaApprovedAuthRequest(
     authRequestResponse: AuthRequestResponse,
-    privateKey: ArrayBuffer,
+    privateKey: Uint8Array,
     userId: UserId,
   ): Promise<void> {
     // [Standard Flow 2, 4, or Admin Flow] Device sends userKey

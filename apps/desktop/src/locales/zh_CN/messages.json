@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "continue": {
     "message": "继续"
   },
@@ -4387,10 +4390,10 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemWasSentToArchive": {
-    "message": "项目已发送到归档"
+  "itemArchiveToast": {
+    "message": "项目已归档"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "项目已取消归档"
   },
   "archiveItem": {
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "超时动作"
+  },
+  "errorCannotDecrypt": {
+    "message": "错误：无法解密"
   },
   "sessionTimeoutHeader": {
     "message": "会话超时"
@@ -4589,13 +4595,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "电子邮件受保护"
+    "message": "电子邮箱保护"
   },
   "emails": {
     "message": "电子邮件"
   },
   "noAuth": {
-    "message": "任何拥有此链接的人"
+    "message": "拥有此链接的任何人"
   },
   "anyOneWithPassword": {
     "message": "拥有您设置的密码的任何人"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
