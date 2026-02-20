@@ -4,7 +4,7 @@
 
 use std::{
     alloc,
-    mem::MaybeUninit,
+    mem::{ManuallyDrop, MaybeUninit},
     ptr::{self, NonNull},
     sync::{Arc, OnceLock},
 };
@@ -278,7 +278,7 @@ unsafe fn write_operation_response(
 
     response.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
         cbEncodedResponse: len,
-        pbEncodedResponse: buf.leak(),
+        pbEncodedResponse: buf.into_raw(),
     });
     Ok(())
 }
@@ -393,8 +393,18 @@ impl ComBuffer {
         Self(ptr.cast())
     }
 
-    pub fn leak<T>(self) -> *mut T {
-        self.0.cast().as_ptr()
+    pub fn into_raw<T>(self) -> *mut T {
+        let this = ManuallyDrop::new(self);
+        (*this).0.cast().as_ptr()
+    }
+}
+
+impl Drop for ComBuffer {
+    fn drop(&mut self) {
+        let ptr = self.0.cast().as_ptr();
+        unsafe {
+            CoTaskMemFree(Some(ptr));
+        }
     }
 }
 

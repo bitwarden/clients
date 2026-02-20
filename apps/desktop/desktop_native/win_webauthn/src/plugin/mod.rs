@@ -166,7 +166,7 @@ impl WebAuthnPlugin {
         request: PluginUserVerificationRequest,
         operation_request_hash: &[u8],
     ) -> Result<PluginUserVerificationResponse, WinWebAuthnError> {
-        tracing::debug!(?request, "Handling user verification request");
+        tracing::debug!(?request.transaction_id, ?request.window_handle, "Handling user verification request");
 
         // Get pub key
         let pub_key = crypto::get_user_verification_public_key(&self.clsid.0)?;
@@ -177,8 +177,8 @@ impl WebAuthnPlugin {
         let uv_request = WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
             hwnd: request.window_handle,
             rguidTransactionId: &request.transaction_id,
-            pwszUsername: user_name.leak(),
-            pwszDisplayHint: hint.map_or(std::ptr::null(), |buf| buf.leak()),
+            pwszUsername: user_name.into_raw(),
+            pwszDisplayHint: hint.map_or(std::ptr::null(), |buf| buf.into_raw()),
         };
         let mut response_len = 0;
         let mut response_ptr = MaybeUninit::uninit();
@@ -291,14 +291,14 @@ impl WebAuthnPlugin {
                     cred.user_display_name.to_utf16().to_com_buffer();
                 let win_cred = WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
                     credential_id_byte_count: u32::from(cred.credential_id.len()),
-                    credential_id_pointer: credential_id_buf.leak(),
-                    rpid: rp_id_buf.leak(),
+                    credential_id_pointer: credential_id_buf.into_raw(),
+                    rpid: rp_id_buf.into_raw(),
                     rp_friendly_name: rp_friendly_name_buf
-                        .map_or(std::ptr::null(), |buf| buf.leak()),
+                        .map_or(std::ptr::null(), |buf| buf.into_raw()),
                     user_id_byte_count: u32::from(cred.user_id.len()),
-                    user_id_pointer: user_id_buf.leak(),
-                    user_name: user_name_buf.leak(),
-                    user_display_name: user_display_name_buf.leak(),
+                    user_id_pointer: user_id_buf.into_raw(),
+                    user_name: user_name_buf.into_raw(),
+                    user_display_name: user_display_name_buf.into_raw(),
                 };
                 win_credentials.push(win_cred);
                 tracing::debug!(
