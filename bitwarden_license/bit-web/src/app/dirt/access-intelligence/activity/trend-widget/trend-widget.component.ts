@@ -124,6 +124,9 @@ export class TrendWidgetComponent {
     const atRiskLabel = this.getAtRiskLabel(view);
     const allLabel = this.getAllLabel(view);
 
+    const brandColor = this.getCssVariable(isDark ? "--color-brand-400" : "--color-brand-700");
+    const grayColor = this.getCssVariable(isDark ? "--color-gray-600" : "--color-gray-200");
+
     return [
       {
         label: atRiskLabel,
@@ -131,8 +134,8 @@ export class TrendWidgetComponent {
           x: new Date(point.timestamp),
           y: point.atRisk,
         })),
-        color: isDark ? "#6d9eff" : "#175DDC",
-        fillColor: isDark ? "rgba(109,158,255,0.2)" : "rgba(23,93,220,0.15)",
+        color: brandColor,
+        fillColor: isDark ? "rgba(107, 174, 250, 0.2)" : "rgba(23, 93, 220, 0.15)",
       },
       {
         label: allLabel,
@@ -140,8 +143,8 @@ export class TrendWidgetComponent {
           x: new Date(point.timestamp),
           y: point.total,
         })),
-        color: isDark ? "#4b5069" : "#E5E7EB",
-        fillColor: isDark ? "rgba(75,80,105,0.3)" : "rgba(209,213,220,0.2)",
+        color: grayColor,
+        fillColor: isDark ? "rgba(74, 85, 101, 0.3)" : "rgba(229, 231, 235, 0.2)",
       },
     ];
   });
@@ -166,6 +169,10 @@ export class TrendWidgetComponent {
       case TrendWidgetViewType.Members:
         return this.i18nService.t("allMembers");
     }
+  }
+
+  private getCssVariable(variable: string): string {
+    return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   }
 
   protected readonly lineChartConfiguration: ChartConfig = {
