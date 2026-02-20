@@ -60,7 +60,6 @@ export enum FeatureFlag {
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
-  Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",

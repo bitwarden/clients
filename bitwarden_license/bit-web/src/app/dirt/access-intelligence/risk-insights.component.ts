@@ -21,8 +21,6 @@ import {
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -77,7 +75,6 @@ type ProgressStep = ReportProgress | null;
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
-  protected milestone11Enabled: boolean = false;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
@@ -115,7 +112,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
@@ -123,10 +119,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.milestone11Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.Milestone11AppPageImprovements,
-    );
-
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
