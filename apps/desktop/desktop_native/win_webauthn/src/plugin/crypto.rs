@@ -108,7 +108,7 @@ pub(super) fn get_user_verification_public_key(
     let mut len = 0;
     let mut data = MaybeUninit::uninit();
     // SAFETY: We check the OS error code before using the written pointer.
-    unsafe {
+    let data = unsafe {
         webauthn_plugin_get_user_verification_public_key(clsid, &mut len, data.as_mut_ptr())?
             .ok()
             .map_err(|err| {
@@ -118,16 +118,18 @@ pub(super) fn get_user_verification_public_key(
                     err,
                 )
             })?;
-        match NonNull::new(data.assume_init()) {
-            Some(data) => Ok(VerifyingKey {
-                cbPublicKey: len,
-                pbPublicKey: data,
-            }),
-            None => Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Windows returned null pointer when requesting user verification public key",
-            )),
-        }
+        data.assume_init()
+    };
+
+    match NonNull::new(data) {
+        Some(data) => Ok(VerifyingKey {
+            cbPublicKey: len,
+            pbPublicKey: data,
+        }),
+        None => Err(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "Windows returned null pointer when requesting user verification public key",
+        )),
     }
 }
 
@@ -137,47 +139,46 @@ fn verify_signature(
     hash: RequestHash,
     signature: Signature,
 ) -> Result<(), windows::core::Error> {
-    // Verify the signature over the hash of dataBuffer using the hKey
-    unsafe {
-        // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
-        // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
-        //
-        // The first field is a "magic" field that denotes the algorithm (RSA,
-        // P-256, P-384, etc.) and subtype (public, private; RSA also has a
-        // "full private" key that includes the key exponents and coefficients).
-        //
-        // The exact key types which the OS can return from webauthn.dll
-        // operations is not documented, but we have observed at least RSA
-        // public keys being used. For forward compatibility, we'll implement
-        // RSA, P-256, P-384 and P-512.
-        let key_blob = public_key.pbPublicKey.as_ref();
-        tracing::debug!("  got key magic: {}", key_blob.Magic);
-        let (alg_handle, padding_info, bcrypt_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0
-        {
-            tracing::debug!("Detected RSA key, adding PKCS1 padding");
-            let padding_info = BCRYPT_PKCS1_PADDING_INFO {
-                pszAlgId: BCRYPT_SHA256_ALGORITHM,
-            };
-            (BCRYPT_RSA_ALG_HANDLE, Some(padding_info), BCRYPT_PAD_PKCS1)
-        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P256_MAGIC {
-            tracing::debug!("Detected ECDSA P-256 key");
-            (BCRYPT_ECDSA_P256_ALG_HANDLE, None, BCRYPT_FLAGS(0))
-        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P384_MAGIC {
-            tracing::debug!("Detected ECDSA P-384 key");
-            (BCRYPT_ECDSA_P384_ALG_HANDLE, None, BCRYPT_FLAGS(0))
-        } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P521_MAGIC {
-            tracing::debug!("Detected ECDSA P-521 key");
-            (BCRYPT_ECDSA_P521_ALG_HANDLE, None, BCRYPT_FLAGS(0))
-        } else {
-            tracing::error!("Unsupported key type: magic={}", key_blob.Magic);
-            // NTE_BAD_ALGID
-            return Err(windows::core::Error::from_hresult(HRESULT(
-                0x80090008u32 as i32,
-            )));
-        };
+    // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
+    // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
+    //
+    // The first field is a "magic" field that denotes the algorithm (RSA,
+    // P-256, P-384, etc.) and subtype (public, private; RSA also has a
+    // "full private" key that includes the key exponents and coefficients).
+    //
+    // The exact key types which the OS can return from webauthn.dll
+    // operations is not documented, but we have observed at least RSA
+    // public keys being used. For forward compatibility, we'll implement
+    // RSA, P-256, P-384 and P-512.
 
-        tracing::debug!("Getting key handle");
-        let mut key_handle = MaybeUninit::uninit();
+    let key_blob = unsafe { public_key.pbPublicKey.as_ref() };
+    tracing::debug!("  got key magic: {}", key_blob.Magic);
+    let (alg_handle, padding_info, bcrypt_flags) = if key_blob.Magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
+        tracing::debug!("Detected RSA key, adding PKCS1 padding");
+        let padding_info = BCRYPT_PKCS1_PADDING_INFO {
+            pszAlgId: BCRYPT_SHA256_ALGORITHM,
+        };
+        (BCRYPT_RSA_ALG_HANDLE, Some(padding_info), BCRYPT_PAD_PKCS1)
+    } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P256_MAGIC {
+        tracing::debug!("Detected ECDSA P-256 key");
+        (BCRYPT_ECDSA_P256_ALG_HANDLE, None, BCRYPT_FLAGS(0))
+    } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P384_MAGIC {
+        tracing::debug!("Detected ECDSA P-384 key");
+        (BCRYPT_ECDSA_P384_ALG_HANDLE, None, BCRYPT_FLAGS(0))
+    } else if key_blob.Magic == BCRYPT_ECDSA_PUBLIC_P521_MAGIC {
+        tracing::debug!("Detected ECDSA P-521 key");
+        (BCRYPT_ECDSA_P521_ALG_HANDLE, None, BCRYPT_FLAGS(0))
+    } else {
+        tracing::error!("Unsupported key type: magic={}", key_blob.Magic);
+        // NTE_BAD_ALGID
+        return Err(windows::core::Error::from_hresult(HRESULT(
+            0x80090008u32 as i32,
+        )));
+    };
+
+    tracing::debug!("Getting key handle");
+    let mut key_handle = MaybeUninit::uninit();
+    let key_handle = unsafe {
         BCryptImportKeyPair(
             alg_handle,
             None,
@@ -187,22 +188,25 @@ fn verify_signature(
             0,
         )
         .ok()?;
-        let key_handle = BcryptKey(key_handle.assume_init());
+        BcryptKey(key_handle.assume_init())
+    };
 
-        tracing::debug!("Verifying signature");
+    tracing::debug!("Verifying signature");
+    let padding_info = padding_info
+        .as_ref()
+        .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast());
+    unsafe {
         BCryptVerifySignature(
             key_handle.0,
-            padding_info
-                .as_ref()
-                .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
+            padding_info,
             hash.0,
             signature.0,
             bcrypt_flags,
         )
-        .ok()?;
-        tracing::debug!("Verified");
-        Ok(())
-    }
+        .ok()?
+    };
+    tracing::debug!("Verified");
+    Ok(())
 }
 
 /// Calculate a SHA-256 hash over some data.
