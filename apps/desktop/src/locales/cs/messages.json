@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "continue": {
     "message": "Pokračovat"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadejte více e-mailů oddělených čárkou."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
+  },
   "emailPlaceholder": {
     "message": "uživatel@bitwarden.com, uživatel@společnost.cz"
+  },
+  "userVerificationFailed": {
+    "message": "Ověření uživatele se nezdařilo."
   }
 }

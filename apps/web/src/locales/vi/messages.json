@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Người dùng $ID$ đã được chỉnh sửa.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Đang tạo Access Intelligence của bạn..."
   },
-  "fetchingMemberData": {
-    "message": "Đang lấy dữ liệu thành viên..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Đang phân tích độ mạnh mật khẩu..."
-  },
-  "calculatingRiskScores": {
-    "message": "Đang tính điểm rủi ro..."
-  },
-  "generatingReportData": {
-    "message": "Đang tạo dữ liệu báo cáo..."
-  },
-  "savingReport": {
-    "message": "Đang lưu báo cáo..."
-  },
-  "compilingInsights": {
-    "message": "Đang biên soạn thông tin chi tiết..."
-  },
   "loadingProgress": {
     "message": "Đang tải tiến trình"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Quá trình này có thể mất vài phút."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "Chạy báo cáo"
@@ -5849,10 +5855,6 @@
     "message": "Không biết mật khẩu? Hãy yêu cầu người gửi cung cấp mật khẩu cần thiết để truy cập vào Send này.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Send này sẽ bị ẩn theo mặc định. Bạn có thể bật/tắt tính năng này bằng cách nhấn vào nút bên dưới.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Tải xuống tập tin đính kèm"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Tôi chấp nhận những rủi ro và cập nhật chính sách này"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Xóa kho lưu trữ riêng lẻ"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Mã xác minh không đúng"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Tên miền Key Connector"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

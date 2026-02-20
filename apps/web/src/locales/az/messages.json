@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "$ID$ istifadəçisinə düzəliş edildi.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Access Intelligence-niz yaradılır..."
   },
-  "fetchingMemberData": {
-    "message": "Üzv veriləri alınır..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Parol sağlamlığı analiz edirilir..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risk xalı hesablanır..."
-  },
-  "generatingReportData": {
-    "message": "Hesabat veriləri yaradılır..."
-  },
-  "savingReport": {
-    "message": "Hesabat saxlanılır..."
-  },
-  "compilingInsights": {
-    "message": "Təhlillər şərh edilir..."
-  },
   "loadingProgress": {
     "message": "İrəliləyiş yüklənir"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Bu, bir neçə dəqiqə çəkə bilər."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "Hesabatı işə sal"
@@ -5849,10 +5855,6 @@
     "message": "Parolu bilmirsiniz? Bu \"Send\"ə erişmək üçün parolu göndərən şəxsdən istəyin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Bu \"send\" ilkin olaraq gizlidir. Aşağıdakı düyməni istifadə edərək görünməni dəyişdirə bilərsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Qoşmaları endir"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Bu riskləri və siyasət güncəlləmələrini qəbul edirəm"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Fərdi seyfi xaric et"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domeni"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Yararsız Send parolu"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Ödəniş üsulunuzu güncəlləyərkən xəta baş verdi."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
