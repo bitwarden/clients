@@ -50,56 +50,64 @@
     </form>
   </div>
 </div>
-<ng-container *ngIf="!loaded">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-</ng-container>
-<ng-container *ngIf="loaded">
-  <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
-  <bit-table *ngIf="events && events.length">
-    <ng-container header>
-      <tr>
-        <th bitCell>{{ "timestamp" | i18n }}</th>
-        <th bitCell>{{ "device" | i18n }}</th>
-        <th bitCell>{{ "user" | i18n }}</th>
-        <th bitCell>{{ "event" | i18n }}</th>
-      </tr>
-    </ng-container>
-    <ng-template body>
-      <tr bitRow *ngFor="let e of events" alignContent="top">
-        <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
-        <td bitCell>
-          <i
-            class="tw-text-muted bwi bwi-lg {{ e.appIcon }}"
-            title="{{ e.appName }}, {{ e.ip }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ e.appName }}, {{ e.ip }}</span>
-        </td>
-        <td bitCell>
-          <span title="{{ e.userEmail }}">{{ e.userName }}</span>
-        </td>
-        <td bitCell [innerHTML]="e.message"></td>
-      </tr>
-    </ng-template>
-  </bit-table>
-  <button
-    bitButton
-    type="button"
-    buttonType="primary"
-    [bitAction]="loadMoreEvents"
-    *ngIf="continuationToken"
-  >
-    <i
-      *ngIf="loading"
-      class="bwi bwi-spinner bwi-spin"
-      title="{{ 'loading' | i18n }}"
+@if (!loaded()) {
+  <ng-container>
+    <bit-icon
+      class="bwi-lg bwi-spin tw-text-muted"
+      name="bwi-spinner"
       aria-hidden="true"
-    ></i>
-    <span>{{ "loadMore" | i18n }}</span>
-  </button>
-</ng-container>
+    ></bit-icon>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+}
+@if (loaded()) {
+  <ng-container>
+    @if (!events() || !events().length) {
+      <p>{{ "noEventsInList" | i18n }}</p>
+    }
+
+    @if (events() && events().length) {
+      <bit-table data-testid="events-table">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "timestamp" | i18n }}</th>
+            <th bitCell>{{ "device" | i18n }}</th>
+            <th bitCell>{{ "user" | i18n }}</th>
+            <th bitCell>{{ "event" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (e of events(); track i; let i = $index) {
+            <tr bitRow alignContent="top">
+              <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
+              <td bitCell>
+                <i
+                  class="tw-text-muted bwi bwi-lg {{ e.appIcon }}"
+                  title="{{ e.appName }}, {{ e.ip }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ e.appName }}, {{ e.ip }}</span>
+              </td>
+              <td bitCell>
+                <span title="{{ e.userEmail }}">{{ e.userName }}</span>
+              </td>
+              <td bitCell [innerHTML]="e.message"></td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+    @if (continuationToken) {
+      <button bitButton type="button" buttonType="primary" [bitAction]="loadMoreEvents">
+        @if (loading()) {
+          <bit-icon
+            class="bwi-lg bwi-spin tw-text-muted"
+            name="bwi-spinner"
+            aria-hidden="true"
+          ></bit-icon>
+        }
+        <span>{{ "loadMore" | i18n }}</span>
+      </button>
+    }
+  </ng-container>
+}

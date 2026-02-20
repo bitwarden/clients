@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, OnDestroy } from "@angular/core";
+import { Directive, OnDestroy, signal } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
@@ -22,9 +22,9 @@ import { EventExportService } from "../../tools/event-export";
 
 @Directive()
 export abstract class BaseEventsComponent implements OnDestroy {
-  loading = true;
-  loaded = false;
-  events: EventView[];
+  readonly loading = signal(true);
+  readonly loaded = signal(false);
+  readonly events = signal<EventView[]>([]);
   dirtyDates = true;
   continuationToken: string;
   canUseSM = false;
@@ -115,7 +115,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
 
     const dates = this.parseDates();
     if (dates == null) {
@@ -131,7 +131,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
     }
 
     promise = null;
-    this.loading = false;
+    this.loading.set(false);
   };
 
   loadEvents = async (clearExisting: boolean) => {
@@ -140,7 +140,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     let events: EventView[] = [];
     let promise: Promise<any>;
     promise = this.loadAndParseEvents(
@@ -153,14 +153,16 @@ export abstract class BaseEventsComponent implements OnDestroy {
     this.continuationToken = result.continuationToken;
     events = result.events;
 
-    if (!clearExisting && this.events != null && this.events.length > 0) {
-      this.events = this.events.concat(events);
+    if (!clearExisting && this.events() != null && this.events().length > 0) {
+      this.events.update((current) => {
+        return [...current, ...events];
+      });
     } else {
-      this.events = events;
+      this.events.set(events);
     }
 
     this.dirtyDates = false;
-    this.loading = false;
+    this.loading.set(false);
     promise = null;
   };
 
@@ -227,7 +229,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
 
   private async export(start: string, end: string) {
     let continuationToken = this.continuationToken;
-    let events = [].concat(this.events);
+    let events = [].concat(this.events());
 
     while (continuationToken != null) {
       const result = await this.loadAndParseEvents(start, end, continuationToken);
