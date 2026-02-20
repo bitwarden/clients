@@ -61,6 +61,7 @@ module.exports = {
     "<rootDir>/libs/vault/jest.config.js",
     "<rootDir>/libs/auto-confirm/jest.config.js",
     "<rootDir>/libs/subscription/jest.config.js",
+    "<rootDir>/libs/user-crypto-management/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:

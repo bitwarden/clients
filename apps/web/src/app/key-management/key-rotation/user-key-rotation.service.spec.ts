@@ -57,6 +57,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth";
@@ -287,6 +288,7 @@ describe("KeyRotationService", () => {
   let mockSdkClientFactory: MockProxy<SdkClientFactory>;
   let mockSecurityStateService: MockProxy<SecurityStateService>;
   let mockMasterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
+  let mockSdkUserKeyRotationService: MockProxy<UserKeyRotationServiceAbstraction>;
 
   const mockUser = {
     id: "mockUserId" as UserId,
@@ -348,6 +350,7 @@ describe("KeyRotationService", () => {
     mockDialogService = mock<DialogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockKdfConfigService = mock<KdfConfigService>();
+    mockSdkUserKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
     mockSdkClientFactory = mock<SdkClientFactory>();
     mockSdkClientFactory.createSdkClient.mockResolvedValue({
       crypto: () => {
@@ -358,6 +361,7 @@ describe("KeyRotationService", () => {
         } as any;
       },
     } as BitwardenClient);
+
     mockSecurityStateService = mock<SecurityStateService>();
     mockMasterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
@@ -384,6 +388,7 @@ describe("KeyRotationService", () => {
       mockSdkClientFactory,
       mockSecurityStateService,
       mockMasterPasswordService,
+      mockSdkUserKeyRotationService,
     );
   });
 
@@ -509,7 +514,12 @@ describe("KeyRotationService", () => {
       );
       mockKeyService.userSigningKey$.mockReturnValue(new BehaviorSubject(null));
       mockSecurityStateService.accountSecurityState$.mockReturnValue(new BehaviorSubject(null));
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
+        if (flag === FeatureFlag.EnrollAeadOnKeyRotation) {
+          return true;
+        }
+        return false;
+      });
 
       const spy = jest.spyOn(keyRotationService, "getRotatedAccountKeysFlagged").mockResolvedValue({
         userKey: TEST_VECTOR_USER_KEY_V2,
