@@ -11,6 +11,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import {
@@ -20,6 +21,7 @@ import {
   ToggleGroupModule,
   IconModule,
 } from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
 
@@ -60,6 +62,7 @@ export interface TrendWidgetData {
     LineChartComponent,
     MenuModule,
     IconModule,
+    SharedModule,
   ],
 })
 export class TrendWidgetComponent {
@@ -89,6 +92,7 @@ export class TrendWidgetComponent {
   constructor(
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
+    private i18nService: I18nService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -101,39 +105,28 @@ export class TrendWidgetComponent {
     this.timespanChanged.emit(timespan);
   }
 
-  protected readonly timespanLabel = computed(() => {
-    switch (this.selectedTimespan()) {
-      case TrendWidgetTimespan.PastMonth:
-        return "Past month";
-      case TrendWidgetTimespan.Past3Months:
-        return "Past 3 months";
-      case TrendWidgetTimespan.Past6Months:
-        return "Past 6 months";
-      case TrendWidgetTimespan.PastYear:
-        return "Past year";
-      case TrendWidgetTimespan.AllTime:
-        return "All time";
-    }
-  });
   protected readonly viewLabel = computed(() => {
     switch (this.selectedView()) {
       case TrendWidgetViewType.Applications:
-        return "Applications";
+        return this.i18nService.t("applications");
       case TrendWidgetViewType.Passwords:
-        return "Passwords";
+        return this.i18nService.t("passwords");
       case TrendWidgetViewType.Members:
-        return "Members";
+        return this.i18nService.t("members");
     }
   });
 
   protected readonly lineChartData = computed<LineData[]>(() => {
     const dataPoints = this.data().dataPoints;
-    const label = this.viewLabel();
+    const view = this.selectedView();
     const isDark = this.isDarkMode();
+
+    const atRiskLabel = this.getAtRiskLabel(view);
+    const allLabel = this.getAllLabel(view);
 
     return [
       {
-        label: `${label} at risk`,
+        label: atRiskLabel,
         pointData: dataPoints.map((point) => ({
           x: new Date(point.timestamp),
           y: point.atRisk,
@@ -142,7 +135,7 @@ export class TrendWidgetComponent {
         fillColor: isDark ? "rgba(109,158,255,0.2)" : "rgba(23,93,220,0.15)",
       },
       {
-        label: `All ${label.toLowerCase()}`,
+        label: allLabel,
         pointData: dataPoints.map((point) => ({
           x: new Date(point.timestamp),
           y: point.total,
@@ -152,6 +145,28 @@ export class TrendWidgetComponent {
       },
     ];
   });
+
+  private getAtRiskLabel(view: TrendWidgetViewType): string {
+    switch (view) {
+      case TrendWidgetViewType.Applications:
+        return this.i18nService.t("applicationsAtRisk");
+      case TrendWidgetViewType.Passwords:
+        return this.i18nService.t("passwordsAtRisk");
+      case TrendWidgetViewType.Members:
+        return this.i18nService.t("membersAtRisk");
+    }
+  }
+
+  private getAllLabel(view: TrendWidgetViewType): string {
+    switch (view) {
+      case TrendWidgetViewType.Applications:
+        return this.i18nService.t("allApplications");
+      case TrendWidgetViewType.Passwords:
+        return this.i18nService.t("allPasswords");
+      case TrendWidgetViewType.Members:
+        return this.i18nService.t("allMembers");
+    }
+  }
 
   protected readonly lineChartConfiguration: ChartConfig = {
     xAxisType: "datetime",
