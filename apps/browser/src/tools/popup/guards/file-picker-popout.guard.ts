@@ -25,7 +25,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     // Check if this is a text Send route (no file picker needed)
-    if (isTextOnlySendRoute(state.url)) {
+    if (isTextOnlyOrEditRoute(state.url)) {
       return true; // Allow navigation without popout
     }
 
@@ -81,14 +81,23 @@ export function filePickerPopoutGuard(): CanActivateFn {
 }
 
 /**
- * Determines if the route is for a text Send that doesn't require file picker display.
+ * Determines if the route is for a Send that doesn't require file picker display.
+ *
+ * Editing an existing Send never exposes a file picker regardless of Send type,
+ * so edit-send routes are always exempt. For add-send routes, only text sends
+ * (SendType.Text = 0) are exempt.
  *
  * @param url The route URL with query parameters
- * @returns true if this is a Send route with explicitly text type (SendType.Text = 0)
+ * @returns true if this is a Send route that does not expose a file picker
  */
-function isTextOnlySendRoute(url: string): boolean {
-  // Only apply to Send routes
-  if (!url.includes("/add-send") && !url.includes("/edit-send")) {
+function isTextOnlyOrEditRoute(url: string): boolean {
+  // Editing a Send never exposes a file picker regardless of type
+  if (url.includes("/edit-send")) {
+    return true;
+  }
+
+  // Only apply remaining logic to add-send routes
+  if (!url.includes("/add-send")) {
     return false;
   }
 

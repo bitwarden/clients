@@ -269,22 +269,33 @@ describe("filePickerPopoutGuard", () => {
       inSidebarSpy.mockReturnValue(false);
     });
 
-    it.each([
-      { route: "/import" },
-      { route: "/add-send" },
-      { route: "/edit-send" },
-      { route: "/attachments" },
-    ])("should open popout for $route route", async ({ route }) => {
-      const importState: RouterStateSnapshot = {
-        url: route,
+    it.each([{ route: "/import" }, { route: "/add-send" }, { route: "/attachments" }])(
+      "should open popout for $route route",
+      async ({ route }) => {
+        const importState: RouterStateSnapshot = {
+          url: route,
+        } as RouterStateSnapshot;
+
+        const guard = filePickerPopoutGuard();
+        const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+
+        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
+        expect(closePopupSpy).toHaveBeenCalledWith(window);
+        expect(result).toBe(false);
+      },
+    );
+
+    it("should never open popout for /edit-send route regardless of type", async () => {
+      const editSendState: RouterStateSnapshot = {
+        url: "/edit-send?sendId=abc123&type=1",
       } as RouterStateSnapshot;
 
       const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, editSendState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
+      expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(closePopupSpy).not.toHaveBeenCalled();
+      expect(result).toBe(true);
     });
   });
 
@@ -494,74 +505,64 @@ describe("filePickerPopoutGuard", () => {
           name: "Firefox",
           os: "Mac",
           userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.FirefoxExtension,
           name: "Firefox",
           os: "Linux",
           userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.FirefoxExtension,
           name: "Firefox",
           os: "Windows",
           userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.SafariExtension,
           name: "Safari",
           os: "Mac",
           userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.ChromeExtension,
           name: "Chrome",
           os: "Mac",
           userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.ChromeExtension,
           name: "Chrome",
           os: "Linux",
           userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.ChromeExtension,
           name: "Chrome",
           os: "Windows",
           userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: false,
         },
         {
           deviceType: DeviceType.EdgeExtension,
           name: "Edge",
           os: "Mac",
           userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.EdgeExtension,
           name: "Edge",
           os: "Linux",
           userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
         },
         {
           deviceType: DeviceType.EdgeExtension,
           name: "Edge",
           os: "Windows",
           userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: false,
         },
       ])(
-        "should require popout for editing a file Send on $name $os",
-        async ({ deviceType, userAgent, expectPopout }) => {
+        "should never require popout for editing a file Send on $name $os",
+        async ({ deviceType, userAgent }) => {
           getDeviceSpy.mockReturnValue(deviceType);
           inPopoutSpy.mockReturnValue(false);
           inSidebarSpy.mockReturnValue(false);
@@ -583,17 +584,9 @@ describe("filePickerPopoutGuard", () => {
             guard(mockRoute, editFileSendState),
           );
 
-          if (expectPopout === false) {
-            expect(openPopoutSpy).not.toHaveBeenCalled();
-            expect(closePopupSpy).not.toHaveBeenCalled();
-            expect(result).toBe(true);
-          } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith(
-              "popup/index.html#/edit-send?sendId=abc123&type=1",
-            );
-            expect(closePopupSpy).toHaveBeenCalledWith(window);
-            expect(result).toBe(false);
-          }
+          expect(openPopoutSpy).not.toHaveBeenCalled();
+          expect(closePopupSpy).not.toHaveBeenCalled();
+          expect(result).toBe(true);
         },
       );
     });
