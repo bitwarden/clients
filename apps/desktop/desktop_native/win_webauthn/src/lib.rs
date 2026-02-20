@@ -1,13 +1,12 @@
 #![cfg(target_os = "windows")]
-pub mod plugin;
-mod types;
-mod util;
+mod webauthn;
+pub(crate) mod webauthn_sys;
 
 use std::{error::Error, fmt::Display};
 
-pub use types::{
-    AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
-    UserId,
+pub use webauthn::{
+    plugin, AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion,
+    PublicKeyCredentialParameters, UserId,
 };
 
 #[derive(Debug)]

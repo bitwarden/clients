@@ -4,34 +4,33 @@
 
 use std::{
     alloc,
-    mem::{ManuallyDrop, MaybeUninit, size_of},
+    mem::{size_of, ManuallyDrop, MaybeUninit},
     ptr::{self, NonNull},
     sync::{Arc, OnceLock},
 };
 
 use windows::{
+    core::{implement, interface, ComObjectInterface, IUnknown, GUID, HRESULT},
     Win32::{
         Foundation::{E_FAIL, E_INVALIDARG, S_FALSE, S_OK},
         System::Com::*,
     },
-    core::{ComObjectInterface, GUID, HRESULT, IUnknown, implement, interface},
 };
 use windows_core::{IInspectable, Interface};
 
-use super::{
-    PluginAuthenticator,
-    types::{
-        PluginLockStatus, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-        WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+use crate::webauthn_sys::{
+    crypto::{self, OwnedRequestHash},
+    plugin::{
+        WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     },
 };
 use crate::{
+    plugin::{PluginGetAssertionRequest, PluginMakeCredentialRequest},
     ErrorKind, WinWebAuthnError,
-    plugin::{
-        PluginGetAssertionRequest, PluginMakeCredentialRequest,
-        crypto::{self, OwnedRequestHash},
-    },
 };
+
+use super::{types::PluginLockStatus, PluginAuthenticator};
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 static SHUTDOWN: OnceLock<bool> = OnceLock::new();

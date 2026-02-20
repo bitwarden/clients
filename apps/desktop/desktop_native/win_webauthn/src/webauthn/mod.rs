@@ -3,12 +3,24 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::{collections::HashSet, marker::PhantomData, num::NonZeroU32, ptr::NonNull};
+pub mod plugin;
+mod util;
+
+use std::{collections::HashSet, marker::PhantomData, ptr::NonNull};
 
 use ciborium::Value;
-use windows::core::{BOOL, PCWSTR};
+use windows::core::PCWSTR;
 
-use crate::{util::ArrayPointerIterator, ErrorKind, WinWebAuthnError};
+use crate::{
+    webauthn_sys::{
+        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
+        WEBAUTHN_CREDENTIAL_EX, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSION,
+        WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
+    },
+    ErrorKind, WinWebAuthnError,
+};
+
+use util::ArrayPointerIterator;
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
 /// other aspects of its overall capabilities.
@@ -30,15 +42,20 @@ pub struct AuthenticatorInfo {
     /// [AuthenticatorTransport enum in WebAuthn][authenticator-transport].
     /// The list MUST NOT include duplicate values nor be empty if present.
     /// Platforms MUST tolerate unknown values.
+    ///
     /// [authenticator-transport]: https://www.w3.org/TR/webauthn-3/#enum-transport
     pub transports: Option<HashSet<String>>,
 
     /// List of supported algorithms for credential generation, as specified in
-    /// [WebAuthn]. The array is ordered from most preferred to least preferred
-    /// and MUST NOT include duplicate entries nor be empty if present.
-    /// PublicKeyCredentialParameters' algorithm identifiers are values that
+    /// [WebAuthn][public-key-cred-params]. The array is ordered from most
+    /// preferred to least preferred and MUST NOT include duplicate entries nor
+    /// be empty if present.
+    ///
+    /// `PublicKeyCredentialParameters`' algorithm identifiers are values that
     /// SHOULD be registered in the IANA COSE Algorithms registry
     /// [IANA-COSE-ALGS-REG].
+    ///
+    /// [public-key-cred-params]: https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialparameters
     pub algorithms: Option<Vec<PublicKeyCredentialParameters>>,
 }
 
@@ -167,32 +184,7 @@ impl From<&CtapVersion> for String {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_RP_ENTITY_INFORMATION {
-    /// Version of this structure, to allow for modifications in the future.
-    /// This field is required and should be set to CURRENT_VERSION above.
-    dwVersion: u32,
-
-    /// Identifier for the RP. This field is required.
-    pwszId: NonNull<u16>, // PCWSTR
-
-    /// Contains the friendly name of the Relying Party, such as "Acme
-    /// Corporation", "Widgets Inc" or "Awesome Site".
-    ///
-    /// This member is deprecated in WebAuthn Level 3 because many clients do not display it, but
-    /// it remains a required dictionary member for backwards compatibility. Relying
-    /// Parties MAY, as a safe default, set this equal to the RP ID.
-    pwszName: *const u16, // PCWSTR
-
-    /// Optional URL pointing to RP's logo.
-    ///
-    /// This field was removed in WebAuthn Level 2. Keeping this here for proper struct sizing.
-    #[deprecated]
-    _pwszIcon: *const u16, // PCWSTR
-}
-
-/// A wrapper around WEBAUTHN_RP_ENTITY_INFORMATION.
+/// A wrapper around [WEBAUTHN_RP_ENTITY_INFORMATION].
 pub struct RpEntityInformation<'a> {
     ptr: NonNull<WEBAUTHN_RP_ENTITY_INFORMATION>,
     _phantom: PhantomData<&'a WEBAUTHN_RP_ENTITY_INFORMATION>,
@@ -245,30 +237,6 @@ impl RpEntityInformation<'_> {
             }
         }
     }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_USER_ENTITY_INFORMATION {
-    /// Version of this structure, to allow for modifications in the future.
-    /// This field is required and should be set to CURRENT_VERSION above.
-    pub dwVersion: u32,
-
-    /// Identifier for the User. This field is required.
-    pub cbId: NonZeroU32, // DWORD
-    pub pbId: NonNull<u8>, // PBYTE
-
-    /// Contains a detailed name for this account, such as "john.p.smith@example.com".
-    pub pwszName: NonNull<u16>, // PCWSTR
-
-    /// Optional URL that can be used to retrieve an image containing the user's current avatar,
-    /// or a data URI that contains the image data.
-    #[deprecated]
-    pub pwszIcon: Option<NonNull<u16>>, // PCWSTR
-
-    /// Contains the friendly name associated with the user account by the Relying Party, such as
-    /// "John P. Smith".
-    pub pwszDisplayName: NonNull<u16>, // PCWSTR
 }
 
 pub struct UserEntityInformation<'a> {
@@ -324,17 +292,6 @@ impl UserEntityInformation<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
-    /// Version of this structure, to allow for modifications in the future.
-    dwVersion: u32,
-    /// Well-known credential type specifying a credential to create.
-    pwszCredentialType: NonNull<u16>,
-    /// Well-known COSE algorithm specifying the algorithm to use for the credential.
-    lAlg: i32,
-}
-
 impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
     pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
         unsafe {
@@ -354,13 +311,6 @@ impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
-    cCredentialParameters: u32,
-    pCredentialParameters: *const WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
-}
-
 impl WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
     /// # Safety
     /// The caller must ensure that the pCredentialParameters is either null or
@@ -374,125 +324,9 @@ impl WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
-    /// Version of this structure, to allow for modifications in the future.
-    pub(crate) dwVersion: u32,
-
-    /// Attestation format type
-    pub(crate) pwszFormatType: *const u16, // PCWSTR
-
-    /// Size of cbAuthenticatorData.
-    pub(crate) cbAuthenticatorData: u32,
-    /// Authenticator data that was created for this credential.
-    //_Field_size_bytes_(cbAuthenticatorData)
-    pub(crate) pbAuthenticatorData: *const u8,
-
-    /// Size of CBOR encoded attestation information
-    /// 0 => encoded as CBOR null value.
-    pub(crate) cbAttestation: u32,
-    ///Encoded CBOR attestation information
-    // _Field_size_bytes_(cbAttestation)
-    pub(crate) pbAttestation: *const u8,
-
-    pub(crate) dwAttestationDecodeType: u32,
-    /// Following depends on the dwAttestationDecodeType
-    ///  WEBAUTHN_ATTESTATION_DECODE_NONE
-    ///      NULL - not able to decode the CBOR attestation information
-    ///  WEBAUTHN_ATTESTATION_DECODE_COMMON
-    ///      PWEBAUTHN_COMMON_ATTESTATION;
-    pub(crate) pvAttestationDecode: *const u8,
-
-    /// The CBOR encoded Attestation Object to be returned to the RP.
-    pub(crate) cbAttestationObject: u32,
-    // _Field_size_bytes_(cbAttestationObject)
-    pub(crate) pbAttestationObject: *const u8,
-
-    /// The CredentialId bytes extracted from the Authenticator Data.
-    /// Used by Edge to return to the RP.
-    pub(crate) cbCredentialId: u32,
-    // _Field_size_bytes_(cbCredentialId)
-    pub(crate) pbCredentialId: *const u8,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
-    /// Since VERSION 2
-    pub(crate) Extensions: WEBAUTHN_EXTENSIONS,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
-    /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
-    /// the transport that was used.
-    pub(crate) dwUsedTransport: u32,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
-    pub(crate) bEpAtt: BOOL,
-    pub(crate) bLargeBlobSupported: BOOL,
-    pub(crate) bResidentKey: BOOL,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
-    pub(crate) bPrfEnabled: BOOL,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
-    pub(crate) cbUnsignedExtensionOutputs: u32,
-    // _Field_size_bytes_(cbUnsignedExtensionOutputs)
-    pub(crate) pbUnsignedExtensionOutputs: *const u8,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
-    pub(crate) pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
-
-    /// ThirdPartyPayment Credential or not.
-    pub(crate) bThirdPartyPayment: BOOL,
-
-    //
-    // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
-    //
-
-    /// Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
-    /// the transports that are supported.
-    pub(crate) dwTransports: u32,
-
-    /// UTF-8 encoded JSON serialization of the client data.
-    pub(crate) cbClientDataJSON: u32,
-    // _Field_size_bytes_(cbClientDataJSON)
-    pub(crate) pbClientDataJSON: *const u8,
-
-    /// UTF-8 encoded JSON serialization of the RegistrationResponse.
-    pub(crate) cbRegistrationResponseJSON: u32,
-    // _Field_size_bytes_(cbRegistrationResponseJSON)
-    pub(crate) pbRegistrationResponseJSON: *const u8,
-}
-
-#[repr(C)]
-pub(crate) struct WEBAUTHN_HMAC_SECRET_SALT {
-    /// Size of pbFirst.
-    _cbFirst: u32,
-    // _Field_size_bytes_(cbFirst)
-    /// Required
-    _pbFirst: *mut u8,
-
-    /// Size of pbSecond.
-    _cbSecond: u32,
-    // _Field_size_bytes_(cbSecond)
-    _pbSecond: *mut u8,
-}
-
 pub struct HmacSecretSalt {
     _first: Vec<u8>,
     _second: Option<Vec<u8>>,
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_EXTENSION {
-    pwszExtensionIdentifier: *const u16,
-    cbExtension: u32,
-    pvExtension: *mut u8,
 }
 
 // These names follow the naming convention in the Windows API.
@@ -509,14 +343,6 @@ pub enum WebAuthnExtensionMakeCredentialOutput {
     CredBlob(bool),
     MinPinLength(u32),
     // LargeBlob,
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_EXTENSIONS {
-    pub(crate) cExtensions: u32,
-    // _Field_size_(cExtensions)
-    pub(crate) pExtensions: *const WEBAUTHN_EXTENSION,
 }
 
 #[derive(Debug)]
@@ -592,21 +418,6 @@ impl TryFrom<Vec<u8>> for CredentialId {
         }
         Ok(CredentialId(value))
     }
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CREDENTIAL_EX {
-    /// Version of this structure, to allow for modifications in the future.
-    dwVersion: u32,
-    /// Size of pbID.
-    cbId: u32,
-    /// Unique ID for this particular credential.
-    pbId: *const u8,
-    /// Well-known credential type specifying what this particular credential is.
-    pwszCredentialType: *const u16,
-    /// Transports. 0 implies no transport restrictions.
-    dwTransports: u32,
 }
 
 pub struct CredentialEx<'a> {
@@ -687,15 +498,8 @@ pub enum CtapTransport {
     SmartCard = 0x40,
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CREDENTIAL_LIST {
-    pub cCredentials: u32,
-    pub ppCredentials: *const *const WEBAUTHN_CREDENTIAL_EX,
-}
-
 impl WEBAUTHN_CREDENTIAL_LIST {
-    pub unsafe fn iter(&self) -> CredentialListIterator<'_> {
+    unsafe fn iter(&self) -> CredentialListIterator<'_> {
         // SAFETY: This type can only be constructed from this library using
         // responses from Windows APIs. The pointer is checked for null safety
         // on construction.

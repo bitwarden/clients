@@ -1,10 +1,8 @@
 pub(crate) mod com;
-pub(crate) mod crypto;
 pub(crate) mod types;
 
 use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
-use types::*;
 pub use types::{
     PluginAddAuthenticatorOptions, PluginAddAuthenticatorResponse, PluginCancelOperationRequest,
     PluginCredentialDetails, PluginGetAssertionRequest, PluginLockStatus,
@@ -16,14 +14,22 @@ use windows::{
     Win32::Foundation::{NTE_USER_CANCELLED, S_OK},
 };
 
-use super::{ErrorKind, WinWebAuthnError};
 use crate::{
-    plugin::{
-        com::{ComBuffer, ComBufferExt},
-        crypto::{RequestHash, Signature},
+    plugin::com::{ComBuffer, ComBufferExt},
+    webauthn_sys::{
+        crypto::{self, RequestHash, Signature},
+        plugin::{
+            webauthn_plugin_add_authenticator, webauthn_plugin_authenticator_add_credentials,
+            webauthn_plugin_authenticator_remove_all_credentials,
+            webauthn_plugin_free_user_verification_response,
+            webauthn_plugin_perform_user_verification, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+            WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
+            WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
+        },
     },
-    util::WindowsString,
 };
+
+use super::{util::WindowsString, ErrorKind, WinWebAuthnError};
 
 #[derive(Clone, Copy)]
 pub struct Clsid(GUID);
@@ -89,7 +95,8 @@ impl WebAuthnPlugin {
         options: PluginAddAuthenticatorOptions,
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
         #![allow(non_snake_case)]
-        let mut response_ptr: *mut WebAuthnPluginAddAuthenticatorResponse = std::ptr::null_mut();
+        let mut response_ptr: *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
+            std::ptr::null_mut();
 
         // We need to be careful to use .as_ref() to ensure that we're not
         // sending dangling pointers to the OS.

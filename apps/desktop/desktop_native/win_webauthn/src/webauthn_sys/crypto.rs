@@ -18,9 +18,9 @@ use windows::{
     },
 };
 
-use crate::{
-    plugin::WEBAUTHN_PLUGIN_OPERATION_REQUEST, util::webauthn_call, ErrorKind, WinWebAuthnError,
-};
+use crate::{ErrorKind, WinWebAuthnError};
+
+use super::{plugin::WEBAUTHN_PLUGIN_OPERATION_REQUEST, util::webauthn_call};
 
 webauthn_call!("WebAuthNPluginGetUserVerificationPublicKey" as
 /// Retrieve the public key used to verify user verification responses from the OS.
@@ -67,7 +67,7 @@ fn webauthn_plugin_free_public_key_response(
 ///
 /// # Arguments
 /// - `clsid`: The CLSID corresponding to this plugin's COM server.
-pub(super) fn get_operation_signing_public_key(
+pub(crate) fn get_operation_signing_public_key(
     clsid: &GUID,
 ) -> Result<VerifyingKey, WinWebAuthnError> {
     let mut len = 0;
@@ -102,7 +102,7 @@ pub(super) fn get_operation_signing_public_key(
 ///
 /// # Arguments
 /// - `clsid`: The CLSID corresponding to this plugin's COM server.
-pub(super) fn get_user_verification_public_key(
+pub(crate) fn get_user_verification_public_key(
     clsid: &GUID,
 ) -> Result<VerifyingKey, WinWebAuthnError> {
     let mut len = 0;
@@ -210,7 +210,7 @@ fn verify_signature(
 }
 
 /// Calculate a SHA-256 hash over some data.
-pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> {
+pub(crate) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> {
     // Hash data
     let sha256 = BcryptHash::sha256()?;
     unsafe { BCryptHashData(sha256.handle, data, 0).ok()? };
@@ -349,7 +349,7 @@ impl OwnedRequestHash {
     /// # Safety
     /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte
     /// string of length `request.cbEncodedRequest`.
-    pub(super) unsafe fn from_request(
+    pub(crate) unsafe fn from_request(
         request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
     ) -> Result<Self, WinWebAuthnError> {
         // SAFETY: The caller must make sure that the encoded request is valid.
@@ -433,8 +433,7 @@ mod tests {
         BCRYPT_ECDSA_PUBLIC_P521_MAGIC, BCRYPT_RSAKEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
     };
 
-    use super::hash_sha256;
-    use crate::plugin::crypto::{verify_signature, RequestHash, Signature, VerifyingKey};
+    use super::{hash_sha256, verify_signature, RequestHash, Signature, VerifyingKey};
 
     #[test]
     fn test_sha256_serializes_properly() {
