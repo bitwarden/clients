@@ -23,8 +23,9 @@ import {
   LayoutComponent,
   NavigationModule,
   StorybookGlobalStateProvider,
-  positionFixedWrapperDecorator,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
