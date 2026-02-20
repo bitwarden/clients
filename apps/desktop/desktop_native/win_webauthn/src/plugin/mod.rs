@@ -181,40 +181,44 @@ impl WebAuthnPlugin {
         };
         let mut response_len = 0;
         let mut response_ptr = MaybeUninit::uninit();
-        unsafe {
-            let hresult = webauthn_plugin_perform_user_verification(
+        let hresult = unsafe {
+            webauthn_plugin_perform_user_verification(
                 &uv_request,
                 &mut response_len,
                 response_ptr.as_mut_ptr(),
-            )?;
-            match hresult {
-                S_OK => {
-                    // SAFETY: Windows returned successful response code and length, so we
-                    // assume that the data and length are initialized
-                    let response_ptr = response_ptr.assume_init();
+            )?
+        };
+        match hresult {
+            S_OK => {
+                // SAFETY: Windows returned successful response code and length, so we
+                // assume that the data and length are initialized
+                let response_ptr = unsafe { response_ptr.assume_init() };
+                let signature = unsafe {
                     // SAFETY: Windows only runs on platforms where usize >= u32;
                     let len = response_len as usize;
-                    let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
-                    pub_key.verify_signature(
-                        RequestHash::new(operation_request_hash),
-                        Signature::new(&signature),
-                    )?;
+                    std::slice::from_raw_parts(response_ptr, len).to_vec()
+                };
+                pub_key.verify_signature(
+                    RequestHash::new(operation_request_hash),
+                    Signature::new(&signature),
+                )?;
+                unsafe {
                     webauthn_plugin_free_user_verification_response(response_ptr)?;
-                    Ok(PluginUserVerificationResponse {
-                        transaction_id: request.transaction_id,
-                        signature,
-                    })
                 }
-                NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
-                    ErrorKind::Other,
-                    "User cancelled user verification",
-                )),
-                _ => Err(WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Unknown error occurred while performing user verification",
-                    windows::core::Error::from_hresult(hresult),
-                )),
+                Ok(PluginUserVerificationResponse {
+                    transaction_id: request.transaction_id,
+                    signature,
+                })
             }
+            NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
+                ErrorKind::Other,
+                "User cancelled user verification",
+            )),
+            _ => Err(WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Unknown error occurred while performing user verification",
+                windows::core::Error::from_hresult(hresult),
+            )),
         }
     }
 
