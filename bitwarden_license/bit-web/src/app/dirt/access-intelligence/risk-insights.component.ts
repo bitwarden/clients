@@ -39,9 +39,7 @@ import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils"
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
-import { AllApplicationsComponent } from "./all-applications/all-applications.component";
-import { ApplicationsComponent } from "./all-applications/applications.component";
-import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { ApplicationsComponent } from "./applications/applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
 import { PageLoadingComponent } from "./shared/page-loading.component";
@@ -55,12 +53,10 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
-    AllApplicationsComponent,
     ApplicationsComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
-    CriticalApplicationsComponent,
     EmptyStateCardComponent,
     JslibModule,
     HeaderModule,
