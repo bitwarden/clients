@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -588,7 +588,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           queryParamsHandling: "merge",
           replaceUrl: true,
           state: {
-            focusMainAfterNav: false,
+            focusAfterNav: false,
           },
         }),
       );
@@ -812,7 +812,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherAttachments(cipher: CipherView) {
     if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -869,7 +869,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -893,7 +893,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
-      await this.go({ cipherId: null, itemId: null, action: null });
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
       return;
     }
 
@@ -943,7 +946,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     // Clear the query params when the dialog closes
-    await this.go({ cipherId: null, itemId: null, action: null });
+    await this.go(
+      { cipherId: null, itemId: null, action: null },
+      this.configureRouterFocusToCipher(formConfig.originalCipher?.id),
+    );
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -1422,7 +1428,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  private go(queryParams: any = null) {
+  /**
+   * Helper function to set up the `state.focusAfterNav` property for dialog router navigation if
+   * the cipherId exists. If it doesn't exist, returns undefined.
+   *
+   * This ensures that when the routed dialog is closed, the focus returns to the cipher button in
+   * the vault table, which allows keyboard users to continue navigating uninterrupted.
+   *
+   * @param cipherId id of cipher
+   * @returns Partial<NavigationExtras>, specifically the state.focusAfterNav property, or undefined
+   */
+  private configureRouterFocusToCipher(cipherId?: string): Partial<NavigationExtras> | undefined {
+    if (cipherId) {
+      return {
+        state: { focusAfterNav: `#cipher-btn-${cipherId}` },
+      };
+    }
+  }
+
+  private go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
       queryParams = {
         type: this.activeFilter.cipherType,
@@ -1436,6 +1460,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       queryParams: queryParams,
       queryParamsHandling: "merge",
       replaceUrl: true,
+      ...navigateOptions,
     });
   }
 

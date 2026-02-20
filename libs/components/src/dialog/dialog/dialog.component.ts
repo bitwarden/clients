@@ -20,6 +20,7 @@ import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { queryForAutofocusDescendents } from "../../input";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
@@ -67,7 +68,7 @@ const drawerSizeToWidth = {
 export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
-  private readonly el = inject(ElementRef);
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly dialogHeader =
     viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
@@ -187,8 +188,7 @@ export class DialogComponent implements AfterViewInit {
      * AutofocusDirective.
      */
     const dialogRef = this.el.nativeElement;
-    // Must match selectors of AutofocusDirective
-    const autofocusDescendants = dialogRef.querySelectorAll("[appAutofocus], [bitAutofocus]");
+    const autofocusDescendants = queryForAutofocusDescendents(dialogRef);
     const hasAutofocusDescendants = autofocusDescendants.length > 0;
 
     if (!hasAutofocusDescendants) {
