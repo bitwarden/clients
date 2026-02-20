@@ -159,7 +159,8 @@ impl WebAuthnPlugin {
     ///
     /// # Arguments
     /// - `request`: UI and transaction context for the user verification prompt.
-    /// - `operation_request_hash`: The SHA-256 hash of the original operation request buffer related to this user verification request.
+    /// - `operation_request_hash`: The SHA-256 hash of the original operation request buffer
+    ///   related to this user verification request.
     pub fn perform_user_verification(
         &self,
         request: PluginUserVerificationRequest,

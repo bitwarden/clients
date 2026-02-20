@@ -417,7 +417,8 @@ impl WEBAUTHN_PLUGIN_OPERATION_REQUEST {
     /// [webauthn_plugin_get_operation_signing_public_key](crate::plugin::crypto::webauthn_plugin_get_operation_signing_public_key).
     ///
     /// # Safety
-    /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte string of length `request.cbRequestSignature`.
+    /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
+    /// string of length `request.cbRequestSignature`.
     pub(super) unsafe fn signature(&self) -> Signature<'_> {
         // SAFETY: The caller must make sure that the encoded request is valid.
         let signature =

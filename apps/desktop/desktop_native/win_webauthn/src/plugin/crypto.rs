@@ -17,7 +17,6 @@ use windows::{
         BCRYPT_SHA256_ALG_HANDLE,
     },
 };
-use windows_core::Owned;
 
 use crate::{
     plugin::WEBAUTHN_PLUGIN_OPERATION_REQUEST, util::webauthn_call, ErrorKind, WinWebAuthnError,
@@ -238,10 +237,12 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
             let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
             unsafe {
                 {
-                    // Temporarily treat the buffer byte slice to fit BCryptFinishHash parameter arguments.
+                    // Temporarily treat the buffer byte slice to fit BCryptFinishHash parameter
+                    // arguments.
                     let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
                     BCryptFinishHash(sha256.handle, hash_slice, 0).ok()?;
-                    // The hash handle is not usable after calling BCryptFinishHash, drop to clean up internal state.
+                    // The hash handle is not usable after calling BCryptFinishHash, drop to clean
+                    // up internal state.
                     drop(sha256);
                 }
                 // SAFETY: BCryptFinishHash initializes the buffer
@@ -342,7 +343,8 @@ impl OwnedRequestHash {
     /// Calculate a SHA-256 hash over the request.
     ///
     /// # Safety
-    /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte string of length `request.cbEncodedRequest`.
+    /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte
+    /// string of length `request.cbEncodedRequest`.
     pub(super) unsafe fn from_request(
         request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
     ) -> Result<Self, WinWebAuthnError> {
@@ -368,7 +370,8 @@ impl<'a> RequestHash<'a> {
         Self(hash)
     }
 }
-/// Public key for verifying a signature over an operation request or user verification response buffer.
+/// Public key for verifying a signature over an operation request or user verification response
+/// buffer.
 pub struct VerifyingKey {
     /// Length of buffer
     cbPublicKey: u32,
@@ -419,9 +422,8 @@ mod tests {
         BCRYPT_RSAKEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
     };
 
-    use crate::plugin::crypto::{verify_signature, RequestHash, Signature, VerifyingKey};
-
     use super::hash_sha256;
+    use crate::plugin::crypto::{verify_signature, RequestHash, Signature, VerifyingKey};
 
     #[test]
     fn test_sha256_serializes_properly() {
