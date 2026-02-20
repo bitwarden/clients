@@ -19,13 +19,13 @@ export class PasswordRequest extends SecretVerificationRequest {
   // This will eventually be changed to be an actual constructor, once all callers are updated.
   // https://bitwarden.atlassian.net/browse/PM-23234
   static newConstructor(
-    currentServerMasterKeyHash: MasterPasswordAuthenticationHash,
+    currentMasterPasswordAuthenticationHash: MasterPasswordAuthenticationHash,
     newAuthenticationData: MasterPasswordAuthenticationData,
     newUnlockData: MasterPasswordUnlockData,
     newMasterPasswordHint: string,
   ): PasswordRequest {
     const request = new PasswordRequest();
-    request.masterPasswordHash = currentServerMasterKeyHash;
+    request.masterPasswordHash = currentMasterPasswordAuthenticationHash;
     request.newMasterPasswordHash = newAuthenticationData.masterPasswordAuthenticationHash;
     request.key = newUnlockData.masterKeyWrappedUserKey;
     request.authenticationData = newAuthenticationData;
