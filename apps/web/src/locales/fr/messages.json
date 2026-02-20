@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Utilisateur $ID$ automatiquement confirmé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Utilisateur $ID$ modifié.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Génération de votre Intelligence d'Accès..."
   },
-  "fetchingMemberData": {
-    "message": "Récupération des données des membres..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Analyse de la santé du mot de passe..."
-  },
-  "calculatingRiskScores": {
-    "message": "Calcul des niveaux de risque..."
-  },
-  "generatingReportData": {
-    "message": "Génération des données du rapport..."
-  },
-  "savingReport": {
-    "message": "Enregistrement du rapport..."
-  },
-  "compilingInsights": {
-    "message": "Compilation des aperçus..."
-  },
   "loadingProgress": {
     "message": "Chargement de la progression"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Cela peut prendre quelques minutes."
+  "reviewingMemberData": {
+    "message": "Révision des données du membre..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyse des mots de passe..."
+  },
+  "calculatingRisks": {
+    "message": "Calcul des risques..."
+  },
+  "generatingReports": {
+    "message": "Génération du rapport..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compilation des observations..."
+  },
+  "reportGenerationDone": {
+    "message": "Fini !"
   },
   "riskInsightsRunReport": {
     "message": "Exécuter le rapport"
@@ -5849,10 +5855,6 @@
     "message": "Vous ne connaissez pas le mot de passe ? Demandez à l'expéditeur le mot de passe nécessaire pour accéder à ce Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Ce Send est masqué par défaut. Vous pouvez changer sa visibilité en utilisant le bouton ci-dessous.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Télécharger les pièces jointes"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "J'accepte ces risques et mises à jour de la politique de sécurité"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Activé le paramètre de confirmation automatique de l'utilisateur"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Désactivé le paramètre de confirmation automatique de l'utilisateur"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Ajout de la politique de sécurité de confirmation automatique de l'utilisateur"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Politique de sécurité de confirmation automatique de l'utilisateur retirée"
+  },
+  "system": {
+    "message": "Système"
   },
   "personalOwnership": {
     "message": "Supprimer le coffre individuel"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Courriel ou code de vérification invalide"
   },
   "keyConnectorDomain": {
     "message": "Domaine Key Connector"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Entrez plusieurs courriels en les séparant avec une virgule."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer tous les courriels, changez le type d'accès ci-dessus."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Mot de passe Send invalide"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Vous y êtes! Bienvenue sur Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Enregistrez tous vos mots de passe et vos informations personnelles dans votre coffre de Bitwarden. Nous vous ferons faire la visite."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Commencer la visite"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Ignorer"
   },
   "sendPasswordHelperText": {
     "message": "Les personnes devront entrer le mot de passe pour afficher ce Send",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Une erreur s'est produite lors de la mise à jour de votre mode de paiement."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Mot de passe invalide. Demandez à l'expéditeur le mot de passe nécessaire pour accéder à ce Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Ce Send expire à $TIME$ le $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
