@@ -534,6 +534,7 @@ describe("OrganizationPlansComponent", () => {
 
     mockConfigService = {
       getFeatureFlag: jest.fn().mockResolvedValue(true),
+      getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
     } as any;
 
     // Setup mock plan data
@@ -2238,6 +2239,21 @@ describe("OrganizationPlansComponent", () => {
         await fixture.whenStable();
 
         expect(component.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when feature flag is disabled even with premium personally", async () => {
+        // Need to set up the mock before component initialization since it uses toSignal
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+        hasPremiumPersonallySubject.next(true);
+
+        // Create a new fixture with the updated mock
+        const newFixture = TestBed.createComponent(OrganizationPlansComponent);
+        const newComponent = newFixture.componentInstance;
+
+        newFixture.detectChanges();
+        await newFixture.whenStable();
+
+        expect(newComponent.canUpgradeFromPremium()).toBe(false);
       });
     });
 
