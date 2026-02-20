@@ -339,16 +339,6 @@ impl WebAuthnPlugin {
             }
         }
     }
-
-    /// Retrieve the public key used to sign operation requests.
-    pub fn operation_signing_public_key(&self) -> Result<VerifyingKey, WinWebAuthnError> {
-        crypto::get_operation_signing_public_key(&self.clsid.0)
-    }
-
-    /// Retrieve the public key used to sign user verification responses.
-    pub fn user_verification_public_key(&self) -> Result<VerifyingKey, WinWebAuthnError> {
-        crypto::get_user_verification_public_key(&self.clsid.0)
-    }
 }
 pub trait PluginAuthenticator {
     /// Process a request to create a new credential.
