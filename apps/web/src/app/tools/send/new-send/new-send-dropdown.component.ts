@@ -9,7 +9,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
@@ -23,7 +23,14 @@ import { SendSuccessDrawerDialogComponent } from "../shared";
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, PremiumBadgeComponent],
+  imports: [
+    JslibModule,
+    CommonModule,
+    ButtonModule,
+    MenuModule,
+    PremiumBadgeComponent,
+    IconComponent,
+  ],
   providers: [DefaultSendFormConfigService],
 })
 /**
