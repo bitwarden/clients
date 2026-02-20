@@ -269,7 +269,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ Anwendungen als kritisch markiert",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -278,7 +278,7 @@
     }
   },
   "numApplicationsUnmarkedCriticalSuccess": {
-    "message": "$COUNT$ applications marked not critical",
+    "message": "$COUNT$ Anwendungen als nicht-kritisch markiert",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Benutzer $ID$ bearbeitet.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Deine Access Intelligence wird generiert..."
   },
-  "fetchingMemberData": {
-    "message": "Mitgliedsdaten werden abgerufen..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Passwortsicherheit wird analysiert..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risikobewertung wird berechnet..."
-  },
-  "generatingReportData": {
-    "message": "Berichtsdaten werden generiert..."
-  },
-  "savingReport": {
-    "message": "Bericht wird gespeichert..."
-  },
-  "compilingInsights": {
-    "message": "Analyse wird zusammengestellt..."
-  },
   "loadingProgress": {
     "message": "Ladefortschritt"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Dies kann einige Minuten dauern."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Passwörter werden analysiert..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Berichte werden erstellt ..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Fertig!"
   },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
@@ -5849,10 +5855,6 @@
     "message": "Du kennst das Passwort nicht? Frage den Absender nach dem Passwort, das für dieses Send benötigt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Dieses Send ist standardmäßig ausgeblendet. Du kannst die Sichtbarkeit mit dem Button unten umschalten.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Anhänge herunterladen"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Ich akzeptiere diese Risiken und Richtlinien-Aktualisierungen"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Persönlichen Tresor entfernen"
@@ -6439,7 +6456,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "Verifiziere deine E-Mail, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6687,7 +6704,7 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "1 invitation sent"
+    "message": "1 Einladung gesendet"
   },
   "bulkReinviteSentToast": {
     "message": "$COUNT$ invitations sent",
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Key Connector-Domain"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Ungültiges Send-Passwort"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Beim Aktualisieren deiner Zahlungsmethode ist ein Fehler aufgetreten."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
