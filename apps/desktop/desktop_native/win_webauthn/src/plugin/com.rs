@@ -10,27 +10,27 @@ use std::{
 };
 
 use windows::{
-    core::{implement, interface, ComObjectInterface, IUnknown, GUID, HRESULT},
     Win32::{
         Foundation::{E_FAIL, E_INVALIDARG, S_FALSE, S_OK},
         System::Com::*,
     },
+    core::{ComObjectInterface, GUID, HRESULT, IUnknown, implement, interface},
 };
 use windows_core::{IInspectable, Interface};
 
 use super::{
+    PluginAuthenticator,
     types::{
         PluginLockStatus, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
         WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     },
-    PluginAuthenticator,
 };
 use crate::{
-    plugin::{
-        crypto::{self, OwnedRequestHash},
-        PluginGetAssertionRequest, PluginMakeCredentialRequest,
-    },
     ErrorKind, WinWebAuthnError,
+    plugin::{
+        PluginGetAssertionRequest, PluginMakeCredentialRequest,
+        crypto::{self, OwnedRequestHash},
+    },
 };
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
@@ -212,6 +212,8 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         request: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     ) -> HRESULT {
         tracing::debug!("CancelOperation called");
+        // WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST has a signature, but the
+        // payload is undocumented and is not referenced in the sample, so we're not verifying it here.
         let request = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST) {
             Some(request) => request,
             None => {

@@ -321,10 +321,13 @@ impl WebAuthnPlugin {
             match result {
                 Ok(hresult) => {
                     if let Err(err) = hresult.ok() {
-                        let err =
-                            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed", err);
+                        let err = WinWebAuthnError::with_cause(
+                            ErrorKind::WindowsInternal,
+                            "Failed to add credentials to Windows autofill list. Credentials list is now empty",
+                            err,
+                        );
                         tracing::error!(
-                            "Failed to add credentials to Windows: credentials list is now empty"
+                            "Failed to add credentials to Windows autofill list. Credentials list is now empty"
                         );
                         Err(err)
                     } else {
