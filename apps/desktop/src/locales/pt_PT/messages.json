@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-mail ou código de verificação inválido"
+  },
   "continue": {
     "message": "Continuar"
   },
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemWasSentToArchive": {
-    "message": "O item foi movido para o arquivo"
+  "itemArchiveToast": {
+    "message": "Item arquivado"
   },
-  "itemWasUnarchived": {
-    "message": "O item foi desarquivado"
+  "itemUnarchivedToast": {
+    "message": "Item desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduza vários e-mails, separados por vírgula."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
+  },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Falha na verificação do utilizador."
   }
 }

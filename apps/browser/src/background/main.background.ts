@@ -1409,6 +1409,7 @@ export default class MainBackground {
       this.userNotificationSettingsService,
       this.taskService,
       this.messagingService,
+      this.fido2Background,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
