@@ -4,7 +4,7 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
@@ -76,17 +76,6 @@ export abstract class AuthRequestServiceAbstraction {
     userId: UserId,
   ): Promise<void>;
   /**
-   * Sets the `MasterKey` and `MasterKeyHash` from an auth request. Auth request must have a `MasterKey` and `MasterKeyHash`.
-   * @param authReqResponse The auth request.
-   * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
-   * @param userId The ID of the user for whose account we will set the keys.
-   */
-  abstract setKeysAfterDecryptingSharedMasterKeyAndHash(
-    authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: Uint8Array,
-    userId: UserId,
-  ): Promise<void>;
-  /**
    * Decrypts a `UserKey` from a public key encrypted `UserKey`.
    * @param pubKeyEncryptedUserKey The public key encrypted `UserKey`.
    * @param privateKey The private key corresponding to the public key used to encrypt the `UserKey`.
@@ -96,18 +85,6 @@ export abstract class AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey>;
-  /**
-   * Decrypts a `MasterKey` and `MasterKeyHash` from a public key encrypted `MasterKey` and `MasterKeyHash`.
-   * @param pubKeyEncryptedMasterKey The public key encrypted `MasterKey`.
-   * @param pubKeyEncryptedMasterKeyHash The public key encrypted `MasterKeyHash`.
-   * @param privateKey The private key corresponding to the public key used to encrypt the `MasterKey` and `MasterKeyHash`.
-   * @returns The decrypted `MasterKey` and `MasterKeyHash`.
-   */
-  abstract decryptPubKeyEncryptedMasterKeyAndHash(
-    pubKeyEncryptedMasterKey: string,
-    pubKeyEncryptedMasterKeyHash: string,
-    privateKey: Uint8Array,
-  ): Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
 
   /**
    * Handles incoming auth request push server notifications.

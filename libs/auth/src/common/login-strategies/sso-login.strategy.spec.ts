@@ -416,24 +416,6 @@ describe("SsoLoginStrategy", () => {
         );
       });
 
-      it("sets the user key using master key and hash from approved admin request if exists", async () => {
-        apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-        keyService.hasUserKey.mockResolvedValue(true);
-        const adminAuthResponse = {
-          id: "1",
-          publicKey: "PRIVATE" as any,
-          key: "KEY" as any,
-          masterPasswordHash: "HASH" as any,
-          requestApproved: true,
-        };
-        apiService.getAuthRequest.mockResolvedValue(adminAuthResponse as AuthRequestResponse);
-
-        await ssoLoginStrategy.logIn(credentials);
-
-        expect(authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash).toHaveBeenCalled();
-        expect(deviceTrustService.decryptUserKeyWithDeviceKey).not.toHaveBeenCalled();
-      });
-
       it("sets the user key from approved admin request if exists", async () => {
         apiService.postIdentityToken.mockResolvedValue(tokenResponse);
         keyService.hasUserKey.mockResolvedValue(true);
@@ -475,9 +457,6 @@ describe("SsoLoginStrategy", () => {
         await ssoLoginStrategy.logIn(credentials);
 
         expect(authRequestService.clearAdminAuthRequest).toHaveBeenCalled();
-        expect(
-          authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash,
-        ).not.toHaveBeenCalled();
         expect(authRequestService.setUserKeyAfterDecryptingSharedUserKey).not.toHaveBeenCalled();
         expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
       });

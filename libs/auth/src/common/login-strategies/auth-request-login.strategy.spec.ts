@@ -26,7 +26,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -73,11 +73,7 @@ describe("AuthRequestLoginStrategy", () => {
   const email = "EMAIL";
   const accessCode = "ACCESS_CODE";
   const authRequestId = "AUTH_REQUEST_ID";
-  const decMasterKey = new SymmetricCryptoKey(
-    new Uint8Array(64).buffer as CsprngArray,
-  ) as MasterKey;
   const decUserKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-  const decMasterKeyHash = "LOCAL_PASSWORD_HASH";
 
   beforeEach(async () => {
     keyService = mock<KeyService>();
@@ -150,42 +146,6 @@ describe("AuthRequestLoginStrategy", () => {
     );
   });
 
-  it("sets keys after a successful authentication when masterKey and masterKeyHash provided in login credentials", async () => {
-    credentials = new AuthRequestLoginCredentials(
-      email,
-      accessCode,
-      authRequestId,
-      null,
-      decMasterKey,
-      decMasterKeyHash,
-    );
-
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-    tokenService.decodeAccessToken.mockResolvedValue({ sub: mockUserId });
-
-    await authRequestLoginStrategy.logIn(credentials);
-
-    expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(masterKey, mockUserId);
-    expect(masterPasswordService.mock.setMasterKeyHash).toHaveBeenCalledWith(
-      decMasterKeyHash,
-      mockUserId,
-    );
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      mockUserId,
-    );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, mockUserId);
-    expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-      { V1: { private_key: tokenResponse.privateKey } },
-      mockUserId,
-    );
-  });
-
   it("sets keys after a successful authentication when only userKey provided in login credentials", async () => {
     // Initialize credentials with only userKey
     credentials = new AuthRequestLoginCredentials(
@@ -193,8 +153,6 @@ describe("AuthRequestLoginStrategy", () => {
       accessCode,
       authRequestId,
       decUserKey, // Pass userKey
-      null, // No masterKey
-      null, // No masterKeyHash
     );
 
     // Call logIn
@@ -240,7 +198,6 @@ describe("AuthRequestLoginStrategy", () => {
     };
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.masterKeySubject.next(decMasterKey);
     masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(decUserKey);
 
     await authRequestLoginStrategy.logIn(credentials);
