@@ -55,6 +55,10 @@ export class LayoutComponent {
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
 
+  /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
+  private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");
+  protected readonly hasSideNav = computed(() => this.sideNavSlotFallback() == null);
+
   /**
    * True as soon as a portal is active; false when no drawer is open.
    * Derived directly from the portal signal so col 3 gets a non-zero track
@@ -135,8 +139,9 @@ export class LayoutComponent {
     // When the nav enters overlay mode (position:fixed) it leaves the grid's normal
     // flow.  A dummy placeholder div in the template keeps the col 1 auto track
     // stable without needing an explicit px value here.
-    const col1 =
-      navOpen && navPush
+    const col1 = !this.hasSideNav()
+      ? "0px" // no side nav projected — collapse the column entirely
+      : navOpen && navPush
         ? `${this.sideNavService.widthRem()}rem` // full nav, push+open
         : navPush || siderailPush
           ? "auto" // siderail in flow, size naturally
