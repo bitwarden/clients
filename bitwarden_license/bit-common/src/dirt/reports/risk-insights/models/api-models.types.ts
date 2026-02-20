@@ -4,6 +4,7 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 import { createNewSummaryData } from "../helpers";
 
+import { RiskOverTimeDataPointApi } from "./api/risk-over-time-data-point.api";
 import { RiskInsightsMetricsData } from "./data/risk-insights-metrics.data";
 import { OrganizationReportSummary, PasswordHealthReportApplicationId } from "./report-models";
 
@@ -147,5 +148,32 @@ export interface UpdateRiskInsightsSummaryDataRequest {
 export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {
   constructor(response: any) {
     super(response);
+  }
+}
+
+// -------------------- Risk Over Time Models --------------------
+export class GetRiskOverTimeResponse extends BaseResponse {
+  // TODO: The response "timeframe" value may differ from the request value
+  // (e.g., request sends "month", response returns "past_month").
+  // Stored as plain string — no validation against request params. See concerns-and-gaps.md #5. [PM-28529]
+  timeframe: string = "";
+  dataView: string = "";
+  dataPoints: RiskOverTimeDataPointApi[] = [];
+
+  constructor(response: any) {
+    super(response);
+    if (response == null) {
+      return;
+    }
+
+    // FIXME: Verify property names match server response when PM-28531 is implemented.
+    // These names are from the proposed contract (marked "TO BE UPDATED" in PM-28531). [PM-28529]
+    this.timeframe = this.getResponseProperty("timeframe");
+    this.dataView = this.getResponseProperty("dataView");
+
+    const dataPoints = this.getResponseProperty("dataPoints");
+    if (dataPoints != null) {
+      this.dataPoints = dataPoints.map((dp: any) => new RiskOverTimeDataPointApi(dp));
+    }
   }
 }
