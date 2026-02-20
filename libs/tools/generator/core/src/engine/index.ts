@@ -1,4 +1,4 @@
-export { PureCryptoRandomizer as KeyServiceRandomizer } from "./purecrypto-randomizer";
+export { PureCryptoRandomizer } from "./purecrypto-randomizer";
 export { ForwarderConfiguration, AccountRequest } from "./forwarder-configuration";
 export { ForwarderContext } from "./forwarder-context";
 export * from "./settings";

@@ -33,7 +33,7 @@ export class PureCryptoRandomizer implements Randomizer {
 
     if (options?.number ?? false) {
       await SdkLoadService.Ready;
-      const num = (PureCrypto as any).random_number(0, 9);
+      const num = PureCrypto.random_number(0, 9);
       word = word + num.toString();
     }
 
@@ -69,6 +69,6 @@ export class PureCryptoRandomizer implements Randomizer {
 
   async uniform(min: number, max: number) {
     await SdkLoadService.Ready;
-    return (PureCrypto as any).random_number(min, max);
+    return PureCrypto.random_number(min, max);
   }
 }

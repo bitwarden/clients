@@ -15,7 +15,7 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 const mockRandomNumber = jest.requireMock("@bitwarden/sdk-internal").PureCrypto
   .random_number as jest.Mock;
 
-describe("KeyServiceRandomizer", () => {
+describe("PureCryptoRandomizer", () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
