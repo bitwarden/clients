@@ -276,6 +276,17 @@ describe("DefaultChangePasswordService", () => {
             );
           });
         });
+
+        it("should throw if a userKey is not found", async () => {
+          // Arrange
+          keyService.userKey$.mockReturnValue(of(null));
+
+          // Act
+          const promise = sut.changePassword(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow("userKey not found. Could not change password.");
+        });
       });
 
       it("should call makeMasterPasswordAuthenticationData twice and makeMasterPasswordUnlockData once with the correct parameters", async () => {
@@ -374,6 +385,17 @@ describe("DefaultChangePasswordService", () => {
               `${key} is null or undefined. Could not change password.`,
             );
           });
+        });
+
+        it("should throw if a userKey is not found", async () => {
+          // Arrange
+          keyService.userKey$.mockReturnValue(of(null));
+
+          // Act
+          const promise = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow("userKey not found. Could not change password.");
         });
       });
 
