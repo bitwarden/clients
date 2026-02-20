@@ -39,7 +39,7 @@ fn webauthn_plugin_get_user_verification_public_key(
 ) -> HRESULT); // Free using WebAuthNPluginFreePublicKeyResponse
 
 webauthn_call!("WebAuthNPluginGetOperationSigningPublicKey" as
-/// Retrieve the public key used to verify plugin operation reqeusts from the OS.
+/// Retrieve the public key used to verify plugin operation requests from the OS.
 /// 
 /// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
 /// 
@@ -63,7 +63,7 @@ fn webauthn_plugin_free_public_key_response(
         pbOpSignPubKey: *mut BCRYPT_KEY_BLOB
     ) -> ());
 
-/// Retrieve the public key used to verify plugin operation reqeusts from the OS.
+/// Retrieve the public key used to verify plugin operation requests from the OS.
 ///
 /// # Arguments
 /// - `clsid`: The CLSID corresponding to this plugin's COM server.
@@ -149,7 +149,7 @@ fn verify_signature(
     // The exact key types which the OS can return from webauthn.dll
     // operations is not documented, but we have observed at least RSA
     // public keys being used. For forward compatibility, we'll implement
-    // RSA, P-256, P-384 and P-512.
+    // RSA, P-256, P-384 and P-521.
 
     let key_blob = unsafe { public_key.pbPublicKey.as_ref() };
     tracing::debug!("  got key magic: {}", key_blob.Magic);
