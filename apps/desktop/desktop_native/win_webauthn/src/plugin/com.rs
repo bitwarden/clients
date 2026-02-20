@@ -440,19 +440,15 @@ impl ComBufferExt for &[u16] {
 
 impl<T: AsRef<[u8]>> From<T> for ComBuffer {
     fn from(value: T) -> Self {
-        let buffer: Vec<u8> = value
-            .as_ref()
-            .iter()
-            .flat_map(|x| x.to_le_bytes())
-            .collect();
-        let len = buffer.len();
+        let slice = value.as_ref();
+        let len = slice.len();
         let com_buffer = Self::alloc(len, true);
         // SAFETY: `ptr` points to a valid allocation that `len` matches, and we made sure
         // the bytes were initialized. Additionally, bytes have no alignment requirements.
         unsafe {
             NonNull::slice_from_raw_parts(com_buffer.0.cast::<u8>(), len)
                 .as_mut()
-                .copy_from_slice(&buffer);
+                .copy_from_slice(slice);
         }
         com_buffer
     }
