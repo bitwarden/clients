@@ -373,11 +373,6 @@ describe("AddEditComponent", () => {
   });
 
   describe("handleBackButton", () => {
-    beforeEach(() => {
-      jest.spyOn(component, "cipherFormComponent").mockReturnValue({
-        clearCache: jest.fn(),
-      } as any);
-    });
     it("disables warning and aborts fido2 popout", async () => {
       // @ts-expect-error - `inFido2PopoutWindow` is a private getter, mock the response here
       // for the test rather than setting up the dependencies.
