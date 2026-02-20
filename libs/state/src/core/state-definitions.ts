@@ -220,6 +220,13 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "disk",
 );
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
+  "vaultWelcomeExtensionDialogDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // KM
 

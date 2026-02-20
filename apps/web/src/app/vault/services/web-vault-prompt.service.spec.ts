@@ -20,6 +20,7 @@ import {
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
+import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "./web-vault-prompt.service";
 import { WelcomeDialogService } from "./welcome-dialog.service";
 
@@ -43,6 +44,7 @@ describe("WebVaultPromptService", () => {
   const enforceOrganizationDataOwnership = jest.fn().mockResolvedValue(undefined);
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
+  const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
 
   let activeAccount$: BehaviorSubject<Account | null>;
 
@@ -74,7 +76,14 @@ describe("WebVaultPromptService", () => {
         { provide: ConfigService, useValue: { getFeatureFlag$ } },
         { provide: DialogService, useValue: { open } },
         { provide: LogService, useValue: { error: logError } },
-        { provide: WelcomeDialogService, useValue: { conditionallyShowWelcomeDialog } },
+        {
+          provide: WebVaultExtensionPromptService,
+          useValue: { conditionallyPromptUserForExtension },
+        },
+        {
+          provide: WelcomeDialogService,
+          useValue: { conditionallyShowWelcomeDialog, conditionallyPromptUserForExtension },
+        },
       ],
     });
 
@@ -97,11 +106,19 @@ describe("WebVaultPromptService", () => {
         service["vaultItemTransferService"].enforceOrganizationDataOwnership,
       ).toHaveBeenCalledWith(mockUserId);
     });
+
+    it("calls conditionallyPromptUserForExtension with the userId", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(
+        service["webVaultExtensionPromptService"].conditionallyPromptUserForExtension,
+      ).toHaveBeenCalledWith(mockUserId);
+    });
   });
 
   describe("setupAutoConfirm", () => {
     it("shows dialog when all conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
+      getFeatureFlag$.mockReturnValue(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
