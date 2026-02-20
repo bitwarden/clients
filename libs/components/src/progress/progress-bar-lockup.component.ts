@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
-import { ProgressBarComponent, BackgroundType } from "./progress.component";
+import { ProgressBarComponent, BackgroundType } from "./progress-bar.component";
 
 /**
  * The progress bar lockup component consumes the progress bar component with illustration, title, and subtitle.

@@ -19,8 +19,8 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
  * or dialogs when progress is tied to a specific task.
  */
 @Component({
-  selector: "bit-progress",
-  templateUrl: "./progress.component.html",
+  selector: "bit-progress-bar",
+  templateUrl: "./progress-bar.component.html",
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

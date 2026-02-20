@@ -40,7 +40,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
   template: `
     <form [formGroup]="formObj" [bitSubmit]="submit">
       <div class="tw-mb-6">
-        <bit-progress [barWidth]="50"></bit-progress>
+        <bit-progress-bar [barWidth]="50"></bit-progress-bar>
       </div>
 
       <bit-form-field>

@@ -50,7 +50,8 @@ to see part or all of the indicator.
 ## Start Text
 
 When measuring something other than progress, such as password strength, update the `startText` to
-fit the context of the implementation.
+fit the context of the implementation. If no `startText` is passed in, it will default to
+`[barWidth]% complete`
 
 <Canvas of={stories.StartText} />
 
