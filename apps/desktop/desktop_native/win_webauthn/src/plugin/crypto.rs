@@ -375,12 +375,15 @@ impl<'a> RequestHash<'a> {
     }
 }
 /// Public key for verifying a signature over an operation request or user verification response
-/// buffer.
+/// buffer retrieved via [webauthn_plugin_get_operation_signing_public_key] or
+/// [webauthn_plugin_get_user_verification_public_key], respectively.
 ///
 /// This is a wrapper for a key blob structure, which starts with a generic
 /// [BCRYPT_KEY_BLOB] header that determines what type of key this contains. Key
 /// data follows in the remaining bytes specified by `cbPublicKey`.
-pub struct VerifyingKey {
+///
+/// The data will be cleaned up with [webauthn_plugin_free_public_key_response]
+pub(crate) struct VerifyingKey {
     /// Total length of the key blob, including the [BCRYPT_KEY_BLOB] header.
     cbPublicKey: u32,
     /// Pointer to a [BCRYPT_KEY_BLOB] header and remaining data.
@@ -557,6 +560,8 @@ mod tests {
         };
         verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
             .expect("a signature to verify properly");
+        // We manually constructed this key for the test, so don't call the WebAuthn free method.
+        std::mem::forget(verify_key);
     }
 
     #[test]
@@ -631,6 +636,8 @@ mod tests {
         ];
         verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
             .expect("a signature to verify properly");
+        // We manually constructed this key for the test, so don't call the WebAuthn free method.
+        std::mem::forget(verify_key);
     }
 
     #[test]
@@ -699,5 +706,7 @@ mod tests {
         ];
         verify_signature(&verify_key, RequestHash(&digest), Signature(signature))
             .expect("a signature to verify properly");
+        // We manually constructed this key for the test, so don't call the WebAuthn free method.
+        std::mem::forget(verify_key);
     }
 }
