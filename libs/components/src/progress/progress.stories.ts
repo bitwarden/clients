@@ -15,7 +15,7 @@ export default {
   },
   args: {
     variant: "primary",
-    progressAmount: 50,
+    barWidth: 50,
   },
 } as Meta;
 
@@ -38,11 +38,11 @@ export const AllVariants: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress variant="primary" label="primary" [progressAmount]=20></bit-progress>
-        <bit-progress variant="subtle" label="subtle" [progressAmount]=40></bit-progress>
-        <bit-progress variant="success" label="success" [progressAmount]=60></bit-progress>
-        <bit-progress variant="warning" label="warning" [progressAmount]=80></bit-progress>
-        <bit-progress variant="danger" label="danger" [progressAmount]=100></bit-progress>
+        <bit-progress variant="primary" label="primary" [barWidth]=20 [showStartText]=false></bit-progress>
+        <bit-progress variant="subtle" label="subtle" [barWidth]=40 [showStartText]=false></bit-progress>
+        <bit-progress variant="success" label="success" [barWidth]=60 [showStartText]=false></bit-progress>
+        <bit-progress variant="warning" label="warning" [barWidth]=80 [showStartText]=false></bit-progress>
+        <bit-progress variant="danger" label="danger" [barWidth]=100 [showStartText]=false></bit-progress>
       </div>
     `,
   }),
@@ -62,10 +62,10 @@ export const StartText: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress variant="danger" label="danger" [progressAmount]=25 startText="Weak"></bit-progress>
-        <bit-progress variant="warning" label="warning" [progressAmount]=50 startText="Weak2"></bit-progress>
-        <bit-progress variant="primary" label="primary" [progressAmount]=75 startText="Good"></bit-progress>
-        <bit-progress variant="success" label="success" [progressAmount]=100 startText="Strong"></bit-progress>
+        <bit-progress variant="danger" label="danger" [barWidth]=25 startText="Weak"></bit-progress>
+        <bit-progress variant="warning" label="warning" [barWidth]=50 startText="Weak2"></bit-progress>
+        <bit-progress variant="primary" label="primary" [barWidth]=75 startText="Good"></bit-progress>
+        <bit-progress variant="success" label="success" [barWidth]=100 startText="Strong"></bit-progress>
       </div>
     `,
   }),

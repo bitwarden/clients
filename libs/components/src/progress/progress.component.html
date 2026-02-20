@@ -5,11 +5,11 @@
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
-    attr.aria-valuenow="{{ progressAmount() }}"
-    [style]="{ width: progressAmount() + '%' }"
+    attr.aria-valuenow="{{ barWidth() }}"
+    [style]="{ width: barWidth() + '%' }"
   ></div>
 </div>
 <div class="tw-flex tw-text-sm tw-text-fg-body">
-  <span class="tw-mr-auto">{{ startText() }}</span>
+  <span class="tw-mr-auto">{{ startTextContent() }}</span>
   <span class="tw-ml-auto">{{ endText() }}</span>
 </div>

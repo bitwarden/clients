@@ -20,7 +20,7 @@ export default {
   },
   args: {
     variant: "primary",
-    progressAmount: 50,
+    barWidth: 50,
   },
 } as Meta;
 
@@ -49,9 +49,8 @@ export const Base: Story = {
   }),
   args: {
     variant: "primary",
-    progressAmount: 50,
+    barWidth: 50,
     label: "File name",
-    startText: "50% complete",
     endText: "50MB",
     title: "Uploading file",
     subtitle: "This might take a few minutes.",

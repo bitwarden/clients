@@ -17,7 +17,7 @@ export class ProgressBarLockupComponent {
   readonly subtitle = input<string>();
   readonly variant = input<BackgroundType>("primary");
   readonly label = input<string>();
-  readonly progressAmount = input<number>(0);
+  readonly barWidth = input<number>(0);
   readonly startText = input<string>();
   readonly endText = input<string>();
 }
