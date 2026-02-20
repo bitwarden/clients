@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ kopiert",
     "description": "Value has been copied to the clipboard.",
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration einer Liste gefährdeter Zugangsdaten."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden Auto-Ausfüllen-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ Stunden",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link und dem von dir festgelegten Passwort für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopiere und teile diesen Send-Link. Er kann von den von dir angegebenen Personen für die nächsten $TIME$ angesehen werden.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6121,6 +6166,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }

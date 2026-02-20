@@ -31,7 +31,6 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
-  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
   PM23341_Milestone_2 = "pm-23341-milestone-2",
@@ -71,6 +70,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
 
   /* Platform */
@@ -137,6 +137,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
+  [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
@@ -147,7 +148,6 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
-  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
   [FeatureFlag.PM23341_Milestone_2]: FALSE,
