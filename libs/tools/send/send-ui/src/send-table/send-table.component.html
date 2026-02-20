@@ -29,9 +29,9 @@
                 class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'disabled' | i18n }}"
-                aria-hidden="true"
+                aria-label="{{ 'disabled' | i18n }}"
+                tabindex="0"
               ></i>
-              <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
             }
             @if (s.authType !== authType.None) {
               @let titleKey =
@@ -40,36 +40,36 @@
                 class="bwi bwi-lock"
                 appStopProp
                 title="{{ titleKey | i18n }}"
-                aria-hidden="true"
+                aria-label="{{ titleKey | i18n }}"
+                tabindex="0"
               ></i>
-              <span class="tw-sr-only">{{ titleKey | i18n }}</span>
             }
             @if (s.maxAccessCountReached) {
               <i
                 class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'maxAccessCountReached' | i18n }}"
-                aria-hidden="true"
+                aria-label="{{ 'maxAccessCountReached' | i18n }}"
+                tabindex="0"
               ></i>
-              <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
             }
             @if (s.expired) {
               <i
                 class="bwi bwi-clock"
                 appStopProp
                 title="{{ 'expired' | i18n }}"
-                aria-hidden="true"
+                aria-label="{{ 'expired' | i18n }}"
+                tabindex="0"
               ></i>
-              <span class="tw-sr-only">{{ "expired" | i18n }}</span>
             }
             @if (s.pendingDelete) {
               <i
                 class="bwi bwi-trash"
                 appStopProp
                 title="{{ 'pendingDeletion' | i18n }}"
-                aria-hidden="true"
+                aria-label="{{ 'pendingDeletion' | i18n }}"
+                tabindex="0"
               ></i>
-              <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
             }
           </div>
         </td>
