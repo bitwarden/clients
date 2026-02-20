@@ -6,30 +6,30 @@
     "message": "Bitwarden logo"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden – Upravitelj gesel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Doma, na delu ali na poti – Bitwarden enostavno zaščiti vsa vaša gesla, ključe za dostop in občutljive podatke",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Prijavite se ali ustvarite nov račun za dostop do svojega varnega trezorja."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Povabilo sprejeto"
   },
   "createAccount": {
     "message": "Ustvari račun"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Novi na Bitwardenu?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Prijava s ključem za dostop"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Odkleni s ključem za dostop"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
@@ -38,10 +38,10 @@
     "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Dobrodošli nazaj"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Nastavite močno geslo"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -90,7 +90,7 @@
     "message": "Namig za glavno geslo (neobvezno)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Ocena moči gesla: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -99,7 +99,7 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Pridružite se organizaciji"
   },
   "joinOrganizationName": {
     "message": "Join $ORGANIZATIONNAME$",
@@ -156,31 +156,31 @@
     "message": "Kopiraj varnostno kodo"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Kopiraj ime"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopiraj podjetje"
   },
   "copySSN": {
     "message": "Copy Social Security number"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopiraj številko potnega lista"
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiraj zasebni ključ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiraj javni ključ"
   },
   "copyFingerprint": {
     "message": "Copy fingerprint"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopiraj $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -189,17 +189,17 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopiraj spletno stran"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopiraj zapiske"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopiraj",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Izpolni",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -215,10 +215,10 @@
     "message": "Samodejno izpolni identiteto"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Izpolni kodo za preverjanje"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Izpolni kodo za preverjanje",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -297,13 +297,13 @@
     "message": "Spremeni glavno geslo"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Nadaljuj v spletno aplikacijo?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Raziščite več funkcij vašega Bitwarden računa na spletni aplikaciji."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Nadaljuj na center za pomoč?"
   },
   "continueToHelpCenterDesc": {
     "message": "Learn more about how to use Bitwarden on the Help Center."
@@ -315,7 +315,7 @@
     "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "Vaše glavno geslo lahko zamenjate v Bitwarden spletni aplikaciji."
   },
   "fingerprintPhrase": {
     "message": "Identifikacijsko geslo",
@@ -332,19 +332,19 @@
     "message": "Odjava"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "O Bitwardenu"
   },
   "about": {
     "message": "O programu"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Več od Bitwardena"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Nadaljuj na bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden za podjetja"
   },
   "bitwardenAuthenticator": {
     "message": "Bitwarden Authenticator"
@@ -398,10 +398,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nova mapa"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Ime mape"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -440,7 +440,7 @@
     "message": "Sinhronizacija"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sinhroniziraj zdaj"
   },
   "lastSync": {
     "message": "Zadnja sinhronizacija:"
@@ -456,7 +456,7 @@
     "message": "Avtomatično generiraj močna, edinstvena gesla za vaše prijave."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Bitwarden spletna aplikacija"
   },
   "select": {
     "message": "Izberi"
@@ -468,7 +468,7 @@
     "message": "Generate passphrase"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Geslo generirano"
   },
   "passphraseGenerated": {
     "message": "Passphrase generated"
@@ -493,7 +493,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Vključi velike črke",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -501,7 +501,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Vključi male črke",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -509,7 +509,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Vključi števila",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -517,7 +517,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Vključi posebne znake",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -540,7 +540,7 @@
     "message": "Minimalno posebnih znakov"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Izogibaj se dvoumnim znakom",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -554,21 +554,21 @@
     "message": "Reset search"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arhiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arhiviraj",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Odstrani iz arhiva"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elementi v arhivu"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Ni elementov v arhivu"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -592,10 +592,10 @@
     "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Za uporabo Arhiva je potrebno premium članstvo."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Vnos je bil obnovljen"
   },
   "edit": {
     "message": "Uredi"
@@ -604,13 +604,13 @@
     "message": "Pogled"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Poglej vse"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Prikaži vse"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Poglej manj"
   },
   "viewLogin": {
     "message": "View login"
@@ -640,10 +640,10 @@
     "message": "Unfavorite"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Element dodan med priljubljene"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Element odstranen iz priljubljenih"
   },
   "notes": {
     "message": "Opombe"
@@ -709,7 +709,7 @@
     "message": "Vault timeout"
   },
   "otherOptions": {
-    "message": "Other options"
+    "message": "Ostale možnosti"
   },
   "rateExtension": {
     "message": "Ocenite to razširitev"
@@ -718,25 +718,25 @@
     "message": "Vaš brskalnik ne podpira enostavnega kopiranja na odložišče. Prosimo, kopirajte ročno."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Potrdite vašo identiteto"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Te naprave ne prepoznamo. Vnesite kodo, ki je bila poslana na vaš e-poštni naslov, da potrdite vašo identiteto."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Nadaljujte s prijavo"
   },
   "yourVaultIsLocked": {
     "message": "Vaš trezor je zaklenjen. Za nadaljevanje potrdite svojo identiteto."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Vaš trezor je zaklenjen"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Vaš račun je zaklenjen"
   },
   "or": {
-    "message": "or"
+    "message": "ali"
   },
   "unlock": {
     "message": "Odkleni"
@@ -758,7 +758,7 @@
     "message": "Napačno glavno geslo"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neveljavno glavno geslo. Preverite, da je vaš e-poštni naslov pravilen, ter da je bil vaš račun ustvarjen na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -776,7 +776,7 @@
     "message": "Zakleni zdaj"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Zakleni vse"
   },
   "immediately": {
     "message": "Takoj"
@@ -833,13 +833,13 @@
     "message": "Confirm master password"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Glavno geslo"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "Če pozabite glavno geslo, ga ne bo mogoče obnoviti!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Namig za glavno geslo"
   },
   "errorOccurred": {
     "message": "Prišlo je do napake"
@@ -876,7 +876,7 @@
     "message": "Your new account has been created!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Prijavljeni ste!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "You successfully logged in"
@@ -895,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Neveljavna koda za preverjanje"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "$VALUE$ kopirana",
@@ -970,7 +973,7 @@
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Pretečena povezava"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -994,7 +997,7 @@
     "message": "Anyone with a password set by you"
   },
   "location": {
-    "message": "Location"
+    "message": "Lokacija"
   },
   "unexpectedError": {
     "message": "Prišlo je do nepričakovane napake."
@@ -1009,10 +1012,10 @@
     "message": "Avtentikacija v dveh korakih dodatno varuje vaš račun, saj zahteva, da vsakokratno prijavo potrdite z drugo napravo, kot je varnostni ključ, aplikacija za preverjanje pristnosti, SMS, telefonski klic ali e-pošta. Avtentikacijo v dveh korakih lahko omogočite v spletnem trezorju bitwarden.com. Ali želite spletno stran obiskati sedaj?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+    "message": "Zavarujte vaš račun tako, da nastavite dvostopenjsko prijavo v Bitwarden spletni aplikaciji."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Nadaljuj v spletno aplikacijo?"
   },
   "editedFolder": {
     "message": "Mapa shranjena"
@@ -1055,7 +1058,7 @@
     "message": "Nov URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Dodaj domeno",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration of a list of logins that are at-risk."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6062,7 +6107,7 @@
     "message": "Contact your admin to regain access."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Zapusti $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6071,10 +6116,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Kako uporabljam svoj trezor?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Prenesi elemente v $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6092,19 +6137,19 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Sprejmi prenos"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Zakaj se mi to prikazuje?"
   },
   "items": {
-    "message": "Items"
+    "message": "Elementi"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Rezultati iskanja"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -6121,11 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "uporabnik@bitwarden.com , uporabnik@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Prenesi Bitwarden aplikacije"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

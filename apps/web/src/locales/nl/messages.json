@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatisch bevestigde gebruiker $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Gebruiker gewijzigd $ID$.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Je toegangsinlichtingen genereren..."
   },
-  "fetchingMemberData": {
-    "message": "Ledengegevens ophalen..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Wachtwoordgezondheid analyseren..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risicoscores berekenen..."
-  },
-  "generatingReportData": {
-    "message": "Rapportgegevens genereren..."
-  },
-  "savingReport": {
-    "message": "Rapport opslaan..."
-  },
-  "compilingInsights": {
-    "message": "Inzichten compileren..."
-  },
   "loadingProgress": {
     "message": "Voortgang laden"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Dit kan een paar minuten duren."
+  "reviewingMemberData": {
+    "message": "Ledengegevens controleren..."
+  },
+  "analyzingPasswords": {
+    "message": "Wachtwoorden analyseren..."
+  },
+  "calculatingRisks": {
+    "message": "Risicoscores berekenen..."
+  },
+  "generatingReports": {
+    "message": "Rapporteren genereren..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Inzichten compileren..."
+  },
+  "reportGenerationDone": {
+    "message": "Klaar!"
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -5849,10 +5855,6 @@
     "message": "Weet je het wachtwoord niet? Vraag de afzender om het wachtwoord om toegang te krijgen tot deze Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Deze Send is standaard verborgen. Je kunt de zichtbaarheid ervan in- en uitschakelen met de knop hieronder.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Bijlagen downloaden"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Ik accepteer deze risico's en beleidsupdates"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Automatisch gebruikersbevestigingsinstelling ingeschakeld"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Automatisch gebruikersbevestigingsinstelling uitgeschakeld"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Automatisch gebruikersbevestigingsbeleid toegevoegd"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Automatisch gebruikersbevestigingsbeleid verwijderd"
+  },
+  "system": {
+    "message": "Systeem"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
   },
   "keyConnectorDomain": {
     "message": "Key Connector-domein"
@@ -12869,6 +12889,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -12892,6 +12915,18 @@
   },
   "invalidSendPassword": {
     "message": "Ongeldig Send-wachtwoord"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Je bent erbij! Welkom bij Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Sla al je wachtwoorden en persoonlijke informatie op in je Bitwarden-kluis. We laten je zien hoe het werkt."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Rondleiding starten"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Overslaan"
   },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
@@ -12948,5 +12983,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Er is een fout opgetreden bij het bijwerken van je betaalmethode."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Onjuist wachtwoord. Vraag de afzender om het wachtwoord om toegang te krijgen tot deze Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Deze Send verloopt om $TIME$ op $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
