@@ -61,6 +61,7 @@ import {
 } from "../content/components/cipher/types";
 import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
+import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
@@ -165,6 +166,7 @@ export default class NotificationBackground {
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
     protected messagingService: MessagingService,
+    private fido2Background: Fido2Background,
   ) {}
 
   init() {
@@ -662,6 +664,11 @@ export default class NotificationBackground {
     // If the entered data doesn't have an associated URI, exit early
     const loginDomain = Utils.getDomain(data.uri);
     if (loginDomain === null) {
+      return false;
+    }
+
+    // If there is an active passkey prompt, exit early
+    if (this.fido2Background.isCredentialRequestInProgress(tab.id)) {
       return false;
     }
 

@@ -35,6 +35,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription;
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
+  private activeCredentialRequests = new Set<number>();
   private registeredContentScripts: browser.contentScripts.RegisteredContentScript;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
     runAt: "document_start",
@@ -60,6 +61,16 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
   ) {}
+
+  /**
+   * Checks if a FIDO2 credential request (registration or assertion)
+   * is currently in progress for the given tab.
+   *
+   * @param tabId - The tab id to check.
+   */
+  isCredentialRequestInProgress(tabId: number): boolean {
+    return this.activeCredentialRequests.has(tabId);
+  }
 
   /**
    * Initializes the FIDO2 background service. Sets up the extension message
@@ -307,20 +318,25 @@ export class Fido2Background implements Fido2BackgroundInterface {
       abortController: AbortController,
     ) => Promise<T>,
   ) => {
-    return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
-      try {
-        return await callback(data, tab, abortController);
-      } finally {
-        await BrowserApi.focusTab(tab.id);
-        await BrowserApi.focusWindow(tab.windowId);
-      }
-    });
+    this.activeCredentialRequests.add(tab.id);
+    try {
+      return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
+        try {
+          return await callback(data, tab, abortController);
+        } finally {
+          await BrowserApi.focusTab(tab.id);
+          await BrowserApi.focusWindow(tab.windowId);
+        }
+      });
+    } finally {
+      this.activeCredentialRequests.delete(tab.id);
+    }
   };
 
   /**
    * Checks if the enablePasskeys setting is enabled.
    */
-  private async isPasskeySettingEnabled() {
+  async isPasskeySettingEnabled() {
     return await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
   }
 
