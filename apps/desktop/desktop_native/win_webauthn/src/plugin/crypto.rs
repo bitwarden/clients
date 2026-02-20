@@ -372,10 +372,14 @@ impl<'a> RequestHash<'a> {
 }
 /// Public key for verifying a signature over an operation request or user verification response
 /// buffer.
+///
+/// This is a wrapper for a key blob structure, which starts with a generic
+/// [BCRYPT_KEY_BLOB] header that determines what type of key this contains. Key
+/// data follows in the remaining bytes specified by `cbPublicKey`.
 pub struct VerifyingKey {
-    /// Length of buffer
+    /// Total length of the key blob, including the [BCRYPT_KEY_BLOB] header.
     cbPublicKey: u32,
-    /// Pointer to a [BCRYPT_KEY_BLOB]
+    /// Pointer to a [BCRYPT_KEY_BLOB] header and remaining data.
     pbPublicKey: NonNull<BCRYPT_KEY_BLOB>,
 }
 
