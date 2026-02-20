@@ -47,3 +47,12 @@
 .bit-popover-above-end .bit-popover-arrow {
   @apply tw-right-6 tw-translate-x-1/2;
 }
+
+/* Spotlight backdrop for guided tours */
+.bit-popover-spotlight-backdrop {
+  @apply tw-bg-transparent tw-pointer-events-auto;
+}
+
+.bit-popover-backdrop {
+  background: rgba(13, 32, 86, 0.2);
+}

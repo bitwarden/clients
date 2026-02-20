@@ -1,48 +1,44 @@
-import { A11yModule } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, viewChild } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   ButtonModule,
-  IconButtonModule,
   LinkModule,
+  PopoverComponent,
   PopoverModule,
   TypographyModule,
 } from "@bitwarden/components";
 
+import { CoachmarkStepId } from "./coachmark-step";
+import { CoachmarkService } from "./coachmark.service";
+
 /**
- * Coachmark component that displays a tour step popover.
- * Uses the same styling as bit-popover for visual consistency.
+ * Self-contained coachmark tour step.
+ * Wraps a `<bit-popover>` internally — use `coachmark.popover()` with `[bitPopoverAnchor]`.
+ *
+ * @example
+ * ```html
+ * <div [bitPopoverAnchor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
+ *   Highlighted element
+ * </div>
+ * <app-coachmark #myCoachmark stepId="importData" />
+ * ```
  */
 @Component({
   selector: "app-coachmark",
   standalone: true,
-  imports: [
-    CommonModule,
-    A11yModule,
-    JslibModule,
-    ButtonModule,
-    IconButtonModule,
-    LinkModule,
-    PopoverModule,
-    TypographyModule,
-  ],
+  imports: [CommonModule, JslibModule, ButtonModule, LinkModule, PopoverModule, TypographyModule],
   templateUrl: "coachmark.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class: "bit-popover",
-  },
+  exportAs: "coachmark",
 })
 export class CoachmarkComponent {
-  readonly title = input("");
-  readonly description = input("");
-  readonly currentStep = input(1);
-  readonly totalSteps = input(1);
-  readonly learnMoreUrl = input<string | undefined>(undefined);
-  readonly position = input("below-center");
+  /** Which coachmark step this instance represents */
+  readonly stepId = input.required<CoachmarkStepId>();
 
-  readonly closed = output<void>();
-  readonly back = output<void>();
-  readonly next = output<void>();
+  /** Exposed so parent templates can bind `[bitPopoverAnchor]="ref.popover()"` */
+  readonly popover = viewChild.required(PopoverComponent);
+
+  protected readonly service = inject(CoachmarkService);
 }
