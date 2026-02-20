@@ -195,7 +195,7 @@ fn verify_signature(
             padding_info
                 .as_ref()
                 .map(|padding: &BCRYPT_PKCS1_PADDING_INFO| std::ptr::from_ref(padding).cast()),
-            &hash.0,
+            hash.0,
             signature.0,
             bcrypt_flags,
         )
@@ -385,7 +385,7 @@ pub struct VerifyingKey {
 
 impl VerifyingKey {
     /// Verifies a signature over a request hash with the associated public key.
-    pub fn verify_signature(
+    pub(crate) fn verify_signature(
         &self,
         hash: RequestHash,
         signature: Signature,

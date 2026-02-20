@@ -27,7 +27,7 @@ use super::{
 };
 use crate::{
     plugin::{
-        crypto::{self, OwnedRequestHash, RequestHash, Signature},
+        crypto::{self, OwnedRequestHash},
         PluginGetAssertionRequest, PluginMakeCredentialRequest,
     },
     ErrorKind, WinWebAuthnError,
