@@ -234,7 +234,7 @@ export class ApplicationsComponent implements OnInit {
     this.selectedFilter.set(value);
   }
 
-  markAppsAsCritical = async () => {
+  async markAppsAsCritical() {
     this.updatingCriticalApps.set(true);
     const visibleSelected = this.visibleSelectedApps();
     const count = visibleSelected.size;
@@ -263,9 +263,9 @@ export class ApplicationsComponent implements OnInit {
           });
         },
       });
-  };
+  }
 
-  unmarkAppsAsCritical = async () => {
+  async unmarkAppsAsCritical() {
     this.updatingCriticalApps.set(true);
     const appsToUnmark = this.visibleSelectedApps();
 
@@ -295,7 +295,7 @@ export class ApplicationsComponent implements OnInit {
           });
         },
       });
-  };
+  }
 
   async requestPasswordChange() {
     const orgId = this.organizationId();
@@ -327,17 +327,11 @@ export class ApplicationsComponent implements OnInit {
     }
   }
 
-  showAppAtRiskMembers = async (applicationName: string) => {
+  async showAppAtRiskMembers(applicationName: string) {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
-  };
+  }
 
-  onCheckboxChange = ({
-    applicationName,
-    checked,
-  }: {
-    applicationName: string;
-    checked: boolean;
-  }) => {
+  onCheckboxChange({ applicationName, checked }: { applicationName: string; checked: boolean }) {
     this.selectedUrls.update((selectedUrls) => {
       const nextSelected = new Set(selectedUrls);
       if (checked) {
@@ -347,9 +341,9 @@ export class ApplicationsComponent implements OnInit {
       }
       return nextSelected;
     });
-  };
+  }
 
-  onSelectAllChange = (checked: boolean) => {
+  onSelectAllChange(checked: boolean) {
     const filteredData = this.filteredTableData();
     if (!filteredData) {
       return;
@@ -362,9 +356,9 @@ export class ApplicationsComponent implements OnInit {
       );
       return nextSelected;
     });
-  };
+  }
 
-  downloadApplicationsCSV = () => {
+  downloadApplicationsCSV() {
     try {
       const data = this.dataSource.filteredData;
       if (!data || data.length === 0) {
@@ -397,5 +391,5 @@ export class ApplicationsComponent implements OnInit {
     } catch (error) {
       this.logService.error("Failed to download applications CSV", error);
     }
-  };
+  }
 }
