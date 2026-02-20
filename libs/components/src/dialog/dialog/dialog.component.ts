@@ -149,7 +149,7 @@ export class DialogComponent implements AfterViewInit {
     const size = this.dialogSize();
 
     if (this.dialogRef?.isDrawer) {
-      return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "tw-max-w-[unset]";
+      return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "";
     }
     return dialogSizeToWidth[size];
   });
