@@ -8,7 +8,7 @@ import { MenuModule, TableDataSource, TableModule, TooltipDirective } from "@bit
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-type CipherIcon = CipherViewLike | undefined;
+export type CipherIcon = CipherViewLike | undefined;
 
 export type ApplicationTableDataSource = ApplicationHealthReportDetailEnriched & {
   iconCipher: CipherIcon;
