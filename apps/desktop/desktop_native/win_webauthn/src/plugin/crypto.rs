@@ -691,7 +691,6 @@ mod tests {
         .to_vec();
         public_key_bytes.extend_from_slice(x);
         public_key_bytes.extend_from_slice(y);
-        println!("{:?}", public_key_bytes);
         let verify_key = VerifyingKey {
             cbPublicKey: public_key_bytes.len() as u32,
             pbPublicKey: NonNull::new(public_key_bytes.as_mut_ptr().cast()).unwrap(),

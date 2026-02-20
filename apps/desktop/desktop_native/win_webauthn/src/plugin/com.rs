@@ -239,7 +239,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             std::thread::current().id()
         );
         if lock_status.is_null() {
-            return HRESULT(-2147024809); // E_INVALIDARG
+            return E_INVALIDARG;
         }
 
         match self.handler.lock_status() {

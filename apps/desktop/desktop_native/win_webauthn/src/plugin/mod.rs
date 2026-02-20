@@ -20,7 +20,7 @@ use super::{ErrorKind, WinWebAuthnError};
 use crate::{
     plugin::{
         com::{ComBuffer, ComBufferExt},
-        crypto::{RequestHash, Signature, VerifyingKey},
+        crypto::{RequestHash, Signature},
     },
     util::WindowsString,
 };
@@ -272,8 +272,8 @@ impl WebAuthnPlugin {
             // buffers here.
             let mut win_credentials = Vec::new();
             for (i, cred) in credentials.iter().enumerate() {
-                tracing::debug!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, User: {}, Credential ID: {:?} ({} bytes), User ID: {:?} ({} bytes)",
-            i + 1, cred.rp_id, cred.user_name, &cred.credential_id, cred.credential_id.len(), &cred.user_id, cred.user_id.len());
+                tracing::debug!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, Credential ID: {:?} ({} bytes), User ID: **** ({} bytes)",
+            i + 1, cred.rp_id, &cred.credential_id, cred.credential_id.len(), cred.user_id.len());
 
                 // Allocate credential_id bytes with COM
                 let credential_id_buf = cred.credential_id.as_ref().to_com_buffer();

@@ -616,7 +616,7 @@ impl PluginMakeCredentialRequest {
         .map_err(|err| {
             WinWebAuthnError::with_cause(
                 ErrorKind::WindowsInternal,
-                "Failed to decode get assertion request",
+                "Failed to decode make credential request",
                 err,
             )
         })?;
@@ -916,6 +916,7 @@ fn webauthn_encode_make_credential_response(
 
 // GetAssertion types
 
+#[repr(C)]
 pub(super) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
     /// Version of this structure, to allow for modifications in the future.
     pub _dwVersion: u32,
@@ -942,6 +943,7 @@ pub(super) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
     pub _pbY: *const u8,
 }
 
+#[repr(C)]
 pub(super) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
     /// Version of this structure, to allow for modifications in the future.
     pub _dwVersion: u32,
