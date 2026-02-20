@@ -86,8 +86,8 @@ describe("NavigationProductSwitcherComponent", () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NavigationProductSwitcherComponent);
-    // SideNavService.open now starts false (managed by LayoutComponent's ResizeObserver
-    // in a real app). Set it to true so nav-item text labels are rendered in tests.
+    // SideNavService.open starts false (managed by LayoutComponent's ResizeObserver in a real
+    // app). Set it to true so NavItemComponent renders text labels (used in text-content checks).
     TestBed.inject(SideNavService).open.set(true);
     fixture.detectChanges();
   });
