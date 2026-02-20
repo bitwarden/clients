@@ -61,6 +61,7 @@ import {
 } from "../content/components/cipher/types";
 import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
+import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
@@ -68,6 +69,7 @@ import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
+  AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
@@ -164,6 +166,7 @@ export default class NotificationBackground {
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
     protected messagingService: MessagingService,
+    private fido2Background: Fido2Background,
   ) {}
 
   init() {
@@ -528,12 +531,14 @@ export default class NotificationBackground {
 
     this.removeTabFromNotificationQueue(tab);
     const launchTimestamp = new Date().getTime();
-    const queueMessage: NotificationQueueMessageItem = {
+    const queueMessage: AtRiskPasswordQueueMessage = {
       domain,
       wasVaultLocked,
       type: NotificationType.AtRiskPassword,
-      passwordChangeUri,
-      organizationName: organization.name,
+      data: {
+        passwordChangeUri,
+        organizationName: organization.name,
+      },
       tab: tab,
       launchTimestamp,
       expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
@@ -612,10 +617,12 @@ export default class NotificationBackground {
     const launchTimestamp = new Date().getTime();
     const message: AddLoginQueueMessage = {
       type: NotificationType.AddLogin,
-      username: loginInfo.username,
-      password: loginInfo.password,
+      data: {
+        username: loginInfo.username,
+        password: loginInfo.password,
+        uri: loginInfo.url,
+      },
       domain: loginDomain,
-      uri: loginInfo.url,
       tab: tab,
       launchTimestamp,
       expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
@@ -657,6 +664,11 @@ export default class NotificationBackground {
     // If the entered data doesn't have an associated URI, exit early
     const loginDomain = Utils.getDomain(data.uri);
     if (loginDomain === null) {
+      return false;
+    }
+
+    // If there is an active passkey prompt, exit early
+    if (this.fido2Background.isCredentialRequestInProgress(tab.id)) {
       return false;
     }
 
@@ -1291,16 +1303,23 @@ export default class NotificationBackground {
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
         const allCiphers = await this.cipherService.getAllDecryptedForUrl(
-          queueMessage.uri,
+          queueMessage.data.uri,
           activeUserId,
         );
         const existingCipher = allCiphers.find(
           (c) =>
-            c.login.username != null && c.login.username.toLowerCase() === queueMessage.username,
+            c.login.username != null &&
+            c.login.username.toLowerCase() === queueMessage.data.username,
         );
 
         if (existingCipher != null) {
-          await this.updatePassword(existingCipher, queueMessage.password, edit, tab, activeUserId);
+          await this.updatePassword(
+            existingCipher,
+            queueMessage.data.password,
+            edit,
+            tab,
+            activeUserId,
+          );
           return;
         }
       }
@@ -1721,15 +1740,15 @@ export default class NotificationBackground {
     folderId?: string,
   ): CipherView {
     const uriView = new LoginUriView();
-    uriView.uri = message.uri;
+    uriView.uri = message.data.uri;
 
     const loginView = new LoginView();
     loginView.uris = [uriView];
-    loginView.username = message.username;
-    loginView.password = message.password;
+    loginView.username = message.data.username;
+    loginView.password = message.data.password;
 
     const cipherView = new CipherView();
-    cipherView.name = (Utils.getHostname(message.uri) || message.domain).replace(/^www\./, "");
+    cipherView.name = (Utils.getHostname(message.data.uri) || message.domain).replace(/^www\./, "");
     cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;

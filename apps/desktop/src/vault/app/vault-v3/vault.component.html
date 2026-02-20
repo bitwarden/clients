@@ -15,7 +15,7 @@
       <app-vault-item-footer
         id="footer"
         #footer
-        [cipher]="cipher"
+        [cipher]="cipher()"
         [action]="action"
         (onEdit)="editCipher($event)"
         (onRestore)="restoreCipher()"
@@ -24,12 +24,13 @@
         (onCancel)="cancelCipher($event)"
         (onArchiveToggle)="refreshCurrentCipher()"
         [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+        [submitButtonText]="submitButtonText()"
       ></app-vault-item-footer>
       <div class="content">
         <div class="inner-content">
           <div class="box">
             @if (action === "view") {
-              <app-cipher-view [cipher]="cipher" [collections]="collections"> </app-cipher-view>
+              <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
             }
             @if (action === "add" || action === "edit" || action === "clone") {
               <vault-cipher-form

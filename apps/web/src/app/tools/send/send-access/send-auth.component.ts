@@ -26,7 +26,7 @@ import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
-import { ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
@@ -52,6 +52,7 @@ export class SendAuthComponent implements OnInit {
   authType = AuthType;
 
   private expiredAuthAttempts = 0;
+  private otpSubmitted = false;
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
@@ -69,6 +70,7 @@ export class SendAuthComponent implements OnInit {
     private formBuilder: FormBuilder,
     private configService: ConfigService,
     private sendTokenService: SendTokenService,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   ngOnInit() {
@@ -88,6 +90,11 @@ export class SendAuthComponent implements OnInit {
     this.loading.set(false);
   }
 
+  onBackToEmail() {
+    this.enterOtp.set(false);
+    this.updatePageTitle();
+  }
+
   private async attemptV1Access() {
     try {
       const accessRequest = new SendAccessRequest();
@@ -103,7 +110,27 @@ export class SendAuthComponent implements OnInit {
     } catch (e) {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
+          if (this.sendAuthType() === AuthType.Password) {
+            // Password was already required, so this is an invalid password error
+            const passwordControl = this.sendAccessForm.get("password");
+            if (passwordControl) {
+              passwordControl.setErrors({
+                invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
+              });
+              passwordControl.markAsTouched();
+            }
+          }
+          // Set auth type to Password (either first time or refresh)
           this.sendAuthType.set(AuthType.Password);
+        } else if (e.statusCode === 400 && this.sendAuthType() === AuthType.Password) {
+          // Server returns 400 for SendAccessResult.PasswordInvalid
+          const passwordControl = this.sendAccessForm.get("password");
+          if (passwordControl) {
+            passwordControl.setErrors({
+              invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
+            });
+            passwordControl.markAsTouched();
+          }
         } else if (e.statusCode === 404) {
           this.unavailable.set(true);
         } else {
@@ -160,22 +187,32 @@ export class SendAuthComponent implements OnInit {
       this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
+        this.updatePageTitle();
       } else if (emailAndOtpRequired(response.error)) {
         this.enterOtp.set(true);
+        if (this.otpSubmitted) {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("invalidEmailOrVerificationCode"),
+          });
+        }
+        this.otpSubmitted = true;
+        this.updatePageTitle();
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidVerificationCode"),
+          message: this.i18nService.t("invalidEmailOrVerificationCode"),
         });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
+        this.updatePageTitle();
       } else if (passwordHashB64Invalid(response.error)) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidSendPassword"),
+        this.sendAccessForm.controls.password?.setErrors({
+          invalidPassword: { message: this.i18nService.t("sendPasswordInvalidAskOwner") },
         });
+        this.sendAccessForm.controls.password?.markAsTouched();
       } else if (sendIdInvalid(response.error)) {
         this.unavailable.set(true);
       } else {
@@ -206,5 +243,27 @@ export class SendAuthComponent implements OnInit {
       SEND_KDF_ITERATIONS,
     );
     return Utils.fromBufferToB64(passwordHash) as SendHashedPasswordB64;
+  }
+
+  private updatePageTitle(): void {
+    const authType = this.sendAuthType();
+
+    if (authType === AuthType.Email) {
+      if (this.enterOtp()) {
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "enterTheCodeSentToYourEmail" },
+          pageSubtitle: this.sendAccessForm.value.email ?? null,
+        });
+      } else {
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "verifyYourEmailToViewThisSend" },
+          pageSubtitle: null,
+        });
+      }
+    } else if (authType === AuthType.Password) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "sendAccessPasswordTitle" },
+      });
+    }
   }
 }
