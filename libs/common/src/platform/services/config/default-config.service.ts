@@ -18,7 +18,11 @@ import { SemVer } from "semver";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
+import {
+  FeatureFlag,
+  FeatureFlagValueType,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -29,6 +33,8 @@ import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import { ServerSettings } from "../../models/domain/server-settings";
 import { CONFIG_DISK, KeyDefinition, StateProvider, UserKeyDefinition } from "../../state";
+
+import { DEV_FEATURE_FLAG_OVERRIDES } from "./dev-flag-overrides.state";
 
 export const RETRIEVAL_INTERVAL = devFlagEnabled("configRetrievalIntervalMs")
   ? (devFlagValue("configRetrievalIntervalMs") as number)
@@ -152,8 +158,26 @@ export class DefaultConfigService implements ConfigService {
     );
   }
 
-  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
-    return this.serverConfig$.pipe(map((serverConfig) => getFeatureFlagValue(serverConfig, key)));
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    const serverValue$ = this.serverConfig$.pipe(
+      map((serverConfig) => getFeatureFlagValue(serverConfig, key)),
+    );
+
+    if (process.env.ENV !== "development") {
+      return serverValue$;
+    }
+
+    return combineLatest([
+      serverValue$,
+      this.stateProvider.getGlobal(DEV_FEATURE_FLAG_OVERRIDES).state$,
+    ]).pipe(
+      map(([serverValue, overrides]) => {
+        if (overrides != null && key in overrides) {
+          return overrides[key] as FeatureFlagValueType<Flag>;
+        }
+        return serverValue;
+      }),
+    );
   }
 
   userCachedFeatureFlag$<Flag extends FeatureFlag>(key: Flag, userId: UserId) {

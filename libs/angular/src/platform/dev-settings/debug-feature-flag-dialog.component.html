@@ -1,0 +1,46 @@
+<bit-dialog title="Dev: Feature Flags" dialogSize="large">
+  <div bitDialogContent>
+    <bit-search
+      class="tw-mb-3 tw-block"
+      [ngModel]="service.search()"
+      (ngModelChange)="service.search.set($event)"
+    ></bit-search>
+    <bit-callout type="info" class="tw-mb-3 tw-block">
+      Only boolean flags are supported at this time.
+    </bit-callout>
+    @if (!service.loaded()) {
+      <p>Loading flags...</p>
+    } @else {
+      <div class="tw-flex tw-flex-col tw-gap-3">
+        @for (flag of service.filteredFlags(); track flag.key) {
+          <div
+            class="tw-flex tw-items-center tw-justify-between tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-3"
+          >
+            <div class="tw-flex tw-flex-col">
+              <div>
+                <span class="tw-font-semibold tw-text-main">{{ flag.name }}</span>
+              </div>
+              <span class="tw-font-mono tw-text-xs tw-text-muted">{{ flag.key }}</span>
+            </div>
+            <bit-switch [selected]="flag.value()" (selectedChange)="service.onToggle(flag, $event)">
+              <bit-label class="tw-sr-only">{{ flag.name }}</bit-label>
+            </bit-switch>
+          </div>
+        } @empty {
+          <p class="tw-text-sm tw-text-muted">No flags match "{{ service.search() }}".</p>
+        }
+      </div>
+    }
+  </div>
+  <div bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      (click)="service.resetAll()"
+      class="tw-mr-1"
+    >
+      Reset All
+    </button>
+  </div>
+</bit-dialog>
