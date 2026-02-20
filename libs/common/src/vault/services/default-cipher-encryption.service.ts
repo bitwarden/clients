@@ -63,7 +63,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return ref.value
             .vault()
             .ciphers()
-            .encrypt_list(models.map((model) => this.toSdkCipherView(model, ref.value)))
+            .encrypt_list(models.map((model) => model.toSdkCipherView(ref.value.vault().ciphers())))
             .map((encryptionContext) => ({
               cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
               encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
