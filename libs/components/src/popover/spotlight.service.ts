@@ -36,7 +36,7 @@ export class SpotlightService {
     this.borderElement = document.createElement("div");
     this.borderElement.style.cssText = `
       position: fixed;
-      box-shadow: 0 0 0 9999px rgba(13, 32, 86, 0.2);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.2);
       z-index: 1001;
       pointer-events: none;
       display: none;

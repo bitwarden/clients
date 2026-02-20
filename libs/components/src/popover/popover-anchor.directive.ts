@@ -54,6 +54,8 @@ export class PopoverAnchorDirective implements OnDestroy {
   /** The popover component to display */
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchor" });
 
+  readonly closeOnBackdropClick = input<boolean>(true);
+
   /** Preferred popover position (e.g., "right-start", "below-center") */
   readonly position = input<string>();
 
@@ -87,8 +89,8 @@ export class PopoverAnchorDirective implements OnDestroy {
 
   get defaultPopoverConfig(): OverlayConfig {
     return {
-      hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
-      backdropClass: "bit-popover-backdrop",
+      hasBackdrop: true,
+      backdropClass: this.spotlight() ? "cdk-overlay-transparent-backdrop" : "bit-popover-backdrop",
       scrollStrategy: this.spotlight()
         ? this.overlay.scrollStrategies.block()
         : this.overlay.scrollStrategies.reposition(),
@@ -183,8 +185,10 @@ export class PopoverAnchorDirective implements OnDestroy {
     const detachments = this.overlayRef.detachments();
     const escKey = this.overlayRef
       .keydownEvents()
-      .pipe(filter((event: KeyboardEvent) => event.key === "Escape"));
-    const backdrop = this.overlayRef.backdropClick().pipe(filter(() => !this.spotlight()));
+      .pipe(filter((event: KeyboardEvent) => event.key === "Escape" && !this.spotlight()));
+    const backdrop = this.overlayRef
+      .backdropClick()
+      .pipe(filter(() => !this.spotlight() && this.closeOnBackdropClick()));
     const popoverClosed = this.popover().closed;
 
     return detachments.pipe(mergeWith(escKey, backdrop, popoverClosed));
