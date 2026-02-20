@@ -24,6 +24,15 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
+   * Changes the user's password by building a `PasswordRequest` object that gets POSTed to the server.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the active user's `userId`
+   * @throws if the `currentPassword`, `kdfConfig`, `salt`, or `newPasswordHint` is not found
+   *         on the `PasswordInputResult`, or if there is an error during the API call
+   *
+   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
+   *
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
    * - Specifically, this method uses credentials from the `passwordInputResult` to:
    *   1. Decrypt the user key with the `currentMasterKey`
@@ -34,12 +43,19 @@ export abstract class ChangePasswordService {
    * @param userId the `userId`
    * @throws if the `userId`, `currentMasterKey`, or `currentServerMasterKeyHash` is not found
    */
-  abstract changePassword(
-    passwordInputResult: PasswordInputResult,
-    userId: UserId | null,
-  ): Promise<void>;
+  abstract changePassword(passwordInputResult: PasswordInputResult, userId: UserId): Promise<void>;
 
   /**
+   * Changes the user's password during Account Recovery by building an `UpdateTempPasswordRequest`
+   * object that gets PUT to the server.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the active user's `userId`
+   * @throws if the `newPasswordHint` is not found on the `PasswordInputResult`, or if there is an
+   *         error during the API call
+   *
+   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
+   *
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
    * - Specifically, this method uses credentials from the `passwordInputResult` to:
    *   1. Decrypt the user key with the `currentMasterKey`

@@ -183,6 +183,16 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     }
   }
 
+  /**
+   * Makes new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData` from the
+   * provided `passwordInputResult`.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the active user's `userId`
+   * @throws if the `newPassword`, `salt`, or `kdfConfig` is not found on the `PasswordInputResult`,
+   *         or if the user key cannot be found in state
+   * @returns an object containing the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
+   */
   private async makeNewAuthAndUnlockData(
     passwordInputResult: PasswordInputResult,
     userId: UserId,
