@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 
@@ -23,14 +22,7 @@ import { SendSuccessDrawerDialogComponent } from "../shared";
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [
-    JslibModule,
-    CommonModule,
-    ButtonModule,
-    MenuModule,
-    PremiumBadgeComponent,
-    IconComponent,
-  ],
+  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
