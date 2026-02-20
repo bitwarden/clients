@@ -1,5 +1,5 @@
 /// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
-import { TextEncoder, TextDecoder } from 'util';
+import { TextEncoder, TextDecoder } from "util";
 Object.assign(global, { TextDecoder, TextEncoder });
 
 import { EmailCalculator } from "./email-calculator";
