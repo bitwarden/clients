@@ -15,6 +15,7 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-truncate">
   <div class="tw-inline-flex tw-w-full">
+    <!-- Opt out of router focus manager via [state] input, since the dialog will handle focus -->
     <button
       bitLink
       class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
@@ -27,6 +28,10 @@
       type="button"
       appStopProp
       aria-haspopup="dialog"
+      id="cipher-btn-{{ cipher.id }}"
+      [state]="{
+        focusAfterNav: false,
+      }"
     >
       {{ cipher.name }}
     </button>
