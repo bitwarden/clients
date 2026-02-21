@@ -51,7 +51,7 @@ export class DebugFeatureFlagDialogService implements OnDestroy {
     );
   });
 
-  async initialize(): Promise<void> {
+  constructor() {
     if (this.platformUtilsService.isDev()) {
       (window as Window & { bwDevSettings?: () => void }).bwDevSettings = () => {
         this.dialogService.open(DebugFeatureFlagDialogComponent, {
@@ -59,7 +59,10 @@ export class DebugFeatureFlagDialogService implements OnDestroy {
         });
       };
     }
+  }
 
+  /** Called by the dialog component on open to hydrate flag values. */
+  async initialize(): Promise<void> {
     await Promise.all(
       this.flags.map(async (flag) => {
         const effectiveValue = await this.configService.getFeatureFlag(flag.key);
