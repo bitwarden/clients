@@ -24,9 +24,9 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
  */
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
-    // Check if this is a text Send route (no file picker needed)
-    if (isTextOnlyOrEditRoute(state.url)) {
-      return true; // Allow navigation without popout
+    // Text Sends have no file picker — never require a popout regardless of browser
+    if (isTextSendRoute(state.url)) {
+      return true;
     }
 
     // Check if browser is one that needs popout for file pickers
@@ -81,38 +81,16 @@ export function filePickerPopoutGuard(): CanActivateFn {
 }
 
 /**
- * Determines if the route is for a Send that doesn't require file picker display.
- *
- * Editing an existing Send never exposes a file picker regardless of Send type,
- * so edit-send routes are always exempt. For add-send routes, only text sends
- * (SendType.Text = 0) are exempt.
- *
- * @param url The route URL with query parameters
- * @returns true if this is a Send route that does not expose a file picker
+ * Returns true when the add-send route targets a Text Send (type=0).
+ * Text Sends have no file picker and never require a popout window.
  */
-function isTextOnlyOrEditRoute(url: string): boolean {
-  // Editing a Send never exposes a file picker regardless of type
-  if (url.includes("/edit-send")) {
-    return true;
-  }
-
-  // Only apply remaining logic to add-send routes
+function isTextSendRoute(url: string): boolean {
   if (!url.includes("/add-send")) {
     return false;
   }
-
-  // Parse query parameters to check Send type
-  const queryStartIndex = url.indexOf("?");
-  if (queryStartIndex === -1) {
-    // No query params - default to requiring popout for safety
+  const queryStart = url.indexOf("?");
+  if (queryStart === -1) {
     return false;
   }
-
-  const queryString = url.substring(queryStartIndex + 1);
-  const params = new URLSearchParams(queryString);
-  const typeParam = params.get("type");
-
-  // Only skip popout for explicitly text-based Sends (SendType.Text = 0)
-  // If type is missing, null, or not text, default to requiring popout
-  return typeParam === String(SendType.Text);
+  return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
 }
