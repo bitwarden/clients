@@ -24,10 +24,14 @@
     </nav>
   </div>
 
-  <!-- Side nav — grid placement (occupies col 1 when in push mode, occupies col 2 when in overlay) controlled by bit-side-nav host bindings -->
-  <ng-content select="bit-side-nav, [slot=side-nav]">
-    <ng-container #sideNavSlotFallback></ng-container>
-  </ng-content>
+  <!-- The flex context ensures any router-outlet elements projected into this slot
+       (e.g. SM's named outlet pattern) become flex children rather than direct grid
+       items, preventing them from auto-placing into a clipped implicit grid row. -->
+  <div class="tw-col-start-1 tw-row-start-1 tw-flex">
+    <ng-content select="bit-side-nav, [slot=side-nav]">
+      <ng-container #sideNavSlotFallback></ng-container>
+    </ng-content>
+  </div>
 
   <!-- Siderail width placeholder — keeps the col 1 auto track stable when the nav
        is position:fixed (overlay) and therefore out of the grid's normal flow. -->
