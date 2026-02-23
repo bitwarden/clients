@@ -1,4 +1,12 @@
-import { Meta, Story, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+import {
+  Meta,
+  Story,
+  Canvas,
+  Primary,
+  Controls,
+  Title,
+  Description,
+} from "@storybook/addon-docs/blocks";
 
 import * as stories from "./link.stories";
 
@@ -33,15 +41,25 @@ You can use one of the following variants by providing it as the `linkType` inpu
 If you want to display a link with a smaller text size, apply the `tw-text-sm` class. This will
 match the `body2` variant of the Typography directive.
 
-## With icons
+## With Icon
 
-Text Links/buttons can have icons on left or the right.
+Use the `startIcon` and `endIcon` inputs to add a Bitwarden icon (`bwi-*`) before or after the link
+label. Do not use a `<bit-icon>` component inside the link as this may not have the correct styling
+and spacing.
 
-To indicate a new or add action, the <i class="bwi bwi-plus-circle"></i> icon on is used on the
-left.
+### Icon before the label
 
-An angle icon, <i class="bwi bwi-angle-right"></i>, is used on the left to indicate an expand to
-show/hide additional content.
+```html
+<a bitLink startIcon="bwi-plus-circle">Add item</a>
+```
+
+### Icon after the label
+
+```html
+<a bitLink endIcon="bwi-angle-right">Next</a>
+```
+
+<Canvas of={stories.WithIcons} />
 
 ## Accessibility
 

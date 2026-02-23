@@ -316,7 +316,6 @@ export abstract class KeyService {
    * @throws Error when provided userId is null or undefined
    */
   abstract clearKeys(userId: UserId): Promise<void>;
-  abstract randomNumber(min: number, max: number): Promise<number>;
   /**
    * Generates a new cipher key
    * @returns A new cipher key

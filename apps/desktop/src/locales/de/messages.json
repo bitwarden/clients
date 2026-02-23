@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-Mail oder Verifizierungscode ungültig"
+  },
   "continue": {
     "message": "Weiter"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+  },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }

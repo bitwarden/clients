@@ -19,6 +19,7 @@ export enum FeatureFlag {
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
+  PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -30,8 +31,6 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
-  PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
-  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
   PM23341_Milestone_2 = "pm-23341-milestone-2",
@@ -42,6 +41,7 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
+  SdkKeyRotation = "pm-30144-sdk-key-rotation",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
@@ -53,7 +53,6 @@ export enum FeatureFlag {
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
-  ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendEmailOTP = "pm-19051-send-email-verification",
 
@@ -71,6 +70,10 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
+  PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
+  PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
+  PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
 
   /* Platform */
@@ -86,9 +89,6 @@ export enum FeatureFlag {
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
-
-  /* Secrets Manager */
-  SM1719_RemoveSecretsManagerAds = "sm-1719-remove-secrets-manager-ads",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -120,7 +120,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
-  [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendEmailOTP]: FALSE,
 
@@ -138,17 +137,20 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
+  [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
+  [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
+  [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
+  [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
+  [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
-  [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
-  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
   [FeatureFlag.PM23341_Milestone_2]: FALSE,
@@ -159,6 +161,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
+  [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
@@ -181,9 +184,6 @@ export const DefaultFeatureFlagValue = {
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
-
-  /* Secrets Manager */
-  [FeatureFlag.SM1719_RemoveSecretsManagerAds]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
