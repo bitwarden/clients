@@ -3339,13 +3339,13 @@
     "message": "您的订阅已恢复。"
   },
   "resubscribe": {
-    "message": "Resubscribe"
+    "message": "重新订阅"
   },
   "yourSubscriptionIsExpired": {
-    "message": "Your subscription is expired"
+    "message": "您的订阅已过期"
   },
   "yourSubscriptionIsCanceled": {
-    "message": "Your subscription is canceled"
+    "message": "您的订阅已取消"
   },
   "cancelConfirmation": {
     "message": "确定要取消吗？在本次计费周期结束后，您将无法使用此订阅的所有功能。"
@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "自动确认了用户 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "编辑了用户 $ID$。",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "正在生成 Access Intelligence..."
   },
-  "fetchingMemberData": {
-    "message": "正在获取成员数据..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "正在分析密码健康度..."
-  },
-  "calculatingRiskScores": {
-    "message": "正在计算风险评分..."
-  },
-  "generatingReportData": {
-    "message": "正在生成报告数据..."
-  },
-  "savingReport": {
-    "message": "正在保存报告..."
-  },
-  "compilingInsights": {
-    "message": "正在编译洞察..."
-  },
   "loadingProgress": {
     "message": "加载进度"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "这可能需要几分钟时间。"
+  "reviewingMemberData": {
+    "message": "正在审查成员数据..."
+  },
+  "analyzingPasswords": {
+    "message": "正在分析密码..."
+  },
+  "calculatingRisks": {
+    "message": "正在计算风险..."
+  },
+  "generatingReports": {
+    "message": "正在生成报告..."
+  },
+  "compilingInsightsProgress": {
+    "message": "正在编译洞察..."
+  },
+  "reportGenerationDone": {
+    "message": "完成！"
   },
   "riskInsightsRunReport": {
     "message": "运行报告"
@@ -5849,10 +5855,6 @@
     "message": "不知道密码吗？请向发送者索取访问此 Send 所需的密码。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "此 Send 默认隐藏。您可以使用下方的按钮切换其可见性。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "下载附件"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "我接受这些风险和策略更新"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "启用了自动用户确认设置"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "停用了自动用户确认设置"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "添加了自动用户确认策略"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "禁用了自动用户确认策略"
+  },
+  "system": {
+    "message": "系统"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -6439,7 +6456,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "验证您的电子邮箱以查看此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6744,7 +6761,7 @@
     "message": "1 份邀请未发送"
   },
   "bulkReinviteFailureDescription": {
-    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试重新发送，如果问题仍然存在，",
+    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "无效的验证码"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "无效的电子邮箱或验证码"
   },
   "keyConnectorDomain": {
     "message": "Key Connector 域名"
@@ -9151,7 +9171,7 @@
     "message": "查看全部"
   },
   "showingPortionOfTotal": {
-    "message": "显示 $PORTION$ / $TOTAL$",
+    "message": "显示 $TOTAL$ 中的 $PORTION$",
     "placeholders": {
       "portion": {
         "content": "$1",
@@ -11910,10 +11930,10 @@
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "项目已归档"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "项目已取消归档"
   },
   "bulkArchiveItems": {
     "message": "项目已归档"
@@ -12857,6 +12877,21 @@
   "storageFullDescription": {
     "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   },
+  "extensionPromptHeading": {
+    "message": "获取扩展以便轻松访问密码库"
+  },
+  "extensionPromptBody": {
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "跳过"
+  },
+  "downloadExtension": {
+    "message": "下载扩展"
+  },
   "whoCanView": {
     "message": "谁可以查看"
   },
@@ -12868,6 +12903,9 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -12892,6 +12930,18 @@
   },
   "invalidSendPassword": {
     "message": "无效的 Send 密码"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "您已成功加入！欢迎使用 Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "将您的所有密码和个人信息存储在你的 Bitwarden 密码库中。我们将带您熟悉一下。"
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "开始导览"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "跳过"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
@@ -12948,5 +12998,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "更新您的付款方式时出错。"
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "无效的密码。请向发送者索取访问此 Send 所需的密码。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "此 Send 有效期至 $DATE$ $TIME$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
