@@ -15,7 +15,10 @@ use windows::{
 };
 
 use crate::{
-    plugin::com::{ComBuffer, ComBufferExt},
+    plugin::{
+        com::{ComBuffer, ComBufferExt},
+        types::{add_authenticator, PluginAddAuthenticatorOptionsRaw},
+    },
     webauthn_sys::{
         crypto::{self, RequestHash, Signature},
         plugin::{
@@ -92,74 +95,10 @@ impl WebAuthnPlugin {
     ///
     /// This only needs to be called on installation of your application.
     pub fn add_authenticator(
-        options: PluginAddAuthenticatorOptions,
+        options: &PluginAddAuthenticatorOptions,
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
-        #![allow(non_snake_case)]
-        let mut response_ptr: *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
-            std::ptr::null_mut();
-
-        // We need to be careful to use .as_ref() to ensure that we're not
-        // sending dangling pointers to the OS.
-        let authenticator_name = options.authenticator_name.to_utf16();
-
-        let rp_id = options.rp_id.as_ref().map(|rp_id| rp_id.to_utf16());
-        let pwszPluginRpId = rp_id.as_ref().map_or(std::ptr::null(), |v| v.as_ptr());
-
-        let light_logo_b64 = options.light_theme_logo_b64();
-        let pwszLightThemeLogoSvg = light_logo_b64
-            .as_ref()
-            .map_or(std::ptr::null(), |v| v.as_ptr());
-        let dark_logo_b64 = options.dark_theme_logo_b64();
-        let pwszDarkThemeLogoSvg = dark_logo_b64
-            .as_ref()
-            .map_or(std::ptr::null(), |v| v.as_ptr());
-
-        let authenticator_info = options.authenticator_info.as_ctap_bytes()?;
-
-        let supported_rp_ids: Option<Vec<Vec<u16>>> = options
-            .supported_rp_ids
-            .map(|ids| ids.iter().map(|id| id.to_utf16()).collect());
-        let supported_rp_id_ptrs: Option<Vec<*const u16>> = supported_rp_ids
-            .as_ref()
-            .map(|ids| ids.iter().map(Vec::as_ptr).collect());
-        let pbSupportedRpIds = supported_rp_id_ptrs
-            .as_ref()
-            .map_or(std::ptr::null(), |v| v.as_ptr());
-
-        let options_c = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
-            pwszAuthenticatorName: authenticator_name.as_ptr(),
-            rclsid: &options.clsid.0,
-            pwszPluginRpId,
-            pwszLightThemeLogoSvg,
-            pwszDarkThemeLogoSvg,
-            cbAuthenticatorInfo: authenticator_info.len() as u32,
-            pbAuthenticatorInfo: authenticator_info.as_ptr(),
-            cSupportedRpIds: supported_rp_id_ptrs.map_or(0, |ids| ids.len() as u32),
-            pbSupportedRpIds,
-        };
-        unsafe {
-            // SAFETY: We are holding references to all the input data beyond the OS call, so it is
-            // valid during the call.
-            let result = webauthn_plugin_add_authenticator(&options_c, &mut response_ptr)?;
-            result.ok().map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Failed to add authenticator",
-                    err,
-                )
-            })?;
-
-            if let Some(response) = NonNull::new(response_ptr) {
-                // SAFETY: The pointer was allocated by a successful call to
-                // webauthn_plugin_add_authenticator, so we trust that it's valid.
-                Ok(PluginAddAuthenticatorResponse::try_from_ptr(response))
-            } else {
-                Err(WinWebAuthnError::new(
-                    ErrorKind::WindowsInternal,
-                    "WebAuthNPluginAddAuthenticatorResponse returned null",
-                ))
-            }
-        }
+        let options_raw = options.try_into()?;
+        add_authenticator(&options_raw)
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.

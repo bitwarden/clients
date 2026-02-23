@@ -22,12 +22,12 @@ use crate::{
         plugin::{
             webauthn_decode_get_assertion_request, webauthn_decode_make_credential_request,
             webauthn_encode_make_credential_response, webauthn_free_decoded_get_assertion_request,
-            webauthn_free_decoded_make_credential_request,
+            webauthn_free_decoded_make_credential_request, webauthn_plugin_add_authenticator,
             webauthn_plugin_free_add_authenticator_response,
             WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS, WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-            WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-            WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-            WEBAUTHN_PLUGIN_REQUEST_TYPE,
+            WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+            WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+            WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_REQUEST_TYPE,
         },
         WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
         WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,
@@ -98,13 +98,13 @@ pub struct PluginAddAuthenticatorOptions {
 }
 
 impl PluginAddAuthenticatorOptions {
-    pub(super) fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
+    fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.light_theme_logo_svg
             .as_ref()
             .map(|svg| Self::encode_svg(svg))
     }
 
-    pub(super) fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
+    fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.dark_theme_logo_svg
             .as_ref()
             .map(|svg| Self::encode_svg(svg))
@@ -116,13 +116,110 @@ impl PluginAddAuthenticatorOptions {
     }
 }
 
-impl From<&PluginAddAuthenticatorOptions> for &WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
-    fn from(value: &PluginAddAuthenticatorOptions) -> Self {
-        todo!()
+pub(super) struct PluginAddAuthenticatorOptionsRaw {
+    pub(super) inner: WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+    _clsid: Box<GUID>,
+    _authenticator_name: Vec<u16>,
+    _rp_id: Option<Vec<u16>>,
+    _light_logo_b64: Option<Vec<u16>>,
+    _dark_logo_b64: Option<Vec<u16>>,
+    _authenticator_info: Vec<u8>,
+    _supported_rp_ids: Option<Vec<Vec<u16>>>,
+    _supported_rp_id_ptrs: Option<Vec<*const u16>>,
+}
+
+impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRaw {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: &PluginAddAuthenticatorOptions) -> Result<Self, Self::Error> {
+        let rclsid = Box::new(value.clsid.0);
+        let authenticator_name = value.authenticator_name.to_utf16();
+
+        let rp_id = value.rp_id.as_deref().map(WindowsString::to_utf16);
+        let pwszPluginRpId = rp_id.as_ref().map_or(std::ptr::null(), |v| v.as_ptr());
+
+        let light_logo_b64 = value.light_theme_logo_b64();
+        let pwszLightThemeLogoSvg = light_logo_b64
+            .as_ref()
+            .map_or(std::ptr::null(), |v| v.as_ptr());
+        let dark_logo_b64 = value.dark_theme_logo_b64();
+        let pwszDarkThemeLogoSvg = dark_logo_b64
+            .as_ref()
+            .map_or(std::ptr::null(), |v| v.as_ptr());
+
+        let authenticator_info = value.authenticator_info.as_ctap_bytes()?;
+
+        let supported_rp_ids: Option<Vec<Vec<u16>>> = value
+            .supported_rp_ids
+            .as_ref()
+            .map(|ids| ids.iter().map(|id| id.to_utf16()).collect());
+        let supported_rp_id_ptrs: Option<Vec<*const u16>> = supported_rp_ids
+            .as_ref()
+            .map(|ids| ids.iter().map(Vec::as_ptr).collect());
+
+        let inner = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+            pwszAuthenticatorName: authenticator_name.as_ptr(),
+            rclsid: &value.clsid.0,
+            pwszPluginRpId,
+            pwszLightThemeLogoSvg,
+            pwszDarkThemeLogoSvg,
+            cbAuthenticatorInfo: authenticator_info.len() as u32,
+            pbAuthenticatorInfo: authenticator_info.as_ptr(),
+            cSupportedRpIds: supported_rp_id_ptrs
+                .as_ref()
+                .map_or(0, |ids| ids.len() as u32),
+            pbSupportedRpIds: supported_rp_id_ptrs
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
+        };
+        Ok(Self {
+            inner,
+            _clsid: rclsid,
+            _authenticator_name: authenticator_name,
+            _rp_id: rp_id,
+            _light_logo_b64: light_logo_b64,
+            _dark_logo_b64: dark_logo_b64,
+            _authenticator_info: authenticator_info,
+            _supported_rp_ids: supported_rp_ids,
+            _supported_rp_id_ptrs: supported_rp_id_ptrs,
+        })
     }
 }
 
 type WebAuthnPluginAddAuthenticatorResponse = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
+
+pub(super) fn add_authenticator(
+    options: &PluginAddAuthenticatorOptionsRaw,
+) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
+    let raw_response = {
+        let mut raw_response = MaybeUninit::uninit();
+        // SAFETY: We are holding references to all the input data beyond the OS call, so it is
+        // valid during the call.
+        let result = unsafe {
+            webauthn_plugin_add_authenticator(&options.inner, raw_response.as_mut_ptr())?
+        };
+
+        result.ok().map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to add authenticator",
+                err,
+            )
+        })?;
+
+        unsafe { raw_response.assume_init() }
+    };
+    if let Some(response) = NonNull::new(raw_response) {
+        // SAFETY: The pointer was allocated by a successful call to
+        // webauthn_plugin_add_authenticator, so we trust that it's valid.
+        unsafe { Ok(PluginAddAuthenticatorResponse::try_from_ptr(response)) }
+    } else {
+        Err(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "WebAuthNPluginAddAuthenticatorResponse returned null",
+        ))
+    }
+}
 
 /// Response received when registering a plugin
 #[derive(Debug)]
