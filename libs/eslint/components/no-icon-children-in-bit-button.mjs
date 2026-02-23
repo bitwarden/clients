@@ -126,25 +126,24 @@ export default {
       const sourceCode = context.sourceCode ?? context.getSourceCode();
       const text = sourceCode.getText();
 
-      const makeFix = (inputName, pos) => (fixer) => {
+      const makeFix = (inputName) => (fixer) => {
         const insertOffset = parent.startSourceSpan.end.offset - 1;
 
-        let removeStart = iconChild.sourceSpan.start.offset;
-        let removeEnd = iconChild.sourceSpan.end.offset;
-
-        if (pos === "start") {
-          while (removeEnd < text.length && text[removeEnd] === " ") {
-            removeEnd++;
-          }
-        } else {
-          while (removeStart > 0 && text[removeStart - 1] === " ") {
-            removeStart--;
-          }
-        }
+        const {
+          start: { offset: removeStart },
+          end: { offset: removeEnd },
+        } = iconChild.sourceSpan;
 
         return [
           fixer.insertTextBeforeRange([insertOffset, insertOffset], ` ${inputName}="${iconName}"`),
-          fixer.removeRange([removeStart, removeEnd]),
+          fixer.removeRange([
+            inputName === "startIcon"
+              ? removeStart
+              : removeStart - text.slice(0, removeStart).match(/ *$/)[0].length,
+            inputName === "startIcon"
+              ? removeEnd + text.slice(removeEnd).match(/^ */)[0].length
+              : removeEnd,
+          ]),
         ];
       };
 
@@ -153,14 +152,14 @@ export default {
       if ((position === "start" || position === null) && !parentAttrNames.includes("startIcon")) {
         suggestions.push({
           messageId: "useStartIcon",
-          fix: makeFix("startIcon", "start"),
+          fix: makeFix("startIcon"),
         });
       }
 
       if ((position === "end" || position === null) && !parentAttrNames.includes("endIcon")) {
         suggestions.push({
           messageId: "useEndIcon",
-          fix: makeFix("endIcon", "end"),
+          fix: makeFix("endIcon"),
         });
       }
 
