@@ -1,0 +1,32 @@
+<div
+  class="tw-flex tw-flex-col tw-gap-4 tw-border tw-rounded-xl tw-border-solid tw-border-secondary-100 tw-p-6 tw-max-w-3xl"
+>
+  <div class="tw-flex tw-justify-between tw-items-center">
+    <h2>{{ "riskOverTime" | i18n }}</h2>
+    <div>Download button here</div>
+  </div>
+  <div class="tw-flex tw-justify-between tw-items-center">
+    <div>View mode toggle here</div>
+    <div>Time period selector here</div>
+  </div>
+  <div class="tw-relative tw-h-96">
+    @if (loading()) {
+      <div class="tw-flex tw-items-center tw-justify-center tw-h-full">
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin bwi-3x tw-text-muted"
+          aria-hidden="true"
+        ></bit-icon>
+      </div>
+    } @else if (error()) {
+      <div class="tw-flex tw-items-center tw-justify-center tw-h-full tw-text-danger">
+        <div class="tw-text-center">
+          <bit-icon class="bwi-3x" name="bwi-error" aria-hidden="true"></bit-icon>
+          <p class="tw-mt-4">{{ error() }}</p>
+        </div>
+      </div>
+    } @else {
+      <line-chart [lines]="lineChartData()" [configuration]="lineChartConfiguration"></line-chart>
+    }
+  </div>
+</div>
