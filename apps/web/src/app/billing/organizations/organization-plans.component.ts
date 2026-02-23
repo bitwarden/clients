@@ -810,13 +810,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         if (canUpgradeFromPremium) {
           orgId = await this.upgradePremiumToOrganization(encryptionData);
         } else {
-          orgId = await this.createCloudHosted(
-            encryptionData.key,
-            encryptionData.collectionCt,
-            encryptionData.orgKeys,
-            encryptionData.orgKey,
-            encryptionData.activeUserId,
-          );
+          orgId = await this.createCloudHosted(encryptionData);
         }
         this.toastService.showToast({
           variant: "success",
@@ -876,7 +870,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     orgKey: SymmetricCryptoKey;
     activeUserId: UserId;
   }> {
-    const activeUserId = this.account()!.id;
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString as string;
     const collection = await this.encryptService.encryptString(
@@ -1099,20 +1093,23 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return this.organizationId()!;
   }
 
-  private async createCloudHosted(
-    key: string,
-    collectionCt: string,
-    orgKeys: [string, EncString],
-    orgKey: SymmetricCryptoKey,
-    activeUserId: UserId,
-  ): Promise<string> {
+  private async createCloudHosted(encryptionData: {
+    key: string;
+    collectionCt: string;
+    orgKeys: [string, EncString];
+    orgKey: SymmetricCryptoKey;
+    activeUserId: UserId;
+  }): Promise<string> {
     const request = new OrganizationCreateRequest();
-    request.key = key;
-    request.collectionName = collectionCt;
+    request.key = encryptionData.key;
+    request.collectionName = encryptionData.collectionCt;
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
     request.initiationPath = "New organization creation in-product";
-    request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString as string);
+    request.keys = new OrganizationKeysRequest(
+      encryptionData.orgKeys[0],
+      encryptionData.orgKeys[1].encryptedString as string,
+    );
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;
@@ -1158,13 +1155,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
       const providerKey = await firstValueFrom(
         this.keyService
-          .providerKeys$(activeUserId)
+          .providerKeys$(encryptionData.activeUserId)
           .pipe(map((providerKeys) => providerKeys?.[this.providerId() as ProviderId] ?? null)),
       );
       assertNonNullish(providerKey, "Provider key not found");
 
       providerRequest.organizationCreateRequest.key = (
-        await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
+        await this.encryptService.wrapSymmetricKey(encryptionData.orgKey, providerKey)
       ).encryptedString as string;
       const orgId = (
         await this.apiService.postProviderCreateOrganization(this.providerId()!, providerRequest)
