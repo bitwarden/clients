@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, Subscription } from "rxjs";
 
+import { ClearClipboardDelay } from "../../autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
@@ -58,19 +59,19 @@ export class SystemService implements SystemServiceAbstraction {
 
   private convertClearClipboardDelayToMs(setting: string): number | null {
     switch (setting) {
-      case "never":
+      case ClearClipboardDelay.Never:
         return null;
-      case "tenSeconds":
+      case ClearClipboardDelay.TenSeconds:
         return 10 * 1000;
-      case "twentySeconds":
+      case ClearClipboardDelay.TwentySeconds:
         return 20 * 1000;
-      case "thirtySeconds":
+      case ClearClipboardDelay.ThirtySeconds:
         return 30 * 1000;
-      case "oneMinute":
+      case ClearClipboardDelay.OneMinute:
         return 60 * 1000;
-      case "twoMinutes":
+      case ClearClipboardDelay.TwoMinutes:
         return 120 * 1000;
-      case "fiveMinutes":
+      case ClearClipboardDelay.FiveMinutes:
         return 300 * 1000;
       default:
         return 300 * 1000; // Default to 5 minutes
