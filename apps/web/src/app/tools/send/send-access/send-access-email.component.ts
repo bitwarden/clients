@@ -1,6 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, input, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+} from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { SharedModule } from "../../../shared";
@@ -17,6 +24,8 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   protected email: FormControl;
   protected otp: FormControl;
 
+  readonly resendCode = output<void>();
+
   readonly loading = input.required<boolean>();
 
   constructor() {}
@@ -31,5 +40,9 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
+  }
+
+  onResendCode() {
+    this.resendCode.emit();
   }
 }

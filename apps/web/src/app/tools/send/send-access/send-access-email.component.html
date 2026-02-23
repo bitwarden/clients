@@ -19,6 +19,10 @@
   <bit-form-field>
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
     <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
+    <bit-hint>
+      {{ "didNotReceiveCodeContactSenderOr" | i18n }}
+      <a bitLink (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>
+    </bit-hint>
   </bit-form-field>
   <div class="tw-flex">
     <button

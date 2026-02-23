@@ -31,6 +31,7 @@
           [formGroup]="sendAccessForm"
           [enterOtp]="enterOtp()"
           [loading]="loading()"
+          (resendCode)="onResendCode()"
         ></app-send-access-email>
       }
     }

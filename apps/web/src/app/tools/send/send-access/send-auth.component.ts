@@ -142,32 +142,27 @@ export class SendAuthComponent implements OnInit {
   }
 
   private async attemptV2Access(): Promise<void> {
-    let sendAccessCreds: SendAccessDomainCredentials | null = null;
-    if (this.sendAuthType() === AuthType.Email) {
-      const email = this.sendAccessForm.value.email;
-      if (email == null) {
-        return;
-      }
-      if (!this.enterOtp()) {
-        sendAccessCreds = { kind: "email", email };
-      } else {
-        const otp = this.sendAccessForm.value.otp as SendOtp;
-        if (otp == null) {
-          return;
-        }
-        sendAccessCreds = { kind: "email_otp", email, otp };
-      }
-    } else if (this.sendAuthType() === AuthType.Password) {
-      const password = this.sendAccessForm.value.password;
-      if (password == null) {
-        return;
-      }
-      const passwordHashB64 = await this.getPasswordHashB64(password, this.key());
-      sendAccessCreds = { kind: "password", passwordHashB64 };
+    const authType = this.sendAuthType();
+
+    if (authType === AuthType.None) {
+      await this.getTokenWithRetry(null);
+      return;
     }
+
+    if (authType === AuthType.Email) {
+      await this.handleEmailOtpAuth();
+    } else if (authType === AuthType.Password) {
+      await this.handlePasswordAuth();
+    }
+  }
+
+  private async getTokenWithRetry(
+    sendAccessCreds: SendAccessDomainCredentials | null,
+  ): Promise<void> {
     const response = !sendAccessCreds
       ? await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(this.id()))
       : await firstValueFrom(this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds));
+
     if (response instanceof SendAccessToken) {
       this.expiredAuthAttempts = 0;
       this.accessGranted.emit({ accessToken: response });
@@ -176,13 +171,20 @@ export class SendAuthComponent implements OnInit {
         return;
       }
       this.expiredAuthAttempts++;
-      await this.attemptV2Access();
+      await this.getTokenWithRetry(sendAccessCreds);
     } else if (response.kind === "expected_server") {
       this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
         this.updatePageTitle();
       } else if (emailAndOtpRequired(response.error)) {
+        if (sendAccessCreds && sendAccessCreds.kind === "email" && this.enterOtp()) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("codeResent"),
+          });
+        }
         this.enterOtp.set(true);
         this.updatePageTitle();
       } else if (otpInvalid(response.error)) {
@@ -218,6 +220,54 @@ export class SendAuthComponent implements OnInit {
         message: response.error,
       });
     }
+  }
+
+  private async handleEmailOtpAuth(): Promise<void> {
+    const email = this.sendAccessForm.value.email;
+    if (email == null) {
+      return;
+    }
+
+    let sendAccessCreds: SendAccessDomainCredentials;
+    if (!this.enterOtp()) {
+      sendAccessCreds = { kind: "email", email };
+    } else {
+      const otp = this.sendAccessForm.value.otp as SendOtp;
+      if (otp == null) {
+        return;
+      }
+      sendAccessCreds = { kind: "email_otp", email, otp };
+    }
+
+    await this.getTokenWithRetry(sendAccessCreds);
+  }
+
+  private async handlePasswordAuth(): Promise<void> {
+    const password = this.sendAccessForm.value.password;
+    if (password == null) {
+      return;
+    }
+    const passwordHashB64 = await this.getPasswordHashB64(password, this.key());
+    const sendAccessCreds: SendAccessDomainCredentials = { kind: "password", passwordHashB64 };
+
+    await this.getTokenWithRetry(sendAccessCreds);
+  }
+
+  async onResendCode() {
+    this.loading.set(true);
+    this.unavailable.set(false);
+    this.error.set(false);
+
+    const email = this.sendAccessForm.value.email;
+    if (email == null) {
+      this.loading.set(false);
+      return;
+    }
+
+    const sendAccessCreds: SendAccessDomainCredentials = { kind: "email", email };
+    await this.getTokenWithRetry(sendAccessCreds);
+
+    this.loading.set(false);
   }
 
   private async getPasswordHashB64(password: string, key: string) {
