@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
@@ -47,9 +47,8 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.BitwardenPortal]: "system",
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "events.component.html",
   imports: [SharedModule, HeaderModule],
 })
@@ -168,7 +167,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       }
     }
     await this.refreshEvents();
-    this.loaded = true;
+    this.loaded.set(true);
   }
 
   protected requestEvents(startDate: string, endDate: string, continuationToken: string) {

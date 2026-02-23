@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
+  },
   "continue": {
     "message": "Продолжить"
   },
@@ -4615,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }
