@@ -14,7 +14,7 @@
         [text]="view.activeAccount.name ?? view.activeAccount.email"
         [id]="view.activeAccount.id"
         [color]="view.activeAccount.avatarColor"
-        aria-hidden="true"
+        [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
       ></bit-avatar>
     } @else {
       <bit-avatar [text]="'&hellip;'" [color]="'#6795E8'" aria-hidden="true"></bit-avatar>
