@@ -14,7 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, SimpleDialogOptions } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -38,7 +38,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent implements OnDestroy {
-  private myDialogRef?: DialogRef;
+  protected myDialogRef?: DialogRef;
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -103,6 +103,32 @@ export class PoliciesComponent implements OnDestroy {
     this.myDialogRef?.close();
   }
 
+  /**
+   * Called by the CanDeactivate route guard when the user tries to navigate away from the
+   * policies page. If a dirty policy drawer is open, prompts the user to confirm discarding changes.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.myDialogRef?.disableClose) {
+      return true;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+    if (confirmed) {
+      this.myDialogRef.disableClose = false;
+      this.myDialogRef.close();
+    }
+    return confirmed;
+  }
+
+  private get discardDialogOptions(): SimpleDialogOptions {
+    return {
+      title: { key: "discardEdits" },
+      content: { key: "discardEditsDesc" },
+      type: "warning",
+      acceptButtonText: { key: "discardEdits" },
+      cancelButtonText: { key: "backToEditing" },
+    };
+  }
+
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
     combineLatest([
@@ -119,7 +145,7 @@ export class PoliciesComponent implements OnDestroy {
               if (orgPolicy.id === policyIdFromEvents) {
                 for (let i = 0; i < policies.length; i++) {
                   if (policies[i].type === orgPolicy.type) {
-                    this.edit(policies[i], organizationId);
+                    void this.edit(policies[i], organizationId);
                     break;
                   }
                 }
@@ -133,7 +159,15 @@ export class PoliciesComponent implements OnDestroy {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
+  async edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
+    if (this.myDialogRef?.disableClose) {
+      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      if (!confirmed) {
+        return;
+      }
+      this.myDialogRef.disableClose = false;
+    }
+
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
     this.myDialogRef = dialogComponent.open(this.dialogService, {

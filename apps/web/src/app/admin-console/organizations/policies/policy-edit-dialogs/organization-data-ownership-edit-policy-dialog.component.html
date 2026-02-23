@@ -6,6 +6,16 @@
         <ng-container [ngTemplateOutlet]="title"></ng-container>
       }
     </ng-container>
+    @if (dialogRef.disableClose) {
+      <button
+        bitDialogHeaderEnd
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="main"
+        (click)="cancel()"
+        [label]="'close' | i18n"
+      ></button>
+    }
 
     <ng-container bitDialogContent>
       @if (loading) {
@@ -62,7 +72,7 @@
     }
   </button>
 
-  <button bitButton buttonType="secondary" bitDialogClose type="button">
+  <button bitButton buttonType="secondary" type="button" (click)="cancel()">
     {{ "cancel" | i18n }}
   </button>
 </ng-template>
@@ -71,7 +81,7 @@
   <button bitButton buttonType="primary" bitFormButton type="submit">
     {{ "continue" | i18n }}
   </button>
-  <button bitButton buttonType="secondary" bitDialogClose type="button">
+  <button bitButton buttonType="secondary" type="button" (click)="cancel()">
     {{ "cancel" | i18n }}
   </button>
 </ng-template>

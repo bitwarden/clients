@@ -4196,6 +4196,15 @@
       }
     }
   },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsDesc": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
     "placeholders": {

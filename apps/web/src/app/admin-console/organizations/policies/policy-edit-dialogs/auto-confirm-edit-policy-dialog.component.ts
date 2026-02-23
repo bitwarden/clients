@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Inject,
   signal,
   Signal,
@@ -114,6 +115,8 @@ export class AutoConfirmPolicyDialogComponent
     private policyService: PolicyService,
     private router: Router,
     private autoConfirmService: AutomaticUserConfirmationService,
+    dialogService: DialogService,
+    destroyRef: DestroyRef,
   ) {
     super(
       data,
@@ -125,6 +128,8 @@ export class AutoConfirmPolicyDialogComponent
       dialogRef,
       toastService,
       keyService,
+      dialogService,
+      destroyRef,
     );
 
     this.firstTimeDialog.set(data.firstTimeDialog ?? false);
@@ -230,6 +235,7 @@ export class AutoConfirmPolicyDialogComponent
     });
 
     if (!this.policyComponent.enabled.value) {
+      this.resetDirtyState();
       this.dialogRef.close("saved");
     }
   }
@@ -269,10 +275,12 @@ export class AutoConfirmPolicyDialogComponent
       }
 
       if (this.currentStep() === multiStepSubmit.length - 1) {
+        this.resetDirtyState();
         this.dialogRef.close("saved");
         return;
       }
 
+      this.resetDirtyState();
       this.currentStep.update((value) => value + 1);
       this.policyComponent.setStep(this.currentStep());
     } catch (error: any) {

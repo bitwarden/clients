@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Inject,
   signal,
   TemplateRef,
@@ -97,6 +98,8 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     dialogRef: DialogRef<PolicyEditDialogResult>,
     toastService: ToastService,
     protected keyService: KeyService,
+    dialogService: DialogService,
+    destroyRef: DestroyRef,
   ) {
     super(
       data,
@@ -108,6 +111,8 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       dialogRef,
       toastService,
       keyService,
+      dialogService,
+      destroyRef,
     );
   }
 
@@ -180,6 +185,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     });
 
     if (!this.policyComponent.enabled.value) {
+      this.resetDirtyState();
       this.dialogRef.close("saved");
     }
   }
@@ -201,6 +207,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       }
 
       if (this.currentStep() === this.multiStepSubmit().length - 1) {
+        this.resetDirtyState();
         this.dialogRef.close("saved");
         return;
       }
