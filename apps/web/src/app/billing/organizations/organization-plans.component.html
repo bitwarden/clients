@@ -75,9 +75,11 @@
                       <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                       <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                       <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                      <li *ngIf="trialPeriodDays && createOrganization() && !upgradingFromPremium">
-                        {{ "xDayFreeTrial" | i18n: trialPeriodDays }}
-                      </li>
+                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
+                        <li>
+                          {{ "xDayFreeTrial" | i18n: trialPeriodDays }}
+                        </li>
+                      }
                     </ul>
                   } @else {
                     <ul class="tw-pl-0 tw-list-inside tw-mb-0">
@@ -91,7 +93,7 @@
                       ) {
                         <li>{{ "addShareLimitedUsers" | i18n: pm.maxSeats }}</li>
                       }
-                      @if (pm.maxSeats) {
+                      @if (!pm.maxSeats) {
                         <li>{{ "addShareUnlimitedUsers" | i18n }}</li>
                       }
                       @if (pm.maxCollections) {
@@ -135,7 +137,7 @@
 
             @if (tier != productTypes.Free) {
               <span class="tw-pl-4">
-                @if (pm.basePrice && !acceptingSponsorship) {
+                @if (pm.basePrice && !acceptingSponsorship()) {
                   {{
                     (selectableProduct.isAnnual ? pm.basePrice / 12 : pm.basePrice) | currency: "$"
                   }}
