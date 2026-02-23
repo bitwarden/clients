@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   BadgeModule,
   ButtonModule,
+  IconModule,
   LinkModule,
   TableDataSource,
   TableModule,
@@ -21,7 +22,15 @@ import { DeviceDisplayData } from "./device-management.component";
   standalone: true,
   selector: "auth-device-management-table",
   templateUrl: "./device-management-table.component.html",
-  imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
+  imports: [
+    BadgeModule,
+    ButtonModule,
+    CommonModule,
+    IconModule,
+    JslibModule,
+    LinkModule,
+    TableModule,
+  ],
 })
 export class DeviceManagementTableComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

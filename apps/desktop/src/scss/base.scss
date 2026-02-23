@@ -102,23 +102,30 @@ textarea {
 
 div:not(.modal)::-webkit-scrollbar,
 .cdk-virtual-scroll-viewport::-webkit-scrollbar,
-.vault-filters::-webkit-scrollbar {
+.vault-filters::-webkit-scrollbar,
+#bit-side-nav::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 
 div:not(.modal)::-webkit-scrollbar-track,
 .cdk-virtual-scroll-viewport::-webkit-scrollbar-track,
-.vault-filters::-webkit-scrollbar-track {
+.vault-filters::-webkit-scrollbar-track,
+#bit-side-nav::-webkit-scrollbar-track {
   background-color: transparent;
 }
 
 div:not(.modal)::-webkit-scrollbar-thumb,
 .cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
-.vault-filters::-webkit-scrollbar-thumb {
+.vault-filters::-webkit-scrollbar-thumb,
+#bit-side-nav::-webkit-scrollbar-thumb {
   border-radius: 10px;
   margin-right: 1px;
+}
 
+div:not(.modal)::-webkit-scrollbar-thumb,
+.cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
+.vault-filters::-webkit-scrollbar-thumb {
   @include themify($themes) {
     background-color: themed("scrollbarColor");
   }
@@ -126,6 +133,18 @@ div:not(.modal)::-webkit-scrollbar-thumb,
   &:hover {
     @include themify($themes) {
       background-color: themed("scrollbarHoverColor");
+    }
+  }
+}
+
+#bit-side-nav::-webkit-scrollbar-thumb {
+  @include themify($themes) {
+    background-color: themed("scrollbarColorNav");
+  }
+
+  &:hover {
+    @include themify($themes) {
+      background-color: themed("scrollbarHoverColorNav");
     }
   }
 }

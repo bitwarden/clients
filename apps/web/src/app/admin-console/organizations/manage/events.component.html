@@ -1,14 +1,16 @@
 @let usePlaceHolderEvents = !organization?.useEvents;
+
 <app-header>
-  <span
-    bitBadge
-    variant="primary"
-    slot="title-suffix"
-    class="tw-ml-2 tw-mt-1.5 tw-inline-flex tw-items-center"
-    *ngIf="usePlaceHolderEvents"
-  >
-    {{ "upgrade" | i18n }}
-  </span>
+  @if (usePlaceHolderEvents) {
+    <span
+      bitBadge
+      variant="primary"
+      slot="title-suffix"
+      class="tw-ml-2 tw-mt-1.5 tw-inline-flex tw-items-center"
+    >
+      {{ "upgrade" | i18n }}
+    </span>
+  }
 </app-header>
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
@@ -61,79 +63,87 @@
     </form>
   </div>
 </div>
-<bit-callout
-  type="info"
-  [title]="'upgradeEventLogTitleMessage' | i18n"
-  *ngIf="loaded && usePlaceHolderEvents"
->
-  {{ "upgradeEventLogMessage" | i18n }}
-</bit-callout>
-<ng-container *ngIf="!loaded">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-</ng-container>
-<ng-container *ngIf="loaded">
-  @let displayedEvents = organization?.useEvents ? events : placeholderEvents;
+@if (loaded() && usePlaceHolderEvents) {
+  <bit-callout type="info" [title]="'upgradeEventLogTitleMessage' | i18n">
+    {{ "upgradeEventLogMessage" | i18n }}
+  </bit-callout>
+}
 
-  <p *ngIf="!displayedEvents || !displayedEvents.length">{{ "noEventsInList" | i18n }}</p>
-  <bit-table *ngIf="displayedEvents && displayedEvents.length">
-    <ng-container header>
-      <tr>
-        <th bitCell>{{ "timestamp" | i18n }}</th>
-        <th bitCell>{{ "client" | i18n }}</th>
-        <th bitCell>{{ "member" | i18n }}</th>
-        <th bitCell>{{ "event" | i18n }}</th>
-      </tr>
-    </ng-container>
-    <ng-template body>
-      <tr bitRow *ngFor="let e of displayedEvents; index as i" alignContent="top">
-        <td bitCell class="tw-whitespace-nowrap">
-          {{ i > 4 && usePlaceHolderEvents ? "******" : (e.date | date: "medium") }}
-        </td>
-        <td bitCell>
-          <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
-        </td>
-        <td bitCell>
-          <span title="{{ e.userEmail }}">{{ e.userName }}</span>
-        </td>
-        <td bitCell [innerHTML]="e.message"></td>
-      </tr>
-    </ng-template>
-  </bit-table>
-  <button
-    type="button"
-    bitButton
-    buttonType="primary"
-    [bitAction]="loadMoreEvents"
-    *ngIf="continuationToken"
-  >
-    {{ "loadMore" | i18n }}
-  </button>
-</ng-container>
+@if (!loaded()) {
+  <ng-container>
+    <bit-icon
+      class="bwi-lg bwi-spin tw-text-muted"
+      name="bwi-spinner"
+      aria-hidden="true"
+    ></bit-icon>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+}
+@if (loaded()) {
+  <ng-container>
+    @let displayedEvents = organization?.useEvents ? events() : placeholderEvents;
 
-<ng-container *ngIf="loaded && usePlaceHolderEvents">
-  <div
-    class="tw-relative tw--top-72 tw-bg-background tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center tw-h-[19rem]"
-  >
-    <div
-      class="tw-bg-background tw-max-w-xl tw-flex-col tw-justify-center tw-text-center tw-p-5 tw-px-10 tw-rounded tw-border-0 tw-border-b tw-border-secondary-300 tw-border-solid tw-mt-5"
-    >
-      <i class="bwi bwi-2x bwi-business tw-text-primary-600"></i>
+    @if (!displayedEvents || !displayedEvents.length) {
+      <p>{{ "noEventsInList" | i18n }}</p>
+    }
 
-      <p class="tw-font-medium tw-mt-2">
-        {{ "upgradeEventLogTitleMessage" | i18n }}
-      </p>
-      <p>
-        {{ "upgradeForFullEventsMessage" | i18n }}
-      </p>
-
-      <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">
-        {{ "changeBillingPlan" | i18n }}
+    @if (displayedEvents && displayedEvents.length) {
+      <bit-table data-testid="events-table">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "timestamp" | i18n }}</th>
+            <th bitCell>{{ "client" | i18n }}</th>
+            <th bitCell>{{ "member" | i18n }}</th>
+            <th bitCell>{{ "event" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (e of displayedEvents; track i; let i = $index) {
+            <tr bitRow alignContent="top">
+              <td bitCell class="tw-whitespace-nowrap">
+                {{ i > 4 && usePlaceHolderEvents ? "******" : (e.date | date: "medium") }}
+              </td>
+              <td bitCell>
+                <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
+              </td>
+              <td bitCell>
+                <span title="{{ e.userEmail }}">{{ e.userName }}</span>
+              </td>
+              <td bitCell [innerHTML]="e.message"></td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+    @if (continuationToken) {
+      <button type="button" bitButton buttonType="primary" [bitAction]="loadMoreEvents">
+        {{ "loadMore" | i18n }}
       </button>
+    }
+  </ng-container>
+}
+
+@if (loaded() && usePlaceHolderEvents) {
+  <ng-container>
+    <div
+      class="tw-relative tw--top-72 tw-bg-background tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center tw-h-[19rem]"
+    >
+      <div
+        class="tw-bg-background tw-max-w-xl tw-flex-col tw-justify-center tw-text-center tw-p-5 tw-px-10 tw-rounded tw-border-0 tw-border-b tw-border-secondary-300 tw-border-solid tw-mt-5"
+      >
+        <i class="bwi bwi-2x bwi-business tw-text-primary-600"></i>
+
+        <p class="tw-font-medium tw-mt-2">
+          {{ "upgradeEventLogTitleMessage" | i18n }}
+        </p>
+        <p>
+          {{ "upgradeForFullEventsMessage" | i18n }}
+        </p>
+
+        <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">
+          {{ "changeBillingPlan" | i18n }}
+        </button>
+      </div>
     </div>
-  </div>
-</ng-container>
+  </ng-container>
+}
