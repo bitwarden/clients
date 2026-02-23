@@ -6,11 +6,14 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService } from "@bitwarden/key-management";
+import { BiometricsService, KdfConfigService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
 
 import { DefaultUnlockService } from "./default-unlock.service";
 
@@ -30,6 +33,10 @@ describe("DefaultUnlockService", () => {
   const kdfService = mock<KdfConfigService>();
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+  const cryptoFunctionService = mock<CryptoFunctionService>();
+  const stateProvider = mock<StateProvider>();
+  const logService = mock<LogService>();
+  const biometricsService = mock<BiometricsService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -77,7 +84,13 @@ describe("DefaultUnlockService", () => {
       kdfService,
       accountService,
       masterPasswordService,
+      cryptoFunctionService,
+      stateProvider,
+      logService,
+      biometricsService,
     );
+
+    jest.spyOn(service as any, "setLegacyMasterKeyFromUnlockData").mockResolvedValue(undefined);
   });
 
   describe("unlockWithPin", () => {
