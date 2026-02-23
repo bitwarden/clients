@@ -211,6 +211,29 @@ describe("FidoAuthenticatorService", () => {
       it.todo(
         "should not throw error if the excluded credential has been marked as deleted in the vault",
       );
+
+      it("should inform user of duplication when a non-GUID (long) credential ID is found", async () => {
+        const longId = "b64.HGNGpvHQAgMAALTlPphUYSRweg3BQDkwYM02GGhYnLwIydtLpzc1zJlX";
+        const longIdBuffer = parseCredentialId(longId);
+        excludedCipher.login.fido2Credentials[0].credentialId = longId;
+        params.excludeCredentialDescriptorList = [
+          {
+            id: longIdBuffer,
+            type: "public-key",
+          },
+        ];
+
+        userInterfaceSession.informExcludedCredential.mockResolvedValue();
+
+        try {
+          await authenticator.makeCredential(params, windowReference);
+          // eslint-disable-next-line no-empty
+        } catch {}
+
+        expect(userInterfaceSession.informExcludedCredential).toHaveBeenCalledWith([
+          excludedCipher.id,
+        ]);
+      });
     });
 
     describe("credential creation", () => {
@@ -388,9 +411,10 @@ describe("FidoAuthenticatorService", () => {
         // Unsure how to test public key
         // const publicKey = encAuthData.slice(87);
 
-        expect(encAuthData.length).toBe(71 + 77);
+        expect(encAuthData.length).toBe(71 + 77); // 37 (header) + 16 (AAGUID) + 2 (length) + 16 (credId) + 77 (pubKey)
         expect(attestationObject.fmt).toBe("none");
         expect(attestationObject.attStmt).toEqual({});
+        expect(rpIdHash.length).toBe(32);
         expect(rpIdHash).toEqual(
           new Uint8Array([
             0x22, 0x6b, 0xb3, 0x92, 0x02, 0xff, 0xf9, 0x22, 0xdc, 0x74, 0x05, 0xcd, 0x28, 0xa8,
@@ -728,7 +752,7 @@ describe("FidoAuthenticatorService", () => {
       it("should return an assertion result", async () => {
         const result = await authenticator.getAssertion(params, windowReference);
 
-        const encAuthData = result.authenticatorData;
+        const encAuthData = new Uint8Array(result.authenticatorData);
         const rpIdHash = encAuthData.slice(0, 32);
         const flags = encAuthData.slice(32, 33);
         const counter = encAuthData.slice(33, 37);
@@ -769,7 +793,7 @@ describe("FidoAuthenticatorService", () => {
           await init(); // Reset inputs
           const result = await authenticator.getAssertion(params, windowReference);
 
-          const counter = result.authenticatorData.slice(33, 37);
+          const counter = new Uint8Array(result.authenticatorData).slice(33, 37);
           expect(counter).toEqual(new Uint8Array([0, 0, 0x23, 0x29])); // double check that the counter doesn't change
 
           const signature = Fido2Utils.bufferToString(result.signature);

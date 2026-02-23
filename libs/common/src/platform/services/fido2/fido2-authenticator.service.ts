@@ -31,7 +31,6 @@ import { CBOR } from "./cbor";
 import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
 import { p1363ToDer } from "./ecdsa-utils";
 import { Fido2Utils } from "./fido2-utils";
-import { guidToStandardFormat } from "./guid-utils";
 
 // AAGUID: d548826e-79b4-db40-a3d8-11116f7e8349
 export const AAGUID = new Uint8Array([
@@ -346,12 +345,12 @@ export class Fido2AuthenticatorService<
         });
 
         return {
-          authenticatorData,
+          authenticatorData: authenticatorData.buffer as ArrayBuffer,
           selectedCredential: {
             id: parseCredentialId(selectedCredentialId),
             userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
           },
-          signature,
+          signature: signature.buffer as ArrayBuffer,
         };
       } catch (error) {
         this.logService?.error(
@@ -399,17 +398,11 @@ export class Fido2AuthenticatorService<
   }
 
   /** Finds existing crendetials and returns the `cipherId` for each one */
+  /** Finds existing credentials and returns the `cipherId` for each one */
   private async findExcludedCredentials(
     credentials: PublicKeyCredentialDescriptor[],
   ): Promise<string[]> {
-    const ids: string[] = [];
-
-    for (const credential of credentials) {
-      try {
-        ids.push(guidToStandardFormat(credential.id));
-        // eslint-disable-next-line no-empty
-      } catch {}
-    }
+    const ids: ArrayBuffer[] = credentials.map((c) => c.id);
 
     if (ids.length === 0) {
       return [];
@@ -418,14 +411,21 @@ export class Fido2AuthenticatorService<
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers
-      .filter(
-        (cipher) =>
-          !cipher.isDeleted &&
-          cipher.organizationId == undefined &&
-          cipher.type === CipherType.Login &&
-          cipher.login.hasFido2Credentials &&
-          ids.includes(cipher.login.fido2Credentials[0].credentialId),
-      )
+      .filter((cipher) => {
+        const fido2Credentials = cipher.login?.fido2Credentials;
+        if (
+          cipher.isDeleted ||
+          cipher.organizationId != undefined ||
+          cipher.type !== CipherType.Login ||
+          fido2Credentials == null ||
+          fido2Credentials.length === 0
+        ) {
+          return false;
+        }
+
+        const cipherCredentialId = parseCredentialId(fido2Credentials[0].credentialId);
+        return ids.some((id) => compareCredentialIds(id, cipherCredentialId));
+      })
       .map((cipher) => cipher.id);
   }
 
@@ -535,7 +535,10 @@ async function generateAuthData(params: AuthDataParams) {
   const authData: Array<number> = [];
 
   const rpIdHash = new Uint8Array(
-    await crypto.subtle.digest({ name: "SHA-256" }, Utils.fromByteStringToArray(params.rpId)),
+    await crypto.subtle.digest(
+      { name: "SHA-256" },
+      Utils.fromByteStringToArray(params.rpId).buffer as ArrayBuffer,
+    ),
   );
   authData.push(...rpIdHash);
 

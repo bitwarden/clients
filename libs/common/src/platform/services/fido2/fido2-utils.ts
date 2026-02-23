@@ -1,10 +1,10 @@
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-// FIXME: Update this file to be type safe and remove this and next line
 import type {
   AssertCredentialResult,
   CreateCredentialResult,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
+import { Utils } from "../../misc/utils";
 
 // @ts-strict-ignore
 export class Fido2Utils {
@@ -43,14 +43,11 @@ export class Fido2Utils {
   }
 
   static bufferToString(bufferSource: BufferSource): string {
-    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=/g, "");
+    return Utils.fromArrayToUrlB64(Fido2Utils.bufferSourceToUint8Array(bufferSource));
   }
 
   static stringToBuffer(str: string): ArrayBuffer {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
+    return Utils.fromUrlB64ToArray(str).buffer as ArrayBuffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
@@ -67,51 +64,19 @@ export class Fido2Utils {
   }
 
   static fromB64toUrlB64(b64Str: string) {
-    return b64Str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    return Utils.fromB64toUrlB64(b64Str);
   }
 
   static fromBufferToB64(buffer: ArrayBuffer): string {
-    if (buffer == null) {
-      return null;
-    }
-
-    let binary = "";
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return globalThis.btoa(binary);
+    return Utils.fromBufferToB64(buffer);
   }
 
   static fromB64ToArray(str: string): Uint8Array {
-    if (str == null) {
-      return null;
-    }
-
-    const binaryString = globalThis.atob(str);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
+    return Utils.fromB64ToArray(str);
   }
 
   static fromUrlB64ToB64(urlB64Str: string): string {
-    let output = urlB64Str.replace(/-/g, "+").replace(/_/g, "/");
-    switch (output.length % 4) {
-      case 0:
-        break;
-      case 2:
-        output += "==";
-        break;
-      case 3:
-        output += "=";
-        break;
-      default:
-        throw new Error("Illegal base64url string!");
-    }
-
-    return output;
+    return Utils.fromUrlB64ToB64(urlB64Str);
   }
 
   /**

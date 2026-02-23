@@ -38,9 +38,9 @@ import { Utils } from "../../misc/utils";
 import { ScheduledTaskNames } from "../../scheduling/scheduled-task-name.enum";
 import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
+import { parseCredentialId } from "./credential-id-utils";
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
-import { guidToRawFormat } from "./guid-utils";
 
 /**
  * Bitwarden implementation of the Web Authentication API as described by W3C
@@ -414,7 +414,7 @@ export class Fido2ClientService<
       }
 
       params.allowedCredentialIds = [
-        Fido2Utils.bufferToString(guidToRawFormat(requestResult.credentialId)),
+        Fido2Utils.bufferToString(parseCredentialId(requestResult.credentialId)),
       ];
       assumeUserPresence = true;
 

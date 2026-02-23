@@ -6,7 +6,8 @@ import { guidToRawFormat } from "./guid-utils";
 export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
   try {
     if (encodedCredentialId.startsWith("b64.")) {
-      return Fido2Utils.stringToBuffer(encodedCredentialId.slice(4));
+      const buffer = Fido2Utils.stringToBuffer(encodedCredentialId.slice(4));
+      return buffer.byteLength === 0 ? undefined : buffer;
     }
 
     return guidToRawFormat(encodedCredentialId).buffer;
@@ -19,7 +20,7 @@ export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
  * Compares two credential IDs for equality.
  */
 export function compareCredentialIds(a: ArrayBuffer, b: ArrayBuffer): boolean {
-  if (a.byteLength !== b.byteLength) {
+  if (a == null || b == null || a.byteLength !== b.byteLength) {
     return false;
   }
 

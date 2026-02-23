@@ -31,6 +31,8 @@ describe("credential-id-utils", () => {
     });
 
     it("returns undefined when given an invalid UUID string", () => {
+      // Note that invalid is valid base64, but it's too short to be a credential ID.
+      // Credential IDs must be at least 16 bytes => 20 bytes base64.
       const result = parseCredentialId("invalid");
 
       expect(result).toBeUndefined();
@@ -63,6 +65,18 @@ describe("credential-id-utils", () => {
       const result = compareCredentialIds(a, b);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("FIDO2 Credential ID can be longer than GUIDs", () => {
+    const longB64 = "HGNGpvHQAgMAAAsAVij75lpHjLrqVXjIRh2s327GEEYZYjs7nUbrHZ2M";
+
+    it("parseCredentialId SHOULD NOT fail on long prefixed base64 string", () => {
+      const input = "b64." + longB64;
+      const result = parseCredentialId(input);
+      expect(result).toBeDefined();
+      expect(result instanceof ArrayBuffer).toBe(true);
+      expect(result.byteLength).toBe(42);
     });
   });
 });
