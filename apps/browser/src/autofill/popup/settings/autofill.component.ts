@@ -57,6 +57,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  CalloutModule,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -82,6 +83,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     CommonModule,
@@ -130,6 +132,8 @@ export class AutofillComponent implements OnInit {
       map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+  protected showClipboardNotification$: Observable<boolean> =
+    this.autofillSettingsService.showClipboardSettingUpdateNotification$;
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -356,6 +360,16 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
+
+    // Auto-dismiss clipboard notification when user views the autofill page
+    this.showClipboardNotification$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((shouldShow) => shouldShow === true),
+      )
+      .subscribe(() => {
+        void this.dismissClipboardNotification();
+      });
   }
 
   get spotlightButtonIcon() {
@@ -618,5 +632,9 @@ export class AutofillComponent implements OnInit {
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }
+  }
+
+  async dismissClipboardNotification() {
+    await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
   }
 }
