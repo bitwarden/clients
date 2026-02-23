@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "您已用完全部 $GB$ GB 的加密儲存空間。如需繼續儲存檔案，請增加儲存空間。"
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "誰可以檢視"
   },

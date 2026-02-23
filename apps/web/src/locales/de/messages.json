@@ -7418,7 +7418,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "E-Mail oder Verifizierungscode ungültig"
   },
   "keyConnectorDomain": {
     "message": "Key Connector-Domain"
@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Wer kann das sehen"
   },
@@ -12890,7 +12905,7 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
@@ -12985,7 +13000,7 @@
     "message": "Beim Aktualisieren deiner Zahlungsmethode ist ein Fehler aufgetreten."
   },
   "sendPasswordInvalidAskOwner": {
-    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "message": "Ungültiges Passwort. Frage den Absender nach dem Passwort, das benötigt wird, um auf dieses Send zuzugreifen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresOn": {

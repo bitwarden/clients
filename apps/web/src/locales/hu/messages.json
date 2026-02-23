@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
   },
+  "extensionPromptHeading": {
+    "message": "Szerezzük be a kiterjesztést a széf könnyű eléréséhez."
+  },
+  "extensionPromptBody": {
+    "message": "A böngésző kiterjesztés telepítésével a Bitwardent mindenhová magunkkal vihetjük. Kitölti a jelszavakat, így egyetlen kattintással bejelentkezhetünk a fiókjainkba."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Egy webböngésző, amely a Bitwarden kiterjesztést jeleníti meg az aktuális weboldal automatikus kitöltési elemeivel."
+  },
+  "skip": {
+    "message": "Kihagyás"
+  },
+  "downloadExtension": {
+    "message": "Kiterjesztés letöltése"
+  },
   "whoCanView": {
     "message": "Ki láthatja"
   },

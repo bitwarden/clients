@@ -4338,7 +4338,7 @@
     }
   },
   "automaticallyConfirmedUserId": {
-    "message": "Automatically confirmed user $ID$.",
+    "message": "Автоматично потвърден потребител: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6148,19 +6148,19 @@
     "message": "Приемам тези рискове и промени в политиката"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Turned on Automatic user confirmation setting"
+    "message": "Настройката за автоматично потвърждаване на потребители е включена"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Turned off Automatic user confirmation setting"
+    "message": "Настройката за автоматично потвърждаване на потребители е изключена"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Added Automatic user confirmation policy"
+    "message": "Добавена е политика за автоматично потвърждаване на потребителите"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Removed Automatic user confirmation policy"
+    "message": "Премахната е политика за автоматично потвърждаване на потребителите"
   },
   "system": {
-    "message": "System"
+    "message": "Система"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Използвали сте всичките си $GB$ GB от наличното си място за съхранение на шифровани данни. Ако искате да продължите да добавяте файлове, добавете повече място за съхранение."
   },
+  "extensionPromptHeading": {
+    "message": "Инсталирайте добавката за по-лесен достъп до трезора си"
+  },
+  "extensionPromptBody": {
+    "message": "Когато добавката е инсталирана, Битуорден ще бъде винаги лесно достъпен във всички уеб сайтове. С нея можете да попълвате паролите автоматично и да се вписвате с едно щракване на мишката."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Уеб браузър показващ добавката на Битуорден с елементи за автоматично попълване за текущата уеб страница."
+  },
+  "skip": {
+    "message": "Пропускане"
+  },
+  "downloadExtension": {
+    "message": "Сваляне на добавката"
+  },
   "whoCanView": {
     "message": "Кой може да преглежда"
   },
@@ -12917,16 +12932,16 @@
     "message": "Неправилна парола за Изпращане"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "You're in! Welcome to Bitwarden"
+    "message": "Влязохте! Добре дошли в Битуорден!"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+    "message": "Съхранявайте всичките си пароли и лични данни в трезора си в Битуорден. Нека Ви разведем!"
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Start tour"
+    "message": "Начало на обиколката"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "Пропускане"
   },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",

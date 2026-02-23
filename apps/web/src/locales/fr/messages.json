@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
   },
+  "extensionPromptHeading": {
+    "message": "Obtenir l'extension pour un accès facile au coffre"
+  },
+  "extensionPromptBody": {
+    "message": "Avec l'extension de navigateur installée, vous emmènerez Bitwarden partout en ligne. Il remplira les mots de passe, faisant en sorte que vous puissiez vous connecter à vos comptes en un seul clic."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Un navigateur web montrant l'extension Bitwarden avec des éléments de saisie automatique pour la page web actuelle."
+  },
+  "skip": {
+    "message": "Ignorer"
+  },
+  "downloadExtension": {
+    "message": "Télécharger l'extension"
+  },
   "whoCanView": {
     "message": "Qui peut afficher"
   },
