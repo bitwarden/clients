@@ -186,6 +186,24 @@ export const SingleDataPoint: Story = {
 };
 
 /**
+ * Two data points.
+ */
+export const TwoDataPoints: Story = {
+  args: {
+    data: {
+      timeframe: "past-month",
+      dataView: "passwords",
+      dataPoints: [
+        { timestamp: "2026-02-18T00:00:00Z", atRisk: 45, total: 180 },
+        { timestamp: "2026-02-20T00:00:00Z", atRisk: 60, total: 180 },
+      ],
+    },
+    loading: false,
+    error: null,
+  },
+};
+
+/**
  * 24 data points showing a month of daily data with upward trend.
  */
 export const TwentyFourDataPoints: Story = {
