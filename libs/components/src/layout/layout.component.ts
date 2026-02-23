@@ -4,10 +4,11 @@ import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, ElementRef, inject, input, viewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { SharedModule } from "../shared";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
@@ -18,7 +19,7 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
   templateUrl: "layout.component.html",
   imports: [
     CommonModule,
-    SharedModule,
+    I18nPipe,
     LinkModule,
     RouterModule,
     PortalModule,
