@@ -484,7 +484,7 @@ export class VaultComponent<C extends CipherViewLike>
           );
         }
 
-        return ciphers.filter(filterFunction) as C[];
+        return allCiphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
