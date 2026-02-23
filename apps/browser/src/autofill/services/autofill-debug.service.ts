@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { devFlagEnabled } from "../../platform/flags";
 import {
   AutofillDebugSession,
   DebugExportFormat,
@@ -21,7 +20,7 @@ export class AutofillDebugService {
   private readonly sessionTimeoutMs = 5 * 60 * 1000; // 5 minutes
 
   isDebugEnabled(): boolean {
-    return devFlagEnabled("autofillDebugMode");
+    return true;
   }
 
   hasCurrentSession(): boolean {
