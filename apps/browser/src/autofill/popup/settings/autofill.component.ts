@@ -43,6 +43,7 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -128,6 +129,9 @@ export class AutofillComponent implements OnInit {
       map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.FillAssistTargetingRules,
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -135,6 +139,7 @@ export class AutofillComponent implements OnInit {
   });
 
   protected additionalOptionsForm = new FormGroup({
+    enableFillAssist: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -285,6 +290,18 @@ export class AutofillComponent implements OnInit {
       });
 
     /** Additional options form */
+
+    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+
+    this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableFillAssist.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setEnableFillAssist(value);
+      });
 
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
