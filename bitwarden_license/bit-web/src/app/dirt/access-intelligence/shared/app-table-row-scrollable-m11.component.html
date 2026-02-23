@@ -10,6 +10,7 @@
           [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
           (change)="selectAllChanged($event.target)"
           [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+          [disabled]="dataSource().filteredData?.length === 0"
         />
       </th>
       <th bitCell></th>
@@ -32,7 +33,7 @@
           bitCheckbox
           type="checkbox"
           [checked]="selectedUrls().has(row.applicationName)"
-          (change)="checkboxChange()(row.applicationName, $event)"
+          (change)="checkboxChanged($event.target, row.applicationName)"
         />
       </td>
       <td
