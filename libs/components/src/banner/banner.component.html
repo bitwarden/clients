@@ -4,14 +4,11 @@
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  <div
-    class="tw-flex tw-flex-1 tw-gap-3"
-    [class]="showActions() ? 'tw-items-start @5xl:tw-items-center' : 'tw-items-center'"
-  >
+  <div class="tw-flex tw-flex-1 tw-gap-3" [class]="alignClass()">
     @if (displayIcon(); as icon) {
       <bit-icon-tile
         [icon]="icon"
-        [variant]="resolvedIconTileVariant()"
+        [variant]="variant()"
         size="base"
         [class]="showActions() ? '@5xl:tw-hidden' : ''"
         aria-hidden="true"
@@ -19,7 +16,7 @@
       @if (showActions()) {
         <bit-icon-tile
           [icon]="icon"
-          [variant]="resolvedIconTileVariant()"
+          [variant]="variant()"
           size="lg"
           class="tw-hidden @5xl:tw-block"
           aria-hidden="true"
@@ -27,9 +24,13 @@
       }
     }
     <div
-      class="tw-flex tw-flex-col @5xl:tw-flex-row @5xl:tw-items-center @5xl:tw-flex-1 tw-gap-1 @5xl:tw-gap-3 tw-min-w-0"
+      class="tw-flex tw-flex-col @5xl:tw-flex-row @5xl:tw-items-center tw-gap-1 @5xl:tw-gap-3 tw-min-w-0"
+      [class]="showActions() ? '@5xl:tw-flex-1' : ''"
     >
-      <div class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0 @5xl:tw-flex-1">
+      <div
+        class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0"
+        [class]="showActions() ? '@5xl:tw-flex-1' : ''"
+      >
         <div class="tw-text-lg tw-font-medium tw-leading-6 tw-text-main tw-m-0">
           <ng-content select="[slot='title']"></ng-content>
         </div>
