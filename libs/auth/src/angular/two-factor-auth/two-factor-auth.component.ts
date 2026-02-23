@@ -55,6 +55,7 @@ import {
   DialogService,
   FormFieldModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
@@ -88,6 +89,7 @@ import {
     AsyncActionsModule,
     CheckboxModule,
     ButtonModule,
+    IconModule,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,

@@ -123,7 +123,7 @@
       <bit-item>
         <button bit-item-content type="button" appStopClick routerLink="/device-management">
           {{ "devices" | i18n }}
-          <i slot="end" class="bwi bwi-chevron-right" aria-hidden="true"></i>
+          <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
         </button>
       </bit-item>
     </bit-section>
@@ -154,13 +154,13 @@
       <bit-item>
         <button bit-item-content type="button" appStopClick (click)="twoStep()">
           {{ "twoStepLogin" | i18n }}
-          <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+          <bit-icon slot="end" name="bwi-external-link"></bit-icon>
         </button>
       </bit-item>
       <bit-item *ngIf="showChangeMasterPass">
         <button bit-item-content type="button" appStopClick (click)="changePassword()">
           {{ "changeMasterPassword" | i18n }}
-          <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+          <bit-icon slot="end" name="bwi-external-link"></bit-icon>
         </button>
       </bit-item>
     </bit-section>

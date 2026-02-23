@@ -18,22 +18,20 @@
               >{{ currentCipher.name }}</a
             >
             <ng-container *ngIf="currentCipher.organizationId">
-              <i
-                class="bwi bwi-collection-shared tw-ml-1"
+              <bit-icon
+                name="bwi-collection-shared"
+                class="tw-ml-1"
                 appStopProp
-                title="{{ 'shared' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "shared" | i18n }}</span>
+                [ariaLabel]="'shared' | i18n"
+              ></bit-icon>
             </ng-container>
             <ng-container *ngIf="currentCipher.hasAttachments">
-              <i
-                class="bwi bwi-paperclip tw-ml-1"
+              <bit-icon
+                name="bwi-paperclip"
+                class="tw-ml-1"
                 appStopProp
-                title="{{ 'attachments' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+                [ariaLabel]="'attachments' | i18n"
+              ></bit-icon>
             </ng-container>
             <br />
             <small class="tw-text-xs">{{ currentCipher.subTitle }}</small>
@@ -43,11 +41,10 @@
     </bit-table>
   </ng-container>
   <ng-container *ngIf="!loaded">
-    <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    <bit-icon
+      name="bwi-spinner"
+      class="bwi-spin tw-text-muted"
+      [ariaLabel]="'loading' | i18n"
+    ></bit-icon>
   </ng-container>
 </div>

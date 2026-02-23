@@ -9,6 +9,7 @@ import {
   DialogModule,
   DialogService,
   CenterPositionStrategy,
+  IconModule,
 } from "@bitwarden/components";
 
 export type FingerprintDialogData = {
@@ -19,7 +20,7 @@ export type FingerprintDialogData = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "fingerprint-dialog.component.html",
-  imports: [JslibModule, ButtonModule, DialogModule],
+  imports: [JslibModule, ButtonModule, DialogModule, IconModule],
 })
 export class FingerprintDialogComponent {
   constructor(@Inject(DIALOG_DATA) protected data: FingerprintDialogData) {}

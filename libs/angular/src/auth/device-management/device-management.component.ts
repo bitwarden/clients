@@ -19,7 +19,7 @@ import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { ButtonModule, DialogService, PopoverModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconModule, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { LoginApprovalDialogComponent } from "../login-approval";
@@ -62,6 +62,7 @@ export interface DeviceDisplayData {
     DeviceManagementItemGroupComponent,
     DeviceManagementTableComponent,
     I18nPipe,
+    IconModule,
     PopoverModule,
   ],
 })
