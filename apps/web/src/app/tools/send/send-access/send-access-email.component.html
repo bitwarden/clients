@@ -27,6 +27,7 @@
     buttonType="primary"
     [loading]="loading()"
     [block]="true"
+    [disabled]="!otp?.value"
     class="tw-mb-3"
   >
     <span>{{ "viewSend" | i18n }} </span>

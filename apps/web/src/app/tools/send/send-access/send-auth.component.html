@@ -1,13 +1,3 @@
-@if (loading()) {
-  <div class="tw-text-center">
-    <i
-      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  </div>
-}
 <form [formGroup]="sendAccessForm" (ngSubmit)="onSubmit()">
   @if (error()) {
     <div class="tw-text-main tw-text-center">

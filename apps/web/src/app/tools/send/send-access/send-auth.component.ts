@@ -81,13 +81,16 @@ export class SendAuthComponent implements OnInit {
     this.loading.set(true);
     this.unavailable.set(false);
     this.error.set(false);
-    const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-    if (sendEmailOtp) {
-      await this.attemptV2Access();
-    } else {
-      await this.attemptV1Access();
+    try {
+      const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
+      if (sendEmailOtp) {
+        await this.attemptV2Access();
+      } else {
+        await this.attemptV1Access();
+      }
+    } finally {
+      this.loading.set(false);
     }
-    this.loading.set(false);
   }
 
   onBackToEmail() {
