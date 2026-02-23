@@ -10977,6 +10977,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+  },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"
   },
