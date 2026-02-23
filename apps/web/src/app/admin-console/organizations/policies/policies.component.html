@@ -1,62 +1,65 @@
-<app-header></app-header>
+<!-- Sticky wrapper: main has no top padding (tw-pt-0), so top-0 sticks flush immediately. -->
+<div class="tw-sticky tw-top-0 tw-z-10 -tw-mx-8 tw-px-8 tw-bg-background-alt">
+  <app-header>
+    <nav
+      slot="tabs"
+      role="tablist"
+      [attr.aria-label]="'policies' | i18n"
+      class="tw-inline-flex tw-flex-wrap tw-leading-5"
+    >
+      <button
+        type="button"
+        role="tab"
+        id="tab-data-controls"
+        aria-controls="data-controls"
+        [attr.aria-selected]="activeCategory() === PolicyCategory.DataControl"
+        [class]="
+          activeCategory() === PolicyCategory.DataControl
+            ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+            : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        "
+        (click)="scrollToSection(PolicyCategory.DataControl)"
+      >
+        {{ "dataControls" | i18n }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        id="tab-authentication"
+        aria-controls="authentication"
+        [attr.aria-selected]="activeCategory() === PolicyCategory.Authentication"
+        [class]="
+          activeCategory() === PolicyCategory.Authentication
+            ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+            : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        "
+        (click)="scrollToSection(PolicyCategory.Authentication)"
+      >
+        {{ "authentication" | i18n }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        id="tab-vault-management"
+        aria-controls="vault-management"
+        [attr.aria-selected]="activeCategory() === PolicyCategory.VaultManagement"
+        [class]="
+          activeCategory() === PolicyCategory.VaultManagement
+            ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+            : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        "
+        (click)="scrollToSection(PolicyCategory.VaultManagement)"
+      >
+        {{ "vaultManagement" | i18n }}
+      </button>
+    </nav>
+  </app-header>
+</div>
 
 @let organization = organization$ | async;
 @let policiesEnabledMap = policiesEnabledMap$ | async;
 @let organizationId = organizationId$ | async;
 @let orderedPolicies = policies$ | async | policyOrder;
-
-<!-- Sticky category tab navigation -->
-<nav
-  class="tw-sticky tw-top-0 tw-z-10 tw-flex tw-bg-background-alt tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100"
-  role="tablist"
-  aria-label="{{ 'policies' | i18n }}"
->
-  <button
-    type="button"
-    role="tab"
-    id="tab-data-controls"
-    aria-controls="data-controls"
-    [attr.aria-selected]="activeCategory() === PolicyCategory.DataControl"
-    [class]="
-      activeCategory() === PolicyCategory.DataControl
-        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-    "
-    (click)="scrollToSection(PolicyCategory.DataControl)"
-  >
-    {{ "dataControls" | i18n }}
-  </button>
-  <button
-    type="button"
-    role="tab"
-    id="tab-authentication"
-    aria-controls="authentication"
-    [attr.aria-selected]="activeCategory() === PolicyCategory.Authentication"
-    [class]="
-      activeCategory() === PolicyCategory.Authentication
-        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-    "
-    (click)="scrollToSection(PolicyCategory.Authentication)"
-  >
-    {{ "authentication" | i18n }}
-  </button>
-  <button
-    type="button"
-    role="tab"
-    id="tab-vault-management"
-    aria-controls="vault-management"
-    [attr.aria-selected]="activeCategory() === PolicyCategory.VaultManagement"
-    [class]="
-      activeCategory() === PolicyCategory.VaultManagement
-        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
-    "
-    (click)="scrollToSection(PolicyCategory.VaultManagement)"
-  >
-    {{ "vaultManagement" | i18n }}
-  </button>
-</nav>
 
 <bit-container>
   @if (!organization || !policiesEnabledMap || !organizationId) {
