@@ -664,7 +664,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,

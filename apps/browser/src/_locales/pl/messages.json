@@ -440,7 +440,7 @@
     "message": "Synchronizacja"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synchronizuj teraz"
   },
   "lastSync": {
     "message": "Ostatnia synchronizacja:"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
-  "itemWasSentToArchive": {
-    "message": "Element został przeniesiony do archiwum"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Element został usunięty z archiwum"
-  },
-  "itemUnarchived": {
-    "message": "Element został usunięty z archiwum"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiwizuj element"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Kod weryfikacyjny jest nieprawidłowy"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "Skopiowano $VALUE$",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden nie będzie proponował zapisywania danych logowania dla tych domen. Odśwież stronę, aby zastosowywać zmiany."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden nie będzie proponował zapisywania danych logowania dla tych domen dla wszystkich zalogowanych kont. Odśwież stronę, aby zastosowywać zmiany."
-  },
   "blockedDomainsDesc": {
     "message": "Autouzupełnianie będzie zablokowane dla tych stron internetowych. Zmiany zaczną obowiązywać po odświeżeniu strony."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ilustracja listy danych logowania, które są zagrożone."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Wygeneruj silne i unikalne hasło dla zagrożonej strony internetowej za pomocą autouzupełniania Bitwarden.",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5671,7 +5710,7 @@
     "message": "Bardzo szeroka"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Wąska"
   },
   "sshKeyWrongPassword": {
     "message": "Hasło jest nieprawidłowe."
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Numer karty"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Pobierz aplikacje Bitwarden"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

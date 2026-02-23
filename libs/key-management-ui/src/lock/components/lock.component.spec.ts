@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -604,5 +604,151 @@ describe("LockComponent", () => {
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
     });
+  });
+
+  describe("listenForUnlockOptionsChanges", () => {
+    const mockActiveAccount: Account = {
+      id: userId,
+      email: "test@example.com",
+      name: "Test User",
+    } as Account;
+
+    const mockUnlockOptions: UnlockOptions = {
+      masterPassword: { enabled: true },
+      pin: { enabled: false },
+      biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
+      prf: { enabled: false },
+    };
+
+    beforeEach(() => {
+      (component as any).loading = false;
+      component.activeAccount = mockActiveAccount;
+      component.activeUnlockOption = null;
+      component.unlockOptions = null;
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(mockUnlockOptions));
+    });
+
+    it("skips polling when loading is true", fakeAsync(() => {
+      (component as any).loading = true;
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).not.toHaveBeenCalled();
+    }));
+
+    it("skips polling when activeAccount is null", fakeAsync(() => {
+      component.activeAccount = null;
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).not.toHaveBeenCalled();
+    }));
+
+    it("fetches unlock options when loading is false and activeAccount exists", fakeAsync(() => {
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledWith(userId);
+      expect(component.unlockOptions).toEqual(mockUnlockOptions);
+    }));
+
+    it("calls getAvailableUnlockOptions$ at 1000ms intervals", fakeAsync(() => {
+      component["listenForUnlockOptionsChanges"]();
+
+      // Initial timer fire at 0ms
+      tick(0);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(1);
+
+      // First poll at 1000ms
+      tick(1000);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(2);
+
+      // Second poll at 2000ms
+      tick(1000);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(3);
+    }));
+
+    it("calls setDefaultActiveUnlockOption when activeUnlockOption is null", fakeAsync(() => {
+      component.activeUnlockOption = null;
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).toHaveBeenCalledWith(mockUnlockOptions);
+    }));
+
+    it("does NOT call setDefaultActiveUnlockOption when activeUnlockOption is already set", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+      component.unlockOptions = mockUnlockOptions;
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls setDefaultActiveUnlockOption when biometrics becomes enabled", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+
+      // Start with biometrics disabled
+      component.unlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      // Mock response with biometrics enabled
+      const newUnlockOptions: UnlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(newUnlockOptions));
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+      const handleBioSpy = jest.spyOn(component as any, "handleBiometricsUnlockEnabled");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).toHaveBeenCalledWith(newUnlockOptions);
+      expect(handleBioSpy).toHaveBeenCalled();
+    }));
+
+    it("does NOT call setDefaultActiveUnlockOption when biometrics was already enabled", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+
+      // Start with biometrics already enabled
+      component.unlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      // Mock response with biometrics still enabled
+      const newUnlockOptions: UnlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(newUnlockOptions));
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).not.toHaveBeenCalled();
+    }));
   });
 });
