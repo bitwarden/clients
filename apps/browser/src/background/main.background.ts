@@ -992,6 +992,7 @@ export default class MainBackground {
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.configService,
     );
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);

@@ -617,6 +617,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.configService,
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
