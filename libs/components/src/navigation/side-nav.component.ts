@@ -34,7 +34,12 @@ export type SideNavVariant = "primary" | "secondary";
     AsyncPipe,
   ],
   host: {
-    class: "tw-block tw-h-full",
+    // Grid placement: always col 1.  In overlay mode the element is also
+    // switched to position:fixed so it escapes the grid's stacking context
+    // and renders above the scrim (z-40) and the drawer.
+    class: "tw-block tw-h-full tw-col-start-1 tw-row-start-1",
+    "[class]":
+      "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50' : ''",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,45 +1,68 @@
 @let mainContentId = "main-content";
-<div class="tw-flex tw-size-full" [class.tw-bg-background-alt3]="rounded()">
-  <div class="tw-flex tw-size-full" cdkTrapFocus>
-    <div
-      class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
-    >
-      <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
-        <a
-          #skipLink
-          bitLink
-          class="tw-mx-6 focus-visible:before:!tw-ring-0"
-          [fragment]="mainContentId"
-          [routerLink]="[]"
-          (click)="focusMainContent()"
-          linkType="light"
-          >{{ "skipToContent" | i18n }}</a
-        >
-      </nav>
-    </div>
-    <ng-content select="bit-side-nav, [slot=side-nav]"></ng-content>
-    <main
-      #main
-      [id]="mainContentId"
-      tabindex="-1"
-      bitScrollLayoutHost
-      class="tw-overflow-auto tw-max-h-full tw-min-w-0 tw-flex-1 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
-      [class.tw-rounded-tl-2xl]="rounded()"
-    >
-      <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
-      <ng-content></ng-content>
-    </main>
-    <!-- overlay backdrop for side-nav -->
-    <div
-      class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
-      [class]="sideNavService.open() ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0'"
-    >
-      @if (sideNavService.open()) {
-        <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
-      }
-    </div>
+<div
+  #container
+  class="tw-grid tw-relative tw-size-full tw-overflow-hidden tw-grid-rows-[minmax(0,1fr)]"
+  [style.grid-template-columns]="gridTemplateColumns()"
+  [class.tw-bg-background-alt3]="rounded()"
+  cdkTrapFocus
+>
+  <!-- Skip-to-content link -->
+  <div
+    class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
+  >
+    <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
+      <a
+        #skipLink
+        bitLink
+        class="tw-mx-6 focus-visible:before:!tw-ring-0"
+        [fragment]="mainContentId"
+        [routerLink]="[]"
+        (click)="focusMainContent()"
+        linkType="light"
+        >{{ "skipToContent" | i18n }}</a
+      >
+    </nav>
   </div>
-  <div class="tw-absolute tw-z-50 tw-left-0 md:tw-sticky tw-top-0 tw-h-full md:tw-w-auto">
+
+  <!-- Col 1 -->
+  <ng-content select="bit-side-nav, [slot=side-nav]">
+    <ng-container #sideNavSlotFallback></ng-container>
+  </ng-content>
+
+  <!-- Siderail width placeholder — keeps the col 1 auto track stable when the nav
+       is position:fixed (overlay) and therefore out of the grid's normal flow. -->
+  @if (sideNavService.isOverlay() && siderailIsPushMode()) {
+    <div
+      aria-hidden="true"
+      class="tw-pointer-events-none tw-w-[3.75rem] tw-mx-0.5 tw-col-start-1 tw-row-start-1"
+    ></div>
+  }
+
+  <!-- Main content (always col 2) -->
+  <main
+    #main
+    [id]="mainContentId"
+    tabindex="-1"
+    bitScrollLayoutHost
+    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
+    [class.tw-rounded-tl-2xl]="rounded()"
+  >
+    <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
+    <ng-content></ng-content>
+  </main>
+
+  <!-- Overlay backdrop for side-nav (fixed, z-40 — below nav overlay z-50) -->
+  <div
+    class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-40 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors"
+    [class.tw-bg-opacity-30]="sideNavService.isOverlay()"
+  >
+    @if (sideNavService.isOverlay()) {
+      <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
+    }
+  </div>
+
+  <!-- Drawer (always col 3; col 3 track is auto when push, 1fr when overlay, 0px when closed) -->
+  <div #drawerContainer class="tw-col-start-3 tw-row-start-1 tw-relative tw-z-30 tw-h-full">
     <ng-template [cdkPortalOutlet]="drawerPortal()"></ng-template>
   </div>
 </div>

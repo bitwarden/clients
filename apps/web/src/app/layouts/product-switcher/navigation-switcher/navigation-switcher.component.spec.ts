@@ -8,7 +8,7 @@ import { BehaviorSubject } from "rxjs";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { IconButtonModule, NavigationModule } from "@bitwarden/components";
+import { IconButtonModule, NavigationModule, SideNavService } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
@@ -86,6 +86,9 @@ describe("NavigationProductSwitcherComponent", () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NavigationProductSwitcherComponent);
+    // SideNavService.open starts false (managed by LayoutComponent's ResizeObserver in a real
+    // app). Set it to true so NavItemComponent renders text labels (used in text-content checks).
+    TestBed.inject(SideNavService).open.set(true);
     fixture.detectChanges();
   });
 

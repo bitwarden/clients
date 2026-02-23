@@ -146,28 +146,3 @@ export const ForceActiveStyles: Story = {
     `,
   }),
 };
-
-export const CollapsedNavItems: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
-      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
-    `,
-  }),
-  play: async () => {
-    const toggleButton = document.querySelector(
-      "[aria-label='Toggle side navigation']",
-    ) as HTMLButtonElement;
-
-    if (toggleButton) {
-      toggleButton.click();
-    }
-  },
-  parameters: {
-    chromatic: {
-      delay: 1000,
-    },
-  },
-};
