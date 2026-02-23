@@ -1,4 +1,4 @@
-import { dialog, shell, Notification } from "electron";
+import { dialog, ipcMain, shell, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
@@ -216,10 +216,41 @@ export class UpdaterMain {
     });
 
     if (result.response === 0) {
+      if (await this.hasUnsavedChanges()) {
+        const confirm = await dialog.showMessageBox(this.windowMain.win, {
+          type: "warning",
+          title: this.i18nService.t("unsavedChangesTitle"),
+          message: this.i18nService.t("unsavedChangesTitle"),
+          detail: this.i18nService.t("unsavedChangesConfirmation"),
+          buttons: [this.i18nService.t("restart"), this.i18nService.t("later")],
+          cancelId: 1,
+          defaultId: 1,
+          noLink: true,
+        });
+
+        if (confirm.response !== 0) {
+          return;
+        }
+      }
+
       // Quit and install have a different window logic, setting `isQuitting` just to be safe.
       this.windowMain.isQuitting = true;
       autoUpdater.quitAndInstall(true, true);
     }
+  }
+
+  private hasUnsavedChanges(): Promise<boolean> {
+    if (this.windowMain.win == null) {
+      return Promise.resolve(false);
+    }
+
+    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 1000));
+    const check = new Promise<boolean>((resolve) => {
+      ipcMain.once("hasUnsavedChanges", (_, hasChanges: boolean) => resolve(hasChanges));
+      this.windowMain.win.webContents.send("hasUnsavedChanges");
+    });
+
+    return Promise.race([timeout, check]);
   }
 
   private userDisabledUpdates(): boolean {

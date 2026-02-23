@@ -222,6 +222,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
+    ipc.platform.registerUnsavedChangesProvider((resolve) => {
+      resolve(document.querySelectorAll(".ng-dirty").length > 0);
+    });
+
     this.ngZone.runOutsideAngular(() => {
       setTimeout(async () => {
         await this.updateAppMenu();

@@ -140,6 +140,13 @@ export default {
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  registerUnsavedChangesProvider: (provide: (resolve: (hasChanges: boolean) => void) => void) => {
+    const resolve = (hasChanges: boolean) => ipcRenderer.send("hasUnsavedChanges", hasChanges);
+
+    ipcRenderer.on("hasUnsavedChanges", () => {
+      provide(resolve);
+    });
+  },
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
