@@ -2,11 +2,12 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { BannerTitleDirective } from "./banner-title.directive";
 import { BannerComponent } from "./banner.component";
 
 export default {
@@ -29,13 +30,13 @@ export default {
     }),
   ],
   parameters: {
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26720&t=b5tDKylm5sWm2yKo-4",
-    },
+    // design: {
+    //   type: "figma",
+    //   url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26720&t=b5tDKylm5sWm2yKo-4",
+    // },
   },
   args: {
-    bannerType: "warning",
+    variant: "primary",
     showClose: true,
   },
   argTypes: {
@@ -45,84 +46,75 @@ export default {
 
 type Story = StoryObj<BannerComponent>;
 
-export const Base: Story = {
+export const BannerBase: Story = {
   render: (args) => {
     return {
       props: args,
       template: /*html*/ `
-        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
-          Content Really Long Text Lorem Ipsum Ipsum Ipsum
-          <button type="button" bitLink linkType="secondary">Button</button>
+        <bit-banner
+          [variant]="variant"
+          [showClose]="showClose"
+          >
+          Bitwarden is the most trusted password manager. <a bitLink [linkType]="variant">Click me</a>
         </bit-banner>
       `,
     };
   },
-};
-
-export const Premium: Story = {
-  ...Base,
   args: {
-    bannerType: "premium",
+    variant: "primary",
+    showClose: true,
   },
 };
 
-export const Info: Story = {
-  ...Base,
+export const BannerComplexBase: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <bit-banner
+          [variant]="variant"
+          [showClose]="showClose"
+        >
+          <span slot="title">Integration is the key</span>
+          You can integrate Flowbite with many tools to make your work even more efficient.
+          <ng-container slot="actions">
+            <button bitButton type="button" buttonType="secondary">Cancel</button>
+            <button bitButton type="button" buttonType="primary">Continue</button>
+          </ng-container>
+        </bit-banner>
+      `,
+    };
+  },
   args: {
-    bannerType: "info",
+    variant: "primary",
+    showClose: true,
+  },
+};
+
+export const Primary: Story = {
+  ...BannerBase,
+  args: {
+    variant: "primary",
+  },
+};
+
+export const Success: Story = {
+  ...BannerBase,
+  args: {
+    variant: "success",
   },
 };
 
 export const Warning: Story = {
-  ...Base,
+  ...BannerBase,
   args: {
-    bannerType: "warning",
+    variant: "warning",
   },
 };
 
 export const Danger: Story = {
-  ...Base,
+  ...BannerBase,
   args: {
-    bannerType: "danger",
+    variant: "danger",
   },
-};
-
-export const HideClose: Story = {
-  ...Base,
-  args: {
-    showClose: false,
-  },
-};
-
-export const Stacked: Story = {
-  args: {},
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-banner bannerType="premium" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="premium" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="warning" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="warning" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="danger" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="danger" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="info" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      <bit-banner bannerType="info" (onClose)="onClose($event)">
-        Bruce
-      </bit-banner>
-      `,
-  }),
 };

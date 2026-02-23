@@ -1,11 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChild,
+  input,
+  output,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent, type IconTileVariant } from "../icon-tile/icon-tile.component";
 
-type BannerVariant = "primary" | "success" | "warning" | "danger";
+import { BannerTitleDirective } from "./banner-title.directive";
+
+export type BannerVariant = "primary" | "success" | "warning" | "danger";
+
+// export type BannerSize = "lg" | "md";
 
 const defaultIcon: Record<BannerVariant, string> = {
   primary: "bwi-info-circle",
@@ -22,16 +33,16 @@ const defaultIcon: Record<BannerVariant, string> = {
  * - They should always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
  * - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
  * - Avoid stacking multiple banners.
- * - Banners can contain a button or anchor that uses the `bitLink` directive with `linkType="secondary"`.
+ * - Banners can contain an anchor that uses the `bitLink` directive.
  */
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, IconTileComponent, I18nPipe],
+  imports: [IconButtonModule, IconTileComponent, I18nPipe, BannerTitleDirective],
   host: {
     // Account for bit-layout's padding
     class:
-      "tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
+      "tw-@container tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -42,19 +53,10 @@ export class BannerComponent {
   readonly variant = input<BannerVariant>("primary");
 
   /**
-   * The size of the banner.
-   */
-  readonly size = input<"lg" | "md">("lg");
-
-  /**
-   * The icon to display. If not provided, a default icon based on bannerType will be used. Explicitly passing null will remove the icon.
+   * The icon to display. If not provided, a default icon based on variant will be used.
+   * Explicitly passing null will remove the icon.
    */
   readonly icon = input<string | null>();
-
-  /**
-   * Whether to use ARIA alert role for screen readers.
-   */
-  readonly useAlertRole = input(true);
 
   /**
    * Whether to show the close button.
@@ -62,33 +64,29 @@ export class BannerComponent {
   readonly showClose = input(true);
 
   /**
+   * Whether to use ARIA alert role for screen readers.
+   */
+  readonly useAlertRole = input(true);
+
+  /**
    * Emitted when the banner is closed via the close button.
    */
   readonly onClose = output();
 
   /**
-   * The computed icon to display, falling back to the default icon for the banner type.
-   * Returns null if icon is explicitly set to null (to hide the icon).
+   * The computed icon to display, falling back to the default icon for the variant.
    */
   protected readonly displayIcon = computed(() => {
-    // If icon is explicitly null, don't show any icon
     if (this.icon() === null) {
       return null;
     }
-
-    // If icon is undefined, fall back to default icon
     return this.icon() ?? defaultIcon[this.variant()];
   });
 
   /**
-   * Icon tile size is always "sm" (24px) for simple banner
+   * Icon tile variant matches banner variant.
    */
-  protected readonly iconTileSize = computed(() => "sm" as const);
-
-  /**
-   * Icon tile variant matches banner variant
-   */
-  protected readonly iconTileVariant = computed((): IconTileVariant => {
+  protected readonly resolvedIconTileVariant = computed((): IconTileVariant => {
     const variantMap: Record<BannerVariant, IconTileVariant> = {
       primary: "primary",
       success: "success",
@@ -98,25 +96,25 @@ export class BannerComponent {
     return variantMap[this.variant()];
   });
 
+  protected readonly titleSlot = contentChild(BannerTitleDirective);
+
+  /**
+   * Actions slot only renders when a title is present.
+   */
+  protected readonly showActions = computed(() => !!this.titleSlot());
+
   protected readonly bannerClass = computed(() => {
+    const align = this.showActions() ? "tw-items-start @5xl:tw-items-center" : "tw-items-center";
+
     switch (this.variant()) {
       case "primary":
-        return "tw-bg-info-100 tw-border-b-info-700";
+        return `${align} tw-bg-bg-brand-softer tw-border-b-border-brand-soft`;
       case "success":
-        return "tw-bg-success-100 tw-border-b-success-700";
+        return `${align} tw-bg-bg-success-soft tw-border-b-border-success-soft`;
       case "warning":
-        return "tw-bg-warning-100 tw-border-b-warning-700";
+        return `${align} tw-bg-bg-warning-soft tw-border-b-border-warning-soft`;
       case "danger":
-        return "tw-bg-danger-100 tw-border-b-danger-700";
-    }
-  });
-
-  protected readonly sizeClasses = computed(() => {
-    switch (this.size()) {
-      case "lg":
-        return "tw-h-14 tw-p-4"; // 56px height, 16px padding
-      case "md":
-        return "tw-h-10 tw-py-2 tw-px-4"; // 40px height, 8px vertical, 16px horizontal
+        return `${align} tw-bg-bg-danger-soft tw-border-b-border-danger-soft`;
     }
   });
 }
