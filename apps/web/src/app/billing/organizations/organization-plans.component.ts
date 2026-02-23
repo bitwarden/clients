@@ -12,7 +12,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
-import { debounceTime, map, switchMap } from "rxjs/operators";
+import { debounceTime, filter, map, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -128,9 +128,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly initialPlan = input<PlanType>(PlanType.Free);
 
   // Derived signals
-  readonly account = toSignal(this.accountService.activeAccount$);
   readonly hasPremiumPersonally = toSignal(
-    this.billingAccountProfileStateService.hasPremiumPersonally$(this.account()!.id),
+    this.accountService.activeAccount$.pipe(
+      filter(Boolean),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+      ),
+    ),
     { initialValue: false },
   );
   readonly premiumToOrganizationUpgradeFeatureFlagEnabled = toSignal(
