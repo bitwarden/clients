@@ -1407,8 +1407,8 @@ export class CipherService implements CipherServiceAbstraction {
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1429,8 +1429,8 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
       return;
     }
 
@@ -1604,8 +1604,8 @@ export class CipherService implements CipherServiceAbstraction {
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1626,8 +1626,8 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
       return;
     }
 
@@ -1677,8 +1677,8 @@ export class CipherService implements CipherServiceAbstraction {
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1699,8 +1699,8 @@ export class CipherService implements CipherServiceAbstraction {
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
       return;
     }
 
