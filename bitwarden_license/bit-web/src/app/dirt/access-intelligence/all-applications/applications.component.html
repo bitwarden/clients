@@ -22,7 +22,7 @@
       </bit-chip-select>
 
       <div class="tw-ml-auto tw-gap-4 tw-flex">
-        @if (selectedUrls().size > 0) {
+        @if (visibleSelectedApps().size > 0) {
           @if (allSelectedAppsAreCritical()) {
             <button
               type="button"
@@ -33,7 +33,7 @@
               (click)="unmarkAppsAsCritical()"
               data-testid="unmark-critical-button"
             >
-              {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
+              {{ "markAppCountAsNotCritical" | i18n: visibleSelectedApps().size }}
             </button>
           } @else {
             <button
@@ -45,7 +45,7 @@
               (click)="markAppsAsCritical()"
               data-testid="mark-critical-button"
             >
-              {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}
+              {{ "markAppCountAsCritical" | i18n: visibleSelectedApps().size }}
             </button>
           }
         }
@@ -79,14 +79,15 @@
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
-      [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
+      (checkboxChange)="onCheckboxChange($event)"
+      (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
     ></app-table-row-scrollable-m11>
 
-    @if (emptyTableExplanation()) {
+    @if (this.dataSource.filteredData?.length === 0) {
       <div class="tw-flex tw-mt-10 tw-justify-center">
-        <span bitTypography="body2">{{ emptyTableExplanation() }}</span>
+        <span bitTypography="body2">{{ "noApplicationsMatchTheseFilters" | i18n }}</span>
       </div>
     }
   </div>
