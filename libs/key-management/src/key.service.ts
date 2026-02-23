@@ -68,7 +68,6 @@ import {
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
 
-
 const USER_KEY_STATE_KEY: string = "";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
@@ -143,14 +142,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .state$.pipe(map((x) => x ?? false));
   }
 
-  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
-    return this.stateProvider.getUserState$(USER_KEY, userId).pipe(map(userKey => this.stateObjectToUserKey(userKey)));
+  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
+    return this.stateProvider
+      .getUserState$(USER_KEY, userId)
+      .pipe(map((userKey) => this.stateObjectToUserKey(userKey)));
   }
 
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
-  async getUserKey(userId?: UserId): Promise<UserKey> {
+  async getUserKey(userId?: UserId): Promise<UserKey | null> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
     return this.stateObjectToUserKey(userKey);
   }
@@ -682,8 +683,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUser(userId, USER_KEY).state$
-      .pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
+    return this.stateProvider
+      .getUser(userId, USER_KEY)
+      .state$.pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
   }
 
   userPublicKey$(userId: UserId) {
