@@ -30,7 +30,7 @@ impl<'a, T> Iterator for ArrayPointerIterator<'a, T> {
     }
 }
 
-pub(super) trait WindowsString {
+pub(crate) trait WindowsString {
     fn to_utf16(&self) -> Vec<u16>;
 }
 

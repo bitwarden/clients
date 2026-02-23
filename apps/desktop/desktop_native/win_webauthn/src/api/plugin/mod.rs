@@ -1,5 +1,6 @@
-//! Types pertaining to registering a plugin implementation and handling plugin
-//! authenticator requests.
+//! Safe wrappers types and functions around raw webauthn.dll functions defined in `pluginauthenticator.h` and `webauthnplugin.h`.
+
+mod com;
 
 use std::{mem::MaybeUninit, num::NonZeroU32, ptr::NonNull};
 
@@ -9,32 +10,68 @@ use windows::{
     Win32::{Foundation::HWND, System::Com::CoTaskMemFree},
 };
 
-pub use crate::webauthn_sys::plugin::PLUGIN_LOCK_STATUS as PluginLockStatus;
+use crate::{CredentialId, ErrorKind, WinWebAuthnError};
 
-use super::Clsid;
-use crate::{
-    webauthn::{
-        util::WindowsString, AuthenticatorInfo, CredentialEx, CtapTransport, HmacSecretSalt,
-        RpEntityInformation, UserEntityInformation, UserId, WebAuthnExtensionMakeCredentialOutput,
-    },
-    webauthn_sys::{
+pub use super::sys::plugin::PLUGIN_LOCK_STATUS as PluginLockStatus;
+
+use super::{
+    sys::{
         crypto::{self, Signature},
         plugin::{
             webauthn_decode_get_assertion_request, webauthn_decode_make_credential_request,
             webauthn_encode_make_credential_response, webauthn_free_decoded_get_assertion_request,
             webauthn_free_decoded_make_credential_request, webauthn_plugin_add_authenticator,
+            webauthn_plugin_authenticator_add_credentials,
             webauthn_plugin_free_add_authenticator_response,
             WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS, WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
             WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
             WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-            WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_REQUEST_TYPE,
+            WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+            WEBAUTHN_PLUGIN_REQUEST_TYPE,
         },
         WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
         WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,
         WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
     },
-    CredentialId, ErrorKind, WinWebAuthnError,
+    webauthn::{
+        AuthenticatorInfo, CredentialEx, CtapTransport, HmacSecretSalt, RpEntityInformation,
+        UserEntityInformation, UserId, WebAuthnExtensionMakeCredentialOutput,
+    },
+    WindowsString,
 };
+
+pub(crate) use com::register_server;
+use com::ComBuffer;
+
+#[derive(Clone, Copy)]
+pub struct Clsid(GUID);
+
+impl TryFrom<&str> for Clsid {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        // Remove hyphens and parse as hex
+        let clsid_clean = value.replace("-", "").replace("{", "").replace("}", "");
+        if clsid_clean.len() != 32 {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::Serialization,
+                "Invalid CLSID format",
+            ));
+        }
+
+        // Convert to u128 and create GUID
+        let clsid_u128 = u128::from_str_radix(&clsid_clean, 16).map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::Serialization,
+                "Failed to parse CLSID as hex",
+                err,
+            )
+        })?;
+
+        let clsid = Clsid(GUID::from_u128(clsid_u128));
+        Ok(clsid)
+    }
+}
 
 // Plugin Registration types
 
@@ -133,19 +170,13 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
     fn try_from(value: &PluginAddAuthenticatorOptions) -> Result<Self, Self::Error> {
         let rclsid = Box::new(value.clsid.0);
+
         let authenticator_name = value.authenticator_name.to_utf16();
 
         let rp_id = value.rp_id.as_deref().map(WindowsString::to_utf16);
-        let pwszPluginRpId = rp_id.as_ref().map_or(std::ptr::null(), |v| v.as_ptr());
 
         let light_logo_b64 = value.light_theme_logo_b64();
-        let pwszLightThemeLogoSvg = light_logo_b64
-            .as_ref()
-            .map_or(std::ptr::null(), |v| v.as_ptr());
         let dark_logo_b64 = value.dark_theme_logo_b64();
-        let pwszDarkThemeLogoSvg = dark_logo_b64
-            .as_ref()
-            .map_or(std::ptr::null(), |v| v.as_ptr());
 
         let authenticator_info = value.authenticator_info.as_ctap_bytes()?;
 
@@ -160,9 +191,13 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
         let inner = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
             pwszAuthenticatorName: authenticator_name.as_ptr(),
             rclsid: &value.clsid.0,
-            pwszPluginRpId,
-            pwszLightThemeLogoSvg,
-            pwszDarkThemeLogoSvg,
+            pwszPluginRpId: rp_id.as_ref().map_or(std::ptr::null(), |v| v.as_ptr()),
+            pwszLightThemeLogoSvg: light_logo_b64
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
+            pwszDarkThemeLogoSvg: dark_logo_b64
+                .as_ref()
+                .map_or(std::ptr::null(), |v| v.as_ptr()),
             cbAuthenticatorInfo: authenticator_info.len() as u32,
             pbAuthenticatorInfo: authenticator_info.as_ptr(),
             cSupportedRpIds: supported_rp_id_ptrs
@@ -291,6 +326,65 @@ pub struct PluginCredentialDetails {
     ///
     /// Corresponds to [`displayName`](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialuserentity-displayname) field of WebAuthn `PublicKeyCredentialUserEntity`.
     pub user_display_name: String,
+}
+
+pub struct PluginCredentialDetailsRaw {
+    inner: WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
+}
+
+impl From<&PluginCredentialDetails> for PluginCredentialDetailsRaw {
+    fn from(value: &PluginCredentialDetails) -> Self {
+        // All buffers must be allocated with the COM task allocator to be passed over COM.
+        // The receiver is responsible for freeing the COM memory, which is why we leak all the
+        // buffers here.
+
+        // Allocate credential_id bytes with COM
+        let credential_id_buf = value.credential_id.as_ref().to_com_buffer();
+
+        // Allocate user_id bytes with COM
+        let user_id_buf = value.user_id.as_ref().to_com_buffer();
+        // Convert strings to null-terminated wide strings using trait methods
+        let rp_id_buf: ComBuffer = value.rp_id.to_utf16().to_com_buffer();
+        let rp_friendly_name_buf: Option<ComBuffer> = value
+            .rp_friendly_name
+            .as_ref()
+            .map(|display_name| display_name.to_utf16().to_com_buffer());
+        let user_name_buf: ComBuffer = (value.user_name.to_utf16()).to_com_buffer();
+        let user_display_name_buf: ComBuffer = value.user_display_name.to_utf16().to_com_buffer();
+        let inner = WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+            credential_id_byte_count: u32::from(value.credential_id.len()),
+            credential_id_pointer: credential_id_buf.into_raw(),
+            rpid: rp_id_buf.into_raw(),
+            rp_friendly_name: rp_friendly_name_buf.map_or(std::ptr::null(), |buf| buf.into_raw()),
+            user_id_byte_count: u32::from(value.user_id.len()),
+            user_id_pointer: user_id_buf.into_raw(),
+            user_name: user_name_buf.into_raw(),
+            user_display_name: user_display_name_buf.into_raw(),
+        };
+        PluginCredentialDetailsRaw { inner }
+    }
+}
+
+pub(crate) fn add_credentials(
+    clsid: &Clsid,
+    credentials: &[&PluginCredentialDetailsRaw],
+) -> Result<(), WinWebAuthnError> {
+    // SAFETY: The pointer to credentials lives longer than the call to
+    // webauthn_plugin_authenticator_add_credentials(). The nested
+    // buffers are allocated with COM, which the OS is responsible for
+    // cleaning up.
+    let array = credentials.iter().map(|c| c.inner).to_vec();
+    let result = unsafe {
+        webauthn_plugin_authenticator_add_credentials(&clsid.0, array.len(), array.as_ptr())
+    }?;
+    if let Err(err) = result.ok() {
+        return Err(WinWebAuthnError::with_cause(
+            ErrorKind::WindowsInternal,
+            "Failed to add credential list to autofill store",
+            err,
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -570,6 +664,7 @@ pub struct PluginMakeCredentialResponse {
 
 impl PluginMakeCredentialResponse {
     pub fn to_ctap_response(self) -> Result<Vec<u8>, WinWebAuthnError> {
+        #![allow(non_snake_case)]
         // Convert format type to UTF-16
         let format_type_utf16 = self.format_type.to_utf16();
         let pwszFormatType = format_type_utf16.as_ptr();

@@ -12,7 +12,7 @@ macro_rules! webauthn_call {
     ($symbol:literal as $(#[$attr:meta])* fn $fn_name:ident($($arg:ident: $arg_type:ty),+ $(,)?) -> $result_type:ty) => (
         $(#[$attr])*
         pub(crate) unsafe fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
-            let library = crate::webauthn_sys::util::load_webauthn_lib()?;
+            let library = crate::api::sys::util::load_webauthn_lib()?;
             let response = unsafe {
                 let address = windows::Win32::System::LibraryLoader::GetProcAddress(library, windows::core::s!($symbol)).ok_or(
                     crate::WinWebAuthnError::new(
@@ -29,7 +29,7 @@ macro_rules! webauthn_call {
                 ) -> $result_type = std::mem::transmute_copy(&address);
                 function($($arg),*)
             };
-            crate::webauthn_sys::util::free_webauthn_lib(library)?;
+            crate::api::sys::util::free_webauthn_lib(library)?;
             Ok(response)
         }
     )

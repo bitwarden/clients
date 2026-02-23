@@ -18,19 +18,22 @@ use windows::{
 };
 use windows_core::{IInspectable, Interface};
 
-use crate::webauthn_sys::{
-    crypto::{self, OwnedRequestHash},
-    plugin::{
-        WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+use crate::{
+    api::sys::{
+        crypto::{self, OwnedRequestHash},
+        plugin::{
+            WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+            WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+        },
     },
+    plugin::Clsid,
 };
 use crate::{
     plugin::{PluginGetAssertionRequest, PluginMakeCredentialRequest},
     ErrorKind, WinWebAuthnError,
 };
 
-use super::{types::PluginLockStatus, PluginAuthenticator};
+use super::{PluginAuthenticator, PluginLockStatus};
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 static SHUTDOWN: OnceLock<bool> = OnceLock::new();
@@ -285,7 +288,7 @@ unsafe fn write_operation_response(
 }
 
 /// Registers the plugin authenticator COM library with Windows.
-pub(super) fn register_server<T>(clsid: &GUID, handler: T) -> Result<(), WinWebAuthnError>
+pub(crate) fn register_server<T>(clsid: Clsid, handler: T) -> Result<(), WinWebAuthnError>
 where
     T: PluginAuthenticator + Send + Sync + 'static,
 {
@@ -328,7 +331,7 @@ where
     }
 
     // Store the handler as a static so it can be initialized
-    HANDLER.set((*clsid, Arc::new(handler))).map_err(|_| {
+    HANDLER.set((clsid.0, Arc::new(handler))).map_err(|_| {
         WinWebAuthnError::new(ErrorKind::WindowsInternal, "Handler already initialized")
     })?;
 
@@ -336,7 +339,7 @@ where
     static FACTORY: windows::core::StaticComObject<Factory> = Factory.into_static();
     unsafe {
         CoRegisterClassObject(
-            ptr::from_ref(clsid),
+            ptr::from_ref(&clsid.0),
             FACTORY.as_interface_ref(),
             CLSCTX_LOCAL_SERVER,
             REGCLS_MULTIPLEUSE,
@@ -352,7 +355,7 @@ where
     Ok(())
 }
 
-pub(super) fn shutdown_server() -> std::result::Result<(), WinWebAuthnError> {
+pub(crate) fn shutdown_server() -> std::result::Result<(), WinWebAuthnError> {
     if HANDLER.get().is_some() {
         if let Ok(()) = SHUTDOWN.set(true) {
             unsafe { CoUninitialize() };
