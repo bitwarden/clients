@@ -20,6 +20,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import { ReportProgress } from "../../models/report-models";
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
 import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
@@ -42,11 +43,13 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   private _loading = new BehaviorSubject<boolean>(false);
   private _error = new BehaviorSubject<string | null>(null);
   private _currentOrgId = new BehaviorSubject<OrganizationId | null>(null);
+  private _reportProgress = new BehaviorSubject<ReportProgress | null>(null);
 
   readonly report$ = this._report.asObservable();
   readonly ciphers$ = this._ciphers.asObservable();
   readonly loading$ = this._loading.asObservable();
   readonly error$ = this._error.asObservable();
+  readonly reportProgress$ = this._reportProgress.asObservable();
 
   constructor(
     private cipherService: CipherService,
@@ -153,6 +156,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
     this._loading.next(true);
     this._error.next(null);
+    this._reportProgress.next(null); // Reset progress
 
     // Load previous applications for metadata carry-over
     const previousApps$ = this.reportPersistenceService.loadReport$(orgId).pipe(
@@ -164,6 +168,9 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         return of([]);
       }),
     );
+
+    // Emit FetchingMembers before parallel data load begins
+    this._reportProgress.next(ReportProgress.FetchingMembers);
 
     // Load organization data in parallel
     return forkJoin({
@@ -186,6 +193,10 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           },
         );
 
+        // Emit AnalyzingPasswords then CalculatingRisks before report generation
+        this._reportProgress.next(ReportProgress.AnalyzingPasswords);
+        this._reportProgress.next(ReportProgress.CalculatingRisks);
+
         // Generate report
         return this.reportGenerationService
           .generateReport(
@@ -196,21 +207,27 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
             previousApps,
           )
           .pipe(
-            // Store ciphers for icon display
-            tap(() => this._ciphers.next(orgData.ciphers)),
+            // Store ciphers for icon display and emit GeneratingReport after generation completes
+            tap(() => {
+              this._ciphers.next(orgData.ciphers);
+              this._reportProgress.next(ReportProgress.GeneratingReport);
+            }),
             // Save report
-            switchMap((generatedReport) =>
-              this.reportPersistenceService.saveReport$(generatedReport, orgId).pipe(
+            switchMap((generatedReport) => {
+              // Emit Saving before persistence call
+              this._reportProgress.next(ReportProgress.Saving);
+              return this.reportPersistenceService.saveReport$(generatedReport, orgId).pipe(
                 map((reportId) => {
                   generatedReport.id = reportId;
                   return generatedReport;
                 }),
-              ),
-            ),
+              );
+            }),
           );
       }),
       tap((savedReport) => {
         this._report.next(savedReport);
+        this._reportProgress.next(ReportProgress.Complete);
         this._loading.next(false);
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Report generation complete",
@@ -224,6 +241,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           error,
         );
         this._error.next("Failed to generate report");
+        this._reportProgress.next(null); // Reset progress on error
         this._loading.next(false);
         return throwError(() => error);
       }),

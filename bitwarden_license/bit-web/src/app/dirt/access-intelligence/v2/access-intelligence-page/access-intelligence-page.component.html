@@ -1,8 +1,10 @@
 <app-header> </app-header>
 
 <ng-container>
-  @if (loading()) {
-    <!-- V2 Simplified Loading: No progress steps, just a simple loading indicator -->
+  <!-- Show at top level so it's not destroyed when report data changes -->
+  @if (currentProgressStep(); as step) {
+    <dirt-report-loading [progressStep]="step"></dirt-report-loading>
+  } @else if (loading()) {
     <dirt-report-loading></dirt-report-loading>
   } @else {
     <!-- Check if we have report data -->

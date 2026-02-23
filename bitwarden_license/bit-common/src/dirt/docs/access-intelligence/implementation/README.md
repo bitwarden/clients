@@ -12,26 +12,31 @@ These guides document HOW to integrate each new service into the existing codeba
 
 ## Guide Index
 
-### Batch 0-1 (Foundational Services)
+### Foundational Services
 
 - **[DrawerStateService Integration](./drawer-state-integration.md)** - Migrating drawer UI state from RiskInsightsDataService
 - **[CipherHealthService Integration](./cipher-health-integration.md)** - Replacing PasswordHealthService with improved architecture
 
-### Batch 2 (Member Mapping)
+### Member Mapping
 
 - **[MemberCipherMappingService Integration](./member-cipher-mapping-integration.md)** - Replacing manual member mapping logic with dedicated service
 
-### Batch 3 (Report Generation) - _Documentation Coming Soon_
+### Report Generation - _Integrated_
 
-- ReportGenerationService Integration
+- ReportGenerationService - Integrated into `DefaultAccessIntelligenceDataService` via `generateNewReport$()`. Progress tracking exposed via `reportProgress$` on `AccessIntelligenceDataService` abstraction.
 
-### Batch 4 (Persistence)
+### Persistence Layer
 
 - **[ReportPersistenceService Integration](./report-persistence-integration.md)** - Backend-agnostic persistence with multiple implementation support
 
-### Batch 5 (Data Service & Facade) - _Coming Soon_
+### Data Service & Facade - _Integrated_
 
-- AccessIntelligenceDataService Integration
+- `AccessIntelligenceDataService` - Integrated into `AccessIntelligencePageComponent` (V2). Component subscribes to `report$`, `loading$`, `error$`, and `reportProgress$` via `toSignal()`. Report generation triggered via `generateNewReport$()` with progress steps wired to `<dirt-report-loading>`.
+
+### Performance & Scalability
+
+- **[Large-Scale Performance Roadmap](./large-scale-performance-roadmap.md)** - Phased implementation tracking for 10K+ organization support
+  - Related: [Large-Scale Performance Research](../architecture/large-scale-performance-research.md) (Architecture analysis)
 
 ## Guide Format
 
@@ -64,6 +69,6 @@ These guides are **reference documentation** for when we're ready to migrate com
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.2
+**Last Updated:** 2026-02-23
 **Maintainer:** DIRT Team

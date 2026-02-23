@@ -12,13 +12,15 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, distinctUntilChanged, EMPTY, map, tap } from "rxjs";
+import { combineLatest, concat, distinctUntilChanged, EMPTY, map, of, tap } from "rxjs";
+import { concatMap, delay, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
+  ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   MemberRegistryEntry,
@@ -55,6 +57,8 @@ import {
   OrgAtRiskMembersData,
 } from "../models/drawer-content-data.types";
 import { AccessIntelligenceDrawerV2Component } from "../shared/access-intelligence-drawer-v2/access-intelligence-drawer-v2.component";
+
+type ProgressStep = ReportProgress | null;
 
 @Component({
   selector: "app-access-intelligence-page",
@@ -120,6 +124,14 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected currentDialogRef: DialogRef<unknown, AccessIntelligenceDrawerV2Component> | null = null;
 
+  // Minimum time to display each progress step (in milliseconds)
+  // Prevents jarring quick transitions between steps
+  private readonly STEP_DISPLAY_DELAY_MS = 250;
+
+  // Current progress step for loading component (null = not loading)
+  // Uses concatMap with delay to ensure each step is displayed for a minimum time
+  protected readonly currentProgressStep = signal<ProgressStep>(null);
+
   // Computed values from report
   protected readonly hasReportData = computed(() => {
     const report = this.report();
@@ -152,6 +164,34 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
     });
+
+    // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time.
+    // - skip(1): Skip initial BehaviorSubject emission (stale Complete from previous run would
+    //   briefly flash the loading component on page navigation)
+    // - concatMap: Queue steps and process them sequentially
+    // - FetchingMembers shows immediately so loading appears instantly when user clicks "Run Report"
+    // - Subsequent steps are delayed to prevent jarring quick transitions
+    // - After Complete is shown, emit null to hide loading (service never emits null after Complete)
+    this.accessIntelligenceService.reportProgress$
+      .pipe(
+        skip(1),
+        concatMap((step) => {
+          if (step === null || step === ReportProgress.FetchingMembers) {
+            return of(step);
+          }
+          if (step === ReportProgress.Complete) {
+            return concat(
+              of(step as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(null as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+            );
+          }
+          return of(step).pipe(delay(this.STEP_DISPLAY_DELAY_MS));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((step) => {
+        this.currentProgressStep.set(step);
+      });
   }
 
   async ngOnInit() {

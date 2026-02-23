@@ -1,4 +1,4 @@
-import { firstValueFrom, of, throwError } from "rxjs";
+import { firstValueFrom, of, skip, throwError } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -8,6 +8,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
+import { ReportProgress } from "../../models/report-models";
 import { createCipher, createRiskInsights, createReport } from "../../testing/test-helpers";
 import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import { ReportGenerationService } from "../abstractions/report-generation.service";
@@ -215,6 +216,39 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const error = await firstValueFrom(service.error$);
       expect(error).toBe("Failed to generate report");
+    });
+
+    it("should emit full progress sequence", async () => {
+      const progressSteps: (ReportProgress | null)[] = [];
+      const sub = service.reportProgress$
+        .pipe(skip(1))
+        .subscribe((step) => progressSteps.push(step));
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+      sub.unsubscribe();
+
+      expect(progressSteps).toEqual([
+        null, // reset at start
+        ReportProgress.FetchingMembers,
+        ReportProgress.AnalyzingPasswords,
+        ReportProgress.CalculatingRisks,
+        ReportProgress.GeneratingReport,
+        ReportProgress.Saving,
+        ReportProgress.Complete,
+      ]);
+    });
+
+    it("should reset reportProgress$ to null on generation error", async () => {
+      reportGenerationService.generateReport.mockReturnValue(
+        throwError(() => new Error("Generation failed")),
+      );
+
+      await expect(firstValueFrom(service.generateNewReport$(orgId))).rejects.toThrow(
+        "Generation failed",
+      );
+
+      const progress = await firstValueFrom(service.reportProgress$);
+      expect(progress).toBeNull();
     });
   });
 

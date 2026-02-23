@@ -1,5 +1,5 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
@@ -7,6 +7,7 @@ import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
+  ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import {
@@ -40,6 +41,7 @@ type MockAccessIntelligenceDataService = {
   report$: BehaviorSubject<RiskInsightsView | null>;
   loading$: BehaviorSubject<boolean>;
   error$: BehaviorSubject<string | null>;
+  reportProgress$: BehaviorSubject<ReportProgress | null>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
 };
@@ -87,6 +89,7 @@ describe("AccessIntelligencePageComponent", () => {
       report$: new BehaviorSubject<RiskInsightsView | null>(null),
       loading$: new BehaviorSubject<boolean>(false),
       error$: new BehaviorSubject<string | null>(null),
+      reportProgress$: new BehaviorSubject<ReportProgress | null>(null),
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
     };
@@ -137,7 +140,11 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
-    }).compileComponents();
+    })
+      .overrideComponent(AccessIntelligencePageComponent, {
+        set: { template: "", imports: [] },
+      })
+      .compileComponents();
 
     mockAccessIntelligenceService.initializeForOrganization$.mockReturnValue(of(undefined));
 
@@ -526,6 +533,46 @@ describe("AccessIntelligencePageComponent", () => {
       component.generateReport();
 
       expect(mockAccessIntelligenceService.generateNewReport$).not.toHaveBeenCalled();
+    });
+
+    it("should show FetchingMembers step immediately when progress emits", fakeAsync(() => {
+      fixture = TestBed.createComponent(AccessIntelligencePageComponent);
+      component = fixture.componentInstance;
+
+      mockAccessIntelligenceService.reportProgress$.next(ReportProgress.FetchingMembers);
+      tick();
+
+      expect(testAccess(component).currentProgressStep()).toBe(ReportProgress.FetchingMembers);
+    }));
+
+    it("should delay intermediate progress steps", fakeAsync(() => {
+      fixture = TestBed.createComponent(AccessIntelligencePageComponent);
+      component = fixture.componentInstance;
+
+      mockAccessIntelligenceService.reportProgress$.next(ReportProgress.AnalyzingPasswords);
+
+      // Not yet visible (delayed)
+      expect(testAccess(component).currentProgressStep()).toBeNull();
+
+      tick(250);
+
+      expect(testAccess(component).currentProgressStep()).toBe(ReportProgress.AnalyzingPasswords);
+    }));
+
+    it("should hide loader after Complete step", fakeAsync(() => {
+      fixture = TestBed.createComponent(AccessIntelligencePageComponent);
+      component = fixture.componentInstance;
+
+      mockAccessIntelligenceService.reportProgress$.next(ReportProgress.Complete);
+      tick(250); // Complete step shows
+      expect(testAccess(component).currentProgressStep()).toBe(ReportProgress.Complete);
+
+      tick(250); // Then null hides the loader
+      expect(testAccess(component).currentProgressStep()).toBeNull();
+    }));
+
+    it("should start with null progress step", () => {
+      expect(testAccess(component).currentProgressStep()).toBeNull();
     });
   });
 

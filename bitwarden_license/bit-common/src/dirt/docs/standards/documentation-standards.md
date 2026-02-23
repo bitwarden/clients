@@ -2,8 +2,6 @@
 
 **Purpose:** Standards and conventions for DIRT team documentation
 
-**Last Updated:** 2026-02-13
-
 ---
 
 ## Table of Contents
@@ -198,10 +196,9 @@
 
 1. **Title** (`# Title`)
 2. **Purpose statement** (one sentence)
-3. **Last Updated date** (top)
-4. **Horizontal rule separator** (`---`)
-5. **Content** (organized with clear headings)
-6. **Footer metadata** (version, last updated, maintainer)
+3. **Horizontal rule separator** (`---`)
+4. **Content** (organized with clear headings)
+5. **Footer metadata** (version, last updated, maintainer)
 
 ### Recommended Structure
 

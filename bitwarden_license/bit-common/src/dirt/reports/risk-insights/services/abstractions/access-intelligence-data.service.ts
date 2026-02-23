@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { ReportProgress } from "../../models/report-models";
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
 
 /**
@@ -47,6 +48,14 @@ export abstract class AccessIntelligenceDataService {
    * Null when no error present.
    */
   abstract readonly error$: Observable<string | null>;
+
+  /**
+   * Report generation progress
+   *
+   * Emits progress steps during report generation (FetchingMembers → Complete).
+   * Null when no generation is in progress.
+   */
+  abstract readonly reportProgress$: Observable<ReportProgress | null>;
 
   /**
    * Initialize service for a specific organization
