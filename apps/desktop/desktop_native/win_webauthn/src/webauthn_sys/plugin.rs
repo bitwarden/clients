@@ -148,7 +148,7 @@ pub(crate) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+pub(crate) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a> {
     /// Version of this structure, to allow for modifications in the future.
     pub dwVersion: u32,
     /// Input RP ID size (raw UTF-8 bytes before conversion)
@@ -172,7 +172,7 @@ pub(crate) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     /// CBOR extensions map data
     pub pbCborExtensionsMap: *const u8,
     /// Authenticator Options (Optional)
-    pub pAuthenticatorOptions: *const WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
+    pub pAuthenticatorOptions: Option<&'a WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS>,
 
     // Pin Auth (Optional)
     /// Indicates zero length PinAuth is included in the request

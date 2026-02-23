@@ -292,10 +292,14 @@ impl UserEntityInformation<'_> {
     }
 }
 
-impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
+pub struct CoseCredentialParameter {
+    inner: NonNull<WEBAUTHN_COSE_CREDENTIAL_PARAMETER>,
+}
+
+impl CoseCredentialParameter {
     pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
         unsafe {
-            PCWSTR(self.pwszCredentialType.as_ptr())
+            PCWSTR(self.inner.as_ref().pwszCredentialType.as_ptr())
                 .to_string()
                 .map_err(|err| {
                     WinWebAuthnError::with_cause(
@@ -307,7 +311,7 @@ impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
         }
     }
     pub fn alg(&self) -> i32 {
-        self.lAlg
+        unsafe { self.inner.as_ref().lAlg }
     }
 }
 

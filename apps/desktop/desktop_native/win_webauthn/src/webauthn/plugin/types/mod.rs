@@ -116,6 +116,12 @@ impl PluginAddAuthenticatorOptions {
     }
 }
 
+impl From<&PluginAddAuthenticatorOptions> for &WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+    fn from(value: &PluginAddAuthenticatorOptions) -> Self {
+        todo!()
+    }
+}
+
 type WebAuthnPluginAddAuthenticatorResponse = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
 
 /// Response received when registering a plugin
@@ -238,8 +244,8 @@ impl WEBAUTHN_PLUGIN_OPERATION_REQUEST {
 // MakeCredential types
 
 #[derive(Debug)]
-pub struct PluginMakeCredentialRequest {
-    inner: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+pub struct PluginMakeCredentialRequest<'a> {
+    inner: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
     pub request_signature: Vec<u8>,
@@ -250,7 +256,7 @@ pub struct PluginMakeCredentialRequest {
     pub request_hash: Vec<u8>,
 }
 
-impl PluginMakeCredentialRequest {
+impl<'a> PluginMakeCredentialRequest<'a> {
     pub fn client_data_hash(&self) -> &[u8] {
         // SAFETY: clientDataHash is a required field, and when this is
         // constructed using Self::try_from_ptr(), the Windows decode API
@@ -305,12 +311,8 @@ impl PluginMakeCredentialRequest {
         unsafe { Some(std::slice::from_raw_parts(ptr, len as usize)) }
     }
 
-    pub fn authenticator_options(&self) -> Option<WebAuthnCtapCborAuthenticatorOptions> {
-        let ptr = self.as_ref().pAuthenticatorOptions;
-        if ptr.is_null() {
-            return None;
-        }
-        unsafe { Some(*ptr) }
+    pub fn authenticator_options(&self) -> Option<&WebAuthnCtapCborAuthenticatorOptions> {
+        self.as_ref().pAuthenticatorOptions
     }
 
     /// # Safety
@@ -321,7 +323,7 @@ impl PluginMakeCredentialRequest {
     /// - pbRequestSignature must be non-null and have the length specified in cbRequestSignature.
     pub(super) unsafe fn try_from_ptr(
         ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
-    ) -> Result<PluginMakeCredentialRequest, WinWebAuthnError> {
+    ) -> Result<PluginMakeCredentialRequest<'a>, WinWebAuthnError> {
         let request = ptr.as_ref();
         if !matches!(
             request.requestType,
@@ -375,13 +377,13 @@ impl PluginMakeCredentialRequest {
     }
 }
 
-impl AsRef<WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST> for PluginMakeCredentialRequest {
-    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
+impl<'a> AsRef<WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a>> for PluginMakeCredentialRequest<'a> {
+    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a> {
         unsafe { &*self.inner }
     }
 }
 
-impl Drop for PluginMakeCredentialRequest {
+impl Drop for PluginMakeCredentialRequest<'_> {
     fn drop(&mut self) {
         if !self.inner.is_null() {
             // SAFETY: the caller is responsible for ensuring that this pointer
