@@ -89,9 +89,6 @@ export enum FeatureFlag {
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
-
-  /* Secrets Manager */
-  SM1719_RemoveSecretsManagerAds = "sm-1719-remove-secrets-manager-ads",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -187,9 +184,6 @@ export const DefaultFeatureFlagValue = {
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
-
-  /* Secrets Manager */
-  [FeatureFlag.SM1719_RemoveSecretsManagerAds]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
