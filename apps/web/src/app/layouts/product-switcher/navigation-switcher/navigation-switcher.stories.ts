@@ -105,7 +105,7 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
 
 class MockConfigService implements Partial<ConfigService> {
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
-    return of(false);
+    return of(false as FeatureFlagValueType<Flag>);
   }
 }
 
