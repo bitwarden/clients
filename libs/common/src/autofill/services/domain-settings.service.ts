@@ -66,6 +66,10 @@ const TARGETING_RULES = new KeyDefinition<AutofillTargetingRulesByDomain>(
   },
 );
 
+const ENABLE_FILL_ASSIST = new KeyDefinition(DOMAIN_SETTINGS_DISK, "enableFillAssist", {
+  deserializer: (value: boolean) => value ?? false,
+});
+
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
  */
@@ -120,6 +124,13 @@ export abstract class DomainSettingsService {
   getUrlEquivalentDomains: (url: string) => Observable<Set<string>>;
 
   /**
+   * User-controlled setting for whether or not fill assist targeting rules
+   * should be used
+   */
+  enableFillAssist$: Observable<boolean>;
+  setEnableFillAssist: (newValue: boolean) => Promise<void>;
+
+  /**
    * Observable of all cached autofill targeting rules, keyed by normalized URL
    */
   targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
@@ -156,6 +167,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
+  private enableFillAssistState: GlobalState<boolean>;
+  readonly enableFillAssist$: Observable<boolean>;
+
   private targetingRulesState: GlobalState<AutofillTargetingRulesByDomain>;
   readonly targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
 
@@ -183,6 +197,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
     );
+
+    this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
+    this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
 
     this.targetingRulesState = this.stateProvider.getGlobal(TARGETING_RULES);
     this.targetingRules$ = this.targetingRulesState.state$.pipe(map((x) => x ?? null));
@@ -250,11 +267,26 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     return domains$;
   }
 
+  async setEnableFillAssist(newValue: boolean): Promise<void> {
+    await this.enableFillAssistState.update(() => newValue);
+  }
+
   async setTargetingRules(rules: AutofillTargetingRulesByDomain): Promise<void> {
     await this.targetingRulesState.update(() => rules);
   }
 
   async getTargetingRulesForUrl(url: URL["href"]): Promise<AutofillTargetingRules | null> {
+    const enableFillAssist = await firstValueFrom(this.enableFillAssist$);
+    if (!enableFillAssist) {
+      return null;
+    }
+
+    // Fill Assist will not be applied when the user is logged out
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      return null;
+    }
+
     const rules = await firstValueFrom(this.targetingRules$);
     if (!rules) {
       return null;

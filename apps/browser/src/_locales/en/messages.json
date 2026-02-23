@@ -1301,6 +1301,9 @@
   "additionalOptions": {
     "message": "Additional options"
   },
+  "enableFillAssist": {
+    "message": "Use fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
