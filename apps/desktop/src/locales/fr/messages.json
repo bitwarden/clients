@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "continue": {
     "message": "Continuer"
   },
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Les éléments archivés apparaîtront ici et seront exclus des résultats de recherche généraux et des suggestions de remplissage automatique."
   },
-  "itemWasSentToArchive": {
-    "message": "L'élément a été envoyé à l'archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "L'élément a été désarchivé"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Action à l’expiration"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Délai d'expiration de la session"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

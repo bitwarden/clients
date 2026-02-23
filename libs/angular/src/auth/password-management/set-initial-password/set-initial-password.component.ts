@@ -37,6 +37,7 @@ import {
   ButtonModule,
   CalloutComponent,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -47,6 +48,7 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
+  SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -55,7 +57,14 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
+  imports: [
+    ButtonModule,
+    CalloutComponent,
+    CommonModule,
+    IconModule,
+    InputPasswordComponent,
+    I18nPipe,
+  ],
 })
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
@@ -183,7 +192,13 @@ export class SetInitialPasswordComponent implements OnInit {
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+          await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
+          return; // EARLY RETURN for flagged logic
+        }
+
         await this.setInitialPassword(passwordInputResult);
+
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -368,6 +383,46 @@ export class SetInitialPasswordComponent implements OnInit {
       await this.setInitialPasswordService.setInitialPassword(
         credentials,
         this.userType,
+        this.userId,
+      );
+
+      this.showSuccessToastByUserType();
+
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password", e);
+      this.validationService.showError(e);
+      this.submitting = false;
+    }
+  }
+
+  private async setInitialPasswordTdeUserWithPermission(passwordInputResult: PasswordInputResult) {
+    const ctx =
+      "Could not set initial password for TDE user with Manage Account Recovery permission.";
+
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    assertTruthy(this.orgId, "orgId", ctx);
+    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
+    assertTruthy(this.userId, "userId", ctx);
+
+    try {
+      const credentials: SetInitialPasswordTdeUserWithPermissionCredentials = {
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
+        kdfConfig: passwordInputResult.kdfConfig,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId as OrganizationId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+      };
+
+      await this.setInitialPasswordService.setInitialPasswordTdeUserWithPermission(
+        credentials,
         this.userId,
       );
 

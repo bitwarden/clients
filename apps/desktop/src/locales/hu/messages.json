@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
+  },
   "continue": {
     "message": "Folytatás"
   },
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemWasSentToArchive": {
-    "message": "Az elem az archivumba került."
+  "itemArchiveToast": {
+    "message": "Az elem archiválásra került."
   },
-  "itemWasUnarchived": {
-    "message": "Az elem visszavéelre került az archivumból."
+  "itemUnarchivedToast": {
+    "message": "Az elem visszavételre került az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Időkifutási művelet"
+  },
+  "errorCannotDecrypt": {
+    "message": "Hiba: nem fejthető vissza."
   },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
   }
 }

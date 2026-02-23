@@ -124,6 +124,6 @@ class Options {
   constructor(passedOptions: Record<string, any>) {
     this.itemId = passedOptions?.itemId || passedOptions?.itemid;
     this.password = passedOptions.password;
-    this.emails = passedOptions.email;
+    this.emails = passedOptions.emails;
   }
 }
