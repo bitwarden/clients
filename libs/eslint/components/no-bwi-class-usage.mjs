@@ -61,6 +61,15 @@ export default {
         return null;
       }
 
+      // Don't fix if the element has Angular bindings, outputs, or references
+      if (
+        (node.inputs || []).length > 0 ||
+        (node.outputs || []).length > 0 ||
+        (node.references || []).length > 0
+      ) {
+        return null;
+      }
+
       // Don't fix if the element has non-whitespace children (element nodes or non-empty text)
       const hasContent = (node.children || []).some(
         (child) => child.value === undefined || child.value.trim() !== "",
