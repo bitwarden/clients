@@ -1,4 +1,4 @@
-import { importProvidersFrom, Component } from "@angular/core";
+import { importProvidersFrom, Component, ChangeDetectionStrategy, signal } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import {
   Meta,
@@ -103,39 +103,31 @@ type Story = StoryObj<AnonLayoutWrapperComponent>;
 
 // Default Example
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultPrimaryOutletExampleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultSecondaryOutletExampleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultEnvSelectorOutletExampleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-header-actions-outlet-example-component",
   template: "<p>Header Actions Outlet Example: <br> your header actions component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultHeaderActionsOutletExampleComponent {}
 
@@ -212,28 +204,26 @@ const changedData: AnonLayoutWrapperData = {
   pageIcon: RegistrationCheckEmailIcon,
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-dynamic-content-example-component",
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicContentExampleComponent {
-  initialData = true;
+  private readonly initialData = signal(true);
 
   constructor(private anonLayoutWrapperDataService: AnonLayoutWrapperDataService) {}
 
   toggleData() {
-    if (this.initialData) {
+    if (this.initialData()) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(changedData);
     } else {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(initialData);
     }
 
-    this.initialData = !this.initialData;
+    this.initialData.update((v) => !v);
   }
 }
 
