@@ -110,6 +110,7 @@ describe("AutofillService", () => {
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
 

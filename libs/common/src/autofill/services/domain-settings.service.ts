@@ -7,6 +7,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.en
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
   NeverDomains,
@@ -177,6 +179,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     private stateProvider: StateProvider,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
@@ -276,6 +279,13 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   }
 
   async getTargetingRulesForUrl(url: URL["href"]): Promise<AutofillTargetingRules | null> {
+    const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.FillAssistTargetingRules,
+    );
+    if (!fillAssistFeatureEnabled) {
+      return null;
+    }
+
     const enableFillAssist = await firstValueFrom(this.enableFillAssist$);
     if (!enableFillAssist) {
       return null;

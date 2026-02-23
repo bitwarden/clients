@@ -595,7 +595,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
+    deps: [StateProvider, PolicyServiceAbstraction, AccountService, ConfigService],
   }),
   safeProvider({
     provide: CipherSdkService,
