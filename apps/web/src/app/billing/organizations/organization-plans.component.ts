@@ -913,9 +913,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       throw new Error("Billing address information is incomplete");
     }
 
-    await this.accountBillingClient.upgradePremiumToOrganization(
+    const orgId = await this.accountBillingClient.upgradePremiumToOrganization(
       organizationName,
+      encryptionData.collectionCt,
       encryptionData.key,
+      encryptionData.orgKeys[0], // Public key
+      encryptionData.orgKeys[1].encryptedString as string, //Wrapped private key
       this.formValues().productTier!,
       SubscriptionCadenceIds.Annually,
       billingAddress,
@@ -923,18 +926,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     await this.syncService.fullSync(true);
 
-    // Get the newly created organization
-    const organizations = await firstValueFrom(
-      this.organizationService.organizations$(this.account()!.id),
-    );
-
-    const newOrg = organizations?.find((org) => org.name === organizationName && org.isOwner);
-
-    if (!newOrg) {
-      throw new Error("Failed to find newly created organization");
-    }
-
-    return newOrg.id;
+    return orgId;
   }
 
   private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {

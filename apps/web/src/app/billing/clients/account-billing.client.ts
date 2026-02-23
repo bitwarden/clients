@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription } from "@bitwarden/subscription";
@@ -13,6 +14,7 @@ import {
   NonTokenizedPaymentMethod,
   TokenizedPaymentMethod,
 } from "../payment/types";
+import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 
 @Injectable()
 export class AccountBillingClient {
@@ -68,19 +70,25 @@ export class AccountBillingClient {
   upgradePremiumToOrganization = async (
     organizationName: string,
     organizationKey: string,
+    collectionName: string | null,
+    publicKey: string,
+    wrappedPrivateKey: string,
     planTier: ProductTierType,
     cadence: SubscriptionCadence,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
-  ): Promise<void> => {
+  ): Promise<string> => {
     const path = `${this.endpoint}/upgrade`;
-    await this.apiService.send(
+    return await this.apiService.send(
       "POST",
       path,
       {
         organizationName,
         key: organizationKey,
+        collectionName,
+        publicKey,
+        wrappedPrivateKey,
         targetProductTierType: planTier,
-        cadence,
+        cadence: cadence as string,
         billingAddress,
       },
       true,
