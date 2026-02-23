@@ -20,7 +20,10 @@ import {
 } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
-import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import {
+  IntegrationModificationResult,
+  OrganizationIntegrationService,
+} from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -42,6 +45,7 @@ import {
   openHecConnectDialog,
   openHuntressConnectDialog,
 } from "../integration-dialog/index";
+import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -104,6 +108,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private organizationIntegrationService: OrganizationIntegrationService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    protected state: OrganizationIntegrationsState,
   ) {
     this.organizationId = this.activatedRoute.snapshot.paramMap.get(
       "organizationId",
@@ -228,7 +233,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     config: OrgIntegrationConfiguration,
     template: OrgIntegrationTemplate,
   ): Promise<void> {
-    let response = { mustBeOwner: false, success: false };
+    let response: IntegrationModificationResult = {
+      mustBeOwner: false,
+      success: false,
+      organizationIntegrationResult: undefined,
+    };
 
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
@@ -264,6 +273,14 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    // update local state with the new integration settings
+    if (response.success && response.organizationIntegrationResult) {
+      this.state.updateIntegrationSettings(
+        this.integrationSettings.name,
+        response.organizationIntegrationResult,
+      );
+    }
+
     this.toastService.showToast({
       variant: "success",
       title: "",
@@ -292,6 +309,10 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     if (response.mustBeOwner) {
       this.showMustBeOwnerToast();
       return;
+    }
+
+    if (response.success) {
+      this.state.deleteIntegrationSettings(this.integrationSettings.name);
     }
 
     this.toastService.showToast({

@@ -17,6 +17,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
@@ -35,6 +36,7 @@ describe("IntegrationCardComponent", () => {
   const mockIntegrationService = mock<OrganizationIntegrationService>();
   const dialogService = mock<DialogService>();
   const toastService = mock<ToastService>();
+  const stateService = mock<OrganizationIntegrationsState>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -59,6 +61,7 @@ describe("IntegrationCardComponent", () => {
         { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
+        { provide: OrganizationIntegrationsState, useValue: stateService },
       ],
     }).compileComponents();
   });

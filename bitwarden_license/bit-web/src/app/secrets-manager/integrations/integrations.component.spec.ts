@@ -17,6 +17,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IntegrationCardComponent } from "../../dirt/organization-integrations/integration-card/integration-card.component";
 import { IntegrationGridComponent } from "../../dirt/organization-integrations/integration-grid/integration-grid.component";
+import { OrganizationIntegrationsState } from "../../dirt/organization-integrations/organization-integrations.state";
 
 import { IntegrationsComponent } from "./integrations.component";
 
@@ -59,6 +60,7 @@ describe("IntegrationsComponent", () => {
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: OrganizationIntegrationService, useValue: orgIntegrationSvc },
+        { provide: OrganizationIntegrationsState, useValue: mock<OrganizationIntegrationsState>() },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);

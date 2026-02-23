@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
+import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 import { IntegrationGridComponent } from "./integration-grid.component";
 
@@ -74,6 +75,7 @@ describe("IntegrationGridComponent", () => {
           provide: ToastService,
           useValue: mock<ToastService>(),
         },
+        { provide: OrganizationIntegrationsState, useValue: mock<OrganizationIntegrationsState>() },
       ],
     });
 
