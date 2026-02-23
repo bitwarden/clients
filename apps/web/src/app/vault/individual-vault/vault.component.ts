@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
 import {
   concatMap,
@@ -398,7 +398,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           queryParamsHandling: "merge",
           replaceUrl: true,
           state: {
-            focusMainAfterNav: false,
+            focusAfterNav: false,
           },
         }),
       );
@@ -877,7 +877,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   async editCipherAttachments(cipher: C) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      await this.go({ cipherId: null, itemId: null });
+      await this.go(
+        { cipherId: null, itemId: null },
+        this.configureRouterFocusToCipher(typeof cipher?.id === "string" ? cipher.id : undefined),
+      );
       return;
     }
 
@@ -950,7 +953,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     // Clear the query params when the dialog closes
-    await this.go({ cipherId: null, itemId: null, action: null });
+    await this.go(
+      { cipherId: null, itemId: null, action: null },
+      this.configureRouterFocusToCipher(formConfig.originalCipher?.id),
+    );
   }
 
   /**
@@ -1010,7 +1016,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
-      await this.go({ cipherId: null, itemId: null, action: null });
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
       return;
     }
 
@@ -1052,7 +1061,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
-      await this.go({ cipherId: null, itemId: null, action: null });
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
       return;
     }
 
@@ -1193,8 +1205,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     let availableCollections: CollectionView[] = [];
     const orgId =
-      this.activeFilter.organizationId ||
-      ciphers.find((c) => c.organizationId !== undefined)?.organizationId;
+      this.activeFilter.organizationId || ciphers.find((c) => !!c.organizationId)?.organizationId;
 
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
@@ -1553,7 +1564,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.vaultItemsComponent()?.clearSelection();
   }
 
-  private async go(queryParams: any = null) {
+  /**
+   * Helper function to set up the `state.focusAfterNav` property for dialog router navigation if
+   * the cipherId exists. If it doesn't exist, returns undefined.
+   *
+   * This ensures that when the routed dialog is closed, the focus returns to the cipher button in
+   * the vault table, which allows keyboard users to continue navigating uninterrupted.
+   *
+   * @param cipherId id of cipher
+   * @returns Partial<NavigationExtras>, specifically the state.focusAfterNav property, or undefined
+   */
+  private configureRouterFocusToCipher(cipherId?: string): Partial<NavigationExtras> | undefined {
+    if (cipherId) {
+      return {
+        state: { focusAfterNav: `#cipher-btn-${cipherId}` },
+      };
+    }
+  }
+
+  private async go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
       queryParams = {
         favorites: this.activeFilter.isFavorites || null,
@@ -1569,6 +1598,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       queryParams: queryParams,
       queryParamsHandling: "merge",
       replaceUrl: true,
+      ...navigateOptions,
     });
   }
 

@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
+  },
   "valueCopied": {
     "message": "$VALUE$ másolásra került.",
     "description": "Value has been copied to the clipboard.",
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "A kockázatos bejelentkezések listájának illusztrációja."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "A Bitwarden széf oldal elrendezésének illusztrációja."
+  },
   "generatePasswordSlideDesc": {
     "message": "Gyorsan generálhatunk erős, egyedi jelszót a Bitwarden automatikus kitöltési menüjével a kockázatos webhelyen.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással és a jelszóval a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6121,6 +6166,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
   }
 }

@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Edited user $ID$.",
     "placeholders": {
@@ -5846,10 +5855,6 @@
     "message": "Don't know the password? Ask the sender for the password needed to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "This Send is hidden by default. You can toggle its visibility using the button below.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Download attachments"
   },
@@ -6141,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "I accept these risks and policy updates"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
   },
   "personalOwnership": {
     "message": "Remove individual vault"
@@ -7396,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -10954,6 +10977,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+  },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"
   },
@@ -12854,6 +12880,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Who can view"
   },
@@ -12865,6 +12906,9 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -12889,6 +12933,18 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
