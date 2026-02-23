@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "รายการที่จัดเก็บถาวรจะปรากฏที่นี่ และจะไม่ถูกรวมในผลการค้นหาทั่วไปหรือคำแนะนำการป้อนอัตโนมัติ"
   },
-  "itemWasSentToArchive": {
-    "message": "ย้ายรายการไปที่จัดเก็บถาวรแล้ว"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "เลิกจัดเก็บถาวรรายการแล้ว"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "จัดเก็บรายการถาวร"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "รหัสยืนยันไม่ถูกต้อง"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "คัดลอก $VALUE$ แล้ว",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden จะไม่ถามให้บันทึกรายละเอียดการเข้าสู่ระบบสำหรับโดเมนเหล่านี้ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden จะไม่ถามให้บันทึกรายละเอียดการเข้าสู่ระบบสำหรับโดเมนเหล่านี้สำหรับทุกบัญชีที่เข้าสู่ระบบ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
-  },
   "blockedDomainsDesc": {
     "message": "การป้อนอัตโนมัติและฟีเจอร์อื่น ๆ ที่เกี่ยวข้องจะไม่พร้อมใช้งานสำหรับเว็บไซต์เหล่านี้ คุณต้องรีเฟรชหน้าเว็บเพื่อให้การเปลี่ยนแปลงมีผล"
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "ภาพประกอบรายการข้อมูลเข้าสู่ระบบที่มีความเสี่ยง"
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "สร้างรหัสผ่านที่รัดกุมและไม่ซ้ำกันอย่างรวดเร็วด้วยเมนูป้อนอัตโนมัติของ Bitwarden บนเว็บไซต์ที่มีความเสี่ยง",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "หมายเลขบัตร"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "องค์กรของคุณไม่ใช้รหัสผ่านหลักในการเข้าสู่ระบบ Bitwarden อีกต่อไป หากต้องการดำเนินการต่อ ให้ยืนยันองค์กรและโดเมน"
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

@@ -201,14 +201,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return new CipherView(this.config?.originalCipher);
   }
 
-  get canCipherBeArchived(): boolean {
-    return this.cipher?.canBeArchived;
-  }
-
-  get isCipherArchived(): boolean {
-    return this.cipher?.isArchived;
-  }
-
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
   private fido2PopoutSessionData: Fido2SessionData;
 
@@ -370,10 +362,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
-  get isEditMode(): boolean {
-    return ["edit", "partial-edit"].includes(this.config?.mode);
-  }
-
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
@@ -486,40 +474,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     };
     return this.i18nService.t(translation[type]);
   }
-
-  /**
-   * Update the cipher in the form after archiving/unarchiving.
-   * @param revisionDate The new revision date.
-   * @param archivedDate The new archived date (null if unarchived).
-   **/
-  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipherFormComponent().patchCipher((current) => {
-      current.revisionDate = revisionDate;
-      current.archivedDate = archivedDate;
-      return current;
-    });
-  };
-
-  archive = async () => {
-    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
-
-    if (!cipherResponse) {
-      return;
-    }
-    this.updateCipherFromArchive(
-      new Date(cipherResponse.revisionDate),
-      new Date(cipherResponse.archivedDate),
-    );
-  };
-
-  unarchive = async () => {
-    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
-
-    if (!cipherResponse) {
-      return;
-    }
-    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
-  };
 
   delete = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({

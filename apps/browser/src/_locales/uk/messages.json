@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Запис архівовано"
   },
-  "itemWasUnarchived": {
-    "message": "Запис розархівовано"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Запис розархівовано"
   },
   "archiveItem": {
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "$VALUE$ скопійовано",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів. Потрібно оновити сторінку для застосування змін."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаповнення та інші пов'язані функції не пропонуватимуться для цих вебсайтів. Вам слід оновити сторінку для застосування змін."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ілюстрація списку ризикованих записів."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Номер картки"
   },
+  "errorCannotDecrypt": {
+    "message": "Помилка: неможливо розшифрувати"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Завантажити програми Bitwarden"
   },
   "emailProtected": {
     "message": "Е-пошту захищено"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Особам необхідно ввести пароль для перегляду цього відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
