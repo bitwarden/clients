@@ -6,6 +6,7 @@ import {
   DomainSettingsService,
   DefaultDomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -59,6 +60,7 @@ describe("ScriptInjectorService", () => {
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let domainSettingsService: DomainSettingsService;
   const policyService = mock<PolicyService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(() => {
     jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
@@ -66,6 +68,7 @@ describe("ScriptInjectorService", () => {
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     domainSettingsService.blockedInteractionsUris$ = of({});

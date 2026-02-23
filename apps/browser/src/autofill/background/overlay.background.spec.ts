@@ -162,6 +162,7 @@ describe("OverlayBackground", () => {
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
     );
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
