@@ -402,10 +402,10 @@ export class VaultComponent<C extends CipherViewLike>
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       void this.ngZone.run(async () => {
         if (message.command === "syncCompleted" && message.successfully) {
+          if (this.activeUserId) {
+            void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+          }
           this.refresh();
-        }
-        if (this.activeUserId) {
-          void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
         }
       });
     });
