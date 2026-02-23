@@ -1,14 +1,18 @@
-import { KeyService } from "@bitwarden/key-management";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { Randomizer } from "../abstractions";
 import { WordOptions } from "../types";
 
-/** A randomizer backed by a KeyService. */
-export class KeyServiceRandomizer implements Randomizer {
-  /** instantiates the type.
-   * @param keyService generates random numbers
+/**
+ * A randomizer backed by the SDK.
+ * Note: This should be replaced by higher level functions in the SDK eventually.
+ **/
+export class PureCryptoRandomizer implements Randomizer {
+  /**
+   * instantiates the type.
    */
-  constructor(private keyService: KeyService) {}
+  constructor() {}
 
   async pick<Entry>(list: Array<Entry>): Promise<Entry> {
     const length = list?.length ?? 0;
@@ -28,7 +32,8 @@ export class KeyServiceRandomizer implements Randomizer {
     }
 
     if (options?.number ?? false) {
-      const num = await this.keyService.randomNumber(1, 9);
+      await SdkLoadService.Ready;
+      const num = PureCrypto.random_number(0, 9);
       word = word + num.toString();
     }
 
@@ -63,6 +68,7 @@ export class KeyServiceRandomizer implements Randomizer {
   }
 
   async uniform(min: number, max: number) {
-    return this.keyService.randomNumber(min, max);
+    await SdkLoadService.Ready;
+    return PureCrypto.random_number(min, max);
   }
 }

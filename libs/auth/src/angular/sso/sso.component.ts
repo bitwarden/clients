@@ -42,6 +42,7 @@ import {
   CheckboxModule,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
@@ -73,6 +74,7 @@ interface QueryParams {
     CommonModule,
     FormFieldModule,
     IconButtonModule,
+    IconModule,
     LinkModule,
     JslibModule,
     ReactiveFormsModule,
