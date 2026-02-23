@@ -8,6 +8,8 @@ import * as stories from "./banner.stories";
 import { BannerModule } from "@bitwarden/components";
 ```
 
+> `BannerModule` re-exports `BannerTitleDirective`, so no additional imports are needed.
+
 <Title />
 <Description />
 <Primary />
@@ -22,39 +24,15 @@ Banners support three content projection slots.
 Plain text or inline elements. Use `bitLink` with `[linkType]` matching the banner `variant` for
 inline links.
 
-```html
-<bit-banner variant="primary">
-  Your message here. <a bitLink linkType="primary">Learn more</a>
-</bit-banner>
-```
-
 ### Title slot (`slot="title"`)
 
-Renders a bold heading above the body text. When a title is present, the actions slot is also
-rendered. Apply `slot="title"` to any inline element.
-
-```html
-<bit-banner variant="primary">
-  <span slot="title">Title text</span>
-  Body text here.
-</bit-banner>
-```
+Renders a heading above the body text. When a title is projected, the actions slot becomes visible
+and the layout shifts to its expanded form. Apply `slot="title"` to any element.
 
 ### Actions slot (`slot="actions"`)
 
-Renders below the body text. Only visible when a title is projected. Wrap action elements in
-`ng-container slot="actions"`.
-
-```html
-<bit-banner variant="primary">
-  <span slot="title">Title text</span>
-  Body text here.
-  <ng-container slot="actions">
-    <button bitButton type="button" buttonType="secondary">Cancel</button>
-    <button bitButton type="button" buttonType="primary">Continue</button>
-  </ng-container>
-</bit-banner>
-```
+Only visible when a title is projected. At wide widths the actions are right-aligned; at narrow
+widths they appear below the body text. Wrap action elements in `ng-container slot="actions"`.
 
 <Canvas of={stories.BannerComplexBase} />
 
@@ -62,29 +40,7 @@ Renders below the body text. Only visible when a title is projected. Wrap action
 
 Use the following guidelines to help choose the correct variant.
 
-### Primary
-
-<Canvas of={stories.Primary} />
-
-Used primarily to encourage the user to upgrade to premium or communicate general information.
-
-### Success
-
-<Canvas of={stories.Success} />
-
-Used to communicate release notes, server maintenance, or other informative events.
-
-### Warning
-
-<Canvas of={stories.Warning} />
-
-Used to alert the user of outdated info or versions.
-
-### Danger
-
-<Canvas of={stories.Danger} />
-
-Rarely used, but may be used to alert users over critical messages or very outdated versions.
+<Canvas of={stories.TitleBannerAllVariants} />
 
 ## Accessibility
 

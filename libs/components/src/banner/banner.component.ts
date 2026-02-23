@@ -10,19 +10,24 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
-import { IconTileComponent, type IconTileVariant } from "../icon-tile/icon-tile.component";
+import { IconTileComponent } from "../icon-tile/icon-tile.component";
 
 import { BannerTitleDirective } from "./banner-title.directive";
 
 export type BannerVariant = "primary" | "success" | "warning" | "danger";
-
-// export type BannerSize = "lg" | "md";
 
 const defaultIcon: Record<BannerVariant, string> = {
   primary: "bwi-info-circle",
   success: "bwi-star",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
+};
+
+const bannerColors: Record<BannerVariant, string> = {
+  primary: "tw-bg-bg-brand-softer tw-border-b-border-brand-soft",
+  success: "tw-bg-bg-success-soft tw-border-b-border-success-soft",
+  warning: "tw-bg-bg-warning-soft tw-border-b-border-warning-soft",
+  danger: "tw-bg-bg-danger-soft tw-border-b-border-danger-soft",
 };
 
 /**
@@ -38,7 +43,7 @@ const defaultIcon: Record<BannerVariant, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, IconTileComponent, I18nPipe, BannerTitleDirective],
+  imports: [IconButtonModule, IconTileComponent, I18nPipe],
   host: {
     // Account for bit-layout's padding
     class:
@@ -73,8 +78,16 @@ export class BannerComponent {
    */
   readonly onClose = output();
 
+  protected readonly titleSlot = contentChild(BannerTitleDirective);
+
+  /**
+   * Actions slot only renders when a title is present.
+   */
+  protected readonly showActions = computed(() => !!this.titleSlot());
+
   /**
    * The computed icon to display, falling back to the default icon for the variant.
+   * Pass `null` to `[icon]` to suppress the icon entirely.
    */
   protected readonly displayIcon = computed(() => {
     if (this.icon() === null) {
@@ -83,38 +96,13 @@ export class BannerComponent {
     return this.icon() ?? defaultIcon[this.variant()];
   });
 
-  /**
-   * Icon tile variant matches banner variant.
-   */
-  protected readonly resolvedIconTileVariant = computed((): IconTileVariant => {
-    const variantMap: Record<BannerVariant, IconTileVariant> = {
-      primary: "primary",
-      success: "success",
-      warning: "warning",
-      danger: "danger",
-    };
-    return variantMap[this.variant()];
-  });
+  protected readonly alignClass = computed(() =>
+    this.showActions()
+      ? "tw-items-start @5xl:tw-items-center"
+      : "tw-items-center @5xl:tw-justify-center",
+  );
 
-  protected readonly titleSlot = contentChild(BannerTitleDirective);
-
-  /**
-   * Actions slot only renders when a title is present.
-   */
-  protected readonly showActions = computed(() => !!this.titleSlot());
-
-  protected readonly bannerClass = computed(() => {
-    const align = this.showActions() ? "tw-items-start @5xl:tw-items-center" : "tw-items-center";
-
-    switch (this.variant()) {
-      case "primary":
-        return `${align} tw-bg-bg-brand-softer tw-border-b-border-brand-soft`;
-      case "success":
-        return `${align} tw-bg-bg-success-soft tw-border-b-border-success-soft`;
-      case "warning":
-        return `${align} tw-bg-bg-warning-soft tw-border-b-border-warning-soft`;
-      case "danger":
-        return `${align} tw-bg-bg-danger-soft tw-border-b-border-danger-soft`;
-    }
-  });
+  protected readonly bannerClass = computed(
+    () => `${this.alignClass()} ${bannerColors[this.variant()]}`,
+  );
 }

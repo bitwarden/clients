@@ -2,6 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -66,7 +67,7 @@ export const BannerBase: Story = {
   },
 };
 
-export const BannerComplexBase: Story = {
+export const TitleBannerBase: Story = {
   render: (args) => {
     return {
       props: args,
@@ -117,4 +118,26 @@ export const Danger: Story = {
   args: {
     variant: "danger",
   },
+};
+
+export const TitleBannerAllVariants: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        @for (v of variants; track v) {
+          <bit-banner [variant]="v" [showClose]="true">
+            <span slot="title">Integration is the key</span>
+            You can integrate Flowbite with many tools to make your work even more efficient.
+            <ng-container slot="actions">
+              <button bitButton type="button" buttonType="secondary">Cancel</button>
+              <button bitButton type="button" buttonType="primary">Continue</button>
+            </ng-container>
+          </bit-banner>
+        }
+      </div>
+    `,
+    props: {
+      variants: ["primary", "success", "warning", "danger"],
+    },
+  }),
 };
