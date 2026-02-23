@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemWasSentToArchive": {
-    "message": "Елементът беше преместен в архива"
+  "itemArchiveToast": {
+    "message": "Елементът е преместен в архива"
   },
-  "itemWasUnarchived": {
-    "message": "Елементът беше изваден от архива"
-  },
-  "itemUnarchived": {
-    "message": "Елементът беше изваден от архива"
+  "itemUnarchivedToast": {
+    "message": "Елементът е изваден от архива"
   },
   "archiveItem": {
     "message": "Архивиране на елемента"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Грешна е-поща или код за потвърждаване"
   },
   "valueCopied": {
     "message": "Копирано е $VALUE$",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове. За да влезе правилото в сила, презаредете страницата."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове за всички регистрации, в които сте вписан(а). За да влезе правилото в сила, презаредете страницата."
-  },
   "blockedDomainsDesc": {
     "message": "Автоматичното попълване и други свързани функции няма да бъдат предлагани за тези уеб сайтове. Трябва да презаредите страницата, за да влязат в сила промените."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Илюстрация на списък с елементи за вписване, които са в риск."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Генерирайте бързо сложна и уникална парола от менюто за автоматично попълване на Битуорден, на уеб сайта, който е в риск.",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ часа",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Копирайте и споделете връзката към Изпращането. То ще бъде достъпно за всеки с връзката в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Копирайте и споделете връзката към Изпращането. То ще бъде достъпно за всеки с връзката и паролата, която зададете, в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Копирайте и споделете връзка към това Изпращане. То ще може да бъде видяно само от хората, които сте посочили, в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5671,7 +5710,7 @@
     "message": "Много широко"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Тясно"
   },
   "sshKeyWrongPassword": {
     "message": "Въведената парола е неправилна."
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Номер на картата"
   },
+  "errorCannotDecrypt": {
+    "message": "Грешка: не може да се дешифрира"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Вашата организация вече не използва главни пароли за вписване в Битуорден. За да продължите, потвърдете организацията и домейна."
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
+  },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Сваляне на приложенията на Битуорден"
   },
   "emailProtected": {
     "message": "Е-пощата е защитена"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Проверката на потребителя беше неуспешна."
   }
 }
