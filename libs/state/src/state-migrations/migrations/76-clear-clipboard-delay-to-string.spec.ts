@@ -110,14 +110,100 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should not migrate undefined values", async () => {
+    it("should not migrate undefined values but should set flag", async () => {
       helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
 
       helper.getFromUser.mockResolvedValue(undefined);
 
       await sut.migrate(helper);
 
-      expect(helper.setToUser).not.toHaveBeenCalled();
+      // Should set the flag even though value is undefined
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "hadPreMigrationClipboardValue",
+        }),
+        true,
+      );
+
+      // Should NOT set the clipboard delay value
+      expect(helper.setToUser).not.toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "clearClipboardDelay",
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("should set hadPreMigrationClipboardValue flag for users with null value", async () => {
+      helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
+      helper.getFromUser.mockResolvedValue(null);
+
+      await sut.migrate(helper);
+
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "hadPreMigrationClipboardValue",
+          stateDefinition: expect.objectContaining({
+            name: "autofillSettingsLocal",
+          }),
+        }),
+        true,
+      );
+    });
+
+    it("should set hadPreMigrationClipboardValue flag for users with integer value", async () => {
+      helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
+      helper.getFromUser.mockResolvedValue(300);
+
+      await sut.migrate(helper);
+
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "hadPreMigrationClipboardValue",
+        }),
+        true,
+      );
+    });
+
+    it("should set flag even when user had undefined value", async () => {
+      helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
+      helper.getFromUser.mockResolvedValue(undefined);
+
+      await sut.migrate(helper);
+
+      // Flag should be set even though we don't migrate the actual value
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "hadPreMigrationClipboardValue",
+        }),
+        true,
+      );
+    });
+
+    it("should set flag for multiple users", async () => {
+      helper.getAccounts.mockResolvedValue([
+        { userId: "user-1", account: {} },
+        { userId: "user-2", account: {} },
+      ]);
+      helper.getFromUser.mockResolvedValueOnce(null).mockResolvedValueOnce(300);
+
+      await sut.migrate(helper);
+
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({ key: "hadPreMigrationClipboardValue" }),
+        true,
+      );
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-2",
+        expect.objectContaining({ key: "hadPreMigrationClipboardValue" }),
+        true,
+      );
     });
   });
 
@@ -149,6 +235,24 @@ describe("ClearClipboardDelayToStringMigrator", () => {
           }),
         }),
         10,
+      );
+    });
+
+    it("should remove hadPreMigrationClipboardValue flag on rollback", async () => {
+      helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
+      helper.getFromUser.mockResolvedValue("never");
+
+      await sut.rollback(helper);
+
+      expect(helper.setToUser).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          key: "hadPreMigrationClipboardValue",
+          stateDefinition: expect.objectContaining({
+            name: "autofillSettingsLocal",
+          }),
+        }),
+        undefined,
       );
     });
   });

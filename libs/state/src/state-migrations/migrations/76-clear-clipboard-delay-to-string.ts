@@ -37,6 +37,13 @@ const CLEAR_CLIPBOARD_DELAY_KEY: KeyDefinitionLike = {
   key: "clearClipboardDelay",
 };
 
+const HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY: KeyDefinitionLike = {
+  stateDefinition: {
+    name: "autofillSettingsLocal",
+  },
+  key: "hadPreMigrationClipboardValue",
+};
+
 export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const accounts = await helper.getAccounts();
@@ -50,7 +57,11 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
       CLEAR_CLIPBOARD_DELAY_KEY,
     );
 
-    // Skip if no value exists
+    // Set flag for ALL users going through migration
+    // This marks them as "existed before the default change"
+    await helper.setToUser(userId, HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY, true);
+
+    // Skip if no value exists (will use default "fiveMinutes")
     if (oldValue === undefined) {
       return;
     }
@@ -97,6 +108,9 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
   }
 
   private async rollbackAccount(helper: MigrationHelper, userId: string): Promise<void> {
+    // Remove the flag on rollback
+    await helper.setToUser(userId, HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY, undefined);
+
     const newValue: NewClearClipboardDelaySetting = await helper.getFromUser(
       userId,
       CLEAR_CLIPBOARD_DELAY_KEY,
