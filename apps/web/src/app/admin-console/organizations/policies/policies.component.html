@@ -3,6 +3,60 @@
 @let organization = organization$ | async;
 @let policiesEnabledMap = policiesEnabledMap$ | async;
 @let organizationId = organizationId$ | async;
+@let orderedPolicies = policies$ | async | policyOrder;
+
+<!-- Sticky category tab navigation -->
+<nav
+  class="tw-sticky tw-top-0 tw-z-10 tw-flex tw-bg-background-alt tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100"
+  role="tablist"
+  aria-label="{{ 'policies' | i18n }}"
+>
+  <button
+    type="button"
+    role="tab"
+    id="tab-data-controls"
+    aria-controls="data-controls"
+    [attr.aria-selected]="activeCategory() === PolicyCategory.DataControl"
+    [class]="
+      activeCategory() === PolicyCategory.DataControl
+        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+    "
+    (click)="scrollToSection(PolicyCategory.DataControl)"
+  >
+    {{ "dataControls" | i18n }}
+  </button>
+  <button
+    type="button"
+    role="tab"
+    id="tab-authentication"
+    aria-controls="authentication"
+    [attr.aria-selected]="activeCategory() === PolicyCategory.Authentication"
+    [class]="
+      activeCategory() === PolicyCategory.Authentication
+        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+    "
+    (click)="scrollToSection(PolicyCategory.Authentication)"
+  >
+    {{ "authentication" | i18n }}
+  </button>
+  <button
+    type="button"
+    role="tab"
+    id="tab-vault-management"
+    aria-controls="vault-management"
+    [attr.aria-selected]="activeCategory() === PolicyCategory.VaultManagement"
+    [class]="
+      activeCategory() === PolicyCategory.VaultManagement
+        ? 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-primary-600 tw-text-primary-600 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+        : 'tw-px-4 tw-py-3 tw-font-semibold tw-text-sm tw-bg-transparent tw-border-0 tw-border-b-2 tw-border-solid tw-border-transparent tw-text-main tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600 focus-visible:tw-ring-inset'
+    "
+    (click)="scrollToSection(PolicyCategory.VaultManagement)"
+  >
+    {{ "vaultManagement" | i18n }}
+  </button>
+</nav>
 
 <bit-container>
   @if (!organization || !policiesEnabledMap || !organizationId) {
@@ -13,26 +67,163 @@
     ></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   } @else {
-    <bit-table>
-      <ng-template body>
-        @for (p of policies$ | async | policyOrder; track $index) {
-          @if (p.display$(organization, configService) | async) {
-            <tr bitRow>
-              <td bitCell ngPreserveWhitespaces>
-                <div class="tw-flex tw-items-center tw-gap-2">
-                  <button type="button" bitLink (click)="edit(p, organizationId)">
-                    {{ p.name | i18n }}
-                  </button>
-                  @if (policiesEnabledMap.get(p.type)) {
-                    <span bitBadge variant="success">{{ "on" | i18n }}</span>
-                  }
-                </div>
-                <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
-              </td>
-            </tr>
+    <!-- Data controls -->
+    <section id="data-controls" role="tabpanel" aria-labelledby="tab-data-controls" #dataSection>
+      <h2 bitTypography="h2" class="tw-py-3">
+        {{ "dataControls" | i18n }}
+      </h2>
+      <bit-table>
+        <ng-template body>
+          @for (p of orderedPolicies | policyCategory: PolicyCategory.DataControl; track $index) {
+            @if (p.display$(organization, configService) | async) {
+              <tr bitRow>
+                <td bitCell>
+                  <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+                    <div class="tw-min-w-0 tw-max-w-[740px]">
+                      <button
+                        type="button"
+                        bitLink
+                        (click)="edit(p, organizationId)"
+                        class="tw-block tw-truncate"
+                      >
+                        {{ p.name | i18n }}
+                      </button>
+                      <small class="tw-text-muted tw-block tw-truncate">
+                        {{ p.description | i18n }}
+                      </small>
+                    </div>
+                    <div class="tw-shrink-0">
+                      @if (policiesEnabledMap.get(p.type)) {
+                        <span bitBadge variant="success" aria-hidden="true">
+                          {{ "on" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "on" | i18n }}</span>
+                      } @else {
+                        <span bitBadge variant="secondary" aria-hidden="true">
+                          {{ "off" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "off" | i18n }}</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
           }
-        }
-      </ng-template>
-    </bit-table>
+        </ng-template>
+      </bit-table>
+    </section>
+
+    <!-- Authentication -->
+    <section
+      id="authentication"
+      role="tabpanel"
+      aria-labelledby="tab-authentication"
+      class="tw-mt-6"
+      #authSection
+    >
+      <h2 bitTypography="h2" class="tw-py-3">
+        {{ "authentication" | i18n }}
+      </h2>
+      <bit-table>
+        <ng-template body>
+          @for (
+            p of orderedPolicies | policyCategory: PolicyCategory.Authentication;
+            track $index
+          ) {
+            @if (p.display$(organization, configService) | async) {
+              <tr bitRow>
+                <td bitCell>
+                  <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+                    <div class="tw-min-w-0 tw-max-w-[740px]">
+                      <button
+                        type="button"
+                        bitLink
+                        (click)="edit(p, organizationId)"
+                        class="tw-block tw-truncate"
+                      >
+                        {{ p.name | i18n }}
+                      </button>
+                      <small class="tw-text-muted tw-block tw-truncate">
+                        {{ p.description | i18n }}
+                      </small>
+                    </div>
+                    <div class="tw-shrink-0">
+                      @if (policiesEnabledMap.get(p.type)) {
+                        <span bitBadge variant="success" aria-hidden="true">
+                          {{ "on" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "on" | i18n }}</span>
+                      } @else {
+                        <span bitBadge variant="secondary" aria-hidden="true">
+                          {{ "off" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "off" | i18n }}</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </ng-template>
+      </bit-table>
+    </section>
+
+    <!-- Vault management -->
+    <section
+      id="vault-management"
+      role="tabpanel"
+      aria-labelledby="tab-vault-management"
+      class="tw-mt-6"
+      #vaultSection
+    >
+      <h2 bitTypography="h2" class="tw-py-3">
+        {{ "vaultManagement" | i18n }}
+      </h2>
+      <bit-table>
+        <ng-template body>
+          @for (
+            p of orderedPolicies | policyCategory: PolicyCategory.VaultManagement;
+            track $index
+          ) {
+            @if (p.display$(organization, configService) | async) {
+              <tr bitRow>
+                <td bitCell>
+                  <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+                    <div class="tw-min-w-0 tw-max-w-[740px]">
+                      <button
+                        type="button"
+                        bitLink
+                        (click)="edit(p, organizationId)"
+                        class="tw-block tw-truncate"
+                      >
+                        {{ p.name | i18n }}
+                      </button>
+                      <small class="tw-text-muted tw-block tw-truncate">
+                        {{ p.description | i18n }}
+                      </small>
+                    </div>
+                    <div class="tw-shrink-0">
+                      @if (policiesEnabledMap.get(p.type)) {
+                        <span bitBadge variant="success" aria-hidden="true">
+                          {{ "on" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "on" | i18n }}</span>
+                      } @else {
+                        <span bitBadge variant="secondary" aria-hidden="true">
+                          {{ "off" | i18n }}
+                        </span>
+                        <span class="tw-sr-only">{{ "off" | i18n }}</span>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </ng-template>
+      </bit-table>
+    </section>
   }
 </bit-container>

@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
+import {
+  AfterViewChecked,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnDestroy,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -21,6 +31,7 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import { PolicyCategory, PolicyCategoryPipe } from "./pipes/policy-category.pipe";
 import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
@@ -28,7 +39,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
+  imports: [SharedModule, HeaderModule, PolicyOrderPipe, PolicyCategoryPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -37,9 +48,18 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent implements OnDestroy {
+export class PoliciesComponent implements AfterViewChecked, OnDestroy {
   private myDialogRef?: DialogRef;
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private intersectionObserver?: IntersectionObserver;
+  private scrollSpySetup = false;
+
+  protected readonly PolicyCategory = PolicyCategory;
+  protected readonly activeCategory = signal<PolicyCategory>(PolicyCategory.DataControl);
+
+  private readonly dataSection = viewChild<ElementRef<HTMLElement>>("dataSection");
+  private readonly authSection = viewChild<ElementRef<HTMLElement>>("authSection");
+  private readonly vaultSection = viewChild<ElementRef<HTMLElement>>("vaultSection");
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
     map((params) => params.organizationId),
@@ -95,12 +115,67 @@ export class PoliciesComponent implements OnDestroy {
     private policyService: PolicyService,
     protected configService: ConfigService,
     private destroyRef: DestroyRef,
+    private cdr: ChangeDetectorRef,
   ) {
     this.handleLaunchEvent();
   }
 
+  ngAfterViewChecked() {
+    if (
+      !this.scrollSpySetup &&
+      this.dataSection() != null &&
+      this.authSection() != null &&
+      this.vaultSection() != null
+    ) {
+      this.scrollSpySetup = true;
+      this.setupScrollSpy();
+    }
+  }
+
   ngOnDestroy() {
     this.myDialogRef?.close();
+    this.intersectionObserver?.disconnect();
+  }
+
+  private setupScrollSpy() {
+    const sectionMap = new Map<Element, PolicyCategory>([
+      [this.dataSection()!.nativeElement, PolicyCategory.DataControl],
+      [this.authSection()!.nativeElement, PolicyCategory.Authentication],
+      [this.vaultSection()!.nativeElement, PolicyCategory.VaultManagement],
+    ]);
+
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const category = sectionMap.get(entry.target);
+            if (category != null) {
+              this.activeCategory.set(category);
+              this.cdr.markForCheck();
+            }
+          }
+        }
+      },
+      { rootMargin: "-10% 0px -85% 0px", threshold: 0 },
+    );
+
+    for (const element of sectionMap.keys()) {
+      this.intersectionObserver.observe(element);
+    }
+  }
+
+  scrollToSection(category: PolicyCategory) {
+    const sectionMap = new Map<PolicyCategory, ElementRef<HTMLElement> | undefined>([
+      [PolicyCategory.DataControl, this.dataSection()],
+      [PolicyCategory.Authentication, this.authSection()],
+      [PolicyCategory.VaultManagement, this.vaultSection()],
+    ]);
+
+    const ref = sectionMap.get(category);
+    if (ref) {
+      ref.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    this.activeCategory.set(category);
   }
 
   // Handle policies component launch from Event message
