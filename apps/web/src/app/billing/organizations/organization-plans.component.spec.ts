@@ -507,7 +507,7 @@ describe("OrganizationPlansComponent", () => {
     } as any;
 
     mockAccountBillingClient = {
-      upgradePremiumToOrganization: jest.fn().mockResolvedValue(undefined),
+      upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
     } as any;
 
     mockSubscriberBillingClient = {
@@ -1198,8 +1198,6 @@ describe("OrganizationPlansComponent", () => {
 
       upgradeComponent["formGroup"].controls.additionalSeats.setValue(5);
 
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
-
       await upgradeComponent.submit();
 
       expect(mockOrganizationApiService.upgrade).toHaveBeenCalledWith(
@@ -1207,6 +1205,8 @@ describe("OrganizationPlansComponent", () => {
         expect.objectContaining({
           planType: PlanType.TeamsAnnually,
           additionalSeats: 5,
+          billingAddressCountry: "US",
+          billingAddressPostalCode: "12345",
         }),
       );
 
@@ -1535,8 +1535,6 @@ describe("OrganizationPlansComponent", () => {
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
-
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
 
       await component.submit();
 
@@ -2142,8 +2140,6 @@ describe("OrganizationPlansComponent", () => {
 
       setupMockPaymentMethodComponent(upgradeComponent, "mock_token", "card");
 
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
-
       await upgradeComponent.submit();
 
       expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
@@ -2285,9 +2281,12 @@ describe("OrganizationPlansComponent", () => {
 
         expect(mockAccountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
           newOrgName,
+          "mock-collection",
           "mock-key",
+          "public-key",
+          "private-key",
           ProductTierType.Teams,
-          expect.any(String),
+          "annually",
           expect.objectContaining({ country: "US", postalCode: "12345" }),
         );
         expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
@@ -2309,14 +2308,6 @@ describe("OrganizationPlansComponent", () => {
           title: "organizationCreated",
           message: "organizationReadyToGo",
         });
-      });
-
-      it("should throw when the new organization is not found after upgrade", async () => {
-        organizationsSubject.next([]);
-
-        await expect(component.submit()).rejects.toThrow(
-          "Failed to find newly created organization",
-        );
       });
 
       it("should not call upgradePremiumToOrganization when billing address is incomplete", async () => {
