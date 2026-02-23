@@ -74,9 +74,9 @@ describe("IntegrationsComponent", () => {
 
     // Validate only expected names, as the data is constant
     expect(
-      (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
-        (i) => i.name,
-      ),
+      (integrationList.componentInstance as IntegrationGridComponent)
+        .integrations()
+        .map((i) => i.name),
     ).toEqual([
       "GitHub Actions",
       "GitLab CI/CD",
@@ -86,7 +86,7 @@ describe("IntegrationsComponent", () => {
     ]);
 
     expect(
-      (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),
+      (sdkList.componentInstance as IntegrationGridComponent).integrations().map((i) => i.name),
     ).toEqual(["Rust", "C#", "C++", "Go", "Java", "JS WebAssembly", "php", "Python", "Ruby"]);
   });
 });

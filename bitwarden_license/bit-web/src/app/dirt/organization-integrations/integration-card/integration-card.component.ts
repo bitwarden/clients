@@ -3,9 +3,9 @@ import {
   Component,
   ElementRef,
   Inject,
-  Input,
+  input,
   OnDestroy,
-  ViewChild,
+  viewChild,
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
@@ -56,30 +56,13 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("imageEle") imageEle!: ElementRef<HTMLImageElement>;
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() name: string = "";
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() image: string = "";
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() imageDarkMode: string = "";
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() linkURL: string = "";
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() integrationSettings!: Integration;
-
-  /** Adds relevant `rel` attribute to external links */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() externalURL?: boolean;
+  readonly imageEle = viewChild.required<ElementRef<HTMLImageElement>>("imageEle");
+  readonly name = input.required<string>();
+  readonly image = input.required<string>();
+  readonly imageDarkMode = input.required<string>();
+  readonly linkURL = input.required<string>();
+  readonly integrationSettings = input.required<Integration>();
+  readonly externalURL = input.required<boolean>();
 
   /**
    * Date of when the new badge should be hidden.
@@ -87,15 +70,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    *
    * @example "2024-12-31"
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() newBadgeExpiration?: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() description?: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() canSetupConnection?: boolean;
+  readonly newBadgeExpiration = input<string | undefined>(undefined);
+  readonly description = input<string>("");
+  readonly canSetupConnection = input<boolean>(false);
 
   organizationId: OrganizationId;
 
@@ -120,7 +97,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroyed$))
       .subscribe(([theme, systemTheme]) => {
         // When the card doesn't have a dark mode image, exit early
-        if (!this.imageDarkMode) {
+        if (!this.imageDarkMode()) {
           return;
         }
 
@@ -129,13 +106,13 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
           // use the system theme to determine the image
           const prefersDarkMode = systemTheme === ThemeType.Dark;
 
-          this.imageEle.nativeElement.src = prefersDarkMode ? this.imageDarkMode : this.image;
+          this.imageEle().nativeElement.src = prefersDarkMode ? this.imageDarkMode() : this.image();
         } else if (theme === ThemeType.Dark) {
           // When the user's preference is dark mode, use the dark mode image
-          this.imageEle.nativeElement.src = this.imageDarkMode;
+          this.imageEle().nativeElement.src = this.imageDarkMode();
         } else {
           // Otherwise use the light mode image
-          this.imageEle.nativeElement.src = this.image;
+          this.imageEle().nativeElement.src = this.image();
         }
       });
   }
@@ -147,11 +124,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
   /** Show the "new" badge when expiration is in the future */
   showNewBadge() {
-    if (!this.newBadgeExpiration) {
+    if (!this.newBadgeExpiration()) {
       return false;
     }
 
-    const expirationDate = new Date(this.newBadgeExpiration);
+    const expirationDate = new Date(this.newBadgeExpiration());
 
     // Do not show the new badge for invalid dates
     if (isNaN(expirationDate.getTime())) {
@@ -162,26 +139,26 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   get isConnected(): boolean {
-    return !!this.integrationSettings.organizationIntegration?.configuration;
+    return !!this.integrationSettings().organizationIntegration?.configuration;
   }
 
   showConnectedBadge(): boolean {
-    return this.canSetupConnection ?? false;
+    return this.canSetupConnection();
   }
 
   get isUpdateAvailable(): boolean {
-    return !!this.integrationSettings.organizationIntegration;
+    return !!this.integrationSettings().organizationIntegration;
   }
 
   async setupConnection() {
-    if (this.integrationSettings?.integrationType === null) {
+    if (this.integrationSettings()?.integrationType === null) {
       return;
     }
 
-    if (this.integrationSettings?.integrationType === OrganizationIntegrationType.Datadog) {
+    if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Datadog) {
       const dialog = openDatadogConnectDialog(this.dialogService, {
         data: {
-          settings: this.integrationSettings,
+          settings: this.integrationSettings(),
         },
       });
 
@@ -192,11 +169,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         () => this.deleteDatadog(),
         (res) => this.saveDatadog(res),
       );
-    } else if (this.integrationSettings.name === OrganizationIntegrationServiceName.Huntress) {
+    } else if (this.integrationSettings().name === OrganizationIntegrationServiceName.Huntress) {
       // Huntress uses HEC protocol but has its own dialog
       const dialog = openHuntressConnectDialog(this.dialogService, {
         data: {
-          settings: this.integrationSettings,
+          settings: this.integrationSettings(),
         },
       });
 
@@ -211,7 +188,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       // invoke the dialog to connect the integration
       const dialog = openHecConnectDialog(this.dialogService, {
         data: {
-          settings: this.integrationSettings,
+          settings: this.integrationSettings(),
         },
       });
 
@@ -241,9 +218,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
-      const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+      const orgIntegrationId = this.integrationSettings().organizationIntegration?.id;
       const orgIntegrationConfigurationId =
-        this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+        this.integrationSettings().organizationIntegration?.integrationConfiguration[0]?.id;
 
       if (!orgIntegrationId || !orgIntegrationConfigurationId) {
         throw Error("Organization Integration ID or Configuration ID is missing");
@@ -276,7 +253,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     // update local state with the new integration settings
     if (response.success && response.organizationIntegrationResult) {
       this.state.updateIntegrationSettings(
-        this.integrationSettings.name,
+        this.integrationSettings().name,
         response.organizationIntegrationResult,
       );
     }
@@ -292,9 +269,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    * Generic delete method
    */
   private async deleteIntegration(): Promise<void> {
-    const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+    const orgIntegrationId = this.integrationSettings().organizationIntegration?.id;
     const orgIntegrationConfigurationId =
-      this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+      this.integrationSettings().organizationIntegration?.integrationConfiguration[0]?.id;
 
     if (!orgIntegrationId || !orgIntegrationConfigurationId) {
       throw Error("Organization Integration ID or Configuration ID is missing");
@@ -312,7 +289,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     if (response.success) {
-      this.state.deleteIntegrationSettings(this.integrationSettings.name);
+      this.state.deleteIntegrationSettings(this.integrationSettings().name);
     }
 
     this.toastService.showToast({
@@ -368,11 +345,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     const config = OrgIntegrationBuilder.buildHecConfiguration(
       result.url,
       result.bearerToken,
-      this.integrationSettings.name as OrganizationIntegrationServiceName,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
     );
     const template = OrgIntegrationBuilder.buildHecTemplate(
       result.index,
-      this.integrationSettings.name as OrganizationIntegrationServiceName,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
     );
 
     await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
@@ -406,7 +383,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   async saveDatadog(result: DatadogConnectDialogResult) {
     const config = OrgIntegrationBuilder.buildDataDogConfiguration(result.url, result.apiKey);
     const template = OrgIntegrationBuilder.buildDataDogTemplate(
-      this.integrationSettings.name as OrganizationIntegrationServiceName,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
     );
 
     await this.saveIntegration(OrganizationIntegrationType.Datadog, config, template);
