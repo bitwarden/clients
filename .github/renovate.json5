@@ -543,6 +543,12 @@
 
     // ==================== Special Version Constraints ====================
     {
+      matchPackageNames: ["actions/create-github-app-token"],
+      matchFileNames: [".github/workflows/test-browser-interactions.yml"],
+      allowedVersions: "<= 2.0.3",
+      description: "Versions after v2.0.3 break the test-browser-interactions workflow. Remediation tracked in PM-28174.",
+    },
+    {
       // Any versions of lowdb above 1.0.0 are not compatible with CommonJS.
       matchPackageNames: ["lowdb"],
       allowedVersions: "1.0.0",
