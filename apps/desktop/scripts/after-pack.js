@@ -35,6 +35,10 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
+  if (context.electronPlatformName === "win32") {
+    await signWindowsFiles(context.appOutDir);
+  }
+
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
     const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
@@ -102,6 +106,62 @@ async function run(context) {
       );
     }
   }
+}
+
+async function signWindowsFiles(appOutDir) {
+  const isAzure = parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1;
+  const certFile = process.env.ELECTRON_BUILDER_SIGN_CERT;
+
+  if (!isAzure && !certFile) return;
+
+  const exts = new Set(["dll", "node"]);
+  const files = collectFiles(appOutDir, exts);
+
+  if (files.length === 0) return;
+
+  if (isAzure) {
+    console.log(`[*] Signing ${files.length} DLL/node files via Azure Key Vault`);
+    child_process.execFileSync(
+      "azuresigntool",
+      // prettier-ignore
+      [
+        "sign", "-v",
+        "-kvu", process.env.SIGNING_VAULT_URL,
+        "-kvi", process.env.SIGNING_CLIENT_ID,
+        "-kvt", process.env.SIGNING_TENANT_ID,
+        "-kvs", process.env.SIGNING_CLIENT_SECRET,
+        "-kvc", process.env.SIGNING_CERT_NAME,
+        "-fd", "sha256",
+        "-tr", "http://timestamp.digicert.com",
+        ...files,
+      ],
+      { stdio: "inherit" },
+    );
+  } else {
+    const certPw = process.env.ELECTRON_BUILDER_SIGN_CERT_PW;
+    if (!certPw) throw new Error("ELECTRON_BUILDER_SIGN_CERT_PW must be set");
+    for (const f of files) {
+      console.log(`[*] Signing file: ${f}`);
+      child_process.execFileSync(
+        "signtool.exe",
+        ["sign", "/fd", "SHA256", "/a", "/f", certFile, "/p", certPw, f],
+        { stdio: "inherit" },
+      );
+    }
+  }
+}
+
+function collectFiles(dir, exts) {
+  const results = [];
+  for (const entry of fse.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectFiles(full, exts));
+    } else if (exts.has(entry.name.split(".").at(-1))) {
+      results.push(full);
+    }
+  }
+  return results;
 }
 
 // Partially based on electron-builder code:

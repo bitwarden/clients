@@ -3,7 +3,7 @@ const child_process = require("child_process");
 
 exports.default = async function (configuration) {
   const ext = configuration.path.split(".").at(-1);
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe", "dll", "node"].includes(ext)) {
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe"].includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     child_process.execFileSync(
       "azuresigntool",
@@ -25,10 +25,7 @@ exports.default = async function (configuration) {
         stdio: "inherit",
       },
     );
-  } else if (
-    process.env.ELECTRON_BUILDER_SIGN_CERT &&
-    ["exe", "dll", "node", "appx"].includes(ext)
-  ) {
+  } else if (process.env.ELECTRON_BUILDER_SIGN_CERT && ["exe", "appx"].includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     if (process.platform !== "win32") {
       console.warn(
