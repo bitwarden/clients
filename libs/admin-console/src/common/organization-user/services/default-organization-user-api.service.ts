@@ -351,24 +351,14 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  restoreOrganizationUser(organizationId: string, id: string): Promise<void> {
-    return this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore",
-      null,
-      true,
-      false,
-    );
-  }
-
-  restoreOrganizationUser_vNext(
+  restoreOrganizationUser(
     organizationId: string,
     id: string,
     request: OrganizationUserRestoreRequest,
   ): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore/vnext",
+      "/organizations/" + organizationId + "/users/" + id + "/restore",
       request,
       true,
       false,
@@ -376,20 +366,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   }
 
   async restoreManyOrganizationUsers(
-    organizationId: string,
-    ids: string[],
-  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
-    const r = await this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/restore",
-      new OrganizationUserBulkRequest(ids),
-      true,
-      true,
-    );
-    return new ListResponse(r, OrganizationUserBulkResponse);
-  }
-
-  async restoreManyOrganizationUsers_vNext(
     organizationId: string,
     request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
