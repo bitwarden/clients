@@ -44,16 +44,9 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
-import {
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -133,6 +126,7 @@ import {
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
@@ -374,19 +368,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: AutomaticUserConfirmationService,
-    useClass: DefaultAutomaticUserConfirmationService,
-    deps: [
-      ConfigService,
-      ApiService,
-      OrganizationUserService,
-      StateProvider,
-      InternalOrganizationServiceAbstraction,
-      OrganizationUserApiService,
-      PolicyService,
-    ],
-  }),
-  safeProvider({
     provide: SdkLoadService,
     useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
     deps: [],
@@ -517,7 +498,7 @@ const safeProviders: SafeProvider[] = [
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
