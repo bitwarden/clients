@@ -1,24 +1,53 @@
 <div
-  class="tw-flex tw-items-center tw-gap-3 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
-  [class]="bannerClass() + ' ' + sizeClasses()"
+  class="tw-flex tw-gap-3 tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0 tw-min-h-14 tw-p-4"
+  [class]="bannerClass()"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  @if (displayIcon(); as icon) {
-    <bit-icon-tile
-      [icon]="icon"
-      [variant]="iconTileVariant()"
-      [size]="iconTileSize()"
-      aria-hidden="true"
-    />
-  }
-  <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
-  <span
-    class="tw-grow tw-text-sm tw-leading-5 [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main"
+  <div
+    class="tw-flex tw-flex-1 tw-gap-3"
+    [class]="showActions() ? 'tw-items-start @5xl:tw-items-center' : 'tw-items-center'"
   >
-    <ng-content></ng-content>
-  </span>
-  <!-- Overriding hover and focus-visible colors for a11y against colored background -->
+    @if (displayIcon(); as icon) {
+      <bit-icon-tile
+        [icon]="icon"
+        [variant]="resolvedIconTileVariant()"
+        size="base"
+        [class]="showActions() ? '@5xl:tw-hidden' : ''"
+        aria-hidden="true"
+      />
+      @if (showActions()) {
+        <bit-icon-tile
+          [icon]="icon"
+          [variant]="resolvedIconTileVariant()"
+          size="lg"
+          class="tw-hidden @5xl:tw-block"
+          aria-hidden="true"
+        />
+      }
+    }
+    <div
+      class="tw-flex tw-flex-col @5xl:tw-flex-row @5xl:tw-items-center @5xl:tw-flex-1 tw-gap-1 @5xl:tw-gap-3 tw-min-w-0"
+    >
+      <div class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0 @5xl:tw-flex-1">
+        <div class="tw-text-lg tw-font-medium tw-leading-6 tw-text-main tw-m-0">
+          <ng-content select="[slot='title']"></ng-content>
+        </div>
+        <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
+        <span
+          class="tw-text-sm tw-leading-5 [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main"
+        >
+          <ng-content></ng-content>
+        </span>
+      </div>
+      @if (showActions()) {
+        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-2 @5xl:tw-mt-0">
+          <ng-content select="[slot='actions']"></ng-content>
+        </div>
+      }
+    </div>
+  </div>
+
   @if (showClose()) {
     <button
       type="button"
