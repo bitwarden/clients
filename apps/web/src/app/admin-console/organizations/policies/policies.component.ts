@@ -57,6 +57,7 @@ export class PoliciesComponent implements AfterViewChecked, OnDestroy {
   protected readonly PolicyCategory = PolicyCategory;
   protected readonly activeCategory = signal<PolicyCategory>(PolicyCategory.DataControl);
 
+  private readonly stickyWrapper = viewChild<ElementRef<HTMLElement>>("stickyWrapper");
   private readonly dataSection = viewChild<ElementRef<HTMLElement>>("dataSection");
   private readonly authSection = viewChild<ElementRef<HTMLElement>>("authSection");
   private readonly vaultSection = viewChild<ElementRef<HTMLElement>>("vaultSection");
@@ -173,7 +174,19 @@ export class PoliciesComponent implements AfterViewChecked, OnDestroy {
 
     const ref = sectionMap.get(category);
     if (ref) {
-      ref.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      const headerHeight = this.stickyWrapper()?.nativeElement.offsetHeight ?? 0;
+      const scrollContainer = ref.nativeElement.closest("main") as HTMLElement | null;
+
+      if (scrollContainer) {
+        const targetTop =
+          ref.nativeElement.getBoundingClientRect().top -
+          scrollContainer.getBoundingClientRect().top +
+          scrollContainer.scrollTop -
+          headerHeight;
+        scrollContainer.scrollTo({ top: targetTop, behavior: "smooth" });
+      } else {
+        ref.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
     this.activeCategory.set(category);
   }
