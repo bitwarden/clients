@@ -1,24 +1,16 @@
-import { Component, AfterViewInit, ViewEncapsulation, OnDestroy, OnInit } from "@angular/core";
+import { Component, AfterViewInit, ViewEncapsulation, OnDestroy } from "@angular/core";
 import {
-  init as initPqp,
+  init as initPqpRenderer,
   sendMessage,
   RtcSessionStatus,
   getMessages,
   setMessages,
   clearBadge,
-  isGoogleDriveLoggedIn,
-  googleDriveLogin,
-  manualRestoreFromDrive,
   loadPeerIndex,
   getOrchestrationState,
   PeerIndex,
   OrchestrationState,
   ServiceLocator,
-  isLoggedIn,
-  logout,
-  getWebRtcManager,
-  onWebRtcStatus,
-  WebRtcManager,
 } from "@ovrlab/pqp-network";
 
 // Constants
@@ -29,225 +21,89 @@ const ONLINE_THRESHOLD_MS = 60000;
   selector: "app-pqp",
   standalone: true,
   templateUrl: "./pqp.component.html",
-  styles: [
-    `
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-        padding: 20px;
-        box-sizing: border-box;
-        font-family: sans-serif;
-      }
-
-      /* Wrap content to prevent it from getting too wide on large screens */
-      .content-container {
-        max-width: 800px;
-        margin: 0 auto;
-        text-align: center;
-      }
-
-      input,
-      textarea,
-      button {
-        width: 100%;
-        margin: 5px 0;
-        padding: 8px;
-        font-size: 14px;
-        box-sizing: border-box;
-      }
-
-      textarea {
-        resize: vertical;
-      }
-
-      .card {
-        border: 1px solid #ccc;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        background: white;
-        color: black;
-        text-align: left; /* Reset text align for cards */
-      }
-
-      h3 {
-        color: #175ddc;
-        margin-top: 0;
-        margin-bottom: 15px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-
-      /* Peer List Styles */
-      .peer-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.15s;
-        color: black;
-        border-bottom: 1px solid #f5f5f5;
-      }
-
-      .peer-row:hover {
-        background-color: #f0f0f0;
-      }
-
-      .peer-self {
-        background-color: #e3f2fd;
-        border: 1px solid #2196f3;
-      }
-
-      .peer-slot {
-        font-weight: bold;
-        width: 40px;
-      }
-
-      .peer-id {
-        flex: 1;
-        text-align: left;
-        margin-left: 10px;
-        font-family: monospace;
-        font-size: 13px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .peer-status {
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        margin-left: 10px;
-        border: 1px solid #ddd;
-        background: #f0f0f0;
-        flex-shrink: 0;
-      }
-
-      .peers-empty {
-        color: #888;
-        font-size: 14px;
-        padding: 15px 0;
-        text-align: center;
-      }
-
-      .peers-discovering {
-        color: #1976d2;
-        font-size: 14px;
-        padding: 10px 0;
-        text-align: center;
-        animation: pulse 1.5s infinite;
-      }
-
-      .discovery-loader-container {
-        width: 100%;
-        height: 4px;
-        background-color: #e0e0e0;
-        border-radius: 2px;
-        margin: 0 auto 15px auto;
-        overflow: hidden;
-      }
-
-      .discovery-loader-bar {
-        height: 100%;
-        background-color: #1976d2;
-        width: 0%;
-        transition: width 0.3s linear;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-      }
-
-      .message {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        font-size: 14px;
-        text-align: left;
-        border-left: 4px solid #175ddc;
-        color: black;
-      }
-
-      /* Utility Classes */
-      .status-success {
-        color: #28a745;
-        font-weight: 600;
-      }
-      .status-error {
-        color: #dc3545;
-        font-weight: 600;
-      }
-      .status-warning {
-        color: #ffc107;
-        font-weight: 600;
-      }
-      .status-info {
-        color: #17aaec;
-        font-weight: 600;
-      }
-
-      .flex-row {
-        display: flex;
-        gap: 10px;
-      }
-      .flex-1 {
-        flex: 1;
-      }
-    `,
-  ],
   encapsulation: ViewEncapsulation.None,
+  styles: [
+    "app-pqp { display: block; padding: 15px; background-color: #f8f9fa; min-height: 100%; color: #333; font-family: 'Open Sans', sans-serif; }",
+    "app-pqp h3 { margin-top: 0; margin-bottom: 12px; font-size: 16px; color: #175ddc; font-weight: 600; text-align: left; }",
+    "app-pqp .card { background: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }",
+    "app-pqp input, app-pqp textarea { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; transition: border-color 0.15s; }",
+    "app-pqp input:focus, app-pqp textarea:focus { border-color: #175ddc; outline: none; }",
+    "app-pqp button { width: 100%; padding: 8px 16px; background-color: #175ddc; color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.15s; margin-bottom: 5px; }",
+    "app-pqp button:hover { background-color: #1550bd; }",
+    "app-pqp button:disabled { background-color: #a0c0f0; cursor: not-allowed; }",
+    "app-pqp .peer-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 6px; cursor: pointer; transition: background-color 0.15s; border: 1px solid transparent; margin-bottom: 4px; }",
+    "app-pqp .peer-row:hover { background-color: #f1f3f5; }",
+    "app-pqp .peer-self { background-color: #e8f0fe; border-color: #d2e3fc; }",
+    "app-pqp .peer-slot { font-weight: 700; color: #555; width: auto; min-width: 30px; font-size: 12px; margin-right: 8px; }",
+    "app-pqp .peer-id { flex: 1; text-align: left; font-family: 'Roboto Mono', monospace; font-size: 13px; color: #333; }",
+    "app-pqp .peer-status { width: 10px; height: 10px; border-radius: 50%; margin-left: 10px; background: #e9ecef; flex-shrink: 0; }",
+    "app-pqp .peers-empty { color: #6c757d; font-size: 14px; padding: 15px 0; font-style: italic; }",
+    "app-pqp .peers-discovering { color: #175ddc; font-size: 14px; padding: 10px 0; font-weight: 500; display: flex; flex-direction: column; align-items: center; }",
+    "app-pqp .discovery-loader-container { width: 100%; height: 4px; background-color: #e9ecef; border-radius: 2px; margin-top: 8px; overflow: hidden; }",
+    "app-pqp .discovery-loader-bar { height: 100%; background-color: #175ddc; width: 0%; transition: width 0.3s linear; }",
+    "app-pqp .message { background: #f1f3f5; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 13px; text-align: left; border-left: 3px solid #175ddc; }",
+    "app-pqp .status-success { color: #28a745; font-weight: 600; }",
+    "app-pqp .status-error { color: #dc3545; font-weight: 600; }",
+    "app-pqp .status-warning { color: #ffc107; font-weight: 600; }",
+    "app-pqp .status-info { color: #17aaec; font-weight: 600; }",
+  ],
 })
-export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PqpComponent implements AfterViewInit, OnDestroy {
   private peersInterval: any;
-  private messagesInterval: any;
-  private manager: WebRtcManager | null = null;
-
-  async ngOnInit() {
-    try {
-      initPqp("electron", { context: "ui", enableWebRtc: true });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn("PQP Init warning:", e);
-    }
-  }
 
   ngAfterViewInit() {
-    this.initPopup();
+    this.initDesktop();
   }
 
   ngOnDestroy() {
     if (this.peersInterval) {
       clearInterval(this.peersInterval);
     }
-    if (this.messagesInterval) {
-      clearInterval(this.messagesInterval);
-    }
   }
 
   // --- Auth Status Logic ---
-  updateStatus(text: string) {
+  private updateButtonStates(loggedIn: boolean) {
+    const googleLoginBtn = document.getElementById("googleLoginBtn") as HTMLButtonElement | null;
+    const microsoftLoginBtn = document.getElementById(
+      "microsoftLoginBtn",
+    ) as HTMLButtonElement | null;
+    const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement | null;
+
+    if (googleLoginBtn) {
+      googleLoginBtn.disabled = loggedIn;
+      googleLoginBtn.textContent = loggedIn ? "Signed In" : "Sign in with Google";
+    }
+    if (microsoftLoginBtn) {
+      microsoftLoginBtn.disabled = loggedIn;
+      microsoftLoginBtn.textContent = loggedIn ? "Signed In" : "Sign in with Microsoft";
+    }
+    if (logoutBtn) {
+      logoutBtn.disabled = !loggedIn;
+    }
+  }
+
+  updateStatus(text: string, loggedIn?: boolean) {
     const statusEl = document.getElementById("auth_status");
     if (statusEl) {
       statusEl.textContent = text;
+      if (loggedIn !== undefined) {
+        statusEl.style.color = loggedIn ? "#4caf50" : "#f44336";
+      }
+    }
+    if (loggedIn !== undefined) {
+      this.updateButtonStates(loggedIn);
     }
   }
 
   async checkStatus() {
     try {
-      const loggedIn = await isLoggedIn();
-      this.updateStatus(loggedIn ? "Logged In" : "Logged Out");
+      // Use Electron IPC instead of chrome.runtime.sendMessage
+      const response = await (window as any).electron.ipcRenderer.invoke("PQP_CHECK_STATUS");
+      if (response?.success) {
+        this.updateStatus(response.loggedIn ? "Logged In" : "Logged Out", response.loggedIn);
+      } else {
+        this.updateStatus("Error");
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Auth status check failed:", error);
@@ -266,10 +122,14 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
     const peerIndex = await loadPeerIndex();
     const orchestrationState = await getOrchestrationState();
 
-    // Extract Tier-0 peers
-    const tier0Peers = Object.values(peerIndex.peers || {})
-      .filter((p) => p.tier?.tier === 0)
-      .sort((a, b) => a.tier.position - b.tier.position);
+    // Sort peers by Tier structure (tier asc, then path)
+    const sortedPeers = Object.values(peerIndex.peers).sort((a, b) => {
+      if (a.tier.tier !== b.tier.tier) {
+        return a.tier.tier - b.tier.tier;
+      }
+      // Compare paths
+      return (a.tier.path || []).join(".").localeCompare((b.tier.path || []).join("."));
+    });
 
     let html = "";
 
@@ -281,7 +141,7 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Discovering Indicator
-    if (orchestrationState && orchestrationState.status === "JOINING_TIER0") {
+    if (orchestrationState && orchestrationState.status === "JOINING") {
       let progressHtml = "";
       if (orchestrationState.joinCompletionCheckTime) {
         const startTime =
@@ -291,16 +151,16 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
         const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
         progressHtml = `<div class="discovery-loader-container"><div class="discovery-loader-bar" style="width: ${progress}%"></div></div>`;
       }
-      html += `<div class="peers-discovering">Discovering peers...</div>${progressHtml}`;
+      html += `<div class="peers-discovering">Joining Network...</div>${progressHtml}`;
     }
 
     // List
-    if (tier0Peers.length === 0) {
-      if (orchestrationState?.status !== "JOINING_TIER0") {
-        html += `<div class="peers-empty">No Tier-0 peers discovered yet.</div>`;
+    if (sortedPeers.length === 0) {
+      if (orchestrationState?.status !== "JOINING") {
+        html += `<div class="peers-empty">No peers discovered yet.</div>`;
       }
     } else {
-      tier0Peers.forEach((peer) => {
+      sortedPeers.forEach((peer) => {
         const elapsed = Date.now() - peer.lastSeen;
         const isOnline = elapsed < ONLINE_THRESHOLD_MS;
         const remainingPercent = Math.max(
@@ -312,14 +172,18 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
           ? `background: conic-gradient(#4caf50 ${degrees}deg, #f0f0f0 ${degrees}deg);`
           : `background: #9e9e9e; opacity: 0.5;`;
 
-        const truncatedId = peer.queueId.substring(0, 12) + "...";
+        const truncatedId = peer.queueId.substring(0, 8) + "...";
         const isSelf = peerIndex.self && peerIndex.self.queueId === peer.queueId;
         const selfLabel = isSelf ? " <strong>(You)</strong>" : "";
         const rowClass = isSelf ? "peer-row peer-self" : "peer-row";
 
+        // Display path like "192.168..."
+        const pathStr = peer.tier.path ? peer.tier.path.slice().reverse().join(".") : "???";
+        const tierBadge = `<span style="font-size:10px; background:#ddd; padding:1px 4px; border-radius:3px;">T${peer.tier.tier}</span>`;
+
         html += `
           <div class="${rowClass}" data-queue-id="${peer.queueId}">
-            <span class="peer-slot">p${peer.tier.position}</span>
+            <span class="peer-slot" title="Path: ${pathStr}">${tierBadge} ${pathStr}</span>
             <span class="peer-id">${truncatedId}${selfLabel}</span>
             <span class="peer-status" style="${timerStyle}" title="${Math.round(remainingPercent)}% freshness"></span>
           </div>
@@ -355,12 +219,14 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
         return "Logged in";
       case "BOOTSTRAPPING":
         return "Bootstrapping assets...";
-      case "JOINING_TIER0":
-        return "Joining tier-0...";
-      case "JOINED_TIER0":
-        return peerIndex.self?.tier?.position !== undefined
-          ? `Joined as p${peerIndex.self.tier.position}`
-          : "Joined";
+      case "JOINING":
+        return "Joining network...";
+      case "JOINED": {
+        const selfPath = peerIndex.self?.tier?.path
+          ? peerIndex.self.tier.path.slice().reverse().join(".")
+          : "Unknown";
+        return `Joined: ${selfPath}`;
+      }
       case "ERROR":
         return `Error: ${state.lastError || "Unknown"}`;
       default:
@@ -370,7 +236,7 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getOrchestrationStatusClass(status: string): string {
     switch (status) {
-      case "JOINED_TIER0":
+      case "JOINED":
         return "status-success";
       case "ERROR":
         return "status-error";
@@ -381,21 +247,7 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // --- UI Actions Logic (Merged) ---
-  async updateMessages() {
-    const messages = await getMessages();
-    const container = document.getElementById("messagesContainer");
-    if (container) {
-      container.innerHTML = "";
-    }
-    messages.forEach((msg) => {
-      this.displayMessage(msg.content, msg.replyTo);
-      msg.read = true;
-    });
-    await setMessages(messages);
-    await clearBadge();
-  }
-
+  // --- UI Actions Logic ---
   displayMessage(content: string, replyTo: string) {
     const container = document.getElementById("messagesContainer");
     if (!container) {
@@ -440,18 +292,17 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  initPopup() {
+  initDesktop() {
+    // Initialize pqp-network in renderer context (matching pqp-electron pattern)
+    // This sets up ServiceLocator.getLocalStorage() so PeerRepository etc. work
+    initPqpRenderer("electron", { context: "ui" });
+
     const sendBtn = document.getElementById("sendBtn") as HTMLButtonElement;
     const webrtcTargetInput = document.getElementById("webrtcTargetQueue") as HTMLInputElement;
     const webrtcConnectBtn = document.getElementById("webrtcConnectBtn") as HTMLButtonElement;
     const webrtcSendFileBtn = document.getElementById("webrtcSendFileBtn") as HTMLButtonElement;
 
-    // Trigger orchestrator in the MAIN process via IPC (not in renderer,
-    // because renderer lacks auth token provider and API calls would 401 → force logout)
-    const ipcRef = (globalThis as any).electron?.ipcRenderer;
-    ipcRef?.send("extension-message", { type: "ORCHESTRATOR_TRIGGER" });
-
-    // Render peers list on popup open
+    // Render peers list on init
     void this.renderPeersList();
 
     // Refresh peers list every second
@@ -459,113 +310,40 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
       void this.renderPeersList();
     }, 1000);
 
-    // Messages — initial fetch + poll every 5 seconds (matches pqp-electron)
-    void this.updateMessages();
-    this.messagesInterval = setInterval(() => {
-      void this.updateMessages();
-    }, 5000);
-
-    // Listen for WebRTC status updates globally
-    onWebRtcStatus((status: Record<string, RtcSessionStatus>) => {
-      this.renderRtcStatus(status);
-    });
+    // Messages
+    void (async () => {
+      const messages = await getMessages();
+      messages.forEach((msg) => {
+        this.displayMessage(msg.content, msg.replyTo);
+        msg.read = true;
+      });
+      await setMessages(messages);
+      await clearBadge();
+    })();
 
     // Initial auth state check
     void this.checkStatus();
 
-    // Auth buttons
-    const loginBtn = document.getElementById("loginBtn") as HTMLButtonElement;
+    // Auth buttons — use Electron IPC instead of chrome.runtime.sendMessage
+    const googleLoginBtn = document.getElementById("googleLoginBtn") as HTMLButtonElement;
+    const microsoftLoginBtn = document.getElementById("microsoftLoginBtn") as HTMLButtonElement;
     const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
 
-    loginBtn?.addEventListener("click", async () => {
-      const ipc = (globalThis as any).electron?.ipcRenderer;
-      if (!ipc) {
-        this.updateStatus("IPC unavailable");
-        return;
-      }
-      this.updateStatus("Opening login...");
-      try {
-        const result = await ipc.invoke("OPEN_INTERNAL_LOGIN");
-        if (result?.success) {
-          this.updateStatus("Logged In");
-          // Trigger orchestration in main process (not renderer - see comment above)
-          ipc.send("extension-message", { type: "ORCHESTRATOR_TRIGGER" });
-        } else {
-          this.updateStatus("Login cancelled");
-        }
-      } catch {
-        this.updateStatus("Login failed");
-      }
-      setTimeout(() => this.checkStatus(), 1000);
+    googleLoginBtn?.addEventListener("click", () => {
+      void (window as any).electron.ipcRenderer.invoke("PQP_LOGIN");
+      this.updateStatus("Opening Google login...");
+      setTimeout(() => void this.checkStatus(), 10000);
     });
 
-    logoutBtn?.addEventListener("click", async () => {
-      await logout();
-      setTimeout(() => this.checkStatus(), 1000);
+    microsoftLoginBtn?.addEventListener("click", () => {
+      void (window as any).electron.ipcRenderer.invoke("PQP_LOGIN_MICROSOFT");
+      this.updateStatus("Opening Microsoft login...");
+      setTimeout(() => void this.checkStatus(), 10000);
     });
 
-    // Drive Backup
-    const driveStatusEl = document.getElementById("driveStatus");
-    const driveLoginBtn = document.getElementById("driveLoginBtn") as HTMLButtonElement;
-    const driveRestoreBtn = document.getElementById("driveRestoreBtn") as HTMLButtonElement;
-
-    const checkDriveStatus = async () => {
-      try {
-        const loggedIn = await isGoogleDriveLoggedIn();
-        if (driveStatusEl) {
-          driveStatusEl.textContent = loggedIn
-            ? "✅ Connected to Google Drive"
-            : "❌ Not connected";
-          driveStatusEl.style.color = loggedIn ? "#4caf50" : "#666";
-        }
-        if (driveLoginBtn) {
-          driveLoginBtn.textContent = loggedIn ? "Connected" : "Login to Drive";
-          driveLoginBtn.disabled = loggedIn;
-        }
-        if (driveRestoreBtn) {
-          driveRestoreBtn.disabled = !loggedIn;
-        }
-      } catch {
-        if (driveStatusEl) {
-          driveStatusEl.textContent = "Error checking status";
-          driveStatusEl.style.color = "#f44336";
-        }
-      }
-    };
-
-    void checkDriveStatus();
-
-    driveLoginBtn?.addEventListener("click", async () => {
-      driveLoginBtn.disabled = true;
-      driveLoginBtn.textContent = "Connecting...";
-      try {
-        const success = await googleDriveLogin();
-        if (!success) {
-          alert("Google Drive login cancelled or failed.");
-        } else {
-          alert("Google Drive login success!");
-        }
-      } catch (err) {
-        alert("Google Drive login failed: " + err);
-      }
-      void checkDriveStatus();
-    });
-
-    driveRestoreBtn?.addEventListener("click", async () => {
-      driveRestoreBtn.disabled = true;
-      driveRestoreBtn.textContent = "Restoring...";
-      try {
-        const success = await manualRestoreFromDrive();
-        if (success) {
-          alert("Keys restored from Google Drive!");
-        } else {
-          alert("No keys found in Google Drive.");
-        }
-      } catch (err) {
-        alert("Restore failed: " + err);
-      }
-      driveRestoreBtn.textContent = "Restore Keys";
-      void checkDriveStatus();
+    logoutBtn?.addEventListener("click", () => {
+      void (window as any).electron.ipcRenderer.invoke("PQP_LOGOUT");
+      setTimeout(() => void this.checkStatus(), 2000);
     });
 
     // Send Btn
@@ -582,14 +360,13 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
       try {
         await sendMessage(messageBody, queueId);
         messageBodyInput.value = "";
-        void this.updateMessages();
         alert("Message sent!");
       } catch (err) {
         alert("Failed to send: " + err);
       }
     });
 
-    // WebRTC Btns
+    // WebRTC Btns — use Electron IPC for signaling
     webrtcConnectBtn?.addEventListener("click", async () => {
       const target = (webrtcTargetInput?.value || "").trim();
       if (!target) {
@@ -597,13 +374,11 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       try {
-        const manager = getWebRtcManager();
-        if (!manager) {
-          alert("WebRTC Manager not initialized yet. Please wait...");
-          return;
-        }
-        await manager.ensureConnect(target);
-        alert("P2P Connection Initiated via PqP.");
+        (window as any).electron.ipcRenderer.send("RTC_SIGNAL_OUT", {
+          type: "RTC_CONNECT",
+          targetQueueId: target,
+        });
+        alert("P2P signaling started via PqP.");
       } catch (err) {
         alert("Failed to start P2P: " + err);
       }
@@ -616,13 +391,10 @@ export class PqpComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       try {
-        const manager = getWebRtcManager();
-        if (!manager) {
-          alert("WebRTC Manager not initialized yet. Please wait...");
-          return;
-        }
-        await manager.handleSendHello(target);
-        alert("Hello World sent!");
+        (window as any).electron.ipcRenderer.send("RTC_SIGNAL_OUT", {
+          type: "RTC_SEND_HELLO",
+          targetQueueId: target,
+        });
       } catch (err) {
         alert("Failed to send file: " + err);
       }

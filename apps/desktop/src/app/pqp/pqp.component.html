@@ -1,8 +1,8 @@
-<h1>PqP Network (Desktop)</h1>
+<h1>PqP Desktop</h1>
 
 <!-- NETWORK PEERS -->
 <div class="card" id="peersCard">
-  <h3>Peers</h3>
+  <h3>PQP Network</h3>
   <div id="peersList"></div>
 </div>
 
@@ -33,7 +33,7 @@
 
 <!-- VAULT TEST -->
 <div class="card" id="vaultTestCard">
-  <h3>Vault Test (OPFS / Adapter)</h3>
+  <h3>Vault Test (OPFS)</h3>
   <input type="text" id="vaultContent" placeholder="Enter text to write..." />
   <div style="display: flex; gap: 6px; justify-content: center">
     <button type="button" id="vaultWriteBtn" style="flex: 1">Write</button>
@@ -49,16 +49,9 @@
   </div>
 </div>
 
-<!-- GOOGLE DRIVE BACKUP -->
-<div class="card" id="driveBackupCard">
-  <h3>Google Drive Backup</h3>
-  <div id="driveStatus" style="margin-bottom: 10px; font-size: 13px">Checking...</div>
-  <div style="display: flex; gap: 6px; justify-content: center">
-    <button type="button" id="driveLoginBtn" style="flex: 1">Login to Drive</button>
-    <button type="button" id="driveRestoreBtn" style="flex: 1" disabled>Restore Keys</button>
-  </div>
+<div id="auth_status" style="color: black">Checking...</div>
+<div style="display: flex; gap: 6px; justify-content: center">
+  <button type="button" id="googleLoginBtn" style="flex: 1">Sign in with Google</button>
+  <button type="button" id="microsoftLoginBtn" style="flex: 1">Sign in with Microsoft</button>
 </div>
-
-<div id="auth_status" style="color: black; margin-bottom: 10px">Checking...</div>
-<button type="button" id="loginBtn">Sign In</button>
-<button type="button" id="logoutBtn">Sign Out</button>
+<button type="button" id="logoutBtn" disabled>Sign Out</button>

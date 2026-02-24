@@ -103,7 +103,7 @@
     "electron-builder": "26.0.12",
     "electron-log": "5.4.3",
     "electron-reload": "2.0.0-alpha.1",
-    "electron-store": "^11.0.2",
+    "electron-store": "8.2.0",
     "electron-updater": "6.6.4",
     "eslint": "9.26.0",
     "eslint-config-prettier": "10.1.2",
@@ -172,7 +172,6 @@
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
     "@ng-select/ng-select": "20.7.0",
-    "@ovrlab/pqp-network": "0.1.80",
     "big-integer": "1.6.52",
     "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
@@ -209,7 +208,8 @@
     "utf-8-validate": "6.0.5",
     "vite-tsconfig-paths": "5.1.4",
     "zone.js": "0.15.1",
-    "zxcvbn": "4.4.2"
+    "zxcvbn": "4.4.2",
+    "@ovrlab/pqp-network": "0.1.87-pr-133.9b30d0c"
   },
   "overrides": {
     "eslint-plugin-rxjs": {

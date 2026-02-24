@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "zxcvbn": "4.4.2",
-    "@ovrlab/pqp-network": "0.1.65"
+    "@ovrlab/pqp-network": "0.1.87-pr-133.9b30d0c"
   },
   "license": "GPL-3.0",
   "scripts": {
@@ -34,7 +34,7 @@
     "build:macos-extension:masdev": "./desktop_native/macos_provider/build.sh && node scripts/build-macos-extension.js mas-dev",
     "build:main": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name main",
     "build:main:dev": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main",
-    "build:main:watch": "npm run build-native && cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main --watch",
+    "build:main:watch": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name main --watch",
     "build:renderer": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name renderer",
     "build:renderer:dev": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name renderer",
     "build:renderer:watch": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name renderer --watch",
