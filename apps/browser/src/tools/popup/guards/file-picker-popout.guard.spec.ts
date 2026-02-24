@@ -269,23 +269,21 @@ describe("filePickerPopoutGuard", () => {
       inSidebarSpy.mockReturnValue(false);
     });
 
-    it.each([
-      { route: "/import" },
-      { route: "/add-send" },
-      { route: "/edit-send" },
-      { route: "/attachments" },
-    ])("should open popout for $route route", async ({ route }) => {
-      const importState: RouterStateSnapshot = {
-        url: route,
-      } as RouterStateSnapshot;
+    it.each([{ route: "/import" }, { route: "/add-send" }, { route: "/attachments" }])(
+      "should open popout for $route route",
+      async ({ route }) => {
+        const importState: RouterStateSnapshot = {
+          url: route,
+        } as RouterStateSnapshot;
 
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
+        const guard = filePickerPopoutGuard();
+        const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
+        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
+        expect(closePopupSpy).toHaveBeenCalledWith(window);
+        expect(result).toBe(false);
+      },
+    );
   });
 
   describe("Url handling", () => {
@@ -354,30 +352,6 @@ describe("filePickerPopoutGuard", () => {
           expect(result).toBe(true);
         },
       );
-
-      it.each([
-        { deviceType: DeviceType.FirefoxExtension, name: "Firefox" },
-        { deviceType: DeviceType.SafariExtension, name: "Safari" },
-        { deviceType: DeviceType.ChromeExtension, name: "Chrome" },
-        { deviceType: DeviceType.EdgeExtension, name: "Edge" },
-      ])("should allow navigation for editing text Sends on $name", async ({ deviceType }) => {
-        getDeviceSpy.mockReturnValue(deviceType);
-        inPopoutSpy.mockReturnValue(false);
-        inSidebarSpy.mockReturnValue(false);
-
-        const editTextSendState: RouterStateSnapshot = {
-          url: "/edit-send?sendId=abc123&type=0",
-        } as RouterStateSnapshot;
-
-        const guard = filePickerPopoutGuard();
-        const result = await TestBed.runInInjectionContext(() =>
-          guard(mockRoute, editTextSendState),
-        );
-
-        expect(openPopoutSpy).not.toHaveBeenCalled();
-        expect(closePopupSpy).not.toHaveBeenCalled();
-        expect(result).toBe(true);
-      });
     });
 
     describe("File Sends (type=1)", () => {
@@ -481,115 +455,6 @@ describe("filePickerPopoutGuard", () => {
           } else {
             expect(openPopoutSpy).toHaveBeenCalledWith(
               "popup/index.html#/add-send?type=1&isNew=true",
-            );
-            expect(closePopupSpy).toHaveBeenCalledWith(window);
-            expect(result).toBe(false);
-          }
-        },
-      );
-
-      it.each([
-        {
-          deviceType: DeviceType.FirefoxExtension,
-          name: "Firefox",
-          os: "Mac",
-          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.FirefoxExtension,
-          name: "Firefox",
-          os: "Linux",
-          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.FirefoxExtension,
-          name: "Firefox",
-          os: "Windows",
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.SafariExtension,
-          name: "Safari",
-          os: "Mac",
-          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.ChromeExtension,
-          name: "Chrome",
-          os: "Mac",
-          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.ChromeExtension,
-          name: "Chrome",
-          os: "Linux",
-          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.ChromeExtension,
-          name: "Chrome",
-          os: "Windows",
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: false,
-        },
-        {
-          deviceType: DeviceType.EdgeExtension,
-          name: "Edge",
-          os: "Mac",
-          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.EdgeExtension,
-          name: "Edge",
-          os: "Linux",
-          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
-          expectPopout: true,
-        },
-        {
-          deviceType: DeviceType.EdgeExtension,
-          name: "Edge",
-          os: "Windows",
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          expectPopout: false,
-        },
-      ])(
-        "should require popout for editing a file Send on $name $os",
-        async ({ deviceType, userAgent, expectPopout }) => {
-          getDeviceSpy.mockReturnValue(deviceType);
-          inPopoutSpy.mockReturnValue(false);
-          inSidebarSpy.mockReturnValue(false);
-
-          if (userAgent) {
-            Object.defineProperty(window, "navigator", {
-              value: { userAgent, appVersion: userAgent },
-              configurable: true,
-              writable: true,
-            });
-          }
-
-          const editFileSendState: RouterStateSnapshot = {
-            url: "/edit-send?sendId=abc123&type=1",
-          } as RouterStateSnapshot;
-
-          const guard = filePickerPopoutGuard();
-          const result = await TestBed.runInInjectionContext(() =>
-            guard(mockRoute, editFileSendState),
-          );
-
-          if (expectPopout === false) {
-            expect(openPopoutSpy).not.toHaveBeenCalled();
-            expect(closePopupSpy).not.toHaveBeenCalled();
-            expect(result).toBe(true);
-          } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith(
-              "popup/index.html#/edit-send?sendId=abc123&type=1",
             );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);

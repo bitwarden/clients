@@ -24,9 +24,9 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
  */
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
-    // Check if this is a text Send route (no file picker needed)
-    if (isTextOnlySendRoute(state.url)) {
-      return true; // Allow navigation without popout
+    // Text Sends have no file picker — never require a popout regardless of browser
+    if (isTextSendRoute(state.url)) {
+      return true;
     }
 
     // Check if browser is one that needs popout for file pickers
@@ -81,29 +81,16 @@ export function filePickerPopoutGuard(): CanActivateFn {
 }
 
 /**
- * Determines if the route is for a text Send that doesn't require file picker display.
- *
- * @param url The route URL with query parameters
- * @returns true if this is a Send route with explicitly text type (SendType.Text = 0)
+ * Returns true when the add-send route targets a Text Send (type=0).
+ * Text Sends have no file picker and never require a popout window.
  */
-function isTextOnlySendRoute(url: string): boolean {
-  // Only apply to Send routes
-  if (!url.includes("/add-send") && !url.includes("/edit-send")) {
+function isTextSendRoute(url: string): boolean {
+  if (!url.includes("/add-send")) {
     return false;
   }
-
-  // Parse query parameters to check Send type
-  const queryStartIndex = url.indexOf("?");
-  if (queryStartIndex === -1) {
-    // No query params - default to requiring popout for safety
+  const queryStart = url.indexOf("?");
+  if (queryStart === -1) {
     return false;
   }
-
-  const queryString = url.substring(queryStartIndex + 1);
-  const params = new URLSearchParams(queryString);
-  const typeParam = params.get("type");
-
-  // Only skip popout for explicitly text-based Sends (SendType.Text = 0)
-  // If type is missing, null, or not text, default to requiring popout
-  return typeParam === String(SendType.Text);
+  return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
 }
