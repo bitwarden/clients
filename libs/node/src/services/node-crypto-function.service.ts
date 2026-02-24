@@ -67,7 +67,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const infoBuf = this.toUint8Buffer(info);
     const infoArr = new Uint8Array(infoBuf);
     let runningOkmLength = 0;
-    let previousT = new Uint8Array(0);
+    let previousT: Uint8Array = new Uint8Array(0);
     const n = Math.ceil(outputByteSize / hashLen);
     const okm = new Uint8Array(n * hashLen);
     for (let i = 0; i < n; i++) {
@@ -190,7 +190,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array> }): Promise<string> {
     const iv = mode === "cbc" ? parameters.iv : null;
     const decBuf = await this.aesDecrypt(parameters.data, iv, parameters.encKey, mode);
-    return Utils.fromBufferToUtf8(decBuf);
+    return Utils.fromArrayToUtf8(decBuf);
   }
 
   aesDecrypt(
@@ -285,7 +285,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   }
 
   private toPemPrivateKey(key: Uint8Array): string {
-    const byteString = Utils.fromBufferToByteString(key);
+    const byteString = Utils.fromArrayToByteString(key);
     const asn1 = forge.asn1.fromDer(byteString);
     const privateKey = forge.pki.privateKeyFromAsn1(asn1);
     const rsaPrivateKey = forge.pki.privateKeyToAsn1(privateKey);
@@ -294,7 +294,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   }
 
   private toPemPublicKey(key: Uint8Array): string {
-    const byteString = Utils.fromBufferToByteString(key);
+    const byteString = Utils.fromArrayToByteString(key);
     const asn1 = forge.asn1.fromDer(byteString);
     const publicKey = forge.pki.publicKeyFromAsn1(asn1);
     return forge.pki.publicKeyToPem(publicKey);
