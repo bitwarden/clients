@@ -24,6 +24,8 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
+import { PeriodSelectorComponent } from "../period-selector/period-selector.component";
+import { TimePeriod } from "../period-selector/period-selector.types";
 
 export const TrendWidgetViewType = Object.freeze({
   Applications: "applications",
@@ -63,6 +65,7 @@ export interface TrendWidgetData {
     MenuModule,
     IconModule,
     SharedModule,
+    PeriodSelectorComponent,
   ],
 })
 export class TrendWidgetComponent {
@@ -103,6 +106,22 @@ export class TrendWidgetComponent {
   protected onTimespanChange(timespan: TrendWidgetTimespan) {
     this.selectedTimespan.set(timespan);
     this.timespanChanged.emit(timespan);
+  }
+
+  // TODO: This mapping is temporary. TrendWidgetTimespan should be replaced with
+  // RiskOverTimeTimeframe from the API types (same values as TimePeriod).
+  // See: https://bitwarden.atlassian.net/browse/PM-28529 [PM-28530]
+  private static readonly timePeriodMap = Object.freeze({
+    [TimePeriod.PastMonth]: TrendWidgetTimespan.PastMonth,
+    [TimePeriod.Last3Months]: TrendWidgetTimespan.Past3Months,
+    [TimePeriod.Last6Months]: TrendWidgetTimespan.Past6Months,
+    [TimePeriod.Last12Months]: TrendWidgetTimespan.PastYear,
+    [TimePeriod.All]: TrendWidgetTimespan.AllTime,
+  }) as Readonly<Record<TimePeriod, TrendWidgetTimespan>>;
+
+  protected onPeriodSelectorChange(period: TimePeriod): void {
+    const timespan = TrendWidgetComponent.timePeriodMap[period];
+    this.onTimespanChange(timespan);
   }
 
   protected readonly viewLabel = computed(() => {

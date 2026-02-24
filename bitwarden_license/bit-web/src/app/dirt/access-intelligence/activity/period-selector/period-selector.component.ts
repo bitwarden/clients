@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, model } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,9 +26,6 @@ export class PeriodSelectorComponent {
    * Defaults to "Past month" (TimePeriod.PastMonth).
    */
   readonly selectedPeriod = model<TimePeriod>(DEFAULT_TIME_PERIOD);
-
-  /** Whether the selector is disabled */
-  readonly disabled = input(false);
 
   /**
    * Pre-translated period options for the dropdown.
