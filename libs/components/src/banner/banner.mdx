@@ -15,6 +15,8 @@ import { BannerModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
+Use the following guidelines to help choose the correct type of banner.
+
 ## Content Slots
 
 Banners support three content projection slots.
@@ -35,6 +37,11 @@ Only visible when a title is projected. At wide widths the actions are right-ali
 widths they appear below the body text. Wrap action elements in `ng-container slot="actions"`.
 
 <Canvas of={stories.TitleBannerBase} />
+
+## Icons
+
+Icons should remain consistent across these types. Do not change the icon without consulting
+designers.
 
 ## Variants
 
