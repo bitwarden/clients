@@ -1,8 +1,9 @@
+import { Signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import {
   DrawerDetails,
@@ -11,6 +12,7 @@ import {
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { RiskInsightsEnrichedData } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-data-service.types";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,9 +25,18 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 
 import { ApplicationsComponent } from "./applications.component";
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Helper type to access protected members in tests
 type ComponentWithProtectedMembers = ApplicationsComponent & {
   dataSource: TableDataSource<ApplicationTableDataSource>;
+  selectedUrls: WritableSignal<Set<string>>;
+  filteredTableData: Signal<ApplicationTableDataSource[]>;
 };
 
 describe("ApplicationsComponent", () => {
@@ -83,7 +94,10 @@ describe("ApplicationsComponent", () => {
         { provide: RiskInsightsDataService, useValue: mockDataService },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: (): string | null => null } } },
+          useValue: {
+            paramMap: of(convertToParamMap({})),
+            snapshot: { paramMap: convertToParamMap({}) },
+          },
         },
         { provide: AccessIntelligenceSecurityTasksService, useValue: mockSecurityTasksService },
       ],
@@ -91,6 +105,7 @@ describe("ApplicationsComponent", () => {
 
     fixture = TestBed.createComponent(ApplicationsComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -245,6 +260,187 @@ describe("ApplicationsComponent", () => {
       // Verify only GitHub is in the export (not Slack)
       expect(capturedBlobData).toContain("GitHub");
       expect(capturedBlobData).not.toContain("Slack");
+    });
+  });
+
+  describe("checkbox selection", () => {
+    const mockApplicationData: ApplicationTableDataSource[] = [
+      {
+        applicationName: "GitHub",
+        passwordCount: 10,
+        atRiskPasswordCount: 3,
+        memberCount: 5,
+        atRiskMemberCount: 2,
+        isMarkedAsCritical: true,
+        atRiskCipherIds: ["cipher1" as CipherId],
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher1" as CipherId],
+        iconCipher: undefined,
+      },
+      {
+        applicationName: "Slack",
+        passwordCount: 8,
+        atRiskPasswordCount: 1,
+        memberCount: 4,
+        atRiskMemberCount: 1,
+        isMarkedAsCritical: false,
+        atRiskCipherIds: ["cipher2" as CipherId],
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher2" as CipherId],
+        iconCipher: undefined,
+      },
+      {
+        applicationName: "Jira",
+        passwordCount: 12,
+        atRiskPasswordCount: 4,
+        memberCount: 6,
+        atRiskMemberCount: 3,
+        isMarkedAsCritical: false,
+        atRiskCipherIds: ["cipher3" as CipherId],
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher3" as CipherId],
+        iconCipher: undefined,
+      },
+    ];
+
+    beforeEach(() => {
+      // Emit mock data through the data service observable to populate the table
+      enrichedReportData$.next({
+        reportData: mockApplicationData,
+        summaryData: createNewSummaryData(),
+        applicationData: [],
+        creationDate: new Date(),
+      });
+    });
+
+    describe("onCheckboxChange", () => {
+      it("should add application to selectedUrls when checked is true", () => {
+        // act
+        component.onCheckboxChange({ applicationName: "GitHub", checked: true });
+
+        // assert
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.size).toBe(1);
+      });
+
+      it("should remove application from selectedUrls when checked is false", () => {
+        // arrange
+        (component as ComponentWithProtectedMembers).selectedUrls.set(new Set(["GitHub", "Slack"]));
+
+        // act
+        component.onCheckboxChange({ applicationName: "GitHub", checked: false });
+
+        // assert
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(false);
+        expect(selectedUrls.has("Slack")).toBe(true);
+        expect(selectedUrls.size).toBe(1);
+      });
+
+      it("should handle multiple applications being selected", () => {
+        // act
+        component.onCheckboxChange({ applicationName: "GitHub", checked: true });
+        component.onCheckboxChange({ applicationName: "Slack", checked: true });
+        component.onCheckboxChange({ applicationName: "Jira", checked: true });
+
+        // assert
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.has("Slack")).toBe(true);
+        expect(selectedUrls.has("Jira")).toBe(true);
+        expect(selectedUrls.size).toBe(3);
+      });
+    });
+
+    describe("onSelectAllChange", () => {
+      it("should add all visible applications to selectedUrls when checked is true", () => {
+        // act
+        component.onSelectAllChange(true);
+
+        // assert
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.has("Slack")).toBe(true);
+        expect(selectedUrls.has("Jira")).toBe(true);
+        expect(selectedUrls.size).toBe(3);
+      });
+
+      it("should remove all applications from selectedUrls when checked is false", () => {
+        // arrange
+        (component as ComponentWithProtectedMembers).selectedUrls.set(new Set(["GitHub", "Slack"]));
+
+        // act
+        component.onSelectAllChange(false);
+
+        // assert
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.size).toBe(0);
+      });
+
+      it("should only add visible filtered applications when filter is applied", () => {
+        // arrange - apply filter to only show critical apps
+        (component as ComponentWithProtectedMembers).dataSource.filter = (
+          app: ApplicationTableDataSource,
+        ) => app.isMarkedAsCritical;
+        fixture.detectChanges();
+
+        // act
+        component.onSelectAllChange(true);
+
+        // assert - only GitHub is critical
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.has("Slack")).toBe(false);
+        expect(selectedUrls.has("Jira")).toBe(false);
+        expect(selectedUrls.size).toBe(1);
+      });
+
+      it("should only remove visible filtered applications when unchecking with filter applied", () => {
+        // arrange - select all apps first, then apply filter to only show non-critical apps
+        (component as ComponentWithProtectedMembers).selectedUrls.set(
+          new Set(["GitHub", "Slack", "Jira"]),
+        );
+
+        (component as ComponentWithProtectedMembers).dataSource.filter = (
+          app: ApplicationTableDataSource,
+        ) => !app.isMarkedAsCritical;
+        fixture.detectChanges();
+
+        // act - uncheck with filter applied
+        component.onSelectAllChange(false);
+
+        // assert - GitHub (critical) should still be selected
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.has("Slack")).toBe(false);
+        expect(selectedUrls.has("Jira")).toBe(false);
+        expect(selectedUrls.size).toBe(1);
+      });
+
+      it("should preserve existing selections when checking select all with filter", () => {
+        // arrange - select a non-visible app
+        (component as ComponentWithProtectedMembers).selectedUrls.set(new Set(["GitHub"]));
+
+        // apply filter to hide GitHub
+        (component as ComponentWithProtectedMembers).dataSource.filter = (
+          app: ApplicationTableDataSource,
+        ) => !app.isMarkedAsCritical;
+        fixture.detectChanges();
+
+        // act - select all visible (non-critical apps)
+        component.onSelectAllChange(true);
+
+        // assert - GitHub should still be selected + visible apps
+        const selectedUrls = (component as ComponentWithProtectedMembers).selectedUrls();
+        expect(selectedUrls.has("GitHub")).toBe(true);
+        expect(selectedUrls.has("Slack")).toBe(true);
+        expect(selectedUrls.has("Jira")).toBe(true);
+        expect(selectedUrls.size).toBe(3);
+      });
     });
   });
 });
