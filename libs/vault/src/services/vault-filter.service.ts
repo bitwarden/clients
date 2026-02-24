@@ -290,9 +290,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
     // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
     const orgCiphers = ciphers.filter((c) => c.organizationId == org?.id);
-    return storedFolders.filter(
-      (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
-    );
+    return storedFolders.filter((f) => orgCiphers.some((oc) => oc.folderId == f.id) || !f.id);
   }
 
   protected buildFolderTree(folders?: FolderView[]): TreeNode<FolderFilter> {
