@@ -27,13 +27,13 @@ import {
   isWindows,
 } from "../utils";
 
-const windowProtocol = "app";
-const appHost = "desktopbundle";
-const appOrigin = `${windowProtocol}://${appHost}`;
+const customFileScheme = "bw-desktop-file";
+const customFileHost = "bundle";
+const customFileOrigin = `${customFileScheme}://${customFileHost}`;
 
 protocol.registerSchemesAsPrivileged([
   {
-    scheme: windowProtocol,
+    scheme: customFileScheme,
     privileges: {
       standard: true,
       secure: true,
@@ -263,8 +263,8 @@ export class WindowMain {
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
       url.format({
-        protocol: windowProtocol,
-        host: appHost,
+        protocol: customFileScheme,
+        host: customFileHost,
         pathname: "index.html",
         slashes: true,
         hash: targetPath,
@@ -286,10 +286,12 @@ export class WindowMain {
    * guidance to use custom schemes for loading local content. Requests to app://desktopbundle/<path> are
    * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
    *
-   * Reference: https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   * References:
+   *  https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   *  https://www.electronjs.org/docs/latest/api/protocol#protocolhandlescheme-handler
    */
   private setupAppProtocol() {
-    this.session.protocol.handle(windowProtocol, (req) => {
+    this.session.protocol.handle(customFileScheme, (req) => {
       const url = new URL(req.url);
       let pathname = url.pathname;
 
@@ -303,7 +305,7 @@ export class WindowMain {
         pathname = "index.html";
       }
 
-      if (url.host === appHost) {
+      if (url.host === customFileHost) {
         // Resolve the path to an absolute path and ensure it's within the app directory to prevent directory traversal attacks
         const pathToServe = path.resolve(__dirname, pathname);
         const relativePath = path.relative(__dirname, pathToServe);
@@ -354,7 +356,7 @@ export class WindowMain {
     this.session.webRequest.onHeadersReceived(
       { urls: ["http://*/*", "https://*/*"] },
       (details, callback) => {
-        details.responseHeaders["access-control-allow-origin"] = [appOrigin];
+        details.responseHeaders["access-control-allow-origin"] = [customFileOrigin];
 
         const preflight = this.preflightRequests.get(details.id);
         if (preflight) {
@@ -442,8 +444,8 @@ export class WindowMain {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       void this.win.loadURL(
         url.format({
-          protocol: windowProtocol,
-          host: appHost,
+          protocol: customFileScheme,
+          host: customFileHost,
           pathname: "index.html",
           slashes: true,
         }),
@@ -455,8 +457,8 @@ export class WindowMain {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
         url.format({
-          protocol: windowProtocol,
-          host: appHost,
+          protocol: customFileScheme,
+          host: customFileHost,
           pathname: "index.html",
           slashes: true,
           hash: "/passkeys",
