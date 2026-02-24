@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { ChipFilterOption } from "@bitwarden/components";
+import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 export type SendListFilter = {
   sendType: SendType | null;
@@ -81,7 +81,7 @@ export class SendListFiltersService {
    */
   private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: string,
+    icon: BitwardenIcon,
   ): ChipFilterOption<T> {
     return {
       value: item.node,

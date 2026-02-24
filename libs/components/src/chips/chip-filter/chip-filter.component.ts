@@ -29,9 +29,10 @@ import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
 /** An option that will be showed in the overlay menu of `ChipFilterComponent` */
-export type ChipFilterOption<T> = Option<T> & {
+export type ChipFilterOption<T> = Exclude<Option<T>, "icon"> & {
   /** The options that will be nested under this option */
   children?: ChipFilterOption<T>[];
+  icon?: BitwardenIcon;
 };
 
 /**
@@ -76,7 +77,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly placeholderText = input.required<string>();
 
   /** Icon to show when there is no selected option or the selected option does not have an icon */
-  readonly placeholderIcon = input<string>();
+  readonly placeholderIcon = input<BitwardenIcon>();
 
   /** The select options to render */
   readonly options = input.required<ChipFilterOption<T>[]>();
@@ -166,7 +167,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** The icon to show in the chip button */
   protected get icon(): BitwardenIcon | undefined {
-    return (this.selectedOption?.icon || this.placeholderIcon()) as BitwardenIcon | undefined;
+    return this.selectedOption?.icon || this.placeholderIcon();
   }
 
   /**
@@ -311,7 +312,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
-  protected onChange(option: Option<T> | null) {
+  protected onChange(option: ChipFilterOption<T> | null) {
     if (!this.notifyOnChange) {
       return;
     }

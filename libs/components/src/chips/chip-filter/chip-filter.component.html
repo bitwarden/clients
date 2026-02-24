@@ -88,7 +88,7 @@
           [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
         >
           @if (option.icon) {
-            <bit-icon slot="start" name="{{ option.icon }}" aria-hidden="true"></bit-icon>
+            <bit-icon slot="start" [name]="option.icon" aria-hidden="true"></bit-icon>
           }
           {{ option.label }}
           @if (option.children?.length) {
