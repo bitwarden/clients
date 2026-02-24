@@ -168,12 +168,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   private refreshItems() {
     const collections: VaultItem<C>[] =
       this.collections()?.map((collection) => ({ collection })) || [];
-    const ciphers: VaultItem<C>[] = this.ciphers()
-      .filter(
-        (cipher) =>
-          !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
-      )
-      .map((cipher) => ({ cipher }));
+    const ciphers: VaultItem<C>[] = this.ciphers().map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
     this.dataSource.data = items;
