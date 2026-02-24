@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
@@ -28,8 +28,8 @@ export interface DomainAddEditDialogData {
   templateUrl: "domain-add-edit-dialog.component.html",
   standalone: false,
 })
-export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
-  private componentDestroyed$: Subject<void> = new Subject();
+export class DomainAddEditDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   domainForm: FormGroup;
 
@@ -77,11 +77,6 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     await this.populateForm();
   }
 
-  ngOnDestroy(): void {
-    this.componentDestroyed$.next();
-    this.componentDestroyed$.complete();
-  }
-
   // End Angular Method Implementations
 
   // Form methods
@@ -99,7 +94,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   setupFormListeners(): void {
     // <bit-form-field> suppresses touched state on change for reactive form controls
     // Manually set touched to show validation errors as the user stypes
-    this.domainForm.valueChanges.pipe(takeUntil(this.componentDestroyed$)).subscribe(() => {
+    this.domainForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.domainForm.markAllAsTouched();
     });
   }

@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
-import { first, takeUntil } from "rxjs/operators";
+import { firstValueFrom, switchMap } from "rxjs";
+import { first } from "rxjs/operators";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
@@ -27,7 +28,8 @@ import {
   templateUrl: "setup.component.html",
   standalone: false,
 })
-export class SetupComponent implements OnInit, OnDestroy {
+export class SetupComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -42,8 +44,6 @@ export class SetupComponent implements OnInit, OnDestroy {
     paymentMethod: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -106,14 +106,9 @@ export class SetupComponent implements OnInit, OnDestroy {
             return await this.router.navigate(["/"]);
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
@@ -24,7 +33,6 @@ import {
   startWith,
   switchMap,
   take,
-  takeUntil,
 } from "rxjs/operators";
 
 import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
@@ -192,9 +200,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected filter$: Observable<RoutedVaultFilterModel>;
   private organizationId$: Observable<OrganizationId>;
 
+  private readonly destroyRef = inject(DestroyRef);
+
   private searchText$ = new Subject<string>();
   protected refreshingSubject$ = new BehaviorSubject<boolean>(true);
-  private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
@@ -506,7 +515,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           return collectionsToReturn;
         },
       ),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -570,7 +579,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     this.routedVaultFilterBridgeService.activeFilter$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((activeFilter) => {
         this.activeFilter = activeFilter;
 
@@ -581,7 +590,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
 
     this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
+      .pipe(debounceTime(SearchTextDebounceInterval), takeUntilDestroyed(this.destroyRef))
       .subscribe((searchText) =>
         this.router.navigate([], {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
@@ -656,7 +665,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -686,7 +695,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -696,7 +705,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.allCollections$),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((allCollections) => {
         // This is a temporary fix to avoid double fetching collections.
@@ -729,8 +738,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<CipherView>) {

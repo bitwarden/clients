@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -52,7 +53,7 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   templateUrl: "events.component.html",
   imports: [SharedModule, HeaderModule],
 })
-export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
+export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "org-events";
   organizationId: string;
   organization: Organization;
@@ -122,7 +123,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
           await this.load();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

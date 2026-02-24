@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, Inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, of, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -57,7 +58,7 @@ export enum BulkCollectionsDialogResult {
   selector: "app-bulk-collections-dialog",
   templateUrl: "bulk-collections-dialog.component.html",
 })
-export class BulkCollectionsDialogComponent implements OnDestroy {
+export class BulkCollectionsDialogComponent {
   protected readonly PermissionMode = PermissionMode;
 
   protected formGroup = this.formBuilder.group({
@@ -67,8 +68,6 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
   protected organization: Organization;
   protected accessItems: AccessItemView[] = [];
   protected numCollections: number;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     @Inject(DIALOG_DATA) private params: BulkCollectionsDialogParams,
@@ -105,7 +104,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       groups$,
       this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe(([organization, groups, users]) => {
         this.organization = organization;
 
@@ -116,11 +115,6 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

@@ -1,17 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params } from "@angular/router";
-import {
-  concatMap,
-  firstValueFrom,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-} from "rxjs";
+import { concatMap, firstValueFrom, map, Observable, switchMap, take } from "rxjs";
 
 import { DomainIcon } from "@bitwarden/assets/svg";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -40,8 +32,8 @@ import {
   templateUrl: "domain-verification.component.html",
   standalone: false,
 })
-export class DomainVerificationComponent implements OnInit, OnDestroy {
-  private componentDestroyed$ = new Subject<void>();
+export class DomainVerificationComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private singleOrgPolicyEnabled = false;
   protected domainIcon = DomainIcon;
 
@@ -75,7 +67,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
           this.organizationId = params.organizationId;
           await this.load();
         }),
-        takeUntil(this.componentDestroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -243,10 +235,5 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("domainRemoved"),
     });
-  }
-
-  ngOnDestroy(): void {
-    this.componentDestroyed$.next();
-    this.componentDestroyed$.complete();
   }
 }

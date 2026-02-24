@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, Input, OnInit, OnDestroy } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -14,8 +14,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
   templateUrl: "nested-checkbox.component.html",
   standalone: false,
 })
-export class NestedCheckboxComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class NestedCheckboxComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -33,7 +33,7 @@ export class NestedCheckboxComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkboxes.controls[this.parentId].valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         Object.values(this.checkboxes.controls).forEach((control) =>
           control.setValue(value, { emitEvent: false }),
@@ -56,11 +56,6 @@ export class NestedCheckboxComponent implements OnInit, OnDestroy {
 
   protected key(index: number, item: KeyValue<string, FormControl<boolean>>) {
     return item.key;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   pascalize(s: string) {

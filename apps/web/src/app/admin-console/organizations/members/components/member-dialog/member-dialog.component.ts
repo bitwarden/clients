@@ -1,18 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, Inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -112,7 +103,7 @@ export enum MemberDialogResult {
   templateUrl: "member-dialog.component.html",
   standalone: false,
 })
-export class MemberDialogComponent implements OnDestroy {
+export class MemberDialogComponent {
   loading = true;
   editMode = false;
   isRevoked = false;
@@ -172,8 +163,6 @@ export class MemberDialogComponent implements OnDestroy {
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
   }
-
-  private destroy$ = new Subject<void>();
 
   isEditDialogParams(
     params: EditMemberDialogParams | AddMemberDialogParams,
@@ -265,7 +254,7 @@ export class MemberDialogComponent implements OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.restrictEditingSelf$.pipe(takeUntil(this.destroy$)).subscribe((restrictEditingSelf) => {
+    this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
       if (restrictEditingSelf) {
         this.formGroup.controls.groups.disable();
       } else {
@@ -299,7 +288,7 @@ export class MemberDialogComponent implements OnDestroy {
       userDetails: userDetails$,
       groups: groups$,
     })
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe(({ organization, collections, userDetails, groups }) => {
         this.setFormValidators(organization);
 
@@ -726,11 +715,6 @@ export class MemberDialogComponent implements OnDestroy {
 
     this.close(MemberDialogResult.Deleted);
   };
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   protected async cancel() {
     this.close(MemberDialogResult.Canceled);

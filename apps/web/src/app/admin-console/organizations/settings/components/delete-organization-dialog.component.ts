@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -85,8 +86,8 @@ export enum DeleteOrganizationDialogResult {
   imports: [SharedModule, UserVerificationModule],
   templateUrl: "delete-organization-dialog.component.html",
 })
-export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class DeleteOrganizationDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   loaded: boolean;
   deleteOrganizationRequestType: "InvalidFamiliesForEnterprise" | "RegularDelete" = "RegularDelete";
@@ -113,11 +114,6 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
   ) {}
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   async ngOnInit(): Promise<void> {
     this.deleteOrganizationRequestType = this.params.requestType;
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -128,7 +124,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
         .pipe(getOrganizationById(this.params.organizationId)),
       this.cipherService.getAllFromApiForOrganization(this.params.organizationId),
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([organization, ciphers]) => {
         this.organization = organization;
         this.organizationContentSummary = this.buildOrganizationContentSummary(ciphers);

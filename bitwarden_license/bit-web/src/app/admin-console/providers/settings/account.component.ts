@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, switchMap, takeUntil } from "rxjs";
+import { switchMap } from "rxjs";
 
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -24,13 +25,13 @@ import { DialogService, ToastService } from "@bitwarden/components";
   templateUrl: "account.component.html",
   standalone: false,
 })
-export class AccountComponent implements OnDestroy, OnInit {
+export class AccountComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   selfHosted = false;
   loading = true;
   provider: ProviderResponse;
   taxFormPromise: Promise<any>;
 
-  private destroy$ = new Subject<void>();
   private providerId: string;
   protected formGroup = this.formBuilder.group({
     providerName: ["" as ProviderResponse["name"]],
@@ -70,13 +71,9 @@ export class AccountComponent implements OnDestroy, OnInit {
             this.loading = false;
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
   submit = async () => {
     const request = new ProviderUpdateRequest();
