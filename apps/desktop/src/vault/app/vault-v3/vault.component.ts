@@ -845,7 +845,9 @@ export class VaultComponent<C extends CipherViewLike>
     await this.go();
   }
 
-  async cancelCipher() {
+  async cancelCipher(cipher: CipherView) {
+    this.cipherId = cipher.id;
+    this.cipher.set(cipher);
     this.action.set(this.cipherId ? "view" : null);
     await this.go();
   }
