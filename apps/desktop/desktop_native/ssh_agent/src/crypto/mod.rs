@@ -21,7 +21,7 @@ mod serialization;
 
 /// Represents SSH key that is queryable.
 ///
-/// Allows bstracting  over different key data implementations,
+/// Allows abstracting over different key data implementations,
 /// for mocking in tests without requiring actual cryptographic keys.
 #[cfg_attr(test, mockall::automock)]
 pub trait QueryableKeyData: Send + Sync {
