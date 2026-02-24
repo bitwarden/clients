@@ -19,11 +19,9 @@ export class UpdateTdeOffboardingPasswordRequest extends OrganizationUserResetPa
     unlockData: MasterPasswordUnlockData,
     masterPasswordHint: string,
   ): UpdateTdeOffboardingPasswordRequest {
-    const request = OrganizationUserResetPasswordRequest.newConstructor(
-      authenticationData,
-      unlockData,
-    ) as UpdateTdeOffboardingPasswordRequest;
-
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
+    request.key = unlockData.masterKeyWrappedUserKey;
     request.masterPasswordHint = masterPasswordHint;
     return request;
   }
