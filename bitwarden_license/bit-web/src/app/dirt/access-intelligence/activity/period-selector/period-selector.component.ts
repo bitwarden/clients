@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, model } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,11 +28,11 @@ interface TranslatedPeriodOption {
 export class PeriodSelectorComponent {
   private i18nService = inject(I18nService);
 
-  /**
-   * The currently selected time period. Supports two-way binding via [(selectedPeriod)].
-   * Defaults to "Past month" (TimePeriod.PastMonth).
-   */
-  readonly selectedPeriod = model<TimePeriod>(DEFAULT_TIME_PERIOD);
+  /** The currently selected time period */
+  readonly selectedPeriod = signal<TimePeriod>(DEFAULT_TIME_PERIOD);
+
+  /** Emits when the user selects a new period */
+  readonly selectedPeriodChange = output<TimePeriod>();
 
   /**
    * Pre-translated period options for the dropdown.
@@ -49,5 +56,6 @@ export class PeriodSelectorComponent {
   /** Handle period selection */
   protected selectPeriod(period: TimePeriod): void {
     this.selectedPeriod.set(period);
+    this.selectedPeriodChange.emit(period);
   }
 }

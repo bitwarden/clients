@@ -59,9 +59,14 @@ describe("PeriodSelectorComponent", () => {
     expect(options[4].label).toBe("All");
   });
 
-  it("should update selected period", () => {
+  it("should update selected period and emit change", () => {
+    const emitSpy = jest.fn();
+    component.selectedPeriodChange.subscribe(emitSpy);
+
     component["selectPeriod"](TimePeriod.Last6Months);
+
     expect(component.selectedPeriod()).toBe(TimePeriod.Last6Months);
+    expect(emitSpy).toHaveBeenCalledWith(TimePeriod.Last6Months);
   });
 
   it("should update selected label when period changes", () => {
