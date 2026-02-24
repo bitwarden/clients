@@ -4,7 +4,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription } from "@bitwarden/subscription";
@@ -14,7 +13,6 @@ import {
   NonTokenizedPaymentMethod,
   TokenizedPaymentMethod,
 } from "../payment/types";
-import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 
 @Injectable()
 export class AccountBillingClient {
