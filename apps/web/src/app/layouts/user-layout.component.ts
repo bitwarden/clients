@@ -4,13 +4,13 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { map, Observable, switchMap } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
+import { PolicyAppliesToActiveUserPipe } from "@bitwarden/angular/admin-console/pipes/policy-applies-to-active-user.pipe";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -36,17 +36,13 @@ import { WebLayoutModule } from "./web-layout.module";
     WebLayoutModule,
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
+    PolicyAppliesToActiveUserPipe,
   ],
   providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((isDisabled) => !isDisabled),
-  );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected subscriptionRoute$: Observable<string | null>;
 

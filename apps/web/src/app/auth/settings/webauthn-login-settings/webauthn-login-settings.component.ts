@@ -1,10 +1,6 @@
 import { Component, HostBinding, OnDestroy, OnInit } from "@angular/core";
-import { Subject, switchMap, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { WebauthnLoginAdminService } from "../../core";
@@ -34,28 +30,12 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected credentials?: WebauthnLoginCredentialView[];
   protected loading = true;
 
-  protected requireSsoPolicyEnabled = false;
-
   constructor(
     private webauthnService: WebauthnLoginAdminService,
     private dialogService: DialogService,
-    private policyService: PolicyService,
-    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((enabled) => {
-        this.requireSsoPolicyEnabled = enabled;
-      });
-
     this.webauthnService
       .getCredentials$()
       .pipe(takeUntil(this.destroy$))
