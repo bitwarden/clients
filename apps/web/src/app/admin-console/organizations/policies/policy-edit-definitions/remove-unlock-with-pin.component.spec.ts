@@ -6,6 +6,7 @@ import { mock } from "jest-mock-extended";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrgKey } from "@bitwarden/common/types/key";
 
 import {
   RemoveUnlockWithPinPolicy,
@@ -95,5 +96,28 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
     const bitLabelElement = fixture.debugElement.query(By.css("bit-label"));
     expect(bitLabelElement).not.toBeNull();
     expect(bitLabelElement.nativeElement.textContent.trim()).toBe("Turn on");
+  });
+
+  it("buildVNextRequest should delegate to buildRequest and wrap with null metadata", async () => {
+    component.policy = new RemoveUnlockWithPinPolicy();
+    component.policyResponse = new PolicyStatusResponse({
+      organizationId: "org1",
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    });
+    component.ngOnInit();
+
+    const buildRequestSpy = jest.spyOn(component, "buildRequest");
+
+    const result = await component.buildVNextRequest(mock<OrgKey>());
+
+    expect(buildRequestSpy).toHaveBeenCalled();
+    expect(result).toEqual({
+      policy: {
+        enabled: true,
+        data: null,
+      },
+      metadata: null,
+    });
   });
 });
