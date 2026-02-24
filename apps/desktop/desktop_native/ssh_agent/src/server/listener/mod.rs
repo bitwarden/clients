@@ -8,7 +8,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error};
 
-use super::peer_info::PeerInfo;
+use super::connection::Connection;
 
 /// Implementors handle platform-specific socket/pipe creation and connection acceptance.
 #[async_trait::async_trait]
@@ -16,8 +16,8 @@ pub(crate) trait Listener: Send + Sync {
     /// The stream type returned by `accept()`
     type Stream: AsyncRead + AsyncWrite + Send + Unpin + 'static;
 
-    /// Accept a new connection, returning the stream and peer information
-    async fn accept(&mut self) -> Result<(Self::Stream, PeerInfo)>;
+    /// Accept a new connection
+    async fn accept(&mut self) -> Result<Connection<Self::Stream>>;
 }
 
 /// Spawns an independent tokio task for each listener in `listeners`.
@@ -26,14 +26,14 @@ pub(crate) trait Listener: Send + Sync {
 /// Tasks exit when the cancellation token is triggered or the channel receiver is dropped.
 pub(crate) fn spawn_listener_tasks<L>(
     listeners: Vec<L>,
-    tx: Sender<(L::Stream, PeerInfo)>,
-    token: CancellationToken,
+    tx: &Sender<Connection<L::Stream>>,
+    cancel_token: &CancellationToken,
 ) where
     L: Listener + 'static,
 {
     for mut listener in listeners {
         let tx = tx.clone();
-        let token = token.clone();
+        let token = cancel_token.clone();
         tokio::spawn(async move {
             loop {
                 tokio::select! {

@@ -1,4 +1,4 @@
-//! Connection handler for SSH agent client connections
+//! SSH agent client connection and connection handler
 
 use std::sync::Arc;
 
@@ -6,14 +6,23 @@ use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 
-use super::auth_policy::AuthPolicy;
+use super::{auth_policy::AuthPolicy, peer_info::PeerInfo};
 use crate::crypto::keystore::KeyStore;
+
+/// An accepted connection from an SSH agent client, bundling the I/O stream
+/// with information about the connecting peer.
+pub(crate) struct Connection<S> {
+    /// The I/O stream for this connection
+    pub(crate) stream: S,
+    /// Information about the connected peer process
+    pub(crate) peer_info: PeerInfo,
+}
 
 /// Handles an individual SSH agent client connection
 pub(crate) struct ConnectionHandler<K, A, S> {
     keystore: Arc<K>,
     auth_policy: Arc<A>,
-    stream: S,
+    connection: Connection<S>,
     token: CancellationToken,
 }
 
@@ -24,11 +33,16 @@ where
     S: AsyncRead + AsyncWrite + Unpin,
 {
     /// Create a new connection handler
-    pub fn new(keystore: Arc<K>, auth_policy: Arc<A>, stream: S, token: CancellationToken) -> Self {
+    pub fn new(
+        keystore: Arc<K>,
+        auth_policy: Arc<A>,
+        connection: Connection<S>,
+        token: CancellationToken,
+    ) -> Self {
         Self {
             keystore,
             auth_policy,
-            stream,
+            connection,
             token,
         }
     }
@@ -36,7 +50,7 @@ where
     /// Handle incoming SSH agent protocol messages from the client
     #[allow(clippy::never_loop)] // TODO remove
     pub async fn handle(self) {
-        info!("Connection handler started");
+        info!(peer_info = ?self.connection.peer_info, "Connection handler started");
 
         loop {
             tokio::select! {
@@ -45,9 +59,9 @@ where
                     break;
                 }
 
-                // TODO: read SSH protocol message from stream
+                // TODO: read SSH protocol message from self.connection.stream
                 // TODO: parse message type, use auth policy and keystore to satisfy requests
-                // TODO: build response and write back to stream
+                // TODO: build response and write back to self.connection.stream
             }
         }
 
