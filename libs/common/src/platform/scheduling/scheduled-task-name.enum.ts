@@ -9,6 +9,7 @@ export const ScheduledTaskNames = {
   vaultTimeoutCheckInterval: "vaultTimeoutCheckInterval",
   clearPopupViewCache: "clearPopupViewCache",
   phishingDomainUpdate: "phishingDomainUpdate",
+  targetingRulesUpdate: "targetingRulesUpdate",
 } as const;
 
 export type ScheduledTaskName = (typeof ScheduledTaskNames)[keyof typeof ScheduledTaskNames];
