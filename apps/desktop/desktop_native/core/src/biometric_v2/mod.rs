@@ -16,7 +16,7 @@ pub mod windows_focus;
 
 pub use biometric_v2::BiometricLockSystem;
 
-/// Platform-specific biometric authentication with key management.
+/// Platform-specific biometric-protected key storage
 #[allow(async_fn_in_trait)]
 pub trait BiometricTrait: Send + Sync {
     /// Authenticate the user
