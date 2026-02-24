@@ -59,7 +59,6 @@ import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
-import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
@@ -72,6 +71,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { FamiliesForEnterpriseSetupComponent } from "./billing/organizations/sponsorships/families-for-enterprise-setup.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
