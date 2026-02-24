@@ -1,4 +1,5 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   concatMap,
@@ -8,9 +9,7 @@ import {
   map,
   Observable,
   of,
-  Subject,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -61,7 +60,8 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
 @Injectable({
   providedIn: "root",
 })
-export class DesktopAutotypeService implements OnDestroy {
+export class DesktopAutotypeService {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
@@ -74,8 +74,6 @@ export class DesktopAutotypeService implements OnDestroy {
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
 
   autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
@@ -91,7 +89,7 @@ export class DesktopAutotypeService implements OnDestroy {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
       distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(),
     );
 
     this.isPremiumAccount$ = this.accountService.activeAccount$.pipe(
@@ -100,12 +98,12 @@ export class DesktopAutotypeService implements OnDestroy {
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(),
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
       map((shortcut) => shortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(),
     );
   }
 
@@ -141,7 +139,7 @@ export class DesktopAutotypeService implements OnDestroy {
             this.logService.error("Failed to set Autotype enabled state.");
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -154,7 +152,7 @@ export class DesktopAutotypeService implements OnDestroy {
           };
           ipc.autofill.configureAutotype(config);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -163,7 +161,7 @@ export class DesktopAutotypeService implements OnDestroy {
         concatMap(async (enabled) => {
           ipc.autofill.toggleAutotype(enabled);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -188,7 +186,7 @@ export class DesktopAutotypeService implements OnDestroy {
           isPremiumAcct,
       ),
       distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
   }
 
@@ -232,11 +230,6 @@ export class DesktopAutotypeService implements OnDestroy {
     });
 
     return possibleCiphers;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
 
