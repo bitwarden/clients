@@ -766,6 +766,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let userKey: UserKey;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
+    let request: UpdateTdeOffboardingPasswordRequest;
 
     beforeEach(() => {
       credentials = {
@@ -789,6 +790,12 @@ describe("DefaultSetInitialPasswordService", () => {
         kdf: credentials.kdfConfig,
         masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
+
+      request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+        authenticationData,
+        unlockData,
+        credentials.newPasswordHint,
+      );
 
       keyService.userKey$.mockReturnValue(of(userKey));
       masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
@@ -856,13 +863,6 @@ describe("DefaultSetInitialPasswordService", () => {
     });
 
     it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
-      // Arrange
-      const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
-        authenticationData,
-        unlockData,
-        credentials.newPasswordHint,
-      );
-
       // Act
       await sut.setInitialPasswordTdeOffboarding(credentials, userId);
 
@@ -879,20 +879,9 @@ describe("DefaultSetInitialPasswordService", () => {
         credentials.salt,
         userKey,
       );
-
-      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledWith(
-        request,
-      );
     });
 
     it("should call the API method to set a master password", async () => {
-      // Arrange
-      const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
-        authenticationData,
-        unlockData,
-        credentials.newPasswordHint,
-      );
-
       // Act
       await sut.setInitialPasswordTdeOffboarding(credentials, userId);
 
