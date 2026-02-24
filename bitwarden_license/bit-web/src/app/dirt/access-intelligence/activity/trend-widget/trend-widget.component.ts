@@ -6,11 +6,14 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import * as papa from "papaparse";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -21,6 +24,7 @@ import {
   ToggleGroupModule,
   IconModule,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
@@ -82,10 +86,13 @@ export class TrendWidgetComponent {
     { initialValue: false },
   );
 
+  private readonly lineChart = viewChild<LineChartComponent>(LineChartComponent);
+
   constructor(
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
     private i18nService: I18nService,
+    private fileDownloadService: FileDownloadService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -171,4 +178,46 @@ export class TrendWidgetComponent {
   protected readonly lineChartConfiguration: ChartConfig = {
     xAxisType: "datetime",
   };
+
+  protected downloadAsPNG(): void {
+    const chart = this.lineChart();
+    if (!chart) {
+      return;
+    }
+
+    const canvas = chart.chartCanvas().nativeElement;
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        return;
+      }
+
+      const fileName = ExportHelper.getFileName("trend_chart", "png");
+      this.fileDownloadService.download({
+        fileName,
+        blobData: blob,
+        blobOptions: { type: "image/png" },
+      });
+    });
+  }
+
+  protected downloadAsCSV(): void {
+    const dataPoints = this.data().dataPoints;
+    const view = this.selectedView();
+
+    // Prepare CSV data with translated headers
+    const csvData = dataPoints.map((point) => ({
+      [this.i18nService.t("date")]: new Date(point.timestamp).toLocaleDateString(),
+      [this.getAtRiskLabel(view)]: point.atRisk,
+      [this.getAllLabel(view)]: point.total,
+    }));
+
+    const csv = papa.unparse(csvData);
+    const fileName = ExportHelper.getFileName("trend_data", "csv");
+
+    this.fileDownloadService.download({
+      fileName,
+      blobData: csv,
+      blobOptions: { type: "text/csv" },
+    });
+  }
 }

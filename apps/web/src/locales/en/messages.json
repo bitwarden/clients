@@ -11061,6 +11061,12 @@
   "clientDetails": {
     "message": "Client details"
   },
+  "download": {
+    "message": "Download"
+  },
+  "downloadAsPNG": {
+    "message": "Download as PNG"
+  },
   "downloadCSV": {
     "message": "Download CSV"
   },
