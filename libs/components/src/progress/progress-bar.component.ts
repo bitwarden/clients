@@ -27,11 +27,17 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarComponent {
+  /* Determines the color of the progress bar */
   readonly variant = input<BackgroundType>("primary");
+  /* The label displayed above the progress bar */
   readonly label = input<string>();
+  /* The progress amount, represented as a percentage of the progress bar that is filled */
   readonly barWidth = input<number>(0);
+  /* Whether to show the starting helper text below the progress bar. Defaults to true */
   readonly showStartText = input<boolean>(true);
+  /* The starting helper text displayed below the progress bar. Defaults to "<barWidth>% complete" */
   readonly startText = input<string>();
+  /* The ending helper text displayed below the progress bar */
   readonly endText = input<string>();
 
   protected readonly startTextContent = computed(() => {
