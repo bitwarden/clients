@@ -138,8 +138,8 @@ pub(super) struct WEBAUTHN_CREDENTIAL_EX {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_CREDENTIAL_LIST {
-    pub cCredentials: u32,
-    pub ppCredentials: *const *const WEBAUTHN_CREDENTIAL_EX,
+    pub(super) cCredentials: u32,
+    pub(super) ppCredentials: *const *const WEBAUTHN_CREDENTIAL_EX,
 }
 
 #[repr(C)]
@@ -152,10 +152,10 @@ pub(super) struct WEBAUTHN_EXTENSION {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_EXTENSIONS {
-    pub(crate) cExtensions: u32,
+pub(super) struct WEBAUTHN_EXTENSIONS {
+    pub(super) cExtensions: u32,
     // _Field_size_(cExtensions)
-    pub(crate) pExtensions: *const WEBAUTHN_EXTENSION,
+    pub(super) pExtensions: *const WEBAUTHN_EXTENSION,
 }
 
 #[repr(C)]

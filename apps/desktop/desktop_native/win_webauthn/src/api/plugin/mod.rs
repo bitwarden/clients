@@ -19,7 +19,7 @@ use windows::{
     },
 };
 
-pub use super::sys::plugin::PLUGIN_LOCK_STATUS as PluginLockStatus;
+pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
 use super::{
     sys::{
         plugin::{
@@ -91,6 +91,7 @@ impl TryFrom<&str> for Clsid {
 }
 
 // Plugin Registration types
+pub type WebAuthnCtapCborAuthenticatorOptions = WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS;
 
 impl WebAuthnCtapCborAuthenticatorOptions {
     pub fn version(&self) -> u32 {
@@ -117,8 +118,6 @@ impl WebAuthnCtapCborAuthenticatorOptions {
         }
     }
 }
-
-pub type WebAuthnCtapCborAuthenticatorOptions = WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS;
 
 pub struct PluginAddAuthenticatorOptions {
     /// Authenticator Name

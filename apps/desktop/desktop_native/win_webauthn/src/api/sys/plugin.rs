@@ -26,202 +26,202 @@ pub enum PLUGIN_LOCK_STATUS {
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS {
     /// Version of this structure, to allow for modifications in the future.
-    pub(crate) dwVersion: u32,
+    pub(in crate::api) dwVersion: u32,
     /// "up" option: +1=TRUE, 0=Not defined, -1=FALSE
-    pub(crate) lUp: i32,
+    pub(in crate::api) lUp: i32,
     /// "uv" option: +1=TRUE, 0=Not defined, -1=FALSE
-    pub(crate) lUv: i32,
+    pub(in crate::api) lUv: i32,
     /// "rk" option: +1=TRUE, 0=Not defined, -1=FALSE
-    pub(crate) lRequireResidentKey: i32,
+    pub(in crate::api) lRequireResidentKey: i32,
 }
 
 #[repr(C)]
-pub(crate) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
+pub(in crate::api) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
     /// Version of this structure, to allow for modifications in the future.
-    pub _dwVersion: u32,
+    pub(in crate::api) _dwVersion: u32,
 
     /// Key type
-    pub _lKty: i32,
+    pub(in crate::api) _lKty: i32,
 
     /// Hash Algorithm: ES256, ES384, ES512
-    pub _lAlg: i32,
+    pub(in crate::api) _lAlg: i32,
 
     /// Curve
-    pub _lCrv: i32,
+    pub(in crate::api) _lCrv: i32,
 
     /// Size of "x" (X Coordinate)
-    pub _cbX: u32,
+    pub(in crate::api) _cbX: u32,
 
     /// "x" (X Coordinate) data. Big Endian.
-    pub _pbX: *const u8,
+    pub(in crate::api) _pbX: *const u8,
 
     /// Size of "y" (Y Coordinate)
-    pub _cbY: u32,
+    pub(in crate::api) _cbY: u32,
 
     /// "y" (Y Coordinate) data. Big Endian.
-    pub _pbY: *const u8,
+    pub(in crate::api) _pbY: *const u8,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+pub(in crate::api) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     /// Version of this structure, to allow for modifications in the future.
-    pub dwVersion: u32,
+    pub(in crate::api) dwVersion: u32,
     /// RP ID (after UTF-8 to Unicode conversion)
-    pub pwszRpId: *const u16,
+    pub(in crate::api) pwszRpId: *const u16,
     /// Input RP ID size (raw UTF-8 bytes before conversion)
-    pub cbRpId: u32,
+    pub(in crate::api) cbRpId: u32,
     /// Raw UTF-8 bytes before conversion to UTF-16 in pwszRpId. These are the
     /// bytes to be hashed in the Authenticator Data.
-    pub pbRpId: *const u8,
+    pub(in crate::api) pbRpId: *const u8,
     /// Client Data Hash size
-    pub cbClientDataHash: u32,
+    pub(in crate::api) cbClientDataHash: u32,
     /// Client Data Hash data
-    pub pbClientDataHash: *const u8,
+    pub(in crate::api) pbClientDataHash: *const u8,
     /// Credentials used for inclusion
-    pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    pub(in crate::api) CredentialList: WEBAUTHN_CREDENTIAL_LIST,
     /// CBOR extensions map size
-    pub cbCborExtensionsMap: u32,
+    pub(in crate::api) cbCborExtensionsMap: u32,
     /// CBOR extensions map data
-    pub pbCborExtensionsMap: *const u8,
+    pub(in crate::api) pbCborExtensionsMap: *const u8,
     /// Authenticator Options (Optional)
-    pub pAuthenticatorOptions: *const WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
+    pub(in crate::api) pAuthenticatorOptions: *const WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
 
     // Pin Auth (Optional)
     /// Zero length PinAuth is included in the request
-    pub fEmptyPinAuth: BOOL,
+    pub(in crate::api) fEmptyPinAuth: BOOL,
     /// Pin Auth size
-    pub cbPinAuth: u32,
+    pub(in crate::api) cbPinAuth: u32,
     /// Pin Auth data
-    pub pbPinAuth: *const u8,
+    pub(in crate::api) pbPinAuth: *const u8,
 
     /// HMAC Salt Extension (Optional)
-    pub pHmacSaltExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
+    pub(in crate::api) pHmacSaltExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
 
     /// PRF Extension / HMAC secret salt values size
-    pub cbHmacSecretSaltValues: u32,
+    pub(in crate::api) cbHmacSecretSaltValues: u32,
     /// PRF Extension / HMAC secret salt values data
-    pub pbHmacSecretSaltValues: *const u8,
+    pub(in crate::api) pbHmacSecretSaltValues: *const u8,
 
     /// Pin protocol
-    pub dwPinProtocol: u32,
+    pub(in crate::api) dwPinProtocol: u32,
 
     /// "credBlob": true extension
-    pub lCredBlobExt: i32,
+    pub(in crate::api) lCredBlobExt: i32,
 
     /// "largeBlobKey": true extension
-    pub lLargeBlobKeyExt: i32,
+    pub(in crate::api) lLargeBlobKeyExt: i32,
 
     /// "largeBlob" extension operation
-    pub dwCredLargeBlobOperation: u32,
+    pub(in crate::api) dwCredLargeBlobOperation: u32,
     /// Large blob compressed size
-    pub cbCredLargeBlobCompressed: u32,
+    pub(in crate::api) cbCredLargeBlobCompressed: u32,
     /// Large blob compressed data
-    pub pbCredLargeBlobCompressed: *const u8,
+    pub(in crate::api) pbCredLargeBlobCompressed: *const u8,
     /// Large blob original size
-    pub dwCredLargeBlobOriginalSize: u32,
+    pub(in crate::api) dwCredLargeBlobOriginalSize: u32,
 
     /// "json" extension size. Nonzero if present
-    pub cbJsonExt: u32,
+    pub(in crate::api) cbJsonExt: u32,
     /// "json" extension data
-    pub pbJsonExt: *const u8,
+    pub(in crate::api) pbJsonExt: *const u8,
 }
 
 #[repr(C)]
-pub(crate) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
+pub(in crate::api) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
     /// Version of this structure, to allow for modifications in the future.
-    pub _dwVersion: u32,
+    pub(in crate::api) _dwVersion: u32,
 
     /// Platform's key agreement public key
-    pub _pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
+    pub(in crate::api) _pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
 
     /// Encrypted salt size
-    pub _cbEncryptedSalt: u32,
+    pub(in crate::api) _cbEncryptedSalt: u32,
     /// Encrypted salt data
-    pub _pbEncryptedSalt: *const u8,
+    pub(in crate::api) _pbEncryptedSalt: *const u8,
 
     /// Salt authentication size
-    pub _cbSaltAuth: u32,
+    pub(in crate::api) _cbSaltAuth: u32,
     /// Salt authentication data
-    pub _pbSaltAuth: *const u8,
+    pub(in crate::api) _pbSaltAuth: *const u8,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a> {
+pub(in crate::api) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a> {
     /// Version of this structure, to allow for modifications in the future.
-    pub dwVersion: u32,
+    pub(in crate::api) dwVersion: u32,
     /// Input RP ID size (raw UTF-8 bytes before conversion)
-    pub cbRpId: u32,
+    pub(in crate::api) cbRpId: u32,
     /// Input RP ID data (bytes hashed in Authenticator Data)
-    pub pbRpId: *const u8,
+    pub(in crate::api) pbRpId: *const u8,
     /// Client Data Hash size
-    pub cbClientDataHash: u32,
+    pub(in crate::api) cbClientDataHash: u32,
     /// Client Data Hash data
-    pub pbClientDataHash: *const u8,
+    pub(in crate::api) pbClientDataHash: *const u8,
     /// RP Information
-    pub pRpInformation: *const WEBAUTHN_RP_ENTITY_INFORMATION,
+    pub(in crate::api) pRpInformation: *const WEBAUTHN_RP_ENTITY_INFORMATION,
     /// User Information
-    pub pUserInformation: *const WEBAUTHN_USER_ENTITY_INFORMATION,
+    pub(in crate::api) pUserInformation: *const WEBAUTHN_USER_ENTITY_INFORMATION,
     /// Crypto Parameters
-    pub WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
+    pub(in crate::api) WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
     /// Credentials used for exclusion
-    pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
+    pub(in crate::api) CredentialList: WEBAUTHN_CREDENTIAL_LIST,
     /// CBOR extensions map size
-    pub cbCborExtensionsMap: u32,
+    pub(in crate::api) cbCborExtensionsMap: u32,
     /// CBOR extensions map data
-    pub pbCborExtensionsMap: *const u8,
+    pub(in crate::api) pbCborExtensionsMap: *const u8,
     /// Authenticator Options (Optional)
-    pub pAuthenticatorOptions: Option<&'a WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS>,
+    pub(in crate::api) pAuthenticatorOptions: Option<&'a WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS>,
 
     // Pin Auth (Optional)
     /// Indicates zero length PinAuth is included in the request
-    pub fEmptyPinAuth: BOOL,
+    pub(in crate::api) fEmptyPinAuth: BOOL,
     /// Pin Auth size
-    pub cbPinAuth: u32,
+    pub(in crate::api) cbPinAuth: u32,
     /// Pin Auth data
-    pub pbPinAuth: *const u8,
+    pub(in crate::api) pbPinAuth: *const u8,
 
     /// "hmac-secret": true extension
-    pub lHmacSecretExt: i32,
+    pub(in crate::api) lHmacSecretExt: i32,
 
     /// "hmac-secret-mc" extension
-    pub pHmacSecretMcExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
+    pub(in crate::api) pHmacSecretMcExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
 
     /// "prf" extension
-    pub lPrfExt: i32,
+    pub(in crate::api) lPrfExt: i32,
     /// HMAC secret salt values size
-    pub cbHmacSecretSaltValues: u32,
+    pub(in crate::api) cbHmacSecretSaltValues: u32,
     /// HMAC secret salt values data
-    pub pbHmacSecretSaltValues: *const u8,
+    pub(in crate::api) pbHmacSecretSaltValues: *const u8,
 
     /// "credProtect" extension. Nonzero if present
-    pub dwCredProtect: Option<NonZeroU32>,
+    pub(in crate::api) dwCredProtect: Option<NonZeroU32>,
 
     /// Nonzero if present
-    pub dwPinProtocol: Option<NonZeroU32>,
+    pub(in crate::api) dwPinProtocol: Option<NonZeroU32>,
 
     /// Nonzero if present
-    pub dwEnterpriseAttestation: Option<NonZeroU32>,
+    pub(in crate::api) dwEnterpriseAttestation: Option<NonZeroU32>,
 
     /// "credBlob" extension. Nonzero if present
-    pub cbCredBlobExt: Option<NonZeroU32>,
+    pub(in crate::api) cbCredBlobExt: Option<NonZeroU32>,
     /// "credBlob" extension data
-    pub pbCredBlobExt: *const u8,
+    pub(in crate::api) pbCredBlobExt: *const u8,
 
     /// "largeBlobKey": true extension
-    pub lLargeBlobKeyExt: i32,
+    pub(in crate::api) lLargeBlobKeyExt: i32,
 
     /// "largeBlob": extension
-    pub dwLargeBlobSupport: u32,
+    pub(in crate::api) dwLargeBlobSupport: u32,
 
     /// "minPinLength": true extension
-    pub lMinPinLengthExt: i32,
+    pub(in crate::api) lMinPinLengthExt: i32,
 
     /// "json" extension. Nonzero if present
-    pub cbJsonExt: u32,
+    pub(in crate::api) cbJsonExt: u32,
     /// "json" extension data
-    pub pbJsonExt: *const u8,
+    pub(in crate::api) pbJsonExt: *const u8,
 }
 
 /// Used when adding a Windows plugin authenticator (stable API).
@@ -229,39 +229,39 @@ pub(crate) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a> {
 /// Header File Usage: WebAuthNPluginAddAuthenticator()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+pub(in crate::api) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
     /// Authenticator Name
-    pub(crate) pwszAuthenticatorName: *const u16,
+    pub(in crate::api) pwszAuthenticatorName: *const u16,
 
     /// Plugin COM ClsId
-    pub(crate) rclsid: *const GUID,
+    pub(in crate::api) rclsid: *const GUID,
 
     /// Plugin RPID
     ///
     /// Required for a nested WebAuthN call originating from a plugin.
-    pub(crate) pwszPluginRpId: *const u16,
+    pub(in crate::api) pwszPluginRpId: *const u16,
 
     /// Plugin Authenticator Logo for the Light themes.  base64-encoded SVG 1.1
     ///
     /// The data should be encoded as `UTF16(BASE64(UTF8(svg_text)))`.
-    pub(crate) pwszLightThemeLogoSvg: *const u16,
+    pub(in crate::api) pwszLightThemeLogoSvg: *const u16,
 
     /// Plugin Authenticator Logo for the Dark themes.  base64-encoded SVG 1.1
     ///
     /// The data should be encoded as `UTF16(BASE64(UTF8(svg_text)))`.
-    pub(crate) pwszDarkThemeLogoSvg: *const u16,
+    pub(in crate::api) pwszDarkThemeLogoSvg: *const u16,
 
     /// CTAP CBOR-encoded authenticatorGetInfo response (size)
-    pub(crate) cbAuthenticatorInfo: u32,
+    pub(in crate::api) cbAuthenticatorInfo: u32,
     /// CTAP CBOR-encoded authenticatorGetInfo output
-    pub(crate) pbAuthenticatorInfo: *const u8,
+    pub(in crate::api) pbAuthenticatorInfo: *const u8,
 
     /// Count of supported RP IDs
-    pub(crate) cSupportedRpIds: u32,
+    pub(in crate::api) cSupportedRpIds: u32,
     /// List of supported RP IDs (Relying Party IDs).
     ///
     /// Should be null if all RPs are supported.
-    pub(crate) pbSupportedRpIds: *const *const u16,
+    pub(in crate::api) pbSupportedRpIds: *const *const u16,
 }
 
 /// Used as a response type when adding a Windows plugin authenticator.
@@ -270,18 +270,18 @@ pub(crate) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
 ///                    WebAuthNPluginFreeAddAuthenticatorResponse()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
+pub(in crate::api) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
     /// Size in bytes of the public key pointed to by `pbOpSignPubKey`.
-    pub(crate) cbOpSignPubKey: u32,
+    pub(in crate::api) cbOpSignPubKey: u32,
     /// Pointer to a [BCRYPT_KEY_BLOB](windows::Win32::Security::Cryptography::BCRYPT_KEY_BLOB).
-    pub(crate) pbOpSignPubKey: *mut u8,
+    pub(in crate::api) pbOpSignPubKey: *mut u8,
 }
 
 #[repr(C)]
-pub(crate) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
-    pub(crate) transactionId: GUID,
-    pub(crate) cbRequestSignature: u32,
-    pub(crate) pbRequestSignature: *const u8,
+pub(in crate::api) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    pub(in crate::api) transactionId: GUID,
+    pub(in crate::api) cbRequestSignature: u32,
+    pub(in crate::api) pbRequestSignature: *const u8,
 }
 
 /// Represents a credential.
@@ -289,23 +289,23 @@ pub(crate) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
 /// Header File Usage: WebAuthNPluginAuthenticatorAddCredentials, etc.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+pub(in crate::api) struct WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
     /// Credential Identifier bytes (size)
-    pub credential_id_byte_count: u32,
+    pub(in crate::api) credential_id_byte_count: u32,
     /// Credential Identifier bytes (data, required)
-    pub credential_id_pointer: *const u8,
+    pub(in crate::api) credential_id_pointer: *const u8,
     /// Identifier for the RP (required)
-    pub rpid: *const u16,
+    pub(in crate::api) rpid: *const u16,
     /// Friendly name of the Relying Party (required)
-    pub rp_friendly_name: *const u16,
+    pub(in crate::api) rp_friendly_name: *const u16,
     /// User Identifier bytes (size)
-    pub user_id_byte_count: u32,
+    pub(in crate::api) user_id_byte_count: u32,
     /// User Identifier bytes (data, required)
-    pub user_id_pointer: *const u8,
+    pub(in crate::api) user_id_pointer: *const u8,
     /// Detailed account name (e.g., "john.p.smith@example.com")
-    pub user_name: *const u16,
+    pub(in crate::api) user_name: *const u16,
     /// Friendly name for the user account (e.g., "John P. Smith")
-    pub user_display_name: *const u16,
+    pub(in crate::api) user_display_name: *const u16,
 }
 
 /// Used when creating and asserting credentials.
@@ -314,22 +314,22 @@ pub(crate) struct WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
 ///                    GetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+pub(in crate::api) struct WEBAUTHN_PLUGIN_OPERATION_REQUEST {
     /// Window handle to client that requesting a WebAuthn credential.
-    pub hWnd: HWND,
-    pub transactionId: GUID,
-    pub cbRequestSignature: u32,
+    pub(in crate::api) hWnd: HWND,
+    pub(in crate::api) transactionId: GUID,
+    pub(in crate::api) cbRequestSignature: u32,
     /// Signature over request made with the signing key created during authenticator registration.
-    pub pbRequestSignature: *mut u8,
-    pub requestType: WEBAUTHN_PLUGIN_REQUEST_TYPE,
-    pub cbEncodedRequest: u32,
-    pub pbEncodedRequest: *const u8,
+    pub(in crate::api) pbRequestSignature: *mut u8,
+    pub(in crate::api) requestType: WEBAUTHN_PLUGIN_REQUEST_TYPE,
+    pub(in crate::api) cbEncodedRequest: u32,
+    pub(in crate::api) pbEncodedRequest: *const u8,
 }
 
 /// Plugin request type enum as defined in the IDL
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]
-pub enum WEBAUTHN_PLUGIN_REQUEST_TYPE {
+pub(in crate::api) enum WEBAUTHN_PLUGIN_REQUEST_TYPE {
     // This is being used to check the value that Windows gives us, but it isn't
     // ever constructed by our library.
     #[allow(unused)]
@@ -342,27 +342,27 @@ pub enum WEBAUTHN_PLUGIN_REQUEST_TYPE {
 ///                    GetAssertion()
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
-    pub cbEncodedResponse: u32,
-    pub pbEncodedResponse: *mut u8,
+pub(in crate::api) struct WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+    pub(in crate::api) cbEncodedResponse: u32,
+    pub(in crate::api) pbEncodedResponse: *mut u8,
 }
 
 #[repr(C)]
 #[derive(Debug)]
-pub(crate) struct WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
+pub(in crate::api) struct WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
     /// Windows handle of the top-level window displayed by the plugin and
     /// currently is in foreground as part of the ongoing WebAuthn operation.
-    pub(crate) hwnd: HWND,
+    pub(in crate::api) hwnd: HWND,
 
     /// The WebAuthn transaction id from the WEBAUTHN_PLUGIN_OPERATION_REQUEST
-    pub(crate) rguidTransactionId: *const GUID,
+    pub(in crate::api) rguidTransactionId: *const GUID,
 
     /// The username attached to the credential that is in use for this WebAuthn
     /// operation.
-    pub(crate) pwszUsername: *const u16,
+    pub(in crate::api) pwszUsername: *const u16,
 
     /// A text hint displayed on the Windows Hello prompt.
-    pub(crate) pwszDisplayHint: *const u16,
+    pub(in crate::api) pwszDisplayHint: *const u16,
 }
 
 webauthn_call!("WebAuthNDecodeGetAssertionRequest" as
