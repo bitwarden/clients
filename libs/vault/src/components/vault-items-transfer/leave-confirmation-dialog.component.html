@@ -1,9 +1,9 @@
 <bit-simple-dialog>
-  <i
+  <bit-icon
     bitDialogIcon
-    class="bwi bwi-exclamation-triangle tw-text-warning tw-text-3xl"
-    aria-hidden="true"
-  ></i>
+    name="bwi-exclamation-triangle"
+    class="tw-text-warning tw-text-3xl"
+  ></bit-icon>
 
   <span bitDialogTitle>{{ "leaveConfirmationDialogTitle" | i18n }}</span>
 
@@ -25,9 +25,9 @@
       {{ "goBack" | i18n }}
     </button>
 
-    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-w-full tw-text-center tw-text-sm">
+    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-self-center tw-text-sm">
       {{ "howToManageMyVault" | i18n }}
-      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+      <bit-icon name="bwi-external-link" class="tw-ml-1"></bit-icon>
     </a>
   </ng-container>
 </bit-simple-dialog>

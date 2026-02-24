@@ -34,8 +34,16 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   readonly loading = this.baseButton.loading;
   readonly disabled = this.baseButton.disabled;
 
+  /**
+   * Bitwarden icon displayed **before** the button label.
+   * Spacing between the icon and label is handled automatically.
+   */
   readonly startIcon = input<BitwardenIcon | undefined>(undefined);
 
+  /**
+   * Bitwarden icon (`bwi-*`) displayed **after** the button label.
+   * Spacing between the label and icon is handled automatically.
+   */
   readonly endIcon = input<BitwardenIcon | undefined>(undefined);
 
   readonly startIconClasses = computed(() => {

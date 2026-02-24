@@ -1,13 +1,7 @@
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  ButtonModule,
-  DialogModule,
-  DialogService,
-  ItemModule,
-  LinkModule,
-} from "@bitwarden/components";
+import { ButtonModule, DialogModule, DialogService, ItemModule } from "@bitwarden/components";
 import {
   CredentialGeneratorHistoryDialogComponent,
   GeneratorModule,
@@ -18,7 +12,7 @@ import {
 @Component({
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
-  imports: [DialogModule, ButtonModule, JslibModule, GeneratorModule, ItemModule, LinkModule],
+  imports: [DialogModule, ButtonModule, JslibModule, GeneratorModule, ItemModule],
 })
 export class CredentialGeneratorComponent {
   constructor(private dialogService: DialogService) {}

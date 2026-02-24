@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
+  },
   "continue": {
     "message": "Продолжить"
   },
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemWasUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
+  },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
   },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }
