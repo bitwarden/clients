@@ -19,7 +19,7 @@ import { OrganizationResellerRenewalWarning } from "../types";
       <bit-banner
         id="reseller-warning-banner"
         icon="bwi-billing"
-        bannerType="info"
+        variant="primary"
         [showClose]="false"
       >
         {{ warning.message }}
