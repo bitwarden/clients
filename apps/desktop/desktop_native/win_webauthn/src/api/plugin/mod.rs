@@ -1,22 +1,27 @@
-//! Safe wrappers types and functions around raw webauthn.dll functions defined in `pluginauthenticator.h` and `webauthnplugin.h`.
+//! Safe wrappers types and functions around raw webauthn.dll functions defined
+//! in `pluginauthenticator.h` and `webauthnplugin.h`.
 
 mod com;
+pub(crate) mod crypto;
 
-use std::{mem::MaybeUninit, num::NonZeroU32, ptr::NonNull};
+use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use com::ComBuffer;
+pub(crate) use com::{register_server, shutdown_server};
+use crypto::Signature;
 use windows::{
-    core::{BOOL, GUID, HRESULT},
-    Win32::{Foundation::HWND, System::Com::CoTaskMemFree},
+    core::GUID,
+    Win32::{
+        Foundation::{HWND, NTE_USER_CANCELLED, S_OK},
+        Security::Cryptography::BCRYPT_KEY_BLOB,
+        System::Com::CoTaskMemFree,
+    },
 };
 
-use crate::{CredentialId, ErrorKind, WinWebAuthnError};
-
 pub use super::sys::plugin::PLUGIN_LOCK_STATUS as PluginLockStatus;
-
 use super::{
     sys::{
-        crypto::{self, Signature},
         plugin::{
             webauthn_decode_get_assertion_request, webauthn_decode_make_credential_request,
             webauthn_encode_make_credential_response, webauthn_free_decoded_get_assertion_request,
@@ -29,9 +34,7 @@ use super::{
             WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
             WEBAUTHN_PLUGIN_REQUEST_TYPE,
         },
-        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
-        WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,
-        WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
+        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
     },
     webauthn::{
         AuthenticatorInfo, CredentialEx, CtapTransport, HmacSecretSalt, RpEntityInformation,
@@ -39,9 +42,23 @@ use super::{
     },
     WindowsString,
 };
-
-pub(crate) use com::register_server;
-use com::ComBuffer;
+use crate::{
+    api::{
+        plugin::{
+            com::ComBufferExt,
+            crypto::{BcryptKey, OwnedRequestHash, RequestHash},
+        },
+        sys::plugin::{
+            webauthn_plugin_authenticator_remove_all_credentials,
+            webauthn_plugin_free_public_key_response,
+            webauthn_plugin_free_user_verification_response,
+            webauthn_plugin_get_operation_signing_public_key,
+            webauthn_plugin_get_user_verification_public_key,
+            webauthn_plugin_perform_user_verification, WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
+        },
+    },
+    CredentialId, ErrorKind, WinWebAuthnError,
+};
 
 #[derive(Clone, Copy)]
 pub struct Clsid(GUID);
@@ -153,7 +170,7 @@ impl PluginAddAuthenticatorOptions {
     }
 }
 
-pub(super) struct PluginAddAuthenticatorOptionsRaw {
+pub(crate) struct PluginAddAuthenticatorOptionsRaw {
     pub(super) inner: WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
     _clsid: Box<GUID>,
     _authenticator_name: Vec<u16>,
@@ -223,7 +240,7 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
 type WebAuthnPluginAddAuthenticatorResponse = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
 
-pub(super) fn add_authenticator(
+pub(crate) fn add_authenticator(
     options: &PluginAddAuthenticatorOptionsRaw,
 ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
     let raw_response = {
@@ -367,16 +384,18 @@ impl From<&PluginCredentialDetails> for PluginCredentialDetailsRaw {
 
 pub(crate) fn add_credentials(
     clsid: &Clsid,
-    credentials: &[&PluginCredentialDetailsRaw],
+    credentials: &[PluginCredentialDetailsRaw],
 ) -> Result<(), WinWebAuthnError> {
     // SAFETY: The pointer to credentials lives longer than the call to
     // webauthn_plugin_authenticator_add_credentials(). The nested
     // buffers are allocated with COM, which the OS is responsible for
     // cleaning up.
-    let array = credentials.iter().map(|c| c.inner).to_vec();
-    let result = unsafe {
-        webauthn_plugin_authenticator_add_credentials(&clsid.0, array.len(), array.as_ptr())
-    }?;
+    let array: Vec<WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS> =
+        credentials.iter().map(|c| c.inner).collect();
+    // SAFETY: We only run on platforms where usize >= 32;
+    let len = credentials.len() as u32;
+    let result =
+        unsafe { webauthn_plugin_authenticator_add_credentials(&clsid.0, len, array.as_ptr()) }?;
     if let Err(err) = result.ok() {
         return Err(WinWebAuthnError::with_cause(
             ErrorKind::WindowsInternal,
@@ -385,6 +404,18 @@ pub(crate) fn add_credentials(
         ));
     }
     Ok(())
+}
+
+pub(crate) fn remove_all_credentials(clsid: Clsid) -> Result<(), WinWebAuthnError> {
+    // SAFETY: API definition matches actual DLL.
+    let result = unsafe { webauthn_plugin_authenticator_remove_all_credentials(&clsid.0)? };
+    result.ok().map_err(|err| {
+        WinWebAuthnError::with_cause(
+            ErrorKind::InvalidArguments,
+            "Error removing credentials",
+            err,
+        )
+    })
 }
 
 #[derive(Debug)]
@@ -404,6 +435,26 @@ pub struct PluginUserVerificationRequest {
     pub display_hint: Option<String>,
 }
 
+pub(crate) struct PluginUserVerificationRequestRaw {
+    inner: WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
+}
+
+impl From<&PluginUserVerificationRequest> for PluginUserVerificationRequestRaw {
+    fn from(value: &PluginUserVerificationRequest) -> Self {
+        let user_name = value.user_name.to_utf16().to_com_buffer();
+        let hint = value
+            .display_hint
+            .as_ref()
+            .map(|d| d.to_utf16().to_com_buffer());
+        let inner = WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST {
+            hwnd: value.window_handle,
+            rguidTransactionId: &value.transaction_id,
+            pwszUsername: user_name.into_raw(),
+            pwszDisplayHint: hint.map_or(std::ptr::null(), |buf| buf.into_raw()),
+        };
+        PluginUserVerificationRequestRaw { inner }
+    }
+}
 /// Response details from user verification.
 pub struct PluginUserVerificationResponse {
     pub transaction_id: GUID,
@@ -430,6 +481,70 @@ impl WEBAUTHN_PLUGIN_OPERATION_REQUEST {
             std::slice::from_raw_parts(self.pbRequestSignature, self.cbRequestSignature as usize);
         Signature::new(signature)
     }
+
+    /// Calculate a SHA-256 hash over the request.
+    ///
+    /// # Safety
+    /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte
+    /// string of length `request.cbEncodedRequest`.
+    pub(crate) unsafe fn request_hash(&self) -> Result<OwnedRequestHash, WinWebAuthnError> {
+        // SAFETY: The caller must make sure that the encoded request is valid.
+        let request_data =
+            std::slice::from_raw_parts(self.pbEncodedRequest, self.cbEncodedRequest as usize);
+        let request_hash = crypto::hash_sha256(request_data).map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
+        })?;
+        Ok(OwnedRequestHash(request_hash))
+    }
+}
+
+/// Sends a request to prompt for user verification.
+///
+/// On success, returns the signature of the SHA-256 hash of the original
+/// operation request buffer corresponding to `request.transaction_id`.
+pub(crate) fn perform_user_verification(
+    request: &PluginUserVerificationRequestRaw,
+    public_key: &VerifyingKey,
+    operation_request_hash: &[u8],
+) -> Result<(), WinWebAuthnError> {
+    let mut response_len = 0;
+    let mut response_ptr = MaybeUninit::uninit();
+    let hresult = unsafe {
+        webauthn_plugin_perform_user_verification(
+            &request.inner,
+            &mut response_len,
+            response_ptr.as_mut_ptr(),
+        )?
+    };
+    let signature = match hresult {
+        S_OK => {
+            // SAFETY: Windows returned successful response code and length, so we
+            // assume that the data and length are initialized
+            let signature = unsafe {
+                let response_ptr = response_ptr.assume_init();
+                // SAFETY: Windows only runs on platforms where usize >= u32;
+                let len = response_len as usize;
+                let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
+                webauthn_plugin_free_user_verification_response(response_ptr)?;
+                signature
+            };
+            Ok(signature)
+        }
+        NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
+            ErrorKind::Other,
+            "User cancelled user verification",
+        )),
+        _ => Err(WinWebAuthnError::with_cause(
+            ErrorKind::WindowsInternal,
+            "Unknown error occurred while performing user verification",
+            windows::core::Error::from_hresult(hresult),
+        )),
+    }?;
+    public_key.verify_signature(
+        RequestHash::new(operation_request_hash),
+        Signature::new(&signature),
+    )?;
+    Ok(())
 }
 
 // MakeCredential types
@@ -963,5 +1078,195 @@ impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRe
 impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOperationRequest {
     fn from(value: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>) -> Self {
         Self { inner: value }
+    }
+}
+
+/// Methods needed to implement a Windows passkey plugin authenticator.
+pub trait PluginAuthenticator {
+    /// Process a request to create a new credential.
+    ///
+    /// Returns a [CTAP authenticatorMakeCredential response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatormakecredential-response-structure).
+    fn make_credential(
+        &self,
+        request: PluginMakeCredentialRequest,
+    ) -> Result<Vec<u8>, Box<dyn Error>>;
+
+    /// Process a request to assert a credential.
+    ///
+    /// Returns a [CTAP authenticatorGetAssertion response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatorgetassertion-response-structure).
+    fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn Error>>;
+
+    /// Cancel an ongoing operation.
+    fn cancel_operation(&self, request: PluginCancelOperationRequest)
+        -> Result<(), Box<dyn Error>>;
+
+    /// Retrieve lock status.
+    fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn Error>>;
+}
+
+/// Public key for verifying a signature over an operation request or user verification response
+/// buffer retrieved via [webauthn_plugin_get_operation_signing_public_key] or
+/// [webauthn_plugin_get_user_verification_public_key], respectively.
+///
+/// This is a wrapper for a key blob structure, which starts with a generic
+/// [BCRYPT_KEY_BLOB] header that determines what type of key this contains. Key
+/// data follows in the remaining bytes specified by `cbPublicKey`.
+///
+/// The data will be cleaned up with [webauthn_plugin_free_public_key_response]
+pub(crate) struct VerifyingKey {
+    /// Pointer to a [BCRYPT_KEY_BLOB] header and remaining data.
+    key_blob: NonNull<BCRYPT_KEY_BLOB>,
+    /// Handle to be used in the Windows BCrypt API.
+    key_handle: BcryptKey,
+}
+
+impl VerifyingKey {
+    /// # Arguments
+    /// - `key_blob`: Pointer to the key blob header and remaining data.
+    /// - `len`: Total length of the key blob, including the [BCRYPT_KEY_BLOB] header.
+    fn new(key_blob: NonNull<BCRYPT_KEY_BLOB>, len: usize) -> Result<Self, WinWebAuthnError> {
+        let slice = unsafe { std::slice::from_raw_parts(key_blob.as_ptr().cast(), len) };
+        let public_key = crypto::parse_public_key(slice).map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Could not parse public key",
+                err,
+            )
+        })?;
+        Ok(Self {
+            key_blob,
+            key_handle: public_key,
+        })
+    }
+
+    /// Verifies a signature over a request hash with the associated public key.
+    pub(crate) fn verify_signature(
+        &self,
+        hash: RequestHash,
+        signature: Signature,
+    ) -> Result<(), WinWebAuthnError> {
+        crypto::verify_signature(&self.key_handle, hash, signature).map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to verify signature",
+                err,
+            )
+        })
+    }
+}
+
+impl Drop for VerifyingKey {
+    fn drop(&mut self) {
+        unsafe {
+            _ = webauthn_plugin_free_public_key_response(self.key_blob.as_mut());
+        }
+    }
+}
+
+/*
+impl AsRef<[u8]> for VerifyingKey {
+    fn as_ref(&self) -> &[u8] {
+        // SAFETY: We only support platforms where usize >= 32-bts
+        let len = self.cbPublicKey as usize;
+        // SAFETY: This pointer was given to us from Windows, so we trust it.
+        unsafe { std::slice::from_raw_parts(self.pbPublicKey.as_ptr().cast(), len) }
+    }
+}
+    */
+
+/// Retrieve the public key used to verify plugin operation requests from the OS.
+///
+/// # Arguments
+/// - `clsid`: The CLSID corresponding to this plugin's COM server.
+pub(crate) fn get_operation_signing_public_key(
+    clsid: &GUID,
+) -> Result<VerifyingKey, WinWebAuthnError> {
+    let mut len = 0;
+    let mut uninit = MaybeUninit::uninit();
+    let data = unsafe {
+        // SAFETY: We check the OS error code before using the written pointer.
+        webauthn_plugin_get_operation_signing_public_key(clsid, &mut len, uninit.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to retrieve operation signing public key",
+                    err,
+                )
+            })?;
+        uninit.assume_init()
+    };
+
+    match NonNull::new(data) {
+        Some(data) => {
+            let len = len.try_into().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Received invalid length from Windows",
+                    err,
+                )
+            })?;
+            let key = VerifyingKey::new(data, len)?;
+            Ok(key)
+        }
+        None => Err(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "Windows returned null pointer when requesting operation signing public key",
+        )),
+    }
+}
+
+/// Retrieve the public key used to verify user verification responses from the OS.
+///
+/// # Arguments
+/// - `clsid`: The CLSID corresponding to this plugin's COM server.
+pub(crate) fn get_user_verification_public_key(
+    clsid: Clsid,
+) -> Result<VerifyingKey, WinWebAuthnError> {
+    let mut len = 0;
+    let mut data = MaybeUninit::uninit();
+    // SAFETY: We check the OS error code before using the written pointer.
+    let data = unsafe {
+        webauthn_plugin_get_user_verification_public_key(&clsid.0, &mut len, data.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to retrieve user verification public key",
+                    err,
+                )
+            })?;
+        data.assume_init()
+    };
+
+    match NonNull::new(data) {
+        Some(data) => {
+            let len = len.try_into().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Received invalid length from Windows",
+                    err,
+                )
+            })?;
+            let key = VerifyingKey::new(data, len)?;
+            Ok(key)
+        }
+        None => Err(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "Windows returned null pointer when requesting user verification public key",
+        )),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Clsid;
+
+    const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+
+    #[test]
+    fn test_parse_clsid_to_guid() {
+        let result = Clsid::try_from(CLSID);
+        assert!(result.is_ok(), "CLSID parsing should succeed");
     }
 }

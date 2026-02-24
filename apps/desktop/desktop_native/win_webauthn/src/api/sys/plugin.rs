@@ -4,7 +4,7 @@ use std::num::NonZeroU32;
 
 use windows::{
     core::{BOOL, GUID, HRESULT},
-    Win32::Foundation::HWND,
+    Win32::{Foundation::HWND, Security::Cryptography::BCRYPT_KEY_BLOB},
 };
 
 use super::{
@@ -522,3 +522,44 @@ fn webauthn_plugin_perform_user_verification(
     pcbResponse: *mut u32,
     ppbResponse: *mut *mut u8
 ) -> HRESULT);
+
+webauthn_call!("WebAuthNPluginGetUserVerificationPublicKey" as
+/// Retrieve the public key used to verify user verification responses from the OS.
+///
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments 
+/// - `rclsid`: The CLSID corresponding to this plugin's COM server.
+/// - `pcbPublicKey`: A pointer to an unsigned integer, which will be filled in with the length of the buffer at `ppbPublicKey`.
+/// - `ppbPublicKey`: A pointer to a [BCRYPT_PUBLIC_KEY_BLOB], which will be written to on success.
+///                   On success, this must be freed by a call to [webauthn_plugin_free_public_key_response].
+fn webauthn_plugin_get_user_verification_public_key(
+    rclsid: *const GUID,
+    pcbPublicKey: *mut u32,
+    ppbPublicKey: *mut *mut BCRYPT_KEY_BLOB,
+) -> HRESULT); // Free using WebAuthNPluginFreePublicKeyResponse
+
+webauthn_call!("WebAuthNPluginGetOperationSigningPublicKey" as
+/// Retrieve the public key used to verify plugin operation requests from the OS.
+/// 
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments 
+/// - `rclsid`: The CLSID corresponding to this plugin's COM server.
+/// - `pcbOpSignPubKey`: A pointer to an unsigned integer, which will be filled in with the length of the buffer at `ppbOpSignPubKey`.
+/// - `ppbOpSignPubKey`: An indirect pointer to a [BCRYPT_PUBLIC_KEY_BLOB], which will be written to on success.
+///                      On success, this must be freed by a call to [webauthn_plugin_free_public_key_response].
+fn webauthn_plugin_get_operation_signing_public_key(
+    rclsid: *const GUID,
+    pcbOpSignPubKey: *mut u32,
+    ppbOpSignPubKey: *mut *mut BCRYPT_KEY_BLOB
+) -> HRESULT); // Free using WebAuthNPluginFreePublicKeyResponse
+
+webauthn_call!("WebAuthNPluginFreePublicKeyResponse" as
+/// Free public key memory retrieved from the OS.
+///
+/// # Arguments
+/// - `pbOpSignPubKey`: A pointer to a [BCRYPT_KEY_BLOB] retrieved from a method in this library.
+fn webauthn_plugin_free_public_key_response(
+    pbOpSignPubKey: *mut BCRYPT_KEY_BLOB
+) -> ());

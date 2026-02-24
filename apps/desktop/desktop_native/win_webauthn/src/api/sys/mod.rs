@@ -3,8 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-pub(crate) mod crypto;
-pub(crate) mod plugin;
+pub(super) mod plugin;
 mod util;
 
 use std::{num::NonZeroU32, ptr::NonNull};
@@ -106,7 +105,6 @@ pub(super) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
-    //
     /// Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
     /// the transports that are supported.
     pub(super) dwTransports: u32,

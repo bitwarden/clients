@@ -1,6 +1,15 @@
+//! A Rust wrapper around the webauthn.dll API.
+//!
+//! The root module contains common types for WebAuthn clients and plugins.
+//!
+//! The [plugin] module has types useful for implementing a Windows passkey
+//! plugin authenticator.
 #![cfg(target_os = "windows")]
+#[allow(unsafe_code)]
 pub(crate) mod api;
+#[forbid(unsafe_code)]
 pub mod plugin;
+#[forbid(unsafe_code)]
 mod webauthn;
 
 use std::{error::Error, fmt::Display};

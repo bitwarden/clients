@@ -1,4 +1,4 @@
-//! Functions for interacting with Windows COM.
+//! Functions for the plugin authenticator to interact with Windows COM.
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
@@ -18,26 +18,21 @@ use windows::{
 };
 use windows_core::{IInspectable, Interface};
 
+use super::{PluginAuthenticator, PluginLockStatus};
 use crate::{
-    api::sys::{
-        crypto::{self, OwnedRequestHash},
-        plugin::{
+    api::{
+        plugin::get_operation_signing_public_key,
+        sys::plugin::{
             WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
             WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
         },
     },
-    plugin::Clsid,
-};
-use crate::{
-    plugin::{PluginGetAssertionRequest, PluginMakeCredentialRequest},
+    plugin::{Clsid, PluginGetAssertionRequest, PluginMakeCredentialRequest},
     ErrorKind, WinWebAuthnError,
 };
 
-use super::{PluginAuthenticator, PluginLockStatus};
-
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 static SHUTDOWN: OnceLock<bool> = OnceLock::new();
-
 #[implement(IClassFactory)]
 pub struct Factory;
 
@@ -215,7 +210,8 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
     ) -> HRESULT {
         tracing::debug!("CancelOperation called");
         // WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST has a signature, but the
-        // payload is undocumented and is not referenced in the sample, so we're not verifying it here.
+        // payload is undocumented and is not referenced in the sample, so we're not verifying it
+        // here.
         let request = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST) {
             Some(request) => request,
             None => {
@@ -478,16 +474,16 @@ unsafe fn verify_operation_request(
     clsid: &GUID,
 ) -> Result<(), WinWebAuthnError> {
     tracing::debug!("Verifying request");
-    // SAFETY: RequestHash::from_request has the same safety requiremenst as
+    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requiremenst as
     // this function: the encoded request must be valid.
-    let request_hash = unsafe { OwnedRequestHash::from_request(request)? };
+    let request_hash = unsafe { request.request_hash()? };
 
     // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements as
     // this function: the encoded request must be valid.
     let signature = unsafe { request.signature() };
 
     tracing::debug!("Retrieving signing key");
-    let op_pub_key = crypto::get_operation_signing_public_key(clsid).map_err(|err| {
+    let op_pub_key = get_operation_signing_public_key(clsid).map_err(|err| {
         WinWebAuthnError::with_cause(
             ErrorKind::WindowsInternal,
             "Failed to get signing key for operation",

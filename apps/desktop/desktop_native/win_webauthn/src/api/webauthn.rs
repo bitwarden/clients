@@ -8,16 +8,15 @@ use std::{collections::HashSet, marker::PhantomData, ptr::NonNull};
 use ciborium::Value;
 use windows::core::PCWSTR;
 
-use crate::{ErrorKind, WinWebAuthnError};
-
 use super::{
     sys::{
         WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
-        WEBAUTHN_CREDENTIAL_EX, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSION,
-        WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
+        WEBAUTHN_CREDENTIAL_EX, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_RP_ENTITY_INFORMATION,
+        WEBAUTHN_USER_ENTITY_INFORMATION,
     },
     util::ArrayPointerIterator,
 };
+use crate::{ErrorKind, WinWebAuthnError};
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
 /// other aspects of its overall capabilities.
