@@ -16,12 +16,7 @@ import { OrganizationFreeTrialWarning } from "../types";
     @let warning = warning$ | async;
 
     @if (warning) {
-      <bit-banner
-        id="free-trial-banner"
-        icon="bwi-billing"
-        bannerType="premium"
-        [showClose]="false"
-      >
+      <bit-banner id="free-trial-banner" icon="bwi-billing" variant="success" [showClose]="false">
         {{ warning.message }}
         <a
           bitLink
