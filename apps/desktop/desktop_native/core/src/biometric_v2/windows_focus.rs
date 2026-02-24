@@ -1,4 +1,7 @@
 //! Windows-specific window focus management for biometric prompts.
+//!
+//! A large part of this is hacks to get around limitations with the Windows-Hello API used,
+//! since it does not bring the authentication prompt into focus automatically.
 
 use windows::{
     core::s,
