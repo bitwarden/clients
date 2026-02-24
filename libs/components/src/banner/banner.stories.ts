@@ -77,7 +77,7 @@ export const TitleBannerBase: Story = {
           [showClose]="showClose"
         >
           <span slot="title">Integration is the key</span>
-          You can integrate Flowbite with many tools to make your work even more efficient.
+          Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
           <ng-container slot="actions">
             <button bitButton type="button" buttonType="secondary">Cancel</button>
             <button bitButton type="button" buttonType="primary">Continue</button>
@@ -127,7 +127,7 @@ export const TitleBannerAllVariants: Story = {
         @for (v of variants; track v) {
           <bit-banner [variant]="v" [showClose]="true">
             <span slot="title">Integration is the key</span>
-            You can integrate Flowbite with many tools to make your work even more efficient.
+            Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
             <ng-container slot="actions">
               <button bitButton type="button" buttonType="secondary">Cancel</button>
               <button bitButton type="button" buttonType="primary">Continue</button>

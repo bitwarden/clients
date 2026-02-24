@@ -31,14 +31,13 @@ const bannerColors: Record<BannerVariant, string> = {
 };
 
 /**
- * Banners are used for important communication with the user that needs to be seen right away, but has
- * little effect on the experience. Banners appear at the top of the user's screen on page load and
- * persist across all pages a user navigates to.
+ * The banner component is used to communicate prominent messages or important system states to users.
+ * It draws the user’s attention to information that requires awareness or action without interrupting their primary task.
  *
- * - They should always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
- * - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
+ * - Always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
+ * - Use sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
  * - Avoid stacking multiple banners.
- * - Banners can contain an anchor that uses the `bitLink` directive.
+ * - Avoid overloading banners with information. Keep text short and focused.
  */
 @Component({
   selector: "bit-banner",
