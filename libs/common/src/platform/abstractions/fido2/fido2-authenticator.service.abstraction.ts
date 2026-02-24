@@ -153,9 +153,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
 
 export interface Fido2AuthenticatorGetAssertionResult {
   selectedCredential: {
-    id: ArrayBuffer;
-    userHandle?: ArrayBuffer;
+    id: Uint8Array;
+    userHandle?: Uint8Array;
   };
-  authenticatorData: ArrayBuffer;
-  signature: ArrayBuffer;
+  authenticatorData: Uint8Array;
+  signature: Uint8Array;
 }

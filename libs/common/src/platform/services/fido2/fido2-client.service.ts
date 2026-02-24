@@ -191,7 +191,10 @@ export class Fido2ClientService<
     };
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
-    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const clientDataHash = await crypto.subtle.digest(
+      { name: "SHA-256" },
+      clientDataJSONBytes as BufferSource,
+    );
     const makeCredentialParams = mapToMakeCredentialParams({
       params,
       credTypesAndPubKeyAlgs,
@@ -258,7 +261,7 @@ export class Fido2ClientService<
       credentialId: Fido2Utils.bufferToString(makeCredentialResult.credentialId),
       attestationObject: Fido2Utils.bufferToString(makeCredentialResult.attestationObject),
       authData: Fido2Utils.bufferToString(makeCredentialResult.authData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
+      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes as BufferSource),
       publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
       transports: ["internal", "hybrid"],
@@ -324,7 +327,10 @@ export class Fido2ClientService<
       );
     }
 
-    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const clientDataHash = await crypto.subtle.digest(
+      { name: "SHA-256" },
+      clientDataJSONBytes as BufferSource,
+    );
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
@@ -418,7 +424,10 @@ export class Fido2ClientService<
       ];
       assumeUserPresence = true;
 
-      const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+      const clientDataHash = await crypto.subtle.digest(
+        { name: "SHA-256" },
+        clientDataJSONBytes as BufferSource,
+      );
       const getAssertionParams = mapToGetAssertionParams({
         params,
         clientDataHash,
@@ -444,14 +453,20 @@ export class Fido2ClientService<
     clientDataJSONBytes: Uint8Array,
   ): AssertCredentialResult {
     return {
-      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
+      authenticatorData: Fido2Utils.bufferToString(
+        getAssertionResult.authenticatorData as BufferSource,
+      ),
+      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes as BufferSource),
+      credentialId: Fido2Utils.bufferToString(
+        getAssertionResult.selectedCredential.id as BufferSource,
+      ),
       userHandle:
         getAssertionResult.selectedCredential.userHandle !== undefined
-          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
+          ? Fido2Utils.bufferToString(
+              getAssertionResult.selectedCredential.userHandle as BufferSource,
+            )
           : undefined,
-      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
+      signature: Fido2Utils.bufferToString(getAssertionResult.signature as BufferSource),
     };
   }
 

@@ -348,8 +348,10 @@ export class Fido2AuthenticatorService<
         return {
           authenticatorData,
           selectedCredential: {
-            id: parseCredentialId(selectedCredentialId),
-            userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
+            id: new Uint8Array(parseCredentialId(selectedCredentialId)),
+            userHandle: new Uint8Array(
+              Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
+            ),
           },
           signature,
         };
@@ -535,7 +537,10 @@ async function generateAuthData(params: AuthDataParams) {
   const authData: Array<number> = [];
 
   const rpIdHash = new Uint8Array(
-    await crypto.subtle.digest({ name: "SHA-256" }, Utils.fromByteStringToArray(params.rpId)),
+    await crypto.subtle.digest(
+      { name: "SHA-256" },
+      Utils.fromByteStringToArray(params.rpId) as BufferSource,
+    ),
   );
   authData.push(...rpIdHash);
 
