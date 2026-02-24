@@ -68,7 +68,7 @@ export class Fido2AuthenticatorError extends Error {
 }
 
 export interface PublicKeyCredentialDescriptor {
-  id: ArrayBuffer;
+  id: Uint8Array<ArrayBuffer>;
   transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
   type: "public-key";
 }
@@ -89,7 +89,7 @@ export interface Fido2AuthenticatorMakeCredentialsParams {
   };
   /** The user account’s PublicKeyCredentialUserEntity, containing the user handle given by the Relying Party. */
   userEntity: {
-    id: BufferSource;
+    id: Uint8Array<ArrayBuffer>;
     name?: string;
     displayName?: string;
     icon?: string;
@@ -120,10 +120,10 @@ export interface Fido2AuthenticatorMakeCredentialsParams {
 }
 
 export interface Fido2AuthenticatorMakeCredentialResult {
-  credentialId: BufferSource;
-  attestationObject: BufferSource;
-  authData: BufferSource;
-  publicKey: BufferSource;
+  credentialId: Uint8Array<ArrayBuffer>;
+  attestationObject: Uint8Array<ArrayBuffer>;
+  authData: Uint8Array<ArrayBuffer>;
+  publicKey: Uint8Array<ArrayBuffer>;
   publicKeyAlgorithm: number;
 }
 
@@ -153,9 +153,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
 
 export interface Fido2AuthenticatorGetAssertionResult {
   selectedCredential: {
-    id: Uint8Array;
-    userHandle?: Uint8Array;
+    id: Uint8Array<ArrayBuffer>;
+    userHandle?: Uint8Array<ArrayBuffer>;
   };
-  authenticatorData: Uint8Array;
-  signature: Uint8Array;
+  authenticatorData: Uint8Array<ArrayBuffer>;
+  signature: Uint8Array<ArrayBuffer>;
 }

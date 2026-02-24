@@ -42,18 +42,18 @@ export class Fido2Utils {
     };
   }
 
-  static bufferToString(bufferSource: BufferSource): string {
-    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
+  static arrayToString(array: Uint8Array<ArrayBuffer>): string {
+    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(array))
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
   }
 
-  static stringToBuffer(str: string): ArrayBuffer {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer as ArrayBuffer;
+  static stringToArray(str: string): Uint8Array<ArrayBuffer> {
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str));
   }
 
-  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
+  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array<ArrayBuffer> {
     if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
@@ -83,7 +83,7 @@ export class Fido2Utils {
     return globalThis.btoa(binary);
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
