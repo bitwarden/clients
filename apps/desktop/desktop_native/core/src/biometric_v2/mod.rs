@@ -1,5 +1,5 @@
 //! Biometric unlock module
-//! 
+//!
 //! This modules can protect a key, either in-memory or in persisted operating system APIs
 //! and release it only after authenticating via biometrics.
 
