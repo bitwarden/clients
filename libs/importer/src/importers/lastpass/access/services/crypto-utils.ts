@@ -89,7 +89,7 @@ export class CryptoUtils {
       return "";
     }
     const plain = await this.cryptoFunctionService.aesDecrypt(data, iv, encryptionKey, mode);
-    return Utils.fromArrayToUtf8(plain);
+    return Utils.fromArrayToUtf8(plain)!;
   }
 
   private async decryptAes256EcbPlain(data: Uint8Array, encryptionKey: Uint8Array) {
@@ -97,7 +97,7 @@ export class CryptoUtils {
   }
 
   private async decryptAes256EcbBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data)!)!;
     return this.decryptAes256(d, encryptionKey, "ecb");
   }
 
@@ -108,8 +108,8 @@ export class CryptoUtils {
   }
 
   private async decryptAes256CbcBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(26)));
-    const iv = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(1, 25)));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(26))!)!;
+    const iv = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(1, 25))!)!;
     return this.decryptAes256(d, encryptionKey, "cbc", iv);
   }
 }
