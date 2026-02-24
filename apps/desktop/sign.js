@@ -2,6 +2,7 @@
 const child_process = require("child_process");
 
 exports.default = async function (configuration) {
+  console.log(`[sign.js] Called with: ${configuration.path}`);
   const ext = configuration.path.split(".").at(-1);
   if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe"].includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
