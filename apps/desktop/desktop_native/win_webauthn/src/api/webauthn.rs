@@ -288,26 +288,35 @@ impl UserEntityInformation<'_> {
     }
 }
 
-pub struct CoseCredentialParameter {
-    inner: NonNull<WEBAUTHN_COSE_CREDENTIAL_PARAMETER>,
+pub struct CoseCredentialParameter<'a> {
+    inner: &'a WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
 }
 
-impl CoseCredentialParameter {
+impl CoseCredentialParameter<'_> {
     pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
-        unsafe {
-            PCWSTR(self.inner.as_ref().pwszCredentialType.as_ptr())
-                .to_string()
-                .map_err(|err| {
-                    WinWebAuthnError::with_cause(
-                        ErrorKind::WindowsInternal,
-                        "Invalid credential type",
-                        err,
-                    )
-                })
-        }
+        let pcwstr = PCWSTR(self.inner.pwszCredentialType.as_ptr());
+        // SAFETY: Windows writes valid strings.
+        let result = unsafe { pcwstr.to_string() };
+        result.map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid credential type", err)
+        })
     }
     pub fn alg(&self) -> i32 {
-        unsafe { self.inner.as_ref().lAlg }
+        self.inner.lAlg
+    }
+}
+
+pub struct CoseCredentialParameters<'a> {
+    pub(crate) inner: ArrayPointerIterator<'a, WEBAUTHN_COSE_CREDENTIAL_PARAMETER>,
+}
+
+impl<'a> Iterator for CoseCredentialParameters<'a> {
+    type Item = CoseCredentialParameter<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner
+            .next()
+            .map(|p| CoseCredentialParameter { inner: p })
     }
 }
 

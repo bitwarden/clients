@@ -34,7 +34,7 @@ use super::{
             WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
             WEBAUTHN_PLUGIN_REQUEST_TYPE,
         },
-        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
+        WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
     },
     webauthn::{
         AuthenticatorInfo, CredentialEx, CtapTransport, HmacSecretSalt, RpEntityInformation,
@@ -56,6 +56,7 @@ use crate::{
             webauthn_plugin_get_user_verification_public_key,
             webauthn_plugin_perform_user_verification, WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
         },
+        webauthn::{CoseCredentialParameter, CoseCredentialParameters},
     },
     CredentialId, ErrorKind, WinWebAuthnError,
 };
@@ -592,10 +593,11 @@ impl<'a> PluginMakeCredentialRequest<'a> {
         }
     }
 
-    pub fn pub_key_cred_params(&self) -> impl Iterator<Item = &WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
+    pub fn pub_key_cred_params(&self) -> impl Iterator<Item = CoseCredentialParameter<'_>> {
         // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API
         // constructs valid pointers.
-        unsafe { self.as_ref().WebAuthNCredentialParameters.iter() }
+        let inner = unsafe { self.as_ref().WebAuthNCredentialParameters.iter() };
+        CoseCredentialParameters { inner }
     }
 
     pub fn exclude_credentials(&self) -> impl Iterator<Item = CredentialEx<'_>> {
