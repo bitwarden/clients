@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Abonelik sürdürüldü."
   },
+  "resubscribe": {
+    "message": "Yeniden abone ol"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Aboneliğiniz sona erdi"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Aboneliğiniz iptal edildi"
+  },
   "cancelConfirmation": {
     "message": "İptal etmek istediğinden emin misin? Bu fatura döneminin sonunda bu aboneliğin tüm özelliklerine erişiminizi kaybedeceksiniz."
   },
@@ -4328,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Kullanıcı düzenlendi: $ID$.",
     "placeholders": {
@@ -4587,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Access Intelligence’ınız oluşturuluyor..."
   },
-  "fetchingMemberData": {
-    "message": "Üye verileri getiriliyor..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Parola sağlığı analiz ediliyor..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risk puanları hesaplanıyor..."
-  },
-  "generatingReportData": {
-    "message": "Rapor verileri oluşturuluyor..."
-  },
-  "savingReport": {
-    "message": "Rapor kaydediliyor..."
-  },
-  "compilingInsights": {
-    "message": "İçgörüler derleniyor..."
-  },
   "loadingProgress": {
     "message": "Yükleme ilerlemesi"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Bu işlem birkaç dakika sürebilir."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "Raporu çalıştır"
@@ -5840,10 +5855,6 @@
     "message": "Parolayı bilmiyor musunuz? Bu Send'e erişmek için gereken parolayı dosyayı gönderen kişiye sorabilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Bu Send varsayılan olarak gizlidir. Aşağıdaki düğmeyi kullanarak görünürlüğünü değiştirebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Ekleri indir"
   },
@@ -6136,6 +6147,21 @@
   "autoConfirmCheckBoxLabel": {
     "message": "Bu riskleri ve ilke güncellemelerini kabul ediyorum"
   },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "Sistem"
+  },
   "personalOwnership": {
     "message": "Kişisel kasayı kaldır"
   },
@@ -6427,6 +6453,10 @@
   },
   "viewSend": {
     "message": "Send'i görüntüle",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Bu Send'i görmek için e-posta adresinizi doğrulayın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -7386,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-posta veya doğrulama kodu geçersiz"
   },
   "keyConnectorDomain": {
     "message": "Key Connector alan adı"
@@ -11896,13 +11929,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünür ve genel arama sonuçları ile otomatik doldurma önerilerinden hariç tutulur."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemWasUnarchived": {
-    "message": "Kayıt arşivden çıkarıldı"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "bulkArchiveItems": {
@@ -12847,6 +12877,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Kim görebilir"
   },
@@ -12858,6 +12903,9 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-posta doğrulaması için en az bir e-posta adresi gerekir. Tüm e-postaları silmek için yukarıdan erişim türünü değiştirin."
   },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
@@ -12882,6 +12930,18 @@
   },
   "invalidSendPassword": {
     "message": "Geçersiz Send parolası"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Bitwarden'a hoş geldiniz"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Tüm parolalarınızı ve kişisel bilgilerinizi Bitwarden kasanızda saklayabilirsiniz. Size etrafı gezdirelim."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Tura başla"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Geç"
   },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
@@ -12938,5 +12998,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Ödeme yönteminizi güncellerken bir hata oluştu."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Parola geçersiz. Bu Send'e erişmek için gereken parolayı dosyayı gönderen kişiye sorabilirsiniz.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Bu Send'in süresi $DATE$ $TIME$ tarihinde dolacaktır",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

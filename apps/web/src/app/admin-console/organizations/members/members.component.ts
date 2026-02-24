@@ -82,7 +82,7 @@ interface BulkMemberFlags {
   templateUrl: "members.component.html",
   standalone: false,
 })
-export class vNextMembersComponent {
+export class MembersComponent {
   protected i18nService = inject(I18nService);
   protected validationService = inject(ValidationService);
   protected logService = inject(LogService);
