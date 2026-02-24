@@ -128,11 +128,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   protected get hasFooterAction() {
-    return (
-      this.showArchiveButton ||
-      this.showUnarchiveButton ||
-      (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
-    );
+    return this.showArchiveButton || this.showUnarchiveButton || this.canDelete;
   }
 
   protected get showCloneOption() {
@@ -143,6 +139,10 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       this.action === "view" &&
       (!this.cipher.isArchived || this.userCanArchive)
     );
+  }
+
+  protected get canDelete() {
+    return this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view");
   }
 
   cancel() {
