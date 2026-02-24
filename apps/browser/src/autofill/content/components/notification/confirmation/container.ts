@@ -60,7 +60,7 @@ export function NotificationConfirmationContainer({
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
-    if (task.orgName != null) {
+    if (task.orgName !== null && task.orgName !== undefined) {
       messageDetails =
         remainingTasksCount > 0
           ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
