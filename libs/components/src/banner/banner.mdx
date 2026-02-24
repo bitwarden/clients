@@ -15,7 +15,9 @@ import { BannerModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-Use the following guidelines to help choose the correct type of banner.
+## Banner With Title
+
+<Canvas of={stories.TitleBannerBase} />
 
 ## Content Slots
 
@@ -36,8 +38,6 @@ and the layout shifts to its expanded form. Apply `slot="title"` to any element.
 Only visible when a title is projected. At wide widths the actions are right-aligned; at narrow
 widths they appear below the body text. Wrap action elements in `ng-container slot="actions"`.
 
-<Canvas of={stories.TitleBannerBase} />
-
 ## Icons
 
 Icons should remain consistent across these types. Do not change the icon without consulting
@@ -47,7 +47,9 @@ designers.
 
 Use the following guidelines to help choose the correct variant.
 
-<Canvas of={stories.TitleBannerAllVariants} />
+<Canvas of={stories.AllVariantsNoTitle} />
+
+<Canvas of={stories.AllVariantsWithTitle} />
 
 ## Accessibility
 
