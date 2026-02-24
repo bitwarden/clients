@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Je hebt alle $GB$ GB aan versleutelde opslag gebruikt. Voeg meer opslagruimte toe om door te gaan met het opslaan van bestanden."
   },
+  "extensionPromptHeading": {
+    "message": "Gebruik de extensie voor eenvoudige toegang tot je kluis"
+  },
+  "extensionPromptBody": {
+    "message": "Met de browserextensie kun je Bitwarden overal online gebruiken. Het invullen van wachtwoorden, zodat je met één klik op je accounts kunt inloggen."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Een webbrowser die de Bitwarden-extensie toont met automatisch invullen voor de huidige webpagina."
+  },
+  "skip": {
+    "message": "Overslaan"
+  },
+  "downloadExtension": {
+    "message": "Extensie downloaden"
+  },
   "whoCanView": {
     "message": "Wie kan weergeven"
   },
