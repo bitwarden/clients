@@ -8,6 +8,7 @@ import { OrgIntegrationBuilder } from "@bitwarden/bit-common/dirt/organization-i
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -35,6 +36,7 @@ describe("IntegrationCardComponent", () => {
   const mockIntegrationService = mock<OrganizationIntegrationService>();
   const dialogService = mock<DialogService>();
   const toastService = mock<ToastService>();
+  const stateService = mock<IntegrationStateService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -59,6 +61,7 @@ describe("IntegrationCardComponent", () => {
         { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
+        { provide: IntegrationStateService, useValue: stateService },
       ],
     }).compileComponents();
   });
@@ -67,9 +70,9 @@ describe("IntegrationCardComponent", () => {
     fixture = TestBed.createComponent(IntegrationCardComponent);
     component = fixture.componentInstance;
 
-    component.name = "Integration Name";
-    component.image = "test-image.png";
-    component.linkURL = "https://example.com/";
+    fixture.componentRef.setInput("name", "Integration Name");
+    fixture.componentRef.setInput("image", "test-image.png");
+    fixture.componentRef.setInput("linkURL", "https://example.com/");
 
     mockI18nService.t.mockImplementation((key) => key);
     fixture.detectChanges();
@@ -88,7 +91,7 @@ describe("IntegrationCardComponent", () => {
   });
 
   it("assigns external rel attribute", () => {
-    component.externalURL = true;
+    fixture.componentRef.setInput("externalURL", true);
     fixture.detectChanges();
 
     const link = fixture.nativeElement.querySelector("a");
@@ -107,26 +110,27 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("shows when expiration is in the future", () => {
-      component.newBadgeExpiration = "2023-09-02";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-09-02");
       expect(component.showNewBadge()).toBe(true);
     });
 
     it("does not show when expiration is not set", () => {
+      fixture.componentRef.setInput("newBadgeExpiration", undefined);
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is in the past", () => {
-      component.newBadgeExpiration = "2023-08-31";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-08-31");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is today", () => {
-      component.newBadgeExpiration = "2023-09-01";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-09-01");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is invalid", () => {
-      component.newBadgeExpiration = "not-a-date";
+      fixture.componentRef.setInput("newBadgeExpiration", "not-a-date");
       expect(component.showNewBadge()).toBe(false);
     });
   });
@@ -138,12 +142,12 @@ describe("IntegrationCardComponent", () => {
 
       fixture.detectChanges();
 
-      expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+      expect(component.imageEle().nativeElement.src).toContain("test-image.png");
     });
 
     describe("user prefers the system theme", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("sets image src to imageDarkMode", () => {
@@ -152,24 +156,24 @@ describe("IntegrationCardComponent", () => {
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image-dark.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image-dark.png");
       });
 
       it("sets image src to light mode image", () => {
-        component.imageEle.nativeElement.src = "test-image-dark.png";
+        component.imageEle().nativeElement.src = "test-image-dark.png";
 
         usersPreferenceTheme$.next(ThemeType.System);
         systemTheme$.next(ThemeType.Light);
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image.png");
       });
     });
 
     describe("user prefers dark mode", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("updates image to dark mode", () => {
@@ -178,24 +182,24 @@ describe("IntegrationCardComponent", () => {
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image-dark.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image-dark.png");
       });
     });
 
     describe("user prefers light mode", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("updates image to light mode", () => {
-        component.imageEle.nativeElement.src = "test-image-dark.png";
+        component.imageEle().nativeElement.src = "test-image-dark.png";
 
         systemTheme$.next(ThemeType.Dark); // system theme shouldn't matter
         usersPreferenceTheme$.next(ThemeType.Light);
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image.png");
       });
     });
   });
@@ -211,57 +215,52 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("returns false when newBadgeExpiration is undefined", () => {
-      component.newBadgeExpiration = undefined;
+      fixture.componentRef.setInput("newBadgeExpiration", undefined);
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns false when newBadgeExpiration is an invalid date", () => {
-      component.newBadgeExpiration = "invalid-date";
+      fixture.componentRef.setInput("newBadgeExpiration", "invalid-date");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns true when newBadgeExpiration is in the future", () => {
-      component.newBadgeExpiration = "2024-06-02";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-06-02");
       expect(component.showNewBadge()).toBe(true);
     });
 
     it("returns false when newBadgeExpiration is today", () => {
-      component.newBadgeExpiration = "2024-06-01";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-06-01");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns false when newBadgeExpiration is in the past", () => {
-      component.newBadgeExpiration = "2024-05-31";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-05-31");
       expect(component.showNewBadge()).toBe(false);
     });
   });
   describe("showConnectedBadge", () => {
     it("returns true when canSetupConnection is true", () => {
-      component.canSetupConnection = true;
+      fixture.componentRef.setInput("canSetupConnection", true);
       expect(component.showConnectedBadge()).toBe(true);
     });
 
     it("returns false when canSetupConnection is false", () => {
-      component.canSetupConnection = false;
-      expect(component.showConnectedBadge()).toBe(false);
-    });
-
-    it("returns false when canSetupConnection is undefined", () => {
-      component.canSetupConnection = undefined;
+      fixture.componentRef.setInput("canSetupConnection", false);
       expect(component.showConnectedBadge()).toBe(false);
     });
   });
 
   describe("setupConnection", () => {
     beforeEach(() => {
-      component.integrationSettings = {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: {
           id: "integration-id",
           configuration: {},
           integrationConfiguration: [{ id: "config-id" }],
         },
         name: OrganizationIntegrationServiceName.CrowdStrike,
-      } as any;
+      } as any);
       component.organizationId = "org-id" as any;
       jest.resetAllMocks();
     });
@@ -311,10 +310,10 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should call saveHec if isUpdateAvailable is false", async () => {
-      component.integrationSettings = {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: null,
         name: OrganizationIntegrationServiceName.CrowdStrike,
-      } as any;
+      } as any);
       component.organizationId = "org-id" as any;
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
@@ -376,10 +375,10 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("should not call delete if no existing configuration", async () => {
-      component.integrationSettings = {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: null,
         name: OrganizationIntegrationServiceName.CrowdStrike,
-      } as any;
+      } as any);
       component.organizationId = "org-id" as any;
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({

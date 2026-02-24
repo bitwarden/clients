@@ -10,26 +10,26 @@
     <div class="tw-flex tw-items-center tw-justify-center tw-size-28 lg:tw-w-40">
       <img
         #imageEle
-        [src]="image"
+        [src]="image()"
         alt=""
         class="tw-block tw-mx-auto tw-h-auto tw-max-w-full tw-max-h-full"
       />
     </div>
 
-    @if (linkURL) {
+    @if (linkURL()) {
       <a
         class="tw-block tw-mb-0 tw-font-medium hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0 after:tw-w-full after:tw-h-40"
-        [href]="linkURL"
+        [href]="linkURL()"
         rel="noopener noreferrer"
         target="_blank"
-        title="{{ linkURL }}"
+        title="{{ linkURL() }}"
       >
       </a>
     }
   </div>
   <bit-card-content>
     <h3 class="tw-text-main tw-m-0 tw-text-lg tw-font-medium">
-      {{ name }}
+      {{ name() }}
       @if (showConnectedBadge()) {
         <span class="tw-ml-3">
           @if (isConnected) {
@@ -41,15 +41,15 @@
         </span>
       }
     </h3>
-    @if (description) {
-      <p class="tw-mb-0 tw-mt-2 tw-font-medium">{{ description }}</p>
+    @if (description()) {
+      <p class="tw-mb-0 tw-mt-2 tw-font-medium">{{ description() }}</p>
     }
-    @if (canSetupConnection) {
+    @if (canSetupConnection()) {
       <button type="button" class="tw-mt-3" bitButton (click)="setupConnection()">
         @if (isUpdateAvailable) {
-          <span>{{ "updateIntegrationButtonDesc" | i18n: name }}</span>
+          <span>{{ "updateIntegrationButtonDesc" | i18n: name() }}</span>
         } @else {
-          <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>
+          <span>{{ "connectIntegrationButtonDesc" | i18n: name() }}</span>
         }
       </button>
     }

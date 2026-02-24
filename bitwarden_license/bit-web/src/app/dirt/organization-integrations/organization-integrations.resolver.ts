@@ -7,6 +7,7 @@ import { Integration } from "@bitwarden/bit-common/dirt/organization-integration
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -15,8 +16,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 
-import { OrganizationIntegrationsState } from "./organization-integrations.state";
-
 @Injectable()
 export class OrganizationIntegrationsResolver implements Resolve<boolean> {
   constructor(
@@ -24,7 +23,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
     private accountService: AccountService,
     private configService: ConfigService,
     private organizationIntegrationService: OrganizationIntegrationService,
-    private state: OrganizationIntegrationsState,
+    private state: IntegrationStateService,
   ) {}
 
   async resolve(route: ActivatedRouteSnapshot): Promise<boolean> {
@@ -262,6 +261,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         name: OrganizationIntegrationServiceName.Huntress,
         linkURL: "https://bitwarden.com/help/huntress-siem/",
         image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-huntress-siem-darkmode.svg",
         type: IntegrationType.EVENT,
         description: "huntressEventIntegrationDesc",
         canSetupConnection: true,
