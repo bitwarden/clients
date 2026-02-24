@@ -107,6 +107,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
   private focusInlineMenuListTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
+  private readonly debouncedPrintSummary = debounce(() => {
+    const summary = this.debugService?.exportCurrentSession("summary");
+    if (!summary) {
+      return;
+    }
+    /* eslint-disable no-console */
+    console.group("%c[Bitwarden AutoTriage] Page summary", "color: #175DDC; font-weight: bold");
+    console.log(summary);
+    console.groupEnd();
+    /* eslint-enable no-console */
+  }, 500);
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     addNewVaultItemFromOverlay: ({ message }) => this.addNewVaultItem(message),
     focusMostRecentlyFocusedField: () => this.focusMostRecentlyFocusedField(),
@@ -243,6 +254,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData,
       pageDetails,
     });
+
+    this.debouncedPrintSummary();
 
     if (!qualification) {
       return;
@@ -400,7 +413,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   isQualifiedField(criteria: QualificationCriteria) {
-    const debugEnabled = this.debugService?.isDebugEnabled() ?? false;
     const responses: QualificationResponse[] = [];
     const { autofillFieldData } = criteria;
 
@@ -415,38 +427,31 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       responses.push(response);
 
       if (response.result === false && definition?.blocking !== false) {
-        if (debugEnabled) {
-          const qualificationResult: QualificationResult = {
-            result: false,
-            conditions: {
-              pass: responses
-                .filter((r) => r !== response && r.result)
-                .map((r) => ({ name: r.alias })),
-              fail: [{ name: response.alias }],
-            },
-          };
-          this.debugService?.recordQualification(
-            autofillFieldData.opid,
-            elementSelector,
-            "inline-menu" as AutofillVector,
-            qualificationResult,
-            "setupOverlayListeners",
-          );
-          /* eslint-disable no-console */
-          console.group(
-            `%c❌ Field Rejected: ${autofillFieldData.opid}`,
-            "color: #ef4444; font-weight: bold",
-          );
-          console.log("Field:", criteria.formFieldElement);
-          console.log("Blocking condition failed:", response.alias);
-          console.log("Message:", response.message);
-          console.log("All responses:", responses);
-          console.groupEnd();
-          /* eslint-enable no-console */
-        } else {
-          // eslint-disable-next-line no-console
-          console.log({ element: criteria.formFieldElement, responses });
-        }
+        const qualificationResult: QualificationResult = {
+          result: false,
+          conditions: {
+            pass: responses
+              .filter((r) => r !== response && r.result)
+              .map((r) => ({ name: r.alias })),
+            fail: [{ name: response.alias }],
+          },
+        };
+        this.debugService?.recordQualification(
+          autofillFieldData.opid,
+          elementSelector,
+          "inline-menu" as AutofillVector,
+          qualificationResult,
+          "setupOverlayListeners",
+        );
+        /* eslint-disable no-console */
+        console.groupCollapsed(`%c❌ ${elementSelector} — ${response.message}`, "color: #ef4444");
+        console.log("Element:", criteria.formFieldElement);
+        console.log(
+          "Passed:",
+          responses.filter((r) => r.result && r !== response).map((r) => r.alias),
+        );
+        console.groupEnd();
+        /* eslint-enable no-console */
         return false;
       }
 
@@ -455,38 +460,29 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       }
     }
 
-    if (debugEnabled) {
-      const qualificationResult: QualificationResult = {
-        result: true,
-        conditions: {
-          pass: responses.map((r) => ({ name: r.alias })),
-          fail: [],
-        },
-      };
-      this.debugService?.recordQualification(
-        autofillFieldData.opid,
-        elementSelector,
-        "inline-menu" as AutofillVector,
-        qualificationResult,
-        "setupOverlayListeners",
-      );
-      /* eslint-disable no-console */
-      console.group(
-        `%c✅ Field Qualified: ${autofillFieldData.opid}`,
-        "color: #10b981; font-weight: bold",
-      );
-      console.log("Field:", criteria.formFieldElement);
-      console.log(
-        "Passed conditions:",
-        responses.filter((r) => r.result).map((r) => r.alias),
-      );
-      console.log("All responses:", responses);
-      console.groupEnd();
-      /* eslint-enable no-console */
-    } else {
-      // eslint-disable-next-line no-console
-      console.log({ element: criteria.formFieldElement, responses });
-    }
+    const qualificationResult: QualificationResult = {
+      result: true,
+      conditions: {
+        pass: responses.map((r) => ({ name: r.alias })),
+        fail: [],
+      },
+    };
+    this.debugService?.recordQualification(
+      autofillFieldData.opid,
+      elementSelector,
+      "inline-menu" as AutofillVector,
+      qualificationResult,
+      "setupOverlayListeners",
+    );
+    const fillType = autofillFieldData.inlineMenuFillType;
+    /* eslint-disable no-console */
+    console.groupCollapsed(
+      `%c✅ ${elementSelector}${fillType != null ? ` — ${fillType}` : ""}`,
+      "color: #10b981",
+    );
+    console.log("Element:", criteria.formFieldElement);
+    console.groupEnd();
+    /* eslint-enable no-console */
 
     return true;
   }
