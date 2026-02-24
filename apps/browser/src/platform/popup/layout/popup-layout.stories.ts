@@ -151,7 +151,7 @@ class MockSearchComponent {}
 @Component({
   selector: "mock-banner",
   template: `
-    <bit-banner bannerType="info" [showClose]="false">
+    <bit-banner variant="primary" [showClose]="false">
       This is an important note about these ciphers
     </bit-banner>
   `,

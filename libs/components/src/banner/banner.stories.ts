@@ -31,10 +31,10 @@ export default {
     }),
   ],
   parameters: {
-    // design: {
-    //   type: "figma",
-    //   url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26720&t=b5tDKylm5sWm2yKo-4",
-    // },
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=31783-38719",
+    },
   },
   args: {
     variant: "primary",
