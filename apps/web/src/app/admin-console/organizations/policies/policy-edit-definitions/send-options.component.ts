@@ -7,7 +7,7 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
 export class SendOptionsPolicy extends BasePolicyEditDefinition {
-  name = "sendOptions";
+  name = "sendControls";
   description = "sendOptionsPolicyDesc";
   type = PolicyType.SendOptions;
   component = SendOptionsPolicyComponent;
