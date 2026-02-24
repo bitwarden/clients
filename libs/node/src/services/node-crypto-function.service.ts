@@ -3,13 +3,7 @@ import * as crypto from "crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import {
-  CbcDecryptParameters,
-  EcbDecryptParameters,
-} from "@bitwarden/common/platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
@@ -100,6 +94,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(new Uint8Array(hmac.digest()));
   }
 
+<<<<<<< Updated upstream
   async compare(a: Uint8Array, b: Uint8Array): Promise<boolean> {
     const key = await this.randomBytes(32);
     const mac1 = await this.hmac(a, key, "sha256");
@@ -131,88 +126,8 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return this.compare(a, b);
   }
 
-  aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
-    const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    const encBuf = Buffer.concat([cipher.update(data), cipher.final()]);
-    return Promise.resolve(new Uint8Array(encBuf));
-  }
-
-  aesDecryptFastParameters(
-    data: string,
-    iv: string,
-    mac: string | null,
-    key: SymmetricCryptoKey,
-  ): CbcDecryptParameters<Uint8Array> {
-    const dataBytes = Utils.fromB64ToArray(data);
-    const ivBytes = Utils.fromB64ToArray(iv);
-    const macBytes = mac != null ? Utils.fromB64ToArray(mac) : null;
-
-    const innerKey = key.inner();
-
-    if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      return {
-        iv: ivBytes,
-        data: dataBytes,
-        encKey: innerKey.encryptionKey,
-      } as CbcDecryptParameters<Uint8Array>;
-    } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const macData = new Uint8Array(ivBytes.byteLength + dataBytes.byteLength);
-      macData.set(new Uint8Array(ivBytes), 0);
-      macData.set(new Uint8Array(dataBytes), ivBytes.byteLength);
-      return {
-        iv: ivBytes,
-        data: dataBytes,
-        mac: macBytes,
-        macData: macData,
-        encKey: innerKey.encryptionKey,
-        macKey: innerKey.authenticationKey,
-      } as CbcDecryptParameters<Uint8Array>;
-    } else {
-      throw new Error("Unsupported encryption type");
-    }
-  }
-
-  async aesDecryptFast({
-    mode,
-    parameters,
-  }:
-    | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array> }
-    | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array> }): Promise<string> {
-    if (mode === "ecb") {
-      /// WARNING: https://crypto.stackexchange.com/questions/20941/why-shouldnt-i-use-ecb-encryption
-      return Utils.fromArrayToUtf8(
-        (await this.aesDecrypt(
-          parameters.data,
-          null,
-          parameters.encKey,
-          "ecb",
-        )) as Uint8Array<ArrayBuffer>,
-      )!;
-    } else if (mode === "cbc") {
-      return Utils.fromArrayToUtf8(
-        (await this.aesDecrypt(
-          parameters.data,
-          parameters.iv,
-          parameters.encKey,
-          "cbc",
-        )) as Uint8Array<ArrayBuffer>,
-      )!;
-    } else {
-      throw new Error("Unsupported mode");
-    }
-  }
-
-  aesDecrypt(
-    data: Uint8Array,
-    iv: Uint8Array | null,
-    key: Uint8Array,
-    mode: "cbc" | "ecb",
-  ): Promise<Uint8Array> {
-    const decipher = crypto.createDecipheriv(this.toNodeCryptoAesMode(mode), key, iv);
-    const decBuf = Buffer.concat([decipher.update(data), decipher.final()]);
-    return Promise.resolve(new Uint8Array(decBuf));
-  }
-
+=======
+>>>>>>> Stashed changes
   async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
@@ -257,9 +172,5 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
         }
       });
     });
-  }
-
-  private toNodeCryptoAesMode(mode: "cbc" | "ecb"): string {
-    return mode === "cbc" ? "aes-256-cbc" : "aes-256-ecb";
   }
 }

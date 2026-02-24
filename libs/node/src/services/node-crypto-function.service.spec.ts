@@ -94,7 +94,7 @@ describe("NodeCrypto Function Service", () => {
       prk32Byte,
       64,
       "BnIqJlfnHm0e/2iB/15cbHyR19ARPIcWRp4oNS22CD9BV+" +
-        "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA==",
+      "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA==",
     );
     testHkdfExpand("sha512", prk64Byte, 32, "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlk=");
     testHkdfExpand(
@@ -102,7 +102,7 @@ describe("NodeCrypto Function Service", () => {
       prk64Byte,
       64,
       "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlkY5Pv0sB+" +
-        "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w==",
+      "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w==",
     );
 
     it("should fail with prk too small", async () => {
@@ -163,94 +163,10 @@ describe("NodeCrypto Function Service", () => {
     testHmac("sha512", Sha512Mac);
   });
 
-  describe("compare", () => {
-    testCompare(false);
-  });
-
   describe("hmacFast", () => {
     testHmac("sha1", Sha1Mac, true);
     testHmac("sha256", Sha256Mac, true);
     testHmac("sha512", Sha512Mac, true);
-  });
-
-  describe("compareFast", () => {
-    testCompare(true);
-  });
-
-  describe("aesEncrypt CBC mode", () => {
-    it("should successfully encrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromUtf8ToArray("EncryptMe!");
-      const encValue = await nodeCryptoFunctionService.aesEncrypt(data, iv, key);
-      expect(Utils.fromBufferToB64(encValue)).toBe("ByUF8vhyX4ddU9gcooznwA==");
-    });
-
-    it("should successfully encrypt and then decrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const value = "EncryptMe!";
-      const data = Utils.fromUtf8ToArray(value);
-      const encValue = await nodeCryptoFunctionService.aesEncrypt(data, iv, key);
-      const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv, key, "cbc");
-      expect(Utils.fromArrayToUtf8(decValue)).toBe(value);
-    });
-  });
-
-  describe("aesDecryptFast CBC mode", () => {
-    it("should successfully decrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = Utils.fromBufferToB64(makeStaticByteArray(16));
-      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
-      const data = "ByUF8vhyX4ddU9gcooznwA==";
-      const parameters = nodeCryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
-      const decValue = await nodeCryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
-      expect(decValue).toBe("EncryptMe!");
-    });
-  });
-
-  describe("aesDecryptFast ECB mode", () => {
-    it("should successfully decrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const parameters: EcbDecryptParameters<Uint8Array> = {
-        encKey: makeStaticByteArray(32),
-        data: Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw=="),
-      };
-      const decValue = await nodeCryptoFunctionService.aesDecryptFast({ mode: "ecb", parameters });
-      expect(decValue).toBe("EncryptMe!");
-    });
-  });
-
-  describe("aesDecrypt CBC mode", () => {
-    it("should successfully decrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
-      const decValue = await nodeCryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
-      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
-    });
-
-    it("throws if IV is not provided", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
-      await expect(
-        async () => await nodeCryptoFunctionService.aesDecrypt(data, null, key, "cbc"),
-      ).rejects.toThrow("Invalid initialization vector");
-    });
-  });
-
-  describe("aesDecrypt ECB mode", () => {
-    it("should successfully decrypt data", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
-      const decValue = await nodeCryptoFunctionService.aesDecrypt(data, null, key, "ecb");
-      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
-    });
   });
 
   describe("rsaEncrypt", () => {
@@ -272,9 +188,9 @@ describe("NodeCrypto Function Service", () => {
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
       const data = Utils.fromB64ToArray(
         "A1/p8BQzN9UrbdYxUY2Va5+kPLyfZXF9JsZrjeEXcaclsnHurdxVAJcnbEqYMP3UXV" +
-          "4YAS/mpf+Rxe6/X0WS1boQdA0MAHSgx95hIlAraZYpiMLLiJRKeo2u8YivCdTM9V5vuAEJwf9Tof/qFsFci3sApdbATkorCT" +
-          "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
-          "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
+        "4YAS/mpf+Rxe6/X0WS1boQdA0MAHSgx95hIlAraZYpiMLLiJRKeo2u8YivCdTM9V5vuAEJwf9Tof/qFsFci3sApdbATkorCT" +
+        "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
+        "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
       expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
@@ -482,46 +398,6 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = f
       computedMac = await cryptoFunctionService.hmac(value, key, algorithm);
     }
     expect(Utils.fromArrayToHex(computedMac)).toBe(mac);
-  });
-}
-
-function testCompare(fast = false) {
-  it("should successfully compare two of the same values", async () => {
-    const cryptoFunctionService = new NodeCryptoFunctionService();
-    const a = new Uint8Array(2);
-    a[0] = 1;
-    a[1] = 2;
-    const equal = fast
-      ? await cryptoFunctionService.compareFast(a, a)
-      : await cryptoFunctionService.compare(a, a);
-    expect(equal).toBe(true);
-  });
-
-  it("should successfully compare two different values of the same length", async () => {
-    const cryptoFunctionService = new NodeCryptoFunctionService();
-    const a = new Uint8Array(2);
-    a[0] = 1;
-    a[1] = 2;
-    const b = new Uint8Array(2);
-    b[0] = 3;
-    b[1] = 4;
-    const equal = fast
-      ? await cryptoFunctionService.compareFast(a, b)
-      : await cryptoFunctionService.compare(a, b);
-    expect(equal).toBe(false);
-  });
-
-  it("should successfully compare two different values of different lengths", async () => {
-    const cryptoFunctionService = new NodeCryptoFunctionService();
-    const a = new Uint8Array(2);
-    a[0] = 1;
-    a[1] = 2;
-    const b = new Uint8Array(2);
-    b[0] = 3;
-    const equal = fast
-      ? await cryptoFunctionService.compareFast(a, b)
-      : await cryptoFunctionService.compare(a, b);
-    expect(equal).toBe(false);
   });
 }
 

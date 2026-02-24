@@ -26,6 +26,9 @@ import { UnencryptedMessage } from "../models/native-messaging/unencrypted-messa
 import { UnencryptedMessageResponse } from "../models/native-messaging/unencrypted-message-response";
 
 import { EncryptedMessageHandlerService } from "./encrypted-message-handler.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "@bitwarden/common/key-management/crypto";
+import { DuckDuckGoEncstring } from "@bitwarden/common/key-management/crypto/dangerous/dangerous_duckduckgo_crypto";
 
 const HashAlgorithmForAsymmetricEncryption = "sha1";
 
@@ -42,7 +45,7 @@ export class DuckDuckGoMessageHandlerService {
     private encryptedMessageHandlerService: EncryptedMessageHandlerService,
     private dialogService: DialogService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
-  ) {}
+  ) { }
 
   async handleMessage(message: Message) {
     const decryptedCommand = message as UnencryptedMessage;
@@ -192,7 +195,7 @@ export class DuckDuckGoMessageHandlerService {
 
     try {
       const decryptedResult = await this.decryptDuckDuckGoEncString(
-        message.encryptedCommand as EncString,
+        message.encryptedCommand.encryptedString as DuckDuckGoEncstring,
         this.duckduckgoSharedSecret,
       );
       return JSON.parse(decryptedResult);
@@ -248,30 +251,18 @@ export class DuckDuckGoMessageHandlerService {
    * This function also trims null characters that are a result of the null-padding from the end of the message.
    */
   private async decryptDuckDuckGoEncString(
-    encString: EncString,
+    encString: DuckDuckGoEncstring,
     key: SymmetricCryptoKey,
   ): Promise<string> {
-    const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
-      encString.data,
-      encString.iv,
-      encString.mac,
-      key,
-    );
-
-    const computedMac = await this.cryptoFunctionService.hmacFast(
-      fastParams.macData,
-      fastParams.macKey,
-      "sha256",
-    );
-    const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
-    if (!macsEqual) {
-      return null;
+    switch (key.inner().type) {
+      case EncryptionType.AesCbc256_HmacSha256_B64: {
+        const decryptedBytes = await DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
+          encString,
+          key as any,
+        );
+        return Utils.fromArrayToUtf8(decryptedBytes);
+      }
     }
-    const decryptedPaddedString = await this.cryptoFunctionService.aesDecryptFast({
-      mode: "cbc",
-      parameters: fastParams,
-    });
-    return this.trimNullCharsFromMessage(decryptedPaddedString);
   }
 
   // DuckDuckGo does not use PKCS7 padding, but instead leaves the values as null,

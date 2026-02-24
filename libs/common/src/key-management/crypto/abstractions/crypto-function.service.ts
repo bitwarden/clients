@@ -1,8 +1,3 @@
-import {
-  CbcDecryptParameters,
-  EcbDecryptParameters,
-} from "../../../platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
 
 export abstract class CryptoFunctionService {
@@ -49,6 +44,7 @@ export abstract class CryptoFunctionService {
    * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
+<<<<<<< Updated upstream
   abstract hmacFast(
     value: Uint8Array | string,
     key: Uint8Array | string,
@@ -59,35 +55,8 @@ export abstract class CryptoFunctionService {
    * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
-  abstract aesDecryptFastParameters(
-    data: string,
-    iv: string,
-    mac: string,
-    key: SymmetricCryptoKey,
-  ): CbcDecryptParameters<Uint8Array | string>;
-  /**
-   * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
-   * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
-   */
-  abstract aesDecryptFast({
-    mode,
-    parameters,
-  }:
-    | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array | string> }
-    | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array | string> }): Promise<string>;
-  /**
-   * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Only used by DDG integration until DDG uses PKCS#7 padding, and by lastpass importer.
-   */
-  abstract aesDecrypt(
-    data: Uint8Array,
-    iv: Uint8Array,
-    key: Uint8Array,
-    mode: "cbc" | "ecb",
-  ): Promise<Uint8Array>;
-  /**
-   * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
-   * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
-   */
+=======
+>>>>>>> Stashed changes
   abstract rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
