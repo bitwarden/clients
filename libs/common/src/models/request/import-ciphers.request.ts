@@ -1,10 +1,10 @@
 import { CipherRequest } from "../../vault/models/request/cipher.request";
-import { FolderWithIdRequest } from "../../vault/models/request/folder-with-id.request";
+import { FolderRequest } from "../../vault/models/request/folder.request";
 
 import { KvpRequest } from "./kvp.request";
 
 export class ImportCiphersRequest {
   ciphers: CipherRequest[] = [];
-  folders: FolderWithIdRequest[] = [];
+  folders: FolderRequest[] = [];
   folderRelationships: KvpRequest<number, number>[] = [];
 }

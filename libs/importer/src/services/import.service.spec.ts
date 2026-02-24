@@ -294,11 +294,6 @@ describe("FolderWithIdRequest", () => {
     const request = new FolderWithIdRequest(makeFolder(guid));
     expect(request.id).toBe(guid);
   });
-
-  it("sends null when folder id is empty string (new import folder)", () => {
-    const request = new FolderWithIdRequest(makeFolder(""));
-    expect(request.id).toBeNull();
-  });
 });
 
 function createCipher(options: Partial<CipherView> = {}) {
