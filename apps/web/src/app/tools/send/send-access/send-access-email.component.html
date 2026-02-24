@@ -24,16 +24,19 @@
       <a bitLink (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>
     </bit-hint>
   </bit-form-field>
-  <div class="tw-flex">
-    <button
-      bitButton
-      bitFormButton
-      type="submit"
-      buttonType="primary"
-      [loading]="loading()"
-      [block]="true"
-    >
-      <span>{{ "viewSend" | i18n }} </span>
-    </button>
-  </div>
+  <button
+    bitButton
+    bitFormButton
+    type="submit"
+    buttonType="primary"
+    [loading]="loading()"
+    [block]="true"
+    [disabled]="!otp?.value"
+    class="tw-mb-3"
+  >
+    <span>{{ "viewSend" | i18n }} </span>
+  </button>
+  <button bitButton type="button" buttonType="secondary" [block]="true" (click)="onBackClick()">
+    <span>{{ "back" | i18n }}</span>
+  </button>
 }
