@@ -166,8 +166,9 @@ export abstract class SetInitialPasswordService {
    * trusted device encryption and is now a master-password-encryption org:
    * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
    *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param credentials An object of the credentials needed to set the initial password
    * @param userId the account `userId`
+   * @throws if `userId`, `userKey`, or necessary credentials are not found
    */
   abstract setInitialPasswordTdeOffboarding: (
     credentials: SetInitialPasswordTdeOffboardingCredentials,
