@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -7,7 +8,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, Subscription, switchMap, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Subscription, switchMap } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -57,7 +58,8 @@ const defaultSigningAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha2
   templateUrl: "sso-manage.component.html",
   standalone: false,
 })
-export class SsoManageComponent implements OnInit, OnDestroy {
+export class SsoManageComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   readonly ssoType = SsoType;
   readonly memberDecryptionType = MemberDecryptionType;
 
@@ -106,7 +108,6 @@ export class SsoManageComponent implements OnInit, OnDestroy {
     { name: "Form POST", value: OpenIdConnectRedirectBehavior.FormPost },
   ];
 
-  private destroy$ = new Subject<void>();
   showTdeOptions = false;
   showKeyConnectorOptions = false;
 
@@ -229,7 +230,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.enabledCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((enabled) => {
+    this.enabledCtrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
       if (enabled) {
         this.ssoIdentifierCtrl.setValidators([Validators.maxLength(50), Validators.required]);
         this.configTypeCtrl.setValidators([
@@ -246,7 +247,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
 
     this.ssoConfigForm
       .get("configType")
-      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newType: SsoType) => {
         if (newType === SsoType.OpenIdConnect) {
           this.openIdForm.enable();
@@ -262,7 +263,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
 
     this.samlForm
       .get("spSigningBehavior")
-      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.samlForm.get("idpX509PublicCert")?.updateValueAndValidity());
 
     this.route.params
@@ -271,16 +272,11 @@ export class SsoManageComponent implements OnInit, OnDestroy {
           this.organizationId = params.organizationId;
           await this.load();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load() {
@@ -291,7 +287,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
     this.isInitializing = true;
     this.isFormValidatingOrPopulating = true;
     // Same with unsubscribing: re-executing load() on the same component instance (not a new
-    // instance) means we will not unsubscribe via takeUntil(this.destroy$). We must manually
+    // instance) means we will not unsubscribe via takeUntilDestroyed(this.destroyRef). We must manually
     // unsubscribe for this case. We unsubscribe here in case the try block fails.
     this.memberDecryptionTypeValueChangesSubscription?.unsubscribe();
     this.memberDecryptionTypeValueChangesSubscription = null;
@@ -416,7 +412,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
               this.ssoConfigForm.controls.keyConnectorUrl.setValue("");
             }
           }),
-          takeUntil(this.destroy$),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe();
   }

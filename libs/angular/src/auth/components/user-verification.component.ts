@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { DestroyRef, Directive, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, FormControl, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
@@ -26,7 +26,8 @@ import { KeyService } from "@bitwarden/key-management";
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
 // eslint-disable-next-line @angular-eslint/directive-class-suffix
-export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class UserVerificationComponent implements ControlValueAccessor, OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private _invalidSecret = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -71,7 +72,6 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   ]);
 
   private onChange: (value: Verification) => void;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private keyService: KeyService,
@@ -84,7 +84,7 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     this.processChanges(this.secret.value);
 
     this.secret.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((secret: string) => this.processChanges(secret));
   }
 
@@ -119,11 +119,6 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     } else {
       this.secret.enable();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected processChanges(secret: string) {

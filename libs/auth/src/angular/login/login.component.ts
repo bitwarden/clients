@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
+import { firstValueFrom, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -93,7 +93,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
-  private destroy$ = new Subject<void>();
   readonly Icons = { WaveIcon, VaultIcon };
 
   clientType: ClientType;
@@ -171,9 +170,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       // TODO: refactor to not use deprecated broadcaster service.
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     }
-
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private async defaultOnInit(): Promise<void> {
@@ -526,7 +522,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (this.ngZone.isStable) {
         this.masterPasswordInputRef?.nativeElement?.focus();
       } else {
-        this.ngZone.onStable.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
+        this.ngZone.onStable.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
           this.masterPasswordInputRef?.nativeElement?.focus();
         });
       }

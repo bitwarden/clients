@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -9,7 +10,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
+import { firstValueFrom, take, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -94,7 +95,7 @@ function onlyHttpsValidator(): ValidatorFn {
     AsyncActionsModule,
   ],
 })
-export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
+export class SelfHostedEnvConfigDialogComponent implements OnInit {
   /**
    * Opens the dialog.
    * @param dialogService - Dialog service.
@@ -146,10 +147,10 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
     return this.formGroup.get("notificationsUrl") as FormControl;
   }
 
+  private readonly destroyRef = inject(DestroyRef);
+
   showCustomEnv = false;
   showErrorSummary = false;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private dialogRef: DialogRef<boolean>,
@@ -168,7 +169,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
           const region = env.getRegion();
           return region === Region.SelfHosted;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (env) => {
@@ -207,10 +208,5 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
   async cancel() {
     this.dialogRef.close(false);
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
