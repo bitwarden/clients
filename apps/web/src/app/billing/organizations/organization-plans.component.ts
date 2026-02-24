@@ -913,16 +913,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       throw new Error("Billing address information is incomplete");
     }
 
-    const orgId = await this.accountBillingClient.upgradePremiumToOrganization(
+    const orgId = await this.accountBillingClient.upgradePremiumToOrganization({
       organizationName,
-      encryptionData.collectionCt,
-      encryptionData.key,
-      encryptionData.orgKeys[0], // Public key
-      encryptionData.orgKeys[1].encryptedString as string, //Wrapped private key
-      this.formValues().productTier!,
-      SubscriptionCadenceIds.Annually,
+      organizationKey: encryptionData.key,
+      collectionName: encryptionData.collectionCt,
+      publicKey: encryptionData.orgKeys[0],
+      wrappedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
+      planTier: this.formValues().productTier!,
+      cadence: SubscriptionCadenceIds.Annually,
       billingAddress,
-    );
+    });
 
     await this.syncService.fullSync(true);
 

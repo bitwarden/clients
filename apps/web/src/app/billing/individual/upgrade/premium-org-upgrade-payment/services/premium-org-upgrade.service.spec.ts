@@ -4,7 +4,11 @@ import { of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BusinessSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -24,6 +28,8 @@ describe("PremiumOrgUpgradeService", () => {
   let syncService: jest.Mocked<SyncService>;
   let keyService: jest.Mocked<KeyService>;
   let organizationService: jest.Mocked<OrganizationService>;
+  let encryptService: jest.Mocked<EncryptService>;
+  let i18nService: jest.Mocked<I18nService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -49,7 +55,7 @@ describe("PremiumOrgUpgradeService", () => {
 
   beforeEach(() => {
     accountBillingClient = {
-      upgradePremiumToOrganization: jest.fn().mockResolvedValue(undefined),
+      upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-org-id"),
     } as any;
     previewInvoiceClient = {
       previewProrationForPremiumUpgrade: jest
@@ -62,7 +68,16 @@ describe("PremiumOrgUpgradeService", () => {
     keyService = {
       makeOrgKey: jest
         .fn()
-        .mockResolvedValue([{ encryptedString: "encrypted-string" }, "decrypted-key"]),
+        .mockResolvedValue([{ encryptedString: "org-key-encrypted" }, "org-key-decrypted"]),
+      makeKeyPair: jest
+        .fn()
+        .mockResolvedValue(["public-key", new EncString("private-key-encrypted")]),
+    } as any;
+    encryptService = {
+      encryptString: jest.fn().mockResolvedValue(new EncString("collection-encrypted")),
+    } as any;
+    i18nService = {
+      t: jest.fn().mockReturnValue("Default Collection"),
     } as any;
     organizationService = {
       organizations$: jest.fn().mockReturnValue(
@@ -85,6 +100,8 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
         { provide: KeyService, useValue: keyService },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: EncryptService, useValue: encryptService },
+        { provide: I18nService, useValue: i18nService },
       ],
     });
 
@@ -100,16 +117,23 @@ describe("PremiumOrgUpgradeService", () => {
         mockBillingAddress,
       );
 
-      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
-        "Test Organization",
-        "encrypted-string",
-        2, // ProductTierType.Teams
-        "annually",
-        mockBillingAddress,
-      );
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        wrappedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: mockBillingAddress,
+      });
       expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith("org-key-decrypted");
+      expect(encryptService.encryptString).toHaveBeenCalledWith(
+        "Default Collection",
+        "org-key-decrypted",
+      );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
-      expect(organizationService.organizations$).toHaveBeenCalledWith("user-id");
       expect(result).toBe("new-org-id");
     });
 

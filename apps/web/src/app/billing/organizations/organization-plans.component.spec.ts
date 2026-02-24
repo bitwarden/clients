@@ -2279,16 +2279,16 @@ describe("OrganizationPlansComponent", () => {
 
         await component.submit();
 
-        expect(mockAccountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
-          newOrgName,
-          "mock-collection",
-          "mock-key",
-          "public-key",
-          "private-key",
-          ProductTierType.Teams,
-          "annually",
-          expect.objectContaining({ country: "US", postalCode: "12345" }),
-        );
+        expect(mockAccountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+          organizationName: newOrgName,
+          organizationKey: "mock-key",
+          collectionName: "mock-collection",
+          publicKey: "public-key",
+          wrappedPrivateKey: "private-key",
+          planTier: ProductTierType.Teams,
+          cadence: "annually",
+          billingAddress: expect.objectContaining({ country: "US", postalCode: "12345" }),
+        });
         expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
