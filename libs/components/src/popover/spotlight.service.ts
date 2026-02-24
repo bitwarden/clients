@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import type { PopoverAnchorForDirective } from "./popover-anchor.directive";
+import type { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 
 /**
  * Service that coordinates spotlight effects across multiple popover instances.

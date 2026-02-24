@@ -1,6 +1,6 @@
 import { Directive, inject } from "@angular/core";
 
-import { PopoverAnchorForDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 
 /**
  * Directive that creates an interactive trigger for a popover.

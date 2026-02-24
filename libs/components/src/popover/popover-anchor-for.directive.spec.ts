@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, NgZone, TemplateRef, viewChild } fr
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { Subject } from "rxjs";
 
-import { PopoverAnchorForDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 

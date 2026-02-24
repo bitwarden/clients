@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { PopoverAnchorForDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 import { PopoverTriggerForDirective } from "./popover-trigger-for.directive";
 import { PopoverComponent } from "./popover.component";
 

@@ -10,7 +10,7 @@ import { LinkModule } from "../link";
 import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { PopoverAnchorForDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
 import { PopoverModule } from "./popover.module";
 
 export default {
