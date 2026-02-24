@@ -261,6 +261,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         name: OrganizationIntegrationServiceName.Huntress,
         linkURL: "https://bitwarden.com/help/huntress-siem/",
         image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-huntress-siem-darkmode.svg",
         type: IntegrationType.EVENT,
         description: "huntressEventIntegrationDesc",
         canSetupConnection: true,

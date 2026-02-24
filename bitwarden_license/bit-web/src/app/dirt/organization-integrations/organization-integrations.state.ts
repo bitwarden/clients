@@ -29,17 +29,23 @@ export class OrganizationIntegrationsState implements IntegrationStateService {
     const integrations = this._integrations();
     const index = integrations.findIndex((i) => i.name === integrationName);
     if (index >= 0) {
-      integrations[index].organizationIntegration = updatedIntegrationSettings;
+      const updatedIntegrations = integrations.map((integration, i) =>
+        i === index
+          ? { ...integration, organizationIntegration: updatedIntegrationSettings }
+          : integration,
+      );
+      this.setIntegrations(updatedIntegrations);
     }
-    this.setIntegrations([...integrations]);
   }
 
   deleteIntegrationSettings(integrationName: string) {
     const integrations = this._integrations();
     const index = integrations.findIndex((i) => i.name === integrationName);
     if (index >= 0) {
-      integrations[index].organizationIntegration = undefined;
+      const updatedIntegrations = integrations.map((integration, i) =>
+        i === index ? { ...integration, organizationIntegration: undefined } : integration,
+      );
+      this.setIntegrations(updatedIntegrations);
     }
-    this.setIntegrations([...integrations]);
   }
 }

@@ -114,7 +114,11 @@ export class OrganizationIntegrationService {
       if (newIntegration !== null) {
         this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
       }
-      return { mustBeOwner: false, success: true, organizationIntegrationResult: newIntegration! };
+      return {
+        mustBeOwner: false,
+        success: newIntegration !== null,
+        organizationIntegrationResult: newIntegration ?? undefined,
+      };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
         return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
@@ -181,8 +185,8 @@ export class OrganizationIntegrationService {
       }
       return {
         mustBeOwner: false,
-        success: true,
-        organizationIntegrationResult: updatedIntegration!,
+        success: updatedIntegration !== null,
+        organizationIntegrationResult: updatedIntegration ?? undefined,
       };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
