@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import {
   getOrganizationById,
@@ -74,7 +75,9 @@ export interface SecretOperation {
   templateUrl: "./secret-dialog.component.html",
   standalone: false,
 })
-export class SecretDialogComponent implements OnInit, OnDestroy {
+export class SecretDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   loading = true;
   projects: ProjectListView[];
   addNewProject = false;
@@ -102,7 +105,6 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   protected peopleAccessPolicyItems: ApItemViewType[];
   protected serviceAccountAccessPolicyItems: ApItemViewType[];
 
-  private destroy$ = new Subject<void>();
   private currentPeopleAccessPolicies: ApItemViewType[];
 
   constructor(
@@ -161,11 +163,6 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     }
 
     this.loading = false;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {
@@ -322,7 +319,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   private addNewProjectOptionToProjectsDropDown() {
     this.formGroup
       .get("project")
-      .valueChanges.pipe(takeUntil(this.destroy$))
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((val: string) => {
         this.dropDownSelected(val);
       });

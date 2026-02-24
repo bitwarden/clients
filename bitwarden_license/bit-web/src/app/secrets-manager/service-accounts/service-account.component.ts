@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
+import { combineLatest, filter, startWith, switchMap } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
 
@@ -22,8 +23,8 @@ import { ServiceAccountService } from "./service-account.service";
   templateUrl: "./service-account.component.html",
   standalone: false,
 })
-export class ServiceAccountComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ServiceAccountComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private serviceAccountId: string;
 
   private onChange$ = this.serviceAccountService.serviceAccount$.pipe(
@@ -64,7 +65,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
     );
 
     combineLatest([this.serviceAccount$, serviceAccountCounts$])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([serviceAccountView, serviceAccountCounts]) => {
         this.serviceAccountView = serviceAccountView;
         this.serviceAccountCounts = {
@@ -73,11 +74,6 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
           accessTokens: serviceAccountCounts.accessTokens,
         };
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected openNewAccessTokenDialog() {

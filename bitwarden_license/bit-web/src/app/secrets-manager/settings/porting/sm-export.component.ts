@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -33,8 +34,8 @@ type ExportFormat = {
   templateUrl: "./sm-export.component.html",
   standalone: false,
 })
-export class SecretsManagerExportComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SecretsManagerExportComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   protected orgName: string;
   protected orgId: string;
@@ -69,7 +70,7 @@ export class SecretsManagerExportComponent implements OnInit, OnDestroy {
               .pipe(getOrganizationById(params.organizationId)),
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((organization) => {
         this.orgName = organization.name;
@@ -77,11 +78,6 @@ export class SecretsManagerExportComponent implements OnInit, OnDestroy {
       });
 
     this.formGroup.get("format").disable();
-  }
-
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

@@ -1,18 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatest,
-  filter,
-  Observable,
-  startWith,
-  Subject,
-  switchMap,
-  takeUntil,
-  map,
-  concatMap,
-} from "rxjs";
+import { combineLatest, filter, Observable, startWith, switchMap, map, concatMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -41,14 +32,14 @@ import { ProjectService } from "../project.service";
   templateUrl: "./project.component.html",
   standalone: false,
 })
-export class ProjectComponent implements OnInit, OnDestroy {
+export class ProjectComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected project$: Observable<ProjectView>;
   protected projectCounts: ProjectCounts;
 
   private organizationId: string;
   private projectId: string;
   private organizationEnabled: boolean;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -92,7 +83,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     ]).pipe(switchMap(([params]) => this.countService.getProjectCounts(params.projectId)));
 
     combineLatest([projectId$, organization$, projectCounts$])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([projectId, organization, projectCounts]) => {
         this.organizationId = organization.id;
         this.projectId = projectId;
@@ -103,11 +94,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
           serviceAccounts: projectCounts.serviceAccounts,
         };
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async openEditDialog() {
