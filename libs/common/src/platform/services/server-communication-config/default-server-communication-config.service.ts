@@ -1,7 +1,11 @@
 import { Observable, shareReplay, switchMap } from "rxjs";
 
-import { ServerCommunicationConfigClient } from "@bitwarden/sdk-internal";
+import {
+  ServerCommunicationConfigClient,
+  ServerCommunicationConfigPlatformApi,
+} from "@bitwarden/sdk-internal";
 
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
 
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
@@ -28,9 +32,16 @@ import { ServerCommunicationConfigRepository } from "./server-communication-conf
 export class DefaultServerCommunicationConfigService implements ServerCommunicationConfigService {
   private client: ServerCommunicationConfigClient;
 
-  constructor(private repository: ServerCommunicationConfigRepository) {
-    // Initialize SDK client with repository
-    this.client = new ServerCommunicationConfigClient(repository);
+  constructor(
+    protected repository: ServerCommunicationConfigRepository,
+    protected platformApi: ServerCommunicationConfigPlatformApi,
+  ) {}
+
+  async init() {
+    // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
+    await SdkLoadService.Ready;
+    // Initialize SDK client with repository and platform API
+    this.client = new ServerCommunicationConfigClient(this.repository, this.platformApi);
   }
 
   needsBootstrap$(hostname: string): Observable<boolean> {

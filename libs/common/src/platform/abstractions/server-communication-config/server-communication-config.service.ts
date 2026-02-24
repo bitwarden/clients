@@ -6,6 +6,11 @@ import { Observable } from "rxjs";
  */
 export abstract class ServerCommunicationConfigService {
   /**
+   * Initializes the service and creates the SDK-based ServerCommunicationConfigClient
+   */
+  abstract init(): Promise<void>;
+
+  /**
    * Observable that emits true when the specified hostname
    * requires bootstrap (cookie acquisition) before API calls can succeed.
    *
