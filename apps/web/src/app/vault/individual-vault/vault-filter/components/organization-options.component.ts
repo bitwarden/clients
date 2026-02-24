@@ -1,13 +1,6 @@
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -46,15 +39,14 @@ import { OptionsInput } from "../shared/components/vault-filter-section.componen
   templateUrl: "organization-options.component.html",
   standalone: false,
 })
-export class OrganizationOptionsComponent implements OnInit, OnDestroy {
+export class OrganizationOptionsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected actionPromise?: Promise<void | boolean>;
   protected resetPasswordPolicy?: Policy | undefined;
   protected loaded = false;
   protected hideMenu = false;
   protected showLeaveOrgOption = false;
   protected organization!: OrganizationFilter;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     @Inject(OptionsInput) protected organization$: Observable<OrganizationFilter>,
@@ -101,7 +93,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       ),
       managingOrg$,
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([organization, resetPasswordPolicies, decryptionOptions, managingOrg]) => {
         this.organization = organization;
         this.resetPasswordPolicy = resetPasswordPolicies.find(
@@ -123,11 +115,6 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
 
         this.loaded = true;
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   allowEnrollmentChanges(org: OrganizationFilter): boolean {

@@ -1,5 +1,5 @@
-import { Directive, Input, OnDestroy, TemplateRef, ViewContainerRef } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { DestroyRef, Directive, inject, Input, TemplateRef, ViewContainerRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -10,8 +10,8 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 @Directive({
   selector: "[appCanDeleteCipher]",
 })
-export class CanDeleteCipherDirective implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class CanDeleteCipherDirective {
+  private readonly destroyRef = inject(DestroyRef);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -20,7 +20,7 @@ export class CanDeleteCipherDirective implements OnDestroy {
 
     this.cipherAuthorizationService
       .canDeleteCipher$(cipher)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((canDelete: boolean) => {
         if (canDelete) {
           this.viewContainer.createEmbeddedView(this.templateRef);
@@ -35,9 +35,4 @@ export class CanDeleteCipherDirective implements OnDestroy {
     private viewContainer: ViewContainerRef,
     private cipherAuthorizationService: CipherAuthorizationService,
   ) {}
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

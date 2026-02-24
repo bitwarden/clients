@@ -3,15 +3,17 @@
 import { CommonModule } from "@angular/common";
 import {
   Component,
-  OnInit,
-  Input,
-  Output,
+  DestroyRef,
   EventEmitter,
-  OnDestroy,
-  SimpleChanges,
+  inject,
+  Input,
   OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
 } from "@angular/core";
-import { Subject, takeUntil, Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -45,7 +47,8 @@ import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-o
   selector: "app-vault-onboarding",
   templateUrl: "vault-onboarding.component.html",
 })
-export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
+export class VaultOnboardingComponent implements OnInit, OnChanges {
+  private readonly destroyRef = inject(DestroyRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() ciphers: CipherViewLike[];
@@ -58,7 +61,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
 
   extensionUrl: string;
   isIndividualPolicyVault: boolean;
-  private destroy$ = new Subject<void>();
   isNewAccount: boolean;
   private readonly onboardingReleaseDate = new Date("2024-04-02");
 
@@ -98,15 +100,10 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   checkForBrowserExtension() {
     if (this.showOnboarding) {
       fromEvent<MessageEvent>(window, "message")
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((event) => {
           void this.getMessages(event);
         });
@@ -176,7 +173,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
         this.isIndividualPolicyVault = data;

@@ -3,6 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
@@ -10,11 +12,10 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   firstValueFrom,
-  Subject,
-  takeUntil,
   switchMap,
   lastValueFrom,
   Observable,
@@ -234,7 +235,7 @@ export class VaultV2Component<C extends CipherViewLike>
     ),
   );
 
-  private componentIsDestroyed$ = new Subject<boolean>();
+  private readonly destroyRef = inject(DestroyRef);
   private allOrganizations: Organization[] = [];
   private allCollections: CollectionView[] = [];
 
@@ -277,7 +278,7 @@ export class VaultV2Component<C extends CipherViewLike>
         switchMap((account) =>
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         ),
-        takeUntil(this.componentIsDestroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((canAccessPremium: boolean) => {
         this.userHasPremiumAccess = canAccessPremium;
@@ -406,7 +407,7 @@ export class VaultV2Component<C extends CipherViewLike>
           map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
           filter((ciphers) => ciphers.length > 0),
           take(1),
-          takeUntil(this.componentIsDestroyed$),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((ciphers) => {
           DecryptionFailureDialogComponent.open(this.dialogService, {
@@ -415,7 +416,7 @@ export class VaultV2Component<C extends CipherViewLike>
         });
     }
 
-    this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgs) => {
+    this.organizations$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((orgs) => {
       this.allOrganizations = orgs;
     });
 
@@ -425,7 +426,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.collectionService
       .decryptedCollections$(this.activeUserId)
-      .pipe(takeUntil(this.componentIsDestroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((collections) => {
         this.allCollections = collections;
       });
@@ -436,8 +437,6 @@ export class VaultV2Component<C extends CipherViewLike>
   ngOnDestroy() {
     this.searchBarService.setEnabled(false);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.componentIsDestroyed$.next(true);
-    this.componentIsDestroyed$.complete();
   }
 
   async load() {

@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   distinctUntilChanged,
@@ -6,9 +7,7 @@ import {
   map,
   merge,
   shareReplay,
-  Subject,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -50,7 +49,9 @@ import { OrganizationOptionsComponent } from "./organization-options.component";
   templateUrl: "vault-filter.component.html",
   standalone: false,
 })
-export class VaultFilterComponent implements OnInit, OnDestroy {
+export class VaultFilterComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   filters?: VaultFilterList;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -68,7 +69,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   isLoaded = false;
 
-  protected destroy$: Subject<void> = new Subject<void>();
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
@@ -197,7 +197,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       )
       .pipe(
         switchMap(() => this.addOrganizationFilter()),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((orgFilters) => {
         if (!this.filters) {
@@ -205,11 +205,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         }
         this.filters.organizationFilter = orgFilters;
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onSearchTextChanged(t: string) {

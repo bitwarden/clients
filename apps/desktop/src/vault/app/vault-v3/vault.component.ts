@@ -5,24 +5,17 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
   signal,
   ViewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  combineLatest,
-  firstValueFrom,
-  Subject,
-  takeUntil,
-  switchMap,
-  lastValueFrom,
-  Observable,
-  from,
-} from "rxjs";
+import { combineLatest, firstValueFrom, switchMap, lastValueFrom, Observable, from } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -152,6 +145,8 @@ const BroadcasterSubscriptionId = "VaultComponent";
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(VaultItemsV2Component, { static: true })
@@ -223,7 +218,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
   );
 
-  private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
   private allCollections: CollectionView[] = [];
   private filteredCollections: CollectionView[] = [];
@@ -274,7 +268,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
           from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
         ),
-        takeUntil(this.componentIsDestroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -399,7 +393,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
           filter((ciphers) => ciphers.length > 0),
           take(1),
-          takeUntil(this.componentIsDestroyed$),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((ciphers) => {
           DecryptionFailureDialogComponent.open(this.dialogService, {
@@ -408,7 +402,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         });
     }
 
-    this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgs) => {
+    this.organizations$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((orgs) => {
       this.allOrganizations = orgs;
     });
 
@@ -418,13 +412,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
     this.collectionService
       .decryptedCollections$(this.activeUserId)
-      .pipe(takeUntil(this.componentIsDestroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((collections) => {
         this.allCollections = collections;
       });
 
     this.vaultFilterService.filteredCollections$
-      .pipe(takeUntil(this.componentIsDestroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((collections) => {
         this.filteredCollections = collections;
       });
@@ -435,8 +429,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   ngOnDestroy() {
     this.searchBarService.setEnabled(false);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.componentIsDestroyed$.next(true);
-    this.componentIsDestroyed$.complete();
   }
 
   async load() {

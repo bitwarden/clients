@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, InjectionToken, Injector, Input, OnDestroy, OnInit } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  InjectionToken,
+  Injector,
+  Input,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -22,8 +31,8 @@ import {
   templateUrl: "vault-filter-section.component.html",
   standalone: false,
 })
-export class VaultFilterSectionComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class VaultFilterSectionComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -43,22 +52,15 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     private injector: Injector,
     private accountService: AccountService,
   ) {
-    this.vaultFilterService.collapsedFilterNodes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((nodes) => {
-        this.collapsedFilterNodes = nodes;
-      });
-  }
-
-  async ngOnInit() {
-    this.section?.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.data = data;
+    this.vaultFilterService.collapsedFilterNodes$.pipe(takeUntilDestroyed()).subscribe((nodes) => {
+      this.collapsedFilterNodes = nodes;
     });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  async ngOnInit() {
+    this.section?.data$?.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
+      this.data = data;
+    });
   }
 
   get headerNode() {
