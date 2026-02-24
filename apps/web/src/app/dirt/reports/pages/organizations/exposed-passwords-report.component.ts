@@ -1,6 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, takeUntil, tap } from "rxjs";
+import { firstValueFrom, tap } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -47,6 +48,7 @@ export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent
   implements OnInit
 {
+  private readonly destroyRef = inject(DestroyRef);
   private manageableCiphers: Cipher[] = [];
 
   constructor(
@@ -87,7 +89,7 @@ export class ExposedPasswordsReportComponent
           );
           this.manageableCiphers = await this.cipherService.getAll(userId);
         }),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

@@ -1,14 +1,16 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   ElementRef,
   Inject,
+  inject,
   Input,
-  OnDestroy,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
+import { Observable, combineLatest, lastValueFrom } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
@@ -50,8 +52,8 @@ import {
   templateUrl: "./integration-card.component.html",
   imports: [SharedModule, BaseCardComponent, CardContentComponent],
 })
-export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
-  private destroyed$: Subject<void> = new Subject();
+export class IntegrationCardComponent implements AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("imageEle") imageEle!: ElementRef<HTMLImageElement>;
@@ -112,7 +114,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     combineLatest([this.themeStateService.selectedTheme$, this.systemTheme$])
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([theme, systemTheme]) => {
         // When the card doesn't have a dark mode image, exit early
         if (!this.imageDarkMode) {
@@ -133,11 +135,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
           this.imageEle.nativeElement.src = this.image;
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 
   /** Show the "new" badge when expiration is in the future */

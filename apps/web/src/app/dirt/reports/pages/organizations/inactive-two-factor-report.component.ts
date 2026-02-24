@@ -1,6 +1,14 @@
-import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, takeUntil, tap } from "rxjs";
+import { firstValueFrom, tap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -46,6 +54,7 @@ export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent
   implements OnInit
 {
+  private readonly destroyRef = inject(DestroyRef);
   // Contains a list of ciphers, the user running the report, can manage
   private manageableCiphers: Cipher[] = [];
 
@@ -92,7 +101,7 @@ export class InactiveTwoFactorReportComponent
           await super.ngOnInit();
           this.changeDetectorRef.markForCheck();
         }),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
