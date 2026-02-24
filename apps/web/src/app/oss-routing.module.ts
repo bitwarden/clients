@@ -646,8 +646,8 @@ const routes: Routes = [
         canActivate: [
           organizationPolicyGuard((userId, _configService, policyService) =>
             policyService
-              .policyAppliesToUser$(PolicyType.DisableSend, userId)
-              .pipe(map((policyApplies) => !policyApplies)),
+              .policiesByType$(PolicyType.SendOptions, userId)
+              .pipe(map((policies) => !policies?.some((p) => p.data.disableSend))),
           ),
         ],
       },

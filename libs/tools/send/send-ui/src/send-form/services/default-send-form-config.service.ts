@@ -45,8 +45,8 @@ export class DefaultSendFormConfigService implements SendFormConfigService {
 
   private areSendsEnabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((p) => !p),
+    switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+    map((policies) => !policies?.some((p) => p.data.disableSend)),
   );
 
   private getSend(id?: SendId) {

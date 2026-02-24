@@ -22,8 +22,7 @@ const POLICY_ORDER_MAP = new Map<string, number>([
   ["uriMatchDetectionPolicy", 12],
   ["activateAutofillPolicy", 13],
   ["sendOptions", 14],
-  ["disableSend", 15],
-  ["restrictedItemTypePolicy", 16],
+  ["restrictedItemTypePolicy", 15],
   ["freeFamiliesSponsorship", 17],
   ["disableExport", 18],
 ]);

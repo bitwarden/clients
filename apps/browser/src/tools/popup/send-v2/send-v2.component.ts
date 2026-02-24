@@ -144,9 +144,8 @@ export class SendV2Component implements OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+        map((policies) => policies?.some((p) => p.data.disableSend) ?? false),
         takeUntilDestroyed(),
       )
       .subscribe((sendsDisabled) => {

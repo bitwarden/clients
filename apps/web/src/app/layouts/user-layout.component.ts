@@ -45,8 +45,8 @@ export class UserLayoutComponent implements OnInit {
   protected showSubscription$: Observable<boolean>;
   protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((isDisabled) => !isDisabled),
+    switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+    map((policies) => !policies?.some((p) => p.data.disableSend)),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 

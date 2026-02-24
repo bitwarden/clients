@@ -107,9 +107,8 @@ export class SendV2Component {
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
+      switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+      map((policies) => policies?.some((p) => p.data.disableSend) ?? false),
     ),
     { initialValue: false },
   );

@@ -21,6 +21,7 @@ export class SendOptionsPolicy extends BasePolicyEditDefinition {
 })
 export class SendOptionsPolicyComponent extends BasePolicyEditComponent {
   data = this.formBuilder.group({
+    disableSend: false,
     disableHideEmail: false,
   });
 
