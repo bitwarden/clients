@@ -139,8 +139,7 @@ export default class NotificationBackground {
       this.withSenderTab(sender, (tab) => this.removeTabFromNotificationQueue(tab)),
     bgReopenUnlockPopout: ({ sender }) =>
       this.withSenderTab(sender, (tab) => this.openUnlockPopout(tab)),
-    bgSaveCipher: ({ message, sender }) =>
-      this.withSenderTab(sender, () => this.handleSaveCipherMessage(message, sender)),
+    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab ?? null),
@@ -186,19 +185,11 @@ export default class NotificationBackground {
     action: (tab: chrome.tabs.Tab) => void | Promise<void>,
   ): Promise<void> {
     if (!sender.tab) {
+      // eslint-disable-next-line no-console
+      console.warn(`Extension message handler called without sender.tab:${sender.tab}`);
       return;
     }
     await action(sender.tab);
-  }
-
-  private async withMessageTab(
-    message: NotificationBackgroundExtensionMessage,
-    action: (tab: chrome.tabs.Tab) => void | Promise<void>,
-  ): Promise<void> {
-    if (message.tab == null) {
-      return;
-    }
-    await action(message.tab);
   }
 
   useUndeterminedCipherScenarioTriggeringLogic$ = this.configService.getFeatureFlag$(
@@ -557,7 +548,7 @@ export default class NotificationBackground {
       wasVaultLocked,
       type: NotificationType.AtRiskPassword,
       data: {
-        passwordChangeUri,
+        ...(passwordChangeUri != null && { passwordChangeUri }),
         organizationName: organization?.name ?? "",
       },
       tab: tab,
@@ -693,7 +684,7 @@ export default class NotificationBackground {
     }
 
     // If there is an active passkey prompt, exit early
-    if (this.fido2Background.isCredentialRequestInProgress(tab.id)) {
+    if (tab.id !== undefined && this.fido2Background.isCredentialRequestInProgress(tab.id)) {
       return false;
     }
 
@@ -1038,7 +1029,10 @@ export default class NotificationBackground {
         newLoginNotificationIsEnabled
       ) {
         const scenarioRequiresUsername = inputScenario !== inputScenarios.passwordNewPassword;
-        if (scenarioRequiresUsername && (data?.username == null || data.username === "")) {
+        if (
+          scenarioRequiresUsername &&
+          (data?.username === null || data?.username === undefined || data.username === "")
+        ) {
           return false;
         }
         await this.pushAddLoginToQueue(
@@ -1163,7 +1157,7 @@ export default class NotificationBackground {
         inputScenario === inputScenarios.usernamePasswordNewPassword &&
         newLoginNotificationIsEnabled
       ) {
-        if (data?.username == null || data.username === "") {
+        if (data?.username === null || data?.username === undefined || data.username === "") {
           return false;
         }
         await this.pushAddLoginToQueue(
@@ -1274,37 +1268,41 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await this.withSenderTab(sender, async (tab) => {
-      if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-        await BrowserApi.tabSendMessageData(tab, "addToLockedVaultPendingNotifications", {
-          commandToRetry: {
-            message: {
-              command: message.command,
-              edit: message.edit,
-              folder: message.folder,
-            },
-            sender: sender,
+    if (!sender.tab) {
+      return;
+    }
+    const tab = sender.tab;
+    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+      await BrowserApi.tabSendMessageData(tab, "addToLockedVaultPendingNotifications", {
+        commandToRetry: {
+          message: {
+            command: message.command,
+            edit: message.edit,
+            folder: message.folder,
           },
-          target: "notification.background",
-        } as LockedVaultPendingNotificationsData);
-        await this.openUnlockPopout(tab);
-        return;
-      }
+          sender: sender,
+        },
+        target: "notification.background",
+      } as LockedVaultPendingNotificationsData);
+      await this.openUnlockPopout(tab);
+      return;
+    }
 
-      await this.saveOrUpdateCredentials(tab, message.cipherId, message?.edit, message.folder);
-    });
+    await this.saveOrUpdateCredentials(tab, message.cipherId, message?.edit, message.folder);
   }
 
   async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
-    await this.withMessageTab(message, async (tab) => {
-      if (message.success) {
-        await this.saveOrUpdateCredentials(tab, message.cipherId, false, undefined, true);
-      } else {
-        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: "Password reprompt failed",
-        });
-      }
-    });
+    if (message.tab === null || message.tab === undefined) {
+      return;
+    }
+    const tab = message.tab;
+    if (message.success) {
+      await this.saveOrUpdateCredentials(tab, message.cipherId, false, undefined, true);
+    } else {
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        error: "Password reprompt failed",
+      });
+    }
   }
 
   /**
@@ -1383,13 +1381,7 @@ export default class NotificationBackground {
           if (password == null) {
             continue;
           }
-          await this.updatePassword(
-            existingCipher,
-            password,
-            resolvedEdit,
-            tab,
-            activeUserId,
-          );
+          await this.updatePassword(existingCipher, password, resolvedEdit, tab, activeUserId);
           return;
         }
       }
