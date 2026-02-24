@@ -3,7 +3,9 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { AsyncPipe } from "@angular/common";
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
   NgZone,
   OnChanges,
@@ -12,6 +14,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   catchError,
@@ -21,7 +24,6 @@ import {
   map,
   ReplaySubject,
   Subject,
-  takeUntil,
   withLatestFrom,
 } from "rxjs";
 
@@ -91,6 +93,8 @@ import { toAlgorithmInfo, translate } from "./util";
   ],
 })
 export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private generatorService: CredentialGeneratorService,
     private generatorHistoryService: GeneratorHistoryService,
@@ -224,7 +228,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
       .algorithms$("password", { account$: this.account$ })
       .pipe(
         map((algorithms) => this.toOptions(algorithms)),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(this.passwordOptions$);
 
@@ -247,7 +251,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
           return generator;
         }),
         withLatestFrom(this.account$, this.algorithm$),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([generated, account, algorithm]) => {
         this.log.debug({ source: generated.source ?? null }, "credential generated");
@@ -276,7 +280,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
       .pipe(
         filter((type) => !!type),
         withLatestFrom(preferences),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([algorithm, preference]) => {
         if (isPasswordAlgorithm(algorithm)) {
@@ -301,7 +305,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
             return isSameAlgorithm(prev.id, next.id);
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((algorithm) => {
         this.log.debug({ algorithm: algorithm.id }, "algorithm selected");
@@ -318,7 +322,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
       });
 
     // generate on load unless the generator prohibits it
-    this.maybeAlgorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
+    this.maybeAlgorithm$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((a) => {
       this.zone.run(() => {
         if (a?.capabilities?.autogenerate) {
           this.log.debug("autogeneration enabled");
@@ -383,11 +387,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     return options;
   }
 
-  private readonly destroyed = new Subject<void>();
   ngOnDestroy(): void {
-    // tear down subscriptions
-    this.destroyed.complete();
-
     // finalize subjects
     this.generate$.complete();
     this.value$.complete();

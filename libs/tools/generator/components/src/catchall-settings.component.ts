@@ -1,6 +1,8 @@
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -8,8 +10,9 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
+import { map, ReplaySubject, skip, Subject, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -34,6 +37,8 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
@@ -76,19 +81,19 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
       account$: this.account$,
     });
 
-    settings.pipe(takeUntil(this.destroyed$)).subscribe((s) => {
+    settings.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((s) => {
       this.settings.patchValue(s, { emitEvent: false });
     });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
+    settings.pipe(skip(1), takeUntilDestroyed(this.destroyRef)).subscribe(this.onUpdated);
 
     // now that outputs are set up, connect inputs
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
         map(([, settings]) => settings as CatchallGenerationOptions),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(settings);
   }
@@ -98,10 +103,7 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
     this.saveSettings.next(site);
   }
 
-  private readonly destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
     this.account$.complete();
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 }

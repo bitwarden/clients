@@ -2,7 +2,9 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { AsyncPipe } from "@angular/common";
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
   NgZone,
   OnChanges,
@@ -11,6 +13,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -23,7 +26,6 @@ import {
   map,
   ReplaySubject,
   Subject,
-  takeUntil,
   tap,
   withLatestFrom,
 } from "rxjs";
@@ -123,7 +125,7 @@ const NONE_SELECTED = "none";
   ],
 })
 export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestroy {
-  private readonly destroyed = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private generatorService: CredentialGeneratorService,
@@ -255,7 +257,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         tap((algorithms) =>
           this.log.debug({ algorithms: algorithms as object }, "algorithms loaded"),
         ),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([usernames, forwarders]) => {
         // update subjects within the angular zone so that the
@@ -274,7 +276,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
           options.push({ value: IDENTIFIER, label: this.i18nService.t("username") });
           return options;
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(this.rootOptions$);
 
@@ -287,7 +289,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
             return "";
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((hint) => {
         // update subjects within the angular zone so that the
@@ -301,7 +303,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
       .pipe(
         map((a) => a?.type),
         distinctUntilChanged(),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((category) => {
         // update subjects within the angular zone so that the
@@ -333,7 +335,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
           return generator;
         }),
         withLatestFrom(this.account$, this.maybeAlgorithm$),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([generated, account, algorithm]) => {
         this.log.debug(
@@ -377,7 +379,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
             return { nav: IDENTIFIER };
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(activeRoot$);
 
@@ -393,7 +395,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
             return { nav: JSON.stringify(algorithm), algorithm };
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(activeIdentifier$);
 
@@ -408,7 +410,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
             return { nav: NONE_SELECTED };
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(activeForwarder$);
 
@@ -424,7 +426,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
           return [showForwarder, forwarderId] as const;
         }),
         distinctUntilChanged((prev, next) => prev[0] === next[0] && prev[1] === next[1]),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([showForwarder, forwarderId]) => {
         this.log.debug({ forwarderId, showForwarder }, "forwarder visibility updated");
@@ -455,7 +457,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
             return isSameAlgorithm(prev.id, next.id);
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((algorithm) => {
         this.log.debug({ algorithm: algorithm?.id ?? null }, "algorithm selected");
@@ -470,7 +472,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     // assume the last-selected generator algorithm is the user's preferred one
     const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.algorithm$
-      .pipe(withLatestFrom(preferences), takeUntil(this.destroyed))
+      .pipe(withLatestFrom(preferences), takeUntilDestroyed(this.destroyRef))
       .subscribe(([algorithm, preference]) => {
         function setPreference(type: CredentialType) {
           const p = preference[type];
@@ -542,7 +544,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
 
           return cascade;
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ root, username, forwarder }) => {
         this.log.debug(
@@ -567,7 +569,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
 
     // automatically regenerate when the algorithm switches if the algorithm
     // allows it; otherwise set a placeholder
-    this.maybeAlgorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
+    this.maybeAlgorithm$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((a) => {
       this.zone.run(() => {
         if (a?.capabilities?.autogenerate) {
           this.log.debug("autogeneration enabled");
@@ -688,9 +690,6 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   }
 
   ngOnDestroy() {
-    this.destroyed.next();
-    this.destroyed.complete();
-
     // finalize subjects
     this.generate$.complete();
     this.generatedCredential$.complete();

@@ -8,7 +8,6 @@ import {
   EventEmitter,
   Inject,
   Input,
-  OnDestroy,
   OnInit,
   Optional,
   Output,
@@ -17,15 +16,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import {
-  Observable,
-  Subject,
-  lastValueFrom,
-  combineLatest,
-  firstValueFrom,
-  BehaviorSubject,
-} from "rxjs";
-import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
+import { Observable, lastValueFrom, combineLatest, firstValueFrom, BehaviorSubject } from "rxjs";
+import { combineLatestWith, filter, map, switchMap } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -111,7 +103,7 @@ import { ImportLastPassComponent } from "./lastpass";
   ],
   providers: ImporterProviders,
 })
-export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ImportComponent implements OnInit, AfterViewInit {
   DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   featuredImportOptions: ImportOption[];
@@ -154,7 +146,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((organization) => {
         this._organizationId = organization?.id;
         this.organization = organization;
@@ -172,8 +164,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
   protected organization: Organization | undefined = undefined;
-  protected destroy$ = new Subject<void>();
-
   protected readonly isCardTypeRestricted$: Observable<boolean> =
     this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
 
@@ -220,11 +210,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   onSuccessfulImport = new EventEmitter<string>();
 
   ngAfterViewInit(): void {
-    this.bitSubmit.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
       this.formLoading.emit(loading);
     });
 
-    this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+    this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
       this.formDisabled.emit(disabled);
     });
   }
@@ -315,7 +305,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.formGroup.controls.format.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.format = value;
       });
@@ -371,7 +361,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([value, organizations]) => {
         this.organizationId = value !== "myVault" ? value : undefined;
 
@@ -404,7 +394,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
       this.organizations$,
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([policyApplies, orgs]) => {
         this._importBlockedByPolicy = policyApplies;
         if (policyApplies && orgs.length == 0) {
@@ -641,10 +631,5 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return fileContents;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

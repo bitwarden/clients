@@ -4,14 +4,16 @@ import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
   Optional,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
@@ -26,7 +28,6 @@ import {
   startWith,
   Subject,
   switchMap,
-  takeUntil,
   tap,
 } from "rxjs";
 
@@ -95,7 +96,8 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     GeneratorServicesModule,
   ],
 })
-export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ExportComponent implements OnInit, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
   private _organizationId$ = new BehaviorSubject<OrganizationId | undefined>(undefined);
   private _showExcludeMyItems = false;
 
@@ -122,7 +124,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((organization) => {
         this._organizationId$.next(organization?.id);
       });
@@ -237,7 +239,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   formatOptions$: Observable<ExportFormatMetadata[]>;
 
-  private destroy$ = new Subject<void>();
   private onlyManagedCollections = true;
   private onGenerate$ = new Subject<GenerateRequest>();
 
@@ -281,7 +282,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private observeFormState(): void {
-    this.exportForm.statusChanges.pipe(takeUntil(this.destroy$)).subscribe((c) => {
+    this.exportForm.statusChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((c) => {
       this.formDisabled.emit(c === "DISABLED");
     });
   }
@@ -334,7 +335,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     // In Admin Console context, organizationId is already set via @Input
     // In Password Manager context, user changes vaultSelector which updates _organizationId$
     this.exportForm.controls.vaultSelector.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((vaultSelection) => {
         if (!this.isAdminConsoleContext) {
           // Password Manager: Update organizationId based on vaultSelector
@@ -377,7 +378,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         this.organizationDataOwnershipPolicyEnabledForOrg$,
       organizationId: this._organizationId$,
     })
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ organizationDataOwnershipPolicyEnabledForOrg, organizationId }) => {
         if (!organizationId) {
           this._showExcludeMyItems = false;
@@ -394,7 +395,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.exportForm.get("format").valueChanges,
       this.exportForm.get("fileEncryptionType").valueChanges,
     )
-      .pipe(startWith(0), takeUntil(this.destroy$))
+      .pipe(startWith(0), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.adjustValidators());
   }
 
@@ -413,7 +414,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.generatorService
       .generate$({ on$: this.onGenerate$, account$ })
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((generated) => {
         this.exportForm.patchValue({
           filePassword: generated.credential,
@@ -497,20 +498,15 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
             this.exportForm.controls.vaultSelector.setValue("myVault");
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
 
   ngAfterViewInit(): void {
-    this.bitSubmit.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
       this.formLoading.emit(loading);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   get encryptedFormat() {

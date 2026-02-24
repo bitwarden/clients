@@ -1,8 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy } from "@angular/core";
-import { ReplaySubject, Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnInit,
+  OnDestroy,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ReplaySubject, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -43,7 +53,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {
-  private readonly destroyed = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly hasHistory$ = new ReplaySubject<boolean>(1);
   protected readonly account$ = new ReplaySubject<Account>(1);
 
@@ -104,7 +114,7 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
       .pipe(
         switchMap((account) => account.id && this.history.credentials$(account.id)),
         map((credentials) => credentials.length > 0),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(this.hasHistory$);
   }
@@ -124,9 +134,6 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
   };
 
   ngOnDestroy() {
-    this.destroyed.next();
-    this.destroyed.complete();
-
     this.log.debug("component destroyed");
   }
 }
