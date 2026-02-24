@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnChanges, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -14,7 +15,7 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -67,7 +68,7 @@ type VaultTimeoutFormValue = VaultTimeoutForm["value"];
   ],
 })
 export class SessionTimeoutInputLegacyComponent
-  implements ControlValueAccessor, Validator, OnInit, OnDestroy, OnChanges
+  implements ControlValueAccessor, Validator, OnInit, OnChanges
 {
   static CUSTOM_VALUE = -100;
   static MIN_CUSTOM_MINUTES = 0;
@@ -92,7 +93,7 @@ export class SessionTimeoutInputLegacyComponent
   protected canLockVault$: Observable<boolean>;
   private onChange: (vaultTimeout: VaultTimeout) => void;
   private validatorChange: () => void;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -145,14 +146,14 @@ export class SessionTimeoutInputLegacyComponent
         ),
         getFirstPolicy,
         filter((policy) => policy != null),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policy) => {
         this.vaultTimeoutPolicy = policy;
         this.applyVaultTimeoutPolicy();
       });
     this.form.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: VaultTimeoutFormValue) => {
         if (this.onChange) {
           this.onChange(this.getVaultTimeout(value));
@@ -166,7 +167,7 @@ export class SessionTimeoutInputLegacyComponent
     this.form.controls.vaultTimeout.valueChanges
       .pipe(
         filter((value) => value !== SessionTimeoutInputLegacyComponent.CUSTOM_VALUE),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => {
         const current = typeof value === "string" ? 0 : Math.max(value, 0);
@@ -188,11 +189,6 @@ export class SessionTimeoutInputLegacyComponent
     this.canLockVault$ = this.vaultTimeoutSettingsService
       .availableVaultTimeoutActions$()
       .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   ngOnChanges() {

@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -25,10 +26,10 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
   templateUrl: "change-kdf.component.html",
   standalone: false,
 })
-export class ChangeKdfComponent implements OnInit, OnDestroy {
+export class ChangeKdfComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
   kdfOptions: any[] = [];
-  private destroy$ = new Subject<void>();
 
   protected formGroup = this.formBuilder.group({
     kdf: new FormControl<KdfType>(KdfType.PBKDF2_SHA256, [Validators.required]),
@@ -71,7 +72,7 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
     this.setFormValidators(this.kdfConfig.kdfType);
 
     this.formGroup.controls.kdf.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newValue) => {
         this.updateKdfConfig(newValue!);
       });
@@ -142,11 +143,6 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
       kdfConfigFormGroup.controls.memory.setValue(kdfConfig.memory);
       kdfConfigFormGroup.controls.parallelism.setValue(kdfConfig.parallelism);
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   isPBKDF2(t: KdfConfig): t is PBKDF2KdfConfig {

@@ -1,18 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
-import {
-  BehaviorSubject,
-  filter,
-  firstValueFrom,
-  timer,
-  mergeMap,
-  Subject,
-  switchMap,
-  takeUntil,
-  tap,
-} from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, timer, mergeMap, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LogoutService } from "@bitwarden/auth/common";
@@ -105,7 +96,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   protected loading = true;
 
   activeAccount: Account | null = null;
@@ -220,7 +211,7 @@ export class LockComponent implements OnInit, OnDestroy {
             }
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -228,7 +219,7 @@ export class LockComponent implements OnInit, OnDestroy {
   // Base component methods
   private listenForActiveUnlockOptionChanges() {
     this.activeUnlockOption$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((activeUnlockOption: UnlockOptionValue | null) => {
         if (activeUnlockOption === UnlockOption.Pin) {
           this.buildPinForm();
@@ -258,7 +249,7 @@ export class LockComponent implements OnInit, OnDestroy {
           await this.handleActiveAccountChange(account);
           this.loading = false;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -750,9 +741,6 @@ export class LockComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-
     if (this.clientType === "desktop") {
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     }

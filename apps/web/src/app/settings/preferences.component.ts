@@ -1,18 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import {
-  concatMap,
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  Subject,
-  switchMap,
-  takeUntil,
-  tap,
-} from "rxjs";
+import { concatMap, filter, firstValueFrom, map, Observable, switchMap, tap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -56,7 +47,7 @@ import { SharedModule } from "../shared";
     SessionTimeoutInputLegacyComponent,
   ],
 })
-export class PreferencesComponent implements OnInit, OnDestroy {
+export class PreferencesComponent implements OnInit {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
@@ -70,8 +61,8 @@ export class PreferencesComponent implements OnInit, OnDestroy {
   localeOptions: any[];
   themeOptions: any[];
 
+  private readonly destroyRef = inject(DestroyRef);
   private startingLocale: string;
-  private destroy$ = new Subject<void>();
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -174,7 +165,7 @@ export class PreferencesComponent implements OnInit, OnDestroy {
             }
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -231,9 +222,4 @@ export class PreferencesComponent implements OnInit, OnDestroy {
       );
     }
   };
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }
