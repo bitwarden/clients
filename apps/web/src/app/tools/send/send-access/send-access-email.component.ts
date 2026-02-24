@@ -67,4 +67,18 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
       this.otp.markAsPristine();
     }
   }
+
+  validateEmail(): boolean {
+    const value: string = this.email.value?.trim() ?? "";
+
+    if (!value) {
+      return false;
+    }
+
+    if (value.length > 254) {
+      return false;
+    }
+
+    return value.includes("@") && value.includes(".");
+  }
 }
