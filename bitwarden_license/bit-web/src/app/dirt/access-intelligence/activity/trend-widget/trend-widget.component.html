@@ -6,7 +6,13 @@
     <div>Download button here</div>
   </div>
   <div class="tw-flex tw-justify-between tw-items-center">
-    <div>View mode toggle here</div>
+    <div>
+      <bit-toggle-group [(selected)]="selectedView" (selectedChange)="onViewChange($event)">
+        <bit-toggle value="{{ ViewType.Applications }}">{{ "applications" | i18n }}</bit-toggle>
+        <bit-toggle value="{{ ViewType.Passwords }}">{{ "passwords" | i18n }}</bit-toggle>
+        <bit-toggle value="{{ ViewType.Members }}">{{ "members" | i18n }}</bit-toggle>
+      </bit-toggle-group>
+    </div>
     <div>Time period selector here</div>
   </div>
   <div class="tw-relative tw-h-96">
