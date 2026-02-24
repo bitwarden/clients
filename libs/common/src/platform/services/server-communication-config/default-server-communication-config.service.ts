@@ -30,7 +30,7 @@ import { ServerCommunicationConfigRepository } from "./server-communication-conf
  *
  */
 export class DefaultServerCommunicationConfigService implements ServerCommunicationConfigService {
-  private client: ServerCommunicationConfigClient;
+  private client!: ServerCommunicationConfigClient;
 
   constructor(
     protected repository: ServerCommunicationConfigRepository,
