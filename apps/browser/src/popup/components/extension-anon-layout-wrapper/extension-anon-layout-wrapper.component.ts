@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
-import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
+import { filter, switchMap, tap } from "rxjs";
 
 import { BitwardenLogo, BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,8 +46,8 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     RouterModule,
   ],
 })
-export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ExtensionAnonLayoutWrapperComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   protected showAcctSwitcher: boolean;
   protected showBackButton: boolean;
@@ -81,7 +82,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.listenForServiceDataChanges();
 
     this.accountSwitcherService.availableAccounts$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((accounts) => {
         this.hasLoggedInAccount = accounts.some((account) => account.id !== "addAccount");
       });
@@ -94,7 +95,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
         // reset page data on page changes
         tap(() => this.resetPageData()),
         switchMap(() => this.route.firstChild?.data || null),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((firstChildRouteData: Data | null) => {
         this.setAnonLayoutWrapperDataFromRouteData(firstChildRouteData);
@@ -142,7 +143,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   private listenForServiceDataChanges() {
     this.extensionAnonLayoutWrapperDataService
       .anonLayoutWrapperData$()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: ExtensionAnonLayoutWrapperData) => {
         this.setAnonLayoutWrapperData(data);
       });
@@ -215,10 +216,5 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
