@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -40,7 +41,8 @@ enum LicenseOptions {
   templateUrl: "organization-subscription-selfhost.component.html",
   standalone: false,
 })
-export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDestroy {
+export class OrganizationSubscriptionSelfhostComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   subscription: SelfHostedOrganizationSubscriptionView;
   organizationId: string;
   userOrg: Organization;
@@ -58,8 +60,6 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
   loading = false;
 
   private _existingBillingSyncConnection: OrganizationConnectionResponse<BillingSyncConfigApi>;
-
-  private destroy$ = new Subject<void>();
 
   set existingBillingSyncConnection(value: OrganizationConnectionResponse<BillingSyncConfigApi>) {
     this._existingBillingSyncConnection = value;
@@ -111,14 +111,9 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
           await this.loadOrganizationConnection();
           this.firstLoaded = true;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load() {

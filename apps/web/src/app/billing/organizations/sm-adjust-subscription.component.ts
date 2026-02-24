@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -63,7 +64,7 @@ export interface SecretsManagerSubscriptionOptions {
   templateUrl: "sm-adjust-subscription.component.html",
   standalone: false,
 })
-export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
+export class SecretsManagerAdjustSubscriptionComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
@@ -74,7 +75,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAdjusted = new EventEmitter();
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   formGroup = this.formBuilder.group({
     seatCount: [0, [Validators.required, Validators.min(1)]],
@@ -125,7 +126,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
   ) {}
 
   ngOnInit() {
-    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       const maxAutoscaleSeatsControl = this.formGroup.controls.maxAutoscaleSeats;
       const maxAutoscaleServiceAccountsControl =
         this.formGroup.controls.maxAutoscaleServiceAccounts;
@@ -202,9 +203,4 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
     this.onAdjusted.emit();
   };
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

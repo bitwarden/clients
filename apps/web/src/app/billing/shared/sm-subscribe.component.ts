@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Subject, startWith, takeUntil } from "rxjs";
+import { startWith } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { SecretsManagerAlt } from "@bitwarden/assets/svg";
@@ -36,7 +37,8 @@ export const secretsManagerSubscribeFormFactory = (
   templateUrl: "sm-subscribe.component.html",
   standalone: false,
 })
-export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
+export class SecretsManagerSubscribeComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
@@ -56,13 +58,11 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   logo = SecretsManagerAlt;
   productTypes = ProductTierType;
 
-  private destroy$ = new Subject<void>();
-
   constructor(private i18nService: I18nService) {}
 
   ngOnInit() {
     this.formGroup.controls.enabled.valueChanges
-      .pipe(startWith(this.formGroup.value.enabled), takeUntil(this.destroy$))
+      .pipe(startWith(this.formGroup.value.enabled), takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled) => {
         if (enabled) {
           this.formGroup.controls.userSeats.enable();
@@ -72,11 +72,6 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
           this.formGroup.controls.additionalServiceAccounts.disable();
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   discountPrice = (price: number) => {

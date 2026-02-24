@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, Subject, takeUntil } from "rxjs";
+import { concatMap } from "rxjs";
 
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import {
@@ -16,7 +17,8 @@ import {
   templateUrl: "organization-billing-history-view.component.html",
   standalone: false,
 })
-export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
+export class OrgBillingHistoryViewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   loading = false;
   firstLoaded = false;
   openInvoices: BillingInvoiceResponse[] = [];
@@ -24,8 +26,6 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   transactions: BillingTransactionResponse[] = [];
   organizationId: string;
   hasAdditionalHistory: boolean = false;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private organizationBillingApiService: OrganizationBillingApiServiceAbstraction,
@@ -40,14 +40,9 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
           await this.load();
           this.firstLoaded = true;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load() {

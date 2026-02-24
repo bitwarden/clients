@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, input, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { map, Observable, of, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, of, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -234,6 +243,8 @@ type PaymentMethodFormGroup = FormGroup<{
   imports: [BillingServicesModule, PaymentLabelComponent, PopoverModule, SharedModule],
 })
 export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly instanceId = Utils.newGuid();
 
   readonly group = input.required<PaymentMethodFormGroup>();
@@ -245,8 +256,6 @@ export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
 
   protected showBankAccount$!: Observable<boolean>;
   protected selectableCountries = selectableCountries;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private braintreeService: BraintreeService,
@@ -288,7 +297,7 @@ export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
     this.group()
       .controls.type.valueChanges.pipe(
         startWith(this.group().controls.type.value),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((selected) => {
         if (selected === "bankAccount") {
@@ -317,7 +326,7 @@ export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.showBankAccount$.pipe(takeUntil(this.destroy$)).subscribe((showBankAccount) => {
+    this.showBankAccount$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((showBankAccount) => {
       if (!showBankAccount && this.selected === "bankAccount") {
         this.select("card");
       }
@@ -326,8 +335,6 @@ export class EnterPaymentMethodComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stripeService.unloadStripe(this.instanceId);
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   select = (paymentMethod: PaymentMethodOption) =>

@@ -1,15 +1,17 @@
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Inject,
-  OnDestroy,
   OnInit,
   Output,
   signal,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormGroup } from "@angular/forms";
-import { combineLatest, firstValueFrom, map, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map } from "rxjs";
 import { debounceTime, startWith, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -78,7 +80,7 @@ interface OnSuccessArgs {
   standalone: false,
   providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
-export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
+export class TrialPaymentDialogComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -106,7 +108,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: TrialPaymentDialogParams,
@@ -195,14 +197,9 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
         switchMap(() => {
           return this.refreshPricingSummary();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   static open = (
