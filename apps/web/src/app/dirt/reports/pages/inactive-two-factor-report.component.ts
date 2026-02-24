@@ -92,12 +92,14 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     let docFor2fa: string = "";
     let isInactive2faCipher: boolean = false;
 
-    const { type, login, isDeleted } = cipher;
+    const { type, login, isDeleted, edit, viewPassword } = cipher;
     if (
       type !== CipherType.Login ||
       (login.totp != null && login.totp !== "") ||
       !login.hasUris ||
-      isDeleted
+      isDeleted ||
+      (!this.organization && !edit) ||
+      !viewPassword
     ) {
       return [docFor2fa, isInactive2faCipher];
     }
