@@ -14,9 +14,10 @@ use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
 pub use auth_policy::{AuthRequest, SignRequest};
 pub(crate) use listener::Listener;
-use tokio::{sync::Mutex, task::JoinHandle};
+use peer_info::PeerInfo;
+use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, error, info};
+use tracing::{debug, info};
 
 use crate::crypto::keystore::KeyStore;
 
@@ -40,8 +41,8 @@ pub struct SshAgentServer<K, A> {
 
 impl<K, A> SshAgentServer<K, A>
 where
-    K: KeyStore,
-    A: AuthPolicy,
+    K: KeyStore + 'static,
+    A: AuthPolicy + 'static,
 {
     /// Creates a new [`SshAgentServer`]
     pub fn new(keystore: Arc<K>, auth_policy: Arc<A>) -> Self {
@@ -53,26 +54,32 @@ where
         }
     }
 
-    pub fn start(&mut self) -> Result<()> {
+    /// Starts the server, listening on the provided listeners.
+    ///
+    /// Each listener runs in its own task and sends accepted connections to a shared
+    /// channel. The accept loop dispatches each connection to a handler task.
+    pub fn start<L>(&mut self, listeners: Vec<L>) -> Result<()>
+    where
+        L: Listener + 'static,
+    {
         if self.is_running() {
             return Err(anyhow::anyhow!("Server is already running"));
         }
 
         let token = CancellationToken::new();
 
-        // TODO: Create socket/pipe listener
-        //
-        // let listener = Arc::new(tokio::sync::Mutex::new(create_listener()?));
-        //
-        // // Spawn accept loop to handle incoming connections
-        // let accept_handle = tokio::spawn(Self::accept_loop(
-        //     listener,
-        //     self.keystore.clone(),
-        //     self.auth_policy.clone(),
-        //     token.clone(),
-        // ));
-        // self.accept_handle = Some(accept_handle);
+        info!("Starting server");
 
+        let accept_handle = tokio::spawn(Self::accept(
+            listeners,
+            self.keystore.clone(),
+            self.auth_policy.clone(),
+            token.clone(),
+        ));
+
+        info!("Server started");
+
+        self.accept_handle = Some(accept_handle);
         self.cancellation_token = Some(token);
 
         Ok(())
@@ -84,7 +91,7 @@ where
 
     pub fn stop(&mut self) {
         if let Some(token) = self.cancellation_token.take() {
-            info!("Stopping SSH agent server");
+            info!("Stopping server");
 
             // Signal cancellation to all tasks
             token.cancel();
@@ -94,57 +101,66 @@ where
                 handle.abort();
             }
 
-            info!("SSH agent server stopped");
+            info!("Server stopped");
         } else {
             debug!("Cancellation token is None, server already stopped.");
         }
     }
 
-    /// Handles incoming connections and spawns handler tasks.
-    /// Runs until the cancellation token is triggered or an unrecoverable error occurs.
+    /// Dispatches incoming connections to handler tasks.
+    ///
+    /// [`listener::spawn_listener_tasks`], then loops reading accepted connections
+    /// from the channel until cancelled or all listener tasks have exited.
     async fn accept<L>(
-        listener: Arc<Mutex<L>>,
+        listeners: Vec<L>,
         keystore: Arc<K>,
         auth_policy: Arc<A>,
         token: CancellationToken,
     ) where
-        L: Listener,
+        L: Listener + 'static,
+        L::Stream: 'static,
     {
+        // Creates an mpsc channel spawns per-listener tasks
+        let (tx, mut rx) = mpsc::channel::<(L::Stream, PeerInfo)>(32);
+
+        debug!("Accept loop spawning listener tasks");
+        listener::spawn_listener_tasks(listeners, tx, token.clone());
+        // `tx` dropped ; channel closes when all listener tasks exit
+
+        info!("Accept loop starting");
         loop {
             tokio::select! {
                 () = token.cancelled() => {
                     debug!("Accept loop received cancellation signal");
                     break;
                 }
-
-                result = async { listener.lock().await.accept().await } => match result {
-                    Ok((stream, peer_info)) => {
+                conn = rx.recv() => match conn {
+                    Some((stream, peer_info)) => {
                         info!(?peer_info, "Connection accepted");
 
                         // TODO: Spawn handler for this connection
-                        // Example:
-                        // let handler = handler::ConnectionHandler::new(
+                        // let handler = ConnectionHandler::new(
                         //     keystore.clone(),
                         //     auth_policy.clone(),
                         //     stream,
                         //     token.clone(),
                         // );
-                        // tokio::spawn(async move {
-                        //     handler.handle().await
-                        // });
+                        // tokio::spawn(async move { handler.handle().await });
 
                         // TODO: temporary to avoid unused var warnings
                         let _ = stream;
                         let _ = keystore;
                         let _ = auth_policy;
                     }
-                    Err(error) => {
-                        error!(%error, "Listener accept failed");
+                    None => {
+                        // All listener tasks have exited naturally
+                        debug!("All listener tasks exited");
+                        break;
                     }
                 }
             }
         }
 
-        info!("Accept loop exiting");
+        info!("Accept loop exited");
     }
 }
