@@ -12,7 +12,7 @@ import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import AutofillService from "@bitwarden/browser/autofill/services/autofill.service";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
@@ -53,7 +53,7 @@ import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injec
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
-import { VaultComponent, VaultComponent } from "./vault.component";
+import { VaultComponent } from "./vault.component";
 
 @Component({
   selector: "popup-header",

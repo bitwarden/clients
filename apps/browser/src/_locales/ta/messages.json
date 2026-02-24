@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் இங்கே தோன்றும், மேலும் அவை பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்படும்."
   },
-  "itemWasSentToArchive": {
-    "message": "ஆவணம் காப்பகத்திற்கு அனுப்பப்பட்டது"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "காப்பகம் மீட்டெடுக்கப்பட்டது"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "உருப்படியைக் காப்பகப்படுத்து"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "தவறான சரிபார்ப்புக் குறியீடு"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "$VALUE$ நகலெடுக்கப்பட்டது",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
-  "excludedDomainsDescAlt": {
-    "message": "உள்நுழைந்த அனைத்து கணக்குகளுக்கும் இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
-  },
   "blockedDomainsDesc": {
     "message": "இந்த இணையதளங்களுக்கு தானாக நிரப்புதல் மற்றும் பிற தொடர்புடைய அம்சங்கள் வழங்கப்படாது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "ஆபத்தில் உள்ள உள்நுழைவுகளின் பட்டியலின் விளக்கம்."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "ஆபத்தில் உள்ள தளத்தில் உள்ள Bitwarden தானாக நிரப்பு மெனுவுடன் ஒரு வலுவான, தனிப்பட்ட கடவுச்சொல்லை விரைவாக உருவாக்குங்கள்.",
@@ -3083,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5966,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "அட்டை எண்"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6124,8 +6166,14 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
