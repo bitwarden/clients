@@ -61,6 +61,7 @@ export enum FeatureFlag {
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
+  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -128,6 +129,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
+  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
