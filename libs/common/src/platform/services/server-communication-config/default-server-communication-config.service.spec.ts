@@ -1,34 +1,71 @@
 import { firstValueFrom } from "rxjs";
 
-import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
+import {
+  ServerCommunicationConfig,
+  ServerCommunicationConfigPlatformApi,
+} from "@bitwarden/sdk-internal";
 
 import { awaitAsync, FakeAccountService, FakeStateProvider } from "../../../../spec";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
 
+// Mock SdkLoadService
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
+  SdkLoadService: {
+    Ready: Promise.resolve(),
+  },
+}));
+
 // Mock SDK client
 jest.mock("@bitwarden/sdk-internal", () => ({
   ServerCommunicationConfigClient: jest.fn().mockImplementation(() => ({
     needsBootstrap: jest.fn(),
     cookies: jest.fn(),
-    getConfig: jest.fn(),
   })),
 }));
 
 describe("DefaultServerCommunicationConfigService", () => {
   let stateProvider: FakeStateProvider;
   let repository: ServerCommunicationConfigRepository;
+  let mockPlatformApi: ServerCommunicationConfigPlatformApi;
   let service: DefaultServerCommunicationConfigService;
   let mockClient: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const accountService = new FakeAccountService({});
     stateProvider = new FakeStateProvider(accountService);
     repository = new ServerCommunicationConfigRepository(stateProvider);
-    service = new DefaultServerCommunicationConfigService(repository);
+
+    // Create mock platform API
+    mockPlatformApi = {
+      acquireCookies: jest.fn(),
+    };
+
+    service = new DefaultServerCommunicationConfigService(repository, mockPlatformApi);
+    await service.init();
     mockClient = (service as any).client;
   });
+
+  // describe("init", () => {
+  //   it("calls setCommunicationType for each emission on serverCommunicationConfig$", async () => {
+  //     const config: ServerCommunicationConfig = { bootstrap: { type: "direct" } };
+  //     mockConfigService.serverCommunicationConfig$ = of({
+  //       hostname: "https://api.example.com",
+  //       config,
+  //     });
+
+  //     await service.init();
+  //     mockClient = (service as any).client;
+
+  //     await awaitAsync();
+
+  //     expect(mockClient.setCommunicationType).toHaveBeenCalledWith(
+  //       "https://api.example.com",
+  //       config,
+  //     );
+  //   });
+  // });
 
   describe("needsBootstrap$", () => {
     it("emits false when direct bootstrap configured", async () => {
@@ -143,4 +180,23 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(mockClient.cookies).toHaveBeenCalledTimes(2);
     });
   });
+
+  // describe("acquireCookie", () => {
+  //   it("delegates to SDK client acquireCookie method", async () => {
+  //     mockClient.acquireCookie.mockResolvedValue(undefined);
+
+  //     await service.acquireCookie("vault.bitwarden.com");
+
+  //     expect(mockClient.acquireCookie).toHaveBeenCalledWith("vault.bitwarden.com");
+  //   });
+
+  //   it("propagates SDK client errors", async () => {
+  //     const error = new Error("Cookie acquisition failed");
+  //     mockClient.acquireCookie.mockRejectedValue(error);
+
+  //     await expect(service.acquireCookie("vault.bitwarden.com")).rejects.toThrow(
+  //       "Cookie acquisition failed",
+  //     );
+  //   });
+  // });
 });

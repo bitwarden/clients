@@ -1,4 +1,4 @@
-import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
+import { AcquiredCookie, ServerCommunicationConfig } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, FakeStateProvider } from "../../../../spec";
 
@@ -35,10 +35,10 @@ describe("ServerCommunicationConfigRepository", () => {
     const config: ServerCommunicationConfig = {
       bootstrap: {
         type: "ssoCookieVendor",
-        idp_login_url: "https://idp.example.com/login",
-        cookie_name: "auth_token",
-        cookie_domain: ".acme.com",
-        cookie_value: "abc123",
+        idpLoginUrl: "https://idp.example.com/login",
+        cookieName: "auth_token",
+        cookieDomain: ".acme.com",
+        cookieValue: [{ name: "auth_token", value: "abc123" }] satisfies AcquiredCookie[],
       },
     };
 
@@ -48,14 +48,14 @@ describe("ServerCommunicationConfigRepository", () => {
     expect(result).toEqual(config);
   });
 
-  it("handles SSO config with undefined cookie_value", async () => {
+  it("handles SSO config with undefined cookieValue", async () => {
     const config: ServerCommunicationConfig = {
       bootstrap: {
         type: "ssoCookieVendor",
-        idp_login_url: "https://idp.example.com/login",
-        cookie_name: "auth_token",
-        cookie_domain: ".acme.com",
-        cookie_value: undefined,
+        idpLoginUrl: "https://idp.example.com/login",
+        cookieName: "auth_token",
+        cookieDomain: ".acme.com",
+        cookieValue: undefined,
       },
     };
 
@@ -74,10 +74,10 @@ describe("ServerCommunicationConfigRepository", () => {
     const newConfig: ServerCommunicationConfig = {
       bootstrap: {
         type: "ssoCookieVendor",
-        idp_login_url: "https://idp.example.com",
-        cookie_name: "token",
-        cookie_domain: ".acme.com",
-        cookie_value: "xyz789",
+        idpLoginUrl: "https://idp.example.com",
+        cookieName: "token",
+        cookieDomain: ".acme.com",
+        cookieValue: [{ name: "token", value: "xyz789" }] satisfies AcquiredCookie[],
       },
     };
     await repository.save("vault.acme.com", newConfig);
@@ -93,10 +93,10 @@ describe("ServerCommunicationConfigRepository", () => {
     const config2: ServerCommunicationConfig = {
       bootstrap: {
         type: "ssoCookieVendor",
-        idp_login_url: "https://idp.example.com",
-        cookie_name: "token",
-        cookie_domain: ".example.com",
-        cookie_value: "token123",
+        idpLoginUrl: "https://idp.example.com",
+        cookieName: "token",
+        cookieDomain: ".example.com",
+        cookieValue: [{ name: "token", value: "token123" }] satisfies AcquiredCookie[],
       },
     };
 
@@ -137,10 +137,10 @@ describe("ServerCommunicationConfigRepository", () => {
       const config2: ServerCommunicationConfig = {
         bootstrap: {
           type: "ssoCookieVendor",
-          idp_login_url: "https://idp.example.com",
-          cookie_name: "token",
-          cookie_domain: ".acme.com",
-          cookie_value: "abc123",
+          idpLoginUrl: "https://idp.example.com",
+          cookieName: "token",
+          cookieDomain: ".acme.com",
+          cookieValue: [{ name: "token", value: "abc123" }] satisfies AcquiredCookie[],
         },
       };
 
