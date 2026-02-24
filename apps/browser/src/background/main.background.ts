@@ -848,7 +848,7 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -1409,6 +1409,7 @@ export default class MainBackground {
       this.userNotificationSettingsService,
       this.taskService,
       this.messagingService,
+      this.fido2Background,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(

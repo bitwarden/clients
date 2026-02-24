@@ -231,6 +231,7 @@ describe("DefaultSubscriptionPricingService", () => {
     },
     storage: {
       price: 4,
+      provided: 1,
     },
   } as PremiumPlanResponse;
 
@@ -350,7 +351,7 @@ describe("DefaultSubscriptionPricingService", () => {
 
     billingApiService.getPlans.mockResolvedValue(mockPlansResponse);
     billingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-    configService.getFeatureFlag$.mockReturnValue(of(false)); // Default to false (use hardcoded value)
+    configService.getFeatureFlag$.mockReturnValue(of(false));
     setupEnvironmentService(environmentService);
 
     service = new DefaultSubscriptionPricingService(
@@ -915,7 +916,7 @@ describe("DefaultSubscriptionPricingService", () => {
       const testError = new Error("Premium plan API error");
       errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
       errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag to use premium plan API
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(errorEnvironmentService);
 
       const errorService = new DefaultSubscriptionPricingService(
@@ -959,70 +960,15 @@ describe("DefaultSubscriptionPricingService", () => {
       expect(getPlansResponse).toHaveBeenCalledTimes(1);
     });
 
-    it("should share premium plan API response between multiple subscriptions when feature flag is enabled", () => {
-      // Create a new mock to avoid conflicts with beforeEach setup
-      const newBillingApiService = mock<BillingApiServiceAbstraction>();
-      const newConfigService = mock<ConfigService>();
-      const newEnvironmentService = mock<EnvironmentService>();
-
-      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      newBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-      newConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      setupEnvironmentService(newEnvironmentService);
-
-      const getPremiumPlanSpy = jest.spyOn(newBillingApiService, "getPremiumPlan");
-
-      // Create a new service instance with the feature flag enabled
-      const newService = new DefaultSubscriptionPricingService(
-        newBillingApiService,
-        newConfigService,
-        i18nService,
-        logService,
-        newEnvironmentService,
-      );
+    it("should share premium plan API response between multiple subscriptions", () => {
+      const getPremiumPlanSpy = jest.spyOn(billingApiService, "getPremiumPlan");
 
       // Subscribe to the premium pricing tier multiple times
-      newService.getPersonalSubscriptionPricingTiers$().subscribe();
-      newService.getPersonalSubscriptionPricingTiers$().subscribe();
+      service.getPersonalSubscriptionPricingTiers$().subscribe();
+      service.getPersonalSubscriptionPricingTiers$().subscribe();
 
       // API should only be called once due to shareReplay on premiumPlanResponse$
       expect(getPremiumPlanSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it("should use hardcoded premium price when feature flag is disabled", (done) => {
-      // Create a new mock to test from scratch
-      const newBillingApiService = mock<BillingApiServiceAbstraction>();
-      const newConfigService = mock<ConfigService>();
-      const newEnvironmentService = mock<EnvironmentService>();
-
-      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      newBillingApiService.getPremiumPlan.mockResolvedValue({
-        seat: { price: 999 }, // Different price to verify hardcoded value is used
-        storage: { price: 999 },
-      } as PremiumPlanResponse);
-      newConfigService.getFeatureFlag$.mockReturnValue(of(false));
-      setupEnvironmentService(newEnvironmentService);
-
-      // Create a new service instance with the feature flag disabled
-      const newService = new DefaultSubscriptionPricingService(
-        newBillingApiService,
-        newConfigService,
-        i18nService,
-        logService,
-        newEnvironmentService,
-      );
-
-      // Subscribe with feature flag disabled
-      newService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
-        const premiumTier = tiers.find(
-          (tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium,
-        );
-
-        // Should use hardcoded value of 10, not the API response value of 999
-        expect(premiumTier!.passwordManager.annualPrice).toBe(10);
-        expect(premiumTier!.passwordManager.annualPricePerAdditionalStorageGB).toBe(4);
-        done();
-      });
     });
   });
 
@@ -1035,7 +981,7 @@ describe("DefaultSubscriptionPricingService", () => {
       const getPlansSpy = jest.spyOn(selfHostedBillingApiService, "getPlans");
       const getPremiumPlanSpy = jest.spyOn(selfHostedBillingApiService, "getPremiumPlan");
 
-      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
 
       const selfHostedService = new DefaultSubscriptionPricingService(
@@ -1061,7 +1007,7 @@ describe("DefaultSubscriptionPricingService", () => {
       const selfHostedConfigService = mock<ConfigService>();
       const selfHostedEnvironmentService = mock<EnvironmentService>();
 
-      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
 
       const selfHostedService = new DefaultSubscriptionPricingService(
