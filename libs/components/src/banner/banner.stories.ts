@@ -141,3 +141,79 @@ export const TitleBannerAllVariants: Story = {
     },
   }),
 };
+
+export const BannerSimple: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose">
+        Bitwarden is the most trusted password manager for individuals and teams.
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
+
+export const AllVariantsNoTitle: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        @for (v of variants; track v) {
+          <bit-banner [variant]="v" [showClose]="true">
+            Bitwarden is the most trusted password manager. <a bitLink [linkType]="v">Learn more</a>
+          </bit-banner>
+        }
+      </div>
+    `,
+    props: {
+      variants: ["primary", "success", "warning", "danger"],
+    },
+  }),
+};
+
+export const AllVariantsWithTitle: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        @for (v of variants; track v) {
+          <bit-banner [variant]="v" [showClose]="true">
+            <span slot="title">Integration is the key</span>
+            You can integrate Bitwarden with many tools. <a bitLink [linkType]="v">Learn more</a>
+            <ng-container slot="actions">
+              <button bitButton type="button" buttonType="secondary">Cancel</button>
+              <button bitButton type="button" buttonType="primary">Continue</button>
+            </ng-container>
+          </bit-banner>
+        }
+      </div>
+    `,
+    props: {
+      variants: ["primary", "success", "warning", "danger"],
+    },
+  }),
+};
+
+export const BadgeTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose">
+        <span slot="title">
+          <span bitBadge variant="primary">New</span>
+          Integration updates
+        </span>
+        Bitwarden now supports additional identity providers and SSO configurations.
+        <ng-container slot="actions">
+          This change affects all organization members. <a bitLink linkType="primary">Read the release notes</a>
+        </ng-container>
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
