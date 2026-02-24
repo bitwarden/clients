@@ -1,25 +1,31 @@
 <ng-container *ngIf="view$ | async as view">
-  <button
-    class="account-switcher-v2"
-    type="button"
-    (click)="toggle()"
-    cdkOverlayOrigin
-    #trigger="cdkOverlayOrigin"
-    [hidden]="!view.showSwitcher"
-    [disabled]="disabled"
-    aria-haspopup="dialog"
-  >
+  <div cdkOverlayOrigin #trigger="cdkOverlayOrigin" [hidden]="!view.showSwitcher">
     @if (view.activeAccount?.email != null) {
-      <bit-avatar
-        [text]="view.activeAccount.name ?? view.activeAccount.email"
-        [id]="view.activeAccount.id"
-        [color]="view.activeAccount.avatarColor"
-        [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
-      ></bit-avatar>
+      <button
+        class="account-switcher-v2"
+        type="button"
+        (click)="toggle()"
+        [disabled]="disabled"
+        aria-haspopup="dialog"
+      >
+        <bit-avatar
+          [text]="view.activeAccount.name ?? view.activeAccount.email"
+          [id]="view.activeAccount.id"
+          [color]="view.activeAccount.avatarColor"
+          [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+        ></bit-avatar>
+      </button>
     } @else {
-      <bit-avatar [text]="'&hellip;'" [color]="'#6795E8'" aria-hidden="true"></bit-avatar>
+      <button
+        class="account-switcher-v2 !tw-rounded-full tw-bg-info-600 hover:tw-bg-info-600"
+        type="button"
+        bitIconButton="bwi-ellipsis-h"
+        (click)="toggle()"
+        [disabled]="disabled"
+        aria-haspopup="dialog"
+      ></button>
     }
-  </button>
+  </div>
 
   <ng-template
     cdkConnectedOverlay

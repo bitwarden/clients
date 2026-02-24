@@ -17,7 +17,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-import { AvatarModule } from "@bitwarden/components";
+import { AvatarModule, IconButtonModule } from "@bitwarden/components";
 
 import { DesktopBiometricsService } from "../../../key-management/biometrics/desktop.biometrics.service";
 
@@ -38,7 +38,7 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher-v2",
   templateUrl: "account-switcher-v2.component.html",
-  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule],
+  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule, IconButtonModule],
   animations: [
     trigger("transformPanel", [
       state(
