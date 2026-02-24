@@ -261,7 +261,10 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     this.toastService.showToast({
       variant: "success",
       title: "",
-      message: this.i18nService.t("success"),
+      message: this.i18nService.t(
+        "integrationConnectedSuccessfully",
+        this.integrationSettings().name,
+      ),
     });
   }
 
