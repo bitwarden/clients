@@ -1,4 +1,4 @@
-<div class="tw-pe-1">{{ label() }}</div>
+<div class="!tw-mb-0" bitTypography="h5">{{ label() }}</div>
 <div [class]="outerBarStyles">
   <div
     [class]="innerBarStyles"
@@ -9,7 +9,7 @@
     [style]="{ width: barWidth() + '%' }"
   ></div>
 </div>
-<div class="tw-flex tw-text-sm tw-text-fg-body">
-  <span class="tw-mr-auto">{{ startTextContent() }}</span>
-  <span class="tw-ml-auto">{{ endText() }}</span>
+<div class="tw-flex tw-text-fg-body" bitTypography="body2">
+  <span class="tw-me-auto">{{ startTextContent() }}</span>
+  <span class="tw-ms-auto">{{ endText() }}</span>
 </div>

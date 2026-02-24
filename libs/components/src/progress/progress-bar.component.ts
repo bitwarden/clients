@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, ChangeDetectionStrategy, computed } from "@angular/core";
 
+import { TypographyModule } from "../typography";
+
 export type BackgroundType = "primary" | "subtle" | "success" | "warning" | "danger";
 
 const BackgroundClasses: Record<BackgroundType, string[]> = {
@@ -21,7 +23,7 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
 @Component({
   selector: "bit-progress-bar",
   templateUrl: "./progress-bar.component.html",
-  imports: [CommonModule],
+  imports: [CommonModule, TypographyModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarComponent {
@@ -41,7 +43,7 @@ export class ProgressBarComponent {
   });
 
   get outerBarStyles() {
-    return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100", "tw-h-2"];
+    return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100", "tw-h-2", "tw-my-1"];
   }
 
   get innerBarStyles() {

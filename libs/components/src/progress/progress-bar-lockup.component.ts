@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 
+import { TypographyModule } from "../typography";
+
 import { ProgressBarComponent, BackgroundType } from "./progress-bar.component";
 
 /**
@@ -9,7 +11,7 @@ import { ProgressBarComponent, BackgroundType } from "./progress-bar.component";
 @Component({
   selector: "bit-progress-bar-lockup",
   templateUrl: "./progress-bar-lockup.component.html",
-  imports: [CommonModule, ProgressBarComponent],
+  imports: [CommonModule, ProgressBarComponent, TypographyModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarLockupComponent {
