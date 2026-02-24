@@ -1,7 +1,7 @@
 import { provideRouter } from "@angular/router";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
+import { action } from "storybook/actions";
 
 import {
   AccessIntelligenceDataService,
@@ -17,8 +17,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
-import { I18nMockService } from "@bitwarden/components/utils";
+import { DialogService, I18nMockService } from "@bitwarden/components";
 
 import { AllActivityV2Component } from "./all-activity-v2.component";
 

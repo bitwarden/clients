@@ -70,7 +70,7 @@ describe("NewApplicationsDialogV2Component", () => {
       constructor() {}
       disconnect() {}
       observe() {}
-      takeRecords() {
+      takeRecords(): IntersectionObserverEntry[] {
         return [];
       }
       unobserve() {}
@@ -129,7 +129,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
     const mockDialogData = createMockDialogData();
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [NewApplicationsDialogV2Component],
       providers: [
         provideNoopAnimations(),
@@ -148,7 +148,18 @@ describe("NewApplicationsDialogV2Component", () => {
         { provide: DIALOG_DATA, useValue: mockDialogData },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
-    }).compileComponents();
+    });
+
+    // DialogModule (imported by NewApplicationsDialogV2Component) creates a component environment
+    // injector containing its own DialogService. Because this injector is closer to the component
+    // than the root test injector, it shadows both configureTestingModule providers and
+    // overrideProvider(). Adding the mock to the component's own providers gives it the highest
+    // precedence in the injector hierarchy, guaranteeing the mock is resolved by inject().
+    TestBed.overrideComponent(NewApplicationsDialogV2Component, {
+      add: { providers: [{ provide: DialogService, useValue: mockDialogService }] },
+    });
+
+    await TestBed.compileComponents();
 
     fixture = TestBed.createComponent(NewApplicationsDialogV2Component);
     component = fixture.componentInstance;
@@ -331,9 +342,7 @@ describe("NewApplicationsDialogV2Component", () => {
       expect(testAccess(component).currentView()).toBe(DialogView.AssignTasks);
     });
 
-    // TODO: This test times out in the current test environment. The confirmation dialog
-    // behavior is already tested in other tests. Consider revisiting with improved mocking.
-    it.skip("should handle handleMarkAsCritical without selections (shows confirmation)", async () => {
+    it("should handle handleMarkAsCritical without selections (shows confirmation)", async () => {
       // No selections
       expect(testAccess(component).selectedApplications().size).toBe(0);
 

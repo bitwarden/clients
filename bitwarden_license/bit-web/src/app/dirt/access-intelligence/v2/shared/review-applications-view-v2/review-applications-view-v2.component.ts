@@ -5,7 +5,6 @@ import { FormsModule } from "@angular/forms";
 import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 /**
@@ -33,7 +32,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
     FormsModule,
     SearchModule,
     TypographyModule,
-    I18nPipe,
     SharedModule,
   ],
 })

@@ -1,6 +1,6 @@
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
+import { action } from "storybook/actions";
 
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
@@ -8,8 +8,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
-import { I18nMockService } from "@bitwarden/components/utils";
+import {
+  DialogRef,
+  DialogService,
+  DIALOG_DATA,
+  ToastService,
+  I18nMockService,
+} from "@bitwarden/components";
 
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
 

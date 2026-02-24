@@ -1,5 +1,5 @@
 import { signal } from "@angular/core";
-import { action } from "@storybook/addon-actions";
+import { action } from "storybook/actions";
 
 /**
  * Creates selection state handlers for Storybook stories

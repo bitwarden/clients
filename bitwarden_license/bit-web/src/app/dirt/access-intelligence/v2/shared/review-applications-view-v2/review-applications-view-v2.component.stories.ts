@@ -1,11 +1,11 @@
 import { signal } from "@angular/core";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { I18nMockService } from "@bitwarden/components/utils";
+import { I18nMockService } from "@bitwarden/components";
 
 import { ReviewApplicationsViewV2Component } from "./review-applications-view-v2.component";
 

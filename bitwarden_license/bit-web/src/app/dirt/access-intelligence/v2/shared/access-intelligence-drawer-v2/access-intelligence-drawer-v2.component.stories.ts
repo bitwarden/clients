@@ -1,10 +1,10 @@
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/abstractions/drawer-state.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService } from "@bitwarden/components/utils";
+import { I18nMockService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import {

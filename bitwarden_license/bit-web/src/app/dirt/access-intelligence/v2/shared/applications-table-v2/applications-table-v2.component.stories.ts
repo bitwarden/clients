@@ -2,10 +2,9 @@ import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource } from "@bitwarden/components";
-import { I18nMockService } from "@bitwarden/components/utils";
+import { TableDataSource, I18nMockService } from "@bitwarden/components";
 
-import { createApplicationHandlers } from "../../test-helpers/story-callbacks";
+import { createApplicationHandlers } from "../test-helpers/story-callbacks";
 
 import {
   ApplicationsTableV2Component,
@@ -260,7 +259,7 @@ export const WithoutIcons: Story = {
     // Create data without iconCipher (undefined)
     const dataWithoutIcons = createSampleData().map((row) => ({
       ...row,
-      iconCipher: undefined,
+      iconCipher: undefined as CipherView | undefined,
     }));
     dataSource.data = dataWithoutIcons;
 
