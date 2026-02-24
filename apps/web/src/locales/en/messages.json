@@ -6091,7 +6091,7 @@
   "availableNow": {
     "message": "Available now"
   },
-  "autoConfirm": {
+  "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
