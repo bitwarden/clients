@@ -157,18 +157,6 @@ describe("NodeCrypto Function Service", () => {
     testHash("md5", regularMd5, utf8Md5, unicodeMd5);
   });
 
-  describe("hmac", () => {
-    testHmac("sha1", Sha1Mac);
-    testHmac("sha256", Sha256Mac);
-    testHmac("sha512", Sha512Mac);
-  });
-
-  describe("hmacFast", () => {
-    testHmac("sha1", Sha1Mac, true);
-    testHmac("sha256", Sha256Mac, true);
-    testHmac("sha512", Sha512Mac, true);
-  });
-
   describe("rsaEncrypt", () => {
     it("should successfully encrypt and then decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
@@ -383,21 +371,6 @@ function testHash(
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(Utils.fromUtf8ToArray(regularValue), algorithm);
     expect(Utils.fromArrayToHex(hash)).toBe(regularHash);
-  });
-}
-
-function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = false) {
-  it("should create valid " + algorithm + " hmac", async () => {
-    const cryptoFunctionService = new NodeCryptoFunctionService();
-    const value = Utils.fromUtf8ToArray("SignMe!!");
-    const key = Utils.fromUtf8ToArray("secretkey");
-    let computedMac: Uint8Array;
-    if (fast) {
-      computedMac = await cryptoFunctionService.hmacFast(value, key, algorithm);
-    } else {
-      computedMac = await cryptoFunctionService.hmac(value, key, algorithm);
-    }
-    expect(Utils.fromArrayToHex(computedMac)).toBe(mac);
   });
 }
 

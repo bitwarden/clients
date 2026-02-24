@@ -84,50 +84,6 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(new Uint8Array(hash.digest()));
   }
 
-  hmac(
-    value: Uint8Array,
-    key: Uint8Array,
-    algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array> {
-    const hmac = crypto.createHmac(algorithm, key);
-    hmac.update(value);
-    return Promise.resolve(new Uint8Array(hmac.digest()));
-  }
-
-<<<<<<< Updated upstream
-  async compare(a: Uint8Array, b: Uint8Array): Promise<boolean> {
-    const key = await this.randomBytes(32);
-    const mac1 = await this.hmac(a, key, "sha256");
-    const mac2 = await this.hmac(b, key, "sha256");
-    if (mac1.byteLength !== mac2.byteLength) {
-      return false;
-    }
-
-    const arr1 = new Uint8Array(mac1);
-    const arr2 = new Uint8Array(mac2);
-    for (let i = 0; i < arr2.length; i++) {
-      if (arr1[i] !== arr2[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  hmacFast(
-    value: Uint8Array,
-    key: Uint8Array,
-    algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array> {
-    return this.hmac(value, key, algorithm);
-  }
-
-  compareFast(a: Uint8Array, b: Uint8Array): Promise<boolean> {
-    return this.compare(a, b);
-  }
-
-=======
->>>>>>> Stashed changes
   async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
@@ -173,4 +129,15 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
       });
     });
   }
+
+  private hmac(
+    value: Uint8Array,
+    key: Uint8Array,
+    algorithm: "sha1" | "sha256" | "sha512",
+  ): Promise<Uint8Array> {
+    const hmac = crypto.createHmac(algorithm, key);
+    hmac.update(value);
+    return Promise.resolve(new Uint8Array(hmac.digest()));
+  }
+
 }

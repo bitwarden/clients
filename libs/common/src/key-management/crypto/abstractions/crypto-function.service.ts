@@ -44,19 +44,6 @@ export abstract class CryptoFunctionService {
    * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
    */
-<<<<<<< Updated upstream
-  abstract hmacFast(
-    value: Uint8Array | string,
-    key: Uint8Array | string,
-    algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array | string>;
-  abstract compareFast(a: Uint8Array | string, b: Uint8Array | string): Promise<boolean>;
-  /**
-   * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
-   * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.
-   */
-=======
->>>>>>> Stashed changes
   abstract rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
