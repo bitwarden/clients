@@ -183,9 +183,6 @@ async function addElectronFuses(context) {
     // App refuses to open when enabled
     [FuseV1Options.LoadBrowserProcessSpecificV8Snapshot]: false,
 
-    // To disable this, we should stop using the file:// protocol to load the app bundle
-    // This can be done by defining a custom app:// protocol and loading the bundle from there,
-    // but then any requests to the server will be blocked by CORS policy
-    [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+    [FuseV1Options.GrantFileProtocolExtraPrivileges]: false,
   });
 }
