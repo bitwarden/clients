@@ -1009,7 +1009,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       ...this.config.initialValues,
       folderId: this.folderId,
       organizationId: this.addOrganizationId as OrganizationId,
-      collectionIds: this.addCollectionIds as CollectionId[],
+      collectionIds: this.addCollectionIds ? (this.addCollectionIds as CollectionId[]) : [],
     };
   }
 
