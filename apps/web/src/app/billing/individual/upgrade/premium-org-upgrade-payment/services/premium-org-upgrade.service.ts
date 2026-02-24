@@ -90,32 +90,22 @@ export class PremiumOrgUpgradeService {
     }
 
     const tier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(planDetails.tier);
-    const [encryptedKey] = await this.keyService.makeOrgKey<OrgKey>(account.id);
+    const encryptionData = await this.generateOrganizationEncryptionData(account.id);
 
-    if (!encryptedKey.encryptedString) {
-      throw new Error("Failed to generate encrypted organization key");
-    }
-
-    await this.accountBillingClient.upgradePremiumToOrganization(
+    const orgId = await this.accountBillingClient.upgradePremiumToOrganization({
       organizationName,
-      encryptedKey.encryptedString,
-      tier,
-      SubscriptionCadenceIds.Annually,
+      organizationKey: encryptionData.key,
+      collectionName: encryptionData.collectionCt,
+      publicKey: encryptionData.orgKeys[0],
+      wrappedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
+      planTier: tier,
+      cadence: SubscriptionCadenceIds.Annually,
       billingAddress,
-    );
+    });
 
     await this.syncService.fullSync(true);
 
-    // Get the newly created organization
-    const organizations = await firstValueFrom(this.organizationService.organizations$(account.id));
-
-    const newOrg = organizations?.find((org) => org.name === organizationName && org.isOwner);
-
-    if (!newOrg) {
-      throw new Error("Failed to find newly created organization");
-    }
-
-    return newOrg.id;
+    return orgId;
   }
 
   private ProductTierTypeFromSubscriptionTierId(

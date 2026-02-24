@@ -167,21 +167,6 @@ describe("PremiumOrgUpgradeService", () => {
       ).rejects.toThrow("Key generation failed");
     });
 
-    it("should throw an error if encrypted string is undefined", async () => {
-      keyService.makeOrgKey.mockResolvedValue([
-        { encryptedString: null } as any,
-        "decrypted-key" as any,
-      ]);
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to generate encrypted organization key");
-    });
-
     it("should propagate error if upgrade API call fails", async () => {
       accountBillingClient.upgradePremiumToOrganization.mockRejectedValue(
         new Error("API call failed"),
@@ -206,40 +191,6 @@ describe("PremiumOrgUpgradeService", () => {
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
-    });
-
-    it("should throw an error if organization is not found after sync", async () => {
-      organizationService.organizations$.mockReturnValue(
-        of([
-          {
-            id: "different-org-id",
-            name: "Different Organization",
-            isOwner: true,
-          } as Organization,
-        ]),
-      );
-
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to find newly created organization");
-    });
-
-    it("should throw an error if no organizations are returned", async () => {
-      organizationService.organizations$.mockReturnValue(of([]));
-
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to find newly created organization");
     });
   });
 
