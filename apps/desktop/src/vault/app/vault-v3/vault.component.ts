@@ -237,7 +237,6 @@ export class VaultComponent<C extends CipherViewLike>
   protected readonly cipher = signal<CipherView | null>(new CipherView());
   protected collections: CollectionView[] | null = null;
   protected config: CipherFormConfig | null = null;
-  protected showAddCipherBtn: boolean = false;
 
   private folderId: string | null | undefined = null;
   private addType: CipherType | undefined = undefined;
@@ -272,6 +271,25 @@ export class VaultComponent<C extends CipherViewLike>
     map((a) => a?.id),
     filterOutNullish(),
     switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
+  protected readonly showAddCipherBtn$ = combineLatest([
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([filter, organizations]) => {
+      const selectedOrg = organizations?.find((org) => org.id === filter?.organizationId);
+      if (selectedOrg && !selectedOrg.enabled) {
+        return false;
+      }
+
+      const emptyStateTypes: EmptyStateType[] = ["trash", "favorites", "archive"];
+      if (filter?.type && emptyStateTypes.includes(filter.type as EmptyStateType)) {
+        return false;
+      }
+
+      return true;
+    }),
   );
 
   protected readonly submitButtonText = computed(() => {
@@ -333,7 +351,6 @@ export class VaultComponent<C extends CipherViewLike>
       const isOrgDisabled = selectedOrg && !selectedOrg.enabled;
 
       if (isOrgDisabled) {
-        this.showAddCipherBtn = false;
         return {
           title: "organizationIsSuspended",
           description: "organizationIsSuspendedDesc",
@@ -368,11 +385,9 @@ export class VaultComponent<C extends CipherViewLike>
       };
 
       if (filter?.type && filter.type in emptyStateMap) {
-        this.showAddCipherBtn = false;
         return emptyStateMap[filter.type as EmptyStateType];
       }
 
-      this.showAddCipherBtn = true;
       return {
         title: "noItemsInVault",
         description: "emptyVaultDescription",

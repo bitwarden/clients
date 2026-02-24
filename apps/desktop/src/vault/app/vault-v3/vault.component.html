@@ -31,7 +31,7 @@
       [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
       [placeholderText]="searchPlaceholderText"
       [isEmpty]="isEmpty && !performingInitialLoad"
-      [showAddCipherBtn]="showAddCipherBtn"
+      [showAddCipherBtn]="showAddCipherBtn$ | async"
       [emptyStateItem]="emptyState$ | async"
       [showPremiumCallout]="showPremiumCallout$ | async"
       (onEvent)="onVaultItemsEvent($event)"
