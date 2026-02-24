@@ -120,4 +120,106 @@ describe("BitwardenCsvImporter", () => {
     expect(result.ciphers.length).toBe(1);
     expect(result.ciphers[0].archivedDate).toBeUndefined();
   });
+
+  describe("Individual vault imports with folders", () => {
+    beforeEach(() => {
+      importer.organizationId = null;
+    });
+
+    it("should parse folder and create a folder relationship", async () => {
+      const data =
+        `folder,favorite,type,name,login_uri,login_username,login_password` +
+        `\nSocial,0,login,Facebook,https://facebook.com,user@example.com,password`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(1);
+      expect(result.folders.length).toBe(1);
+      expect(result.folders[0].name).toBe("Social");
+      expect(result.folderRelationships).toHaveLength(1);
+      expect(result.folderRelationships[0]).toEqual([0, 0]);
+    });
+
+    it("should deduplicate folders when multiple items share the same folder", async () => {
+      const data =
+        `folder,favorite,type,name,login_uri,login_username,login_password` +
+        `\nSocial,0,login,Facebook,https://facebook.com,user1,pass1` +
+        `\nSocial,0,login,Twitter,https://twitter.com,user2,pass2`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(2);
+      expect(result.folders.length).toBe(1);
+      expect(result.folders[0].name).toBe("Social");
+      expect(result.folderRelationships).toHaveLength(2);
+      expect(result.folderRelationships[0]).toEqual([0, 0]);
+      expect(result.folderRelationships[1]).toEqual([1, 0]);
+    });
+
+    it("should create parent folders for nested folder paths", async () => {
+      const data =
+        `folder,favorite,type,name,login_uri,login_username,login_password` +
+        `\nWork/Email,0,login,Gmail,https://gmail.com,user@work.com,pass`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.folders.length).toBe(2);
+      expect(result.folders.map((f) => f.name)).toContain("Work/Email");
+      expect(result.folders.map((f) => f.name)).toContain("Work");
+      expect(result.folderRelationships).toHaveLength(1);
+      expect(result.folderRelationships[0]).toEqual([0, 0]);
+    });
+
+    it("should create no folder or relationship when folder column is empty", async () => {
+      const data =
+        `folder,favorite,type,name,login_uri,login_username,login_password` +
+        `\n,0,login,No Folder Item,https://example.com,user,pass`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(1);
+      expect(result.folders.length).toBe(0);
+      expect(result.folderRelationships).toHaveLength(0);
+    });
+  });
+
+  describe("organization collection import", () => {
+    it("should set collectionRelationships mapping ciphers to collections", async () => {
+      const data =
+        `collections,type,name,login_uri,login_username,login_password` +
+        `\ncol1,login,Item1,https://example.com,user1,pass1` +
+        `\ncol2,login,Item2,https://example.com,user2,pass2`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(2);
+      expect(result.collections.length).toBe(2);
+      // Each cipher maps to its own collection
+      expect(result.collectionRelationships).toHaveLength(2);
+      expect(result.collectionRelationships[0]).toEqual([0, 0]);
+      expect(result.collectionRelationships[1]).toEqual([1, 1]);
+    });
+
+    it("should deduplicate collections and map both ciphers to the shared collection", async () => {
+      const data =
+        `collections,type,name,login_uri,login_username,login_password` +
+        `\nShared,login,Item1,https://example.com,user1,pass1` +
+        `\nShared,login,Item2,https://example.com,user2,pass2`;
+
+      const result = await importer.parse(data);
+
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(2);
+      expect(result.collections.length).toBe(1);
+      expect(result.collections[0].name).toBe("Shared");
+      expect(result.collectionRelationships).toHaveLength(2);
+      expect(result.collectionRelationships[0]).toEqual([0, 0]);
+      expect(result.collectionRelationships[1]).toEqual([1, 0]);
+    });
+  });
 });

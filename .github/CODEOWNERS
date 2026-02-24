@@ -163,9 +163,6 @@ apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofil
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
@@ -192,6 +189,7 @@ apps/cli/src/key-management @bitwarden/team-key-management-dev
 bitwarden_license/bit-web/src/app/key-management @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
+libs/user-crypto-management @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
 # Node-cryptofunction service
 libs/node @bitwarden/team-key-management-dev

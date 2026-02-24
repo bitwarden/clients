@@ -10,7 +10,14 @@
   }
 </div>
 <div class="tw-mb-3">
-  <button bitButton type="button" buttonType="primary" [block]="true" (click)="copyText()">
-    <bit-icon name="bwi-clone"></bit-icon>{{ "copyValue" | i18n }}
+  <button
+    bitButton
+    type="button"
+    buttonType="primary"
+    [block]="true"
+    (click)="copyText()"
+    startIcon="bwi-clone"
+  >
+    {{ "copyValue" | i18n }}
   </button>
 </div>

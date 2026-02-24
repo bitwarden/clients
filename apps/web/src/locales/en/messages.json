@@ -10977,6 +10977,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+  },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"
   },
@@ -12876,6 +12879,21 @@
   },
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
   },
   "whoCanView": {
     "message": "Who can view"
