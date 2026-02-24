@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, OnInit } from "@angular/core";
+import { DestroyRef, Directive, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { Subject, firstValueFrom } from "rxjs";
-import { first, switchMap, takeUntil } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
+import { first, switchMap } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -12,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 @Directive()
 export abstract class BaseAcceptComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   loading = true;
   authed = false;
   email: string;
@@ -20,8 +22,6 @@ export abstract class BaseAcceptComponent implements OnInit {
   protected requiredParameters: string[] = [];
   protected failedShortMessage = "inviteAcceptFailedShort";
   protected failedMessage = "inviteAcceptFailed";
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     protected router: Router,
@@ -73,7 +73,7 @@ export abstract class BaseAcceptComponent implements OnInit {
 
           this.loading = false;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

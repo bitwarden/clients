@@ -12,16 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import {
-  filter,
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  Subject,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs";
+import { filter, firstValueFrom, lastValueFrom, map, Subject, switchMap, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
@@ -213,12 +204,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const langSubscription = this.documentLangSetter.start();
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroyRef.onDestroy(() => {
+      this.destroy$.next();
+      this.destroy$.complete();
+    });
   }
 
   ngOnInit() {
-    this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
-      this.activeUserId = account?.id;
-    });
+    this.accountService.activeAccount$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((account) => {
+        this.activeUserId = account?.id;
+      });
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
@@ -549,8 +546,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
