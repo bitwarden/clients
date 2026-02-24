@@ -8,6 +8,7 @@ import { OrgIntegrationBuilder } from "@bitwarden/bit-common/dirt/organization-i
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -17,7 +18,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
-import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
@@ -36,7 +36,7 @@ describe("IntegrationCardComponent", () => {
   const mockIntegrationService = mock<OrganizationIntegrationService>();
   const dialogService = mock<DialogService>();
   const toastService = mock<ToastService>();
-  const stateService = mock<OrganizationIntegrationsState>();
+  const stateService = mock<IntegrationStateService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -61,7 +61,7 @@ describe("IntegrationCardComponent", () => {
         { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
-        { provide: OrganizationIntegrationsState, useValue: stateService },
+        { provide: IntegrationStateService, useValue: stateService },
       ],
     }).compileComponents();
   });

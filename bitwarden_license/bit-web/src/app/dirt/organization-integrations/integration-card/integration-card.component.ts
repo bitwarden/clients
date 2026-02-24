@@ -24,6 +24,7 @@ import {
   IntegrationModificationResult,
   OrganizationIntegrationService,
 } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -45,7 +46,6 @@ import {
   openHecConnectDialog,
   openHuntressConnectDialog,
 } from "../integration-dialog/index";
-import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -85,7 +85,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private organizationIntegrationService: OrganizationIntegrationService,
     private toastService: ToastService,
     private i18nService: I18nService,
-    protected state: OrganizationIntegrationsState,
+    protected state: IntegrationStateService,
   ) {
     this.organizationId = this.activatedRoute.snapshot.paramMap.get(
       "organizationId",
@@ -128,7 +128,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return false;
     }
 
-    const expirationDate = new Date(this.newBadgeExpiration());
+    const expirationDate = new Date(this.newBadgeExpiration() ?? "undefined");
 
     // Do not show the new badge for invalid dates
     if (isNaN(expirationDate.getTime())) {

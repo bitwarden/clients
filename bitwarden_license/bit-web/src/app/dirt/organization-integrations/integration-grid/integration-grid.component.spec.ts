@@ -7,6 +7,7 @@ import { of } from "rxjs";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -16,7 +17,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
-import { OrganizationIntegrationsState } from "../organization-integrations.state";
 
 import { IntegrationGridComponent } from "./integration-grid.component";
 
@@ -75,7 +75,7 @@ describe("IntegrationGridComponent", () => {
           provide: ToastService,
           useValue: mock<ToastService>(),
         },
-        { provide: OrganizationIntegrationsState, useValue: mock<OrganizationIntegrationsState>() },
+        { provide: IntegrationStateService, useValue: mock<IntegrationStateService>() },
       ],
     });
 
