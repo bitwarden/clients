@@ -264,6 +264,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
+    // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
