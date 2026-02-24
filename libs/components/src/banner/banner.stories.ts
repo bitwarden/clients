@@ -92,56 +92,6 @@ export const TitleBannerBase: Story = {
   },
 };
 
-export const Primary: Story = {
-  ...BannerBase,
-  args: {
-    variant: "primary",
-  },
-};
-
-export const Success: Story = {
-  ...BannerBase,
-  args: {
-    variant: "success",
-  },
-};
-
-export const Warning: Story = {
-  ...BannerBase,
-  args: {
-    variant: "warning",
-  },
-};
-
-export const Danger: Story = {
-  ...BannerBase,
-  args: {
-    variant: "danger",
-  },
-};
-
-export const TitleBannerAllVariants: Story = {
-  render: () => ({
-    template: /*html*/ `
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        @for (v of variants; track v) {
-          <bit-banner [variant]="v" [showClose]="true">
-            <span slot="title">Integration is the key</span>
-            Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
-            <ng-container slot="actions">
-              <button bitButton type="button" buttonType="secondary">Cancel</button>
-              <button bitButton type="button" buttonType="primary">Continue</button>
-            </ng-container>
-          </bit-banner>
-        }
-      </div>
-    `,
-    props: {
-      variants: ["primary", "success", "warning", "danger"],
-    },
-  }),
-};
-
 export const BannerSimple: Story = {
   render: (args) => ({
     props: args,
@@ -194,26 +144,4 @@ export const AllVariantsWithTitle: Story = {
       variants: ["primary", "success", "warning", "danger"],
     },
   }),
-};
-
-export const BadgeTitle: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-banner [variant]="variant" [showClose]="showClose">
-        <span slot="title">
-          <span bitBadge variant="primary">New</span>
-          Integration updates
-        </span>
-        Bitwarden now supports additional identity providers and SSO configurations.
-        <ng-container slot="actions">
-          This change affects all organization members. <a bitLink linkType="primary">Read the release notes</a>
-        </ng-container>
-      </bit-banner>
-    `,
-  }),
-  args: {
-    variant: "primary",
-    showClose: true,
-  },
 };
