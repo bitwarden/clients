@@ -73,6 +73,7 @@ import { filePickerPopoutGuard } from "../tools/popup/guards/file-picker-popout.
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
+import { RemoteAccessComponent } from "./remote-access/remote-access.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
@@ -716,6 +717,12 @@ const routes: Routes = [
       {
         path: "send",
         component: SendV2Component,
+        canActivate: [authGuard],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "remote-access",
+        component: RemoteAccessComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },

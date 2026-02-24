@@ -38,6 +38,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { ServicesModule } from "./services/services.module";
+import { RemoteAccessComponent } from "./remote-access/remote-access.component";
 import { TabsV2Component } from "./tabs-v2.component";
 
 // Register the locales for the application
@@ -81,6 +82,7 @@ import "../platform/popup/locales";
     ExtensionAnonLayoutWrapperComponent,
     CalloutModule,
     LinkModule,
+    RemoteAccessComponent,
   ],
   declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
   exports: [CalloutModule],

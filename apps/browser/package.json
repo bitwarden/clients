@@ -64,5 +64,8 @@
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
     "update:dev:chrome": "./scripts/update-manifest-dev.sh"
+  },
+  "dependencies": {
+    "husky": "9.1.7"
   }
 }

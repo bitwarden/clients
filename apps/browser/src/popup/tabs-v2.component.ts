@@ -51,6 +51,12 @@ export class TabsV2Component {
           iconActive: SendActive,
         },
         {
+          label: "remoteAccess",
+          page: "/tabs/remote-access",
+          icon: SendInactive,
+          iconActive: SendActive,
+        },
+        {
           label: "settings",
           page: "/tabs/settings",
           icon: SettingsInactive,
