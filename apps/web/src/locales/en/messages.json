@@ -13040,5 +13040,20 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "last3Months": {
+    "message": "Last 3 months"
+  },
+  "last6Months": {
+    "message": "Last 6 months"
+  },
+  "last12Months": {
+    "message": "Last 12 months"
+  },
+  "timePeriod": {
+    "message": "Time period"
   }
 }
