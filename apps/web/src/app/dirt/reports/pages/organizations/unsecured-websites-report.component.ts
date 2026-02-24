@@ -1,6 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, takeUntil, tap } from "rxjs";
+import { firstValueFrom, tap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -47,6 +48,7 @@ export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit
 {
+  private readonly destroyRef = inject(DestroyRef);
   // Contains a list of ciphers, the user running the report, can manage
   private manageableCiphers: Cipher[] = [];
 
@@ -89,7 +91,7 @@ export class UnsecuredWebsitesReportComponent
           this.manageableCiphers = await this.cipherService.getAll(userId);
           await super.ngOnInit();
         }),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

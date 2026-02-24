@@ -1,13 +1,6 @@
-import { Directive, OnDestroy } from "@angular/core";
-import {
-  BehaviorSubject,
-  lastValueFrom,
-  Observable,
-  Subject,
-  firstValueFrom,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { Directive } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -34,7 +27,7 @@ import {
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
-export abstract class CipherReportComponent implements OnDestroy {
+export abstract class CipherReportComponent {
   isAdminConsoleActive = false;
 
   loading = false;
@@ -54,7 +47,6 @@ export abstract class CipherReportComponent implements OnDestroy {
   vaultMsg: string = "vault";
   currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
-  protected destroyed$: Subject<void> = new Subject();
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   constructor(
@@ -73,14 +65,9 @@ export abstract class CipherReportComponent implements OnDestroy {
       switchMap((userId) => this.organizationService.organizations$(userId)),
     );
 
-    this.organizations$.pipe(takeUntil(this.destroyed$)).subscribe((orgs) => {
+    this.organizations$.pipe(takeUntilDestroyed()).subscribe((orgs) => {
       this.organizations = orgs;
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 
   getName(filterId: string | number) {
