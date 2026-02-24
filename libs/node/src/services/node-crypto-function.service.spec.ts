@@ -195,7 +195,7 @@ describe("NodeCrypto Function Service", () => {
       const data = Utils.fromUtf8ToArray(value);
       const encValue = await nodeCryptoFunctionService.aesEncrypt(data, iv, key);
       const decValue = await nodeCryptoFunctionService.aesDecrypt(encValue, iv, key, "cbc");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
+      expect(Utils.fromArrayToUtf8(decValue)).toBe(value);
     });
   });
 
@@ -230,7 +230,7 @@ describe("NodeCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
       const decValue = await nodeCryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
     });
 
     it("throws if IV is not provided", async () => {
@@ -249,7 +249,7 @@ describe("NodeCrypto Function Service", () => {
       const key = makeStaticByteArray(32);
       const data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
       const decValue = await nodeCryptoFunctionService.aesDecrypt(data, null, key, "ecb");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
 
@@ -262,7 +262,7 @@ describe("NodeCrypto Function Service", () => {
       const data = Utils.fromUtf8ToArray(value);
       const encValue = await nodeCryptoFunctionService.rsaEncrypt(data, pubKey, "sha1");
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(encValue, privKey, "sha1");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
+      expect(Utils.fromArrayToUtf8(decValue)).toBe(value);
     });
   });
 
@@ -277,7 +277,7 @@ describe("NodeCrypto Function Service", () => {
           "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await nodeCryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
 
@@ -286,7 +286,7 @@ describe("NodeCrypto Function Service", () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
       const publicKey = await nodeCryptoFunctionService.rsaExtractPublicKey(privKey);
-      expect(Utils.fromBufferToB64(publicKey)).toBe(RsaPublicKey);
+      expect(Utils.fromArrayToB64(publicKey)).toBe(RsaPublicKey);
     });
   });
 
@@ -448,25 +448,25 @@ function testHash(
   it("should create valid " + algorithm + " hash from regular input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(regularValue, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
+    expect(Utils.fromArrayToHex(hash)).toBe(regularHash);
   });
 
   it("should create valid " + algorithm + " hash from utf8 input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(utf8Value, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(utf8Hash);
+    expect(Utils.fromArrayToHex(hash)).toBe(utf8Hash);
   });
 
   it("should create valid " + algorithm + " hash from unicode input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(unicodeValue, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(unicodeHash);
+    expect(Utils.fromArrayToHex(hash)).toBe(unicodeHash);
   });
 
   it("should create valid " + algorithm + " hash from array buffer input", async () => {
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(Utils.fromUtf8ToArray(regularValue), algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
+    expect(Utils.fromArrayToHex(hash)).toBe(regularHash);
   });
 }
 
@@ -475,13 +475,13 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = f
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const value = Utils.fromUtf8ToArray("SignMe!!");
     const key = Utils.fromUtf8ToArray("secretkey");
-    let computedMac: ArrayBuffer;
+    let computedMac: Uint8Array;
     if (fast) {
       computedMac = await cryptoFunctionService.hmacFast(value, key, algorithm);
     } else {
       computedMac = await cryptoFunctionService.hmac(value, key, algorithm);
     }
-    expect(Utils.fromBufferToHex(computedMac)).toBe(mac);
+    expect(Utils.fromArrayToHex(computedMac)).toBe(mac);
   });
 }
 

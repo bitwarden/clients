@@ -73,9 +73,13 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
-    const impKey = await this.subtle.importKey("raw", ikm, { name: "HKDF" } as any, false, [
-      "deriveBits",
-    ]);
+    const impKey = await this.subtle.importKey(
+      "raw",
+      this.toBuf(ikm),
+      { name: "HKDF" } as any,
+      false,
+      ["deriveBits"],
+    );
     const buffer = await this.subtle.deriveBits(hkdfParams as any, impKey, outputByteSize * 8);
     return new Uint8Array(buffer);
   }
@@ -139,14 +143,16 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     value: Uint8Array,
     key: Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array<ArrayBuffer>> {
     const signingAlgorithm = {
       name: "HMAC",
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
-    const impKey = await this.subtle.importKey("raw", key, signingAlgorithm, false, ["sign"]);
-    const buffer = await this.subtle.sign(signingAlgorithm, impKey, value);
+    const impKey = await this.subtle.importKey("raw", this.toBuf(key), signingAlgorithm, false, [
+      "sign",
+    ]);
+    const buffer = await this.subtle.sign(signingAlgorithm, impKey, this.toBuf(value));
     return new Uint8Array(buffer);
   }
 
@@ -194,15 +200,15 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       return {
         iv: forge.util.decode64(iv),
         data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
+        encKey: forge.util.createBuffer(this.toBuf(innerKey.encryptionKey)).getBytes(),
       } as CbcDecryptParameters<string>;
     } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const macData = forge.util.decode64(iv) + forge.util.decode64(data);
       return {
         iv: forge.util.decode64(iv),
         data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
-        macKey: forge.util.createBuffer(innerKey.authenticationKey).getBytes(),
+        encKey: forge.util.createBuffer(this.toBuf(innerKey.encryptionKey)).getBytes(),
+        macKey: forge.util.createBuffer(this.toBuf(innerKey.authenticationKey)).getBytes(),
         mac: forge.util.decode64(mac!),
         macData,
       } as CbcDecryptParameters<string>;
@@ -248,15 +254,23 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       const result = await this.aesDecryptFast({ mode: "ecb", parameters });
       return Utils.fromByteStringToArray(result);
     }
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
-      "decrypt",
-    ]);
+    const impKey = await this.subtle.importKey(
+      "raw",
+      this.toBuf(key),
+      { name: "AES-CBC" } as any,
+      false,
+      ["decrypt"],
+    );
 
     // CBC
     if (iv == null) {
       throw new Error("IV is required for CBC mode.");
     }
-    const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data);
+    const buffer = await this.subtle.decrypt(
+      { name: "AES-CBC", iv: this.toBuf(iv) },
+      impKey,
+      this.toBuf(data),
+    );
     return new Uint8Array(buffer);
   }
 
@@ -313,12 +327,13 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(arr as CsprngArray);
   }
 
-  private toBuf(value: string | Uint8Array): Uint8Array {
-    let buf: Uint8Array;
+  private toBuf(value: string | Uint8Array): Uint8Array<ArrayBuffer> {
+    let buf: Uint8Array<ArrayBuffer>;
     if (typeof value === "string") {
       buf = Utils.fromUtf8ToArray(value);
     } else {
-      buf = value;
+      // Cannot really be shared array buffer, so it's ok to type assert
+      buf = value as Uint8Array<ArrayBuffer>;
     }
     return buf;
   }
@@ -328,7 +343,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     if (typeof value === "string") {
       bytes = forge.util.encodeUtf8(value);
     } else {
-      bytes = Utils.fromBufferToByteString(value);
+      // Null assertion is safe because this function takes a non-null value and is private.
+      bytes = Utils.fromArrayToByteString(this.toBuf(value))!;
     }
     return bytes;
   }
