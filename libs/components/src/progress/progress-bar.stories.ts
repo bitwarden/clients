@@ -5,7 +5,7 @@ import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for
 import { ProgressBarComponent } from "./progress-bar.component";
 
 export default {
-  title: "Component Library/Progress Bar",
+  title: "Component Library/Progress/Progress Bar",
   component: ProgressBarComponent,
   parameters: {
     design: {

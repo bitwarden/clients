@@ -10,7 +10,7 @@ import { ProgressBarLockupComponent } from "./progress-bar-lockup.component";
 const illustration = SpotReport;
 
 export default {
-  title: "Component Library/Progress Bar Lockup",
+  title: "Component Library/Progress/Progress Bar Lockup",
   component: ProgressBarLockupComponent,
   parameters: {
     design: {
