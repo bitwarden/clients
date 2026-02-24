@@ -31,7 +31,6 @@ export default {
 } as Meta;
 
 const decorators = (options: {
-  components: any[];
   routes: Routes;
   applicationVersion?: string;
   clientType?: ClientType;
@@ -56,7 +55,6 @@ const decorators = (options: {
       },
     ),
     moduleMetadata({
-      declarations: options.components,
       imports: [RouterModule, ButtonModule],
       providers: [
         {
@@ -137,11 +135,6 @@ export const DefaultContentExample: Story = {
     template: "<router-outlet></router-outlet>",
   }),
   decorators: decorators({
-    components: [
-      DefaultPrimaryOutletExampleComponent,
-      DefaultSecondaryOutletExampleComponent,
-      DefaultEnvSelectorOutletExampleComponent,
-    ],
     routes: [
       {
         path: "**",
@@ -209,6 +202,7 @@ const changedData: AnonLayoutWrapperData = {
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
+  imports: [ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicContentExampleComponent {
@@ -233,7 +227,6 @@ export const DynamicContentExample: Story = {
     template: "<router-outlet></router-outlet>",
   }),
   decorators: decorators({
-    components: [DynamicContentExampleComponent],
     routes: [
       {
         path: "**",
