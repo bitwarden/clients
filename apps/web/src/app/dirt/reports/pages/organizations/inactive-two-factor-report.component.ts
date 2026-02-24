@@ -108,6 +108,9 @@ export class InactiveTwoFactorReportComponent
     if (c.collectionIds.length === 0) {
       return true;
     }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
+      return true;
+    }
     return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }

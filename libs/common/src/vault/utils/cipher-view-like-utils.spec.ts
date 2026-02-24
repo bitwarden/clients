@@ -651,4 +651,198 @@ describe("CipherViewLikeUtils", () => {
       expect(CipherViewLikeUtils.decryptionFailure(cipherListView)).toBe(false);
     });
   });
+
+  describe("getNotes", () => {
+    describe("CipherView", () => {
+      it("returns notes when present", () => {
+        const cipherView = createCipherView();
+        cipherView.notes = "This is a test note";
+
+        expect(CipherViewLikeUtils.getNotes(cipherView)).toBe("This is a test note");
+      });
+
+      it("returns undefined when notes are not present", () => {
+        const cipherView = createCipherView();
+        cipherView.notes = undefined;
+
+        expect(CipherViewLikeUtils.getNotes(cipherView)).toBeUndefined();
+      });
+    });
+
+    describe("CipherListView", () => {
+      it("returns notes when present", () => {
+        const cipherListView = {
+          type: "secureNote",
+          notes: "List view notes",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.getNotes(cipherListView)).toBe("List view notes");
+      });
+
+      it("returns undefined when notes are not present", () => {
+        const cipherListView = {
+          type: "secureNote",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.getNotes(cipherListView)).toBeUndefined();
+      });
+    });
+  });
+
+  describe("getFields", () => {
+    describe("CipherView", () => {
+      it("returns fields when present", () => {
+        const cipherView = createCipherView();
+        cipherView.fields = [
+          { name: "Field1", value: "Value1" } as any,
+          { name: "Field2", value: "Value2" } as any,
+        ];
+
+        const fields = CipherViewLikeUtils.getFields(cipherView);
+
+        expect(fields).toHaveLength(2);
+        expect(fields?.[0].name).toBe("Field1");
+        expect(fields?.[0].value).toBe("Value1");
+        expect(fields?.[1].name).toBe("Field2");
+        expect(fields?.[1].value).toBe("Value2");
+      });
+
+      it("returns empty array when fields array is empty", () => {
+        const cipherView = createCipherView();
+        cipherView.fields = [];
+
+        expect(CipherViewLikeUtils.getFields(cipherView)).toEqual([]);
+      });
+    });
+
+    describe("CipherListView", () => {
+      it("returns fields when present", () => {
+        const cipherListView = {
+          type: { login: {} },
+          fields: [
+            { name: "Username", value: "user@example.com" },
+            { name: "API Key", value: "abc123" },
+          ],
+        } as CipherListView;
+
+        const fields = CipherViewLikeUtils.getFields(cipherListView);
+
+        expect(fields).toHaveLength(2);
+        expect(fields?.[0].name).toBe("Username");
+        expect(fields?.[0].value).toBe("user@example.com");
+        expect(fields?.[1].name).toBe("API Key");
+        expect(fields?.[1].value).toBe("abc123");
+      });
+
+      it("returns empty array when fields array is empty", () => {
+        const cipherListView = {
+          type: "secureNote",
+          fields: [],
+        } as unknown as CipherListView;
+
+        expect(CipherViewLikeUtils.getFields(cipherListView)).toEqual([]);
+      });
+
+      it("returns undefined when fields are not present", () => {
+        const cipherListView = {
+          type: "secureNote",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.getFields(cipherListView)).toBeUndefined();
+      });
+    });
+  });
+
+  describe("getAttachmentNames", () => {
+    describe("CipherView", () => {
+      it("returns attachment filenames when present", () => {
+        const cipherView = createCipherView();
+        const attachment1 = new AttachmentView();
+        attachment1.id = "1";
+        attachment1.fileName = "document.pdf";
+        const attachment2 = new AttachmentView();
+        attachment2.id = "2";
+        attachment2.fileName = "image.png";
+        const attachment3 = new AttachmentView();
+        attachment3.id = "3";
+        attachment3.fileName = "spreadsheet.xlsx";
+        cipherView.attachments = [attachment1, attachment2, attachment3];
+
+        const attachmentNames = CipherViewLikeUtils.getAttachmentNames(cipherView);
+
+        expect(attachmentNames).toEqual(["document.pdf", "image.png", "spreadsheet.xlsx"]);
+      });
+
+      it("filters out null and undefined filenames", () => {
+        const cipherView = createCipherView();
+        const attachment1 = new AttachmentView();
+        attachment1.id = "1";
+        attachment1.fileName = "valid.pdf";
+        const attachment2 = new AttachmentView();
+        attachment2.id = "2";
+        attachment2.fileName = null as any;
+        const attachment3 = new AttachmentView();
+        attachment3.id = "3";
+        attachment3.fileName = undefined;
+        const attachment4 = new AttachmentView();
+        attachment4.id = "4";
+        attachment4.fileName = "another.txt";
+        cipherView.attachments = [attachment1, attachment2, attachment3, attachment4];
+
+        const attachmentNames = CipherViewLikeUtils.getAttachmentNames(cipherView);
+
+        expect(attachmentNames).toEqual(["valid.pdf", "another.txt"]);
+      });
+
+      it("returns empty array when attachments have no filenames", () => {
+        const cipherView = createCipherView();
+        const attachment1 = new AttachmentView();
+        attachment1.id = "1";
+        const attachment2 = new AttachmentView();
+        attachment2.id = "2";
+        cipherView.attachments = [attachment1, attachment2];
+
+        const attachmentNames = CipherViewLikeUtils.getAttachmentNames(cipherView);
+
+        expect(attachmentNames).toEqual([]);
+      });
+
+      it("returns empty array for empty attachments array", () => {
+        const cipherView = createCipherView();
+        cipherView.attachments = [];
+
+        expect(CipherViewLikeUtils.getAttachmentNames(cipherView)).toEqual([]);
+      });
+    });
+
+    describe("CipherListView", () => {
+      it("returns attachment names when present", () => {
+        const cipherListView = {
+          type: "secureNote",
+          attachmentNames: ["report.pdf", "photo.jpg", "data.csv"],
+        } as CipherListView;
+
+        const attachmentNames = CipherViewLikeUtils.getAttachmentNames(cipherListView);
+
+        expect(attachmentNames).toEqual(["report.pdf", "photo.jpg", "data.csv"]);
+      });
+
+      it("returns empty array when attachmentNames is empty", () => {
+        const cipherListView = {
+          type: "secureNote",
+          attachmentNames: [],
+        } as unknown as CipherListView;
+
+        expect(CipherViewLikeUtils.getAttachmentNames(cipherListView)).toEqual([]);
+      });
+
+      it("returns undefined when attachmentNames is not present", () => {
+        const cipherListView = {
+          type: "secureNote",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.getAttachmentNames(cipherListView)).toBeUndefined();
+      });
+    });
+  });
 });

@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
+  },
   "continue": {
     "message": "Doorgaan"
   },
@@ -3755,7 +3758,7 @@
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Direct importeren vanuit browser"
   },
   "browserProfile": {
     "message": "Browserprofiel"
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "archiveItem": {
     "message": "Item archiveren"
@@ -4439,7 +4442,7 @@
     "message": "En meer!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Geavanceerde online beveiliging"
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Time-out actie"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Gebruikersverificatie is mislukt."
   }
 }
