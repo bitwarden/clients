@@ -14,6 +14,17 @@ import {
   TokenizedPaymentMethod,
 } from "../payment/types";
 
+export type UpgradePremiumToOrganizationRequest = {
+  organizationName: string;
+  organizationKey: string;
+  collectionName: string | null;
+  publicKey: string;
+  wrappedPrivateKey: string;
+  planTier: ProductTierType;
+  cadence: SubscriptionCadence;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
+};
+
 @Injectable()
 export class AccountBillingClient {
   private endpoint = "/account/billing/vnext";
@@ -66,28 +77,21 @@ export class AccountBillingClient {
   };
 
   upgradePremiumToOrganization = async (
-    organizationName: string,
-    organizationKey: string,
-    collectionName: string | null,
-    publicKey: string,
-    wrappedPrivateKey: string,
-    planTier: ProductTierType,
-    cadence: SubscriptionCadence,
-    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    request: UpgradePremiumToOrganizationRequest,
   ): Promise<string> => {
     const path = `${this.endpoint}/upgrade`;
     return await this.apiService.send(
       "POST",
       path,
       {
-        organizationName,
-        key: organizationKey,
-        collectionName,
-        publicKey,
-        wrappedPrivateKey,
-        targetProductTierType: planTier,
-        cadence: cadence as string,
-        billingAddress,
+        organizationName: request.organizationName,
+        key: request.organizationKey,
+        collectionName: request.collectionName,
+        publicKey: request.publicKey,
+        wrappedPrivateKey: request.wrappedPrivateKey,
+        targetProductTierType: request.planTier,
+        cadence: request.cadence as string,
+        billingAddress: request.billingAddress,
       },
       true,
       false,
