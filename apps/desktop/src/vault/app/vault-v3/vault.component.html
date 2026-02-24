@@ -87,6 +87,7 @@
         (onCancel)="cancelCipher()"
         (onArchiveToggle)="refreshCurrentCipher()"
         [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+        [submitButtonText]="submitButtonText()"
       />
     </div>
   }
