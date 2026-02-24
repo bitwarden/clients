@@ -1,5 +1,4 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  @let changingPayment = isChangingPaymentMethod();
   <bit-dialog dialogSize="large" [loading]="loading()">
     <span bitDialogTitle class="tw-font-medium">{{ upgradeToMessage() }}</span>
 
@@ -17,20 +16,18 @@
 
         <div class="tw-pb-8 !tw-mx-0">
           <app-display-payment-method-inline
+            #paymentMethodComponent
             [subscriber]="subscriber()"
             [paymentMethod]="paymentMethod()"
-            (updated)="handlePaymentMethodUpdate($event)"
-            (changingStateChanged)="handlePaymentMethodChangingStateChange($event)"
+            [externalFormGroup]="formGroup.controls.paymentMethodForm"
           >
           </app-display-payment-method-inline>
-          @if (!changingPayment) {
-            <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
-            <app-enter-billing-address
-              [group]="formGroup.controls.billingAddress"
-              [scenario]="{ type: 'checkout', supportsTaxId: false }"
-            >
-            </app-enter-billing-address>
-          }
+          <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
+          <app-enter-billing-address
+            [group]="formGroup.controls.billingAddress"
+            [scenario]="{ type: 'checkout', supportsTaxId: false }"
+          >
+          </app-enter-billing-address>
         </div>
       </section>
       <section>
@@ -46,7 +43,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="loading() || !formGroup.valid"
+        [disabled]="loading() || !isFormValid()"
         type="submit"
       >
         {{ "upgrade" | i18n }}

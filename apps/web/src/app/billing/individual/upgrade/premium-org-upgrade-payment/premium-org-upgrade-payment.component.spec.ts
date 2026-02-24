@@ -1,13 +1,6 @@
-import {
-  Component,
-  input,
-  ChangeDetectionStrategy,
-  CUSTOM_ELEMENTS_SCHEMA,
-  signal,
-  output,
-} from "@angular/core";
+import { Component, input, ChangeDetectionStrategy, signal, output } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -34,6 +27,7 @@ import { SubscriberBillingClient } from "../../../clients/subscriber-billing.cli
 import {
   EnterBillingAddressComponent,
   DisplayPaymentMethodInlineComponent,
+  EnterPaymentMethodComponent,
 } from "../../../payment/components";
 
 import {
@@ -46,8 +40,7 @@ import { PremiumOrgUpgradeService } from "./services/premium-org-upgrade.service
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "billing-cart-summary",
-  template: `<h1>Mock Cart Summary</h1>`,
-  providers: [{ provide: CartSummaryComponent, useClass: MockCartSummaryComponent }],
+  template: "",
 })
 class MockCartSummaryComponent {
   readonly cart = input.required<any>();
@@ -59,52 +52,17 @@ class MockCartSummaryComponent {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-display-payment-method-inline",
-  template: `<h1>Mock Display Payment Method</h1>`,
-  providers: [
-    {
-      provide: DisplayPaymentMethodInlineComponent,
-      useClass: MockDisplayPaymentMethodInlineComponent,
-    },
-  ],
+  template: "",
 })
 class MockDisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<any>();
   readonly paymentMethod = input<any>();
+  readonly externalFormGroup = input<any>();
   readonly updated = output<any>();
   readonly changePaymentMethodClicked = output<void>();
-}
 
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-enter-billing-address",
-  template: `<h1>Mock Enter Billing Address</h1>`,
-  providers: [
-    {
-      provide: EnterBillingAddressComponent,
-      useClass: MockEnterBillingAddressComponent,
-    },
-  ],
-})
-class MockEnterBillingAddressComponent {
-  readonly scenario = input.required<any>();
-  readonly group = input.required<any>();
-
-  static getFormGroup = () =>
-    new FormGroup({
-      country: new FormControl<string>("", {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      postalCode: new FormControl<string>("", {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      line1: new FormControl<string | null>(null),
-      line2: new FormControl<string | null>(null),
-      city: new FormControl<string | null>(null),
-      state: new FormControl<string | null>(null),
-      taxId: new FormControl<string | null>(null),
-    });
+  isChangingPayment = jest.fn().mockReturnValue(false);
+  getTokenizedPaymentMethod = jest.fn().mockResolvedValue({ token: "test-token" });
 }
 
 describe("PremiumOrgUpgradePaymentComponent", () => {
@@ -169,15 +127,14 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    mockAccountBillingClient.upgradePremiumToOrganization.mockResolvedValue(undefined);
-    mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue(undefined);
-    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
-      tax: 5.0,
-      total: 53.0,
-      credit: 10.0,
-      newPlanProratedMonths: 1,
-    });
-    mockOrganizationService.organizations$.mockReturnValue(of([]));
+
+    // Set up minimal mocks needed for component initialization
+    mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
+      of([mockTeamsPlan]),
+    );
+    mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+      of([mockFamiliesPlan]),
+    );
     mockAccountService.activeAccount$ = of(mockAccount);
     mockSubscriberBillingClient.getPaymentMethod.mockResolvedValue({
       type: "card",
@@ -185,18 +142,46 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       last4: "4242",
       expiration: "12/2025",
     });
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
+    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
+      tax: 5.0,
+      total: 53.0,
+      credit: 10.0,
+      newPlanProratedMonths: 1,
+    });
 
-    mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
-      of([mockTeamsPlan]),
+    // Mock static form group methods (required for component creation)
+    jest.spyOn(EnterPaymentMethodComponent, "getFormGroup").mockReturnValue(
+      new FormGroup({
+        type: new FormControl<string>("card", { nonNullable: true }),
+        bankAccount: new FormGroup({
+          routingNumber: new FormControl<string>("", { nonNullable: true }),
+          accountNumber: new FormControl<string>("", { nonNullable: true }),
+          accountHolderName: new FormControl<string>("", { nonNullable: true }),
+          accountHolderType: new FormControl<string>("", { nonNullable: true }),
+        }),
+        billingAddress: new FormGroup({
+          country: new FormControl<string>("", { nonNullable: true }),
+          postalCode: new FormControl<string>("", { nonNullable: true }),
+        }),
+      }) as any,
     );
-    mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
-      of([mockFamiliesPlan]),
+
+    jest.spyOn(EnterBillingAddressComponent, "getFormGroup").mockReturnValue(
+      new FormGroup({
+        country: new FormControl<string>("", { nonNullable: true }),
+        postalCode: new FormControl<string>("", { nonNullable: true }),
+        line1: new FormControl<string | null>(null),
+        line2: new FormControl<string | null>(null),
+        city: new FormControl<string | null>(null),
+        state: new FormControl<string | null>(null),
+        taxId: new FormControl<string | null>(null),
+      }),
     );
 
     await TestBed.configureTestingModule({
       imports: [PremiumOrgUpgradePaymentComponent],
       providers: [
-        { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         {
           provide: SubscriptionPricingServiceAbstraction,
           useValue: mockSubscriptionPricingService,
@@ -209,33 +194,23 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ApiService, useValue: mockApiService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
         {
           provide: KeyService,
-          useValue: {
-            makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]),
-          },
+          useValue: { makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]) },
         },
-        {
-          provide: SyncService,
-          useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
-        },
-        { provide: OrganizationService, useValue: mockOrganizationService },
+        { provide: SyncService, useValue: { fullSync: jest.fn().mockResolvedValue(undefined) } },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
       .overrideComponent(PremiumOrgUpgradePaymentComponent, {
-        add: {
-          imports: [
-            MockEnterBillingAddressComponent,
-            MockDisplayPaymentMethodInlineComponent,
-            MockCartSummaryComponent,
-          ],
-        },
         remove: {
-          imports: [
-            EnterBillingAddressComponent,
-            DisplayPaymentMethodInlineComponent,
-            CartSummaryComponent,
+          imports: [DisplayPaymentMethodInlineComponent, CartSummaryComponent],
+          providers: [PremiumOrgUpgradeService],
+        },
+        add: {
+          imports: [MockDisplayPaymentMethodInlineComponent, MockCartSummaryComponent],
+          providers: [
+            { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
           ],
         },
       })
@@ -248,7 +223,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     fixture.componentRef.setInput("account", mockAccount);
     fixture.detectChanges();
 
-    // Wait for ngOnInit to complete
     await fixture.whenStable();
   });
 
@@ -262,53 +236,66 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     expect(component["upgradeToMessage"]()).toContain("upgradeToTeams");
   });
 
-  it("should handle invalid plan id that doesn't exist in pricing tiers", async () => {
-    // Create a fresh component with an invalid plan ID from the start
-    const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
-    const newComponent = newFixture.componentInstance;
+  describe("Component Initialization with Different Plans", () => {
+    it("should handle invalid plan id that doesn't exist in pricing tiers", async () => {
+      // Create a fresh component with an invalid plan ID from the start
+      const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      const newComponent = newFixture.componentInstance;
 
-    newFixture.componentRef.setInput(
-      "selectedPlanId",
-      "non-existent-plan" as BusinessSubscriptionPricingTierId,
-    );
-    newFixture.componentRef.setInput("account", mockAccount);
-    newFixture.detectChanges();
+      newFixture.componentRef.setInput(
+        "selectedPlanId",
+        "non-existent-plan" as BusinessSubscriptionPricingTierId,
+      );
+      newFixture.componentRef.setInput("account", mockAccount);
+      newFixture.detectChanges();
 
-    await newFixture.whenStable();
+      await newFixture.whenStable();
 
-    expect(newComponent["selectedPlan"]()).toBeNull();
+      expect(newComponent["selectedPlan"]()).toBeNull();
+    });
+
+    it("should handle invoice preview errors gracefully", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewProratedInvoice.mockRejectedValue(
+        new Error("Network error"),
+      );
+
+      // Component should still render and be usable even when invoice preview fails
+      fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
+      fixture.componentRef.setInput("account", mockAccount);
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+      expect(component["selectedPlan"]()).not.toBeNull();
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+    }));
   });
 
-  it("should handle invoice preview errors gracefully", fakeAsync(() => {
-    mockPremiumOrgUpgradeService.previewProratedInvoice.mockRejectedValue(
-      new Error("Network error"),
-    );
-
-    // Component should still render and be usable even when invoice preview fails
-    fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
-    fixture.componentRef.setInput("account", mockAccount);
-    fixture.detectChanges();
-    tick();
-
-    expect(component).toBeTruthy();
-    expect(component["selectedPlan"]()).not.toBeNull();
-    expect(mockToastService.showToast).not.toHaveBeenCalled();
-  }));
-
   describe("submit", () => {
+    beforeEach(() => {
+      // Set up upgrade service mock for submit tests
+      mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+    });
+
     it("should successfully upgrade to organization", async () => {
       const completeSpy = jest.spyOn(component["complete"], "emit");
 
-      // Mock processUpgrade to bypass form validation
-      jest.spyOn(component as any, "processUpgrade").mockResolvedValue({
-        status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
-        organizationId: null,
-      });
-
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -322,13 +309,25 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       await component["submit"]();
 
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+        mockAccount,
+        "My New Org",
+        component["selectedPlan"](),
+        expect.objectContaining({
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          city: "Beverly Hills",
+          state: "CA",
+        }),
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "plansUpdated",
       });
       expect(completeSpy).toHaveBeenCalledWith({
         status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
-        organizationId: null,
+        organizationId: "new-org-id",
       });
     });
 
@@ -340,6 +339,19 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -469,7 +481,8 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
   describe("processUpgrade", () => {
     beforeEach(() => {
-      // Set paymentMethod signal for these tests
+      // Set up mocks specific to processUpgrade tests
+      mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("org-id-123");
       component["paymentMethod"].set({
         type: "card",
         brand: "visa",
@@ -500,6 +513,133 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       });
 
       await expect(component["processUpgrade"]()).rejects.toThrow("Organization name is required");
+    });
+
+    it("should update payment method when isChangingPayment returns true", async () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(true),
+        getTokenizedPaymentMethod: jest.fn().mockResolvedValue({ token: "new-token-123" }),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
+
+      const mockSubscriber = { id: "subscriber-123" };
+      component["subscriber"].set(mockSubscriber as any);
+      component["selectedPlan"].set({
+        tier: "teams" as BusinessSubscriptionPricingTierId,
+        details: mockTeamsPlan,
+        cost: 48,
+      });
+
+      component["formGroup"].patchValue({
+        organizationName: "Test Organization",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      const result = await component["processUpgrade"]();
+
+      expect(mockPaymentMethodComponent.isChangingPayment).toHaveBeenCalled();
+      expect(mockPaymentMethodComponent.getTokenizedPaymentMethod).toHaveBeenCalled();
+      expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
+        mockSubscriber,
+        { token: "new-token-123" },
+        expect.objectContaining({
+          country: "US",
+          postalCode: "12345",
+        }),
+      );
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+        mockAccount,
+        "Test Organization",
+        expect.objectContaining({ tier: "teams" }),
+        expect.objectContaining({
+          country: "US",
+          postalCode: "12345",
+        }),
+      );
+      expect(result.organizationId).toBe("org-id-123");
+    });
+
+    it("should not update payment method when isChangingPayment returns false", async () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(false),
+        getTokenizedPaymentMethod: jest.fn(),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
+      component["selectedPlan"].set({
+        tier: "teams" as BusinessSubscriptionPricingTierId,
+        details: mockTeamsPlan,
+        cost: 48,
+      });
+
+      component["formGroup"].patchValue({
+        organizationName: "Test Organization",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      await component["processUpgrade"]();
+
+      expect(mockPaymentMethodComponent.isChangingPayment).toHaveBeenCalled();
+      expect(mockPaymentMethodComponent.getTokenizedPaymentMethod).not.toHaveBeenCalled();
+      expect(mockSubscriberBillingClient.updatePaymentMethod).not.toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalled();
+    });
+
+    it("should handle null paymentMethodComponent gracefully", async () => {
+      jest.spyOn(component, "paymentMethodComponent").mockReturnValue(null as any);
+      component["selectedPlan"].set({
+        tier: "teams" as BusinessSubscriptionPricingTierId,
+        details: mockTeamsPlan,
+        cost: 48,
+      });
+
+      component["formGroup"].patchValue({
+        organizationName: "Test Organization",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      await component["processUpgrade"]();
+
+      expect(mockSubscriberBillingClient.updatePaymentMethod).not.toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalled();
+    });
+
+    it("should throw error when payment method is null and user is not changing payment", async () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(false),
+        getTokenizedPaymentMethod: jest.fn(),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
+      component["paymentMethod"].set(null);
+      component["selectedPlan"].set({
+        tier: "teams" as BusinessSubscriptionPricingTierId,
+        details: mockTeamsPlan,
+        cost: 48,
+      });
+
+      component["formGroup"].patchValue({
+        organizationName: "Test Organization",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      await expect(component["processUpgrade"]()).rejects.toThrow("Payment method is required");
     });
   });
 
@@ -545,6 +685,19 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -571,6 +724,27 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       const goBackSpy = jest.spyOn(component["goBack"], "emit");
       component["goBack"].emit();
       expect(goBackSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("Payment Method Initialization", () => {
+    it("should set subscriber and payment method signals on init", async () => {
+      const subscriber = component["subscriber"]();
+      expect(subscriber).toEqual(
+        expect.objectContaining({
+          type: "account",
+          data: expect.objectContaining({
+            id: mockAccount.id,
+            email: mockAccount.email,
+          }),
+        }),
+      );
+      expect(component["paymentMethod"]()).toEqual({
+        type: "card",
+        brand: "visa",
+        last4: "4242",
+        expiration: "12/2025",
+      });
     });
   });
 });
