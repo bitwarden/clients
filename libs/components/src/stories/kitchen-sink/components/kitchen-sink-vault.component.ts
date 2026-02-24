@@ -27,7 +27,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
         type="button"
         bitButton
         (click)="openDialog()"
-        [bitPopoverAnchor]="tourStep2"
+        [bitPopoverAnchorFor]="tourStep2"
         [popoverOpen]="tourStep() === 2"
         [spotlight]="true"
         [spotlightPadding]="12"
@@ -43,7 +43,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
       <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
     </bit-section>
     <bit-section
-      [bitPopoverAnchor]="tourStep3"
+      [bitPopoverAnchorFor]="tourStep3"
       [popoverOpen]="tourStep() === 3"
       [spotlight]="true"
       [spotlightPadding]="12"
@@ -103,7 +103,9 @@ export class KitchenSinkVaultComponent {
 
   protected nextTourStep() {
     this.tourStep.update((prev) => {
-      if (prev === 2) {return 3;}
+      if (prev === 2) {
+        return 3;
+      }
       return 0;
     });
   }

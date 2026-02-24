@@ -98,7 +98,7 @@ export class KitchenSinkDialogComponent {
         }
       </bit-breadcrumbs>
       <bit-search
-        [bitPopoverAnchor]="tourStep1"
+        [bitPopoverAnchorFor]="tourStep1"
         [popoverOpen]="tourStep() === 1"
         [spotlight]="true"
         [spotlightPadding]="12"

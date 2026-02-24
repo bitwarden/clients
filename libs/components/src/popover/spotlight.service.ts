@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import type { PopoverAnchorDirective } from "./popover-anchor.directive";
+import type { PopoverAnchorForDirective } from "./popover-anchor.directive";
 
 /**
  * Service that coordinates spotlight effects across multiple popover instances.
@@ -16,7 +16,7 @@ export class SpotlightService {
   private resizeObserver: ResizeObserver | null = null;
   private scrollListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
-  private activePopover: PopoverAnchorDirective | null = null;
+  private activePopover: PopoverAnchorForDirective | null = null;
 
   constructor() {
     // Create backdrop element (initially hidden)
@@ -103,7 +103,7 @@ export class SpotlightService {
    * Registers a popover as the active spotlight popover.
    * Closes any other active spotlight popover.
    */
-  register(directive: PopoverAnchorDirective): void {
+  register(directive: PopoverAnchorForDirective): void {
     if (this.activePopover && this.activePopover !== directive) {
       this.activePopover.closePopover();
     }
@@ -113,7 +113,7 @@ export class SpotlightService {
   /**
    * Unregisters a popover when it closes.
    */
-  unregister(directive: PopoverAnchorDirective): void {
+  unregister(directive: PopoverAnchorForDirective): void {
     if (this.activePopover === directive) {
       this.activePopover = null;
     }

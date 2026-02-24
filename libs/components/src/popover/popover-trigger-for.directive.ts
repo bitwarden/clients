@@ -1,6 +1,6 @@
 import { Directive, inject } from "@angular/core";
 
-import { PopoverAnchorDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor.directive";
 
 /**
  * Directive that creates an interactive trigger for a popover.
@@ -22,8 +22,8 @@ import { PopoverAnchorDirective } from "./popover-anchor.directive";
   exportAs: "popoverTrigger",
   hostDirectives: [
     {
-      directive: PopoverAnchorDirective,
-      inputs: ["bitPopoverAnchor: bitPopoverTriggerFor", "position", "popoverOpen"],
+      directive: PopoverAnchorForDirective,
+      inputs: ["bitPopoverAnchorFor: bitPopoverTriggerFor", "position", "popoverOpen"],
       outputs: ["popoverOpenChange"],
     },
   ],
@@ -34,7 +34,7 @@ import { PopoverAnchorDirective } from "./popover-anchor.directive";
 })
 export class PopoverTriggerForDirective {
   /** The composed anchor directive that handles overlay positioning */
-  protected readonly anchor = inject(PopoverAnchorDirective);
+  protected readonly anchor = inject(PopoverAnchorForDirective);
 
   /** Exposes popoverOpen for programmatic access via `exportAs="popoverTrigger"` */
   get popoverOpen() {

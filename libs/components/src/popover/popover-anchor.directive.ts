@@ -24,7 +24,7 @@ import { SpotlightService } from "./spotlight.service";
  * @example
  * Basic usage:
  * ```html
- * <div [bitPopoverAnchor]="tourStep" [(popoverOpen)]="showTour">
+ * <div [bitPopoverAnchorFor]="tourStep" [(popoverOpen)]="showTour">
  *   Element to highlight
  * </div>
  * <bit-popover #tourStep>Tour content</bit-popover>
@@ -33,7 +33,7 @@ import { SpotlightService } from "./spotlight.service";
  * @example
  * With spotlight effect for guided tours:
  * ```html
- * <div [bitPopoverAnchor]="tourStep"
+ * <div [bitPopoverAnchorFor]="tourStep"
  *      [(popoverOpen)]="showTour"
  *      [spotlight]="true"
  *      [spotlightPadding]="12">
@@ -44,15 +44,15 @@ import { SpotlightService } from "./spotlight.service";
  * Use `PopoverTriggerForDirective` instead if the popover is meant to be manually opened by the user clicking a button.
  */
 @Directive({
-  selector: "[bitPopoverAnchor]",
+  selector: "[bitPopoverAnchorFor]",
   exportAs: "popoverAnchor",
 })
-export class PopoverAnchorDirective implements OnDestroy {
+export class PopoverAnchorForDirective implements OnDestroy {
   /** Controls popover visibility. Supports two-way binding with `[(popoverOpen)]` */
   readonly popoverOpen = model(false);
 
   /** The popover component to display */
-  readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchor" });
+  readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchorFor" });
 
   /** Preferred popover position (e.g., "right-start", "below-center") */
   readonly position = input<string>();

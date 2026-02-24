@@ -10,7 +10,7 @@ import { LinkModule } from "../link";
 import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { PopoverAnchorDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor.directive";
 import { PopoverModule } from "./popover.module";
 
 export default {
@@ -65,7 +65,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<PopoverAnchorDirective>;
+type Story = StoryObj<PopoverAnchorForDirective>;
 
 const popoverContent = /*html*/ `
   <bit-popover [title]="'Example Title'" #myPopover>
@@ -576,7 +576,7 @@ export const SpotlightTour: Story = {
           <!-- Step 1: Create Button -->
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchor]="step1Popover"
+            [bitPopoverAnchorFor]="step1Popover"
             [popoverOpen]="tourStep() === 1"
             [spotlight]="true"
             [position]="'below-center'"
@@ -590,7 +590,7 @@ export const SpotlightTour: Story = {
           <!-- Step 2: Search Button -->
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchor]="step2Popover"
+            [bitPopoverAnchorFor]="step2Popover"
             [popoverOpen]="tourStep() === 2"
             [spotlight]="true"
             [position]="'below-center'"
@@ -604,7 +604,7 @@ export const SpotlightTour: Story = {
           <!-- Step 3: Settings Button -->
           <div
             class="tw-p-6 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchor]="step3Popover"
+            [bitPopoverAnchorFor]="step3Popover"
             [popoverOpen]="tourStep() === 3"
             [spotlight]="true"
             [position]="'below-center'"
@@ -689,7 +689,7 @@ export const MultipleSpotlights: Story = {
           <!-- Popover 1 -->
           <div
             class="tw-p-8 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchor]="popover1"
+            [bitPopoverAnchorFor]="popover1"
             [(popoverOpen)]="popover1Open"
             [spotlight]="true"
             [spotlightPadding]="12"
@@ -703,7 +703,7 @@ export const MultipleSpotlights: Story = {
           <!-- Popover 2 -->
           <div
             class="tw-p-8 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchor]="popover2"
+            [bitPopoverAnchorFor]="popover2"
             [(popoverOpen)]="popover2Open"
             [spotlight]="true"
             [spotlightPadding]="12"

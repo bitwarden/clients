@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, NgZone, TemplateRef, viewChild } fr
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { Subject } from "rxjs";
 
-import { PopoverAnchorDirective } from "./popover-anchor.directive";
+import { PopoverAnchorForDirective } from "./popover-anchor.directive";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
@@ -18,17 +18,17 @@ import { SpotlightService } from "./spotlight.service";
 @Component({
   standalone: true,
   template: `
-    <div [bitPopoverAnchor]="popoverComponent" [(popoverOpen)]="isOpen" #anchor="popoverAnchor">
+    <div [bitPopoverAnchorFor]="popoverComponent" [(popoverOpen)]="isOpen" #anchor="popoverAnchor">
       Anchor Element
     </div>
     <bit-popover #popoverComponent></bit-popover>
   `,
-  imports: [PopoverAnchorDirective, PopoverComponent],
+  imports: [PopoverAnchorForDirective, PopoverComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestPopoverAnchorComponent {
   isOpen = false;
-  readonly directive = viewChild("anchor", { read: PopoverAnchorDirective });
+  readonly directive = viewChild("anchor", { read: PopoverAnchorForDirective });
   readonly popoverComponent = viewChild("popoverComponent", { read: PopoverComponent });
   readonly templateRef = viewChild("anchor", { read: TemplateRef });
 }
@@ -37,7 +37,7 @@ class TestPopoverAnchorComponent {
   standalone: true,
   template: `
     <div
-      [bitPopoverAnchor]="popoverComponent"
+      [bitPopoverAnchorFor]="popoverComponent"
       [(popoverOpen)]="isOpen"
       [spotlight]="true"
       [spotlightPadding]="12"
@@ -48,19 +48,19 @@ class TestPopoverAnchorComponent {
     </div>
     <bit-popover #popoverComponent></bit-popover>
   `,
-  imports: [PopoverAnchorDirective, PopoverComponent],
+  imports: [PopoverAnchorForDirective, PopoverComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestPopoverAnchorWithSpotlightComponent {
   isOpen = false;
-  readonly directive = viewChild("anchor", { read: PopoverAnchorDirective });
+  readonly directive = viewChild("anchor", { read: PopoverAnchorForDirective });
   readonly popoverComponent = viewChild("popoverComponent", { read: PopoverComponent });
 }
 
-describe("PopoverAnchorDirective", () => {
+describe("PopoverAnchorForDirective", () => {
   let fixture: ComponentFixture<TestPopoverAnchorComponent>;
   let component: TestPopoverAnchorComponent;
-  let directive: PopoverAnchorDirective;
+  let directive: PopoverAnchorForDirective;
   let overlayRef: Partial<OverlayRef>;
   let overlay: Partial<Overlay>;
   let ngZone: NgZone;
@@ -434,10 +434,10 @@ describe("PopoverAnchorDirective", () => {
   });
 });
 
-describe("PopoverAnchorDirective with Spotlight", () => {
+describe("PopoverAnchorForDirective with Spotlight", () => {
   let fixture: ComponentFixture<TestPopoverAnchorWithSpotlightComponent>;
   let component: TestPopoverAnchorWithSpotlightComponent;
-  let directive: PopoverAnchorDirective;
+  let directive: PopoverAnchorForDirective;
   let overlayRef: Partial<OverlayRef>;
   let overlay: Partial<Overlay>;
   let ngZone: NgZone;
