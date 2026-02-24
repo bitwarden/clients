@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable, OnDestroy } from "@angular/core";
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   catchError,
   combineLatest,
@@ -12,9 +13,7 @@ import {
   map,
   of,
   skip,
-  Subject,
   switchMap,
-  takeUntil,
   timeout,
   TimeoutError,
   timer,
@@ -39,14 +38,14 @@ import { SshAgentPromptType } from "../models/ssh-agent-setting";
 @Injectable({
   providedIn: "root",
 })
-export class SshAgentService implements OnDestroy {
+export class SshAgentService {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
   SSH_REQUEST_UNLOCK_POLLING_INTERVAL = 100;
 
   private authorizedSshKeys: Record<string, Date> = {};
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherService: CipherService,
@@ -68,7 +67,7 @@ export class SshAgentService implements OnDestroy {
             await ipc.platform.sshAgent.init();
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -196,32 +195,34 @@ export class SshAgentService implements OnDestroy {
             return ipc.platform.sshAgent.signRequestResponse(requestId, true);
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
-    this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
-      next: (account) => {
-        this.authorizedSshKeys = {};
-        this.logService.info("Active account changed, clearing SSH keys");
-        ipc.platform.sshAgent
-          .clearKeys()
-          .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-      },
-      error: (e: unknown) => {
-        this.logService.error("Error in active account observable", e);
-        ipc.platform.sshAgent
-          .clearKeys()
-          .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-      },
-      complete: () => {
-        this.logService.info("Active account observable completed, clearing SSH keys");
-        this.authorizedSshKeys = {};
-        ipc.platform.sshAgent
-          .clearKeys()
-          .catch((e) => this.logService.error("Failed to clear SSH keys", e));
-      },
-    });
+    this.accountService.activeAccount$
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (account) => {
+          this.authorizedSshKeys = {};
+          this.logService.info("Active account changed, clearing SSH keys");
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+        error: (e: unknown) => {
+          this.logService.error("Error in active account observable", e);
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+        complete: () => {
+          this.logService.info("Active account observable completed, clearing SSH keys");
+          this.authorizedSshKeys = {};
+          ipc.platform.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        },
+      });
 
     combineLatest([
       timer(0, this.SSH_REFRESH_INTERVAL),
@@ -260,14 +261,9 @@ export class SshAgentService implements OnDestroy {
           });
           await ipc.platform.sshAgent.setKeys(keys);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private async rememberAuthorization(cipherId: string): Promise<void> {

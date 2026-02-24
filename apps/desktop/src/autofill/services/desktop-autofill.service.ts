@@ -1,6 +1,6 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
-  Subject,
   combineLatest,
   debounceTime,
   distinctUntilChanged,
@@ -9,7 +9,6 @@ import {
   map,
   mergeMap,
   switchMap,
-  takeUntil,
   tap,
 } from "rxjs";
 
@@ -48,8 +47,8 @@ import {
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
 @Injectable()
-export class DesktopAutofillService implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class DesktopAutofillService {
+  private readonly destroyRef = inject(DestroyRef);
   private registrationRequest: autofill.PasskeyRegistrationRequest;
   private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
   private isEnabled: boolean = false;
@@ -101,7 +100,7 @@ export class DesktopAutofillService implements OnDestroy {
         filter((cipherViewMap) => cipherViewMap !== null),
 
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap ?? []))),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -110,7 +109,7 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         filter((status) => status === AuthenticationStatus.LoggedOut),
         mergeMap(() => this.sync([])), // sync an empty array
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -415,11 +414,6 @@ export class DesktopAutofillService implements OnDestroy {
       authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
       credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
 

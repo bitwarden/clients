@@ -1,16 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterModule, Router } from "@angular/router";
-import {
-  firstValueFrom,
-  map,
-  combineLatest,
-  of,
-  BehaviorSubject,
-  Observable,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { firstValueFrom, map, combineLatest, of, BehaviorSubject, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/assets/svg";
@@ -58,9 +50,9 @@ import {
   templateUrl: "fido2-vault.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2VaultComponent implements OnInit, OnDestroy {
+export class Fido2VaultComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   session?: DesktopFido2UserInterfaceSession = null;
-  private destroy$ = new Subject<void>();
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
   cipherIds$: Observable<string[]> | undefined;
@@ -81,11 +73,6 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     this.cipherIds$ = this.session?.availableCipherIds$;
     await this.loadCiphers();
-  }
-
-  async ngOnDestroy(): Promise<void> {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async chooseCipher(cipher: CipherView): Promise<void> {
@@ -143,7 +130,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
 
           return activeCiphers;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (ciphers) => this.ciphersSubject.next(ciphers as CipherView[]),
