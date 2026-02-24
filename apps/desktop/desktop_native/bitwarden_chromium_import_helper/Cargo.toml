@@ -19,7 +19,10 @@ sysinfo = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-windows = { workspace = true, features = ["Wdk", "Win32_System_Pipes"] }
+windows = { workspace = true, features = [
+    "Wdk_System_SystemServices",
+    "Win32_System_Pipes",
+] }
 
 [build-dependencies]
 embed-resource = "=3.0.6"
