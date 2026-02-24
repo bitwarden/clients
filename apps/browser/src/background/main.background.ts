@@ -319,6 +319,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
@@ -529,6 +530,8 @@ export default class MainBackground {
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
+
+  private targetingRulesDataService: TargetingRulesDataService;
 
   // DIRT
   private phishingDataService: PhishingDataService;
@@ -999,6 +1002,15 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.configService,
+    );
+
+    this.targetingRulesDataService = new TargetingRulesDataService(
+      this.apiService,
+      this.domainSettingsService,
+      this.configService,
+      this.taskSchedulerService,
+      this.globalStateProvider,
+      this.logService,
     );
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
@@ -1640,6 +1652,7 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
+    await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
     const active = await firstValueFrom(this.accountService.activeAccount$);

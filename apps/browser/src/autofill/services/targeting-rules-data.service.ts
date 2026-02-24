@@ -1,0 +1,171 @@
+import {
+  catchError,
+  defer,
+  EMPTY,
+  exhaustMap,
+  firstValueFrom,
+  from,
+  retry,
+  Subject,
+  takeUntil,
+  tap,
+  timer,
+} from "rxjs";
+
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { AutofillTargetingRulesByDomain } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import {
+  DOMAIN_SETTINGS_DISK,
+  GlobalState,
+  GlobalStateProvider,
+  KeyDefinition,
+} from "@bitwarden/state";
+
+/**
+ * For now, hardcode the rules URI
+ */
+const TARGETING_RULES_SOURCE_URL =
+  "https://raw.githubusercontent.com/bitwarden/map-the-web/main/field-locations.json";
+
+type TargetingRulesDataMeta = {
+  /** The last time the data set was updated  */
+  timestamp: number;
+};
+
+const TARGETING_RULES_META_KEY = new KeyDefinition<TargetingRulesDataMeta>(
+  DOMAIN_SETTINGS_DISK,
+  "fillAssistTargetingRulesMeta",
+  {
+    deserializer: (value: TargetingRulesDataMeta) => ({
+      timestamp: value?.timestamp ?? 0,
+    }),
+  },
+);
+
+/**
+ * Browser-specific service responsible for fetching and syncing targeting rules
+ * from an external source. Fetches rules on initialization and periodically
+ * refreshes them in the background.
+ */
+export class TargetingRulesDataService {
+  static readonly UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+
+  // guard against accidental leaks.
+  private _destroy$ = new Subject<void>();
+  private _triggerUpdate$ = new Subject<void>();
+  private _metaState: GlobalState<TargetingRulesDataMeta>;
+
+  constructor(
+    private apiService: ApiService,
+    private domainSettingsService: DomainSettingsService,
+    private configService: ConfigService,
+    private taskSchedulerService: TaskSchedulerService,
+    private globalStateProvider: GlobalStateProvider,
+    private logService: LogService,
+  ) {
+    this._metaState = this.globalStateProvider.get(TARGETING_RULES_META_KEY);
+  }
+
+  /**
+   * Initializes the service: checks the feature flag, registers the periodic
+   * update task, wires up the background update pipeline, and triggers the
+   * first fetch.
+   */
+  async init(): Promise<void> {
+    const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
+
+    if (!isEnabled) {
+      return;
+    }
+
+    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.targetingRulesUpdate, () =>
+      this._triggerUpdate$.next(),
+    );
+
+    this.taskSchedulerService.setInterval(
+      ScheduledTaskNames.targetingRulesUpdate,
+      TargetingRulesDataService.UPDATE_INTERVAL,
+    );
+
+    this._triggerUpdate$
+      .pipe(
+        exhaustMap(() => this._backgroundUpdate()),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
+
+    // Trigger initial update
+    this._triggerUpdate$.next();
+  }
+
+  dispose(): void {
+    // Signal all pipelines to stop and unsubscribe stored subscriptions
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
+  private _backgroundUpdate() {
+    // Use defer to restart timer if retry is activated
+    return defer(() => {
+      const startTime = Date.now();
+      this.logService.info("[TargetingRulesDataService] Update triggered...");
+
+      return from(this._fetchAndStoreRules()).pipe(
+        tap(() => {
+          const elapsed = Date.now() - startTime;
+          this.logService.info(`[TargetingRulesDataService] Update completed in ${elapsed}ms`);
+        }),
+        retry({
+          count: 2,
+          delay: (error, retryCount) => {
+            this.logService.error(
+              `[TargetingRulesDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
+              error,
+            );
+            return timer(5 * 60 * 1000);
+          },
+        }),
+        catchError((err: unknown) => {
+          this.logService.error("[TargetingRulesDataService] All retry attempts failed.", err);
+          return EMPTY;
+        }),
+      );
+    });
+  }
+
+  private async _fetchAndStoreRules(): Promise<void> {
+    const meta = await firstValueFrom(this._metaState.state$);
+    const cacheAge = Date.now() - (meta?.timestamp ?? 0);
+
+    if (cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
+      this.logService.debug("[TargetingRulesDataService] Cache is still fresh, skipping fetch.");
+      return;
+    }
+
+    this.logService.info(
+      `[TargetingRulesDataService] Fetching targeting rules from ${TARGETING_RULES_SOURCE_URL}`,
+    );
+
+    const response = await this.apiService.nativeFetch(new Request(TARGETING_RULES_SOURCE_URL));
+
+    if (!response.ok) {
+      throw new Error(
+        `[TargetingRulesDataService] Failed to fetch rules: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const rules: AutofillTargetingRulesByDomain = await response.json();
+
+    await this.domainSettingsService.setTargetingRules(rules);
+    await this._metaState.update(() => ({ timestamp: Date.now() }));
+
+    this.logService.info(
+      `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,
+    );
+  }
+}
