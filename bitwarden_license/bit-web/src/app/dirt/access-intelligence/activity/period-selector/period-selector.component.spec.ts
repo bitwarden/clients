@@ -17,10 +17,10 @@ describe("PeriodSelectorComponent", () => {
     i18nService.t.mockImplementation((key: string) => {
       const translations: Record<string, string> = {
         pastMonth: "Past month",
-        last3Months: "Last 3 months",
-        last6Months: "Last 6 months",
-        last12Months: "Last 12 months",
-        all: "All",
+        past3Months: "Past 3 months",
+        past6Months: "Past 6 months",
+        pastYear: "Past year",
+        allTime: "All time",
         timePeriod: "Time period",
       };
       return translations[key] ?? key;
@@ -50,29 +50,29 @@ describe("PeriodSelectorComponent", () => {
     expect(options).toHaveLength(5);
     expect(options.map((o) => o.value)).toEqual([
       TimePeriod.PastMonth,
-      TimePeriod.Last3Months,
-      TimePeriod.Last6Months,
-      TimePeriod.Last12Months,
-      TimePeriod.All,
+      TimePeriod.Past3Months,
+      TimePeriod.Past6Months,
+      TimePeriod.PastYear,
+      TimePeriod.AllTime,
     ]);
     expect(options[0].label).toBe("Past month");
-    expect(options[4].label).toBe("All");
+    expect(options[4].label).toBe("All time");
   });
 
   it("should update selected period and emit change", () => {
     const emitSpy = jest.fn();
     component.selectedPeriodChange.subscribe(emitSpy);
 
-    component["selectPeriod"](TimePeriod.Last6Months);
+    component["selectPeriod"](TimePeriod.Past6Months);
 
-    expect(component.selectedPeriod()).toBe(TimePeriod.Last6Months);
-    expect(emitSpy).toHaveBeenCalledWith(TimePeriod.Last6Months);
+    expect(component.selectedPeriod()).toBe(TimePeriod.Past6Months);
+    expect(emitSpy).toHaveBeenCalledWith(TimePeriod.Past6Months);
   });
 
   it("should update selected label when period changes", () => {
     expect(component["selectedLabel"]()).toBe("Past month");
 
-    component["selectPeriod"](TimePeriod.All);
-    expect(component["selectedLabel"]()).toBe("All");
+    component["selectPeriod"](TimePeriod.AllTime);
+    expect(component["selectedLabel"]()).toBe("All time");
   });
 });

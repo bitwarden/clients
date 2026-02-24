@@ -7,9 +7,7 @@
   </div>
   <div class="tw-flex tw-justify-between tw-items-center">
     <div>View mode toggle here</div>
-    <dirt-period-selector
-      (selectedPeriodChange)="onPeriodSelectorChange($event)"
-    ></dirt-period-selector>
+    <dirt-period-selector (selectedPeriodChange)="onTimespanChange($event)"></dirt-period-selector>
   </div>
   <div class="tw-relative tw-h-96">
     @if (loading()) {

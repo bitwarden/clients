@@ -13044,14 +13044,17 @@
   "pastMonth": {
     "message": "Past month"
   },
-  "last3Months": {
-    "message": "Last 3 months"
+  "past3Months": {
+    "message": "Past 3 months"
   },
-  "last6Months": {
-    "message": "Last 6 months"
+  "past6Months": {
+    "message": "Past 6 months"
   },
-  "last12Months": {
-    "message": "Last 12 months"
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
   },
   "timePeriod": {
     "message": "Time period"
