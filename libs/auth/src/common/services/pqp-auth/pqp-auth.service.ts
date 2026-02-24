@@ -70,9 +70,9 @@ export class PqpAuthService {
           const ipcResult = await electronIpc.invoke("PQP_CHECK_STATUS");
           loggedIn = ipcResult?.loggedIn ?? false;
           // Use data from main process (renderer can't access main process storage)
-          if (loggedIn && ipcResult?.email) {
-            this._userEmail = ipcResult.email;
-            this._derivedPassword = ipcResult.derivedPassword || null;
+          if (loggedIn) {
+            this._userEmail = ipcResult?.email || null;
+            this._derivedPassword = ipcResult?.derivedPassword || null;
           }
         } else {
           loggedIn = await isPqpLoggedIn();
