@@ -1,0 +1,11 @@
+<div [class]="layoutClasses().container">
+  <bit-spinner [size]="size()" [variant]="variant()"></bit-spinner>
+  <div [class]="layoutClasses().textContainer">
+    <span [class]="textClasses().title">
+      <ng-content select="[title]"></ng-content>
+    </span>
+    <span [class]="textClasses().body">
+      <ng-content select="[body]"></ng-content>
+    </span>
+  </div>
+</div>

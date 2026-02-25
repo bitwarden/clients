@@ -1,61 +1,57 @@
-import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input, booleanAttribute } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+export type SpinnerVariant = "primary" | "subtle" | "success" | "warning" | "danger" | "contrast";
+
+export type SpinnerSize = "sm" | "md" | "base" | "lg";
+
+export const spinnerSizeStyles: Record<SpinnerSize, string[]> = {
+  sm: ["tw-w-4", "tw-h-4"],
+  md: ["tw-w-6", "tw-h-6"],
+  base: ["tw-w-14", "tw-h-14"],
+  lg: ["tw-w-20", "tw-h-20"],
+};
+
+const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; background: string }> = {
+  primary: {
+    foreground: "tw-stroke-bg-brand",
+    background: "tw-stroke-bg-quaternary",
+  },
+  subtle: {
+    foreground: "tw-stroke-bg-contrast",
+    background: "tw-stroke-bg-quaternary",
+  },
+  success: {
+    foreground: "tw-stroke-bg-success",
+    background: "tw-stroke-bg-quaternary",
+  },
+  warning: {
+    foreground: "tw-stroke-bg-warning",
+    background: "tw-stroke-bg-quaternary",
+  },
+  danger: {
+    foreground: "tw-stroke-bg-danger",
+    background: "tw-stroke-bg-quaternary",
+  },
+  contrast: {
+    foreground: "tw-stroke-bg-primary",
+    background: "tw-stroke-bg-contrast-soft",
+  },
+};
+
 @Component({
   selector: "bit-spinner",
   templateUrl: "spinner.component.html",
-  standalone: true,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerComponent {
-  /**
-   * The size of the spinner. Defaults to `large`.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() size: "fill" | "small" | "large" = "large";
+  private i18nService = inject(I18nService);
 
-  /**
-   * Disable the default color of the spinner, inherits the text color.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute }) noColor = false;
+  readonly variant = input<SpinnerVariant>("primary");
+  readonly size = input<SpinnerSize>("base");
+  readonly title = input<string>(this.i18nService.t("loading")); // for accessibility, not visually rendered
 
-  /**
-   * Accessibility title. Defaults to `Loading`.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() title = this.i18nService.t("loading");
-
-  /**
-   * Display text for screen readers.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute }) sr = true;
-
-  @HostBinding("class") get classList() {
-    return ["tw-inline-block", "tw-overflow-hidden", "tw-flex", "tw-items-center"]
-      .concat(this.sizeClass)
-      .concat([this.noColor ? "" : "tw-text-primary-600"]);
-  }
-
-  constructor(private i18nService: I18nService) {}
-
-  get sizeClass() {
-    switch (this.size) {
-      case "small":
-        return ["tw-h-4"];
-      case "large":
-        return ["tw-h-16"];
-      default:
-        return ["tw-h-full", "tw-w-full"];
-    }
-  }
+  readonly variantClasses = computed(() => spinnerVariantStyles[this.variant()]);
+  readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);
 }
