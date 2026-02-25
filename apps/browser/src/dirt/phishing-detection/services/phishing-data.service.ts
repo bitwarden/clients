@@ -210,7 +210,7 @@ export class PhishingDataService {
   }
 
   // [FIXME] Pull fetches into api service
-  private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
+  private async fetchPhishingChecksum(type: PhishingResourceType = this.resourceType) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
     this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
 
@@ -222,7 +222,8 @@ export class PhishingDataService {
         );
       }
 
-      return await response.text();
+      const text = await response.text();
+      return text.trim();
     } catch (error) {
       this.logService.error(
         `[PhishingDataService] Checksum fetch failed from ${checksumUrl}`,
