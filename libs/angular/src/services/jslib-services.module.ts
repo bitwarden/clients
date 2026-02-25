@@ -1199,6 +1199,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       KdfConfigService,
       BiometricsService,
+      MasterPasswordUnlockService,
     ],
   }),
   safeProvider({
@@ -1533,7 +1534,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
-    deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
