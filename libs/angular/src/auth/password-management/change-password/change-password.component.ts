@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { LockIcon } from "@bitwarden/assets/svg";
@@ -10,6 +11,9 @@ import {
   InputPasswordFlow,
   PasswordInputResult,
 } from "@bitwarden/auth/angular";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -76,6 +80,8 @@ export class ChangePasswordComponent implements OnInit {
     private syncService: SyncService,
     private dialogService: DialogService,
     private logService: LogService,
+    private logoutService: LogoutService,
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -172,6 +178,29 @@ export class ChangePasswordComponent implements OnInit {
             passwordInputResult,
             this.userId,
           );
+
+          /**
+           * Note when unwinding this flag in PM-28143:
+           * Remove the early return and then move the logic at the end of this `try`
+           * (showToast, send, closeBrowserExtensionPopout) up into the else-block so
+           * that those run only in the `changePassword()` case and we don't have duplicate calls.
+           */
+          if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+            this.toastService.showToast({
+              variant: "success",
+              message: this.i18nService.t("masterPasswordChanged"),
+            });
+
+            // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
+            await this.logoutService.logout(this.userId);
+            // navigate to root so redirect guard can properly route next active user or null user to correct page
+            await this.router.navigate(["/"]);
+
+            // Close the popout if we are in a browser extension popout.
+            this.changePasswordService.closeBrowserExtensionPopout?.();
+
+            return; // EARLY RETURN for flagged logic
+          }
         } else {
           await this.changePasswordService.changePassword(passwordInputResult, this.userId);
         }

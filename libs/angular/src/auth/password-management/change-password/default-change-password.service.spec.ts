@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -428,6 +429,17 @@ describe("DefaultChangePasswordService", () => {
         // Assert
         expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledTimes(1);
         expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(request);
+      });
+
+      it("should set the forceSetPasswordReason to None", async () => {
+        // act
+        await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+        // Assert
+        expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+          ForceSetPasswordReason.None,
+          userId,
+        );
       });
     });
   });
