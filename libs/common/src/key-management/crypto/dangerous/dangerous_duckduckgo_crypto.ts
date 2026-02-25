@@ -17,36 +17,39 @@ export function DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
     encstring: DuckDuckGoEncstring,
     key: Aes256CbcHmacKey,
 ): Uint8Array {
+    // Parse the encstring
     const [_header, rest] = encstring.split(".", 2);
     const [ivB64, dataB64, macB64] = rest.split("|", 3);
     const [iv, data, mac] = [ivB64, dataB64, macB64].map((part) => Utils.fromB64ToArray(part));
 
+    // Calculate the MAC and compare it. If the mac does not match, throw an error.
+    // Note: The mac is over both IV and data
     const hmac = forge.hmac.create();
     hmac.start("sha256", Utils.fromArrayToByteString(key.authenticationKey)!);
     hmac.update(Utils.fromArrayToByteString(concatUint8Arrays(iv, data)));
-    console.log("iv length", iv.length);
-    console.log("concat", Utils.fromArrayToHex(concatUint8Arrays(iv, data)));
     const expectedMac = Utils.fromByteStringToArray(hmac.digest().getBytes());
-    console.log("Expected MAC:", Utils.fromArrayToHex(expectedMac));
-
     if (!compareConstantTime(mac, expectedMac)) {
         console.log("not equal!");
         throw new Error("MAC verification failed.");
     }
-    console.log("equal!");
 
-    const decipher = forge.cipher.createDecipher(
+    // Decrypt the data
+    const decryptor = forge.cipher.createDecipher(
         "AES-CBC",
         Utils.fromArrayToByteString(key.encryptionKey) as string,
     );
-    decipher.start({ iv: Utils.fromArrayToByteString(iv) as string });
-    decipher.update(forge.util.createBuffer(Utils.fromArrayToByteString(data) as string));
-
-    if (!decipher.finish()) {
+    decryptor.start({ iv: Utils.fromArrayToByteString(iv) as string });
+    decryptor.update(forge.util.createBuffer(Utils.fromArrayToByteString(data) as string));
+    if (!decryptor.finish()) {
         throw new Error("Decryption failed.");
     }
 
-    const decryptedBytes = Utils.fromByteStringToArray(decipher.output.getBytes());
+    // PKCS#7 padding is not used. Therefore, the plaintext will look something like:
+    // [DATA][DATA][DATA][PARTIAL], where data are full 16-byte blocks, and partial is the last
+    // block, that contains up to 16 null bytes, along with a prefix of data, i.e:
+    // [PARTIAL] = [1,2,3,4,5,0,0,0,0,0,0,0,0,0,0,0] (if the last block has 5 bytes of data)
+    // We have to remove the trailing null bytes here.
+    const decryptedBytes = Utils.fromByteStringToArray(decryptor.output.getBytes());
     let endIndex = decryptedBytes.length;
     while (endIndex > 0 && decryptedBytes[endIndex - 1] === 0) {
         endIndex--;
@@ -56,6 +59,7 @@ export function DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
 
     return decryptedBytes.slice(0, endIndex);
 }
+
 // Safely compare two values in a way that protects against timing attacks (Double HMAC Verification).
 // ref: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
 // ref: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
