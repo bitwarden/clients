@@ -1,14 +1,4 @@
-import {
-  AfterViewChecked,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  ElementRef,
-  OnDestroy,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -31,15 +21,13 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
-import { PolicyCategory, PolicyCategoryPipe } from "./pipes/policy-category.pipe";
-import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-import { PolicyListService } from "./policy-list.service";
+import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, PolicyOrderPipe, PolicyCategoryPipe],
+  imports: [SharedModule, HeaderModule],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -48,25 +36,15 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent implements AfterViewChecked, OnDestroy {
+export class PoliciesComponent implements OnDestroy {
   private myDialogRef?: DialogRef;
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
-  private intersectionObserver?: IntersectionObserver;
-  private scrollSpySetup = false;
-
-  protected readonly PolicyCategory = PolicyCategory;
-  protected readonly activeCategory = signal<PolicyCategory>(PolicyCategory.DataControl);
-
-  private readonly stickyWrapper = viewChild<ElementRef<HTMLElement>>("stickyWrapper");
-  private readonly dataSection = viewChild<ElementRef<HTMLElement>>("dataSection");
-  private readonly authSection = viewChild<ElementRef<HTMLElement>>("authSection");
-  private readonly vaultSection = viewChild<ElementRef<HTMLElement>>("vaultSection");
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
     map((params) => params.organizationId),
   );
 
-  protected organization$: Observable<Organization> = combineLatest([
+  private organization$: Observable<Organization> = combineLatest([
     this.userId$,
     this.organizationId$,
   ]).pipe(
@@ -83,10 +61,6 @@ export class PoliciesComponent implements AfterViewChecked, OnDestroy {
     ),
   );
 
-  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
-    this.policyListService.getPolicies(),
-  );
-
   private orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policies$(userId)),
@@ -98,12 +72,37 @@ export class PoliciesComponent implements AfterViewChecked, OnDestroy {
 
   protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
     map((orgPolicies) => {
-      const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-      orgPolicies.forEach((op) => {
-        policiesEnabledMap.set(op.type, op.enabled);
-      });
-      return policiesEnabledMap;
+      const map = new Map<PolicyType, boolean>();
+      orgPolicies.forEach((op) => map.set(op.type, op.enabled));
+      return map;
     }),
+  );
+
+  protected policySections$: Observable<PolicySection[]> = this.organization$.pipe(
+    switchMap((organization) =>
+      combineLatest(
+        this.policyListService.sections.map((section) => {
+          const displayChecks =
+            section.policies.length > 0
+              ? combineLatest(
+                  section.policies.map((p) =>
+                    p
+                      .display$(organization, this.configService)
+                      .pipe(map((visible) => (visible ? p : null))),
+                  ),
+                )
+              : of([] as (BasePolicyEditDefinition | null)[]);
+
+          return displayChecks.pipe(
+            map((results) => ({
+              category: section.category,
+              labelKey: section.labelKey,
+              policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
+            })),
+          );
+        }),
+      ),
+    ),
   );
 
   constructor(
@@ -114,100 +113,29 @@ export class PoliciesComponent implements AfterViewChecked, OnDestroy {
     private policyListService: PolicyListService,
     private dialogService: DialogService,
     private policyService: PolicyService,
-    protected configService: ConfigService,
+    private configService: ConfigService,
     private destroyRef: DestroyRef,
-    private cdr: ChangeDetectorRef,
   ) {
     this.handleLaunchEvent();
   }
 
-  ngAfterViewChecked() {
-    if (
-      !this.scrollSpySetup &&
-      this.dataSection() != null &&
-      this.authSection() != null &&
-      this.vaultSection() != null
-    ) {
-      this.scrollSpySetup = true;
-      this.setupScrollSpy();
-    }
-  }
-
   ngOnDestroy() {
     this.myDialogRef?.close();
-    this.intersectionObserver?.disconnect();
-  }
-
-  private setupScrollSpy() {
-    const sectionMap = new Map<Element, PolicyCategory>([
-      [this.dataSection()!.nativeElement, PolicyCategory.DataControl],
-      [this.authSection()!.nativeElement, PolicyCategory.Authentication],
-      [this.vaultSection()!.nativeElement, PolicyCategory.VaultManagement],
-    ]);
-
-    this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const category = sectionMap.get(entry.target);
-            if (category != null) {
-              this.activeCategory.set(category);
-              this.cdr.markForCheck();
-            }
-          }
-        }
-      },
-      { rootMargin: "-10% 0px -85% 0px", threshold: 0 },
-    );
-
-    for (const element of sectionMap.keys()) {
-      this.intersectionObserver.observe(element);
-    }
-  }
-
-  scrollToSection(category: PolicyCategory) {
-    const sectionMap = new Map<PolicyCategory, ElementRef<HTMLElement> | undefined>([
-      [PolicyCategory.DataControl, this.dataSection()],
-      [PolicyCategory.Authentication, this.authSection()],
-      [PolicyCategory.VaultManagement, this.vaultSection()],
-    ]);
-
-    const ref = sectionMap.get(category);
-    if (ref) {
-      const headerHeight = this.stickyWrapper()?.nativeElement.offsetHeight ?? 0;
-      const scrollContainer = ref.nativeElement.closest("main") as HTMLElement | null;
-
-      if (scrollContainer) {
-        const targetTop =
-          ref.nativeElement.getBoundingClientRect().top -
-          scrollContainer.getBoundingClientRect().top +
-          scrollContainer.scrollTop -
-          headerHeight;
-        scrollContainer.scrollTo({ top: targetTop, behavior: "smooth" });
-      } else {
-        ref.nativeElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-    this.activeCategory.set(category);
   }
 
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
-    combineLatest([
-      this.route.queryParams.pipe(first()),
-      this.policies$,
-      this.organizationId$,
-      this.orgPolicies$,
-    ])
+    combineLatest([this.route.queryParams.pipe(first()), this.organizationId$, this.orgPolicies$])
       .pipe(
-        map(([qParams, policies, organizationId, orgPolicies]) => {
+        map(([qParams, organizationId, orgPolicies]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
+            const policies = this.policyListService.getPolicies();
             for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
-                for (let i = 0; i < policies.length; i++) {
-                  if (policies[i].type === orgPolicy.type) {
-                    this.edit(policies[i], organizationId);
+                for (const policy of policies) {
+                  if (policy.type === orgPolicy.type) {
+                    this.edit(policy, organizationId);
                     break;
                   }
                 }
