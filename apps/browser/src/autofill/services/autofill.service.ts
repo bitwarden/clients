@@ -2716,6 +2716,17 @@ export default class AutofillService implements AutofillServiceInterface {
    * @private
    */
   private static fuzzyMatch(options: string[], value: string): boolean {
+    if (!options || !value) {
+      return false;
+    }
+
+    value = value
+      .replace(/(?:\r\n|\r|\n)/g, "")
+      .trim()
+      .toLowerCase();
+
+    return options.some((o) => o === value);
+
     if (
       options == null ||
       options.length === 0 ||
