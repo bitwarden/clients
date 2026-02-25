@@ -122,6 +122,8 @@ module.exports = {
         "sidenav-active-item": "var(--color-sidenav-active-item)",
         "sidenav-item-hover": "var(--color-sidenav-item-hover)",
         "sidenav-active-item-hover": "var(--color-sidenav-active-item-hover)",
+        "sidenav-arrow-hover": "var(--color-sidenav-arrow-hover)",
+        "sidenav-active-arrow-hover": "var(--color-sidenav-active-arrow-hover)",
       },
       hover: {
         default: "var(--color-hover-default)",

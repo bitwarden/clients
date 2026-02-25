@@ -100,6 +100,7 @@
   --color-brand-800: #0d43af;
   --color-brand-900: #0c3276;
   --color-brand-950: #162455;
+  --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
   --color-gray-050: #f9fafb;
@@ -107,6 +108,7 @@
   --color-gray-200: #e5e7eb;
   --color-gray-300: #d1d5dc;
   --color-gray-400: #99a1af;
+  --color-gray-400-rgb: 153, 161, 175;
   --color-gray-500: #6a7282;
   --color-gray-600: #4a5565;
   --color-gray-700: #333e4f;
@@ -223,6 +225,7 @@
   --color-white: #ffffff;
   --color-white-rgb: 255, 255, 255;
   --color-black: #000000;
+  --color-black-rgb: 0, 0, 0;
 
   /* ========================================
    * SEMANTIC FOREGROUND COLORS (Light Mode)
@@ -314,7 +317,10 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
-  --color-bg-sidenav-hover: rgba(var(--color-gray-950-rgb), 0.15);
+  --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  --color-bg-admin-sidenav-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-bg-admin-sidenav-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
   --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
@@ -364,13 +370,17 @@
   --color-sidenav-text: var(--color-white);
   --color-sidenav-active-item: var(--color-brand-900);
   --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-item-hover: var(--color-brand-950);
+  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
 
   --color-admin-sidenav-background: var(--color-gray-100);
   --color-admin-sidenav-text: var(--color-gray-900);
   --color-admin-sidenav-active-item: var(--color-gray-300);
-  --color-admin-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-admin-sidenav-active-item-hover: var(--color-gray-400);
+  --color-admin-sidenav-item-hover: var(--color-bg-admin-sidenav-hover);
+  --color-admin-sidenav-active-item-hover: var(--color-bg-admin-sidenav-hover-strong);
+  --color-admin-sidenav-arrow-hover: var(--color-bg-admin-sidenav-hover);
+  --color-admin-sidenav-active-arrow-hover: var(--color-bg-admin-sidenav-hover-strong);
 }
 
 .theme_light {
@@ -522,7 +532,8 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
-  --color-bg-sidenav-hover: rgba(var(--color-gray-950-rgb), 0.4);
+  --color-bg-sidenav-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
   --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
@@ -569,15 +580,19 @@
     * ======================================== */
   --color-sidenav-background: var(--color-gray-800);
   --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-gray-900);
+  --color-sidenav-active-item: var(--color-gray-600);
   --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-item-hover: var(--color-gray-950);
+  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
 
   --color-admin-sidenav-background: var(--color-gray-800);
   --color-admin-sidenav-text: var(--color-white);
-  --color-admin-sidenav-active-item: var(--color-gray-900);
+  --color-admin-sidenav-active-item: var(--color-gray-600);
   --color-admin-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-admin-sidenav-active-item-hover: var(--color-gray-950);
+  --color-admin-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-admin-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-admin-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
 }
 
 @layer components {

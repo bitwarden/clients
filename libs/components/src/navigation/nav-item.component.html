@@ -16,6 +16,7 @@
         @if (open) {
           <div
             class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus"
+            [class]="startSlotHoverClass()"
           >
             <ng-content select="[slot=start]"></ng-content>
           </div>
