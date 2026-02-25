@@ -1647,7 +1647,6 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
-    this.commandsBackground.init();
     this.contextMenusBackground?.init();
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
