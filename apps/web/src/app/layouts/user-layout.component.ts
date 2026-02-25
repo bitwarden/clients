@@ -4,12 +4,13 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -42,6 +43,11 @@ export class UserLayoutComponent implements OnInit {
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
+  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
+    map((isDisabled) => !isDisabled),
+  );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
