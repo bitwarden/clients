@@ -37,6 +37,7 @@ import {
   ButtonModule,
   CalloutComponent,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -56,7 +57,14 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
+  imports: [
+    ButtonModule,
+    CalloutComponent,
+    CommonModule,
+    IconModule,
+    InputPasswordComponent,
+    I18nPipe,
+  ],
 })
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;

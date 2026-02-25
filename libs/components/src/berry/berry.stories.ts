@@ -75,7 +75,9 @@ export const statusType: Story = {
             <bit-berry [type]="'status'" variant="warning"></bit-berry>
             <bit-berry [type]="'status'" variant="danger"></bit-berry>
             <bit-berry [type]="'status'" variant="accentPrimary"></bit-berry>
-            <bit-berry [type]="'status'" variant="contrast"></bit-berry>
+            <div class="tw-p-2 tw-bg-bg-contrast">
+              <bit-berry [type]="'status'" variant="contrast"></bit-berry>
+            </div>
         </div>
     `,
   }),
@@ -153,8 +155,8 @@ export const AllVariants: Story = {
             <bit-berry variant="accentPrimary" [value]="5000"></bit-berry>
         </div>
 
-        <div class="tw-flex tw-items-center tw-gap-4 tw-bg-bg-dark">
-            <span class="tw-w-20 tw-text-fg-white">Contrast:</span>
+        <div class="tw-flex tw-items-center tw-gap-4 tw-bg-bg-contrast">
+            <span class="tw-w-20 tw-text-fg-contrast">Contrast:</span>
             <bit-berry type="status" variant="contrast"></bit-berry>
             <bit-berry variant="contrast" [value]="5"></bit-berry>
             <bit-berry variant="contrast" [value]="50"></bit-berry>

@@ -1,8 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
   "include": [
-    "apps/web/src/**/*",
     "apps/browser/src/**/*",
+    "apps/cli/src/**/*",
+    "apps/desktop/src/**/*",
+    "apps/web/src/**/*",
     "libs/*/src/**/*",
     "libs/tools/send/**/src/**/*",
     "libs/dirt/card/src/**/*",
@@ -10,8 +12,10 @@
     "bitwarden_license/bit-common/src/**/*"
   ],
   "exclude": [
-    "apps/web/src/**/*.spec.ts",
     "apps/browser/src/**/*.spec.ts",
+    "apps/cli/src/**/*.spec.ts",
+    "apps/desktop/src/**/*.spec.ts",
+    "apps/web/src/**/*.spec.ts",
     "libs/*/src/**/*.spec.ts",
     "**/*.spec-util.ts"
   ]
