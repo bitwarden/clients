@@ -1023,6 +1023,9 @@
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "continue": {
     "message": "繼續"
   },
@@ -4387,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
-  "itemWasSentToArchive": {
-    "message": "項目已移至封存"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "項目取消封存"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "封存項目"
@@ -4485,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "逾時後動作"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
@@ -4612,7 +4618,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
