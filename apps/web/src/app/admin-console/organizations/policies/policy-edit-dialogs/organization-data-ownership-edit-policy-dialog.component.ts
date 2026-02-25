@@ -223,7 +223,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   };
 
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
+    return dialogService.open<PolicyEditDialogResult>(
       OrganizationDataOwnershipPolicyDialogComponent,
       config,
     );

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -14,7 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -170,7 +170,7 @@ export class PoliciesComponent implements OnDestroy {
 
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    this.myDialogRef = dialogComponent.open(this.dialogService, {
+    dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: organizationId,
