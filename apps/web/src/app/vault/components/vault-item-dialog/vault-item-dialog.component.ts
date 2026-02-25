@@ -98,13 +98,6 @@ export interface VaultItemDialogParams {
   isAdminConsoleAction?: boolean;
 
   /**
-   * When true, allows the user to access the edit form regardless of their permissions,
-   * on the cipher. A user with only `view` permissions still needs to be able to
-   * access the form to edit fields like folder or favorites.
-   */
-  bypassCipherEditPermission?: boolean;
-
-  /**
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
@@ -399,7 +392,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipherAuthorizationService.canEditCipher$(
           this.cipher,
           this.params.isAdminConsoleAction,
-          this.params.bypassCipherEditPermission,
+          this.formConfig.mode == "partial-edit",
         ),
       );
 
