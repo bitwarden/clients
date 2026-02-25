@@ -12,7 +12,7 @@ import {
   Observable,
   of,
   retry,
-  share,
+  shareReplay,
   takeUntil,
   startWith,
   Subject,
@@ -114,7 +114,7 @@ export class PhishingDataService {
       ),
     ),
     takeUntil(this._destroy$),
-    share(),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
   constructor(
