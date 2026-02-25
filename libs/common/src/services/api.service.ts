@@ -47,8 +47,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -299,15 +297,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
     return new PreloginResponse(r);
   }
-
-  postEmailToken(request: EmailTokenRequest): Promise<any> {
-    return this.send("POST", "/accounts/email-token", request, true, false);
-  }
-
-  postEmail(request: EmailRequest): Promise<any> {
-    return this.send("POST", "/accounts/email", request, true, false);
-  }
-
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
