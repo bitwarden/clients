@@ -59,7 +59,6 @@ export abstract class CipherAuthorizationService {
    *
    * @param {CipherLike} cipher - The cipher object to evaluate for edit permissions.
    * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
-   * @param {boolean} bypassCipherEditPermission - Optional. A flag indicating if edits should be allowed regardless of permissions, typically used to allow users with only view permissions to access the edit form for certain fields.
    *
    * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can edit the cipher.
    */
