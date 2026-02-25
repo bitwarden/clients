@@ -131,6 +131,8 @@ export class Utils {
     return arr;
   }
 
+  static fromArrayToHex(arr: Uint8Array): string;
+  static fromArrayToHex(arr: null): null;
   /**
    * Converts a Uint8Array to a hexadecimal string.
    * @param arr - The Uint8Array to convert.
@@ -145,6 +147,8 @@ export class Utils {
     return arr.toHex();
   }
 
+  static fromArrayToB64(arr: Uint8Array): string;
+  static fromArrayToB64(arr: null): null;
   /**
    * Converts a Uint8Array to a Base64 encoded string.
    * @param arr - The Uint8Array to convert.
@@ -159,6 +163,8 @@ export class Utils {
     return arr.toBase64({ alphabet: "base64" });
   }
 
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
   /**
    * Converts a Uint8Array to a URL-safe Base64 encoded string.
    * @param arr - The Uint8Array to convert.
@@ -173,6 +179,8 @@ export class Utils {
     return arr.toBase64({ alphabet: "base64url" });
   }
 
+  static fromArrayToByteString(arr: null): null;
+  static fromArrayToByteString(arr: Uint8Array): string;
   /**
    * Converts a Uint8Array to a byte string (each byte as a character).
    * @param arr - The Uint8Array to convert.
@@ -190,6 +198,8 @@ export class Utils {
     return byteString;
   }
 
+  static fromArrayToUtf8(arr: Uint8Array): string;
+  static fromArrayToUtf8(arr: null): null;
   /**
    * Converts a Uint8Array to a UTF-8 decoded string.
    * @param arr - The Uint8Array containing UTF-8 encoded bytes.
