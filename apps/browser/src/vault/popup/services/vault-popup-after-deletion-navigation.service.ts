@@ -44,7 +44,7 @@ export class VaultPopupAfterDeletionNavigationService {
    * Resets the vault scroll position on non-Firefox browsers to prevent
    * auto-scrolling to a stale position. Firefox is excluded because eagerly
    * clearing scroll state triggers its native scroll restoration, causing
-   * the vault to jump to the top.
+   * unwanted scroll behavior.
    *
    * @param routeAfterDeletion - The target route to navigate to. Defaults to the main vault tab.
    */
