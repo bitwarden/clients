@@ -12,6 +12,7 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -211,6 +212,9 @@ export class VaultV2Component<C extends CipherViewLike>
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
   readonly userHasPremium = signal<boolean>(false);
+  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
+    initialValue: false,
+  });
   protected itemTypesIcon = ItemTypes;
 
   /** Tracks the disabled status of the edit cipher form */
@@ -620,7 +624,7 @@ export class VaultV2Component<C extends CipherViewLike>
       }
     }
 
-    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
+    if (this.archiveFlagEnabled() && !cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
