@@ -1205,8 +1205,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     let availableCollections: CollectionView[] = [];
     const orgId =
-      this.activeFilter.organizationId ||
-      ciphers.find((c) => c.organizationId !== undefined)?.organizationId;
+      this.activeFilter.organizationId || ciphers.find((c) => !!c.organizationId)?.organizationId;
 
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);

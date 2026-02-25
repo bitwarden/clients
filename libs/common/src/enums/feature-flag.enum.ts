@@ -19,6 +19,7 @@ export enum FeatureFlag {
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
+  PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
 
   /* Autofill */
@@ -70,6 +71,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
   PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
@@ -88,9 +90,6 @@ export enum FeatureFlag {
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
-
-  /* Secrets Manager */
-  SM1719_RemoveSecretsManagerAds = "sm-1719-remove-secrets-manager-ads",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -139,6 +138,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
+  [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
@@ -147,6 +147,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
+  [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
 
   /* Billing */
@@ -185,9 +186,6 @@ export const DefaultFeatureFlagValue = {
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
-
-  /* Secrets Manager */
-  [FeatureFlag.SM1719_RemoveSecretsManagerAds]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

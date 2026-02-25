@@ -1925,7 +1925,7 @@
     "message": "Ověřovací aplikace"
   },
   "authenticatorAppDescV2": {
-    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Autentikátor Bitwarden.",
+    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -2704,7 +2704,7 @@
     "message": "Pokračovat na bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Autentikátor Bitwarden umožňuje ukládat ověřovací klíče a generovat TOTP kódy pro 2-fázové ověřování. Další informace naleznete na stránkách bitwarden.com"
+    "message": "Bitwarden Authenticator umožňuje ukládat ověřovací klíče a generovat TOTP kódy pro 2-fázové ověřování. Další informace naleznete na stránkách bitwarden.com"
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Naskenujte QR kód pomocí Vaší ověřovací aplikace nebo zadejte klíč."
@@ -7418,7 +7418,7 @@
     "message": "Neplatný ověřovací kód"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Neplatný e-mail nebo ověřovací kód"
   },
   "keyConnectorDomain": {
     "message": "Doména Key Connectoru"
@@ -12876,6 +12876,21 @@
   },
   "storageFullDescription": {
     "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
+  },
+  "extensionPromptHeading": {
+    "message": "Získejte rozšíření pro snadný přístup k trezoru"
+  },
+  "extensionPromptBody": {
+    "message": "S nainstalovaným rozšířením prohlížeče budete mít Bitwarden všude online. Budou se vyplňovat hesla, takže se můžete přihlásit do svých účtů jediným klepnutím."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Webový prohlížeč zobrazující rozšíření Bitwarden s položkami automatického vyplňování aktuální webové stránky."
+  },
+  "skip": {
+    "message": "Přeskočit"
+  },
+  "downloadExtension": {
+    "message": "Nainstalovat rozšíření"
   },
   "whoCanView": {
     "message": "Kdo může zobrazit"

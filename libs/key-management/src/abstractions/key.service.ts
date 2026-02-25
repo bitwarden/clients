@@ -175,21 +175,6 @@ export abstract class KeyService {
     hashPurpose?: HashPurpose,
   ): Promise<string>;
   /**
-   * Compares the provided master password to the stored password hash.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
-   * @param masterPassword The user's master password
-   * @param masterKey The user's master key
-   * @param userId The id of the user to do the operation for.
-   * @throws Error when master key is null/undefined.
-   * @returns True if the derived master password hash matches the stored
-   * key hash, false otherwise.
-   */
-  abstract compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean>;
-  /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory
    * @param orgs The organizations to set keys for
@@ -316,7 +301,6 @@ export abstract class KeyService {
    * @throws Error when provided userId is null or undefined
    */
   abstract clearKeys(userId: UserId): Promise<void>;
-  abstract randomNumber(min: number, max: number): Promise<number>;
   /**
    * Generates a new cipher key
    * @returns A new cipher key

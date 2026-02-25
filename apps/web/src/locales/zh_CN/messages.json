@@ -4338,7 +4338,7 @@
     }
   },
   "automaticallyConfirmedUserId": {
-    "message": "Automatically confirmed user $ID$.",
+    "message": "自动确认了用户 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6148,19 +6148,19 @@
     "message": "我接受这些风险和策略更新"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Turned on Automatic user confirmation setting"
+    "message": "启用了自动用户确认设置"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Turned off Automatic user confirmation setting"
+    "message": "停用了自动用户确认设置"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Added Automatic user confirmation policy"
+    "message": "添加了自动用户确认策略"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Removed Automatic user confirmation policy"
+    "message": "禁用了自动用户确认策略"
   },
   "system": {
-    "message": "System"
+    "message": "系统"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -6761,7 +6761,7 @@
     "message": "1 份邀请未发送"
   },
   "bulkReinviteFailureDescription": {
-    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试重新发送，如果问题仍然存在，",
+    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9171,7 +9171,7 @@
     "message": "查看全部"
   },
   "showingPortionOfTotal": {
-    "message": "显示 $PORTION$ / $TOTAL$",
+    "message": "显示 $TOTAL$ 中的 $PORTION$",
     "placeholders": {
       "portion": {
         "content": "$1",
@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   },
+  "extensionPromptHeading": {
+    "message": "获取扩展以便轻松访问密码库"
+  },
+  "extensionPromptBody": {
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "跳过"
+  },
+  "downloadExtension": {
+    "message": "下载扩展"
+  },
   "whoCanView": {
     "message": "谁可以查看"
   },
@@ -12917,16 +12932,16 @@
     "message": "无效的 Send 密码"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "You're in! Welcome to Bitwarden"
+    "message": "您已成功加入！欢迎使用 Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+    "message": "将您的所有密码和个人信息存储在你的 Bitwarden 密码库中。我们将带您熟悉一下。"
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Start tour"
+    "message": "开始导览"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "跳过"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",

@@ -4609,16 +4609,16 @@
     "message": "İrəliləyiş yüklənir"
   },
   "reviewingMemberData": {
-    "message": "Reviewing member data..."
+    "message": "Üzv veriləri incələnir..."
   },
   "analyzingPasswords": {
-    "message": "Analyzing passwords..."
+    "message": "Parollar təhlil edilir..."
   },
   "calculatingRisks": {
-    "message": "Calculating risks..."
+    "message": "Risklər hesablanır..."
   },
   "generatingReports": {
-    "message": "Generating reports..."
+    "message": "Hesabatlar yaradılır..."
   },
   "compilingInsightsProgress": {
     "message": "Compiling insights..."
@@ -6456,7 +6456,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "Bu \"Send\"ə baxmaq üçün e-poçtunuzu doğrulayın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Bütün $GB$ GB-lıq şifrələnmiş anbar sahənizi istifadə etmisiniz. Faylları saxlaya bilmək üçün daha çox anbar sahəsi əlavə edin."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Kimlər baxa bilər"
   },
@@ -12989,7 +13004,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresOn": {
-    "message": "This Send expires at $TIME$ on $DATE$",
+    "message": "Bu \"Send\"in müddəti bitir: $TIME$ $DATE$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
