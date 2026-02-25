@@ -92,6 +92,7 @@ libs/angular/src/billing @bitwarden/team-billing-dev
 libs/common/src/billing @bitwarden/team-billing-dev
 libs/billing @bitwarden/team-billing-dev
 libs/pricing @bitwarden/team-billing-dev
+libs/subscription @bitwarden/team-billing-dev
 bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 
 ## Platform team files ##
@@ -191,6 +192,7 @@ libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
 libs/user-crypto-management @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
+libs/unlock @bitwarden/team-key-management-dev
 # Node-cryptofunction service
 libs/node @bitwarden/team-key-management-dev
 
@@ -247,4 +249,3 @@ apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-plat
 .claude/ @bitwarden/team-ai-sme
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
-libs/subscription @bitwarden/team-billing-dev
