@@ -38,11 +38,6 @@ and the layout shifts to its expanded form. Apply `slot="title"` to any element.
 Only visible when a title is projected. At wide widths the actions are right-aligned; at narrow
 widths they appear below the body text. Wrap action elements in `ng-container slot="actions"`.
 
-## Icons
-
-Icons should remain consistent across these types. Do not change the icon without consulting
-designers.
-
 ## Variants
 
 Use the following guidelines to help choose the correct variant.
@@ -50,6 +45,16 @@ Use the following guidelines to help choose the correct variant.
 <Canvas of={stories.AllVariantsNoTitle} />
 
 <Canvas of={stories.AllVariantsWithTitle} />
+
+## Icons
+
+Icons should remain consistent across these types. Do not change the icon without consulting
+designers.
+
+The default icon for each variant can be overridden by passing any `bwi` icon class to the `[icon]`
+input. Pass `[icon]="null"` to suppress the icon entirely.
+
+<Canvas of={stories.AllVariantsCustomIcon} />
 
 ## Accessibility
 
