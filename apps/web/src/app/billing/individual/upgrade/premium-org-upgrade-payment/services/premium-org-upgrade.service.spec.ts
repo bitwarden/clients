@@ -122,7 +122,7 @@ describe("PremiumOrgUpgradeService", () => {
         organizationKey: "org-key-encrypted",
         collectionName: "collection-encrypted",
         publicKey: "public-key",
-        wrappedPrivateKey: "private-key-encrypted",
+        encryptedPrivateKey: "private-key-encrypted",
         planTier: ProductTierType.Teams,
         cadence: "annually",
         billingAddress: mockBillingAddress,
