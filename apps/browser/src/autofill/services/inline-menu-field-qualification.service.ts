@@ -1215,7 +1215,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     keywords: string[],
     fuzzyMatchKeywords = true,
   ) {
-    const searchedValues = this.getAutofillFieldDataKeywords(autofillFieldData, fuzzyMatchKeywords);
+    const returnStringValue = fuzzyMatchKeywords;
+    const searchedValues = this.getAutofillFieldDataKeywords(autofillFieldData, returnStringValue);
     const parsedKeywords = keywords.map((keyword) => keyword.replace(/-/g, ""));
 
     if (typeof searchedValues === "string") {
