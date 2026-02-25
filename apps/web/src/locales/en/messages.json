@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Minimum number of words"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Password type",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {

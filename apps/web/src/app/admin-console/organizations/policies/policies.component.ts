@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -14,7 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -37,8 +37,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent implements OnDestroy {
-  private myDialogRef?: DialogRef;
+export class PoliciesComponent {
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -99,10 +98,6 @@ export class PoliciesComponent implements OnDestroy {
     this.handleLaunchEvent();
   }
 
-  ngOnDestroy() {
-    this.myDialogRef?.close();
-  }
-
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
     combineLatest([
@@ -136,7 +131,7 @@ export class PoliciesComponent implements OnDestroy {
   edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    this.myDialogRef = dialogComponent.open(this.dialogService, {
+    dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: organizationId,

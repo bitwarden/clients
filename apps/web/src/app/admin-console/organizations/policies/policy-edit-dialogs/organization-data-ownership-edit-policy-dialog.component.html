@@ -1,5 +1,5 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-h-full tw-flex tw-flex-col">
-  <bit-dialog dialogSize="large" [loading]="loading">
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
     <ng-container bitDialogTitle>
       @let title = multiStepSubmit()[currentStep()]?.titleContent();
       @if (title) {
@@ -35,12 +35,7 @@
 </form>
 
 <ng-template #step0Title>
-  <span class="tw-flex tw-items-center tw-gap-2">
-    {{ policy.name | i18n }}
-    @if (isPolicyEnabled) {
-      <span bitBadge variant="success">{{ "on" | i18n }}</span>
-    }
-  </span>
+  {{ policy.name | i18n }}
 </ng-template>
 
 <ng-template #step1Title>
