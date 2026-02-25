@@ -149,6 +149,10 @@ export class TrendWidgetComponent {
     ];
   });
 
+  private getFileDownloadName() {
+    return `risk-over-time-${this.selectedView()}-${this.selectedTimespan()}-${new Date().toDateString()}`;
+  }
+
   private getAtRiskLabel(view: TrendWidgetViewType): string {
     switch (view) {
       case TrendWidgetViewType.Applications:
@@ -191,7 +195,7 @@ export class TrendWidgetComponent {
         return;
       }
 
-      const fileName = ExportHelper.getFileName("trend_chart", "png");
+      const fileName = ExportHelper.getFileName(this.getFileDownloadName(), "png");
       this.fileDownloadService.download({
         fileName,
         blobData: blob,
@@ -212,7 +216,7 @@ export class TrendWidgetComponent {
     }));
 
     const csv = papa.unparse(csvData);
-    const fileName = ExportHelper.getFileName("trend_data", "csv");
+    const fileName = ExportHelper.getFileName(this.getFileDownloadName(), "csv");
 
     this.fileDownloadService.download({
       fileName,
