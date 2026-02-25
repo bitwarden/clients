@@ -58,11 +58,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Setup Node.js
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 24
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Get current SDK version from base branch
         id: get-current-sdk
@@ -419,11 +427,19 @@ jobs:
           ref: ${{ inputs.base-branch }}
           persist-credentials: false
 
-      - name: Setup Node.js
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 24
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Validate SDK version exists
         env:
