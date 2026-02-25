@@ -43,6 +43,13 @@ describe("TrendWidgetComponent", () => {
     mockI18nService.t.mockImplementation((key: string) => key);
     mockThemeStateService.selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
 
+    // Mock getComputedStyle for CSS variable access
+    global.getComputedStyle = jest.fn(() => ({
+      getPropertyValue: jest.fn((prop: string) => {
+        return "";
+      }),
+    })) as any;
+
     // Mock canvas context for Chart.js
     HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
       fillRect: jest.fn(),
@@ -182,6 +189,41 @@ describe("TrendWidgetComponent", () => {
     it("should not display loading state", () => {
       const spinnerIcon = fixture.debugElement.query(By.css('bit-icon[name="bwi-spinner"]'));
       expect(spinnerIcon).toBeNull();
+    });
+  });
+
+  describe("view selector", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("data", mockData);
+      fixture.componentRef.setInput("loading", false);
+      fixture.componentRef.setInput("error", null);
+      fixture.detectChanges();
+    });
+
+    it("should have Applications as the default selected view", () => {
+      expect(component.selectedView()).toBe(TrendWidgetViewType.Applications);
+    });
+
+    it("should include toggle options for applications, passwords, and members", () => {
+      const toggles = fixture.debugElement.queryAll(By.css("bit-toggle"));
+      expect(toggles).toHaveLength(3);
+
+      expect(toggles[0].nativeElement.textContent.trim()).toBe("applications");
+      expect(toggles[1].nativeElement.textContent.trim()).toBe("passwords");
+      expect(toggles[2].nativeElement.textContent.trim()).toBe("members");
+    });
+
+    it("should update selectedView signal and emit viewChanged event when toggle is clicked", () => {
+      const viewChangedSpy = jest.fn();
+      component.viewChanged.subscribe(viewChangedSpy);
+
+      const toggles = fixture.debugElement.queryAll(By.css("bit-toggle"));
+      const passwordsToggleInput = toggles[1].nativeElement.querySelector('input[type="radio"]');
+      passwordsToggleInput.click();
+      fixture.detectChanges();
+
+      expect(component.selectedView()).toBe(TrendWidgetViewType.Passwords);
+      expect(viewChangedSpy).toHaveBeenCalledWith(TrendWidgetViewType.Passwords);
     });
   });
 });
