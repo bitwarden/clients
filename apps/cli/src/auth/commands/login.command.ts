@@ -842,33 +842,35 @@ export class LoginCommand {
   }
 
   /**
-   * Validate that a user logging in with SSO that is in an org using MP encryption
-   * has a MP set. If not, they cannot set a MP in the CLI and must use another client.
-   * @param userId
-   * @returns void
+   * Validate that an SSO login can actually decrypt vault data in CLI.
+   *
+   * If a user has no master password and we also do not have a user key in memory,
+   * login should fail with clear guidance instead of reporting success and failing on unlock.
    */
   private async validateSsoUserInMpEncryptionOrgHasMp(userId: UserId): Promise<void> {
     const userDecryptionOptions = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
 
-    // device trust isn't supported in the CLI as we don't have persistent device key storage.
-    const notUsingTrustedDeviceEncryption = !userDecryptionOptions.trustedDeviceOption;
-    const notUsingKeyConnector = !userDecryptionOptions.keyConnectorOption;
-
-    if (
-      notUsingTrustedDeviceEncryption &&
-      notUsingKeyConnector &&
-      !userDecryptionOptions.hasMasterPassword
-    ) {
-      // If user is in an org that is using MP encryption and they JIT provisioned but
-      // have not yet set a MP and come to the CLI to login, they won't be able to unlock
-      // or set a MP in the CLI as it isn't supported.
-      await this.logoutCallback();
-      throw Response.error(
-        "In order to log in with SSO from the CLI, you must first log in" +
-          " through the web vault, the desktop, or the extension to set your master password.",
-      );
+    if (userDecryptionOptions.hasMasterPassword) {
+      return;
     }
+
+    // Key Connector users may complete setup immediately after login via domain confirmation,
+    // so don't block them here before that flow runs.
+    if (userDecryptionOptions.keyConnectorOption?.keyConnectorUrl) {
+      return;
+    }
+
+    const hasUserKey = await this.keyService.hasUserKey(userId);
+    if (hasUserKey) {
+      return;
+    }
+
+    await this.logoutCallback();
+    throw Response.error(
+      "Unable to complete CLI login for this SSO account because no master password is set and no decryptable user key is available. " +
+        "Log in through the web vault, desktop app, or browser extension first to complete account setup, then try CLI again.",
+    );
   }
 }
