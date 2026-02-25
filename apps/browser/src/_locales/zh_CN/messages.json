@@ -897,7 +897,7 @@
     "message": "无效的验证码"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "无效的电子邮箱或验证码"
   },
   "valueCopied": {
     "message": "$VALUE$ 已复制",
@@ -2861,7 +2861,7 @@
     "message": "存在风险的登录列表示意图。"
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden 密码库页面布局示意图。"
   },
   "generatePasswordSlideDesc": {
     "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
@@ -6167,7 +6167,7 @@
     "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -6183,6 +6183,6 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "用户验证失败。"
   }
 }

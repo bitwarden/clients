@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Du har använt alla $GB$ GB av din krypterade lagring. För att fortsätta lagra filer, lägg till mer lagringsutrymme."
   },
+  "extensionPromptHeading": {
+    "message": "Skaffa tillägget för enkel åtkomst till valv"
+  },
+  "extensionPromptBody": {
+    "message": "Med webbläsartillägget installerat tar du Bitwarden överallt på nätet. Det fyller i lösenord, så att du kan logga in på dina konton med ett enda klick."
+  },
+  "extensionPromptImageAlt": {
+    "message": "En webbläsare som visar Bitwarden-tillägget med autofyll objekt för den aktuella webbsidan."
+  },
+  "skip": {
+    "message": "Hoppa över"
+  },
+  "downloadExtension": {
+    "message": "Ladda ner tillägg"
+  },
   "whoCanView": {
     "message": "Vem kan se"
   },
