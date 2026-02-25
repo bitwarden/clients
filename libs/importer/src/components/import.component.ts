@@ -42,6 +42,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -269,6 +271,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
     protected importMetadataService: ImportMetadataServiceAbstraction,
+    protected configService: ConfigService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -370,12 +373,16 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
-    combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
+    combineLatest([
+      this.formGroup.controls.vaultSelector.valueChanges,
+      this.organizations$,
+      this.configService.getFeatureFlag$(FeatureFlag.DefaultImportMyItems),
+    ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([value, organizations]) => {
+      .subscribe(([value, organizations, flagEnabled]) => {
         this.organizationId = value !== "myVault" ? value : undefined;
 
-        if (!this._importBlockedByPolicy) {
+        if (!this._importBlockedByPolicy || flagEnabled) {
           this.formGroup.controls.targetSelector.enable();
         }
 
@@ -395,27 +402,49 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async handlePolicies() {
-    combineLatest([
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    const policyAndOrgs$ = combineLatest([
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        switchMap((uid) =>
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, uid),
         ),
       ),
       this.organizations$,
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([policyApplies, orgs]) => {
-        this._importBlockedByPolicy = policyApplies;
-        if (policyApplies && orgs.length == 0) {
-          this.formGroup.disable();
-        }
+    ]);
 
-        // If there are orgs the user has access to import into set
-        // the default value to the first org in the collection.
-        if (policyApplies && orgs.length > 0) {
-          this.formGroup.controls.vaultSelector.setValue(orgs[0].id);
-        }
+    // Existing behaviour: force vault selector, disable form when no orgs available
+    policyAndOrgs$.pipe(takeUntil(this.destroy$)).subscribe(([policyApplies, orgs]) => {
+      this._importBlockedByPolicy = policyApplies;
+      if (policyApplies && orgs.length == 0) {
+        this.formGroup.disable();
+      }
+
+      // If there are orgs the user has access to import into set
+      // the default value to the first org in the collection.
+      if (policyApplies && orgs.length > 0) {
+        this.formGroup.controls.vaultSelector.setValue(orgs[0].id);
+      }
+    });
+
+    // When policy applies, auto-select the "My Items" collection as the default import target
+    combineLatest([
+      policyAndOrgs$,
+      this.configService.getFeatureFlag$(FeatureFlag.DefaultImportMyItems),
+    ])
+      .pipe(
+        filter(
+          ([[policyApplies, orgs], flagEnabled]) => flagEnabled && policyApplies && orgs.length > 0,
+        ),
+        switchMap(([[, orgs]]) =>
+          this.collectionService.defaultUserCollection$(userId, orgs[0].id as OrganizationId),
+        ),
+        filter(Boolean),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((defaultCollection) => {
+        this.formGroup.controls.targetSelector.setValue(defaultCollection);
       });
   }
 
