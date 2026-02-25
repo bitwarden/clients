@@ -13,7 +13,7 @@
         <bit-toggle [value]="ViewType.Members">{{ "members" | i18n }}</bit-toggle>
       </bit-toggle-group>
     </div>
-    <div>Time period selector here</div>
+    <dirt-period-selector (selectedPeriodChange)="onTimespanChange($event)"></dirt-period-selector>
   </div>
   <div class="tw-relative tw-h-96">
     @if (loading()) {

@@ -10,12 +10,12 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { LineChartComponent } from "../../../shared/line-chart.component";
+import { TimePeriod } from "../period-selector/period-selector.types";
 
 import {
   TrendWidgetComponent,
   TrendWidgetData,
   TrendWidgetViewType,
-  TrendWidgetTimespan,
 } from "./trend-widget.component";
 
 describe("TrendWidgetComponent", () => {
@@ -26,7 +26,7 @@ describe("TrendWidgetComponent", () => {
   let mockSystemTheme$: BehaviorSubject<ThemeType>;
 
   const mockData: TrendWidgetData = {
-    timeframe: TrendWidgetTimespan.PastMonth,
+    timeframe: TimePeriod.PastMonth,
     dataView: TrendWidgetViewType.Applications,
     dataPoints: [
       { timestamp: "2024-01-01", atRisk: 5, total: 10 },
