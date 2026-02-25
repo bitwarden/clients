@@ -60,6 +60,8 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
+import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -492,6 +494,17 @@ const safeProviders: SafeProvider[] = [
       WINDOW,
       LogService,
       ConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: ChangeEmailService,
+    useClass: DefaultChangeEmailService,
+    deps: [
+      ConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+      ApiService,
+      KeyServiceAbstraction,
     ],
   }),
 ];
