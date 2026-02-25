@@ -146,7 +146,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -159,11 +159,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Build & Package Unix
         env:
@@ -421,7 +440,7 @@ jobs:
         working-directory: ./
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -434,11 +453,30 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type != 'commercial' }}
         working-directory: ./
         run: |
           ls -l ../
           npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' && matrix.license_type.type == 'commercial' }}
+        working-directory: ./
+        run: |
+          npm link ../commercial-sdk-internal
 
       - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
