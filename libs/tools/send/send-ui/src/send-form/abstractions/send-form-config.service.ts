@@ -31,6 +31,21 @@ type BaseSendFormConfig = {
   areSendsAllowed: boolean;
 
   /**
+   * Policy restriction: users may not create or edit Sends with no authentication (AuthType.None).
+   */
+  disableNoAuthSends: boolean;
+
+  /**
+   * Policy restriction: users may not create or edit Sends that require a password (AuthType.Password).
+   */
+  disablePasswordSends: boolean;
+
+  /**
+   * Policy restriction: users may not create or edit Sends that require email verification (AuthType.Email).
+   */
+  disableEmailVerifiedSends: boolean;
+
+  /**
    * The original send that is being edited or cloned. This can be undefined when creating a new send.
    */
   originalSend?: Send;
