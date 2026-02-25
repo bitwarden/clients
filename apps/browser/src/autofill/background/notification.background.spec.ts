@@ -28,6 +28,7 @@ import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
+import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
@@ -81,6 +82,8 @@ describe("NotificationBackground", () => {
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
+  const fido2Background = mock<Fido2Background>();
+  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject({
@@ -115,6 +118,7 @@ describe("NotificationBackground", () => {
       userNotificationSettingsService,
       taskService,
       messagingService,
+      fido2Background,
     );
   });
 
@@ -126,9 +130,11 @@ describe("NotificationBackground", () => {
     it("returns a cipher view when passed an `AddLoginQueueMessage`", () => {
       const message: AddLoginQueueMessage = {
         type: "add",
-        username: "test",
-        password: "password",
-        uri: "https://example.com",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "https://example.com",
+        },
         domain: "",
         tab: createChromeTabMock(),
         expires: new Date(),
@@ -140,13 +146,13 @@ describe("NotificationBackground", () => {
       expect(cipherView.name).toEqual("example.com");
       expect(cipherView.login).toEqual({
         fido2Credentials: [],
-        password: message.password,
+        password: message.data.password,
         uris: [
           {
-            _uri: message.uri,
+            _uri: message.data.uri,
           },
         ],
-        username: message.username,
+        username: message.data.username,
       });
     });
 
@@ -154,9 +160,11 @@ describe("NotificationBackground", () => {
       const folderId = "folder-id";
       const message: AddLoginQueueMessage = {
         type: "add",
-        username: "test",
-        password: "password",
-        uri: "https://example.com",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "https://example.com",
+        },
         domain: "example.com",
         tab: createChromeTabMock(),
         expires: new Date(),
@@ -169,6 +177,44 @@ describe("NotificationBackground", () => {
       );
 
       expect(cipherView.folderId).toEqual(folderId);
+    });
+
+    it("removes 'www.' prefix from hostname when generating cipher name", () => {
+      const message: AddLoginQueueMessage = {
+        type: "add",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "https://www.example.com",
+        },
+        domain: "www.example.com",
+        tab: createChromeTabMock(),
+        expires: new Date(),
+        wasVaultLocked: false,
+        launchTimestamp: 0,
+      };
+      const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
+
+      expect(cipherView.name).toEqual("example.com");
+    });
+
+    it("uses domain as fallback when hostname cannot be extracted from uri", () => {
+      const message: AddLoginQueueMessage = {
+        type: "add",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "",
+        },
+        domain: "fallback-domain.com",
+        tab: createChromeTabMock(),
+        expires: new Date(),
+        wasVaultLocked: false,
+        launchTimestamp: 0,
+      };
+      const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
+
+      expect(cipherView.name).toEqual("fallback-domain.com");
     });
   });
 
@@ -717,7 +763,6 @@ describe("NotificationBackground", () => {
           notificationBackground as any,
           "getEnableChangedPasswordPrompt",
         );
-
         pushChangePasswordToQueueSpy = jest.spyOn(
           notificationBackground as any,
           "pushChangePasswordToQueue",
@@ -774,6 +819,22 @@ describe("NotificationBackground", () => {
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce(storedCiphersForURL);
+
+        await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+        expectSkippedCheckingNotification();
+      });
+
+      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+        const formEntryData: ModifyLoginCipherFormData = {
+          newPassword: "",
+          password: "",
+          uri: mockFormURI,
+          username: "ADent",
+        };
+
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
@@ -2544,8 +2605,11 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "updated-password",
+            data: {
+              username: "test",
+              password: "updated-password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: true,
           });
           notificationBackground["notificationQueue"] = [queueMessage];
@@ -2559,7 +2623,7 @@ describe("NotificationBackground", () => {
 
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.password,
+            queueMessage.data.password,
             message.edit,
             sender.tab,
             "testId",
@@ -2631,9 +2695,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -2670,9 +2739,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -2716,9 +2790,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({

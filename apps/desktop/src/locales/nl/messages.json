@@ -137,10 +137,6 @@
     "message": "Send-details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Te delen tekst"
   },
@@ -1026,6 +1022,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
   },
   "continue": {
     "message": "Doorgaan"
@@ -3759,7 +3758,7 @@
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Direct importeren vanuit browser"
   },
   "browserProfile": {
     "message": "Browserprofiel"
@@ -4391,11 +4390,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "archiveItem": {
     "message": "Item archiveren"
@@ -4443,7 +4442,7 @@
     "message": "En meer!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Geavanceerde online beveiliging"
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
@@ -4489,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Time-out actie"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
@@ -4587,5 +4589,42 @@
   },
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "emails": {
+    "message": "E-mails"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Gebruikersverificatie is mislukt."
   }
 }

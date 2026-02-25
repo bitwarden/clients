@@ -258,7 +258,7 @@ describe("DefaultOrganizationUserService", () => {
           ).toHaveBeenCalledWith(
             mockOrganization.id,
             expect.objectContaining({
-              userIds: mockUserIds,
+              ids: mockUserIds,
               defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
             }),
           );

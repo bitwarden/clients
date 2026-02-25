@@ -2,6 +2,7 @@ import { combineLatest, firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,6 +25,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private sdkService: SdkService,
     private apiService: ApiService,
     private configService: ConfigService,
+    private accountCryptographyStateService: AccountCryptographicStateService,
   ) {}
 
   async regenerateIfNeeded(userId: UserId): Promise<void> {
@@ -162,7 +164,14 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       }
     }
 
-    await this.keyService.setPrivateKey(makeKeyPairResponse.userKeyEncryptedPrivateKey, userId);
+    await this.accountCryptographyStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: makeKeyPairResponse.userKeyEncryptedPrivateKey,
+        },
+      },
+      userId,
+    );
     this.logService.info(
       "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
     );

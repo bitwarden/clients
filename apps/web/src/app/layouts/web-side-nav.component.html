@@ -1,8 +1,12 @@
 <bit-side-nav [variant]="variant">
   <ng-content></ng-content>
 
-  <ng-container slot="footer">
+  <ng-container slot="product-switcher">
+    <bit-nav-divider></bit-nav-divider>
     <navigation-product-switcher></navigation-product-switcher>
+  </ng-container>
+
+  <ng-container slot="footer">
     <app-toggle-width></app-toggle-width>
   </ng-container>
 </bit-side-nav>
