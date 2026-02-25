@@ -233,8 +233,8 @@ export class PolicyEditDialogComponent implements AfterViewInit, OnDestroy {
       title: this.i18nService.t("discardEdits"),
       content: this.i18nService.t("discardEditsDesc"),
       type: "warning",
-      acceptButtonText: { key: "discardEdits" },
-      cancelButtonText: { key: "backToEditing" },
+      acceptButtonText: this.i18nService.t("discardEdits"),
+      cancelButtonText: this.i18nService.t("backToEditing"),
     };
   }
 
