@@ -19,9 +19,6 @@ on:
         description: "Base branch for PR (branch to merge into)"
         type: string
         default: "main"
-      pr-id:
-        description: "Pull Request ID (Test mode only)"
-        type: string
 
 env:
   _BOT_NAME: "github-actions[bot]"
@@ -180,8 +177,8 @@ jobs:
           SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
           echo "📦 Installing SDK version: $SDK_VERSION"
-          npm install @bitwarden/sdk-internal@$SDK_VERSION
-          npm install @bitwarden/commercial-sdk-internal@$SDK_VERSION
+          npm install --save-exact @bitwarden/sdk-internal@$SDK_VERSION
+          npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
       - name: Install dependencies
@@ -191,6 +188,9 @@ jobs:
         id: lint
         run: npm run lint
         continue-on-error: false
+
+      - name: Lint SDK internal versions
+        run: npm run lint:sdk-internal-versions
 
       - name: Run tests
         id: tests
@@ -215,9 +215,9 @@ jobs:
               --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
 
             if [ -n "$CHANGELOG" ]; then
-              echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+              echo "changelog<<__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
-              echo "EOF" >> "$GITHUB_OUTPUT"
+              echo "__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
             else
               echo "⚠️ Could not generate changelog"
@@ -343,11 +343,7 @@ jobs:
           EOF
 
             if [ -n "$CHANGELOG" ]; then
-              cat >> /tmp/pr-body.md <<EOF
-
-          ### What's Changed in SDK
-          $CHANGELOG
-          EOF
+              printf '\n### What'\''s Changed in SDK\n%s\n' "$CHANGELOG" >> /tmp/pr-body.md
             fi
 
             cat >> /tmp/pr-body.md <<EOF
@@ -404,7 +400,6 @@ jobs:
           RUN_MODE: ${{ inputs.run-mode }}
           SDK_VERSION: ${{ inputs.sdk-version }}
           BASE_BRANCH: ${{ inputs.base-branch }}
-          PR_ID: ${{ inputs.pr-id }}
         run: |
           {
             echo "## 📋 Workflow Inputs (Test Mode)"
@@ -412,15 +407,11 @@ jobs:
             echo "- SDK Version: $SDK_VERSION"
             echo "- Base Branch: $BASE_BRANCH"
           } >> $GITHUB_STEP_SUMMARY
-          if [ -n "$PR_ID" ]; then
-            echo "- PR ID: $PR_ID" >> $GITHUB_STEP_SUMMARY
-          fi
 
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.base-branch }}
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node.js
@@ -451,8 +442,8 @@ jobs:
           SDK_VERSION: ${{ inputs.sdk-version }}
         run: |
           echo "📦 Installing SDK version: $SDK_VERSION"
-          npm install @bitwarden/sdk-internal@$SDK_VERSION
-          npm install @bitwarden/commercial-sdk-internal@$SDK_VERSION
+          npm install --save-exact @bitwarden/sdk-internal@$SDK_VERSION
+          npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
       - name: Install dependencies
@@ -462,6 +453,9 @@ jobs:
         id: lint
         run: npm run lint
         continue-on-error: false
+
+      - name: Lint SDK internal versions
+        run: npm run lint:sdk-internal-versions
 
       - name: Run tests
         id: tests
