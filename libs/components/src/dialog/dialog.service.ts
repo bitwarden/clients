@@ -14,7 +14,6 @@ import { filter, firstValueFrom, map, Observable, Subject, switchMap, take } fro
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
@@ -190,7 +189,6 @@ export class DialogService {
   private injector = inject(Injector);
   private router = inject(Router, { optional: true });
   private authService = inject(AuthService, { optional: true });
-  private i18nService = inject(I18nService);
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();

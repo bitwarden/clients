@@ -52,6 +52,7 @@ export class SendAuthComponent implements OnInit {
   authType = AuthType;
 
   private expiredAuthAttempts = 0;
+  private otpSubmitted = false;
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
@@ -80,13 +81,22 @@ export class SendAuthComponent implements OnInit {
     this.loading.set(true);
     this.unavailable.set(false);
     this.error.set(false);
-    const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-    if (sendEmailOtp) {
-      await this.attemptV2Access();
-    } else {
-      await this.attemptV1Access();
+    try {
+      const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
+      if (sendEmailOtp) {
+        await this.attemptV2Access();
+      } else {
+        await this.attemptV1Access();
+      }
+    } finally {
+      this.loading.set(false);
     }
-    this.loading.set(false);
+  }
+
+  onBackToEmail() {
+    this.enterOtp.set(false);
+    this.otpSubmitted = false;
+    this.updatePageTitle();
   }
 
   private async attemptV1Access() {
@@ -184,12 +194,20 @@ export class SendAuthComponent implements OnInit {
         this.updatePageTitle();
       } else if (emailAndOtpRequired(response.error)) {
         this.enterOtp.set(true);
+        if (this.otpSubmitted) {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("invalidEmailOrVerificationCode"),
+          });
+        }
+        this.otpSubmitted = true;
         this.updatePageTitle();
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidVerificationCode"),
+          message: this.i18nService.t("invalidEmailOrVerificationCode"),
         });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
@@ -238,10 +256,12 @@ export class SendAuthComponent implements OnInit {
       if (this.enterOtp()) {
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "enterTheCodeSentToYourEmail" },
+          pageSubtitle: this.sendAccessForm.value.email ?? null,
         });
       } else {
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "verifyYourEmailToViewThisSend" },
+          pageSubtitle: null,
         });
       }
     } else if (authType === AuthType.Password) {

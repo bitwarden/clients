@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   Subject,
@@ -51,7 +53,7 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest: autofill.PasskeyRegistrationRequest;
-  private featureFlag?: FeatureFlag;
+  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
   private isEnabled: boolean = false;
 
   constructor(

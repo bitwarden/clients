@@ -12,6 +12,7 @@ import { SideNavService } from "./side-nav.service";
   templateUrl: "./nav-logo.component.html",
   imports: [RouterLinkActive, RouterLink, SvgComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-contents" },
 })
 export class NavLogoComponent {
   protected readonly sideNavService = inject(SideNavService);
