@@ -1,4 +1,4 @@
-name: SDLC / SDK Update
+name: SDK Update
 run-name: "SDK ${{inputs.run-mode == 'Update' && format('Update - {0}', inputs.sdk-version) || format('Test - {0}', inputs.sdk-version)}}"
 
 on:
