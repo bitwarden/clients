@@ -2,7 +2,7 @@ const { pathsToModuleNameMapper } = require("ts-jest");
 
 const { compilerOptions } = require("./tsconfig.base");
 
-process.env.TZ = "US/Pacific";
+process.env.TZ = "GMT";
 
 /** @type {import('jest').Config} */
 module.exports = {

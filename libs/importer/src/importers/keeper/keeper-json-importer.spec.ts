@@ -163,7 +163,7 @@ describe("Keeper Json Importer", () => {
       // Fields
       expect(birthCertificate.fields.length).toEqual(2);
       expect(getField(birthCertificate, "name")?.value).toEqual("John Michael Doe");
-      expect(getField(birthCertificate, "birthDate")?.value).toEqual("5/14/1990, 3:00:00 PM");
+      expect(getField(birthCertificate, "birthDate")?.value).toEqual("5/14/1990, 10:00:00 PM");
     });
   });
 
@@ -227,8 +227,8 @@ describe("Keeper Json Importer", () => {
       expect(driverLicense.fields.length).toEqual(4);
       expect(getField(driverLicense, "dlNumber")?.value).toEqual("DL-7482693");
       expect(getField(driverLicense, "name")?.value).toEqual("Robert William Anderson");
-      expect(getField(driverLicense, "birthDate")?.value).toEqual("3/14/1985, 3:00:00 PM");
-      expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/14/2028, 4:00:00 PM");
+      expect(getField(driverLicense, "birthDate")?.value).toEqual("3/14/1985, 11:00:00 PM");
+      expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/14/2028, 11:00:00 PM");
     });
   });
 
@@ -249,7 +249,7 @@ describe("Keeper Json Importer", () => {
       expect(getField(encryptedNotes, "note")?.value).toEqual(
         "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
       );
-      expect(getField(encryptedNotes, "date")?.value).toEqual("10/14/2024, 3:00:00 PM");
+      expect(getField(encryptedNotes, "date")?.value).toEqual("10/14/2024, 10:00:00 PM");
     });
   });
 
@@ -374,7 +374,7 @@ describe("Keeper Json Importer", () => {
       ]);
 
       // 12
-      expect(getField(login, "some date")?.value).toEqual("11/30/2025, 12:50:48 PM");
+      expect(getField(login, "some date")?.value).toEqual("11/30/2025, 8:50:48 PM");
 
       // 13
       expect(getField(login, "email")?.value).toEqual("blah@blah.com");
@@ -428,9 +428,9 @@ describe("Keeper Json Importer", () => {
       expect(passport.fields.length).toEqual(5);
       expect(getField(passport, "passportNumber")?.value).toEqual("543826194");
       expect(getField(passport, "name")?.value).toEqual("Jennifer Lynn Williams");
-      expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 3:00:00 PM");
-      expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 3:00:00 PM");
-      expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 3:00:00 PM");
+      expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 10:00:00 PM");
+      expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 10:00:00 PM");
+      expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 10:00:00 PM");
     });
   });
 
@@ -485,8 +485,8 @@ describe("Keeper Json Importer", () => {
       // Fields
       expect(softwareLicense.fields.length).toEqual(3);
       expect(getField(softwareLicense, "licenseNumber")?.value).toEqual("ACDB-7849-2635-1947-8520");
-      expect(getField(softwareLicense, "expirationDate")?.value).toEqual("12/30/2025, 3:00:00 PM");
-      expect(getField(softwareLicense, "dateActive")?.value).toEqual("1/14/2024, 3:00:00 PM");
+      expect(getField(softwareLicense, "expirationDate")?.value).toEqual("12/30/2025, 11:00:00 PM");
+      expect(getField(softwareLicense, "dateActive")?.value).toEqual("1/14/2024, 11:00:00 PM");
     });
   });
 
@@ -815,8 +815,8 @@ describe("Keeper Json Importer", () => {
     // Fields
     expect(pamHardware.fields.length).toEqual(3);
     expect(getField(pamHardware, "Serial Number")?.value).toEqual("SN-R740-2024-001");
-    expect(getField(pamHardware, "Purchase Date")?.value).toEqual("3/14/2024, 4:00:00 PM");
-    expect(getField(pamHardware, "Warranty Expiration")?.value).toEqual("3/14/2027, 4:00:00 PM");
+    expect(getField(pamHardware, "Purchase Date")?.value).toEqual("3/14/2024, 11:00:00 PM");
+    expect(getField(pamHardware, "Warranty Expiration")?.value).toEqual("3/14/2027, 11:00:00 PM");
   });
 
   it("should parse SaaS Subscription", async () => {
@@ -828,7 +828,7 @@ describe("Keeper Json Importer", () => {
     // Fields
     expect(saasSubscription.fields.length).toEqual(3);
     expect(getField(saasSubscription, "Service Name")?.value).toEqual("GitHub");
-    expect(getField(saasSubscription, "Renewal Date")?.value).toEqual("6/29/2026, 3:00:00 PM");
+    expect(getField(saasSubscription, "Renewal Date")?.value).toEqual("6/29/2026, 10:00:00 PM");
     expect(getField(saasSubscription, "Plan Type")?.value).toEqual("Enterprise");
   });
 
