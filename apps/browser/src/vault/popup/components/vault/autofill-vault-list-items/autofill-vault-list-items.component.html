@@ -10,4 +10,6 @@
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
   [groupByType]="groupByType()"
   [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
-></app-vault-list-items-container>
+>
+  <app-simplified-autofill-info slot="title-end"></app-simplified-autofill-info>
+</app-vault-list-items-container>
