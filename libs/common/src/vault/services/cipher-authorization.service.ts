@@ -66,7 +66,6 @@ export abstract class CipherAuthorizationService {
   abstract canEditCipher$: (
     cipher: CipherLike,
     isAdminConsoleAction?: boolean,
-    bypassCipherEditPermission?: boolean,
   ) => Observable<boolean>;
 }
 
@@ -137,11 +136,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    *
    * {@link CipherAuthorizationService.canEditCipher$}
    */
-  canEditCipher$(
-    cipher: CipherLike,
-    isAdminConsoleAction: boolean = false,
-    bypassCipherEditPermission: boolean = false,
-  ): Observable<boolean> {
+  canEditCipher$(cipher: CipherLike, isAdminConsoleAction: boolean = false): Observable<boolean> {
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -153,10 +148,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           if (organization?.canEditAllCiphers) {
             return true;
           }
-        }
-
-        if (bypassCipherEditPermission) {
-          return true;
         }
 
         return !!cipher.edit;
