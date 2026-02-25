@@ -102,7 +102,7 @@ export class PhishingDataService {
     startWith(undefined), // Always emit once
     switchMap(() =>
       this._phishingMetaState.state$.pipe(
-        first(), // Only take the first value to avoid an infinite loop when updating the cache below
+        first((meta) => meta !== undefined),
         tap((metaState) => {
           // Perform any updates in the background
           this._backgroundUpdateTrigger$.next(metaState);
