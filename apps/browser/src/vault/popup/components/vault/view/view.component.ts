@@ -67,10 +67,12 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserViewPasswordHistoryService } from "../../../services/browser-view-password-history.service";
+import {
+  ROUTES_AFTER_EDIT_DELETION,
+  VaultPopupAfterDeletionNavigationService,
+} from "../../../services/vault-popup-after-deletion-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
-import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit.component";
 import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
@@ -155,11 +157,11 @@ export class ViewComponent {
     private popupRouterCacheService: PopupRouterCacheService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
-    private popupScrollPositionService: VaultPopupScrollPositionService,
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private configService: ConfigService,
+    private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
   ) {
     this.subscribeToParams();
   }
@@ -282,8 +284,7 @@ export class ViewComponent {
       return false;
     }
 
-    this.popupScrollPositionService.stop(true);
-    await this.popupRouterCacheService.back();
+    await this.afterDeletionNavigationService.navigateAfterDeletion(this.routeAfterDeletion);
 
     this.toastService.showToast({
       variant: "success",
