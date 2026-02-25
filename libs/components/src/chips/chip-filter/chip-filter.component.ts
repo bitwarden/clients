@@ -29,10 +29,11 @@ import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
 /** An option that will be showed in the overlay menu of `ChipFilterComponent` */
-export type ChipFilterOption<T> = Exclude<Option<T>, "icon"> & {
+export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   /** The options that will be nested under this option */
   children?: ChipFilterOption<T>[];
   icon?: BitwardenIcon;
+  iconClass?: string;
 };
 
 /**

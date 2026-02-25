@@ -172,7 +172,7 @@ describe("ChipFilterComponent", () => {
     it("should integrate with Angular reactive forms", () => {
       const formControl = new FormControl<string>("opt1");
       component.registerOnChange((value) => formControl.setValue(value));
-      component.writeValue(formControl.value);
+      component.writeValue(formControl.value!);
       fixture.detectChanges();
 
       expect(component["selectedOption"]?.value).toBe("opt1");
@@ -485,7 +485,7 @@ class TestAppComponent {
   readonly fullWidth = signal(false);
 }
 
-describe("ChipSelectComponentWithDynamicOptions", () => {
+describe("ChipFilterComponentWithDynamicOptions", () => {
   let component: ChipFilterComponent<string>;
   let fixture: ComponentFixture<TestAppWithDynamicOptionsComponent>;
 
@@ -600,11 +600,11 @@ describe("ChipSelectComponentWithDynamicOptions", () => {
       expect(getChipButton().textContent).toContain("Select an option");
     });
   });
-}); /* end of ChipSelectComponentWithDynamicOptions tests */
+}); /* end of ChipFilterComponentWithDynamicOptions tests */
 @Component({
   selector: "test-app-with-dynamic-options",
   template: `
-    <bit-chip-select
+    <bit-chip-filter
       placeholderText="Select an option"
       placeholderIcon="bwi-filter"
       [options]="options()"

@@ -47,7 +47,7 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { ChipFilterOption } from "@bitwarden/components";
+import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -333,11 +333,13 @@ export class VaultPopupListFiltersService {
         return [
           ...myVaultOrg,
           ...orgs.map((org) => {
-            let icon = "bwi-business";
+            let icon: BitwardenIcon = "bwi-business";
+            let iconClass: string | undefined = undefined;
 
             if (!org.enabled) {
               // Show a warning icon if the organization is deactivated
-              icon = "bwi-exclamation-triangle tw-text-danger";
+              icon = "bwi-exclamation-triangle";
+              iconClass = "tw-text-danger";
             } else if (
               org.productTierType === ProductTierType.Families ||
               org.productTierType === ProductTierType.Free
@@ -350,6 +352,7 @@ export class VaultPopupListFiltersService {
               value: org,
               label: org.name,
               icon,
+              iconClass,
             };
           }),
         ];
@@ -495,7 +498,7 @@ export class VaultPopupListFiltersService {
    */
   private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: string,
+    icon: BitwardenIcon,
   ): ChipFilterOption<T> {
     return {
       value: item.node,
