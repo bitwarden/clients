@@ -1959,7 +1959,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     const fd = new FormData();
     try {
-      const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
+      const blob = new Blob([encData.buffer as BlobPart], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
       fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
