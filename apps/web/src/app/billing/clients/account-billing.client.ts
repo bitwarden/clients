@@ -19,7 +19,7 @@ export type UpgradePremiumToOrganizationRequest = {
   organizationKey: string;
   collectionName: string | null;
   publicKey: string;
-  wrappedPrivateKey: string;
+  encryptedPrivateKey: string;
   planTier: ProductTierType;
   cadence: SubscriptionCadence;
   billingAddress: Pick<BillingAddress, "country" | "postalCode">;
@@ -88,7 +88,7 @@ export class AccountBillingClient {
         key: request.organizationKey,
         collectionName: request.collectionName,
         publicKey: request.publicKey,
-        wrappedPrivateKey: request.wrappedPrivateKey,
+        encryptedPrivateKey: request.encryptedPrivateKey,
         targetProductTierType: request.planTier,
         cadence: request.cadence as string,
         billingAddress: request.billingAddress,

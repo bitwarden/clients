@@ -2284,7 +2284,7 @@ describe("OrganizationPlansComponent", () => {
           organizationKey: "mock-key",
           collectionName: "mock-collection",
           publicKey: "public-key",
-          wrappedPrivateKey: "private-key",
+          encryptedPrivateKey: "private-key",
           planTier: ProductTierType.Teams,
           cadence: "annually",
           billingAddress: expect.objectContaining({ country: "US", postalCode: "12345" }),

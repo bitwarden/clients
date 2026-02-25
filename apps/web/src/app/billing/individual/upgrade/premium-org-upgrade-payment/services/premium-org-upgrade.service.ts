@@ -97,7 +97,7 @@ export class PremiumOrgUpgradeService {
       organizationKey: encryptionData.key,
       collectionName: encryptionData.collectionCt,
       publicKey: encryptionData.orgKeys[0],
-      wrappedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
+      encryptedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
       planTier: tier,
       cadence: SubscriptionCadenceIds.Annually,
       billingAddress,
