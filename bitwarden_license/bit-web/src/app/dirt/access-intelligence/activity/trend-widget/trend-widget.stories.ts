@@ -14,6 +14,8 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { IconButtonModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { TimePeriod } from "../period-selector/period-selector.types";
+
 import { TrendWidgetComponent } from "./trend-widget.component";
 
 // Create shared theme observables that will be updated by the decorator
@@ -54,7 +56,7 @@ export default {
   ],
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "applications",
       dataPoints: [
         { timestamp: "2026-02-13T00:00:00Z", atRisk: 38, total: 165 },
@@ -109,7 +111,7 @@ type Story = StoryObj<TrendWidgetComponent>;
 export const Default: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "applications",
       dataPoints: [
         { timestamp: "2026-02-13T00:00:00Z", atRisk: 38, total: 165 },
@@ -131,7 +133,7 @@ export const Default: Story = {
 export const EmptyState: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "applications",
       dataPoints: [],
     },
@@ -146,7 +148,7 @@ export const EmptyState: Story = {
 export const Loading: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "applications",
       dataPoints: [],
     },
@@ -161,7 +163,7 @@ export const Loading: Story = {
 export const Error: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "applications",
       dataPoints: [],
     },
@@ -176,7 +178,7 @@ export const Error: Story = {
 export const SingleDataPoint: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "passwords",
       dataPoints: [{ timestamp: "2026-02-18T00:00:00Z", atRisk: 45, total: 180 }],
     },
@@ -191,7 +193,7 @@ export const SingleDataPoint: Story = {
 export const TwoDataPoints: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "passwords",
       dataPoints: [
         { timestamp: "2026-02-18T00:00:00Z", atRisk: 45, total: 180 },
@@ -209,7 +211,7 @@ export const TwoDataPoints: Story = {
 export const TwentyFourDataPoints: Story = {
   args: {
     data: {
-      timeframe: "past-month",
+      timeframe: TimePeriod.PastMonth,
       dataView: "members",
       dataPoints: [
         { timestamp: "2026-01-20T00:00:00Z", atRisk: 120, total: 450 },
