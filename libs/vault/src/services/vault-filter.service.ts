@@ -26,6 +26,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { cloneCollection } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -184,7 +185,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       const orgNodes: TreeNode<OrganizationFilter>[] = [];
       orgs.forEach((org) => {
         const orgCopy = org as OrganizationFilter;
-        orgCopy.icon = "bwi-business";
+        if (
+          org?.productTierType === ProductTierType.Free ||
+          org?.productTierType === ProductTierType.Families
+        ) {
+          orgCopy.icon = "bwi-family";
+        } else {
+          orgCopy.icon = "bwi-business";
+        }
         const node = new TreeNode<OrganizationFilter>(orgCopy, headNode, orgCopy.name);
         orgNodes.push(node);
       });
@@ -282,9 +290,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
     // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
     const orgCiphers = ciphers.filter((c) => c.organizationId == org?.id);
-    return storedFolders.filter(
-      (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
-    );
+    return storedFolders.filter((f) => orgCiphers.some((oc) => oc.folderId == f.id) || !f.id);
   }
 
   protected buildFolderTree(folders?: FolderView[]): TreeNode<FolderFilter> {

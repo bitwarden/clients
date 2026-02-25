@@ -143,6 +143,17 @@ describe("VaultFilter", () => {
 
         expect(result).toBe(true);
       });
+
+      it("should return true when filtering on unassigned folder via empty string id", () => {
+        const filterFunction = createFilterFunction({
+          selectedFolder: true,
+          selectedFolderId: "",
+        });
+
+        const result = filterFunction(cipher);
+
+        expect(result).toBe(true);
+      });
     });
 
     describe("given an organizational cipher (with organization and collections)", () => {

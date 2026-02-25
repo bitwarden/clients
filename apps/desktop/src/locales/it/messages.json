@@ -137,10 +137,6 @@
     "message": "Dettagli del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV3": {
-    "message": "Richiedi ai destinatari una password per aprire questo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeTextToShare": {
     "message": "Testo da condividere"
   },
@@ -1025,6 +1021,9 @@
     "message": "Apri in una nuova scheda"
   },
   "invalidVerificationCode": {
+    "message": "Codice di verifica non valido"
+  },
+  "invalidEmailOrVerificationCode": {
     "message": "Codice di verifica non valido"
   },
   "continue": {
@@ -4391,10 +4390,10 @@
   "noItemsInArchiveDesc": {
     "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dal riempimento automatico."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Elemento archiviato"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
@@ -4489,6 +4488,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Azione al timeout"
+  },
+  "errorCannotDecrypt": {
+    "message": "Errore: impossibile decrittare"
   },
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
@@ -4587,5 +4589,42 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "sendPasswordHelperText": {
+    "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protetta"
+  },
+  "emails": {
+    "message": "Indirizzi email"
+  },
+  "noAuth": {
+    "message": "Chiunque abbia il link"
+  },
+  "anyOneWithPassword": {
+    "message": "Chiunque abbia una password impostata da te"
+  },
+  "whoCanView": {
+    "message": "Chi può visualizzare"
+  },
+  "specificPeople": {
+    "message": "Persone specifiche"
+  },
+  "emailVerificationDesc": {
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Inserisci più indirizzi email separandoli con virgole."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Verifica dell'utente non riuscita."
   }
 }

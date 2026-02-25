@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
   },
-  "itemWasSentToArchive": {
-    "message": "项目已发送到归档"
+  "itemArchiveToast": {
+    "message": "项目已归档"
   },
-  "itemWasUnarchived": {
-    "message": "项目已取消归档"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "项目已取消归档"
   },
   "archiveItem": {
@@ -899,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "无效的电子邮箱或验证码"
+  },
   "valueCopied": {
     "message": "$VALUE$ 已复制",
     "description": "Value has been copied to the clipboard.",
@@ -991,10 +991,10 @@
     "message": "否"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "拥有此链接的任何人"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "拥有您设置的密码的任何人"
   },
   "location": {
     "message": "位置"
@@ -2055,7 +2055,7 @@
     "message": "电子邮箱"
   },
   "emails": {
-    "message": "Emails"
+    "message": "电子邮箱"
   },
   "phone": {
     "message": "电话"
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden 将不会提示保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden 将不会提示为所有已登录账户保存这些域名的登录信息。您必须刷新页面才能使更改生效。"
-  },
   "blockedDomainsDesc": {
     "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
   },
@@ -2845,7 +2842,7 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "尽快更改有风险的密码"
+    "message": "尽快更改存在风险的密码"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "更新您的设置，以便您可以快速自动填充密码并生成新的密码"
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "存在风险的登录列表示意图。"
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Bitwarden 密码库页面布局示意图。"
   },
   "generatePasswordSlideDesc": {
     "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "自定义"
   },
-  "sendPasswordDescV3": {
-    "message": "添加一个用于接收者访问此 Send 的可选密码。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3090,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接以及您设置的密码的任何人都可以访问此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，您指定的人员可查看此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send 链接已复制",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3133,8 @@
     "message": "Send 已保存",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "弹出扩展吗？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "要创建文件 Send，您需要弹出扩展到一个新窗口。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "要选择文件，请在侧边栏中打开扩展（如果可以），或者点击此横幅来弹出一个新窗口。"
-  },
-  "sendFirefoxFileWarning": {
-    "message": "要在 Firefox 中选择文件，请在侧边栏中打开本扩展，或者点击此横幅来弹出一个新窗口。"
-  },
-  "sendSafariFileWarning": {
-    "message": "要在 Safari 中选择文件，请点击此横幅来弹出一个新窗口。"
-  },
   "popOut": {
     "message": "弹出"
-  },
-  "sendFileCalloutHeader": {
-    "message": "在开始之前"
   },
   "expirationDateIsInvalid": {
     "message": "所提供的过期日期无效。"
@@ -4966,7 +4981,7 @@
     "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "additionalInformation": {
-    "message": "更多信息"
+    "message": "附加信息"
   },
   "itemHistory": {
     "message": "项目历史记录"
@@ -5246,7 +5261,7 @@
     "message": "如果您想自动勾选表单复选框（例如记住电子邮箱），请使用复选框型字段"
   },
   "linkedHelpText": {
-    "message": "当您处理特定网站的自动填充问题时，请使用链接型字段"
+    "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
   "linkedLabelHelpText": {
     "message": "输入字段的 html id、名称、aria-label 或占位符。"
@@ -5740,7 +5755,7 @@
     "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
   },
   "changeAtRiskPassword": {
-    "message": "更改有风险的密码"
+    "message": "更改存在风险的密码"
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
@@ -5990,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "卡号"
   },
+  "errorCannotDecrypt": {
+    "message": "错误：无法解密"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
   },
@@ -6127,22 +6145,44 @@
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
   },
+  "items": {
+    "message": "项目"
+  },
+  "searchResults": {
+    "message": "搜索结果"
+  },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "谁可以查看"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "指定人员"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "输入多个电子邮箱（使用逗号分隔）。"
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "下载 Bitwarden App"
+  },
+  "emailProtected": {
+    "message": "电子邮箱保护"
+  },
+  "sendPasswordHelperText": {
+    "message": "个人需要输入密码才能查看此 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "用户验证失败。"
   }
 }

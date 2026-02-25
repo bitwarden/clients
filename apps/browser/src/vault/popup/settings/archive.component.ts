@@ -42,7 +42,7 @@ import {
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import { ROUTES_AFTER_EDIT_DELETION } from "../components/vault-v2/add-edit/add-edit-v2.component";
+import { ROUTES_AFTER_EDIT_DELETION } from "../components/vault/add-edit/add-edit.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -135,6 +135,10 @@ export class ArchiveComponent {
     switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
   );
 
+  protected userHasPremium$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.userHasPremium$(userId)),
+  );
+
   async navigateToPremium() {
     await this.router.navigate(["/premium"]);
   }
@@ -209,7 +213,7 @@ export class ArchiveComponent {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemUnarchived"),
+      message: this.i18nService.t("itemUnarchivedToast"),
     });
   }
 

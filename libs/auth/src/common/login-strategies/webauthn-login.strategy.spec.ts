@@ -263,7 +263,10 @@ describe("WebAuthnLoginStrategy", () => {
       mockPrfPrivateKey,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, userId);
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(idTokenResponse.privateKey, userId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: idTokenResponse.privateKey } },
+      userId,
+    );
 
     // Master key and private key should not be set
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
