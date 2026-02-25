@@ -81,7 +81,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
     if (
       !trustedPublicKeys.some(
-        (key) => Utils.fromBufferToHex(key) === Utils.fromBufferToHex(publicKey),
+        (key) => Utils.fromArrayToHex(key) === Utils.fromArrayToHex(publicKey),
       )
     ) {
       throw new Error("Untrusted public key");
