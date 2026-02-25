@@ -64,6 +64,7 @@
       "@bitwarden/subscription": ["./libs/subscription/src/index.ts"],
       "@bitwarden/ui-common": ["./libs/ui/common/src"],
       "@bitwarden/ui-common/setup-jest": ["./libs/ui/common/src/setup-jest"],
+      "@bitwarden/unlock": ["./libs/unlock/src/index.ts"],
       "@bitwarden/user-core": ["./libs/user-core/src/index.ts"],
       "@bitwarden/user-crypto-management": ["./libs/user-crypto-management/src/index.ts"],
       "@bitwarden/vault": ["./libs/vault/src"],
