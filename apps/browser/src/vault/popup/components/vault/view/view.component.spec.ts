@@ -47,8 +47,8 @@ import {
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
+import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import {
   AutofillConfirmationDialogComponent,
   AutofillConfirmationDialogResult,
@@ -72,7 +72,7 @@ describe("ViewComponent", () => {
   const copy = jest.fn().mockResolvedValue(true);
   const back = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const stop = jest.fn();
+  const navigateAfterDeletion = jest.fn().mockResolvedValue(undefined);
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
@@ -127,7 +127,7 @@ describe("ViewComponent", () => {
     doAutofill.mockClear();
     doAutofillAndSave.mockClear();
     copy.mockClear();
-    stop.mockClear();
+    navigateAfterDeletion.mockClear();
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
@@ -150,7 +150,10 @@ describe("ViewComponent", () => {
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
         { provide: EventCollectionService, useValue: { collect } },
-        { provide: VaultPopupScrollPositionService, useValue: { stop } },
+        {
+          provide: VaultPopupAfterDeletionNavigationService,
+          useValue: { navigateAfterDeletion },
+        },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
         { provide: ConfigService, useValue: { getFeatureFlag$, getFeatureFlag } },
@@ -561,17 +564,10 @@ describe("ViewComponent", () => {
       expect(openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
-    it("navigates back", async () => {
+    it("navigates after deletion", async () => {
       await component.delete();
 
-      expect(back).toHaveBeenCalledTimes(1);
-    });
-
-    it("stops scroll position service", async () => {
-      await component.delete();
-
-      expect(stop).toHaveBeenCalledTimes(1);
-      expect(stop).toHaveBeenCalledWith(true);
+      expect(navigateAfterDeletion).toHaveBeenCalledTimes(1);
     });
 
     describe("deny confirmation", () => {
@@ -587,8 +583,7 @@ describe("ViewComponent", () => {
       });
 
       it("does not interact with side effects", () => {
-        expect(back).not.toHaveBeenCalled();
-        expect(stop).not.toHaveBeenCalled();
+        expect(navigateAfterDeletion).not.toHaveBeenCalled();
         expect(showToast).not.toHaveBeenCalled();
       });
     });
