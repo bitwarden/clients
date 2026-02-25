@@ -1,6 +1,6 @@
 import { EncryptionType } from "../../../platform/enums";
-import { Aes256CbcHmacKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Utils } from "../../../platform/misc/utils";
+import { Aes256CbcHmacKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "./dangerous_duckduckgo_crypto";
 
