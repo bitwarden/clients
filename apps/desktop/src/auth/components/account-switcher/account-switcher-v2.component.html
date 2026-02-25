@@ -24,6 +24,7 @@
         class="account-switcher-v2 !tw-rounded-full !tw-bg-info-600 hover:!tw-bg-info-600 !tw-text-fg-dark"
         type="button"
         bitIconButton="bwi-ellipsis-h"
+        [label]="'switchAccount' | i18n"
         (click)="toggle()"
         [disabled]="disabled"
         aria-haspopup="dialog"
