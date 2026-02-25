@@ -111,7 +111,9 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -373,6 +375,7 @@ export default class MainBackground {
   keyService: KeyServiceAbstraction;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
+  masterPasswordUnlockService: MasterPasswordUnlockService;
   tokenService: TokenServiceAbstraction;
   appIdService: AppIdServiceAbstraction;
   apiService: ApiServiceAbstraction;
@@ -732,6 +735,12 @@ export default class MainBackground {
       this.accountCryptographicStateService,
     );
 
+    this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
+      this.masterPasswordService,
+      this.keyService,
+      this.logService,
+    );
+
     const pinStateService = new PinStateService(this.stateProvider);
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -1022,6 +1031,7 @@ export default class MainBackground {
       this.pinService,
       this.kdfConfigService,
       this.biometricsService,
+      this.masterPasswordUnlockService,
     );
 
     this.vaultSettingsService = new VaultSettingsService(
