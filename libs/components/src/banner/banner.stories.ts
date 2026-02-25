@@ -145,3 +145,47 @@ export const AllVariantsWithTitle: Story = {
     },
   }),
 };
+
+export const AllVariantsCustomIcon: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        @for (v of variants; track v) {
+          <bit-banner [variant]="v" [showClose]="true" icon="bwi-star">
+            <span slot="title">Custom icon example</span>
+            Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
+            <ng-container slot="actions">
+              <button bitButton type="button" buttonType="secondary">Cancel</button>
+              <button bitButton type="button" buttonType="primary">Continue</button>
+            </ng-container>
+          </bit-banner>
+        }
+      </div>
+    `,
+    props: {
+      variants: ["primary", "success", "warning", "danger"],
+    },
+  }),
+};
+
+export const BadgeTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose">
+        <span slot="title">
+          <span bitBadge variant="primary">New</span>
+          Integration updates
+        </span>
+        Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
+        <ng-container slot="actions">
+          This change affects all organization members. <a bitLink linkType="primary">Read the release notes</a>
+        </ng-container>
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
