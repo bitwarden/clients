@@ -1,82 +1,18 @@
-<app-header> </app-header>
+@let org = organization();
 
-@let organization = organization$ | async;
+<app-header>
+  @if (org) {
+    <bit-tab-nav-bar slot="tabs">
+      <bit-tab-link route="single-sign-on">{{ "singleSignOn" | i18n }}</bit-tab-link>
+      @if (org.useScim || org.useDirectory) {
+        <bit-tab-link route="user-provisioning">{{ "userProvisioning" | i18n }}</bit-tab-link>
+      }
+      @if (org.useEvents) {
+        <bit-tab-link route="event-management">{{ "eventManagement" | i18n }}</bit-tab-link>
+      }
+      <bit-tab-link route="device-management">{{ "deviceManagement" | i18n }}</bit-tab-link>
+    </bit-tab-nav-bar>
+  }
+</app-header>
 
-@if (organization) {
-  <bit-tab-group [(selectedIndex)]="tabIndex">
-    @if (organization?.useSso) {
-      <bit-tab [label]="'singleSignOn' | i18n">
-        <section class="tw-mb-9">
-          <h2 bitTypography="h2">{{ "singleSignOn" | i18n }}</h2>
-          <p bitTypography="body1">
-            {{ "ssoDescStart" | i18n }}
-            <a bitLink routerLink="../settings/sso" class="tw-lowercase">{{
-              "singleSignOn" | i18n
-            }}</a>
-            {{ "ssoDescEnd" | i18n }}
-          </p>
-          <app-integration-grid
-            [integrations]="integrationsList | filterIntegrations: IntegrationType.SSO"
-          ></app-integration-grid>
-        </section>
-      </bit-tab>
-    }
-
-    @if (organization?.useScim || organization?.useDirectory) {
-      <bit-tab [label]="'userProvisioning' | i18n">
-        @if (organization?.useScim) {
-          <section class="tw-mb-9">
-            <h2 bitTypography="h2">
-              {{ "scimIntegration" | i18n }}
-            </h2>
-            <p bitTypography="body1">
-              {{ "scimIntegrationDescStart" | i18n }}
-              <a bitLink routerLink="../settings/scim">{{ "scimIntegration" | i18n }}</a>
-              {{ "scimIntegrationDescEnd" | i18n }}
-            </p>
-            <app-integration-grid
-              [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
-            ></app-integration-grid>
-          </section>
-        }
-        @if (organization?.useDirectory) {
-          <section class="tw-mb-9">
-            <h2 bitTypography="h2">
-              {{ "bwdc" | i18n }}
-            </h2>
-            <p bitTypography="body1">{{ "bwdcDesc" | i18n }}</p>
-            <app-integration-grid
-              [integrations]="integrationsList | filterIntegrations: IntegrationType.BWDC"
-            ></app-integration-grid>
-          </section>
-        }
-      </bit-tab>
-    }
-
-    @if (organization?.useEvents) {
-      <bit-tab [label]="'eventManagement' | i18n">
-        <section class="tw-mb-9">
-          <h2 bitTypography="h2">
-            {{ "eventManagement" | i18n }}
-          </h2>
-          <p bitTypography="body1">{{ "eventManagementDesc" | i18n }}</p>
-          <app-integration-grid
-            [integrations]="integrationsList | filterIntegrations: IntegrationType.EVENT"
-          ></app-integration-grid>
-        </section>
-      </bit-tab>
-    }
-
-    <bit-tab [label]="'deviceManagement' | i18n">
-      <section class="tw-mb-9">
-        <h2 bitTypography="h2">
-          {{ "deviceManagement" | i18n }}
-        </h2>
-        <p bitTypography="body1">{{ "deviceManagementDesc" | i18n }}</p>
-        <app-integration-grid
-          [integrations]="integrationsList | filterIntegrations: IntegrationType.DEVICE"
-        ></app-integration-grid>
-      </section>
-    </bit-tab>
-  </bit-tab-group>
-}
+<router-outlet></router-outlet>

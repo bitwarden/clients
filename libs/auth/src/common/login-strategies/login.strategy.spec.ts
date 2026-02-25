@@ -19,7 +19,6 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -38,15 +37,12 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
@@ -109,6 +105,12 @@ export function identityTokenResponseFactory(
     token_type: "Bearer",
     MasterPasswordPolicy: masterPasswordPolicyResponse,
     UserDecryptionOptions: userDecryptionOptions || defaultUserDecryptionOptionsServerResponse,
+    AccountKeys: {
+      publicKeyEncryptionKeyPair: {
+        wrappedPrivateKey: privateKey,
+        publicKey: "PUBLIC_KEY",
+      },
+    },
   });
 }
 
@@ -201,19 +203,7 @@ describe("LoginStrategy", () => {
   });
 
   describe("base class", () => {
-    const userKeyBytesLength = 64;
-    const masterKeyBytesLength = 64;
-    let userKey: UserKey;
-    let masterKey: MasterKey;
-
     beforeEach(() => {
-      userKey = new SymmetricCryptoKey(
-        new Uint8Array(userKeyBytesLength).buffer as CsprngArray,
-      ) as UserKey;
-      masterKey = new SymmetricCryptoKey(
-        new Uint8Array(masterKeyBytesLength).buffer as CsprngArray,
-      ) as MasterKey;
-
       const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
       const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
         mockVaultTimeoutAction,
@@ -333,39 +323,6 @@ describe("LoginStrategy", () => {
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.AdminForcePasswordReset,
         userId,
-      );
-    });
-
-    it("makes a new public and private key for an old account", async () => {
-      const tokenResponse = identityTokenResponseFactory();
-      tokenResponse.privateKey = null;
-      keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.userKey$.mockReturnValue(new BehaviorSubject<UserKey>(userKey).asObservable());
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-      await passwordLoginStrategy.logIn(credentials);
-
-      // User symmetric key must be set before the new RSA keypair is generated
-      expect(keyService.setUserKey).toHaveBeenCalled();
-      expect(keyService.makeKeyPair).toHaveBeenCalled();
-      expect(keyService.setUserKey.mock.invocationCallOrder[0]).toBeLessThan(
-        keyService.makeKeyPair.mock.invocationCallOrder[0],
-      );
-
-      expect(apiService.postAccountKeys).toHaveBeenCalled();
-    });
-
-    it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.userKey$.mockReturnValue(
-        new BehaviorSubject<UserKey>({
-          inner: () => ({ type: 7 }),
-        } as unknown as UserKey).asObservable(),
-      );
-      await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
-        undefined,
       );
     });
   });

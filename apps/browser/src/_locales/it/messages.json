@@ -29,7 +29,7 @@
     "message": "Accedi con passkey"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Sblocca con passkey"
   },
   "useSingleSignOn": {
     "message": "Usa il Single Sign-On"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gli elementi archiviati compariranno qui e saranno esclusi dai risultati di ricerca e suggerimenti di autoriempimento."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Elemento archiviato"
   },
-  "itemWasUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
-  },
-  "itemUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+  "itemUnarchivedToast": {
+    "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
@@ -899,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Codice di verifica non valido"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Codice di verifica non valido"
+  },
   "valueCopied": {
     "message": "$VALUE$ copiata",
     "description": "Value has been copied to the clipboard.",
@@ -991,10 +991,10 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Chiunque abbia il link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Chiunque abbia una password impostata da te"
   },
   "location": {
     "message": "Luogo"
@@ -2055,7 +2055,7 @@
     "message": "Email"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Indirizzi email"
   },
   "phone": {
     "message": "Telefono"
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden non ti chiederà di aggiungere nuovi login per questi domini. Ricorda di ricaricare la pagina perché le modifiche abbiano effetto."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden non chiederà di salvare le credenziali di accesso per questi domini per tutti gli account sul dispositivo. Ricarica la pagina affinché le modifiche abbiano effetto."
-  },
   "blockedDomainsDesc": {
     "message": "Per questi siti, riempimento automatico e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustrazione di una lista di login a rischio."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustrazione del layout di pagina della cassaforte Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Genera rapidamente una parola d'accesso forte e unica con il menu' di riempimento automatico Bitwarden nel sito a rischio.",
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Personalizzato"
   },
-  "sendPasswordDescV3": {
-    "message": "Richiedi ai destinatari una password opzionale per aprire questo Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nuovo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3090,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ ore",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copia e condividi questo link di Send. Sarà disponibile a chiunque abbia il link per $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copia e condividi questo link di Send. Sarà disponibile a chiunque abbia link e password per $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copia e condividi questo link Send: potrà essere visualizzato dalle persone che hai specificato per $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Link del Send copiato",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3133,8 @@
     "message": "Send salvato",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Scollegare estensione?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Per creare un file Send, devi scollegare l'estensione in una nuova finestra.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Per scegliere un file, apri l'estensione nella barra laterale (se possibile) o apri una nuova finestra cliccando questo banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Per scegliere un file usando Firefox, apri l'estensione nella barra laterale o apri una nuova finestra cliccando questo banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "Per scegliere un file usando Safari, apri una nuova finestra cliccando questo banner."
-  },
   "popOut": {
     "message": "Scollega"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Prima di iniziare"
   },
   "expirationDateIsInvalid": {
     "message": "La data di scadenza fornita non è valida."
@@ -3380,10 +3395,10 @@
     "message": "Errore"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Impossibile sbloccare con passkey. Riprova o utilizza un altro metodo."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Non ci sono password abilitate con PRF per lo sblocco. Accedi prima con una passkey."
   },
   "decryptionError": {
     "message": "Errore di decifrazione"
@@ -5011,7 +5026,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Scarica allegato"
   },
   "downloadBitwarden": {
     "message": "Scarica Bitwarden"
@@ -5990,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Numero di carta"
   },
+  "errorCannotDecrypt": {
+    "message": "Errore: impossibile decrittare"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
   },
@@ -6127,22 +6145,44 @@
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
   },
+  "items": {
+    "message": "Elementi"
+  },
+  "searchResults": {
+    "message": "Risultati di ricerca"
+  },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Chi può visualizzare"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Persone specifiche"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Inserisci più indirizzi email separandoli con virgole."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Scarica l'app Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Email protetta"
+  },
+  "sendPasswordHelperText": {
+    "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Verifica dell'utente non riuscita."
   }
 }

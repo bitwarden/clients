@@ -61,7 +61,7 @@ interface BulkProviderFlags {
   templateUrl: "members.component.html",
   standalone: false,
 })
-export class vNextMembersComponent {
+export class MembersComponent {
   protected apiService = inject(ApiService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
@@ -103,6 +103,14 @@ export class vNextMembersComponent {
   protected showConfirmBanner$ = this.dataSource()
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
+
+  protected selectedInvitedCount$ = this.dataSource()
+    .usersUpdated()
+    .pipe(
+      map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
+    );
+
+  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
 
   protected isProcessing = this.providerActionsService.isProcessing;
 
@@ -220,15 +228,20 @@ export class vNextMembersComponent {
         } else {
           this.toastService.showToast({
             variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+            message:
+              invitedCount === 1
+                ? this.i18nService.t("reinviteSuccessToast")
+                : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
           });
         }
       } else {
         // In self-hosted environments, show legacy dialog
-        const request = this.apiService.postManyProviderUserReinvite(
-          providerId,
-          new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
-        );
+        const request = this.apiService
+          .postManyProviderUserReinvite(
+            providerId,
+            new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
+          )
+          .then((response) => response.data);
 
         const dialogRef = BulkStatusComponent.open(this.dialogService, {
           data: {

@@ -39,20 +39,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   ): Promise<OrganizationBillingMetadataResponse> {
     const r = await this.apiService.send(
       "GET",
-      "/organizations/" + organizationId + "/billing/metadata",
-      null,
-      true,
-      true,
-    );
-
-    return new OrganizationBillingMetadataResponse(r);
-  }
-
-  async getOrganizationBillingMetadataVNext(
-    organizationId: OrganizationId,
-  ): Promise<OrganizationBillingMetadataResponse> {
-    const r = await this.apiService.send(
-      "GET",
       "/organizations/" + organizationId + "/billing/vnext/metadata",
       null,
       true,
@@ -62,7 +48,7 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new OrganizationBillingMetadataResponse(r);
   }
 
-  async getOrganizationBillingMetadataVNextSelfHost(
+  async getOrganizationBillingMetadataSelfHost(
     organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse> {
     const r = await this.apiService.send(
