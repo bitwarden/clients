@@ -27,5 +27,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "5.2.3"
   }
 }
