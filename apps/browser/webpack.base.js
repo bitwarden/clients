@@ -439,7 +439,7 @@ module.exports.buildConfig = function buildConfig(params) {
     const backgroundConfig = {
       name: "background",
       mode: ENV,
-      devtool: false,
+      devtool: "cheap-source-map",
 
       entry: params.background.entry,
       target: target,
