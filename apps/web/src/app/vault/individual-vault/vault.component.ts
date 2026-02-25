@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
 import {
@@ -12,7 +22,6 @@ import {
   startWith,
   switchMap,
   take,
-  takeUntil,
   tap,
 } from "rxjs/operators";
 
@@ -197,9 +206,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
     map((queryParams) => queryParams.search),
   );
+  private readonly destroyRef = inject(DestroyRef);
+
   private searchText$ = new Subject<string>();
   private refresh$ = new Subject<void>();
-  private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
@@ -374,7 +384,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     this.routedVaultFilterBridgeService.activeFilter$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((activeFilter) => {
         this.activeFilter = activeFilter;
       });
@@ -390,7 +400,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(
         debounceTime(SearchTextDebounceInterval),
         distinctUntilChanged(),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((searchText) =>
         this.router.navigate([], {
@@ -541,7 +551,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             }
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -552,7 +562,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((ciphers) => {
         DecryptionFailureDialogComponent.open(this.dialogService, {
@@ -567,7 +577,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         switchMap((organization) =>
           this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -586,7 +596,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             selectedCollection$,
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(
         ([
@@ -626,8 +636,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   ngOnDestroy() {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.destroy$.next();
-    this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
   }
 

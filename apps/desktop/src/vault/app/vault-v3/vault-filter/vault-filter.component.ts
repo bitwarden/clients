@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, output, computed, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { Component, DestroyRef, inject, OnInit, output, computed, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -62,7 +62,7 @@ export class VaultFilterComponent implements OnInit {
   private folderService: FolderService = inject(FolderService);
   private policyService: PolicyService = inject(PolicyService);
   private dialogService: DialogService = inject(DialogService);
-  private componentIsDestroyed$ = new Subject<boolean>();
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly activeFilter = signal<VaultFilter | null>(null);
   protected onFilterChange = output<VaultFilter>();
@@ -121,7 +121,7 @@ export class VaultFilterComponent implements OnInit {
     );
 
     this.routedVaultFilterBridgeService.activeFilter$
-      .pipe(takeUntil(this.componentIsDestroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((filter) => {
         this.activeFilter.set(filter);
       });

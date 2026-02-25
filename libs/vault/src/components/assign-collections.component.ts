@@ -4,25 +4,17 @@ import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  shareReplay,
-  Subject,
-  switchMap,
-  takeUntil,
-  tap,
-} from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, shareReplay, switchMap, tap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -57,7 +49,6 @@ import {
   SelectModule,
   ToastService,
 } from "@bitwarden/components";
-
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
 
@@ -113,7 +104,9 @@ const MY_VAULT_ID = "MyVault";
     DialogModule,
   ],
 })
-export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AssignCollectionsComponent implements OnInit, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
@@ -205,7 +198,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private get selectedOrgId(): OrganizationId {
     return this.formGroup.getRawValue().selectedOrg || this.params.organizationId;
   }
-  private destroy$ = new Subject<void>();
 
   constructor(
     private cipherService: CipherService,
@@ -234,7 +226,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   ngAfterViewInit(): void {
-    this.bitSubmit.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
       if (!this.submitBtn) {
         return;
       }
@@ -242,18 +234,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.submitBtn.loading.set(loading);
     });
 
-    this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+    this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
       if (!this.submitBtn) {
         return;
       }
 
       this.submitBtn.disabled.set(disabled);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   selectCollections(items: SelectItemView[]) {
@@ -444,7 +431,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         switchMap((orgId) => {
           return this.getCollectionsForOrganization(orgId as OrganizationId);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({

@@ -1,6 +1,7 @@
-import { Injectable, OnDestroy, inject } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras } from "@angular/router";
-import { combineLatest, map, Observable, Subject, takeUntil } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
@@ -23,8 +24,7 @@ export const VAULT_FILTER_BASE_ROUTE = new SafeInjectionToken<string>("VaultFilt
  * also contains a method for generating routes to corresponding to those params.
  */
 @Injectable()
-export class RoutedVaultFilterService implements OnDestroy {
-  private onDestroy = new Subject<void>();
+export class RoutedVaultFilterService {
   private baseRoute: string = inject(VAULT_FILTER_BASE_ROUTE, { optional: true }) ?? "";
 
   /**
@@ -51,7 +51,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           type,
         };
       }),
-      takeUntil(this.onDestroy),
+      takeUntilDestroyed(),
     );
   }
 
@@ -86,10 +86,5 @@ export class RoutedVaultFilterService implements OnDestroy {
       },
     };
     return [commands, extras];
-  }
-
-  ngOnDestroy(): void {
-    this.onDestroy.next();
-    this.onDestroy.complete();
   }
 }
