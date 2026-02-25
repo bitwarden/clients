@@ -72,6 +72,11 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
       - name: Get current SDK version from base branch
         id: get-current-sdk
         env:
@@ -440,6 +445,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
 
       - name: Validate SDK version exists
         env:
