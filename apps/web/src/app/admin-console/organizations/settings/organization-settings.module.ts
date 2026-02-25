@@ -4,9 +4,9 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { ItemModule } from "@bitwarden/components";
 
 import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
+import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { AccountFingerprintComponent } from "../../../shared/components/account-fingerprint/account-fingerprint.component";
 
 import { AccountComponent } from "./account.component";
 import { OrganizationSettingsRoutingModule } from "./organization-settings-routing.module";

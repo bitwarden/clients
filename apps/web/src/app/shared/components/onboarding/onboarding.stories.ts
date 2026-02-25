@@ -4,7 +4,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { delay, of, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LinkModule, SvgModule, ProgressModule } from "@bitwarden/components";
+import { LinkModule, SvgModule, ProgressModule, IconModule } from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
@@ -16,7 +16,7 @@ export default {
   component: OnboardingComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, RouterModule, LinkModule, SvgModule, ProgressModule],
+      imports: [JslibModule, RouterModule, LinkModule, IconModule, SvgModule, ProgressModule],
       declarations: [OnboardingTaskComponent],
     }),
     applicationConfig({
