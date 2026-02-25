@@ -344,6 +344,14 @@ export class PhishingDataService {
     // Use defer to restart timer if retry is activated
     return defer(() => {
       const startTime = Date.now();
+
+      if (previous?.timestamp && Date.now() - previous.timestamp < this.UPDATE_INTERVAL_DURATION) {
+        this.logService.debug(
+          `[PhishingDataService] Skipping update — last check was ${Math.round((Date.now() - previous.timestamp) / 1000 / 60)}m ago (interval: ${this.UPDATE_INTERVAL_DURATION / 1000 / 60}m)`,
+        );
+        return of(previous);
+      }
+
       this.logService.info(`[PhishingDataService] Update triggered...`);
 
       // Get updated meta info
