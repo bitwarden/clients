@@ -89,9 +89,6 @@ const routes: Routes = [
         path: "",
         component: AccountSwitcherV2Component,
         outlet: "header-actions",
-        canMatch: [
-          canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-        ],
       },
     ],
     data: {
@@ -111,9 +108,6 @@ const routes: Routes = [
         path: "",
         component: AccountSwitcherV2Component,
         outlet: "header-actions",
-        canMatch: [
-          canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-        ],
       },
     ],
     data: {
@@ -183,9 +177,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -204,9 +195,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -231,9 +219,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -249,9 +234,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -277,9 +259,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -305,9 +284,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -328,9 +304,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -357,9 +330,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -382,9 +352,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -400,9 +367,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
         data: {
@@ -429,9 +393,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -450,9 +411,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -474,9 +432,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },
@@ -498,9 +453,6 @@ const routes: Routes = [
             path: "",
             component: AccountSwitcherV2Component,
             outlet: "header-actions",
-            canMatch: [
-              canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone4, true, undefined, false),
-            ],
           },
         ],
       },

@@ -5,6 +5,7 @@ import { A11yModule } from "@angular/cdk/a11y";
 import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
@@ -13,6 +14,8 @@ import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
@@ -61,6 +64,11 @@ type InactiveAccount = ActiveAccount & {
   ],
 })
 export class AccountSwitcherV2Component implements OnInit {
+  protected readonly useNewAccountSwitcher = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone4),
+    { initialValue: false },
+  );
+
   activeAccount$: Observable<ActiveAccount | null>;
   inactiveAccounts$: Observable<{ [userId: string]: InactiveAccount }>;
   authStatus = AuthenticationStatus;
@@ -96,6 +104,7 @@ export class AccountSwitcherV2Component implements OnInit {
     private environmentService: EnvironmentService,
     private accountService: AccountService,
     private biometricsService: DesktopBiometricsService,
+    private configService: ConfigService,
   ) {
     this.activeAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (active) => {

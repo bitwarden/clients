@@ -3,8 +3,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
@@ -19,12 +17,6 @@ import { AccountSwitcherV2Component } from "../../../auth/components/account-swi
 export class DesktopHeaderComponent {
   private route = inject(ActivatedRoute);
   private i18nService = inject(I18nService);
-  private configService = inject(ConfigService);
-
-  protected readonly useNewAccountSwitcher = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone4),
-    { initialValue: false },
-  );
 
   /**
    * Title to display in header (takes precedence over route data)

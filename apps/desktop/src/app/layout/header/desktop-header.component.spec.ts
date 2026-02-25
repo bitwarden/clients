@@ -1,11 +1,13 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent } from "@bitwarden/components";
+
+import { AccountSwitcherV2Component } from "../../../auth/components/account-switcher/account-switcher-v2.component";
 
 import { DesktopHeaderComponent } from "./desktop-header.component";
 
@@ -14,7 +16,6 @@ describe("DesktopHeaderComponent", () => {
   let fixture: ComponentFixture<DesktopHeaderComponent>;
   let mockI18nService: ReturnType<typeof mock<I18nService>>;
   let mockActivatedRoute: { data: any };
-  let mockConfigService: ReturnType<typeof mock<ConfigService>>;
 
   beforeEach(async () => {
     mockI18nService = mock<I18nService>();
@@ -23,9 +24,6 @@ describe("DesktopHeaderComponent", () => {
     mockActivatedRoute = {
       data: of({}),
     };
-
-    mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [DesktopHeaderComponent, HeaderComponent],
@@ -38,12 +36,13 @@ describe("DesktopHeaderComponent", () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(DesktopHeaderComponent, {
+        remove: { imports: [AccountSwitcherV2Component] },
+        add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DesktopHeaderComponent);
     component = fixture.componentInstance;
