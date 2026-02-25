@@ -1280,6 +1280,9 @@ describe("Cipher Service", () => {
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 
+      const mockCipher1 = new Cipher(cipherData);
+      const mockCipher2 = new Cipher(cipherData);
+
       const mockCipherView1 = new CipherView();
       mockCipherView1.name = "Test Cipher 1";
       const mockCipherView2 = new CipherView();
@@ -1287,7 +1290,12 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([mockCipherView1, mockCipherView2]);
+        .mockResolvedValue([[mockCipher1, mockCipher2], []]);
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [mockCipherView1, mockCipherView2],
+        [],
+      ]);
 
       const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
 
@@ -1295,6 +1303,10 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
       expect(apiSpy).not.toHaveBeenCalled();
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [mockCipher1, mockCipher2],
+        mockUserId,
+      );
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
@@ -1305,7 +1317,9 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([]);
+        .mockResolvedValue([[], []]);
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[], []]);
 
       const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
 
@@ -1323,9 +1337,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to list and decrypt ciphers when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const mockCipherView1 = new CipherView();
       mockCipherView1.name = "Test Cipher 1";

@@ -1,5 +1,7 @@
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 /**
  * Result of decrypting all ciphers, containing both successes and failures.
@@ -126,16 +128,17 @@ export abstract class CipherSdkService {
   abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
 
   /**
-   * Fetches and decrypts all ciphers for an organization from the API using the SDK.
+   * Fetches all ciphers for an organization from the API using the SDK.
+   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
    *
    * @param organizationId The organization ID to fetch ciphers for
    * @param userId The user ID to use for SDK client
    * @param includeMemberItems Whether to include member items
-   * @returns A promise that resolves to the decrypted cipher views
+   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
    */
   abstract getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
-  ): Promise<CipherView[]>;
+  ): Promise<[Cipher[], CipherListView[]]>;
 }

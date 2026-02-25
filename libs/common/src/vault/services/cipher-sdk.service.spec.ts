@@ -7,6 +7,7 @@ import { UserId, CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherType } from "../enums/cipher-type";
+import { Cipher } from "../models/domain/cipher";
 
 import { DefaultCipherSdkService } from "./cipher-sdk.service";
 
@@ -34,7 +35,7 @@ describe("DefaultCipherSdkService", () => {
       soft_delete_many: jest.fn().mockResolvedValue(undefined),
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
-      list_org_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
     };
     mockCiphersSdk = {
       create: jest.fn(),
@@ -613,12 +614,40 @@ describe("DefaultCipherSdkService", () => {
   });
 
   describe("getAllFromApiForOrganization()", () => {
+    const mockSdkCipher: any = {
+      id: cipherId,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: orgId,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    };
+
     it("should list organization ciphers using SDK admin API", async () => {
-      const mockSdkCipherView = new CipherView().toSdkCipherView();
-      mockSdkCipherView.name = "Org Cipher";
+      const mockListView: any = { id: cipherId, name: "Org Cipher" };
       mockAdminSdk.list_org_ciphers.mockResolvedValue({
-        successes: [mockSdkCipherView],
-        failures: [],
+        ciphers: [mockSdkCipher],
+        listViews: [mockListView],
       });
 
       const result = await cipherSdkService.getAllFromApiForOrganization(orgId, userId, false);
@@ -627,14 +656,16 @@ describe("DefaultCipherSdkService", () => {
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, false);
-      expect(result).toHaveLength(1);
-      expect(result[0]).toBeInstanceOf(CipherView);
+      const [ciphers, listViews] = result;
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0]).toBeInstanceOf(Cipher);
+      expect(listViews).toHaveLength(1);
     });
 
     it("should pass includeMemberItems parameter to SDK", async () => {
       mockAdminSdk.list_org_ciphers.mockResolvedValue({
-        successes: [],
-        failures: [],
+        ciphers: [],
+        listViews: [],
       });
 
       await cipherSdkService.getAllFromApiForOrganization(orgId, userId, true);

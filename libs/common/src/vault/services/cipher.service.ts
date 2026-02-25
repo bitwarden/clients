@@ -788,11 +788,13 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const cipherViews = await this.cipherSdkService.getAllFromApiForOrganization(
+      const [ciphers] = await this.cipherSdkService.getAllFromApiForOrganization(
         organizationId,
         userId,
         includeMemberItems,
       );
+
+      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
       // Sort by locale (matching existing behavior)
       cipherViews.sort(this.getLocaleSortingFunction());
@@ -975,7 +977,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encrypted = await this.encrypt(cipherView, userId);
-    const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+    const result = await this.createWithServerLegacy(encrypted, orgAdmin);
     return await this.decrypt(result, userId);
   }
 
@@ -993,7 +995,7 @@ export class CipherService implements CipherServiceAbstraction {
     return resultCipherView;
   }
 
-  private async createWithServer_legacy(
+  private async createWithServerLegacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
@@ -1032,7 +1034,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     const encrypted = await this.encrypt(cipherView, userId);
-    const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+    const updatedCipher = await this.updateWithServerLegacy(encrypted, orgAdmin);
     const updatedCipherView = await this.decrypt(updatedCipher, userId);
     return updatedCipherView;
   }
@@ -1053,7 +1055,7 @@ export class CipherService implements CipherServiceAbstraction {
     return resultCipherView;
   }
 
-  async updateWithServer_legacy(
+  async updateWithServerLegacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {

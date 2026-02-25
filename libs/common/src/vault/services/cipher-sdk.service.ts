@@ -5,7 +5,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
@@ -299,7 +299,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: string,
     userId: UserId,
     includeMemberItems: boolean,
-  ): Promise<CipherView[]> {
+  ): Promise<[Cipher[], CipherListView[]]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -308,15 +308,17 @@ export class DefaultCipherSdkService implements CipherSdkService {
           }
           using ref = sdk.take();
 
-          const decryptResult = await ref.value
+          const result = await ref.value
             .vault()
             .ciphers()
             .admin()
             .list_org_ciphers(asUuid(organizationId), includeMemberItems);
 
-          return decryptResult.successes
-            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
-            .filter((v): v is CipherView => v !== undefined);
+          const ciphers = result.ciphers
+            .map((c) => Cipher.fromSdkCipher(c))
+            .filter((c): c is Cipher => c !== undefined);
+
+          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list organization ciphers: ${error}`);
