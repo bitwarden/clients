@@ -1,5 +1,7 @@
 <div class="tw-ps-2 tw-pe-2 tw-cursor-pointer">
   @let open = sideNavService.open();
+  @let containerClasses =
+    "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"

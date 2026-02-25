@@ -33,9 +33,6 @@ export abstract class NavGroupAbstraction {
   },
 })
 export class NavItemComponent extends NavBaseComponent {
-  protected readonly containerClasses =
-    "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
-
   /**
    * Base padding for nav items (in rem)
    * This provides the initial indentation for nav items before depth-based padding
