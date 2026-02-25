@@ -1,12 +1,11 @@
-import { Injectable, signal } from "@angular/core";
+import { signal } from "@angular/core";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegration } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration";
 import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-@Injectable()
-export class OrganizationIntegrationsState implements IntegrationStateService {
+export class SecretsIntegrationsState implements IntegrationStateService {
   private readonly _integrations = signal<Integration[]>([]);
   private readonly _organization = signal<Organization | undefined>(undefined);
 
