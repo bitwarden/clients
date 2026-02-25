@@ -1583,15 +1583,6 @@ export default class MainBackground {
     // subscriptions to the notification chrome events.
     this.initNotificationSubscriptions();
 
-    // Setup async initialization for background services
-    const asyncInjector = new ManualInjector<AsyncDependency>();
-    asyncInjector.register(SdkLoadService, this.sdkLoadService);
-
-    this.asyncInitService = new DefaultAsyncInitService(
-      asyncInjector.getRegisteredTokens(),
-      asyncInjector,
-    );
-
     // Setup synchronous initialization for Chrome API event listeners
     // These run BEFORE async init to ensure listeners are registered
     // before the service worker can be terminated (Manifest V3 requirement)
@@ -1601,6 +1592,15 @@ export default class MainBackground {
     this.syncInitService = new DefaultSyncInitService(
       syncInjector.getRegisteredTokens(),
       syncInjector,
+    );
+
+    // Setup async initialization for background services
+    const asyncInjector = new ManualInjector<AsyncDependency>();
+    asyncInjector.register(SdkLoadService, this.sdkLoadService);
+
+    this.asyncInitService = new DefaultAsyncInitService(
+      asyncInjector.getRegisteredTokens(),
+      asyncInjector,
     );
   }
 
