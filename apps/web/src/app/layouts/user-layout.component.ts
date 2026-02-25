@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { map, Observable, switchMap } from "rxjs";
+import { catchError, combineLatest, from, map, Observable, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -18,6 +18,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
+import { UserId } from "@bitwarden/user-core";
+import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
@@ -36,12 +38,11 @@ import { WebLayoutModule } from "./web-layout.module";
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
+  providers: [AccountBillingClient],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected hasFamilySponsorshipAvailable$: Observable<boolean>;
-  protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
   protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -49,6 +50,9 @@ export class UserLayoutComponent implements OnInit {
     map((isDisabled) => !isDisabled),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected hasPremiumPersonally$: Observable<boolean>;
+  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
+  protected hasSubscription$: Observable<boolean>;
 
   constructor(
     private syncService: SyncService,
@@ -56,13 +60,8 @@ export class UserLayoutComponent implements OnInit {
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
+    private accountBillingClient: AccountBillingClient,
   ) {
-    this.showSubscription$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        this.billingAccountProfileStateService.canViewSubscription$(account.id),
-      ),
-    );
-
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -75,10 +74,44 @@ export class UserLayoutComponent implements OnInit {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
+
+    this.hasPremiumPersonally$ = this.ifAccountExistsCheck((userId) =>
+      this.billingAccountProfileStateService.hasPremiumPersonally$(userId),
+    );
+
+    this.hasPremiumFromAnyOrganization$ = this.ifAccountExistsCheck((userId) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(userId),
+    );
+
+    this.hasSubscription$ = this.ifAccountExistsCheck(() =>
+      from(this.accountBillingClient.getSubscription()).pipe(
+        map((subscription) => !!subscription),
+        catchError(() => of(false)),
+      ),
+    );
+
+    this.showSubscription$ = combineLatest([
+      this.hasPremiumPersonally$,
+      this.hasPremiumFromAnyOrganization$,
+      this.hasSubscription$,
+    ]).pipe(
+      map(([hasPremiumPersonally, hasPremiumFromAnyOrganization, hasSubscription]) => {
+        if (hasPremiumFromAnyOrganization && !hasPremiumPersonally) {
+          return false;
+        }
+        return hasSubscription;
+      }),
+    );
   }
 
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
     await this.syncService.fullSync(false);
+  }
+
+  private ifAccountExistsCheck(predicate$: (userId: UserId) => Observable<boolean>) {
+    return this.accountService.activeAccount$.pipe(
+      switchMap((account) => (account ? predicate$(account.id) : of(false))),
+    );
   }
 }
