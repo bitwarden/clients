@@ -372,18 +372,6 @@ export class PhishingDataService {
             of({ meta: newMeta, updated: false }),
           ),
         ),
-        // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
-        concatMap((result) =>
-          iif(
-            () => {
-              const isCacheExpired =
-                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
-              return isCacheExpired;
-            },
-            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
-            of(result),
-          ),
-        ),
         concatMap((result) => {
           if (!result.updated) {
             this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
