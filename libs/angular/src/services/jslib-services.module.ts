@@ -1307,7 +1307,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ServerCommunicationConfigService,
     useClass: DefaultServerCommunicationConfigService,
-    deps: [ServerCommunicationConfigRepository, NoopServerCommunicationConfigPlatformApiService],
+    deps: [
+      ServerCommunicationConfigRepository,
+      NoopServerCommunicationConfigPlatformApiService,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: DefaultConfigService,
