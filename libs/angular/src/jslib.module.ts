@@ -2,7 +2,7 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { Dependency } from "@bitwarden/common/platform/abstractions/injector";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/async-initializable";
 import { DefaultAsyncInitService } from "@bitwarden/common/platform/services/default-async-init.service";
 import {
   AsyncActionsModule,
@@ -153,7 +153,7 @@ import { IconComponent } from "./vault/components/icon.component";
     AngularInjectorAdapter,
     safeProvider({
       provide: AsyncInitService,
-      useFactory: (serviceTokens: Dependency[], adapter: AngularInjectorAdapter) => {
+      useFactory: (serviceTokens: AsyncDependency[], adapter: AngularInjectorAdapter) => {
         return new DefaultAsyncInitService(serviceTokens, adapter);
       },
       deps: [ASYNC_INIT_SERVICES, AngularInjectorAdapter],
