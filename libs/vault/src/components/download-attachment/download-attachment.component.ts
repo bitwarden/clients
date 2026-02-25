@@ -120,7 +120,7 @@ export class DownloadAttachmentComponent {
 
       this.fileDownloadService.download({
         fileName: attachment.fileName,
-        blobData: decBuf,
+        blobData: decBuf as BlobPart,
       });
     } catch {
       this.toastService.showToast({
