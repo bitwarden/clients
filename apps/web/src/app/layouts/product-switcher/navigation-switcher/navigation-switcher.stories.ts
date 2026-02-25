@@ -1,8 +1,10 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -17,13 +19,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
+  I18nMockService,
   LayoutComponent,
   NavigationModule,
   StorybookGlobalStateProvider,
 } from "@bitwarden/components";
-// FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
+import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -112,15 +114,6 @@ class MockConfigService implements Partial<ConfigService> {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "story-layout",
-  template: `<ng-content></ng-content>`,
-  standalone: false,
-})
-class StoryLayoutComponent {}
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-@Component({
   selector: "story-content",
   template: ``,
   standalone: false,
@@ -132,17 +125,23 @@ const translations: Record<string, string> = {
   secureYourInfrastructure: "Secure your infrastructure",
   protectYourFamilyOrBusiness: "Protect your family or business",
   skipToContent: "Skip to content",
+  toggleSideNavigation: "Toggle side navigation",
+  resizeSideNavigation: "Resize side navigation",
+  submenu: "submenu",
+  toggleCollapse: "toggle collapse",
+  close: "Close",
+  loading: "Loading",
 };
 
 export default {
   title: "Web/Navigation Product Switcher",
   decorators: [
+    positionFixedWrapperDecorator(),
     moduleMetadata({
       declarations: [
         NavigationProductSwitcherComponent,
         MockOrganizationService,
         MockProviderService,
-        StoryLayoutComponent,
         StoryContentComponent,
       ],
       imports: [NavigationModule, RouterModule, LayoutComponent, I18nPipe],
@@ -174,19 +173,11 @@ export default {
     }),
     applicationConfig({
       providers: [
+        provideNoopAnimations(),
         importProvidersFrom(
-          RouterModule.forRoot([
-            {
-              path: "",
-              component: StoryLayoutComponent,
-              children: [
-                {
-                  path: "**",
-                  component: StoryContentComponent,
-                },
-              ],
-            },
-          ]),
+          RouterModule.forRoot([{ path: "**", component: StoryContentComponent }], {
+            useHash: true,
+          }),
         ),
         {
           provide: GlobalStateProvider,
@@ -203,12 +194,47 @@ type Story = StoryObj<
 
 const Template: Story = {
   render: (args) => ({
-    props: args,
+    props: { ...args, logo: PasswordManagerLogo },
     template: `
-    <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
-    <div class="tw-bg-background-alt3 tw-w-60">
-      <navigation-product-switcher></navigation-product-switcher>
-    </div>
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
+          <bit-nav-item text="Vault" icon="bwi-lock"></bit-nav-item>
+          <bit-nav-item text="Send" icon="bwi-send"></bit-nav-item>
+          <bit-nav-group text="Tools" icon="bwi-key" [open]="true">
+            <bit-nav-item text="Generator"></bit-nav-item>
+            <bit-nav-item text="Import"></bit-nav-item>
+            <bit-nav-item text="Export"></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-group text="Organizations" icon="bwi-business" [open]="true">
+            <bit-nav-item text="Acme Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Vault" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="My Family" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="My Family — Vault" variant="tree"></bit-nav-item>
+            <bit-nav-item text="My Family — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Initech" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Initech — Vault" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Initech — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Initech — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Vault" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Stark Industries" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Vault" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Settings" variant="tree"></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
+          <ng-container slot="product-switcher">
+            <bit-nav-divider></bit-nav-divider>
+            <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
+          </ng-container>
+        </bit-side-nav>
+        <router-outlet></router-outlet>
+      </bit-layout>
     `,
   }),
 };
