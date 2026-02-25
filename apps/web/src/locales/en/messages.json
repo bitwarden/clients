@@ -3871,7 +3871,7 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteMultipleEmailDescription": {
+  "inviteMultipleEmailsWithSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
       "batchlimit": {
@@ -3890,7 +3890,7 @@
   "inviteZeroEmailDesc": {
     "message": "You have 0 invites remaining."
   },
-  "inviteEmailsBatchLimitDesc": {
+  "inviteMultipleEmailsNoSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
     "placeholders": {
       "batchlimit": {

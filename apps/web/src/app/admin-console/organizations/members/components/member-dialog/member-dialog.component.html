@@ -27,22 +27,25 @@
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
             <bit-form-field
               *ngIf="{
-                seats: remainingSeats$ | async,
+                remainingSeats: remainingSeats$ | async,
                 batchLimit: emailBatchLimit$ | async,
               } as inviteInfo"
             >
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
 
-              <bit-hint *ngIf="inviteInfo.seats > 1">{{
-                "inviteMultipleEmailDescription" | i18n: inviteInfo.batchLimit : inviteInfo.seats
+              <bit-hint *ngIf="inviteInfo.remainingSeats > 1">{{
+                "inviteMultipleEmailsWithSeatLimit"
+                  | i18n: inviteInfo.batchLimit : inviteInfo.remainingSeats
               }}</bit-hint>
 
-              <bit-hint *ngIf="inviteInfo.seats === 1">{{
+              <bit-hint *ngIf="inviteInfo.remainingSeats === 1">{{
                 "inviteSingleEmailDesc" | i18n
               }}</bit-hint>
 
-              <bit-hint *ngIf="inviteInfo.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
+              <bit-hint *ngIf="inviteInfo.remainingSeats === 0">{{
+                "inviteZeroEmailDesc" | i18n
+              }}</bit-hint>
             </bit-form-field>
           </ng-container>
           <bit-radio-group formControlName="type">

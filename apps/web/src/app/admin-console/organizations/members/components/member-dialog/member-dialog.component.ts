@@ -64,7 +64,10 @@ import { DeleteManagedMemberWarningService } from "../../services/delete-managed
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
-import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
+import {
+  getEmailBatchLimit,
+  orgSeatLimitReachedValidator,
+} from "./validators/org-seat-limit-reached.validator";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -124,6 +127,11 @@ export class MemberDialogComponent implements OnDestroy {
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
   remainingSeats$: Observable<number>;
+  /**
+   * The maximum number of unique emails an admin may submit in a single invite operation,
+   * derived from the organization's plan type and available seats. See {@link getEmailBatchLimit}
+   * for the full business rules.
+   */
   emailBatchLimit$: Observable<number>;
   editParams$: Observable<EditMemberDialogParams>;
 
@@ -295,20 +303,19 @@ export class MemberDialogComponent implements OnDestroy {
     );
 
     this.remainingSeats$ = this.organization$.pipe(
-      map((organization) => {
-        if (!this.isEditDialogParams(this.params)) {
-          return organization.seats - this.params.occupiedSeatCount;
-        }
-
-        return organization.seats;
-      }),
+      map((organization) =>
+        this.isEditDialogParams(this.params)
+          ? 0
+          : organization.seats - this.params.occupiedSeatCount,
+      ),
     );
 
-    this.emailBatchLimit$ = combineLatest([this.organization$, this.remainingSeats$]).pipe(
-      map(([organization, remainingSeats]) => {
-        const standardLimit =
-          organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
-        return Math.min(standardLimit, remainingSeats);
+    this.emailBatchLimit$ = this.organization$.pipe(
+      map((organization) => {
+        const occupiedSeatCount = this.isEditDialogParams(this.params)
+          ? 0
+          : this.params.occupiedSeatCount;
+        return getEmailBatchLimit(organization, occupiedSeatCount);
       }),
     );
 
