@@ -1636,6 +1636,10 @@ export default class MainBackground {
     }
     await Promise.all(setUserKeyInMemoryPromises);
 
+    /**
+     * @deprecated Do not add new initialization logic here. Instead, have your service implement
+     * `AsyncInitializable` or `SyncInitializable`.
+     */
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
