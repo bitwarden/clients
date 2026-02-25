@@ -267,6 +267,39 @@ describe("CipherAuthorizationService", () => {
         done();
       });
     });
+
+    it("should return true if bypassCipherEditPermission is true even when cipher.edit is false", (done) => {
+      const cipher = createMockCipher("org1", [], false) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, false, true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return false when bypassCipherEditPermission is true but isAdminConsoleAction path returns early for unassigned cipher without permission", (done) => {
+      const cipher = createMockCipher("org1", [], false) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, true, true).subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return true when bypassCipherEditPermission is true and isAdminConsoleAction is true but canEditAllCiphers is false for assigned cipher", (done) => {
+      const cipher = createMockCipher("org1", ["col1"], false) as CipherView;
+      const organization = createMockOrganization({ canEditAllCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, true, true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
   });
 
   describe("canCloneCipher$", () => {

@@ -936,6 +936,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       formConfig,
       activeCollectionId,
       restore: this.restore,
+      bypassCipherEditPermission: true,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
