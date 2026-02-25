@@ -1271,6 +1271,9 @@
   "changeMasterPass": {
     "message": "Change master password"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Continue to web app?"
   },
