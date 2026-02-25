@@ -74,7 +74,7 @@ export class Utils {
     }
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -91,11 +91,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -107,7 +107,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -120,7 +120,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
