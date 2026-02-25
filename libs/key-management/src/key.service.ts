@@ -303,45 +303,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return Utils.fromBufferToB64(hash);
   }
 
-  async compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean> {
-    if (masterKey == null) {
-      throw new Error("'masterKey' is required to be non-null.");
-    }
-
-    if (masterPassword == null) {
-      // If they don't give us a master password, we can't hash it, and therefore
-      // it will never match what we have stored.
-      return false;
-    }
-
-    // Retrieve the current password hash
-    const storedPasswordHash = await firstValueFrom(
-      this.masterPasswordService.masterKeyHash$(userId),
-    );
-
-    if (storedPasswordHash == null) {
-      return false;
-    }
-
-    // Hash the key for local use
-    const localKeyHash = await this.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    // Check if the stored hash is already equal to the hash we create locally
-    if (localKeyHash == null || storedPasswordHash !== localKeyHash) {
-      return false;
-    }
-
-    return true;
-  }
-
   async setOrgKeys(
     orgs: ProfileOrganizationResponse[],
     providerOrgs: ProfileProviderOrganizationResponse[],

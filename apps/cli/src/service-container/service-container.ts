@@ -861,6 +861,7 @@ export class ServiceContainer {
       this.pinService,
       this.kdfConfigService,
       new CliBiometricsService(),
+      this.masterPasswordUnlockService,
     );
 
     const biometricService = new CliBiometricsService();
