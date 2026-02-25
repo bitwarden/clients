@@ -2,6 +2,8 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/async-initializable";
+import { DefaultAsyncInitService } from "@bitwarden/common/platform/services/default-async-init.service";
 import {
   AsyncActionsModule,
   AutofocusDirective,
@@ -45,9 +47,12 @@ import { SearchCiphersPipe } from "./pipes/search-ciphers.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
+import { AsyncInitService, ASYNC_INIT_SERVICES } from "./platform/abstractions/async-init.service";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
 import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
+import { AngularInjectorAdapter } from "./platform/services/angular-injector-adapter";
+import { safeProvider } from "./platform/utils/safe-provider";
 import { IconComponent } from "./vault/components/icon.component";
 
 @NgModule({
@@ -145,6 +150,15 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     FingerprintPipe,
     PluralizePipe,
+    AngularInjectorAdapter,
+    safeProvider({
+      provide: AsyncInitService,
+      useFactory: (serviceTokens: AsyncDependency[], adapter: AngularInjectorAdapter) => {
+        return new DefaultAsyncInitService(serviceTokens, adapter);
+      },
+      deps: [ASYNC_INIT_SERVICES, AngularInjectorAdapter],
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class JslibModule {}

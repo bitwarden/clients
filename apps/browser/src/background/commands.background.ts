@@ -9,6 +9,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncInitializable } from "@bitwarden/common/platform/abstractions/sync-initializable";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -18,7 +19,7 @@ import { BrowserApi } from "../platform/browser/browser-api";
 
 import MainBackground from "./main.background";
 
-export default class CommandsBackground {
+export default class CommandsBackground implements SyncInitializable {
   private isSafari: boolean;
   private isVivaldi: boolean;
 

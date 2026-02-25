@@ -1,11 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
+import { inject, NgModule, NgZone, provideAppInitializer } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
+import {
+  AsyncInitService,
+  asyncInitializableProvider,
+} from "@bitwarden/angular/platform/abstractions/async-init.service";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -252,12 +256,12 @@ const safeProviders: SafeProvider[] = [
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,
   }),
-  safeProvider({
-    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (initService: InitService) => initService.init(),
-    deps: [InitService],
-    multi: true,
-  }),
+  safeProvider(
+    provideAppInitializer(() => {
+      const initService = inject(AsyncInitService);
+      return initService.init();
+    }),
+  ),
   safeProvider({
     provide: CryptoFunctionService,
     useFactory: () => new WebCryptoFunctionService(window),
@@ -791,6 +795,8 @@ const safeProviders: SafeProvider[] = [
     useClass: AutoConfirmNudgeService,
     deps: [StateProvider, AutomaticUserConfirmationService],
   }),
+  asyncInitializableProvider(InitService),
+  asyncInitializableProvider(SdkLoadService),
 ];
 
 @NgModule({

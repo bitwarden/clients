@@ -1,4 +1,4 @@
-import { Provider } from "@angular/core";
+import { EnvironmentProviders, Provider } from "@angular/core";
 import { Constructor, Opaque } from "type-fest";
 
 import { SafeInjectionToken } from "./safe-injection-token";
@@ -134,5 +134,6 @@ export const safeProvider = <
     | AllowAngularDecorators<SafeFactoryProvider<AFactory, IFactory, DFactory>>
     | SafeExistingProvider<AExisting, IExisting>
     | AllowAngularDecorators<SafeConcreteProvider<IConcrete, DConcrete>>
-    | Constructor<unknown>,
+    | Constructor<unknown>
+    | EnvironmentProviders,
 ): SafeProvider => provider as SafeProvider;

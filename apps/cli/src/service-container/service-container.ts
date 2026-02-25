@@ -1074,7 +1074,7 @@ export class ServiceContainer {
       return;
     }
 
-    await this.sdkLoadService.loadAndInit();
+    await this.sdkLoadService.init();
     await this.storageService.init();
 
     await this.migrationRunner.run();

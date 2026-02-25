@@ -125,6 +125,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { AsyncDependency } from "@bitwarden/common/platform/abstractions/async-initializable";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -144,6 +145,7 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SyncDependency } from "@bitwarden/common/platform/abstractions/sync-initializable";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
@@ -164,6 +166,8 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAsyncInitService } from "@bitwarden/common/platform/services/default-async-init.service";
+import { DefaultSyncInitService } from "@bitwarden/common/platform/services/default-sync-init.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -337,6 +341,7 @@ import BrowserMemoryStorageService from "../platform/services/browser-memory-sto
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
+import { ManualInjector } from "../platform/services/manual-injector";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
@@ -479,6 +484,8 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  asyncInitService: DefaultAsyncInitService;
+  syncInitService: DefaultSyncInitService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -1576,12 +1583,42 @@ export default class MainBackground {
     // Putting this here so that all other services are initialized prior to trying to hook up
     // subscriptions to the notification chrome events.
     this.initNotificationSubscriptions();
+
+    // Setup synchronous initialization for Chrome API event listeners
+    // These run BEFORE async init to ensure listeners are registered
+    // before the service worker can be terminated (Manifest V3 requirement)
+    const syncInjector = new ManualInjector<SyncDependency>();
+    syncInjector.register(CommandsBackground, this.commandsBackground);
+
+    this.syncInitService = new DefaultSyncInitService(
+      syncInjector.getRegisteredTokens(),
+      syncInjector,
+    );
+
+    // Setup async initialization for background services
+    const asyncInjector = new ManualInjector<AsyncDependency>();
+    asyncInjector.register(SdkLoadService, this.sdkLoadService);
+
+    this.asyncInitService = new DefaultAsyncInitService(
+      asyncInjector.getRegisteredTokens(),
+      asyncInjector,
+    );
+  }
+
+  /**
+   * Synchronous bootstrap phase. Registers Chrome API event listeners
+   * immediately so the service worker is not terminated before they are set up.
+   * MUST be called before the async bootstrap().
+   */
+  syncBootstrap(): void {
+    this.syncInitService.init();
   }
 
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.loadAndInit();
+    await this.asyncInitService.init();
+
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 
@@ -1600,6 +1637,10 @@ export default class MainBackground {
     }
     await Promise.all(setUserKeyInMemoryPromises);
 
+    /**
+     * @deprecated Do not add new initialization logic here. Instead, have your service implement
+     * `AsyncInitializable` or `SyncInitializable`.
+     */
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
@@ -1611,7 +1652,6 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
-    this.commandsBackground.init();
     this.contextMenusBackground?.init();
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
