@@ -24,6 +24,8 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
+import { PeriodSelectorComponent } from "../period-selector/period-selector.component";
+import { DEFAULT_TIME_PERIOD, TimePeriod } from "../period-selector/period-selector.types";
 
 export const TrendWidgetViewType = Object.freeze({
   Applications: "applications",
@@ -32,17 +34,8 @@ export const TrendWidgetViewType = Object.freeze({
 } as const);
 export type TrendWidgetViewType = (typeof TrendWidgetViewType)[keyof typeof TrendWidgetViewType];
 
-export const TrendWidgetTimespan = Object.freeze({
-  PastMonth: "past-month",
-  Past3Months: "past-3-months",
-  Past6Months: "past-6-months",
-  PastYear: "past-year",
-  AllTime: "all-time",
-} as const);
-export type TrendWidgetTimespan = (typeof TrendWidgetTimespan)[keyof typeof TrendWidgetTimespan];
-
 export interface TrendWidgetData {
-  timeframe: TrendWidgetTimespan;
+  timeframe: TimePeriod;
   dataView: TrendWidgetViewType;
   dataPoints: Array<{
     timestamp: string;
@@ -63,21 +56,21 @@ export interface TrendWidgetData {
     MenuModule,
     IconModule,
     SharedModule,
+    PeriodSelectorComponent,
   ],
 })
 export class TrendWidgetComponent {
   protected readonly ViewType = TrendWidgetViewType;
-  protected readonly Timespan = TrendWidgetTimespan;
 
   readonly data = input.required<TrendWidgetData>();
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
 
   readonly selectedView = signal<TrendWidgetViewType>(TrendWidgetViewType.Applications);
-  readonly selectedTimespan = signal<TrendWidgetTimespan>(TrendWidgetTimespan.PastMonth);
+  readonly selectedTimespan = signal<TimePeriod>(DEFAULT_TIME_PERIOD);
 
   readonly viewChanged = output<TrendWidgetViewType>();
-  readonly timespanChanged = output<TrendWidgetTimespan>();
+  readonly timespanChanged = output<TimePeriod>();
 
   private readonly isDarkMode = toSignal(
     combineLatest([this.themeStateService.selectedTheme$, this.systemTheme$]).pipe(
@@ -100,7 +93,7 @@ export class TrendWidgetComponent {
     this.viewChanged.emit(view);
   }
 
-  protected onTimespanChange(timespan: TrendWidgetTimespan) {
+  protected onTimespanChange(timespan: TimePeriod) {
     this.selectedTimespan.set(timespan);
     this.timespanChanged.emit(timespan);
   }
