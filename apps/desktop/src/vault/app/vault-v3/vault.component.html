@@ -26,7 +26,7 @@
       [allOrganizations]="allOrganizations"
       [disabled]="refreshing"
       [showOwner]="true"
-      [showPremiumFeatures]="userHasPremiumAccess"
+      [showPremiumFeatures]="userHasPremium()"
       [userCanArchive]="userCanArchive$ | async"
       [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
       [placeholderText]="searchPlaceholderText"

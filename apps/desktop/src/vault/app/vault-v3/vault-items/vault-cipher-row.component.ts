@@ -96,11 +96,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private platformUtilsService = inject(PlatformUtilsService);
 
   protected readonly showArchiveButton = computed(() => {
-    if (!this.archiveEnabled()) {
-      return false;
-    }
-
     return (
+      this.archiveEnabled() &&
+      !this.cipher().organizationId &&
       !CipherViewLikeUtils.isArchived(this.cipher()) &&
       !CipherViewLikeUtils.isDeleted(this.cipher())
     );
@@ -108,11 +106,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   // If item is archived always show unarchive button, even if user is not premium
   protected readonly showUnArchiveButton = computed(() => {
-    if (!this.archiveEnabled()) {
-      return false;
-    }
-
-    return CipherViewLikeUtils.isArchived(this.cipher());
+    return (
+      CipherViewLikeUtils.isArchived(this.cipher()) && !CipherViewLikeUtils.isDeleted(this.cipher())
+    );
   });
 
   protected readonly showFixOldAttachments = computed(() => {
@@ -207,7 +203,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         if (cipher.viewPassword) {
           fields.push({ field: "password", title: "copyPassword" });
         }
-        if (cipher.organizationUseTotp || this.showPremiumFeatures()) {
+        if (
+          CipherViewLikeUtils.getLogin(cipher).totp &&
+          (cipher.organizationUseTotp || this.showPremiumFeatures())
+        ) {
           fields.push({ field: "totp", title: "copyVerificationCode" });
         }
         return fields;

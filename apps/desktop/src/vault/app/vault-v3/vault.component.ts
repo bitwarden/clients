@@ -265,6 +265,10 @@ export class VaultComponent<C extends CipherViewLike>
     { initialValue: false },
   );
 
+  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
+    initialValue: false,
+  });
+
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
@@ -311,7 +315,6 @@ export class VaultComponent<C extends CipherViewLike>
   protected noResultsIcon = NoResults;
   protected performingInitialLoad = true;
   protected refreshing = false;
-  protected userHasPremiumAccess: boolean;
   protected allOrganizations: Organization[] = [];
   protected allCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
@@ -543,18 +546,11 @@ export class VaultComponent<C extends CipherViewLike>
       .pipe(
         tap(() => (this.refreshing = true)),
         switchMap(() =>
-          combineLatest([
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
-            allCollections$,
-            this.organizations$,
-            ciphers$,
-            collections$,
-          ]),
+          combineLatest([allCollections$, this.organizations$, ciphers$, collections$]),
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe(([canAccessPremium, allCollections, allOrganizations, ciphers, collections]) => {
-        this.userHasPremiumAccess = canAccessPremium;
+      .subscribe(([allCollections, allOrganizations, ciphers, collections]) => {
         this.allCollections = allCollections;
         this.allOrganizations = allOrganizations;
         this.ciphers = ciphers;
@@ -624,8 +620,10 @@ export class VaultComponent<C extends CipherViewLike>
       case "unarchive":
         if (event.items.length === 1) {
           const cipher = await this.cipherService.getFullCipherView(event.items[0]);
-          await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
-          await this.refreshCurrentCipher();
+          if (cipher.isArchived && !cipher.isDeleted) {
+            await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
+            await this.refreshCurrentCipher();
+          }
         }
         break;
       case "toggleFavorite":
@@ -682,6 +680,7 @@ export class VaultComponent<C extends CipherViewLike>
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipherId ?? (this.cipherId as CipherId),
+      canEditCipher: this.cipher().edit,
     });
     const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
