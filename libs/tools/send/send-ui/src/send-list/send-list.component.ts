@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, input, output } f
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import {
   ButtonModule,
   NoItemsModule,
@@ -18,7 +19,7 @@ import { SendTableComponent } from "../send-table/send-table.component";
 export const SendListState = Object.freeze({
   /** No Sends exist at all (File or Text). */
   Empty: "Empty",
-  /** Sends exist, but none match the current Side Nav Filter (File or Text). */
+  /** Sends exist, but none match the current filters (text search and/or type) */
   NoResults: "NoResults",
 } as const);
 
@@ -53,13 +54,19 @@ export class SendListComponent {
   readonly disableSend = input<boolean>(false);
   readonly listState = input<SendListState | null>(null);
   readonly searchText = input<string>("");
+  readonly searchFilter = input<SendFilterType>(SendFilterType.All);
+  readonly showSearchFilters = input<boolean>(true);
+
+  private readonly searchApplied = computed(
+    () => this.searchText().length > 0 || this.searchFilter() !== SendFilterType.All,
+  );
 
   protected readonly showSearchBar = computed(
-    () => this.sends().length > 0 || this.searchText().length > 0,
+    () => this.sends().length > 0 || this.searchApplied() || this.showSearchFilters(),
   );
 
   protected readonly noSearchResults = computed(
-    () => this.showSearchBar() && this.sends().length === 0,
+    () => this.showSearchBar() && this.sends().length === 0 && this.searchApplied(),
   );
 
   // Reusable data source instance - updated reactively when sends change

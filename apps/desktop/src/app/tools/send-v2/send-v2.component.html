@@ -18,6 +18,7 @@
       (copySend)="onCopySend($event)"
       (deleteSend)="onDeleteSend($event)"
       (removePassword)="onRemovePassword($event)"
+      [showSearchFilters]="false"
     >
       <tools-new-send-dropdown-v2
         slot="empty-button"
@@ -34,8 +35,13 @@
       <!-- Header with Send title and New button -->
       <app-header class="tw-block tw-pt-6 tw-px-6">
         @if (!disableSend()) {
-          <button type="button" bitButton buttonType="primary" (click)="addSendWithoutType()">
-            <i class="bwi bwi-plus" aria-hidden="true"></i>
+          <button
+            type="button"
+            bitButton
+            startIcon="bwi-plus"
+            buttonType="primary"
+            (click)="addSendWithoutType()"
+          >
             {{ "new" | i18n }}
           </button>
         }
@@ -52,6 +58,7 @@
           (copySend)="onCopySend($event)"
           (deleteSend)="onDeleteSend($event)"
           (removePassword)="onRemovePassword($event)"
+          [showSearchFilters]="false"
         >
           <button
             slot="empty-button"

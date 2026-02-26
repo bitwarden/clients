@@ -1,31 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { lastValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { ButtonModule, DialogRef } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
-  SendItemsService,
   SendListComponent,
-  SendListState,
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
@@ -67,24 +57,14 @@ type Action = (typeof Action)[keyof typeof Action];
   ],
   templateUrl: "./send-v2.component.html",
 })
-export class SendV2Component {
+export class SendV2Component extends BaseSendComponent {
   protected readonly addEditComponent = viewChild(AddEditComponent);
 
   protected readonly sendId = signal<string | null>(null);
   protected readonly action = signal<Action>(Action.None);
 
   private sendFormConfigService = inject(DefaultSendFormConfigService);
-  private sendItemsService = inject(SendItemsService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
   private configService = inject(ConfigService);
-  private i18nService = inject(I18nService);
-  private platformUtilsService = inject(PlatformUtilsService);
-  private environmentService = inject(EnvironmentService);
-  private sendApiService = inject(SendApiService);
-  private dialogService = inject(DialogService);
-  private toastService = inject(ToastService);
-  private logService = inject(LogService);
   private destroyRef = inject(DestroyRef);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
@@ -94,47 +74,16 @@ export class SendV2Component {
     { initialValue: false },
   );
 
-  protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
-    initialValue: [],
-  });
-
-  protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
-
-  protected readonly currentSearchText = toSignal(this.sendItemsService.latestSearchText$, {
-    initialValue: "",
-  });
-
-  protected readonly disableSend = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-    ),
-    { initialValue: false },
-  );
-
-  protected readonly listState = toSignal(
-    combineLatest([
-      this.sendItemsService.emptyList$,
-      this.sendItemsService.noFilteredResults$,
-    ]).pipe(
-      map(([emptyList, noFilteredResults]): SendListState | null => {
-        if (emptyList) {
-          return SendListState.Empty;
-        }
-        if (noFilteredResults) {
-          return SendListState.NoResults;
-        }
-        return null;
-      }),
-    ),
-    { initialValue: null },
-  );
-
   constructor() {
+    super();
     this.destroyRef.onDestroy(() => {
       this.activeDrawerRef?.close();
+    });
+    // If the Send we are editing becomes invisible due to search filtering, close the edit drawer
+    this.sendItemsService.filteredAndSortedSends$.pipe(takeUntilDestroyed()).subscribe((sends) => {
+      if (this.sendId() && !sends.some((s) => s.id === this.sendId())) {
+        this.addEditComponent().cancel();
+      }
     });
   }
 

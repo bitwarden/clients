@@ -86,6 +86,7 @@ describe("SendV2Component", () => {
 
     // Mock SendListFiltersService
     sendListFiltersService = mock<SendListFiltersService>();
+    sendListFiltersService.filters$ = of({ sendType: null });
 
     // Mock sendViews$ observable
     sendService.sendViews$ = of([]);
