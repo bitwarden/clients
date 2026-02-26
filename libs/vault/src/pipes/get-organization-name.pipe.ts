@@ -6,7 +6,6 @@ import { OrganizationId } from "@bitwarden/sdk-internal";
 @Pipe({
   name: "orgNameFromId",
   pure: true,
-  standalone: false,
 })
 export class GetOrgNameFromIdPipe implements PipeTransform {
   transform(value: string | OrganizationId, organizations: Organization[]) {

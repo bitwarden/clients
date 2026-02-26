@@ -55,13 +55,6 @@ export class OrganizationFilterComponent {
 
   protected applyFilter(event: Event, organization: TreeNode<OrganizationFilter>) {
     event.stopPropagation();
-    if (!organization.node.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("disabledOrganizationFilterError"),
-      });
-      return;
-    }
 
     this.vaultFilterService.setOrganizationFilter(organization.node);
     const filter = this.activeFilter();
