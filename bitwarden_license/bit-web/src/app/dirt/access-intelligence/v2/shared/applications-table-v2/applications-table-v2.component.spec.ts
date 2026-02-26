@@ -1,13 +1,34 @@
+import { ElementRef, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { BehaviorSubject } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource } from "@bitwarden/components";
+import { I18nMockService, ScrollLayoutService, TableDataSource } from "@bitwarden/components";
 
 import {
   ApplicationsTableV2Component,
   ApplicationTableRowV2,
 } from "./applications-table-v2.component";
 
+// bit-table-scroll uses ResizeObserver internally, which JSDOM doesn't implement
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+/**
+ * NOTE: Row-level DOM tests (row content, icon display per row, row click handlers,
+ * row highlighting, individual checkboxes) are not included in this spec because
+ * bit-table-scroll uses CdkVirtualScrollViewport. Virtual scrolling requires real
+ * DOM dimensions (viewport height) to determine which rows to render — JSDOM provides
+ * no real dimensions, so *cdkVirtualFor renders zero rows.
+ *
+ * Template/row rendering is covered visually by Storybook stories (applications-table-v2.component.stories.ts).
+ * Component logic and header elements (which render without virtual scroll) are tested here.
+ *
+ */
 describe("ApplicationsTableV2Component", () => {
   let component: ApplicationsTableV2Component;
   let fixture: ComponentFixture<ApplicationsTableV2Component>;
@@ -41,8 +62,36 @@ describe("ApplicationsTableV2Component", () => {
     mockShowAppAtRiskMembers = jest.fn();
     mockCheckboxChange = jest.fn();
 
+    // Provide a non-null scroll host so ScrollLayoutDirective doesn't log
+    // "ScrollLayoutDirective can't find scroll host" during tests.
+    // bit-table-scroll uses bitScrollLayout which requires a bitScrollLayoutHost parent —
+    // one that doesn't exist in the JSDOM test environment.
+    const mockScrollEl = new ElementRef(document.createElement("div"));
+    const mockScrollLayoutService = {
+      scrollableRef: signal(mockScrollEl),
+      scrollableRef$: new BehaviorSubject(mockScrollEl),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ApplicationsTableV2Component],
+      providers: [
+        { provide: ScrollLayoutService, useValue: mockScrollLayoutService },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              application: "Application",
+              atRiskPasswords: "At-Risk Passwords",
+              totalPasswords: "Total Passwords",
+              atRiskMembers: "At-Risk Members",
+              totalMembers: "Total Members",
+              criticalBadge: "Critical",
+              selectAll: "Select all",
+              deselectAll: "Deselect all",
+              select: "Select",
+            }),
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ApplicationsTableV2Component);
@@ -91,56 +140,12 @@ describe("ApplicationsTableV2Component", () => {
       expect(tableElement).toBeTruthy();
     });
 
-    it("should render rows with application names", () => {
-      mockDataSource.data = [
-        createTableRow("github.com", 5, 10, 2, 5, true),
-        createTableRow("gitlab.com", 3, 8, 1, 3, false),
-      ];
-
-      fixture.detectChanges();
-
-      const tableText = fixture.nativeElement.textContent;
-      expect(tableText).toContain("github.com");
-      expect(tableText).toContain("gitlab.com");
-    });
-
     it("should render table with empty data", () => {
       mockDataSource.data = [];
       fixture.detectChanges();
 
       const tableElement = fixture.nativeElement.querySelector("bit-table-scroll");
       expect(tableElement).toBeTruthy();
-    });
-  });
-
-  // ==================== Icon Display Tests ====================
-
-  describe("Icon Display", () => {
-    it("should display vault icon when iconCipher exists", () => {
-      const mockCipher = new CipherView();
-      mockCipher.name = "GitHub Login";
-
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, false, mockCipher)];
-      fixture.detectChanges();
-
-      const vaultIcon = fixture.nativeElement.querySelector("app-vault-icon");
-      expect(vaultIcon).toBeTruthy();
-    });
-
-    it("should display globe icon when iconCipher is undefined", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, false, undefined)];
-      fixture.detectChanges();
-
-      const globeIcon = fixture.nativeElement.querySelector(".bwi-globe");
-      expect(globeIcon).toBeTruthy();
-    });
-
-    it("should not display vault icon when iconCipher is undefined", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, false, undefined)];
-      fixture.detectChanges();
-
-      const vaultIcon = fixture.nativeElement.querySelector("app-vault-icon");
-      expect(vaultIcon).toBeNull();
     });
   });
 
@@ -185,189 +190,53 @@ describe("ApplicationsTableV2Component", () => {
       expect(component.allAppsSelected()).toBe(false);
     });
 
-    it("should select all apps when selectAllChanged called with checked=true", () => {
+    it("should emit true from selectAllChange when selectAllChanged called with checked=true", () => {
       mockDataSource.data = [
         createTableRow("github.com", 5, 10, 2, 5),
         createTableRow("gitlab.com", 3, 8, 1, 3),
       ];
 
-      const mockTarget = { checked: true } as HTMLInputElement;
-      component.selectAllChanged(mockTarget);
+      const emitted: boolean[] = [];
+      component.selectAllChange.subscribe((v: boolean) => emitted.push(v));
 
-      expect(mockSelectedUrls.has("github.com")).toBe(true);
-      expect(mockSelectedUrls.has("gitlab.com")).toBe(true);
-      expect(mockSelectedUrls.size).toBe(2);
+      component.selectAllChanged({ checked: true } as HTMLInputElement);
+
+      expect(emitted).toEqual([true]);
     });
 
-    it("should deselect all apps when selectAllChanged called with checked=false", () => {
+    it("should emit false from selectAllChange when selectAllChanged called with checked=false", () => {
       mockDataSource.data = [
         createTableRow("github.com", 5, 10, 2, 5),
         createTableRow("gitlab.com", 3, 8, 1, 3),
       ];
 
-      mockSelectedUrls.add("github.com");
-      mockSelectedUrls.add("gitlab.com");
+      const emitted: boolean[] = [];
+      component.selectAllChange.subscribe((v: boolean) => emitted.push(v));
 
-      const mockTarget = { checked: false } as HTMLInputElement;
-      component.selectAllChanged(mockTarget);
+      component.selectAllChanged({ checked: false } as HTMLInputElement);
 
-      expect(mockSelectedUrls.size).toBe(0);
+      expect(emitted).toEqual([false]);
     });
 
-    it("should not error when selectAllChanged called with empty table", () => {
+    it("should emit without error when selectAllChanged called with empty table", () => {
       mockDataSource.data = [];
 
-      const mockTarget = { checked: true } as HTMLInputElement;
+      const emitted: boolean[] = [];
+      component.selectAllChange.subscribe((v: boolean) => emitted.push(v));
 
-      expect(() => component.selectAllChanged(mockTarget)).not.toThrow();
-      expect(mockSelectedUrls.size).toBe(0);
+      expect(() => component.selectAllChanged({ checked: true } as HTMLInputElement)).not.toThrow();
+      expect(emitted).toEqual([true]);
     });
   });
 
-  // ==================== Individual Selection Tests ====================
+  // ==================== Select All Checkbox (Header Element) ====================
 
-  describe("Individual Selection", () => {
-    it("should show checked state for selected application", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      mockSelectedUrls.add("github.com");
-
-      fixture.detectChanges();
-
-      const checkbox = fixture.nativeElement.querySelector(
-        'input[type="checkbox"]:not([data-testid="selectAll"])',
-      );
-      expect(checkbox.checked).toBe(true);
-    });
-
-    it("should show unchecked state for unselected application", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-
-      fixture.detectChanges();
-
-      const checkbox = fixture.nativeElement.querySelector(
-        'input[type="checkbox"]:not([data-testid="selectAll"])',
-      );
-      expect(checkbox.checked).toBe(false);
-    });
-
-    it("should call checkboxChange callback when row checkbox clicked", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const checkbox = fixture.nativeElement.querySelector(
-        'input[type="checkbox"]:not([data-testid="selectAll"])',
-      );
-      const event = new Event("change");
-      checkbox.dispatchEvent(event);
-
-      expect(mockCheckboxChange).toHaveBeenCalledWith("github.com", expect.any(Event));
-    });
-  });
-
-  // ==================== Row Actions Tests ====================
-
-  describe("Row Actions", () => {
-    it("should call showAppAtRiskMembers when row clicked", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      // Find a clickable cell (not the checkbox cell)
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      const firstClickableCell = clickableCells[0];
-
-      firstClickableCell.click();
-
-      expect(mockShowAppAtRiskMembers).toHaveBeenCalledWith("github.com");
-    });
-
-    it("should call showAppAtRiskMembers on Enter keypress", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      const firstClickableCell = clickableCells[0];
-
-      const event = new KeyboardEvent("keydown", { key: "Enter" });
-      firstClickableCell.dispatchEvent(event);
-
-      expect(mockShowAppAtRiskMembers).toHaveBeenCalledWith("github.com");
-    });
-
-    it("should call showAppAtRiskMembers on Space keypress", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      const firstClickableCell = clickableCells[0];
-
-      const event = new KeyboardEvent("keydown", { key: " " });
-      firstClickableCell.dispatchEvent(event);
-
-      expect(mockShowAppAtRiskMembers).toHaveBeenCalledWith("github.com");
-    });
-  });
-
-  // ==================== Critical Badge Tests ====================
-
-  describe("Critical Badge", () => {
-    it("should display critical badge for critical applications", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, true)];
-      fixture.detectChanges();
-
-      const badge = fixture.nativeElement.querySelector("[bitBadge]");
-      expect(badge).toBeTruthy();
-    });
-
-    it("should not display critical badge for non-critical applications", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, false)];
-      fixture.detectChanges();
-
-      const badge = fixture.nativeElement.querySelector("[bitBadge]");
-      expect(badge).toBeNull();
-    });
-  });
-
-  // ==================== Accessibility Tests ====================
-
-  describe("Accessibility", () => {
+  describe("Select All Checkbox", () => {
     it("should have aria-label on select all checkbox", () => {
       fixture.detectChanges();
 
       const selectAllCheckbox = fixture.nativeElement.querySelector('[data-testid="selectAll"]');
       expect(selectAllCheckbox.getAttribute("aria-label")).toBeTruthy();
-    });
-
-    it("should have role=button on clickable cells", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      const firstClickableCell = clickableCells[0];
-
-      expect(firstClickableCell.getAttribute("role")).toBe("button");
-    });
-
-    it("should have tabindex=0 on clickable cells for keyboard navigation", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      const firstClickableCell = clickableCells[0];
-
-      expect(firstClickableCell.getAttribute("tabindex")).toBe("0");
-    });
-
-    it("should have aria-label for application name", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5, true)];
-      fixture.detectChanges();
-
-      const clickableCells = fixture.nativeElement.querySelectorAll("td.tw-cursor-pointer");
-      // Find the cell with application name
-      const appNameCell = Array.from(clickableCells).find((cell: Element) =>
-        cell.getAttribute("aria-label")?.includes("github.com"),
-      );
-
-      expect(appNameCell).toBeTruthy();
     });
 
     it("should disable select all checkbox when table is empty", () => {
@@ -387,49 +256,6 @@ describe("ApplicationsTableV2Component", () => {
     });
   });
 
-  // ==================== Open Application Highlighting Tests ====================
-
-  describe("Open Application Highlighting", () => {
-    it("should highlight row when application is open", () => {
-      mockDataSource.data = [
-        createTableRow("github.com", 5, 10, 2, 5),
-        createTableRow("gitlab.com", 3, 8, 1, 3),
-      ];
-
-      fixture.componentRef.setInput("openApplication", "github.com");
-      fixture.detectChanges();
-
-      const highlightedCells = fixture.nativeElement.querySelectorAll(".tw-bg-primary-100");
-      expect(highlightedCells.length).toBeGreaterThan(0);
-    });
-
-    it("should not highlight rows when no application is open", () => {
-      mockDataSource.data = [
-        createTableRow("github.com", 5, 10, 2, 5),
-        createTableRow("gitlab.com", 3, 8, 1, 3),
-      ];
-
-      fixture.componentRef.setInput("openApplication", "");
-      fixture.detectChanges();
-
-      const highlightedCells = fixture.nativeElement.querySelectorAll(".tw-bg-primary-100");
-      expect(highlightedCells.length).toBe(0);
-    });
-
-    it("should highlight only matching application row", () => {
-      mockDataSource.data = [
-        createTableRow("github.com", 5, 10, 2, 5),
-        createTableRow("gitlab.com", 3, 8, 1, 3),
-      ];
-
-      fixture.componentRef.setInput("openApplication", "github.com");
-      fixture.detectChanges();
-
-      const rows = fixture.nativeElement.querySelectorAll("tr[bitRow]");
-      expect(rows.length).toBeGreaterThan(0);
-    });
-  });
-
   // ==================== Edge Cases Tests ====================
 
   describe("Edge Cases", () => {
@@ -446,53 +272,17 @@ describe("ApplicationsTableV2Component", () => {
       expect(() => fixture.detectChanges()).not.toThrow();
     });
 
-    it("should handle application names with special characters", () => {
-      mockDataSource.data = [
-        createTableRow("app-with-dashes.com", 5, 10, 2, 5),
-        createTableRow("app_with_underscores.io", 3, 8, 1, 3),
-      ];
-
-      fixture.detectChanges();
-
-      const tableText = fixture.nativeElement.textContent;
-      expect(tableText).toContain("app-with-dashes.com");
-      expect(tableText).toContain("app_with_underscores.io");
-    });
-
     it("should handle very long application names", () => {
       const longName = "a".repeat(100) + ".com";
       mockDataSource.data = [createTableRow(longName, 5, 10, 2, 5)];
 
       expect(() => fixture.detectChanges()).not.toThrow();
     });
-
-    it("should handle zero counts correctly", () => {
-      mockDataSource.data = [createTableRow("github.com", 0, 0, 0, 0)];
-
-      fixture.detectChanges();
-
-      const tableText = fixture.nativeElement.textContent;
-      expect(tableText).toContain("0");
-    });
   });
 
   // ==================== OnPush Change Detection Tests ====================
 
   describe("OnPush Change Detection", () => {
-    it("should update when dataSource input changes", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-      fixture.detectChanges();
-
-      const newDataSource = new TableDataSource<ApplicationTableRowV2>();
-      newDataSource.data = [createTableRow("gitlab.com", 3, 8, 1, 3)];
-
-      fixture.componentRef.setInput("dataSource", newDataSource);
-      fixture.detectChanges();
-
-      const tableText = fixture.nativeElement.textContent;
-      expect(tableText).toContain("gitlab.com");
-    });
-
     it("should update when selectedUrls input changes", () => {
       mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
 
@@ -501,22 +291,6 @@ describe("ApplicationsTableV2Component", () => {
       fixture.detectChanges();
 
       expect(component.allAppsSelected()).toBe(true);
-    });
-
-    it("should update when openApplication input changes", () => {
-      mockDataSource.data = [createTableRow("github.com", 5, 10, 2, 5)];
-
-      fixture.componentRef.setInput("openApplication", "");
-      fixture.detectChanges();
-
-      let highlightedCells = fixture.nativeElement.querySelectorAll(".tw-bg-primary-100");
-      expect(highlightedCells.length).toBe(0);
-
-      fixture.componentRef.setInput("openApplication", "github.com");
-      fixture.detectChanges();
-
-      highlightedCells = fixture.nativeElement.querySelectorAll(".tw-bg-primary-100");
-      expect(highlightedCells.length).toBeGreaterThan(0);
     });
   });
 });

@@ -111,9 +111,8 @@ describe("ApplicationsV2Component", () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      // Strip template + imports to avoid HeaderModule DI requirements.
-      // This component imports HeaderModule which has complex transitive dependencies.
-      // All tests exercise component logic; template rendering is not the test focus.
+      // Strip template + imports to keep unit tests fast and focused on component logic.
+      // Template rendering is not the test focus here.
       .overrideComponent(ApplicationsV2Component, {
         set: { template: "", imports: [] },
       })

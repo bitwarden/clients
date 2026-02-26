@@ -101,6 +101,114 @@ export class RiskInsightsView {
 
 ---
 
+## Method Declarations vs Arrow Function Class Fields
+
+**Prefer method declarations** (prototype methods) for component methods and event handlers.
+Use arrow function class fields **only** when a function reference must be passed as a value.
+
+### When to Use Each
+
+**Method declarations** (default choice):
+
+```typescript
+// ✅ CORRECT - standard event handlers, business logic methods
+markAppsAsCritical(): void { ... }
+onTabChange(index: number): void { ... }
+downloadCSV(): void { ... }
+```
+
+**Arrow function class fields** (only when passing function as value reference):
+
+```typescript
+// ✅ CORRECT - function passed as @Input() value
+showAppAtRiskMembers = (applicationName: string) => {
+  this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+};
+
+// Template usage: [showAppAtRiskMembers]="showAppAtRiskMembers"
+```
+
+**Why the distinction matters:**
+
+- Method declarations live on the prototype — one instance shared across all component instances
+- Arrow function class fields create a new function per component instance (unnecessary memory cost)
+- Arrow functions as inputs ensure stable `this` binding when the function reference is passed around
+
+### Summary Table
+
+| Scenario                                               | Pattern                    |
+| ------------------------------------------------------ | -------------------------- |
+| Regular event handler in template `(click)="method()"` | Method declaration         |
+| Business logic / lifecycle hooks                       | Method declaration         |
+| Passed as `[input]="fn"` template binding              | Arrow function class field |
+| Passed to child component input expecting a callback   | Arrow function class field |
+
+---
+
+## RxJS Over async/await in Components
+
+**Prefer pure RxJS pipelines over async/await**, even within Angular components.
+
+This aligns with the team's service-layer RxJS conventions and avoids mixing async paradigms.
+
+### Patterns
+
+**Parallel operations — use `forkJoin` instead of `Promise.all`:**
+
+```typescript
+// ✅ CORRECT
+markAppsAsCritical(): void {
+  forkJoin(appNames.map((name) => this.service.markApplicationAsCritical$(name)))
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.updatingApps.set(false)),
+    )
+    .subscribe({ next: () => { ... }, error: () => { ... } });
+}
+
+// ❌ AVOID
+async markAppsAsCritical(): Promise<void> {
+  await Promise.all(appNames.map((name) => lastValueFrom(this.service.markApplicationAsCritical$(name))));
+}
+```
+
+**Sequential reactive pipelines — use `switchMap` instead of `await`:**
+
+```typescript
+// ✅ CORRECT
+ngOnInit(): void {
+  this.route.paramMap.pipe(
+    map((params) => params.get("organizationId")),
+    filter(Boolean),
+    switchMap((orgId) => this.service.initializeForOrganization$(orgId as OrganizationId)),
+    takeUntilDestroyed(this.destroyRef),
+  ).subscribe();
+}
+```
+
+### `takeUntilDestroyed` is required by ESLint
+
+All subscriptions must include `takeUntilDestroyed`, even for one-shot operations like `forkJoin`.
+When called from a **method** (outside injection context), you **must** pass `destroyRef` explicitly:
+
+```typescript
+// ✅ CORRECT - explicit destroyRef in method context
+private destroyRef = inject(DestroyRef);
+
+someMethod(): void {
+  forkJoin([...]).pipe(
+    takeUntilDestroyed(this.destroyRef),  // explicit - required outside injection context
+  ).subscribe();
+}
+
+// ✅ ALSO CORRECT - in constructor (injection context), no argument needed
+constructor() {
+  this.obs$.pipe(takeUntilDestroyed()).subscribe();
+}
+```
+
+---
+
 ## Related Documentation
 
 **Standards:**
@@ -120,6 +228,6 @@ export class RiskInsightsView {
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-02-25
 **Maintainer:** DIRT Team

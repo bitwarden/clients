@@ -16,7 +16,6 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -53,7 +52,6 @@ describe("AccessIntelligencePageComponent", () => {
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockI18nService: jest.Mocked<I18nService>;
   let mockDialogService: jest.Mocked<DialogService>;
-  let mockFileDownloadService: jest.Mocked<FileDownloadService>;
   let mockLogService: jest.Mocked<LogService>;
   let mockRouter: jest.Mocked<Router>;
   let mockActivatedRoute: {
@@ -108,10 +106,6 @@ describe("AccessIntelligencePageComponent", () => {
       openDrawer: jest.fn().mockReturnValue({ close: jest.fn() }),
     } as any;
 
-    mockFileDownloadService = {
-      download: jest.fn(),
-    } as any;
-
     mockLogService = {
       error: jest.fn(),
       info: jest.fn(),
@@ -134,7 +128,6 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: DialogService, useValue: mockDialogService },
-        { provide: FileDownloadService, useValue: mockFileDownloadService },
         { provide: LogService, useValue: mockLogService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -369,103 +362,6 @@ describe("AccessIntelligencePageComponent", () => {
     });
   });
 
-  // ==================== CSV Export Tests ====================
-
-  describe("CSV Export", () => {
-    beforeEach(async () => {
-      testReport.recomputeSummary();
-      mockAccessIntelligenceService.report$.next(testReport);
-      mockDrawerStateService.drawerState.mockReturnValue({
-        open: true,
-        type: DrawerType.OrgAtRiskMembers,
-        invokerId: "",
-      });
-      await component.ngOnInit();
-    });
-
-    it("should download at-risk members CSV", async () => {
-      await component.downloadAtRiskMembers();
-
-      expect(mockFileDownloadService.download).toHaveBeenCalledWith(
-        expect.objectContaining({
-          fileName: expect.stringContaining("at-risk-members"),
-          blobOptions: { type: "text/plain" },
-        }),
-      );
-    });
-
-    it("should not download when drawer is closed", async () => {
-      mockDrawerStateService.drawerState.mockReturnValue({
-        open: false,
-        type: DrawerType.OrgAtRiskMembers,
-        invokerId: "",
-      });
-
-      await component.downloadAtRiskMembers();
-
-      expect(mockFileDownloadService.download).not.toHaveBeenCalled();
-    });
-
-    it("should not download when drawer type is wrong", async () => {
-      mockDrawerStateService.drawerState.mockReturnValue({
-        open: true,
-        type: DrawerType.OrgAtRiskApps,
-        invokerId: "",
-      });
-
-      await component.downloadAtRiskMembers();
-
-      expect(mockFileDownloadService.download).not.toHaveBeenCalled();
-    });
-
-    it("should download at-risk applications CSV", async () => {
-      mockDrawerStateService.drawerState.mockReturnValue({
-        open: true,
-        type: DrawerType.OrgAtRiskApps,
-        invokerId: "",
-      });
-
-      await component.downloadAtRiskApplications();
-
-      expect(mockFileDownloadService.download).toHaveBeenCalledWith(
-        expect.objectContaining({
-          fileName: expect.stringContaining("at-risk-applications"),
-          blobOptions: { type: "text/plain" },
-        }),
-      );
-    });
-
-    it("should use i18n keys from csvHeaders constants", async () => {
-      await component.downloadAtRiskMembers();
-
-      expect(mockI18nService.t).toHaveBeenCalledWith("email");
-      expect(mockI18nService.t).toHaveBeenCalledWith("atRiskPasswords");
-    });
-
-    it("should log error when download fails", async () => {
-      const error = new Error("Download failed");
-      mockFileDownloadService.download.mockImplementation(() => {
-        throw error;
-      });
-
-      await component.downloadAtRiskMembers();
-
-      expect(mockLogService.error).toHaveBeenCalledWith(
-        "Failed to download at-risk members",
-        error,
-      );
-    });
-
-    it("should not download when no members exist", async () => {
-      const emptyReport = createRiskInsights({ reports: [], memberRegistry: {} });
-      mockAccessIntelligenceService.report$.next(emptyReport);
-
-      await component.downloadAtRiskMembers();
-
-      expect(mockFileDownloadService.download).not.toHaveBeenCalled();
-    });
-  });
-
   // ==================== Empty State Tests ====================
 
   describe("Empty State", () => {
@@ -485,20 +381,6 @@ describe("AccessIntelligencePageComponent", () => {
 
     it("should have video source for empty state", () => {
       expect(testAccess(component).emptyStateVideoSrc).toBeTruthy();
-    });
-
-    it("should navigate to import page when goToImportPage called", () => {
-      component["organizationId"].set(orgId);
-
-      component.goToImportPage();
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith([
-        "/organizations",
-        orgId,
-        "settings",
-        "tools",
-        "import",
-      ]);
     });
   });
 

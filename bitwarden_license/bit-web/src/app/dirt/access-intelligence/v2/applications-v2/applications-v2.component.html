@@ -89,6 +89,7 @@
       [openApplication]="currentDrawerState?.invokerId || ''"
       [checkboxChange]="onCheckboxChange"
       [showAppAtRiskMembers]="showAppAtRiskMembers"
+      (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
     ></app-applications-table-v2>
 

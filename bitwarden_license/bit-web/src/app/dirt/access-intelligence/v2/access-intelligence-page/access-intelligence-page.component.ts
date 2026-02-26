@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concat, distinctUntilChanged, EMPTY, map, of, tap } from "rxjs";
+import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
 import { concatMap, delay, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,7 +26,6 @@ import {
   MemberRegistryEntry,
   RiskInsightsView,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -38,8 +37,6 @@ import {
   DialogService,
   TabsModule,
 } from "@bitwarden/components";
-import { ExportHelper } from "@bitwarden/vault-export-core";
-import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
@@ -98,8 +95,8 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
   protected readonly organizationId = signal<OrganizationId>("" as OrganizationId);
-  protected readonly appsCount = signal<number>(0);
-  protected readonly dataLastUpdated = signal<Date | null>(null);
+  protected readonly appsCount = computed(() => this.report()?.reports.length ?? 0);
+  protected readonly dataLastUpdated = computed(() => this.report()?.creationDate ?? null);
 
   // Convert V2 observables to signals for template
   protected readonly report = toSignal(this.accessIntelligenceService.report$);
@@ -120,7 +117,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     [this.i18nService.t("feature3Title"), this.i18nService.t("feature3Description")],
   ];
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
-  protected IMPORT_ICON = "bwi bwi-download";
 
   protected currentDialogRef: DialogRef<unknown, AccessIntelligenceDrawerV2Component> | null = null;
 
@@ -138,18 +134,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return report !== null && report !== undefined && report.reports.length > 0;
   });
 
-  // CSV export column headers (i18n keys)
-  private readonly csvHeaders = {
-    members: {
-      email: "email",
-      atRiskPasswordCount: "atRiskPasswords",
-    },
-    applications: {
-      applicationName: "application",
-      atRiskPasswordCount: "atRiskPasswords",
-    },
-  } as const;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -157,7 +141,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     protected drawerStateService: DrawerStateService,
     protected i18nService: I18nService,
     protected dialogService: DialogService,
-    private fileDownloadService: FileDownloadService,
     private logService: LogService,
   ) {
     // Subscribe to tab index changes from query params
@@ -194,34 +177,19 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       });
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     // Initialize for organization
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        tap((orgId) => {
-          if (orgId) {
-            this.organizationId.set(orgId as OrganizationId);
-            // Initialize V2 data service
-            this.accessIntelligenceService
-              .initializeForOrganization$(orgId as OrganizationId)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe();
-          } else {
-            return EMPTY;
-          }
+        filter(Boolean),
+        switchMap((orgId) => {
+          this.organizationId.set(orgId as OrganizationId);
+          return this.accessIntelligenceService.initializeForOrganization$(orgId as OrganizationId);
         }),
       )
       .subscribe();
-
-    // Subscribe to report data updates
-    this.accessIntelligenceService.report$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((report) => {
-        this.appsCount.set(report?.reports.length ?? 0);
-        this.dataLastUpdated.set(report?.creationDate ?? null);
-      });
 
     // Setup drawer subscription for content derivation
     this.setupDrawerSubscription();
@@ -264,18 +232,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     this.drawerStateService.closeDrawer();
     this.currentDialogRef?.close();
   }
-
-  // Empty state methods
-
-  goToImportPage = () => {
-    void this.router.navigate([
-      "/organizations",
-      this.organizationId(),
-      "settings",
-      "tools",
-      "import",
-    ]);
-  };
 
   /**
    * Derives drawer content on-demand from report$ + drawerState.
@@ -428,66 +384,4 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       atRiskPasswordCount: report.getAtRiskPasswordCountForMember(member.id, app?.applicationName),
     }));
   }
-
-  /**
-   * Downloads at-risk members as CSV.
-   * Content is derived from current drawer state.
-   */
-  downloadAtRiskMembers = async () => {
-    try {
-      const drawerState = this.drawerStateService.drawerState();
-      const report = this.report();
-
-      if (!drawerState.open || drawerState.type !== DrawerType.OrgAtRiskMembers || !report) {
-        return;
-      }
-
-      const content = this.getOrgAtRiskMembersContent(report);
-      if (!content.members || content.members.length === 0) {
-        return;
-      }
-
-      this.fileDownloadService.download({
-        fileName: ExportHelper.getFileName("at-risk-members"),
-        blobData: exportToCSV(content.members, {
-          email: this.i18nService.t(this.csvHeaders.members.email),
-          atRiskPasswordCount: this.i18nService.t(this.csvHeaders.members.atRiskPasswordCount),
-        }),
-        blobOptions: { type: "text/plain" },
-      });
-    } catch (error) {
-      this.logService.error("Failed to download at-risk members", error);
-    }
-  };
-
-  /**
-   * Downloads at-risk applications as CSV.
-   * Content is derived from current drawer state.
-   */
-  downloadAtRiskApplications = async () => {
-    try {
-      const drawerState = this.drawerStateService.drawerState();
-      const report = this.report();
-
-      if (!drawerState.open || drawerState.type !== DrawerType.OrgAtRiskApps || !report) {
-        return;
-      }
-
-      const content = this.getOrgAtRiskAppsContent(report);
-      if (!content.applications || content.applications.length === 0) {
-        return;
-      }
-
-      this.fileDownloadService.download({
-        fileName: ExportHelper.getFileName("at-risk-applications"),
-        blobData: exportToCSV(content.applications, {
-          applicationName: this.i18nService.t(this.csvHeaders.applications.applicationName),
-          atRiskPasswordCount: this.i18nService.t(this.csvHeaders.applications.atRiskPasswordCount),
-        }),
-        blobOptions: { type: "text/plain" },
-      });
-    } catch (error) {
-      this.logService.error("Failed to download at-risk applications", error);
-    }
-  };
 }

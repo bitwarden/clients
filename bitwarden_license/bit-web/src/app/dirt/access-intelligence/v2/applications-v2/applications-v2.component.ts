@@ -1,7 +1,15 @@
-import { Component, inject, ChangeDetectionStrategy, signal, computed, input } from "@angular/core";
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  input,
+  DestroyRef,
+} from "@angular/core";
 import { toSignal, toObservable, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, debounceTime, startWith } from "rxjs";
+import { combineLatest, debounceTime, finalize, forkJoin, startWith } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -28,9 +36,7 @@ import {
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
-import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
@@ -66,10 +72,8 @@ export type ApplicationFilterOption =
   templateUrl: "./applications-v2.component.html",
   imports: [
     ReportLoadingComponent,
-    HeaderModule,
     LinkModule,
     SearchModule,
-    PipesModule,
     NoItemsModule,
     SharedModule,
     ApplicationsTableV2Component,
@@ -84,6 +88,7 @@ export type ApplicationFilterOption =
 })
 export class ApplicationsV2Component {
   // Services
+  private destroyRef = inject(DestroyRef);
   private fileDownloadService = inject(FileDownloadService);
   private logService = inject(LogService);
   private accessIntelligenceService = inject(AccessIntelligenceDataService);
@@ -262,63 +267,73 @@ export class ApplicationsV2Component {
    * Marks selected applications as critical.
    * Uses view model's markApplicationAsCritical() method for each app.
    */
-  markAppsAsCritical = async () => {
+  markAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const count = this.selectedUrls().size;
     const appNames = Array.from(this.selectedUrls());
 
-    try {
-      // Mark each app as critical using the service
-      for (const appName of appNames) {
-        await this.accessIntelligenceService.markApplicationAsCritical$(appName).toPromise();
-      }
-
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("numCriticalApplicationsMarkedSuccess", count),
+    forkJoin(
+      appNames.map((name) => this.accessIntelligenceService.markApplicationAsCritical$(name)),
+    )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.updatingCriticalApps.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("numCriticalApplicationsMarkedSuccess", count),
+          });
+          this.selectedUrls.set(new Set<string>());
+        },
+        error: () => {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
+          });
+        },
       });
-      this.selectedUrls.set(new Set<string>());
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
-      });
-    } finally {
-      this.updatingCriticalApps.set(false);
-    }
-  };
+  }
 
   /**
    * Unmarks selected applications as critical.
    * Uses view model's unmarkApplicationAsCritical() method for each app.
    */
-  unmarkAppsAsCritical = async () => {
+  unmarkAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const appsToUnmark = this.selectedUrls();
+    const appNames = Array.from(appsToUnmark);
 
-    try {
-      // Unmark each app as critical using the service
-      for (const appName of appsToUnmark) {
-        await this.accessIntelligenceService.unmarkApplicationAsCritical$(appName).toPromise();
-      }
-
-      this.toastService.showToast({
-        message: this.i18nService.t("numApplicationsUnmarkedCriticalSuccess", appsToUnmark.size),
-        variant: "success",
+    forkJoin(
+      appNames.map((name) => this.accessIntelligenceService.unmarkApplicationAsCritical$(name)),
+    )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.updatingCriticalApps.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t(
+              "numApplicationsUnmarkedCriticalSuccess",
+              appsToUnmark.size,
+            ),
+            variant: "success",
+          });
+          this.selectedUrls.set(new Set<string>());
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-      this.selectedUrls.set(new Set<string>());
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    } finally {
-      this.updatingCriticalApps.set(false);
-    }
-  };
+  }
 
   async requestPasswordChange() {
     const orgId = this.organizationId();
@@ -371,7 +386,21 @@ export class ApplicationsV2Component {
     });
   };
 
-  downloadApplicationsCSV = () => {
+  onSelectAllChange = (checked: boolean) => {
+    const filteredData = this.dataSource.filteredData;
+    if (!filteredData) {
+      return;
+    }
+    this.selectedUrls.update((selectedUrls) => {
+      const nextSelected = new Set(selectedUrls);
+      filteredData.forEach((row) =>
+        checked ? nextSelected.add(row.applicationName) : nextSelected.delete(row.applicationName),
+      );
+      return nextSelected;
+    });
+  };
+
+  downloadApplicationsCSV(): void {
     try {
       const data = this.dataSource.filteredData;
       if (!data || data.length === 0) {
@@ -404,5 +433,5 @@ export class ApplicationsV2Component {
     } catch (error) {
       this.logService.error("Failed to download applications CSV", error);
     }
-  };
+  }
 }

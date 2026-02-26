@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -56,6 +56,7 @@ export class ApplicationsTableV2Component {
   readonly openApplication = input<string>("");
   readonly showAppAtRiskMembers = input.required<(applicationName: string) => void>();
   readonly checkboxChange = input.required<(applicationName: string, $event: Event) => void>();
+  readonly selectAllChange = output<boolean>();
 
   allAppsSelected(): boolean {
     const tableData = this.dataSource().filteredData;
@@ -69,19 +70,6 @@ export class ApplicationsTableV2Component {
   }
 
   selectAllChanged(target: HTMLInputElement) {
-    const checked = target.checked;
-
-    const tableData = this.dataSource().filteredData;
-    const selectedUrls = this.selectedUrls();
-
-    if (!tableData) {
-      return;
-    }
-
-    if (checked) {
-      tableData.forEach((row) => selectedUrls.add(row.applicationName));
-    } else {
-      selectedUrls.clear();
-    }
+    this.selectAllChange.emit(target.checked);
   }
 }
