@@ -191,7 +191,7 @@ export class SendAuthComponent implements OnInit {
         if (sendAccessCreds && sendAccessCreds.kind === "email" && this.enterOtp()) {
           this.toastService.showToast({
             variant: "success",
-            title: null,
+            title: undefined,
             message: this.i18nService.t("codeResent"),
           });
         } else {
