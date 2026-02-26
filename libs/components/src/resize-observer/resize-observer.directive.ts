@@ -2,7 +2,6 @@ import { Directive, ElementRef, EventEmitter, Output, OnDestroy } from "@angular
 
 @Directive({
   selector: "[resizeObserver]",
-  standalone: true,
 })
 export class ResizeObserverDirective implements OnDestroy {
   private observer = new ResizeObserver((entries) => {

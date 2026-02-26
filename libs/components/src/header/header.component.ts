@@ -7,7 +7,6 @@ import { TypographyDirective } from "../typography/typography.directive";
   templateUrl: "./header.component.html",
   imports: [TypographyDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
 })
 export class HeaderComponent {
   /**

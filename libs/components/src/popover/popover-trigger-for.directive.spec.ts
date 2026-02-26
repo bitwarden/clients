@@ -15,7 +15,6 @@ import { PopoverComponent } from "./popover.component";
  * - tick(0) flushes microtasks, useful for Angular effects that run synchronously
  */
 @Component({
-  standalone: true,
   template: `
     <button
       type="button"
