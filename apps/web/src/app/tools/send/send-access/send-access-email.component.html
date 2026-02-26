@@ -21,7 +21,9 @@
     <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
     <bit-hint>
       {{ "didNotReceiveCodeContactSenderOr" | i18n }}
-      <a bitLink (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>
+      <button type="button" bitLink (click)="onResendCode($event)">
+        {{ "resendCode" | i18n | lowercase }}
+      </button>
     </bit-hint>
   </bit-form-field>
   <button

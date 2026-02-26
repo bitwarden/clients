@@ -59,7 +59,9 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
     this.formGroup().removeControl("otp");
   }
 
-  onResendCode() {
+  onResendCode(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
     this.resendCode.emit();
   }
 

@@ -194,16 +194,17 @@ export class SendAuthComponent implements OnInit {
             title: null,
             message: this.i18nService.t("codeResent"),
           });
+        } else {
+          if (this.otpSubmitted) {
+            this.toastService.showToast({
+              variant: "error",
+              title: this.i18nService.t("errorOccurred"),
+              message: this.i18nService.t("invalidEmailOrVerificationCode"),
+            });
+          }
+          this.otpSubmitted = true;
         }
         this.enterOtp.set(true);
-        if (this.otpSubmitted) {
-          this.toastService.showToast({
-            variant: "error",
-            title: this.i18nService.t("errorOccurred"),
-            message: this.i18nService.t("invalidEmailOrVerificationCode"),
-          });
-        }
-        this.otpSubmitted = true;
         this.updatePageTitle();
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
