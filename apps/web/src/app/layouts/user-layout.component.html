@@ -20,11 +20,10 @@
       } @else {
         <bit-nav-item [text]="'preferences' | i18n" route="settings/preferences"></bit-nav-item>
       }
-      <bit-nav-item
-        [text]="'subscription' | i18n"
-        route="settings/subscription"
-        *ngIf="showSubscription$ | async"
-      ></bit-nav-item>
+      @let subscriptionRoute = subscriptionRoute$ | async;
+      @if (subscriptionRoute) {
+        <bit-nav-item [text]="'subscription' | i18n" [route]="subscriptionRoute"></bit-nav-item>
+      }
       <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
       @if (showEmergencyAccess()) {
         <bit-nav-item
