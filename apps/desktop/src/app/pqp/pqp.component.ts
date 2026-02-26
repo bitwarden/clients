@@ -2,7 +2,6 @@ import { Component, AfterViewInit, ViewEncapsulation, OnDestroy } from "@angular
 import {
   init as initPqpRenderer,
   sendMessage,
-  RtcSessionStatus,
   getMessages,
   setMessages,
   clearBadge,
@@ -259,38 +258,6 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
     container.prepend(div);
   }
 
-  renderRtcStatus(nextSessions: Record<string, RtcSessionStatus>) {
-    const statusEl = document.getElementById("webrtcStatus");
-    const sendFileBtn = document.getElementById("webrtcSendFileBtn") as HTMLButtonElement | null;
-    if (!statusEl) {
-      return;
-    }
-
-    const entries = Object.values(nextSessions);
-    if (entries.length === 0) {
-      statusEl.innerHTML = "<em>No active P2P sessions.</em>";
-      if (sendFileBtn) {
-        sendFileBtn.disabled = true;
-      }
-      return;
-    }
-
-    const parts = entries.map((s) => {
-      const lastFile =
-        s.lastReceivedFile &&
-        ` • File: ${s.lastReceivedFile.name} (${s.lastReceivedFile.size}b) ${s.lastReceivedFile.ok ? "✅" : "⚠️"}`;
-      const err = s.lastError ? ` • Error: ${s.lastError}` : "";
-      return `<div style="margin-bottom:6px;">
-        <div><strong>${s.targetQueueId.slice(0, 12)}...</strong> (${s.role})</div>
-        <div>ICE: ${s.iceConnectionState ?? "n/a"} | DC: ${s.dataChannelState ?? "n/a"}${lastFile ?? ""}${err}</div>
-      </div>`;
-    });
-
-    statusEl.innerHTML = parts.join("");
-    if (sendFileBtn) {
-      sendFileBtn.disabled = !entries.some((s) => s.dataChannelState === "open");
-    }
-  }
 
   initDesktop() {
     // Initialize pqp-network in renderer context (matching pqp-electron pattern)
@@ -329,21 +296,29 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
     const microsoftLoginBtn = document.getElementById("microsoftLoginBtn") as HTMLButtonElement;
     const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
 
-    googleLoginBtn?.addEventListener("click", () => {
-      void (window as any).electron.ipcRenderer.invoke("PQP_LOGIN");
+    googleLoginBtn?.addEventListener("click", async () => {
       this.updateStatus("Opening Google login...");
-      setTimeout(() => void this.checkStatus(), 10000);
+      const result = await (window as any).electron.ipcRenderer.invoke("PQP_LOGIN");
+      if (result?.success) {
+        await this.checkStatus();
+      } else {
+        this.updateStatus("Login failed", false);
+      }
     });
 
-    microsoftLoginBtn?.addEventListener("click", () => {
-      void (window as any).electron.ipcRenderer.invoke("PQP_LOGIN_MICROSOFT");
+    microsoftLoginBtn?.addEventListener("click", async () => {
       this.updateStatus("Opening Microsoft login...");
-      setTimeout(() => void this.checkStatus(), 10000);
+      const result = await (window as any).electron.ipcRenderer.invoke("PQP_LOGIN_MICROSOFT");
+      if (result?.success) {
+        await this.checkStatus();
+      } else {
+        this.updateStatus("Login failed", false);
+      }
     });
 
-    logoutBtn?.addEventListener("click", () => {
-      void (window as any).electron.ipcRenderer.invoke("PQP_LOGOUT");
-      setTimeout(() => void this.checkStatus(), 2000);
+    logoutBtn?.addEventListener("click", async () => {
+      await (window as any).electron.ipcRenderer.invoke("PQP_LOGOUT");
+      await this.checkStatus();
     });
 
     // Send Btn
