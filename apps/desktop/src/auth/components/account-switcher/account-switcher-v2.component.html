@@ -20,15 +20,18 @@
         ></bit-avatar>
       </button>
     } @else {
-      <button
-        class="account-switcher-v2 !tw-rounded-full !tw-bg-info-600 hover:!tw-bg-info-600 !tw-text-fg-dark"
-        type="button"
-        bitIconButton="bwi-ellipsis-h"
-        [label]="'switchAccount' | i18n"
-        (click)="toggle()"
-        [disabled]="disabled"
-        aria-haspopup="dialog"
-      ></button>
+      <div class="tw-rounded-full tw-bg-bg-brand-strong">
+        <button
+          class="account-switcher-v2 !tw-rounded-full"
+          type="button"
+          buttonType="contrast"
+          bitIconButton="bwi-ellipsis-h"
+          [label]="'switchAccount' | i18n"
+          (click)="toggle()"
+          [disabled]="disabled"
+          aria-haspopup="dialog"
+        ></button>
+      </div>
     }
   </div>
 
