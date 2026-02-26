@@ -23,6 +23,18 @@ describe("Keeper Json Importer", () => {
   let enterpriseResult: ImportResult;
 
   beforeAll(async () => {
+    // Pin locale and timezone so date formatting is machine-independent. In production we use the user's locale and timezone.
+    const originalToLocaleString = Date.prototype.toLocaleString;
+    jest.spyOn(Date.prototype, "toLocaleString").mockImplementation(function (
+      this: Date,
+      ...args: Parameters<Date["toLocaleString"]>
+    ) {
+      if (args.length === 0) {
+        return originalToLocaleString.call(this, "en-US", { timeZone: "UTC" });
+      }
+      return originalToLocaleString.apply(this, args);
+    });
+
     // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
     jest.spyOn(console, "warn").mockImplementation();
 
