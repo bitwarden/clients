@@ -13,7 +13,7 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKey } from "@bitwarden/common/types/key";
-import { Argon2KdfConfig, KeyService, KdfType } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -54,7 +54,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
      * - If KM flag gets unwound first, remove all code after the KM V2 path,
      *   as the V2Encryption method is the end-goal.
      * - If Auth flag gets unwound first (in PM-28143), keep the KM code & early return,
-     *   but unwind the auth flagging logic and remove the "Scenario 2" code.
+     *   but unwind the auth flagging logic and remove the unflagged `else` block logic following
+     *   the "Scenario 2" code.
      */
 
     // Scenario 1: KM V2 flag ON (placeholder — to be added when KM's registration V2 PR lands)
@@ -81,7 +82,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
       assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
       assertNonNullish(passwordInputResult.salt, "salt", ctx);
-      assertTruthy(email, "email", ctx);
 
       const newMasterKey = await this.keyService.makeMasterKey(
         passwordInputResult.newPassword,
@@ -139,7 +139,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     const useNewApi = passwordInputResult.newApisWithInputPasswordFlagEnabled ?? false;
 
     if (useNewApi) {
-      // New API path - use V2 request with new data types
+      // New API path - use new request with new data types
 
       const masterPasswordAuthentication =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
@@ -170,7 +170,10 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       return registerFinishRequest;
     } else {
       // Old API path - use original request with KDF fields
-      const kdfConfig = passwordInputResult.kdfConfig;
+      const userAsymmetricKeysRequest = new KeysRequest(
+        userAsymmetricKeys[0],
+        userAsymmetricKeys[1].encryptedString,
+      );
 
       const registerFinishRequest = new RegisterFinishRequest(
         email,
@@ -178,12 +181,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
         passwordInputResult.newPasswordHint,
         encryptedUserKey,
         userAsymmetricKeysRequest,
-        kdfConfig.kdfType,
-        kdfConfig.iterations,
-        kdfConfig.kdfType === KdfType.Argon2id ? (kdfConfig as Argon2KdfConfig).memory : undefined,
-        kdfConfig.kdfType === KdfType.Argon2id
-          ? (kdfConfig as Argon2KdfConfig).parallelism
-          : undefined,
+        passwordInputResult.kdfConfig.kdfType,
+        passwordInputResult.kdfConfig.iterations,
       );
 
       if (emailVerificationToken) {

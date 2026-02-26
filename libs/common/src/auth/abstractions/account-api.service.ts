@@ -45,6 +45,14 @@ export abstract class AccountApiService {
   /**
    * Completes the registration process.
    *
+   * @param request - The user's email verification token, the email, newly created user key, and new
+   * asymmetric user key pair along with the KDF information, hashed MP and salt (in the form of the
+   * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
+   *
+   * OLD DESCRIPTION FOR ORIGINAL API CONTRACT: (the rest of this JSDoc below can be removed in PM-28143)
+   *
+   * Completes the registration process.
+   *
    * @param request - The request object containing the user's email verification token,
    * the email, hashed MP, newly created user key, and new asymmetric user key pair along
    * with the KDF information used during the process.
