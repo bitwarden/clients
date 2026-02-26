@@ -187,7 +187,7 @@ export const EmptyTab: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
-    const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
+    const emptyTab = getByRole(canvas, "link", { name: "Empty" });
     await userEvent.click(emptyTab);
   },
 };
