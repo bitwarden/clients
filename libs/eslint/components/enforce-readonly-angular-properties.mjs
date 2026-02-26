@@ -9,7 +9,8 @@ const LEGACY_DECORATOR_TO_SIGNAL = {
 
 export const messages = {
   nonReadonly: "Class properties must be readonly. Use signals for mutable state.",
-  legacyInput: "Replace @Input() with the signal-based input() API. All properties must be readonly.",
+  legacyInput:
+    "Replace @Input() with the signal-based input() API. All properties must be readonly.",
   legacyOutput:
     "Replace @Output() with the signal-based output() API. All properties must be readonly.",
   legacyViewChild:
@@ -123,7 +124,10 @@ export default {
 
         const legacyDecorator = findLegacyDecorator(node.decorators);
         if (legacyDecorator) {
-          context.report({ node, messageId: LEGACY_DECORATOR_TO_SIGNAL[legacyDecorator].messageId });
+          context.report({
+            node,
+            messageId: LEGACY_DECORATOR_TO_SIGNAL[legacyDecorator].messageId,
+          });
           return;
         }
 
