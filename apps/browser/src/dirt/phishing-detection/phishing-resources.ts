@@ -95,3 +95,17 @@ export function getPhishingResources(
   const list = PHISHING_RESOURCES[type] ?? [];
   return list[index];
 }
+
+/**
+ * Strips the http:// or https:// protocol from a URL string.
+ * Used to normalize URLs for protocol-agnostic matching in IndexedDB.
+ */
+export function stripProtocol(url: string): string {
+  if (url.startsWith("https://")) {
+    return url.slice(8);
+  }
+  if (url.startsWith("http://")) {
+    return url.slice(7);
+  }
+  return url;
+}
