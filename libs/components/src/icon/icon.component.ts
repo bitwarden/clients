@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 import { BitwardenIcon } from "../shared/icon";
 
@@ -24,7 +30,12 @@ export class IconComponent {
    */
   readonly ariaLabel = input<string>();
 
-  protected readonly classList = computed(() => {
-    return ["bwi", this.name()].join(" ");
-  });
+  /**
+   * Whether the icon should use a fixed width
+   */
+  readonly fixedWidth = input(false, { transform: booleanAttribute });
+
+  protected readonly classList = computed(() =>
+    ["bwi", this.name(), this.fixedWidth() && "bwi-fw"].filter(Boolean),
+  );
 }
