@@ -1,4 +1,4 @@
-import { Directive, Input, OnInit } from "@angular/core";
+import { Directive, Input, OnInit, Signal, signal } from "@angular/core";
 import { FormControl, UntypedFormGroup } from "@angular/forms";
 import { Observable, of } from "rxjs";
 import { Constructor } from "type-fest";
@@ -13,6 +13,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import type { PolicyStep } from "./policy-edit-dialogs/models";
 
 /**
  * Interface for policy dialog components.
@@ -86,6 +87,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: BasePolicyEditDefinition | undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() currentStep: Signal<number> = signal(0);
 
   /**
    * Whether the policy is enabled.
@@ -96,6 +100,11 @@ export abstract class BasePolicyEditComponent implements OnInit {
    * An optional FormGroup for additional policy configuration. Required for more complex policies only.
    */
   data: UntypedFormGroup | undefined;
+
+  /**
+   * Optional multi-step configuration for policies that require multiple steps to complete.
+   */
+  policySteps?: PolicyStep[];
 
   ngOnInit(): void {
     this.enabled.setValue(this.policyResponse?.enabled ?? false);
