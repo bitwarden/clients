@@ -287,14 +287,6 @@ export class AutoConfirmPolicyDialogComponent
     dialogService: DialogService,
     config: DialogConfig<AutoConfirmPolicyDialogData>,
   ) => {
-    return config.data?.firstTimeDialog
-      ? dialogService.open<PolicyEditDialogResult, AutoConfirmPolicyDialogData>(
-          AutoConfirmPolicyDialogComponent,
-          config,
-        )
-      : dialogService.openDrawer<PolicyEditDialogResult, AutoConfirmPolicyDialogData>(
-          AutoConfirmPolicyDialogComponent,
-          config,
-        );
+    return dialogService.open<PolicyEditDialogResult>(AutoConfirmPolicyDialogComponent, config);
   };
 }

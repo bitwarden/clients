@@ -201,6 +201,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
     { initialValue: false },
   );
+  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
+    initialValue: false,
+  });
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -501,6 +504,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
+      canEditCipher: this.cipher().edit,
     });
     const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
@@ -600,7 +604,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
+    if (this.archiveFlagEnabled() && !cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
