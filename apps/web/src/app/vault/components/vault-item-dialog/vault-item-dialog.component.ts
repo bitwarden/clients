@@ -273,7 +273,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return !this.canEdit;
+    return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
   protected get showEdit() {
@@ -396,7 +396,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       );
 
       // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.params.mode === "form") {
+      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();
