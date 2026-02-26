@@ -199,6 +199,7 @@ export class SendDetailsComponent implements OnInit {
             deletionDate: new Date(this.formattedDeletionDate),
             expirationDate: new Date(this.formattedDeletionDate),
             password: value.password,
+            authType: value.authType,
             emails: value.emails
               ? value.emails
                   .split(",")
@@ -223,7 +224,10 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+          emailsControl.setValidators([
+            this.emailsRequiredForEmailAuthValidator(),
+            this.emailListValidator(),
+          ]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
@@ -313,6 +317,23 @@ export class SendDetailsComponent implements OnInit {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
       return invalidEmails.length > 0 ? { multipleEmails: true } : null;
+    };
+  }
+
+  emailsRequiredForEmailAuthValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      const authType = this.sendDetailsForm?.get("authType")?.value;
+      const emails = control.value;
+
+      if (authType === AuthType.Email && (!emails || emails.trim() === "")) {
+        return {
+          emailsRequiredForEmailAuth: {
+            message: this.i18nService.t("emailsRequiredChangeAccessType"),
+          },
+        };
+      }
+
+      return null;
     };
   }
 

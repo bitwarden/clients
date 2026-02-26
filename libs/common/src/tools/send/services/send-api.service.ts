@@ -105,7 +105,7 @@ export class SendApiService implements SendApiServiceAbstraction {
       "POST",
       "/sends/access/file/" + send.file.id,
       null,
-      true,
+      false,
       true,
       apiUrl,
       setAuthTokenHeader,

@@ -14,7 +14,14 @@ import {
   timeout,
 } from "rxjs";
 
-import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  DefaultCollectionService,
+  DefaultOrganizationUserApiService,
+  DefaultOrganizationUserService,
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
 import {
   AuthRequestApiServiceAbstraction,
   AuthRequestService,
@@ -27,6 +34,10 @@ import {
   LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -100,7 +111,9 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -362,6 +375,7 @@ export default class MainBackground {
   keyService: KeyServiceAbstraction;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
+  masterPasswordUnlockService: MasterPasswordUnlockService;
   tokenService: TokenServiceAbstraction;
   appIdService: AppIdServiceAbstraction;
   apiService: ApiServiceAbstraction;
@@ -487,6 +501,9 @@ export default class MainBackground {
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
+  organizationUserService: OrganizationUserService;
+  organizationUserApiService: OrganizationUserApiService;
+  autoConfirmService: AutomaticUserConfirmationService;
 
   private commandsBackground: CommandsBackground;
   private contextMenusBackground: ContextMenusBackground;
@@ -638,6 +655,10 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
@@ -662,7 +683,9 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+    this.securityStateService = new DefaultSecurityStateService(
+      this.accountCryptographicStateService,
+    );
 
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
@@ -709,6 +732,13 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
+    );
+
+    this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
+      this.masterPasswordService,
+      this.keyService,
+      this.logService,
     );
 
     const pinStateService = new PinStateService(this.stateProvider);
@@ -756,6 +786,15 @@ export default class MainBackground {
       { createRequest: (url, request) => new Request(url, request) },
     );
 
+    this.organizationUserApiService = new DefaultOrganizationUserApiService(this.apiService);
+    this.organizationUserService = new DefaultOrganizationUserService(
+      this.keyService,
+      this.encryptService,
+      this.organizationUserApiService,
+      this.accountService,
+      this.i18nService,
+    );
+
     this.hibpApiService = new HibpApiService(this.apiService);
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
@@ -797,6 +836,16 @@ export default class MainBackground {
       this.authService,
     );
 
+    this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
+      this.configService,
+      this.apiService,
+      this.organizationUserService,
+      this.stateProvider,
+      this.organizationService,
+      this.organizationUserApiService,
+      this.policyService,
+    );
+
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -808,7 +857,7 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -822,10 +871,6 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
-    );
-
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
     );
 
     this.keyConnectorService = new KeyConnectorService(
@@ -912,8 +957,6 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -988,6 +1031,7 @@ export default class MainBackground {
       this.pinService,
       this.kdfConfigService,
       this.biometricsService,
+      this.masterPasswordUnlockService,
     );
 
     this.vaultSettingsService = new VaultSettingsService(
@@ -1005,7 +1049,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.cryptoFunctionService,
       this.configService,
     );
     this.sendApiService = new SendApiService(
@@ -1217,6 +1260,7 @@ export default class MainBackground {
       this.authRequestAnsweringService,
       this.configService,
       this.policyService,
+      this.autoConfirmService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1373,6 +1417,7 @@ export default class MainBackground {
       this.userNotificationSettingsService,
       this.taskService,
       this.messagingService,
+      this.fido2Background,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(

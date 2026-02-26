@@ -2,14 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import {
-  userEvent,
-  getAllByRole,
-  getByRole,
-  fireEvent,
-  getByText,
-  getAllByLabelText,
-} from "storybook/test";
+import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -102,6 +95,22 @@ export default {
 
 type Story = StoryObj<KitchenSinkAppComponent>;
 
+type KitchenSinkRoute = "/bitwarden" | "/virtual-scroll";
+
+async function navigateTo(path: KitchenSinkRoute) {
+  window.location.hash = path;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+}
+
+/** Waits for the ResizeObserver + Angular CD to settle, then opens the side nav if it's closed. */
+async function openSideNav(canvas: HTMLElement) {
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const toggleButton = getByRole(canvas, "button", { name: "Toggle side navigation" });
+  if (toggleButton.getAttribute("aria-expanded") === "false") {
+    await userEvent.click(toggleButton);
+  }
+}
+
 export const Default: Story = {
   parameters: {
     chromatic: {
@@ -113,11 +122,7 @@ export const Default: Story = {
 export const MenuOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
-
+    await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
@@ -130,11 +135,7 @@ export const MenuOpen: Story = {
 export const DialogOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
-
+    await navigateTo("/bitwarden");
     const dialogButton = getByRole(canvas, "button", {
       name: "Open Dialog",
     });
@@ -147,11 +148,7 @@ export const DialogOpen: Story = {
 export const DrawerOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
-
+    await navigateTo("/bitwarden");
     const drawerButton = getByRole(canvas, "button", {
       name: "Open Drawer",
     });
@@ -164,11 +161,7 @@ export const DrawerOpen: Story = {
 export const PopoverOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
-
+    await navigateTo("/bitwarden");
     const popoverLink = getByRole(canvas, "button", {
       name: "Popover trigger link",
     });
@@ -180,11 +173,7 @@ export const PopoverOpen: Story = {
 export const SimpleDialogOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
-
+    await navigateTo("/bitwarden");
     const submitButton = getByRole(canvas, "button", {
       name: "Submit",
     });
@@ -197,7 +186,8 @@ export const SimpleDialogOpen: Story = {
 export const EmptyTab: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    const emptyTab = getByText(canvas, "Empty");
+    await navigateTo("/bitwarden");
+    const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
     await userEvent.click(emptyTab);
   },
 };
@@ -205,8 +195,7 @@ export const EmptyTab: Story = {
 export const VirtualScrollBlockingDialog: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    const navItem = getByText(canvas, "Virtual Scroll");
-    await userEvent.click(navItem);
+    await navigateTo("/virtual-scroll");
 
     const htmlEl = canvas.ownerDocument.documentElement;
     htmlEl.scrollTop = 2000;
@@ -217,10 +206,37 @@ export const VirtualScrollBlockingDialog: Story = {
   },
 };
 
+export const SideNavOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+    await openSideNav(canvas);
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280] },
+  },
+};
+
+export const DrawerOpenBeforeSideNavOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
+
+    await navigateTo("/bitwarden");
+    await openSideNav(canvas);
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280, 1440] },
+  },
+};
+
 export const ResponsiveSidebar: Story = {
   parameters: {
     chromatic: {
-      viewports: [640, 1280],
+      viewports: [640, 1024, 1280, 1440],
     },
   },
 };
@@ -228,10 +244,7 @@ export const ResponsiveSidebar: Story = {
 export const GuidedTour: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-
-    // Ensure we're on the Vault tab
-    const vaultTab = getByRole(canvas, "link", { name: "Vault" });
-    await userEvent.click(vaultTab);
+    await navigateTo("/bitwarden");
 
     const tourButton = getByRole(canvas, "button", {
       name: "Start Tour",

@@ -16,7 +16,6 @@ import { SpotlightService } from "./spotlight.service";
  * - tick(0) flushes microtasks, useful for Angular effects that run synchronously
  */
 @Component({
-  standalone: true,
   template: `
     <button
       type="button"
