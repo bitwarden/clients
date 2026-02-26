@@ -295,9 +295,7 @@ export class VaultComponent<C extends CipherViewLike>
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived &&
-      !this.userHasPremium() &&
-      this.cipherArchiveService.hasArchiveFlagEnabled$
+    return this.cipher()?.isArchived && !this.userHasPremium() && this.archiveFlagEnabled()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
