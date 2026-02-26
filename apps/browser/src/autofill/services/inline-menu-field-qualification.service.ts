@@ -31,35 +31,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
   private currentPasswordAutocompleteValue = "current-password";
   private newPasswordAutoCompleteValue = "new-password";
   private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
-  private accountCreationFieldKeywords = [
-    "register",
-    "registration",
-    "create password",
-    "create a password",
-    "create an account",
-    "create account password",
-    "create user password",
-    "confirm password",
-    "confirm account password",
-    "confirm user password",
-    "new user",
-    "new email",
-    "new e-mail",
-    "new password",
-    "new-password",
-    "neuer benutzer",
-    "neues passwort",
-    "neue e-mail",
-    "pwdcheck",
-  ];
   private newEmailFieldKeywords = new Set(AutoFillConstants.NewEmailFieldKeywords);
   private newsletterFormKeywords = new Set(AutoFillConstants.NewsletterFormNames);
-  private updatePasswordFieldKeywords = [
-    "update password",
-    "change password",
-    "current password",
-    "kennwort ändern",
-  ];
   private creditCardFieldKeywords = [
     ...new Set([
       ...CreditCardAutoFillConstants.CardHolderFieldNames,
@@ -338,7 +311,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
 
       // If no password fields are found on the page, check for keywords that indicate the field is
       // part of an account creation form.
-      return fieldContainsKeyword(field, this.accountCreationFieldKeywords);
+      return fieldContainsKeyword(field, AutoFillConstants.AccountCreationFieldKeywords);
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -348,7 +321,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, this.accountCreationFieldKeywords);
+    return fieldContainsKeyword(field, AutoFillConstants.AccountCreationFieldKeywords);
   }
 
   /**
@@ -481,7 +454,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
 
     // If any keywords in the field's data indicates that this is a field for a "new" or "changed"
     // username, we should assume that this field is not for a login form.
-    if (fieldContainsKeyword(field, this.accountCreationFieldKeywords)) {
+    if (fieldContainsKeyword(field, AutoFillConstants.AccountCreationFieldKeywords)) {
       return false;
     }
 
@@ -922,7 +895,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
   isCurrentPasswordField = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue) ||
-      fieldContainsKeyword(field, this.accountCreationFieldKeywords)
+      fieldContainsKeyword(field, AutoFillConstants.AccountCreationFieldKeywords)
     ) {
       return false;
     }
@@ -941,7 +914,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     }
 
     return (
-      this.isPasswordField(field) && fieldContainsKeyword(field, this.updatePasswordFieldKeywords)
+      this.isPasswordField(field) &&
+      fieldContainsKeyword(field, AutoFillConstants.UpdatePasswordFieldKeywords)
     );
   };
 
@@ -956,7 +930,8 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     }
 
     return (
-      this.isPasswordField(field) && fieldContainsKeyword(field, this.accountCreationFieldKeywords)
+      this.isPasswordField(field) &&
+      fieldContainsKeyword(field, AutoFillConstants.AccountCreationFieldKeywords)
     );
   };
 

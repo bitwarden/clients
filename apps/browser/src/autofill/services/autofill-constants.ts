@@ -68,6 +68,37 @@ export class AutoFillConstants {
     "create",
   ];
 
+  static readonly AccountCreationFieldKeywords: string[] = [
+    // Field-level keywords indicating account creation / registration context.
+    // Broader than RegistrationKeywords (which is used at the form level).
+    "register",
+    "registration",
+    "create password",
+    "create a password",
+    "create an account",
+    "create account password",
+    "create user password",
+    "confirm password",
+    "confirm account password",
+    "confirm user password",
+    "new user",
+    "new email",
+    "new e-mail",
+    "new password",
+    "new-password",
+    "neuer benutzer",
+    "neues passwort",
+    "neue e-mail",
+    "pwdcheck",
+  ];
+
+  static readonly UpdatePasswordFieldKeywords: string[] = [
+    "update password",
+    "change password",
+    "current password",
+    "kennwort ändern",
+  ];
+
   static readonly NewsletterFormNames: string[] = ["newsletter"];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
