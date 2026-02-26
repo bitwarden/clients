@@ -112,34 +112,22 @@ export class AllActivityV2Component {
     return this.newApplications().length;
   });
 
-  protected readonly allAppsHaveReviewDate = computed(() => {
+  protected readonly activityViewState = computed((): "caught-up" | "needs-review" | "default" => {
     const report = this.report();
-    if (!report || report.applications.length === 0) {
-      return false;
+    if (report == null || report.reports.length === 0) {
+      return "default";
     }
-
-    return report.applications.every((app) => app.reviewedDate != null);
-  });
-
-  protected readonly hasLoadedApplicationData = computed(() => {
-    const report = this.report();
-    return report != null && report.reports.length > 0;
-  });
-
-  protected readonly isAllCaughtUp = computed(() => {
-    return (
-      this.hasLoadedApplicationData() &&
+    if (
       this.newApplicationsCount() === 0 &&
-      this.allAppsHaveReviewDate()
-    );
-  });
-
-  protected readonly showNeedsReviewState = computed(() => {
-    return (
-      this.hasLoadedApplicationData() &&
-      this.totalApplicationCount() > 0 &&
-      this.newApplicationsCount() === this.totalApplicationCount()
-    );
+      report.applications.length > 0 &&
+      report.applications.every((app) => app.reviewedDate != null)
+    ) {
+      return "caught-up";
+    }
+    if (this.newApplicationsCount() === report.reports.length) {
+      return "needs-review";
+    }
+    return "default";
   });
 
   /**

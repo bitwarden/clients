@@ -191,7 +191,7 @@ export class NewApplicationsDialogV2Component {
   }
 
   // Application selection
-  toggleSelection(applicationName: string): void {
+  protected toggleSelection(applicationName: string): void {
     this.selectedApplications.update((selected) => {
       const next = new Set(selected);
       if (next.has(applicationName)) {
@@ -203,7 +203,7 @@ export class NewApplicationsDialogV2Component {
     });
   }
 
-  toggleAll(): void {
+  protected toggleAll(): void {
     const allSelected = this.isAllSelected();
     if (allSelected) {
       this.selectedApplications.set(new Set());
@@ -213,7 +213,7 @@ export class NewApplicationsDialogV2Component {
     }
   }
 
-  isAllSelected(): boolean {
+  protected isAllSelected(): boolean {
     return (
       this.dialogParams.newApplications.length > 0 &&
       this.dialogParams.newApplications.every((app) =>
@@ -228,7 +228,7 @@ export class NewApplicationsDialogV2Component {
    * Handles the "Mark as critical" button click.
    * Shows confirmation if no applications selected, then proceeds to assign tasks or completes.
    */
-  async handleMarkAsCritical() {
+  protected async handleMarkAsCritical() {
     if (this.selectedApplications().size === 0) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "confirmNoSelectedCriticalApplicationsTitle" },

@@ -235,25 +235,7 @@ describe("AllActivityV2Component", () => {
       expect(testAccess(component).newApplicationsCount()).toBe(2);
     });
 
-    it("should calculate hasLoadedApplicationData - true when report has data", () => {
-      // No data
-      mockAccessIntelligenceService.report$.next(null);
-      expect(testAccess(component).hasLoadedApplicationData()).toBe(false);
-
-      // Empty report
-      const emptyReport = createRiskInsights({ reports: [] });
-      mockAccessIntelligenceService.report$.next(emptyReport);
-      expect(testAccess(component).hasLoadedApplicationData()).toBe(false);
-
-      // Report with data
-      const testReport = createRiskInsights({
-        reports: [createReport("github.com", {}, {})],
-      });
-      mockAccessIntelligenceService.report$.next(testReport);
-      expect(testAccess(component).hasLoadedApplicationData()).toBe(true);
-    });
-
-    it("should calculate isAllCaughtUp - true when no new apps and all reviewed", () => {
+    it("should calculate activityViewState - 'caught-up' when no new apps and all reviewed", () => {
       const testReport = createRiskInsights({
         organizationId: orgId,
         reports: [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})],
@@ -265,14 +247,14 @@ describe("AllActivityV2Component", () => {
 
       mockAccessIntelligenceService.report$.next(testReport);
 
-      expect(testAccess(component).isAllCaughtUp()).toBe(true);
+      expect(testAccess(component).activityViewState()).toBe("caught-up");
     });
   });
 
   // ==================== Computed Signals - States ====================
 
   describe("Computed Signals - States", () => {
-    it("should calculate showNeedsReviewState - true when all apps are new", () => {
+    it("should calculate activityViewState - 'needs-review' when all apps are new", () => {
       const testReport = createRiskInsights({
         organizationId: orgId,
         reports: [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})],
@@ -284,41 +266,7 @@ describe("AllActivityV2Component", () => {
 
       mockAccessIntelligenceService.report$.next(testReport);
 
-      expect(testAccess(component).showNeedsReviewState()).toBe(true);
-    });
-
-    it("should calculate allAppsHaveReviewDate - true when all apps reviewed", () => {
-      // No apps
-      let testReport = createRiskInsights({
-        reports: [],
-        applications: [],
-      });
-      mockAccessIntelligenceService.report$.next(testReport);
-      expect(testAccess(component).allAppsHaveReviewDate()).toBe(false);
-
-      // All apps reviewed
-      testReport = createRiskInsights({
-        organizationId: orgId,
-        reports: [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})],
-        applications: [
-          createApplication("github.com", false, new Date()),
-          createApplication("gitlab.com", false, new Date()),
-        ],
-      });
-      mockAccessIntelligenceService.report$.next(testReport);
-      expect(testAccess(component).allAppsHaveReviewDate()).toBe(true);
-
-      // Some apps not reviewed
-      testReport = createRiskInsights({
-        organizationId: orgId,
-        reports: [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})],
-        applications: [
-          createApplication("github.com", false, new Date()),
-          createApplication("gitlab.com", false, undefined), // Not reviewed
-        ],
-      });
-      mockAccessIntelligenceService.report$.next(testReport);
-      expect(testAccess(component).allAppsHaveReviewDate()).toBe(false);
+      expect(testAccess(component).activityViewState()).toBe("needs-review");
     });
   });
 
@@ -407,7 +355,7 @@ describe("AllActivityV2Component", () => {
       expect(testAccess(component).totalCriticalAppsAtRiskCount()).toBe(0);
       expect(testAccess(component).totalApplicationCount()).toBe(0);
       expect(testAccess(component).newApplicationsCount()).toBe(0);
-      expect(testAccess(component).hasLoadedApplicationData()).toBe(false);
+      expect(testAccess(component).activityViewState()).toBe("default");
     });
 
     it("should handle empty report (no applications)", () => {
@@ -420,8 +368,7 @@ describe("AllActivityV2Component", () => {
 
       expect(testAccess(component).totalApplicationCount()).toBe(0);
       expect(testAccess(component).newApplicationsCount()).toBe(0);
-      expect(testAccess(component).hasLoadedApplicationData()).toBe(false);
-      expect(testAccess(component).isAllCaughtUp()).toBe(false);
+      expect(testAccess(component).activityViewState()).toBe("default");
     });
 
     it("should handle report with no critical apps", () => {

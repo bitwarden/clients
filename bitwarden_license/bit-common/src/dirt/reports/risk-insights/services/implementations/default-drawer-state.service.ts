@@ -55,12 +55,4 @@ export class DefaultDrawerStateService implements DrawerStateService {
     const current = this._drawerState();
     return current.open && current.invokerId === invokerId;
   }
-
-  getDrawerType(): DrawerType {
-    return this._drawerState().type;
-  }
-
-  getInvokerId(): string {
-    return this._drawerState().invokerId;
-  }
 }

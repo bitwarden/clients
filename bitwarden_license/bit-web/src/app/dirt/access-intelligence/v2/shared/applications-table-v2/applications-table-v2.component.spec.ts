@@ -34,9 +34,6 @@ describe("ApplicationsTableV2Component", () => {
   let fixture: ComponentFixture<ApplicationsTableV2Component>;
   let mockDataSource: TableDataSource<ApplicationTableRowV2>;
   let mockSelectedUrls: Set<string>;
-  let mockShowAppAtRiskMembers: jest.Mock;
-  let mockCheckboxChange: jest.Mock;
-
   // Test helper to create table row data
   const createTableRow = (
     applicationName: string,
@@ -59,8 +56,6 @@ describe("ApplicationsTableV2Component", () => {
   beforeEach(async () => {
     mockDataSource = new TableDataSource<ApplicationTableRowV2>();
     mockSelectedUrls = new Set<string>();
-    mockShowAppAtRiskMembers = jest.fn();
-    mockCheckboxChange = jest.fn();
 
     // Provide a non-null scroll host so ScrollLayoutDirective doesn't log
     // "ScrollLayoutDirective can't find scroll host" during tests.
@@ -101,8 +96,6 @@ describe("ApplicationsTableV2Component", () => {
     fixture.componentRef.setInput("dataSource", mockDataSource);
     fixture.componentRef.setInput("selectedUrls", mockSelectedUrls);
     fixture.componentRef.setInput("openApplication", "");
-    fixture.componentRef.setInput("showAppAtRiskMembers", mockShowAppAtRiskMembers);
-    fixture.componentRef.setInput("checkboxChange", mockCheckboxChange);
   });
 
   // ==================== Component Initialization ====================
@@ -115,8 +108,6 @@ describe("ApplicationsTableV2Component", () => {
     it("should accept required inputs", () => {
       expect(component.dataSource()).toBe(mockDataSource);
       expect(component.selectedUrls()).toBe(mockSelectedUrls);
-      expect(component.showAppAtRiskMembers()).toBe(mockShowAppAtRiskMembers);
-      expect(component.checkboxChange()).toBe(mockCheckboxChange);
     });
 
     it("should accept optional openApplication input", () => {

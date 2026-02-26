@@ -391,17 +391,15 @@ describe("ApplicationsV2Component", () => {
 
   describe("onCheckboxChange()", () => {
     it("should add app to selectedUrls when checkbox is checked", () => {
-      const event = { target: { checked: true } } as any;
-      component.onCheckboxChange("github.com", event);
+      component.onCheckboxChange({ applicationName: "github.com", checked: true });
 
       expect(testAccess(component).selectedUrls().has("github.com")).toBe(true);
     });
 
     it("should remove app from selectedUrls when checkbox is unchecked", () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
-      const event = { target: { checked: false } } as any;
 
-      component.onCheckboxChange("github.com", event);
+      component.onCheckboxChange({ applicationName: "github.com", checked: false });
 
       expect(testAccess(component).selectedUrls().has("github.com")).toBe(false);
     });

@@ -87,8 +87,8 @@
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="currentDrawerState?.invokerId || ''"
-      [checkboxChange]="onCheckboxChange"
-      [showAppAtRiskMembers]="showAppAtRiskMembers"
+      (checkboxChange)="onCheckboxChange($event)"
+      (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
       (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
     ></app-applications-table-v2>

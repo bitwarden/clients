@@ -15,6 +15,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import type { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -431,7 +432,10 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
    */
   private loadOrganizationData$(
     orgId: OrganizationId,
-  ): Observable<{ ciphers: CipherView[]; apiUsers: any }> {
+  ): Observable<{
+    ciphers: CipherView[];
+    apiUsers: ListResponse<OrganizationUserUserDetailsResponse>;
+  }> {
     return forkJoin({
       ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId)),
       apiUsers: from(

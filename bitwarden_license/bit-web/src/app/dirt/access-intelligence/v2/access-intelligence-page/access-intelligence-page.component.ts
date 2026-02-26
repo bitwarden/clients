@@ -139,7 +139,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private router: Router,
     private accessIntelligenceService: AccessIntelligenceDataService,
     private drawerStateService: DrawerStateService,
-    private i18nService: I18nService,
+    protected i18nService: I18nService,
     private dialogService: DialogService,
     private logService: LogService,
   ) {

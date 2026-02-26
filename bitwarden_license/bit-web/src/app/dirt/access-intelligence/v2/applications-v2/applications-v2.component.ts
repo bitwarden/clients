@@ -373,11 +373,16 @@ export class ApplicationsV2Component {
     this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
-  onCheckboxChange = (applicationName: string, event: Event) => {
-    const isChecked = (event.target as HTMLInputElement).checked;
+  onCheckboxChange = ({
+    applicationName,
+    checked,
+  }: {
+    applicationName: string;
+    checked: boolean;
+  }) => {
     this.selectedUrls.update((selectedUrls) => {
       const nextSelected = new Set(selectedUrls);
-      if (isChecked) {
+      if (checked) {
         nextSelected.add(applicationName);
       } else {
         nextSelected.delete(applicationName);

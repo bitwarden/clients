@@ -54,9 +54,16 @@ export class ApplicationsTableV2Component {
   readonly dataSource = input.required<TableDataSource<ApplicationTableRowV2>>();
   readonly selectedUrls = input.required<Set<string>>();
   readonly openApplication = input<string>("");
-  readonly showAppAtRiskMembers = input.required<(applicationName: string) => void>();
-  readonly checkboxChange = input.required<(applicationName: string, $event: Event) => void>();
+  readonly showAppAtRiskMembers = output<string>();
+  readonly checkboxChange = output<{ applicationName: string; checked: boolean }>();
   readonly selectAllChange = output<boolean>();
+
+  protected emitCheckboxChange(applicationName: string, event: Event): void {
+    this.checkboxChange.emit({
+      applicationName,
+      checked: (event.target as HTMLInputElement).checked,
+    });
+  }
 
   allAppsSelected(): boolean {
     const tableData = this.dataSource().filteredData;

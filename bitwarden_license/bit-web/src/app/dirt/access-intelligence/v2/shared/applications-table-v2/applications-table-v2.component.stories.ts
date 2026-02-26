@@ -112,8 +112,8 @@ export const Default: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -130,7 +130,7 @@ export const Empty: Story = {
 
     const selectedUrls = new Set<string>();
     const showAppAtRiskMembers = (appName: string) => {};
-    const checkboxChange = (appName: string, event: Event) => {};
+    const checkboxChange = (_payload: { applicationName: string; checked: boolean }) => {};
 
     return {
       props: {
@@ -145,8 +145,8 @@ export const Empty: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -177,8 +177,8 @@ export const WithSelections: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -209,8 +209,8 @@ export const WithOpenApplication: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -242,8 +242,8 @@ export const CriticalOnly: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -279,8 +279,8 @@ export const WithoutIcons: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
-          [showAppAtRiskMembers]="showAppAtRiskMembers"
-          [checkboxChange]="checkboxChange"
+          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+          (checkboxChange)="checkboxChange($event)"
         ></app-applications-table-v2>
       `,
     };
@@ -329,8 +329,8 @@ export const LargeDataset: Story = {
             [dataSource]="dataSource"
             [selectedUrls]="selectedUrls"
             [openApplication]="openApplication"
-            [showAppAtRiskMembers]="showAppAtRiskMembers"
-            [checkboxChange]="checkboxChange"
+            (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+            (checkboxChange)="checkboxChange($event)"
           ></app-applications-table-v2>
         </div>
       `,
