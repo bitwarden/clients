@@ -737,8 +737,6 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
@@ -863,6 +861,7 @@ export class ServiceContainer {
       this.pinService,
       this.kdfConfigService,
       new CliBiometricsService(),
+      this.masterPasswordUnlockService,
     );
 
     const biometricService = new CliBiometricsService();
