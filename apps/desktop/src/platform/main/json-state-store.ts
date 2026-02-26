@@ -1,8 +1,15 @@
 import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
+import { isWindowsPortable } from "../../utils";
+
 type JsonState = Record<string, unknown>;
 
+/**
+ * A simple json store that writes state to a large json blob. Additionally, caching is implemented
+ * in order not to block the electron main thread, which has caused application performance issues
+ * in the past.
+ */
 export class JsonStateStore {
   private readonly dataFilePath: string;
   private readonly cache: JsonState;
@@ -12,6 +19,8 @@ export class JsonStateStore {
   constructor(
     directoryPath: string,
     defaults: JsonState = {},
+    // Write at maximum every second. This is to prevent excessive disk writes during periods of rapid state changes, while ensuring data is not lost on crash. We have an on-exit handler
+    // that flushes the state to disk too.
     private readonly writeCooldownMs = 1000,
   ) {
     this.dataFilePath = join(directoryPath, "data.json");
@@ -23,7 +32,7 @@ export class JsonStateStore {
   }
 
   has(key: string): boolean {
-    return Object.prototype.hasOwnProperty.call(this.cache, key);
+    return key in this.cache;
   }
 
   set(key: string, value: unknown): void {
@@ -135,7 +144,8 @@ export class JsonStateStore {
   }
 
   private writeStateSync(state: JsonState): void {
+    const fileMode = isWindowsPortable() ? 0o666 : 0o600;
     writeFileSync(this.dataFilePath, JSON.stringify(state), { mode: 0o600 });
-    chmodSync(this.dataFilePath, 0o600);
+    chmodSync(this.dataFilePath, fileMode);
   }
 }
