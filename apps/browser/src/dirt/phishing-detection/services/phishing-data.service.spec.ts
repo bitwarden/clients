@@ -111,21 +111,22 @@ describe("PhishingDataService", () => {
   });
 
   describe("isPhishingWebAddress", () => {
-    it("should detect a phishing web address using quick hasUrl lookup", async () => {
-      // Mock hasUrl to return true for direct hostname match
+    it("should detect a phishing web address using quick hasUrl lookup (protocol-stripped)", async () => {
+      // Mock hasUrl to return true for protocol-stripped match
       mockIndexedDbService.hasUrl.mockResolvedValue(true);
 
       const url = new URL("http://phish.com/testing-param");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(true);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/testing-param");
+      // URL should be stripped of protocol before lookup
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com/testing-param");
       // Should not fall back to custom matcher when hasUrl returns true
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
     it("should return false when hasUrl returns false (custom matcher disabled)", async () => {
-      // Mock hasUrl to return false (no direct href match)
+      // Mock hasUrl to return false (no match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
 
       const url = new URL("http://phish.com/path");
@@ -133,7 +134,7 @@ describe("PhishingDataService", () => {
 
       // Custom matcher is currently disabled (useCustomMatcher: false), so result is false
       expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/path");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com/path");
       // Custom matcher should NOT be called since it's disabled
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
@@ -146,33 +147,34 @@ describe("PhishingDataService", () => {
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://safe.com/");
+      // Protocol stripped, trailing slash from URL constructor preserved
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("safe.com/");
       // Custom matcher is disabled, so findMatchingUrl should NOT be called
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
     it("should not match against root web address with subpaths (custom matcher disabled)", async () => {
-      // Mock hasUrl to return false (no direct href match)
+      // Mock hasUrl to return false (no match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
 
       const url = new URL("http://phish.com/login/page");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com/login/page");
       // Custom matcher is disabled, so findMatchingUrl should NOT be called
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
     it("should not match against root web address with different subpaths (custom matcher disabled)", async () => {
-      // Mock hasUrl to return false (no direct hostname match)
+      // Mock hasUrl to return false (no match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
 
       const url = new URL("http://phish.com/login/page2");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page2");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com/login/page2");
       // Custom matcher is disabled, so findMatchingUrl should NOT be called
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
@@ -253,6 +255,49 @@ describe("PhishingDataService", () => {
       } finally {
         (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
       }
+    });
+
+    it("should detect HTTP URL the same as HTTPS URL (protocol stripped at lookup)", async () => {
+      // DB stores protocol-stripped URLs
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "phish.com/malicious-page";
+      });
+
+      const httpUrl = new URL("http://phish.com/malicious-page");
+      expect(await service.isPhishingWebAddress(httpUrl)).toBe(true);
+
+      const httpsUrl = new URL("https://phish.com/malicious-page");
+      expect(await service.isPhishingWebAddress(httpsUrl)).toBe(true);
+    });
+
+    it("should detect root domain with trailing slash normalization (protocol stripped)", async () => {
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "phish.com";
+      });
+
+      // Browsers add trailing slash: https://phish.com → https://phish.com/
+      // After strip: phish.com/ → also check phish.com (without trailing slash)
+      const url = new URL("https://phish.com");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false when protocol-stripped URL is not in DB", async () => {
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+
+      const url = new URL("https://safe-site.com/page");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+    });
+
+    it("should skip non-http protocols without lookup", async () => {
+      const url = new URL("ftp://phish.com/file");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
     });
   });
 
