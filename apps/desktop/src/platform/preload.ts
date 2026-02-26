@@ -140,10 +140,10 @@ export default {
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
-  registerUnsavedChangesProvider: (provide: (resolve: (hasChanges: boolean) => void) => void) => {
-    const resolve = (hasChanges: boolean) => ipcRenderer.send("hasUnsavedChanges", hasChanges);
+  registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
+    const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);
 
-    ipcRenderer.on("hasUnsavedChanges", () => {
+    ipcRenderer.on("confirmUpdateRestart", () => {
       provide(resolve);
     });
   },

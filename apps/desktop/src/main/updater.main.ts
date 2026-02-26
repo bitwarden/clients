@@ -216,21 +216,8 @@ export class UpdaterMain {
     });
 
     if (result.response === 0) {
-      if (await this.hasUnsavedChanges()) {
-        const confirm = await dialog.showMessageBox(this.windowMain.win, {
-          type: "warning",
-          title: this.i18nService.t("unsavedChangesTitle"),
-          message: this.i18nService.t("unsavedChangesTitle"),
-          detail: this.i18nService.t("unsavedChangesConfirmation"),
-          buttons: [this.i18nService.t("restart"), this.i18nService.t("later")],
-          cancelId: 1,
-          defaultId: 1,
-          noLink: true,
-        });
-
-        if (confirm.response !== 0) {
-          return;
-        }
+      if (!(await this.confirmUpdateRestart())) {
+        return;
       }
 
       // Quit and install have a different window logic, setting `isQuitting` just to be safe.
@@ -239,15 +226,19 @@ export class UpdaterMain {
     }
   }
 
-  private hasUnsavedChanges(): Promise<boolean> {
+  /**
+   * Asks the renderer to check for unsaved changes and prompt the user if needed.
+   * Returns true if safe to restart, false if the user chose to stay.
+   */
+  private confirmUpdateRestart(): Promise<boolean> {
     if (this.windowMain.win == null) {
-      return Promise.resolve(false);
+      return Promise.resolve(true);
     }
 
-    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 1000));
+    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 30_000));
     const check = new Promise<boolean>((resolve) => {
-      ipcMain.once("hasUnsavedChanges", (_, hasChanges: boolean) => resolve(hasChanges));
-      this.windowMain.win.webContents.send("hasUnsavedChanges");
+      ipcMain.once("confirmUpdateRestart", (_, canRestart: boolean) => resolve(canRestart));
+      this.windowMain.win.webContents.send("confirmUpdateRestart");
     });
 
     return Promise.race([timeout, check]);
