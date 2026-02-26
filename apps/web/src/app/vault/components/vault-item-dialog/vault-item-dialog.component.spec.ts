@@ -86,7 +86,6 @@ describe("VaultItemDialogComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
         { provide: DialogRef, useValue: {} },
-        { provide: DialogService, useValue: {} },
         {
           provide: ToastService,
           useValue: {
@@ -173,7 +172,9 @@ describe("VaultItemDialogComponent", () => {
         { provide: SyncService, useValue: {} },
         { provide: CipherRiskService, useValue: {} },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: {} })
+      .compileComponents();
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;

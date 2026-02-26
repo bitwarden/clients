@@ -62,7 +62,6 @@ describe("ArchiveComponent", () => {
           useValue: { hasOrganizations, organizations$: () => of([]) },
         },
         { provide: CollectionService, useValue: { decryptedCollections$ } },
-        { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
         {
           provide: CipherArchiveService,
@@ -99,7 +98,9 @@ describe("ArchiveComponent", () => {
           },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: mock<DialogService>() })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ArchiveComponent);
     component = fixture.componentInstance;

@@ -28,7 +28,16 @@ For non-blocking, supplementary content, open dialogs as a
 ### Closing Drawers on Navigation
 
 When using drawers, you may want to close them automatically when the user navigates to another page
-to prevent the drawer from persisting across route changes. To implement this functionality:
+to prevent the drawer from persisting across route changes. In most cases you can achieve this by
+using the `closeOnNavigation` option when opening the drawer.
+
+```ts
+this.dialogService.open(MyDialogComponent, { closeOnNavigation: true });
+```
+
+In some cases you may want more control of when the drawer is closed, such as if you have nested
+routes and want the drawer to persist across some route changes but not others. In this case, you
+can manually close the drawer in `ngOnDestroy`. To do this:
 
 1. Store a reference to the dialog when opening it
 2. Implement `OnDestroy` and close the dialog in `ngOnDestroy`
@@ -51,8 +60,6 @@ export class MyComponent implements OnDestroy {
   }
 }
 ```
-
-This ensures drawers are closed when the component is destroyed during navigation.
 
 ## Placement
 
