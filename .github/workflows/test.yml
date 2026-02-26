@@ -34,7 +34,7 @@ jobs:
           scope: '@ovrlab'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -92,7 +92,7 @@ jobs:
             exit 0
           fi
           pushd ../base-worktree
-          npm ci
+          npm ci --legacy-peer-deps
           mkdir -p coverage
           set -o pipefail
           npx jest --config test/jest.config.js 2>&1 | tee coverage/base-coverage-comment.txt
