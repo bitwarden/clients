@@ -155,6 +155,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       // master password. The target user's UserId is not available in this context (only
       // orgUserId, an organization-scoped identifier), so salt is always derived from the
       // target user's email via emailToSalt().
+      //
       // If/when we shift to using random entropy for the salt, this would need to be replaced.
       const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
