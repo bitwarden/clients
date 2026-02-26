@@ -27,11 +27,6 @@ const defaultIcon: Record<BannerType, string> = {
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
   imports: [IconButtonModule, I18nPipe],
-  host: {
-    // Account for bit-layout's padding
-    class:
-      "tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
-  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent {

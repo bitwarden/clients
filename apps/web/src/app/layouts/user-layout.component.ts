@@ -8,7 +8,10 @@ import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
-import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  canAccessEmergencyAccess,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,6 +24,7 @@ import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { VaultBannersComponent } from "../vault/individual-vault/vault-banners/vault-banners.component";
 
 import { WebLayoutModule } from "./web-layout.module";
 
@@ -36,6 +40,7 @@ import { WebLayoutModule } from "./web-layout.module";
     WebLayoutModule,
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
+    VaultBannersComponent,
   ],
   providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
 })
@@ -50,11 +55,16 @@ export class UserLayoutComponent implements OnInit {
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected subscriptionRoute$: Observable<string | null>;
 
+  protected organizations$ = this.accountService.activeAccount$
+    .pipe(map((a) => a?.id))
+    .pipe(switchMap((id) => this.organizationService.organizations$(id)));
+
   constructor(
     private syncService: SyncService,
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
+    private organizationService: OrganizationService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
     this.showEmergencyAccess = toSignal(

@@ -38,18 +38,20 @@
     ></div>
   }
 
-  <!-- Main content (always col 2) -->
-  <main
-    #main
-    [id]="mainContentId"
-    tabindex="-1"
-    bitScrollLayoutHost
-    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
-    [class.tw-rounded-tl-2xl]="rounded()"
-  >
-    <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
-    <ng-content></ng-content>
-  </main>
+  <!-- Col 2: banner slot + main content -->
+  <div class="tw-col-start-2 tw-row-start-1 tw-flex tw-flex-col tw-overflow-hidden">
+    <ng-content select="bit-banner, [slot=banner]"></ng-content>
+    <main
+      #main
+      [id]="mainContentId"
+      tabindex="-1"
+      bitScrollLayoutHost
+      class="tw-flex-1 tw-overflow-auto tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
+      [class.tw-rounded-tl-2xl]="rounded()"
+    >
+      <ng-content></ng-content>
+    </main>
+  </div>
 
   <!-- Overlay backdrop for side-nav (fixed, z-40 — below nav overlay z-50) -->
   <div
