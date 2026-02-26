@@ -195,12 +195,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
     }
 
     this.popoverOpen.set(false);
-
-    // Unregister from spotlight
-    if (this.spotlight()) {
-      this.spotlightService.unregister(this);
-    }
-
     this.disposeAll();
   }
 
@@ -220,6 +214,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     }
 
     if (this.spotlight()) {
+      this.spotlightService.unregister(this);
       this.spotlightService.hideSpotlight();
     }
   }
