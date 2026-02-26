@@ -8,7 +8,9 @@ import {
   viewChild,
   WritableSignal,
 } from "@angular/core";
-import { Observable } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder } from "@angular/forms";
+import { Observable, startWith } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,6 +29,10 @@ import { OrganizationDataOwnershipPolicyDialogComponent } from "../policy-edit-d
 type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
   defaultUserCollectionName: string;
 }>;
+
+type OrganizationDataOwnershipPolicyData = {
+  enableIndividualItemsTransfer: boolean;
+};
 
 export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "centralizeDataOwnership";
@@ -55,14 +61,46 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   constructor(
     private i18nService: I18nService,
     private encryptService: EncryptService,
+    private formBuilder: FormBuilder,
   ) {
     super();
+
+    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
+      if (enabled) {
+        this.data.controls.enableIndividualItemsTransfer.enable();
+      } else {
+        this.data.controls.enableIndividualItemsTransfer.disable();
+        this.data.controls.enableIndividualItemsTransfer.setValue(false);
+      }
+    });
   }
+
+  data = this.formBuilder.group({
+    enableIndividualItemsTransfer: [{ value: false, disabled: true }],
+  });
+
+  protected readonly enableIndividualItemsTransfer = toSignal(
+    this.data.controls.enableIndividualItemsTransfer.valueChanges.pipe(startWith(false)),
+    { initialValue: false },
+  );
+
   private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
   private readonly warningContent: Signal<TemplateRef<any> | undefined> = viewChild("step1");
   protected readonly step: WritableSignal<number> = signal(0);
 
   protected steps = [this.policyForm, this.warningContent];
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    if (this.enabled.value) {
+      this.data.controls.enableIndividualItemsTransfer.enable();
+    }
+  }
+
+  protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
+    return this.data.getRawValue();
+  }
 
   async buildVNextRequest(
     orgKey: OrgKey,
