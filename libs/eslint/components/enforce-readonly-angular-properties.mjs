@@ -43,6 +43,45 @@ function findLegacyDecorator(decorators) {
   return null;
 }
 
+function getNearestClass(node) {
+  let current = node.parent;
+  while (current) {
+    if (current.type === "ClassDeclaration" || current.type === "ClassExpression") {
+      return current;
+    }
+    current = current.parent;
+  }
+  return null;
+}
+
+function isOnPushComponent(classNode) {
+  for (const decorator of classNode.decorators ?? []) {
+    const { expression } = decorator;
+    if (expression.type !== "CallExpression") continue;
+    if (expression.callee.type !== "Identifier" || expression.callee.name !== "Component") continue;
+
+    const [optionsArg] = expression.arguments;
+    if (!optionsArg || optionsArg.type !== "ObjectExpression") continue;
+
+    for (const prop of optionsArg.properties) {
+      if (prop.type !== "Property") continue;
+      if (prop.key.type !== "Identifier" || prop.key.name !== "changeDetection") continue;
+
+      const { value } = prop;
+      if (
+        value.type === "MemberExpression" &&
+        value.object.type === "Identifier" &&
+        value.object.name === "ChangeDetectionStrategy" &&
+        value.property.type === "Identifier" &&
+        value.property.name === "OnPush"
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export default {
   meta: {
     type: "suggestion",
@@ -54,11 +93,30 @@ export default {
     },
     fixable: "code",
     messages,
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          onlyOnPush: {
+            type: "boolean",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
   },
   create(context) {
+    const onlyOnPush = context.options[0]?.onlyOnPush ?? false;
+
+    function shouldCheck(node) {
+      if (!onlyOnPush) return true;
+      const classNode = getNearestClass(node);
+      return classNode != null && isOnPushComponent(classNode);
+    }
+
     return {
       PropertyDefinition(node) {
+        if (!shouldCheck(node)) return;
         if (node.readonly) return;
         if (node.declare) return;
         if (node.abstract) return;
@@ -76,6 +134,7 @@ export default {
         });
       },
       TSParameterProperty(node) {
+        if (!shouldCheck(node)) return;
         if (node.readonly) return;
 
         context.report({

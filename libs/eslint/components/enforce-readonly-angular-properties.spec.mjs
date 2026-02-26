@@ -255,3 +255,77 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
     },
   ],
 });
+
+ruleTester.run("enforce-readonly-angular-properties (onlyOnPush)", rule.default, {
+  valid: [
+    {
+      name: "non-readonly property on default change detection component is ignored",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ changeDetection: ChangeDetectionStrategy.Default })
+        class MyComponent {
+          isLoading = false;
+        }
+      `,
+    },
+    {
+      name: "non-readonly property on a class without @Component is ignored",
+      options: [{ onlyOnPush: true }],
+      code: `
+        class MyService {
+          isLoading = false;
+        }
+      `,
+    },
+    {
+      name: "non-readonly property on @Component without changeDetection is ignored",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ template: '' })
+        class MyComponent {
+          isLoading = false;
+        }
+      `,
+    },
+    {
+      name: "readonly property on OnPush component is allowed",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          readonly isLoading = signal(false);
+        }
+      `,
+    },
+  ],
+  invalid: [
+    {
+      name: "non-readonly property on OnPush component is flagged",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          isLoading = false;
+        }
+      `,
+      output: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          readonly isLoading = false;
+        }
+      `,
+      errors: [{ messageId: "nonReadonly" }],
+    },
+    {
+      name: "legacy @Input() on OnPush component is flagged",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          @Input() title: string;
+        }
+      `,
+      errors: [{ messageId: "legacyInput" }],
+    },
+  ],
+});
