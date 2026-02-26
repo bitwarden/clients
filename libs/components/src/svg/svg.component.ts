@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 

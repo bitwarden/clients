@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";

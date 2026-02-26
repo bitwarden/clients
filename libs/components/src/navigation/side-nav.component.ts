@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
 import { AsyncPipe } from "@angular/common";
