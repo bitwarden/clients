@@ -5,6 +5,27 @@ const autofillFieldKeywordsCache: WeakMap<
   { keywordsSet: Set<string>; stringValue: string }
 > = new WeakMap();
 
+function tokenizeValue(value: string): Set<string> {
+  const keywordsSet = new Set<string>();
+  let keywordEl = value.toLowerCase();
+  keywordsSet.add(keywordEl);
+  keywordEl = keywordEl.replace(/-/g, "");
+  keywordEl.split(/[^\p{L}\d]+/gu).forEach((k) => {
+    if (k) {
+      keywordsSet.add(k);
+    }
+  });
+  keywordEl
+    .replace(/\s/g, "")
+    .split(/[^\p{L}\d]+/gu)
+    .forEach((k) => {
+      if (k) {
+        keywordsSet.add(k);
+      }
+    });
+  return keywordsSet;
+}
+
 function buildAutofillFieldKeywords(field: AutofillField) {
   if (autofillFieldKeywordsCache.has(field)) {
     return autofillFieldKeywordsCache.get(field)!;
@@ -30,22 +51,7 @@ function buildAutofillFieldKeywords(field: AutofillField) {
     if (!attributeValue || typeof attributeValue !== "string") {
       continue;
     }
-    let keywordEl = attributeValue.toLowerCase();
-    keywordsSet.add(keywordEl);
-    keywordEl = keywordEl.replace(/-/g, "");
-    keywordEl.split(/[^\p{L}\d]+/gu).forEach((k) => {
-      if (k) {
-        keywordsSet.add(k);
-      }
-    });
-    keywordEl
-      .replace(/\s/g, "")
-      .split(/[^\p{L}\d]+/gu)
-      .forEach((k) => {
-        if (k) {
-          keywordsSet.add(k);
-        }
-      });
+    tokenizeValue(attributeValue).forEach((k) => keywordsSet.add(k));
   }
   const result = { keywordsSet, stringValue: Array.from(keywordsSet).join(",") };
   autofillFieldKeywordsCache.set(field, result);

@@ -2503,8 +2503,10 @@ export default class AutofillService implements AutofillServiceInterface {
         break;
       }
 
-      const includesUsernameFieldName =
-        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      const includesUsernameFieldName = fieldContainsKeyword(
+        f,
+        AutoFillConstants.UsernameFieldNames,
+      );
       // only consider fields in same form if both have non-null form values
       // null forms are treated as separate
       const isInSameForm =

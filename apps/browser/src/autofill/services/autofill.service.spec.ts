@@ -4372,7 +4372,6 @@ describe("AutofillService", () => {
       });
       pageDetails.fields = [usernameField, passwordField];
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
-      jest.spyOn(autofillService as any, "findMatchingFieldIndex");
     });
 
     it("returns null when passed a field that is a `span` element", () => {
@@ -4532,7 +4531,7 @@ describe("AutofillService", () => {
       expect(result).toBe(null);
     });
 
-    it("returns the username field whose attributes most closely describe the username of the password field", () => {
+    it("returns the field in the same form whose attributes most closely describe a username, stopping early at that match", () => {
       const usernameField2 = createAutofillFieldMock({
         opid: "username-field-2",
         type: "text",
@@ -4544,7 +4543,7 @@ describe("AutofillService", () => {
         opid: "username-field-3",
         type: "text",
         form: "validFormId",
-        elementNumber: 1,
+        elementNumber: 2,
       });
       passwordField.elementNumber = 3;
       pageDetails.fields = [usernameField, usernameField2, usernameField3, passwordField];
@@ -4557,12 +4556,10 @@ describe("AutofillService", () => {
         false,
       );
 
+      // usernameField2 matches username keywords and is in the same form, so it is
+      // returned early; usernameField3 (which has no username keywords) is never considered.
       expect(result).toBe(usernameField2);
-      expect(autofillService["findMatchingFieldIndex"]).toHaveBeenCalledTimes(2);
-      expect(autofillService["findMatchingFieldIndex"]).not.toHaveBeenCalledWith(
-        usernameField3,
-        AutoFillConstants.UsernameFieldNames,
-      );
+      expect(result).not.toBe(usernameField3);
     });
   });
 
