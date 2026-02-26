@@ -156,17 +156,11 @@ export class SearchService implements SearchServiceAbstraction {
       return false;
     }
 
-    const isLunrQuery = query.indexOf(">") === 0;
-    if (isLunrQuery) {
-      // Lunr queries always require an index
-      return (await this.getIndexForSearch(userId)) != null;
-    }
-
     // Regular queries only require a minimum length
     return query.length >= this.searchableMinLength;
   }
 
-  async indexCiphers(
+  private async indexCiphers(
     userId: UserId,
     ciphers: CipherViewLike[],
     indexedEntityId?: string,
@@ -266,24 +260,24 @@ export class SearchService implements SearchServiceAbstraction {
       return ciphers;
     }
 
-    if (await this.getIsIndexing(userId)) {
-      await new Promise((r) => setTimeout(r, 250));
-      if (await this.getIsIndexing(userId)) {
-        await new Promise((r) => setTimeout(r, 500));
-      }
-    }
-
-    const index = await this.getIndexForSearch(userId);
-    if (index == null) {
-      // Fall back to basic search if index is not available
-      const basicResults = this.searchCiphersBasic(ciphers, query);
-      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
-      this._isCipherSearching$.next(false);
-      return basicResults;
-    }
-
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
     if (isQueryString) {
+      // If is indexing, then wait
+      if (await this.getIsIndexing(userId)) {
+        await new Promise((r) => setTimeout(r, 250));
+        if (await this.getIsIndexing(userId)) {
+          await new Promise((r) => setTimeout(r, 500));
+        }
+      }
+      let index = await this.getIndexForSearch(userId);
+      // If there is no index, build an index
+      if (index == null) {
+        this.logService.info("Building lunr index for search...");
+        await this.indexCiphers(userId, ciphers);
+        index = await this.getIndexForSearch(userId);
+        this.logService.info("Lunr index built for search.");
+      }
+
       let searchResults: lunr.Index.Result[] = null;
       const ciphersMap = new Map<string, C>();
       ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
@@ -299,30 +293,16 @@ export class SearchService implements SearchServiceAbstraction {
           }
         });
       }
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+      this._isCipherSearching$.next(false);
+      return results;
     } else {
-      // Basic filter flow. This is most search queries unless you use LUNR syntax
-      for (const cipher of ciphers) {
-        // If name or subtitle contain the query
-        if (cipher.name.includes(query) || CipherViewLikeUtils.subtitle(cipher)?.includes(query)) {
-          // If the vault item subtitle contains the query
-          results.push(cipher);
-        } else if (cipher.type === CipherType.Login) {
-          // If any vault item uri contains the query
-          const login = CipherViewLikeUtils.getLogin(cipher);
-          if (
-            login.uris?.some(
-              (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().includes(query),
-            )
-          ) {
-            results.push(cipher);
-          }
-        }
-      }
+      // Use basic search if the query is not a lunr query
+      const basicResults = this.searchCiphersBasic(ciphers, query);
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      this._isCipherSearching$.next(false);
+      return basicResults;
     }
-
-    this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
-    this._isCipherSearching$.next(false);
-    return results;
   }
 
   searchCiphersBasic<C extends CipherViewLike>(

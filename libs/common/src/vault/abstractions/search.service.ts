@@ -17,11 +17,6 @@ export abstract class SearchService {
    * For short Lunr.js queries (starts with '>'), a valid search index must exist for the user.
    */
   abstract isSearchable(userId: UserId, query: string | null): Promise<boolean>;
-  abstract indexCiphers(
-    userId: UserId,
-    ciphersToIndex: CipherViewLike[],
-    indexedEntityGuid?: string,
-  ): Promise<void>;
   abstract searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,

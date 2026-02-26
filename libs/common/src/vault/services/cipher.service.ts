@@ -177,10 +177,7 @@ export class CipherService implements CipherServiceAbstraction {
             return await this.decryptCiphersWithSdk(ciphers, userId, false);
           }),
           tap(([decrypted, failures]) => {
-            void Promise.all([
-              this.setFailedDecryptedCiphers(failures, userId),
-              this.searchService.indexCiphers(userId, decrypted),
-            ]);
+            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
 
             this.logService.measure(
               decryptStartTime,
@@ -242,8 +239,6 @@ export class CipherService implements CipherServiceAbstraction {
     if (this.searchService != null) {
       if (value == null) {
         await this.searchService.clearIndex(userId);
-      } else {
-        void this.searchService.indexCiphers(userId, value);
       }
     }
   }
@@ -617,7 +612,7 @@ export class CipherService implements CipherServiceAbstraction {
       this.searchService != null &&
       ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
     if (reindexRequired) {
-      await this.searchService.indexCiphers(userId, await this.getDecryptedCiphers(userId), userId);
+      await this.searchService.clearIndex(userId);
     }
   }
 
