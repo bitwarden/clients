@@ -2,6 +2,9 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
+import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
+import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { FileDownloadBuilder } from "@bitwarden/common/platform/abstractions/file-download/file-download.builder";
 import { FileDownloadRequest } from "@bitwarden/common/platform/abstractions/file-download/file-download.request";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -19,6 +22,26 @@ export class BrowserFileDownloadService implements FileDownloadService {
       // This function can't be async because the interface is not async
       void this.downloadSafari(request, builder);
     } else {
+      const deviceType = BrowserPlatformUtilsService.getDevice(window);
+      const isChromiumBased = [
+        DeviceType.ChromeExtension,
+        DeviceType.EdgeExtension,
+        DeviceType.OperaExtension,
+        DeviceType.VivaldiExtension,
+      ].includes(deviceType);
+
+      const isLinux = window?.navigator?.userAgent?.includes("Linux");
+      const isMac = window?.navigator?.userAgent?.includes("Mac OS X");
+      const inPopout = BrowserPopupUtils.inPopout(window);
+      const inSidebar = BrowserPopupUtils.inSidebar(window);
+
+      // Prevent Chromium crashes on Linux/Mac when file pickers open in popups
+      // by forcing the extension into a popout window before downloading.
+      if (isChromiumBased && (isLinux || isMac) && !inPopout && !inSidebar) {
+        void BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
+      }
+
       const a = window.document.createElement("a");
       a.href = URL.createObjectURL(builder.blob);
       a.download = request.fileName;
