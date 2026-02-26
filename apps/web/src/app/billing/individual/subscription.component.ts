@@ -19,7 +19,7 @@ import { AccountBillingClient } from "../clients/account-billing.client";
   providers: [AccountBillingClient],
 })
 export class SubscriptionComponent implements OnInit {
-  hasPremium$: Observable<boolean>;
+  showSubscriptionPageLink$: Observable<boolean>;
   selfHosted: boolean;
 
   constructor(
@@ -27,9 +27,9 @@ export class SubscriptionComponent implements OnInit {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
     configService: ConfigService,
-    private accountBillingClient: AccountBillingClient,
+    accountBillingClient: AccountBillingClient,
   ) {
-    this.hasPremium$ = combineLatest([
+    this.showSubscriptionPageLink$ = combineLatest([
       configService.getFeatureFlag$(FeatureFlag.PM29594_UpdateIndividualSubscriptionPage),
       accountService.activeAccount$,
     ]).pipe(

@@ -71,7 +71,6 @@ export class CloudHostedPremiumComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasPremiumPersonally$: Observable<boolean>;
   protected hasSubscription$: Observable<boolean>;
-  protected shouldShowNewDesign$: Observable<boolean>;
   protected shouldShowUpgradeDialogOnInit$: Observable<boolean>;
   protected personalPricingTiers$: Observable<PersonalSubscriptionPricingTier[]>;
   protected premiumCardData$: Observable<{
@@ -131,25 +130,15 @@ export class CloudHostedPremiumComponent {
         this.subscriber = subscriber;
       });
 
-    this.shouldShowNewDesign$ = combineLatest([
-      this.hasPremiumFromAnyOrganization$,
-      this.hasPremiumPersonally$,
-    ]).pipe(map(([hasOrgPremium, hasPersonalPremium]) => !hasOrgPremium && !hasPersonalPremium));
-
-    // redirect to user subscription page if they already have premium personally
-    // redirect to individual vault if they already have premium from an org
-    combineLatest([
-      this.hasPremiumFromAnyOrganization$,
-      this.hasPremiumPersonally$,
-      this.hasSubscription$,
-    ])
+    combineLatest([this.hasSubscription$, this.hasPremiumFromAnyOrganization$])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(([hasPremiumFromOrg, hasPremiumPersonally, hasSubscription]) => {
-          if (hasPremiumPersonally && hasSubscription) {
+        take(1),
+        switchMap(([hasSubscription, hasPremiumFromAnyOrganization]) => {
+          if (hasSubscription) {
             return from(this.navigateToSubscriptionPage());
           }
-          if (hasPremiumFromOrg) {
+          if (hasPremiumFromAnyOrganization) {
             return from(this.navigateToIndividualVault());
           }
           return of(true);
