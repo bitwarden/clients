@@ -66,6 +66,7 @@ import { commaSeparatedEmails } from "./validators/comma-separated-emails.valida
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import {
   getEmailBatchLimit,
+  isDynamicSeatPlan,
   orgSeatLimitReachedValidator,
 } from "./validators/org-seat-limit-reached.validator";
 
@@ -133,6 +134,7 @@ export class MemberDialogComponent implements OnDestroy {
    * for the full business rules.
    */
   emailBatchLimit$: Observable<number>;
+  isDynamicSeatPlan$: Observable<boolean>;
   editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
@@ -317,6 +319,10 @@ export class MemberDialogComponent implements OnDestroy {
           : this.params.occupiedSeatCount;
         return getEmailBatchLimit(organization, occupiedSeatCount);
       }),
+    );
+
+    this.isDynamicSeatPlan$ = this.organization$.pipe(
+      map((organization) => isDynamicSeatPlan(organization.productTierType)),
     );
 
     combineLatest({
