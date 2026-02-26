@@ -282,37 +282,44 @@ export class SearchService implements SearchServiceAbstraction {
       return basicResults;
     }
 
-    const ciphersMap = new Map<string, C>();
-    ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
-
-    let searchResults: lunr.Index.Result[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
     if (isQueryString) {
+      let searchResults: lunr.Index.Result[] = null;
+      const ciphersMap = new Map<string, C>();
+      ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
       try {
         searchResults = index.search(query.substr(1).trim());
       } catch (e) {
         this.logService.error(e);
       }
-    } else {
-      const soWild = lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING;
-      searchResults = index.query((q) => {
-        lunr.tokenizer(query).forEach((token) => {
-          const t = token.toString();
-          q.term(t, { fields: ["name"], wildcard: soWild });
-          q.term(t, { fields: ["subtitle"], wildcard: soWild });
-          q.term(t, { fields: ["login.uris"], wildcard: soWild });
-          q.term(t, {});
+      if (searchResults != null) {
+        searchResults.forEach((r) => {
+          if (ciphersMap.has(r.ref)) {
+            results.push(ciphersMap.get(r.ref));
+          }
         });
-      });
+      }
+    } else {
+      // Basic filter flow. This is most search queries unless you use LUNR syntax
+      for (const cipher of ciphers) {
+        // If name or subtitle contain the query
+        if (cipher.name.includes(query) || CipherViewLikeUtils.subtitle(cipher)?.includes(query)) {
+          // If the vault item subtitle contains the query
+          results.push(cipher);
+        } else if (cipher.type === CipherType.Login) {
+          // If any vault item uri contains the query
+          const login = CipherViewLikeUtils.getLogin(cipher);
+          if (
+            login.uris?.some(
+              (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().includes(query),
+            )
+          ) {
+            results.push(cipher);
+          }
+        }
+      }
     }
 
-    if (searchResults != null) {
-      searchResults.forEach((r) => {
-        if (ciphersMap.has(r.ref)) {
-          results.push(ciphersMap.get(r.ref));
-        }
-      });
-    }
     this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
     this._isCipherSearching$.next(false);
     return results;
