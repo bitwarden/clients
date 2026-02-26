@@ -233,6 +233,10 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   }
 
   private findCustomField(customFields: CustomFields, path: string): string {
+    if (customFields == null) {
+      return "";
+    }
+
     let root = customFields as any;
     for (const part of path.split("/")) {
       const keys = Object.keys(root);
@@ -252,6 +256,10 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
   }
 
   private deleteTopLevelCustomField(customFields: CustomFields, name: string) {
+    if (customFields == null) {
+      return;
+    }
+
     const key = Object.keys(customFields).find((k) => k.replace(/:?:\d$/, "") === name);
     if (key) {
       delete customFields[key];
