@@ -94,8 +94,8 @@ export class ApplicationsV2Component {
   private accessIntelligenceService = inject(AccessIntelligenceDataService);
   private drawerStateService = inject(DrawerStateService);
   private securityTasksService = inject(AccessIntelligenceSecurityTasksService);
-  protected i18nService = inject(I18nService);
-  protected toastService = inject(ToastService);
+  private i18nService = inject(I18nService);
+  private toastService = inject(ToastService);
 
   // Inputs
   readonly organizationId = input.required<OrganizationId>();

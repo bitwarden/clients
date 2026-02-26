@@ -22,6 +22,7 @@ import {
   DrawerType,
   ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
 import {
   MemberRegistryEntry,
   RiskInsightsView,
@@ -63,7 +64,6 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
-    // V2 child components
     AllActivityV2Component,
     ApplicationsV2Component,
     AsyncActionsModule,
@@ -88,7 +88,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   /**
-   * IMPORTANT: This MUST be a regular property, not a signal.
+   * Note: This must be a regular property, not a signal.
    * The bit-tab-group component's two-way binding [(selectedIndex)] requires
    * direct property assignment, which doesn't work with signals.
    */
@@ -137,10 +137,10 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    protected accessIntelligenceService: AccessIntelligenceDataService,
-    protected drawerStateService: DrawerStateService,
-    protected i18nService: I18nService,
-    protected dialogService: DialogService,
+    private accessIntelligenceService: AccessIntelligenceDataService,
+    private drawerStateService: DrawerStateService,
+    private i18nService: I18nService,
+    private dialogService: DialogService,
     private logService: LogService,
   ) {
     // Subscribe to tab index changes from query params
@@ -240,6 +240,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private setupDrawerSubscription(): void {
     combineLatest([this.drawerState$, this.accessIntelligenceService.report$])
       .pipe(
+        distinctUntilChanged(
+          ([prevState, prevReport], [currState, currReport]) =>
+            prevState.open === currState.open &&
+            prevState.type === currState.type &&
+            prevState.invokerId === currState.invokerId &&
+            prevReport === currReport,
+        ),
         map(([drawerState, report]): DrawerContentData | null => {
           if (!drawerState.open || !report) {
             return null;
@@ -261,7 +268,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
               return null;
           }
         }),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((content) => {
@@ -374,8 +380,8 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    */
   private mapMembersToDrawerData(
     members: MemberRegistryEntry[],
-    report: any,
-    app?: any,
+    report: RiskInsightsView,
+    app?: RiskInsightsReportView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,

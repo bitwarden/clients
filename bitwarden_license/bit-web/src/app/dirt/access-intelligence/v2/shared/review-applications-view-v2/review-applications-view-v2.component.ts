@@ -57,6 +57,11 @@ export class ReviewApplicationsViewV2Component {
   protected readonly searchText = signal<string>("");
 
   /**
+   * Map of cipher ID → CipherView for O(1) icon lookup
+   */
+  private readonly cipherMap = computed(() => new Map(this.ciphers().map((c) => [c.id, c])));
+
+  /**
    * Filtered applications based on search text
    */
   protected readonly filteredApplications = computed(() => {
@@ -111,11 +116,9 @@ export class ReviewApplicationsViewV2Component {
 
   /**
    * Get the cipher to use for icon display for a given application report
-   *
-   * Uses the pre-computed icon cipher ID from the report for efficient lookup.
    */
   getIconCipher(app: RiskInsightsReportView): CipherView | undefined {
     const iconCipherId = app.getIconCipherId();
-    return iconCipherId ? this.ciphers().find((c) => c.id === iconCipherId) : undefined;
+    return iconCipherId ? this.cipherMap().get(iconCipherId) : undefined;
   }
 }

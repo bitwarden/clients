@@ -1,6 +1,5 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
 
 import {
@@ -45,11 +44,6 @@ describe("AllActivityV2Component", () => {
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
-  let mockActivatedRoute: {
-    snapshot: {
-      paramMap: Map<string, string>;
-    };
-  };
 
   /**
    * Helper to access protected/private members for testing.
@@ -82,12 +76,6 @@ describe("AllActivityV2Component", () => {
       t: jest.fn((key: string, ...args: any[]) => key),
     } as any;
 
-    mockActivatedRoute = {
-      snapshot: {
-        paramMap: new Map([["organizationId", orgId]]) as any,
-      },
-    };
-
     await TestBed.configureTestingModule({
       imports: [AllActivityV2Component],
       providers: [
@@ -95,7 +83,6 @@ describe("AllActivityV2Component", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: I18nService, useValue: mockI18nService },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     }).compileComponents();
@@ -456,16 +443,6 @@ describe("AllActivityV2Component", () => {
       expect(testAccess(component).totalCriticalAppsCount()).toBe(0);
       expect(testAccess(component).totalCriticalAppsAtRiskCount()).toBe(0);
       expect(testAccess(component).totalCriticalAppsAtRiskMemberCount()).toBe(0);
-    });
-
-    it("should handle missing organizationId in route", async () => {
-      // Update mock to return null organizationId
-      mockActivatedRoute.snapshot.paramMap = new Map() as any;
-
-      await component.onReviewNewApplications();
-
-      // Should return early without opening dialog
-      expect(mockDialogService.open).not.toHaveBeenCalled();
     });
 
     it("should handle dialog close without completion", async () => {

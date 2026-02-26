@@ -1,6 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy, computed, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import {
@@ -15,10 +14,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { ActivityCardComponent } from "../../activity/activity-card.component";
 import { PasswordChangeMetricComponent } from "../../activity/activity-cards/password-change-metric.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
-import {
-  NewApplicationsDialogV2Component,
-  NewApplicationsDialogResultType,
-} from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
+import { NewApplicationsDialogV2Component } from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
 
 /**
  * AllActivityV2Component - Activity dashboard for Access Intelligence V2 architecture
@@ -50,7 +46,6 @@ export class AllActivityV2Component {
   // Services
   private accessIntelligenceService = inject(AccessIntelligenceDataService);
   private drawerStateService = inject(DrawerStateService);
-  private activatedRoute = inject(ActivatedRoute);
   private dialogService = inject(DialogService);
 
   // Inputs
@@ -152,31 +147,20 @@ export class AllActivityV2Component {
    * Opens V2 dialog showing the list of new applications that can be marked as critical.
    */
   onReviewNewApplications = async () => {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-
-    if (!organizationId) {
-      return;
-    }
-
     const dialogRef = NewApplicationsDialogV2Component.open(this.dialogService, {
       newApplications: this.newApplications(),
-      organizationId: organizationId as OrganizationId,
+      organizationId: this.organizationId(),
       hasExistingCriticalApplications: this.totalCriticalAppsCount() > 0,
     });
 
-    const result = await lastValueFrom(dialogRef.closed);
-
-    if (result === NewApplicationsDialogResultType.Complete) {
-      // Report data automatically refreshes via AccessIntelligenceDataService.report$
-      // No manual refresh needed - service emits updated report after mutations
-    }
+    await lastValueFrom(dialogRef.closed);
   };
 
   /**
    * Handles the "View at-risk members" link click.
    * Opens the at-risk members drawer for critical applications only.
    */
-  onViewAtRiskMembers = async () => {
+  onViewAtRiskMembers = () => {
     this.drawerStateService.openDrawer(
       DrawerType.CriticalAtRiskMembers,
       "activityTabAtRiskMembers",
@@ -187,7 +171,7 @@ export class AllActivityV2Component {
    * Handles the "View at-risk applications" link click.
    * Opens the at-risk applications drawer for critical applications only.
    */
-  onViewAtRiskApplications = async () => {
+  onViewAtRiskApplications = () => {
     this.drawerStateService.openDrawer(
       DrawerType.CriticalAtRiskApps,
       "activityTabAtRiskApplications",

@@ -513,5 +513,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._report.next(null);
     this._ciphers.next([]);
     this._error.next(null);
+    this._loading.next(false);
+    this._reportProgress.next(null);
   }
 }
