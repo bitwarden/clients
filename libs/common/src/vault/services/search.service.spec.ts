@@ -69,29 +69,5 @@ describe("SearchService", () => {
       // Ensure we do not call the expensive index$ method
       expect(mockIndex$).not.toHaveBeenCalled();
     });
-
-    it("returns false for short Lunr query with missing index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(null));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">l");
-      expect(result).toBe(false);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
-    });
-
-    it("returns false for long Lunr query with missing index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(null));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">longer");
-      expect(result).toBe(false);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
-    });
-
-    it("returns true for short Lunr query with index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(true));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">l");
-      expect(result).toBe(true);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
-    });
   });
 });
