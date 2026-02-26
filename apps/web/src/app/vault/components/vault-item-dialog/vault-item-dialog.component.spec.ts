@@ -374,6 +374,29 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("disableEdit", () => {
+    it("returns false when formConfig mode is partial-edit even if canEdit is false", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "partial-edit" });
+
+      expect(component["disableEdit"]).toBe(false);
+    });
+
+    it("returns true when canEdit is false and formConfig mode is not partial-edit", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(true);
+    });
+
+    it("returns false when canEdit is true regardless of formConfig mode", () => {
+      component["canEdit"] = true;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(false);
+    });
+  });
+
   describe("changeMode", () => {
     beforeEach(() => {
       component.setTestCipher({ type: CipherType.Login, id: "cipher-id" });
