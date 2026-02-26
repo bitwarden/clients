@@ -597,7 +597,7 @@ describe("Keeper Json Importer", () => {
   it("should create folders and assigned ciphers to them", async () => {
     [cliResult, webResult].forEach((result) => {
       const folders = result.folders;
-      expect(folders.length).toEqual(29);
+      expect(folders.length).toEqual(30);
 
       // Sort names and compare in bulk so we don't depend on specific ordering
       const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -613,6 +613,7 @@ describe("Keeper Json Importer", () => {
         "Production Server SSH Key",
         "Development/Name-with-both-slashes/Android",
       );
+      assertInFolder(result, "Home Wi-Fi", "Shared-With-Slashes");
       assertInFolder(result, "Chase Visa", "Work/Projects/2025/Q4");
       assertInFolder(result, "John Doe Birth Certificate", "Work/Documents");
 
@@ -636,7 +637,7 @@ describe("Keeper Json Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const folders = orgResult.collections;
-    expect(folders.length).toEqual(29);
+    expect(folders.length).toEqual(30);
 
     // Sort names and compare in bulk so we don't depend on specific ordering
     const folderNames = folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
@@ -935,6 +936,7 @@ describe("Keeper Json Importer", () => {
     "Personal/Finance",
     "Personal/Finance/Banking",
     "Personal/Finance/Banking/Accounts",
+    "Shared-With-Slashes",
     "Work",
     "Work/Documents",
     "Work/Projects",

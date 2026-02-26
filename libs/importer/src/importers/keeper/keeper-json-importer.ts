@@ -48,7 +48,7 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
 
     keeperExport.shared_folders.forEach((folder) => {
-      this.processFolder(result, folder.path ?? "", false);
+      this.processFolder(result, this.sanitizeFolderName(folder.path ?? ""), false);
     });
   }
 

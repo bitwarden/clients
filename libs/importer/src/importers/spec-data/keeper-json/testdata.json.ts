@@ -31,6 +31,21 @@ export const CliTestData = {
       ],
     },
     {
+      path: "Shared/With/Slashes",
+      uid: "slashTestFolder123456789",
+      manage_users: false,
+      manage_records: false,
+      can_edit: false,
+      can_share: false,
+      permissions: [
+        {
+          name: "lastpass.ruby+02-december-2025@gmail.com",
+          manage_users: true,
+          manage_records: true,
+        },
+      ],
+    },
+    {
       path: "FullAccess-CanShare",
       uid: "1fU3j7Cs8-CfSKI56e5S_g",
       manage_users: true,
@@ -432,6 +447,13 @@ export const CliTestData = {
       custom_fields: {
         "$text:SSID": "cozy-home-netz",
       },
+      folders: [
+        {
+          shared_folder: "Shared/With/Slashes",
+          can_edit: false,
+          can_share: false,
+        },
+      ],
     },
     {
       title: "John Doe Birth Certificate",
@@ -715,6 +737,21 @@ export const WebTestData = {
       ],
     },
     {
+      uid: "slashTestFolder123456789",
+      path: "Shared/With/Slashes",
+      manage_users: false,
+      manage_records: false,
+      can_edit: false,
+      can_share: false,
+      permissions: [
+        {
+          name: "lastpass.ruby+02-december-2025@gmail.com",
+          manage_users: true,
+          manage_records: true,
+        },
+      ],
+    },
+    {
       uid: "1fU3j7Cs8-CfSKI56e5S_g",
       path: "FullAccess-CanShare",
       manage_users: true,
@@ -954,6 +991,13 @@ export const WebTestData = {
         "$text:SSID:1": "cozy-home-netz",
       },
       password: "secure-password-123",
+      folders: [
+        {
+          shared_folder: "Shared/With/Slashes",
+          can_edit: false,
+          can_share: false,
+        },
+      ],
     },
     {
       uid: 10,
