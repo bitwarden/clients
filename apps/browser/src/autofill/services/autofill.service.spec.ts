@@ -58,6 +58,7 @@ import {
   createGenerateFillScriptOptionsMock,
 } from "../spec/autofill-mocks";
 import { flushPromises, triggerTestFailure } from "../spec/testing-utils";
+import * as qualification from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -1798,7 +1799,7 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "inUntrustedIframe");
       jest.spyOn(AutofillService, "loadPasswordFields");
       jest.spyOn(autofillService as any, "findUsernameField");
-      jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
+      jest.spyOn(qualification, "fieldContainsKeyword");
       jest.spyOn(AutofillService, "fillByOpid");
       jest.spyOn(AutofillService, "setFillScriptForFocus");
 
@@ -1812,7 +1813,7 @@ describe("AutofillService", () => {
       expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
       expect(AutofillService.loadPasswordFields).not.toHaveBeenCalled();
       expect(autofillService["findUsernameField"]).not.toHaveBeenCalled();
-      expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalled();
+      expect(qualification.fieldContainsKeyword).not.toHaveBeenCalled();
       expect(AutofillService.fillByOpid).not.toHaveBeenCalled();
       expect(AutofillService.setFillScriptForFocus).not.toHaveBeenCalled();
       expect(value).toBeNull();
@@ -2350,11 +2351,11 @@ describe("AutofillService", () => {
             totpFieldView,
             nonViewableFieldView,
           ];
-          jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
+          jest.spyOn(qualification, "fieldContainsKeyword");
           jest.spyOn(AutofillService, "fillByOpid");
         });
 
-        it("will attempt to fuzzy match a username to a viewable text, email or tel field if no password fields are found and the username fill is not being skipped", async () => {
+        it("will attempt to keyword match a username to a viewable text, email or tel field if no password fields are found and the username fill is not being skipped", async () => {
           await autofillService["generateLoginFillScript"](
             fillScript,
             pageDetails,
@@ -2362,35 +2363,40 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             usernameField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             emailField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             telephoneField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             totpField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
             nonViewableField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(2);
           expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
             fillScript,
             usernameField,
             options.cipher.login.username,
           );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
         });
 
-        it("will not attempt to fuzzy match a username if the username fill is being skipped", async () => {
+        it("will not attempt to keyword match a username if the username fill is being skipped", async () => {
           options.skipUsernameOnlyFill = true;
 
           await autofillService["generateLoginFillScript"](
@@ -2400,13 +2406,13 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
             expect.anything(),
             AutoFillConstants.UsernameFieldNames,
           );
         });
 
-        it("will attempt to fuzzy match a totp field if totp autofill is allowed", async () => {
+        it("will attempt to keyword match a totp field if totp autofill is allowed", async () => {
           options.allowTotpAutofill = true;
 
           await autofillService["generateLoginFillScript"](
@@ -2416,13 +2422,13 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             expect.anything(),
             AutoFillConstants.TotpFieldNames,
           );
         });
 
-        it("will not attempt to fuzzy match a totp field if totp autofill is not allowed", async () => {
+        it("will not attempt to keyword match a totp field if totp autofill is not allowed", async () => {
           options.allowTotpAutofill = false;
           jest.spyOn(autofillService as any, "findMatchingFieldIndex");
 
@@ -2457,7 +2463,6 @@ describe("AutofillService", () => {
         jest.spyOn(autofillService as any, "inUntrustedIframe");
         jest.spyOn(AutofillService, "loadPasswordFields");
         jest.spyOn(autofillService as any, "findUsernameField");
-        jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
         jest.spyOn(AutofillService, "fillByOpid");
         jest.spyOn(AutofillService, "setFillScriptForFocus");
 
@@ -4584,7 +4589,6 @@ describe("AutofillService", () => {
       pageDetails.fields = [passwordField, totpField];
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
       jest.spyOn(autofillService as any, "findMatchingFieldIndex");
-      jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
     });
 
     it("returns null when passed a field that is a `span` element", () => {
@@ -4929,107 +4933,6 @@ describe("AutofillService", () => {
 
         expect(result).toBe(true);
       });
-    });
-  });
-
-  describe("fieldIsFuzzyMatch", () => {
-    let field: AutofillField;
-    const fieldProperties = [
-      "htmlID",
-      "htmlName",
-      "label-aria",
-      "label-tag",
-      "label-top",
-      "label-left",
-      "placeholder",
-    ];
-
-    beforeEach(() => {
-      field = createAutofillFieldMock();
-      jest.spyOn(AutofillService, "hasValue");
-      jest.spyOn(AutofillService as any, "fuzzyMatch");
-    });
-
-    it("returns false if the field properties do not have any values", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "";
-      });
-
-      const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the field properties do not have a value that is a fuzzy match", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "some-false-value";
-
-        const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-        expect(AutofillService.hasValue).toHaveBeenCalled();
-        expect(AutofillService["fuzzyMatch"]).toHaveBeenCalledWith(
-          ["some-value"],
-          "some-false-value",
-        );
-        expect(result).toBe(false);
-
-        field[property] = "";
-      });
-    });
-
-    it("returns true if the field property has a value that is a fuzzy match", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "some-value";
-
-        const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-        expect(AutofillService.hasValue).toHaveBeenCalled();
-        expect(AutofillService["fuzzyMatch"]).toHaveBeenCalledWith(["some-value"], "some-value");
-        expect(result).toBe(true);
-
-        field[property] = "";
-      });
-    });
-  });
-
-  describe("fuzzyMatch", () => {
-    it("returns false if the passed options is null", () => {
-      const result = AutofillService["fuzzyMatch"](null, "some-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed options contains an empty array", () => {
-      const result = AutofillService["fuzzyMatch"]([], "some-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is null", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], null);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is an empty string", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], "");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is not present in the options array", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], "some-other-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns true if the passed value is within the options array", () => {
-      const result = AutofillService["fuzzyMatch"](
-        ["some-other-value", "some-value"],
-        "some-value",
-      );
-
-      expect(result).toBe(true);
     });
   });
 
