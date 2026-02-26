@@ -43,16 +43,15 @@ import { WebLayoutModule } from "./web-layout.module";
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected showSubscription$: Observable<boolean>;
   protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
     map((isDisabled) => !isDisabled),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  protected hasPremiumPersonally$: Observable<boolean>;
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
   protected hasSubscription$: Observable<boolean>;
+  protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
     private syncService: SyncService,
@@ -75,10 +74,6 @@ export class UserLayoutComponent implements OnInit {
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
-    this.hasPremiumPersonally$ = this.ifAccountExistsCheck((userId) =>
-      this.billingAccountProfileStateService.hasPremiumPersonally$(userId),
-    );
-
     this.hasPremiumFromAnyOrganization$ = this.ifAccountExistsCheck((userId) =>
       this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(userId),
     );
@@ -90,16 +85,17 @@ export class UserLayoutComponent implements OnInit {
       ),
     );
 
-    this.showSubscription$ = combineLatest([
-      this.hasPremiumPersonally$,
-      this.hasPremiumFromAnyOrganization$,
+    this.subscriptionRoute$ = combineLatest([
       this.hasSubscription$,
+      this.hasPremiumFromAnyOrganization$,
     ]).pipe(
-      map(([hasPremiumPersonally, hasPremiumFromAnyOrganization, hasSubscription]) => {
-        if (hasPremiumFromAnyOrganization && !hasPremiumPersonally) {
-          return false;
+      map(([hasSubscription, hasPremiumFromAnyOrganization]) => {
+        if (!hasPremiumFromAnyOrganization || hasSubscription) {
+          return hasSubscription
+            ? "settings/subscription/user-subscription"
+            : "settings/subscription/premium";
         }
-        return hasSubscription;
+        return null;
       }),
     );
   }
