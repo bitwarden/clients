@@ -175,7 +175,7 @@ export default tseslint.config(
   {
     files: ["**/*.component.ts", "**/*.directive.ts", "**/*.service.ts"],
     rules: {
-      "@bitwarden/components/enforce-readonly-angular-properties": "error",
+      "@bitwarden/components/enforce-readonly-angular-properties": ["error", { onlyOnPush: true }],
     },
   },
   {
