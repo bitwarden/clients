@@ -1,8 +1,10 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component, signal, WritableSignal } from "@angular/core";
+import { Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
+
+import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -99,7 +101,7 @@ export class KitchenSinkDialogComponent {
       </bit-breadcrumbs>
       <bit-search
         [bitPopoverAnchorFor]="tourStep1"
-        [popoverOpen]="tourStep() === 1"
+        [popoverOpen]="tourService.tourStep() === 1"
         [spotlight]="true"
         [spotlightPadding]="12"
         [position]="'below-center'"
@@ -132,42 +134,16 @@ export class KitchenSinkDialogComponent {
     </bit-popover>
 
     <!-- Tour Popovers -->
-    <bit-popover [title]="'Step 1: Search'" (closed)="skipTour()" #tourStep1>
+    <bit-popover [title]="'Step 1: Search'" (closed)="tourService.endTour()" #tourStep1>
       <div>Use the <strong>search bar</strong> to quickly find any item in your vault.</div>
       <p class="tw-mt-2 tw-mb-0">
         Search works across all fields including usernames, URLs, and notes.
       </p>
       <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
-        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
-          Skip Tour
+        <button type="button" bitButton buttonType="primary" (click)="tourService.nextStep()">
+          Next
         </button>
-      </div>
-    </bit-popover>
-
-    <bit-popover [title]="'Step 2: Dialogs'" (closed)="skipTour()" #tourStep2>
-      <div>Click buttons to <strong>open dialogs</strong> for important actions and forms.</div>
-      <p class="tw-mt-2 tw-mb-0">
-        Dialogs help focus user attention and collect input for critical operations.
-      </p>
-      <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
-        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
-          Skip Tour
-        </button>
-      </div>
-    </bit-popover>
-
-    <bit-popover [title]="'Step 3: Forms'" (closed)="skipTour()" #tourStep3>
-      <div>Fill out <strong>forms</strong> to collect and manage user information.</div>
-      <p class="tw-mt-2 tw-mb-0">
-        Our form components provide consistent styling and validation patterns.
-      </p>
-      <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">
-          Finish Tour
-        </button>
-        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+        <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
           Skip Tour
         </button>
       </div>
@@ -177,10 +153,7 @@ export class KitchenSinkDialogComponent {
 export class KitchenSinkMainComponent {
   constructor(public dialogService: DialogService) {}
 
-  protected readonly drawerOpen = signal(false);
-
-  // Tour state
-  protected readonly tourStep: WritableSignal<0 | 1 | 2 | 3> = signal(0);
+  protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
@@ -188,18 +161,6 @@ export class KitchenSinkMainComponent {
 
   openDrawer() {
     this.dialogService.openDrawer(KitchenSinkDialogComponent);
-  }
-
-  protected startTour() {
-    this.tourStep.set(1);
-  }
-
-  protected nextTourStep() {
-    this.tourStep.update((prev) => (prev < 3 ? ((prev + 1) as 3) : 0));
-  }
-
-  protected skipTour() {
-    this.tourStep.set(0);
   }
 
   navItems = [

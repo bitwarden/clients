@@ -1,4 +1,4 @@
-import { Component, signal, WritableSignal } from "@angular/core";
+import { Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -7,6 +7,7 @@ import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
 import { KitchenSinkDialogComponent } from "./kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
+import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,7 +29,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
         bitButton
         (click)="openDialog()"
         [bitPopoverAnchorFor]="tourStep2"
-        [popoverOpen]="tourStep() === 2"
+        [popoverOpen]="tourService.tourStep() === 2"
         [spotlight]="true"
         [spotlightPadding]="12"
         [position]="'below-start'"
@@ -36,7 +37,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
         Open Dialog
       </button>
       <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
-      <button bitButton type="button" (click)="startTour()">Start Tour</button>
+      <button bitButton type="button" (click)="tourService.startTour()">Start Tour</button>
     </bit-section>
     <bit-section>
       <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -44,7 +45,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
     </bit-section>
     <bit-section
       [bitPopoverAnchorFor]="tourStep3"
-      [popoverOpen]="tourStep() === 3"
+      [popoverOpen]="tourService.tourStep() === 3"
       [spotlight]="true"
       [spotlightPadding]="12"
       [position]="'right-center'"
@@ -54,29 +55,31 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
     </bit-section>
 
     <!-- Tour Popovers -->
-    <bit-popover [title]="'Step 2: Dialogs'" (closed)="skipTour()" #tourStep2>
+    <bit-popover [title]="'Step 2: Dialogs'" (closed)="tourService.endTour()" #tourStep2>
       <div>Click buttons to <strong>open dialogs</strong> for important actions and forms.</div>
       <p class="tw-mt-2 tw-mb-0">
         Dialogs help focus user attention and collect input for critical operations.
       </p>
       <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Next</button>
-        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+        <button type="button" bitButton buttonType="primary" (click)="tourService.nextStep()">
+          Next
+        </button>
+        <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
           Skip Tour
         </button>
       </div>
     </bit-popover>
 
-    <bit-popover [title]="'Step 3: Forms'" (closed)="skipTour()" #tourStep3>
+    <bit-popover [title]="'Step 3: Forms'" (closed)="tourService.endTour()" #tourStep3>
       <div>Fill out <strong>forms</strong> to collect and manage user information.</div>
       <p class="tw-mt-2 tw-mb-0">
         Our form components provide consistent styling and validation patterns.
       </p>
       <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="finishTour()">
+        <button type="button" bitButton buttonType="primary" (click)="tourService.endTour()">
           Finish Tour
         </button>
-        <button type="button" bitButton buttonType="secondary" (click)="skipTour()">
+        <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
           Skip Tour
         </button>
       </div>
@@ -86,8 +89,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
 export class KitchenSinkVaultComponent {
   constructor(public dialogService: DialogService) {}
 
-  // Tour state
-  protected readonly tourStep: WritableSignal<0 | 1 | 2 | 3> = signal(0);
+  protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
@@ -95,26 +97,5 @@ export class KitchenSinkVaultComponent {
 
   openDrawer() {
     this.dialogService.openDrawer(KitchenSinkDialogComponent);
-  }
-
-  protected startTour() {
-    this.tourStep.set(2);
-  }
-
-  protected nextTourStep() {
-    this.tourStep.update((prev) => {
-      if (prev === 2) {
-        return 3;
-      }
-      return 0;
-    });
-  }
-
-  protected finishTour() {
-    this.tourStep.set(0);
-  }
-
-  protected skipTour() {
-    this.tourStep.set(0);
   }
 }

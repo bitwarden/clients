@@ -89,12 +89,14 @@ export class PopoverAnchorForDirective implements OnDestroy {
     return {
       hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
       backdropClass: "cdk-overlay-transparent-backdrop",
-      scrollStrategy: this.spotlight()
-        ? this.overlay.scrollStrategies.block()
-        : this.overlay.scrollStrategies.reposition(),
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay
         .position()
-        .flexibleConnectedTo(this.elementRef)
+        .flexibleConnectedTo(
+          this.spotlight() && this.spotlightService.overlayElement
+            ? new ElementRef(this.spotlightService.overlayElement)
+            : this.elementRef,
+        )
         .withPositions(this.positions)
         .withLockedPosition(true)
         .withFlexibleDimensions(false)
@@ -155,9 +157,10 @@ export class PopoverAnchorForDirective implements OnDestroy {
       return;
     }
 
-    // If spotlight is enabled, automatically close other spotlight popovers
+    // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
     }
 
     this.popoverOpen.set(true);
@@ -169,10 +172,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
     this.closedEventsSub = this.getClosedEvents().subscribe(() => {
       this.destroyPopover();
     });
-
-    if (this.spotlight()) {
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
-    }
   }
 
   private getClosedEvents(): Observable<any> {

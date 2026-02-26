@@ -1,4 +1,5 @@
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
+import { DomPortal } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, NgZone, TemplateRef, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { Subject } from "rxjs";
@@ -495,7 +496,7 @@ describe("PopoverAnchorForDirective with Spotlight", () => {
     fixture.destroy();
   });
 
-  it("should use block scroll strategy when spotlight is enabled", fakeAsync(() => {
+  it("should use reposition scroll strategy when spotlight is enabled", fakeAsync(() => {
     ngZone.run(() => {
       directive.popoverOpen.set(true);
       fixture.detectChanges();
@@ -503,12 +504,12 @@ describe("PopoverAnchorForDirective with Spotlight", () => {
     tick(16);
     tick(16);
 
-    expect(overlay.scrollStrategies.block).toHaveBeenCalled();
+    expect(overlay.scrollStrategies.reposition).toHaveBeenCalled();
 
     flush();
   }));
 
-  it("should create border element when spotlight is enabled", fakeAsync(() => {
+  it("should create a CDK border overlay when spotlight is enabled", fakeAsync(() => {
     ngZone.run(() => {
       directive.popoverOpen.set(true);
       fixture.detectChanges();
@@ -516,9 +517,13 @@ describe("PopoverAnchorForDirective with Spotlight", () => {
     tick(16);
     tick(16);
 
-    const borderElement = document.querySelector('[data-spotlight-border="true"]');
-    expect(borderElement).toBeTruthy();
-    expect((borderElement as HTMLElement).style.zIndex).toBe("1001");
+    // overlay.create is called twice: first by SpotlightService (border element overlay),
+    // then by the directive (popover) — ensuring the popover pane sits above the border in DOM order
+    expect(overlay.create).toHaveBeenCalledTimes(2);
+
+    // The first attach call should be a DomPortal (spotlight border)
+    const firstAttachArg = jest.mocked(overlayRef.attach).mock.calls[0][0];
+    expect(firstAttachArg).toBeInstanceOf(DomPortal);
 
     flush();
   }));
