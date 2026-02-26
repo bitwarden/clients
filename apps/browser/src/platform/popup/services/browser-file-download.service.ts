@@ -23,6 +23,23 @@ export class BrowserFileDownloadService implements FileDownloadService {
       void this.downloadSafari(request, builder);
     } else {
       const deviceType = BrowserPlatformUtilsService.getDevice(window);
+      const inPopout = BrowserPopupUtils.inPopout(window);
+      const inSidebar = BrowserPopupUtils.inSidebar(window);
+
+      // Prevent browser crashes when native OS file dialogs (open/save) are
+      // triggered from an extension popup. The popup can be torn down while the
+      // dialog is active or pending, crashing the renderer.
+      // This mirrors the route-level filePickerPopoutGuard() but applies at the
+      // download-service level for views that embed downloads inline (e.g.
+      // view-cipher with <app-attachments-v2-view>).
+      let needsPopout = false;
+
+      // Firefox: crashes with file dialogs in popup (Mozilla Bug #1292701)
+      if (deviceType === DeviceType.FirefoxExtension && !inPopout && !inSidebar) {
+        needsPopout = true;
+      }
+
+      // Chromium on Linux/Mac: crashes with file dialogs in popup
       const isChromiumBased = [
         DeviceType.ChromeExtension,
         DeviceType.EdgeExtension,
@@ -32,12 +49,12 @@ export class BrowserFileDownloadService implements FileDownloadService {
 
       const isLinux = window?.navigator?.userAgent?.includes("Linux");
       const isMac = window?.navigator?.userAgent?.includes("Mac OS X");
-      const inPopout = BrowserPopupUtils.inPopout(window);
-      const inSidebar = BrowserPopupUtils.inSidebar(window);
 
-      // Prevent Chromium crashes on Linux/Mac when file pickers open in popups
-      // by forcing the extension into a popout window before downloading.
       if (isChromiumBased && (isLinux || isMac) && !inPopout && !inSidebar) {
+        needsPopout = true;
+      }
+
+      if (needsPopout) {
         void BrowserPopupUtils.openCurrentPagePopout(window);
         return;
       }
