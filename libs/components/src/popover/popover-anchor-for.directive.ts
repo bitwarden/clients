@@ -5,10 +5,12 @@ import {
   ElementRef,
   OnDestroy,
   ViewContainerRef,
+  afterNextRender,
   effect,
   inject,
   input,
   model,
+  signal,
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
@@ -65,9 +67,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
-  private hasInitialized = false;
-  private rafId1: number | null = null;
-  private rafId2: number | null = null;
+  private readonly hasInitialized = signal(false);
   private isDestroyed = false;
   private spotlightService = inject(SpotlightService);
 
@@ -109,6 +109,10 @@ export class PopoverAnchorForDirective implements OnDestroy {
     private viewContainerRef: ViewContainerRef,
     private overlay: Overlay,
   ) {
+    // Wait for the first render to complete so layout is stable before opening.
+    // Sets a signal so the effect below re-evaluates once the layout is ready.
+    afterNextRender(() => this.hasInitialized.set(true));
+
     effect(() => {
       if (this.isDestroyed) {
         return;
@@ -120,34 +124,12 @@ export class PopoverAnchorForDirective implements OnDestroy {
         return;
       }
 
-      // Handle opening
-      if (!this.popoverOpen() || this.overlayRef) {
+      // Handle opening — hasInitialized() ensures layout is stable on first open
+      if (!this.popoverOpen() || this.overlayRef || !this.hasInitialized()) {
         return;
       }
 
-      if (this.hasInitialized) {
-        this.openPopover();
-        return;
-      }
-
-      if (this.rafId1 !== null || this.rafId2 !== null) {
-        return;
-      }
-
-      // Initial open - wait for layout to stabilize
-      // First RAF: Waits for Angular's change detection to complete and queues the next paint
-      this.rafId1 = requestAnimationFrame(() => {
-        // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
-        this.rafId2 = requestAnimationFrame(() => {
-          if (this.isDestroyed || !this.popoverOpen() || this.overlayRef) {
-            return;
-          }
-          this.openPopover();
-          this.hasInitialized = true;
-          this.rafId2 = null;
-        });
-        this.rafId1 = null;
-      });
+      this.openPopover();
     });
   }
 
@@ -203,15 +185,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
     this.closedEventsSub = null;
     this.overlayRef?.dispose();
     this.overlayRef = null;
-
-    if (this.rafId1 !== null) {
-      cancelAnimationFrame(this.rafId1);
-      this.rafId1 = null;
-    }
-    if (this.rafId2 !== null) {
-      cancelAnimationFrame(this.rafId2);
-      this.rafId2 = null;
-    }
 
     if (this.spotlight()) {
       this.spotlightService.unregister(this);

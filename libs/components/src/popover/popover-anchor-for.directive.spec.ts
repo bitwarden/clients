@@ -1,7 +1,7 @@
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { DomPortal } from "@angular/cdk/portal";
 import { ChangeDetectionStrategy, Component, NgZone, TemplateRef, viewChild } from "@angular/core";
-import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, flush } from "@angular/core/testing";
 import { Subject } from "rxjs";
 
 import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
@@ -11,10 +11,9 @@ import { SpotlightService } from "./spotlight.service";
 /**
  * Test component to host the directive.
  *
- * Note: When testing RAF (requestAnimationFrame) behavior in fakeAsync tests:
- * - tick() without arguments advances virtual time but does NOT execute RAF callbacks
- * - tick(16) advances time by 16ms (typical animation frame duration) and DOES execute RAF callbacks
- * - tick(0) flushes microtasks, useful for Angular effects that run synchronously
+ * Note: On first open, the directive uses afterNextRender to wait for layout to stabilize.
+ * In TestBed, afterNextRender fires synchronously within the same detectChanges() call,
+ * so tests do not observe a deferral. The deferral only manifests in a real browser environment.
  */
 @Component({
   standalone: true,
@@ -119,59 +118,34 @@ describe("PopoverAnchorForDirective", () => {
     fixture.destroy();
   });
 
-  describe("Initial popover open with RAF delay", () => {
-    it("should use double RAF delay on first open", fakeAsync(() => {
-      // Spy on requestAnimationFrame to verify it's being called
-      const rafSpy = jest.spyOn(window, "requestAnimationFrame");
+  function openPopover() {
+    ngZone.run(() => {
+      directive.popoverOpen.set(true);
+      fixture.detectChanges();
+    });
+  }
 
-      // Set popoverOpen signal directly on the directive inside NgZone
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
+  describe("Initial popover open", () => {
+    it("should open popover on first open", fakeAsync(() => {
+      openPopover();
 
-      // After effect execution, RAF should be scheduled but not executed yet
-      expect(overlay.create).not.toHaveBeenCalled();
-
-      // Execute first RAF - tick(16) advances time by one animation frame (16ms)
-      // This executes the first requestAnimationFrame callback
-      tick(16);
-      expect(overlay.create).not.toHaveBeenCalled();
-
-      // Execute second RAF - the nested requestAnimationFrame callback
-      tick(16);
       expect(overlay.create).toHaveBeenCalled();
       expect(overlayRef.attach).toHaveBeenCalled();
 
-      rafSpy.mockRestore();
       flush();
     }));
 
-    it("should skip RAF delay on subsequent opens", fakeAsync(() => {
-      // First open with double RAF delay
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
-      // Execute both RAF callbacks (16ms each = 32ms total for first open)
-      tick(16); // First RAF
-      tick(16); // Second RAF
+    it("should open on subsequent opens", fakeAsync(() => {
+      openPopover();
       expect(overlay.create).toHaveBeenCalledTimes(1);
       jest.mocked(overlay.create).mockClear();
 
-      // Close programmatically
       ngZone.run(() => {
         directive.popoverOpen.set(false);
         fixture.detectChanges();
       });
 
-      // Second open should skip RAF delay (hasInitialized is now true)
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
-      // Only need tick(0) to flush microtasks - NO RAF delay on subsequent opens
-      tick(0);
+      openPopover();
       expect(overlay.create).toHaveBeenCalledTimes(1);
 
       flush();
@@ -180,12 +154,7 @@ describe("PopoverAnchorForDirective", () => {
 
   describe("Programmatic control", () => {
     it("should open popover when popoverOpen is set to true", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
-      tick(16);
-      tick(16);
+      openPopover();
 
       expect(component.isOpen).toBe(true);
       expect(overlay.create).toHaveBeenCalled();
@@ -194,15 +163,8 @@ describe("PopoverAnchorForDirective", () => {
     }));
 
     it("should close popover when popoverOpen is set to false", fakeAsync(() => {
-      // Open first
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
-      tick(16);
-      tick(16);
+      openPopover();
 
-      // Close
       ngZone.run(() => {
         directive.popoverOpen.set(false);
         fixture.detectChanges();
@@ -215,15 +177,8 @@ describe("PopoverAnchorForDirective", () => {
     }));
 
     it("should close popover when closePopover is called", fakeAsync(() => {
-      // Open first
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-        fixture.detectChanges();
-      });
-      tick(16);
-      tick(16);
+      openPopover();
 
-      // Close via method
       directive.closePopover();
       fixture.detectChanges();
 
@@ -234,130 +189,9 @@ describe("PopoverAnchorForDirective", () => {
     }));
   });
 
-  describe("Race condition prevention", () => {
-    it("should prevent multiple RAF scheduling when toggled rapidly", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Try to toggle back to false before RAF completes
-      ngZone.run(() => {
-        directive.popoverOpen.set(false);
-      });
-      fixture.detectChanges();
-
-      // Try to toggle back to true
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Execute RAFs
-      tick(16);
-      tick(16);
-
-      // Should only create overlay once
-      expect(overlay.create).toHaveBeenCalledTimes(1);
-
-      flush();
-    }));
-
-    it("should not schedule new RAF if one is already pending", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Try to open again while RAF is pending (shouldn't schedule another)
-      ngZone.run(() => {
-        directive.popoverOpen.set(false);
-      });
-      fixture.detectChanges();
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      tick(16);
-      tick(16);
-
-      // Should only have created one overlay
-      expect(overlay.create).toHaveBeenCalledTimes(1);
-
-      flush();
-    }));
-  });
-
-  describe("Component destruction during RAF", () => {
-    it("should cancel RAF callbacks when component is destroyed", fakeAsync(() => {
-      const cancelAnimationFrameSpy = jest.spyOn(window, "cancelAnimationFrame");
-
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Destroy component before RAF completes
-      fixture.destroy();
-
-      // Should have cancelled animation frames
-      expect(cancelAnimationFrameSpy).toHaveBeenCalled();
-
-      cancelAnimationFrameSpy.mockRestore();
-
-      flush();
-    }));
-
-    it("should not create overlay if destroyed during RAF delay", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Execute first RAF
-      tick(16);
-
-      // Destroy before second RAF
-      fixture.destroy();
-
-      // Execute second RAF (should be no-op)
-      tick(16);
-
-      expect(overlay.create).not.toHaveBeenCalled();
-
-      flush();
-    }));
-  });
-
   describe("Resource cleanup", () => {
-    it("should cancel both RAF IDs in disposeAll", fakeAsync(() => {
-      const cancelAnimationFrameSpy = jest.spyOn(window, "cancelAnimationFrame");
-
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-
-      // Trigger disposal while RAF is pending
-      directive.ngOnDestroy();
-
-      // Should cancel animation frames
-      expect(cancelAnimationFrameSpy).toHaveBeenCalled();
-
-      cancelAnimationFrameSpy.mockRestore();
-
-      flush();
-    }));
-
     it("should dispose overlay on destroy", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
+      openPopover();
       expect(overlayRef.attach).toHaveBeenCalled();
 
       fixture.destroy();
@@ -368,17 +202,10 @@ describe("PopoverAnchorForDirective", () => {
     }));
 
     it("should unsubscribe from closed events on destroy", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
+      openPopover();
 
-      // Get the subscription (it's private, so we'll verify via disposal)
       fixture.destroy();
 
-      // Should have disposed overlay which triggers cleanup
       expect(overlayRef.dispose).toHaveBeenCalled();
 
       flush();
@@ -387,16 +214,10 @@ describe("PopoverAnchorForDirective", () => {
 
   describe("Overlay guard in openPopover", () => {
     it("should not create duplicate overlay if overlayRef already exists", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
+      openPopover();
       expect(overlay.create).toHaveBeenCalledTimes(1);
 
-      // Try to set to true again (should not create duplicate since overlay already exists)
+      // Set to true again — overlay already exists, no duplicate created
       ngZone.run(() => {
         directive.popoverOpen.set(true);
       });
@@ -408,26 +229,19 @@ describe("PopoverAnchorForDirective", () => {
     }));
 
     it("should create new overlay when reopened after close", fakeAsync(() => {
-      ngZone.run(() => {
-        directive.popoverOpen.set(true);
-      });
-      fixture.detectChanges();
-      tick(16);
-      tick(16);
-
+      openPopover();
       expect(overlay.create).toHaveBeenCalledTimes(1);
 
       // Close and reopen
       ngZone.run(() => {
         directive.popoverOpen.set(false);
+        fixture.detectChanges();
       });
-      fixture.detectChanges();
       ngZone.run(() => {
         directive.popoverOpen.set(true);
+        fixture.detectChanges();
       });
-      fixture.detectChanges();
 
-      // Since we closed and reopened, should create a second overlay
       expect(overlay.create).toHaveBeenCalledTimes(2);
 
       flush();
@@ -496,13 +310,16 @@ describe("PopoverAnchorForDirective with Spotlight", () => {
     fixture.destroy();
   });
 
-  it("should use reposition scroll strategy when spotlight is enabled", fakeAsync(() => {
+  function openPopover() {
     ngZone.run(() => {
       directive.popoverOpen.set(true);
       fixture.detectChanges();
     });
-    tick(16);
-    tick(16);
+    fixture.detectChanges();
+  }
+
+  it("should use reposition scroll strategy when spotlight is enabled", fakeAsync(() => {
+    openPopover();
 
     expect(overlay.scrollStrategies.reposition).toHaveBeenCalled();
 
@@ -510,12 +327,7 @@ describe("PopoverAnchorForDirective with Spotlight", () => {
   }));
 
   it("should create a CDK border overlay when spotlight is enabled", fakeAsync(() => {
-    ngZone.run(() => {
-      directive.popoverOpen.set(true);
-      fixture.detectChanges();
-    });
-    tick(16);
-    tick(16);
+    openPopover();
 
     // overlay.create is called twice: first by SpotlightService (border element overlay),
     // then by the directive (popover) — ensuring the popover pane sits above the border in DOM order
