@@ -35,7 +35,6 @@ import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
 import { TextDragDirective } from "./directives/text-drag.directive";
-import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 import { PluralizePipe } from "./pipes/pluralize.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
@@ -86,7 +85,6 @@ import { IconComponent } from "./vault/components/icon.component";
   declarations: [
     ApiActionDirective,
     BoxRowDirective,
-    CreditCardNumberPipe,
     EllipsisPipe,
     I18nPipe,
     IconComponent,
@@ -108,7 +106,6 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     ToastModule,
     BoxRowDirective,
-    CreditCardNumberPipe,
     EllipsisPipe,
     I18nPipe,
     IconComponent,
@@ -126,14 +123,6 @@ import { IconComponent } from "./vault/components/icon.component";
     TwoFactorIconComponent,
     TextDragDirective,
   ],
-  providers: [
-    CreditCardNumberPipe,
-    DatePipe,
-    I18nPipe,
-    SearchPipe,
-    UserNamePipe,
-    UserTypePipe,
-    PluralizePipe,
-  ],
+  providers: [DatePipe, I18nPipe, SearchPipe, UserNamePipe, UserTypePipe, PluralizePipe],
 })
 export class JslibModule {}
