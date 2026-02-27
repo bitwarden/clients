@@ -1159,9 +1159,7 @@ describe("AutofillService", () => {
         cipher.reprompt = CipherRepromptType.Password;
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(cipher);
-        jest
-          .spyOn(userVerificationService, "hasMasterPassword")
-          .mockResolvedValueOnce(true);
+        jest.spyOn(userVerificationService, "hasMasterPassword").mockResolvedValueOnce(true);
         jest
           .spyOn(autofillService as any, "openVaultItemPasswordRepromptPopout")
           .mockImplementation();
@@ -1182,9 +1180,7 @@ describe("AutofillService", () => {
         cipher.reprompt = CipherRepromptType.Password;
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(cipher);
-        jest
-          .spyOn(userVerificationService, "hasMasterPassword")
-          .mockResolvedValueOnce(true);
+        jest.spyOn(userVerificationService, "hasMasterPassword").mockResolvedValueOnce(true);
         jest
           .spyOn(autofillService as any, "openVaultItemPasswordRepromptPopout")
           .mockImplementation();

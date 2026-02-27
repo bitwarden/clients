@@ -143,8 +143,8 @@ describe("ContextMenuClickedHandler", () => {
           parentId: AUTOFILL_ID,
           extra: () => expect(autofill).not.toHaveBeenCalled(),
         },
-        { label: "username", parentId: COPY_USERNAME_ID, extra: () => { } },
-        { label: "password", parentId: COPY_PASSWORD_ID, extra: () => { } },
+        { label: "username", parentId: COPY_USERNAME_ID, extra: () => {} },
+        { label: "password", parentId: COPY_PASSWORD_ID, extra: () => {} },
         {
           label: "totp",
           parentId: COPY_VERIFICATION_CODE_ID,
