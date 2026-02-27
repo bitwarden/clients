@@ -194,6 +194,7 @@ module.exports = {
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
         "focus-contrast": "var(--color-border-focus-contrast)",
+        "sidenav-focus": "var(--color-sidenav-focus)",
       },
     },
     textColor: () => ({

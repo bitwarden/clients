@@ -373,6 +373,7 @@
   --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-focus: var(--color-white);
 
   --color-admin-sidenav-background: var(--color-gray-100);
   --color-admin-sidenav-text: var(--color-gray-900);
@@ -381,6 +382,7 @@
   --color-admin-sidenav-active-item-hover: var(--color-bg-admin-sidenav-hover-strong);
   --color-admin-sidenav-arrow-hover: var(--color-bg-admin-sidenav-hover);
   --color-admin-sidenav-active-arrow-hover: var(--color-bg-admin-sidenav-hover-strong);
+  --color-admin-sidenav-focus: var(--color-black);
 }
 
 .theme_light {
@@ -585,6 +587,7 @@
   --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-focus: var(--color-white);
 
   --color-admin-sidenav-background: var(--color-gray-800);
   --color-admin-sidenav-text: var(--color-white);
@@ -593,6 +596,7 @@
   --color-admin-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
   --color-admin-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
   --color-admin-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-admin-sidenav-focus: var(--color-white);
 }
 
 @layer components {

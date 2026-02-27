@@ -115,7 +115,7 @@ export class NavItemComponent extends NavBaseComponent {
   protected readonly focusVisibleWithin = signal(false);
   protected readonly fvwStyles = computed(() =>
     this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-focus"
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-sidenav-focus"
       : "",
   );
 
