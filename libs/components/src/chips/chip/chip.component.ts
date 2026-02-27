@@ -14,7 +14,6 @@ import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.compon
  */
 @Component({
   selector: "bit-chip",
-  standalone: true,
   imports: [I18nPipe, ChipContentComponent, ChipDismissButtonComponent],
   templateUrl: "./chip.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,12 +37,12 @@ export class ChipComponent {
   /**
    * Output event emitted when the dismiss button is clicked. Does not emit if the chip is disabled.
    */
-  readonly chipDismissed = output<void>();
+  readonly dismissed = output<void>();
 
   protected handleDismiss(event: MouseEvent) {
     event.stopPropagation();
     if (!this.baseChip.disabled()) {
-      this.chipDismissed.emit();
+      this.dismissed.emit();
     }
   }
 }
