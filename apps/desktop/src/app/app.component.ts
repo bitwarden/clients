@@ -610,6 +610,7 @@ export class AppComponent implements OnInit, OnDestroy {
             email: stateAccounts[userId].email,
             userId: userId,
             hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
             ),
