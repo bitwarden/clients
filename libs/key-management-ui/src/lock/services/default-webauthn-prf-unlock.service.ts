@@ -154,7 +154,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         allowCredentials: credentials.map(({ credentialId, transports }) => {
           // The credential ID is already base64url encoded from login storage
           // We need to decode it to ArrayBuffer for WebAuthn
-          const decodedId = Fido2Utils.stringToBuffer(credentialId);
+          const decodedId = Fido2Utils.stringToArray(credentialId);
           return {
             type: "public-key",
             id: decodedId,
