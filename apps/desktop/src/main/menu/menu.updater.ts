@@ -14,4 +14,5 @@ export class MenuAccount {
   userId: string;
   email: string;
   hasMasterPassword: boolean;
+  multiClientPasswordManagement: boolean;
 }

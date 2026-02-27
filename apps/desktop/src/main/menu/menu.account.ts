@@ -32,6 +32,7 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  private readonly _multiClientPasswordManagement: boolean;
 
   constructor(
     i18nService: I18nService,
@@ -40,6 +41,7 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    multiClientPasswordManagement: boolean = false,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
@@ -47,6 +49,7 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    this._multiClientPasswordManagement = multiClientPasswordManagement;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -60,6 +63,16 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   private get changeMasterPassword(): MenuItemConstructorOptions {
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    if (this._multiClientPasswordManagement) {
+      return {
+        label: this.localize("changeMasterPass"),
+        id: "changeMasterPass",
+        click: () => this.sendMessage("openChangePasswordDialog"),
+        enabled: !this._isLocked,
+      };
+    }
+
     return {
       label: this.localize("changeMasterPass"),
       id: "changeMasterPass",
