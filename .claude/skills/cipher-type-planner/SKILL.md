@@ -36,10 +36,8 @@ the user has already provided.
    and Identity support autofill.)
 4. **Linked fields** - Should this type support linked custom fields? If yes, which properties
    should be linkable?
-5. **Import/Export** - Should this type support CSV export, or JSON-only? (CSV currently only
-   supports Login and SecureNote.)
-6. **Feature flag** - What is the feature flag name? (Convention: `vault-<type-kebab-case>`,
-   e.g., `vault-bank-account`.)
+5. **Import/Export** - Should this type support import and export? Yes/No.
+6. **Feature flag** - What is the feature flag name? (e.g., `vault-bank-account`.)
 7. **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
    to be planned as well?
 
@@ -83,12 +81,12 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 
 - **Cipher type name:** (e.g., `BankAccount`)
 - **Integer value:** (e.g., `6`)
-- **Feature flag:** (e.g., `vault-bank-account`)
+- **Feature flag:** (e.g., `pm-32009-new-item-types`)
 - **Minimum client version:** (e.g., `2026.3.0`)
 - **Fields:** Table of all fields with name, type, encrypted (yes/no), required (yes/no)
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
-- **Supports CSV export:** Yes/No
+- **Supports import/export:** Yes/No
 
 ### 2. Cross-Repository Prerequisites
 
@@ -183,16 +181,6 @@ change needed.
 - `apps/web/src/locales/en/messages.json`
 - `apps/desktop/src/locales/en/messages.json`
 - `apps/browser/src/_locales/en/messages.json`
-- `apps/cli/src/locales/en/messages.json`
-
-**CLI:**
-
-- `apps/cli/src/vault/models/cipher.response.ts`
-- `apps/cli/src/commands/get.command.ts`
-
-**Import/Export:**
-
-- `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`
 
 **Linked fields (if applicable):**
 
@@ -312,7 +300,6 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 #### Critical Warnings
 
 - **CLI has no copy menu UI** — do not add copy-related i18n keys to the CLI locale.
-- **Use `@if` syntax** in all new Angular template code, not `*ngIf`.
 - **Only expose fields that should be copiable** — not every cipher field needs a copy action. Check
   with product requirements for which fields get copy buttons.
 
