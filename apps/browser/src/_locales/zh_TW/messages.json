@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "驗證碼無效"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ 已複製",
     "description": "Value has been copied to the clipboard.",
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "有風險登入清單的示意圖。"
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "在有風險的網站上，透過 Bitwarden 自動填入選單快速產生強且唯一的密碼。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小時",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結與您所設定密碼的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，只有您指定的人可以檢視。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6121,6 +6166,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6133,5 +6181,8 @@
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

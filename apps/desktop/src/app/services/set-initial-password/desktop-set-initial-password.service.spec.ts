@@ -7,6 +7,7 @@ import {
   InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
+  SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import {
@@ -30,6 +31,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { DesktopSetInitialPasswordService } from "./desktop-set-initial-password.service";
@@ -222,6 +224,70 @@ describe("DesktopSetInitialPasswordService", () => {
       expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
 
       superSpy.mockRestore();
+    });
+  });
+
+  describe("setInitialPasswordTdeUserWithPermission()", () => {
+    let credentials: SetInitialPasswordTdeUserWithPermissionCredentials;
+    let userId: UserId;
+    let superSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      credentials = {
+        newPassword: "newPassword123!",
+        salt: "user@example.com" as MasterPasswordSalt,
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        newPasswordHint: "newPasswordHint",
+        orgSsoIdentifier: "orgSsoIdentifier",
+        orgId: "orgId" as OrganizationId,
+        resetPasswordAutoEnroll: false,
+      };
+      userId = newGuid() as UserId;
+
+      superSpy = jest
+        .spyOn(
+          DefaultSetInitialPasswordService.prototype,
+          "setInitialPasswordTdeUserWithPermission",
+        )
+        .mockResolvedValue(undefined); // undefined = successful
+    });
+
+    afterEach(() => {
+      superSpy.mockRestore();
+    });
+
+    it("should call the setInitialPasswordTdeUserWithPermission() method on the default service", async () => {
+      // Act
+      await sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+    });
+
+    describe("given the initial password was successfully set", () => {
+      it("should send a 'redrawMenu' message", async () => {
+        // Act
+        await sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
+
+        // Assert
+        expect(messagingService.send).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+      });
+    });
+
+    describe("given the initial password was NOT successfully set (due an error on the default service)", () => {
+      it("should NOT send a 'redrawMenu' message", async () => {
+        // Arrange
+        const error = new Error("error on DefaultSetInitialPasswordService");
+        superSpy.mockRejectedValue(error);
+
+        // Act
+        const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow(error);
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
     });
   });
 });
