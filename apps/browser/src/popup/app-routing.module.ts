@@ -7,6 +7,7 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environmen
 import {
   activeAuthGuard,
   authGuard,
+  hasPasswordGuard,
   lockGuard,
   redirectGuard,
   redirectToVaultIfUnlockedGuard,
@@ -293,7 +294,12 @@ const routes: Routes = [
   {
     path: AuthExtensionRoute.ChangePassword,
     component: ChangePasswordPageComponent,
-    canActivate: [canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement), authGuard],
+    canActivate: [
+      // TODO: PM-32419 - remove feature flag check
+      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
+      authGuard,
+      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
+    ],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
