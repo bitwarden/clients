@@ -230,6 +230,7 @@ import { LowdbStorageService } from "../platform/services/lowdb-storage.service"
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 
 // Polyfills
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
@@ -346,6 +347,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  unlockService: UnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
@@ -680,6 +682,19 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      pinStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.cryptoFunctionService,
+      this.stateProvider,
+      this.logService,
+      new CliBiometricsService(),
     );
 
     this.sendTokenService = new DefaultSendTokenService(
