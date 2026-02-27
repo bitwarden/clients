@@ -50,7 +50,7 @@ class MockStateService {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "product-switcher",
-  template: `<button type="button" bitIconButton="bwi-filter" label="Switch products"></button>`,
+  template: `<button type="button" bitIconButton="bwi-grid" label="Switch products"></button>`,
   standalone: false,
 })
 class MockProductSwitcherComponent {}

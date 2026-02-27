@@ -4,7 +4,7 @@
 <div class="tw-relative tw-h-full">
   <nav
     id="bit-side-nav"
-    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-bg-sidenav tw-text-fg-sidenav-text tw-outline-none"
+    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-sidenav tw-text-fg-sidenav-text tw-outline-none"
     [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
     [style]="
       variant() === 'secondary'
@@ -16,12 +16,24 @@
     [attr.aria-modal]="isOverlay ? 'true' : null"
     (keydown)="handleKeyDown($event)"
   >
-    <ng-content></ng-content>
-    <!-- 53rem = ~850px -->
-    <!-- This is a magic number. This number was selected by going to the UI and finding the number that felt the best to me and design. No real rhyme or reason :) -->
     <div
-      class="[@media(min-height:53rem)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-bg-sidenav"
+      class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none"
+      style="container-type: size"
     >
+      <div class="tw-flex tw-flex-col tw-min-h-full">
+        <div class="tw-flex-1">
+          <ng-content></ng-content>
+        </div>
+        @if (open) {
+          <div
+            class="tw-w-full tw-bg-bg-sidenav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+          >
+            <ng-content select="[slot=product-switcher]"></ng-content>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="tw-w-full tw-bg-bg-sidenav">
       <bit-nav-divider></bit-nav-divider>
       @if (open) {
         <ng-content select="[slot=footer]"></ng-content>
