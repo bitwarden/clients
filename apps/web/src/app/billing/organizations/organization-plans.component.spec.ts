@@ -596,7 +596,12 @@ describe("OrganizationPlansComponent", () => {
             EnterBillingAddressComponent,
             OrganizationSelfHostingLicenseUploaderComponent,
           ],
-          providers: [AccountBillingClient, PreviewInvoiceClient, SubscriberBillingClient],
+          providers: [
+            AccountBillingClient,
+            PreviewInvoiceClient,
+            SubscriberBillingClient,
+            PremiumOrgUpgradeService,
+          ],
         },
         add: {
           imports: [
@@ -610,6 +615,7 @@ describe("OrganizationPlansComponent", () => {
             { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
             { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
+            { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
           ],
         },
       })
