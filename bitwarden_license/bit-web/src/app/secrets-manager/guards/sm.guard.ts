@@ -5,11 +5,11 @@ import {
   createUrlTreeFromSnapshot,
   RouterStateSnapshot,
 } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 /**
@@ -20,20 +20,16 @@ export const canActivateSM: CanActivateFn = async (
   state: RouterStateSnapshot,
 ) => {
   const syncService = inject(SyncService);
-  const authService = inject(AuthService);
   const orgService = inject(OrganizationService);
-  const authGuard = inject(AuthGuard);
+  const accountService = inject(AccountService);
 
   /** Workaround to avoid service initialization race condition. */
   if ((await syncService.getLastSync()) == null) {
     await syncService.fullSync(false);
   }
 
-  if ((await authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
-    return authGuard.canActivate(route, state);
-  }
-
-  const orgs = await orgService.getAll();
+  const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
+  const orgs = await firstValueFrom(orgService.organizations$(userId));
   const smOrg = orgs.find((o) => o.canAccessSecretsManager);
   if (smOrg) {
     return createUrlTreeFromSnapshot(route, ["/sm", smOrg.id]);

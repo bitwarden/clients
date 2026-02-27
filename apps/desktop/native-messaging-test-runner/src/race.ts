@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export const race = <T>({
   promise,
   timeout,
@@ -6,8 +8,8 @@ export const race = <T>({
   promise: Promise<T>;
   timeout: number;
   error?: Error;
-}) => {
-  let timer = null;
+}): Promise<T> => {
+  let timer: NodeJS.Timeout | null = null;
 
   // Similar to Promise.all, but instead of waiting for all, it resolves once one promise finishes.
   // Using this so we can reject if the timeout threshold is hit
@@ -18,7 +20,9 @@ export const race = <T>({
     }),
 
     promise.then((value) => {
-      clearTimeout(timer);
+      if (timer != null) {
+        clearTimeout(timer);
+      }
       return value;
     }),
   ]);

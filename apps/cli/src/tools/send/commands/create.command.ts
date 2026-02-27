@@ -1,24 +1,31 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
+import { firstValueFrom, switchMap } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
-
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
-    private stateService: StateService,
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
+    private accountProfileService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -43,6 +50,8 @@ export class SendCreateCommand {
         if (req == null) {
           throw new Error("Null request");
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }
@@ -68,11 +77,32 @@ export class SendCreateCommand {
     const filePath = req.file?.fileName ?? options.file;
     const text = req.text?.text ?? options.text;
     const hidden = req.text?.hidden ?? options.hidden;
-    const password = req.password ?? options.password;
+    const password = req.password ?? options.password ?? undefined;
+    const emails = req.emails ?? options.emails ?? undefined;
     const maxAccessCount = req.maxAccessCount ?? options.maxAccessCount;
+
+    const hasEmails = emails != null && emails.length > 0;
+    const hasPassword = password != null && password.trim().length > 0;
+
+    if (hasEmails && hasPassword) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
+    req.emails = emails;
+
+    if (hasEmails) {
+      req.authType = AuthType.Email;
+    } else if (hasPassword) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
+    }
+
+    const hasPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
+    );
 
     switch (req.type) {
       case SendType.File:
@@ -82,7 +112,7 @@ export class SendCreateCommand {
           );
         }
 
-        if (!(await this.stateService.getCanAccessPremium())) {
+        if (!(await firstValueFrom(hasPremium$))) {
           return Response.error("Premium status is required to use this feature.");
         }
 
@@ -118,14 +148,12 @@ export class SendCreateCommand {
 
       const sendView = SendResponse.toView(req);
       const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
-      const decSend = await newSend.decrypt();
-      const res = new SendResponse(decSend, this.environmentService.getWebVaultUrl());
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const decSend = await newSend.decrypt(activeUserId);
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const res = new SendResponse(decSend, env.getWebVaultUrl());
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -138,12 +166,14 @@ class Options {
   text: string;
   maxAccessCount: number;
   password: string;
+  emails: Array<string>;
   hidden: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.file = passedOptions?.file;
     this.text = passedOptions?.text;
     this.password = passedOptions?.password;
+    this.emails = passedOptions?.emails;
     this.hidden = CliUtils.convertBooleanOption(passedOptions?.hidden);
     this.maxAccessCount =
       passedOptions?.maxAccessCount != null ? parseInt(passedOptions.maxAccessCount, null) : null;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 import {
   MemberDecryptionType,
@@ -30,6 +32,7 @@ export class SsoConfigApi extends BaseResponse {
       api.acrValues = view.openId.acrValues;
       api.expectedReturnAcrValue = view.openId.expectedReturnAcrValue;
     } else if (api.configType === SsoType.Saml2) {
+      api.spUniqueEntityId = view.saml.spUniqueEntityId;
       api.spNameIdFormat = view.saml.spNameIdFormat;
       api.spOutboundSigningAlgorithm = view.saml.spOutboundSigningAlgorithm;
       api.spSigningBehavior = view.saml.spSigningBehavior;
@@ -72,6 +75,7 @@ export class SsoConfigApi extends BaseResponse {
   expectedReturnAcrValue: string;
 
   // SAML
+  spUniqueEntityId: boolean;
   spNameIdFormat: Saml2NameIdFormat;
   spOutboundSigningAlgorithm: string;
   spSigningBehavior: Saml2SigningBehavior;
@@ -113,6 +117,7 @@ export class SsoConfigApi extends BaseResponse {
     this.acrValues = this.getResponseProperty("AcrValues");
     this.expectedReturnAcrValue = this.getResponseProperty("ExpectedReturnAcrValue");
 
+    this.spUniqueEntityId = this.getResponseProperty("SpUniqueEntityId");
     this.spNameIdFormat = this.getResponseProperty("SpNameIdFormat");
     this.spOutboundSigningAlgorithm = this.getResponseProperty("SpOutboundSigningAlgorithm");
     this.spSigningBehavior = this.getResponseProperty("SpSigningBehavior");

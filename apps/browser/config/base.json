@@ -1,8 +1,6 @@
 {
-  "dev_flags": {},
+  "devFlags": {},
   "flags": {
-    "showPasswordless": true,
-    "enableCipherKeyEncryption": false,
-    "accountSwitching": false
+    "sdk": true
   }
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "../../../models/view/view";
 import { OrganizationSubscriptionResponse } from "../response/organization-subscription.response";
 
@@ -57,5 +59,17 @@ export class SelfHostedOrganizationSubscriptionView implements View {
    */
   get isExpiredAndOutsideGracePeriod() {
     return this.hasExpiration && this.expirationWithGracePeriod < new Date();
+  }
+
+  /**
+   * In the case of a trial, where there is no grace period, the expirationWithGracePeriod and expirationWithoutGracePeriod will
+   * be exactly the same. This can be used to hide the grace period note.
+   */
+  get isInTrial() {
+    return (
+      this.expirationWithGracePeriod &&
+      this.expirationWithoutGracePeriod &&
+      this.expirationWithGracePeriod.getTime() === this.expirationWithoutGracePeriod.getTime()
+    );
   }
 }

@@ -1,15 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { Subject, firstValueFrom, switchMap, map, filter } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
+import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";
 import { SecretProjectView } from "../models/view/secret-project.view";
 import { SecretView } from "../models/view/secret.view";
+import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
 import { BulkOperationStatus } from "../shared/dialogs/bulk-status-dialog.component";
 
 import { SecretRequest } from "./requests/secret.request";
@@ -23,14 +30,28 @@ import { SecretResponse } from "./responses/secret.response";
 })
 export class SecretService {
   protected _secret: Subject<SecretView> = new Subject();
-
   secret$ = this._secret.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private encryptService: EncryptService,
+    private accessPolicyService: AccessPolicyService,
+    private accountService: AccountService,
   ) {}
+
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
 
   async getBySecretId(secretId: string): Promise<SecretView> {
     const r = await this.apiService.send("GET", "/secrets/" + secretId, null, true, true);
@@ -65,8 +86,16 @@ export class SecretService {
     return await this.createSecretsListView(organizationId, results);
   }
 
-  async create(organizationId: string, secretView: SecretView) {
-    const request = await this.getSecretRequest(organizationId, secretView);
+  async create(
+    organizationId: string,
+    secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
+  ) {
+    const request = await this.getSecretRequest(
+      organizationId,
+      secretView,
+      secretAccessPoliciesView,
+    );
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/secrets",
@@ -77,8 +106,16 @@ export class SecretService {
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
 
-  async update(organizationId: string, secretView: SecretView) {
-    const request = await this.getSecretRequest(organizationId, secretView);
+  async update(
+    organizationId: string,
+    secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
+  ) {
+    const request = await this.getSecretRequest(
+      organizationId,
+      secretView,
+      secretAccessPoliciesView,
+    );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
@@ -133,20 +170,17 @@ export class SecretService {
     this._secret.next(null);
   }
 
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
-  }
-
   private async getSecretRequest(
     organizationId: string,
     secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new SecretRequest();
     const [key, value, note] = await Promise.all([
-      this.encryptService.encrypt(secretView.name, orgKey),
-      this.encryptService.encrypt(secretView.value, orgKey),
-      this.encryptService.encrypt(secretView.note, orgKey),
+      this.encryptService.encryptString(secretView.name, orgKey),
+      this.encryptService.encryptString(secretView.value, orgKey),
+      this.encryptService.encryptString(secretView.note, orgKey),
     ]);
     request.key = key.encryptedString;
     request.value = value.encryptedString;
@@ -154,6 +188,9 @@ export class SecretService {
     request.projectIds = [];
 
     secretView.projects?.forEach((e) => request.projectIds.push(e.id));
+
+    request.accessPoliciesRequests =
+      this.accessPolicyService.getSecretAccessPoliciesRequest(secretAccessPoliciesView);
 
     return request;
   }
@@ -168,9 +205,9 @@ export class SecretService {
     secretView.revisionDate = secretResponse.revisionDate;
 
     const [name, value, note] = await Promise.all([
-      this.encryptService.decryptToUtf8(new EncString(secretResponse.name), orgKey),
-      this.encryptService.decryptToUtf8(new EncString(secretResponse.value), orgKey),
-      this.encryptService.decryptToUtf8(new EncString(secretResponse.note), orgKey),
+      this.encryptService.decryptString(new EncString(secretResponse.name), orgKey),
+      this.encryptService.decryptString(new EncString(secretResponse.value), orgKey),
+      this.encryptService.decryptString(new EncString(secretResponse.note), orgKey),
     ]);
     secretView.name = name;
     secretView.value = value;
@@ -205,7 +242,7 @@ export class SecretService {
         const secretListView = new SecretListView();
         secretListView.id = s.id;
         secretListView.organizationId = s.organizationId;
-        secretListView.name = await this.encryptService.decryptToUtf8(
+        secretListView.name = await this.encryptService.decryptString(
           new EncString(s.name),
           orgKey,
         );
@@ -234,7 +271,7 @@ export class SecretService {
         const projectsMappedToSecretView = new SecretProjectView();
         projectsMappedToSecretView.id = s.id;
         projectsMappedToSecretView.name = s.name
-          ? await this.encryptService.decryptToUtf8(new EncString(s.name), orgKey)
+          ? await this.encryptService.decryptString(new EncString(s.name), orgKey)
           : null;
         return projectsMappedToSecretView;
       }),

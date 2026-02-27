@@ -1,140 +1,412 @@
-import { firstValueFrom } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, switchMap, map, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
+import {
+  ExtensionCommand,
+  ExtensionCommandType,
+  NOTIFICATION_BAR_LIFESPAN_MS,
+  UPDATE_PASSWORD,
+} from "@bitwarden/common/autofill/constants";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
+import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
-import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import { AuthPopoutType, openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
-import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NOTIFICATION_BAR_LIFESPAN_MS } from "../constants";
-import AddChangePasswordQueueMessage from "../notification/models/add-change-password-queue-message";
-import AddLoginQueueMessage from "../notification/models/add-login-queue-message";
-import AddLoginRuntimeMessage from "../notification/models/add-login-runtime-message";
-import AddUnlockVaultQueueMessage from "../notification/models/add-unlock-vault-queue-message";
-import ChangePasswordRuntimeMessage from "../notification/models/change-password-runtime-message";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
-import { NotificationQueueMessageType } from "../notification/models/notification-queue-message-type";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import {
+  openAddEditVaultItemPopout,
+  openViewVaultItemPopout,
+} from "../../vault/popup/utils/vault-popout-window";
+import {
+  OrganizationCategory,
+  OrganizationCategories,
+  NotificationCipherData,
+} from "../content/components/cipher/types";
+import { CollectionView } from "../content/components/common-types";
+import { NotificationType } from "../enums/notification-type.enum";
+import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
+
+import {
+  AddChangePasswordNotificationQueueMessage,
+  AddLoginQueueMessage,
+  AddLoginMessageData,
+  AtRiskPasswordQueueMessage,
+  NotificationQueueMessageItem,
+  LockedVaultPendingNotificationsData,
+  NotificationBackgroundExtensionMessage,
+  NotificationBackgroundExtensionMessageHandlers,
+} from "./abstractions/notification.background";
+import {
+  LoginSecurityTaskInfo,
+  ModifyLoginCipherFormData,
+  NotificationTypeData,
+} from "./abstractions/overlay-notifications.background";
+import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
+
+const inputScenarios = {
+  usernamePasswordNewPassword: "usernamePasswordNewPassword",
+  usernameNewPassword: "usernameNewPassword",
+  usernamePassword: "usernamePassword",
+  username: "username",
+  passwordNewPassword: "passwordNewPassword",
+  newPassword: "newPassword",
+  password: "password",
+} as const;
+
+type InputScenarioKey = keyof typeof inputScenarios;
+type InputScenario = (typeof inputScenarios)[InputScenarioKey];
+
+type CiphersByInputMatchCategory = {
+  allFieldMatches: CipherView["id"][];
+  newPasswordOnlyMatches: CipherView["id"][];
+  noFieldMatches: CipherView["id"][];
+  passwordNewPasswordMatches: CipherView["id"][];
+  passwordOnlyMatches: CipherView["id"][];
+  usernameNewPasswordMatches: CipherView["id"][];
+  usernameOnlyMatches: CipherView["id"][];
+  usernamePasswordMatches: CipherView["id"][];
+};
 
 export default class NotificationBackground {
-  private notificationQueue: (
-    | AddLoginQueueMessage
-    | AddChangePasswordQueueMessage
-    | AddUnlockVaultQueueMessage
-  )[] = [];
+  private openUnlockPopout = openUnlockPopout;
+  private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
+  private openViewVaultItemPopout = openViewVaultItemPopout;
+  private notificationQueue: NotificationQueueMessageItem[] = [];
+  private allowedRetryCommands: Set<ExtensionCommandType> = new Set([
+    ExtensionCommand.AutofillLogin,
+    ExtensionCommand.AutofillCard,
+    ExtensionCommand.AutofillIdentity,
+  ]);
+  private unlockPopoutTabId?: number;
+  private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
+    bgAdjustNotificationBar: ({ message, sender }) =>
+      this.handleAdjustNotificationBarMessage(message, sender),
+    bgCloseNotificationBar: ({ message, sender }) =>
+      this.handleCloseNotificationBarMessage(message, sender),
+    bgOpenAtRiskPasswords: ({ message, sender }) =>
+      this.handleOpenAtRiskPasswordsMessage(message, sender),
+    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
+    bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
+    bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
+    bgGetExcludedDomains: () => this.getExcludedDomains(),
+    bgGetFolderData: () => this.getFolderData(),
+    bgGetCollectionData: ({ message }) => this.getCollectionData(message),
+    bgGetOrgData: () => this.getOrgData(),
+    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
+    bgOpenAddEditVaultItemPopout: ({ message, sender }) =>
+      this.openAddEditVaultItem(message, sender.tab),
+    bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab),
+    bgRemoveTabFromNotificationQueue: ({ sender }) =>
+      this.removeTabFromNotificationQueue(sender.tab),
+    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
+    bgHandleReprompt: ({ message, sender }: any) =>
+      this.handleCipherUpdateRepromptResponse(message),
+    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
+    collectPageDetailsResponse: ({ message }) =>
+      this.handleCollectPageDetailsResponseMessage(message),
+    getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
+    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+  };
 
   constructor(
+    private accountService: AccountService,
+    private authService: AuthService,
     private autofillService: AutofillService,
     private cipherService: CipherService,
-    private authService: AuthService,
-    private policyService: PolicyService,
-    private folderService: FolderService,
-    private stateService: BrowserStateService,
+    private collectionService: CollectionService,
+    private configService: ConfigService,
+    private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
+    private folderService: FolderService,
+    private logService: LogService,
+    private organizationService: OrganizationService,
+    private policyService: PolicyService,
+    private themeStateService: ThemeStateService,
+    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private taskService: TaskService,
+    protected messagingService: MessagingService,
+    private fido2Background: Fido2Background,
   ) {}
 
-  async init() {
+  init() {
     if (chrome.runtime == null) {
       return;
     }
 
-    BrowserApi.messageListener(
-      "notification.background",
-      (msg: any, sender: chrome.runtime.MessageSender) => {
-        this.processMessage(msg, sender);
-      },
-    );
+    this.setupExtensionMessageListener();
+    this.setupUnlockPopoutCloseListener();
 
     this.cleanupNotificationQueue();
   }
 
-  async processMessage(msg: any, sender: chrome.runtime.MessageSender) {
-    switch (msg.command) {
-      case "unlockCompleted":
-        await this.handleUnlockCompleted(msg.data, sender);
-        break;
-      case "bgGetDataForTab":
-        await this.getDataForTab(sender.tab, msg.responseCommand);
-        break;
-      case "bgCloseNotificationBar":
-        await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
-        break;
-      case "bgAdjustNotificationBar":
-        await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", msg.data);
-        break;
-      case "bgAddLogin":
-        await this.addLogin(msg.login, sender.tab);
-        break;
-      case "bgChangedPassword":
-        await this.changedPassword(msg.data, sender.tab);
-        break;
-      case "bgAddClose":
-      case "bgChangeClose":
-        this.removeTabFromNotificationQueue(sender.tab);
-        break;
-      case "bgAddSave":
-      case "bgChangeSave":
-        if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-          const retryMessage: LockedVaultPendingNotificationsItem = {
-            commandToRetry: {
-              msg: {
-                command: msg,
-              },
-              sender: sender,
-            },
-            target: "notification.background",
-          };
-          await BrowserApi.tabSendMessageData(
-            sender.tab,
-            "addToLockedVaultPendingNotifications",
-            retryMessage,
-          );
-          await openUnlockPopout(sender.tab);
-          return;
-        }
-        await this.saveOrUpdateCredentials(sender.tab, msg.edit, msg.folder);
-        break;
-      case "bgNeverSave":
-        await this.saveNever(sender.tab);
-        break;
-      case "collectPageDetailsResponse":
-        switch (msg.sender) {
-          case "notificationBar": {
-            const forms = this.autofillService.getFormsWithPasswordFields(msg.details);
-            await BrowserApi.tabSendMessageData(msg.tab, "notificationBarPageDetails", {
-              details: msg.details,
-              forms: forms,
-            });
-            break;
-          }
-          default:
-            break;
-        }
-        break;
-      case "bgUnlockPopoutOpened":
-        await this.unlockVault(msg, sender.tab);
-        break;
-      case "checkNotificationQueue":
-        await this.checkNotificationQueue(sender.tab);
-        break;
-      case "bgReopenUnlockPopout":
-        await openUnlockPopout(sender.tab);
-        break;
-      default:
-        break;
-    }
+  useUndeterminedCipherScenarioTriggeringLogic$ = this.configService.getFeatureFlag$(
+    FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic,
+  );
+
+  /**
+   * Gets the enableChangedPasswordPrompt setting from the user notification settings service.
+   */
+  async getEnableChangedPasswordPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableChangedPasswordPrompt$);
   }
 
+  /**
+   * Gets the enableAddedLoginPrompt setting from the user notification settings service.
+   */
+  async getEnableAddedLoginPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableAddedLoginPrompt$);
+  }
+
+  /**
+   * Gets the neverDomains setting from the domain settings service.
+   */
+  async getExcludedDomains(): Promise<NeverDomains> {
+    return await firstValueFrom(this.domainSettingsService.neverDomains$);
+  }
+
+  /**
+   *
+   * Gets the current active tab and retrieves the relevant decrypted cipher
+   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects or a singular object.
+   * If no active tab or URL is found, it returns an empty array.
+   * If new login, returns a preview of the cipher.
+   *
+   * @returns {Promise<NotificationCipherData[]>}
+   */
+
+  async getNotificationCipherData(): Promise<NotificationCipherData[]> {
+    const [currentTab, showFavicons, env, activeUserId] = await Promise.all([
+      BrowserApi.getTabFromCurrentWindow(),
+      firstValueFrom(this.domainSettingsService.showFavicons$),
+      firstValueFrom(this.environmentService.environment$),
+      firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId)),
+    ]);
+
+    if (!currentTab?.url || !activeUserId) {
+      return [];
+    }
+
+    const [decryptedCiphers, organizations] = await Promise.all([
+      this.cipherService.getAllDecryptedForUrl(currentTab.url, activeUserId),
+      firstValueFrom(this.organizationService.organizations$(activeUserId)),
+    ]);
+
+    const iconsServerUrl = env.getIconsUrl();
+
+    const getOrganizationType = (orgId?: string) =>
+      organizations.find((org) => org.id === orgId)?.productTierType;
+
+    const cipherQueueMessage = this.notificationQueue.find(
+      (message): message is AddChangePasswordNotificationQueueMessage | AddLoginQueueMessage =>
+        message.type === NotificationType.ChangePassword ||
+        message.type === NotificationType.AddLogin,
+    );
+
+    if (cipherQueueMessage) {
+      let cipherView: CipherView;
+      if (cipherQueueMessage.type === NotificationType.ChangePassword) {
+        const {
+          data: { cipherIds },
+        } = cipherQueueMessage;
+        const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
+        return cipherViews
+          .filter((cipher) => cipherIds.includes(cipher.id))
+          .map((cipherView) => {
+            const organizationType = getOrganizationType(cipherView.organizationId);
+            return this.convertToNotificationCipherData(
+              cipherView,
+              iconsServerUrl,
+              showFavicons,
+              organizationType,
+            );
+          });
+      } else {
+        cipherView = this.convertAddLoginQueueMessageToCipherView(cipherQueueMessage);
+      }
+
+      const organizationType = getOrganizationType(cipherView.organizationId);
+
+      return [
+        this.convertToNotificationCipherData(
+          cipherView,
+          iconsServerUrl,
+          showFavicons,
+          organizationType,
+        ),
+      ];
+    }
+
+    return decryptedCiphers.map((view) =>
+      this.convertToNotificationCipherData(
+        view,
+        iconsServerUrl,
+        showFavicons,
+        getOrganizationType(view.organizationId),
+      ),
+    );
+  }
+
+  /**
+   * Converts a CipherView and organization type into a NotificationCipherData object
+   * for use in the notification bar.
+   *
+   * @returns A NotificationCipherData object containing the relevant cipher information.
+   */
+
+  convertToNotificationCipherData(
+    view: CipherView,
+    iconsServerUrl: string,
+    showFavicons: boolean,
+    organizationType?: ProductTierType,
+  ): NotificationCipherData {
+    const { id, name, reprompt, favorite, login } = view;
+
+    const organizationCategories: OrganizationCategory[] = [];
+
+    if (organizationType != null) {
+      if (
+        [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+          organizationType,
+        )
+      ) {
+        organizationCategories.push(OrganizationCategories.business);
+      }
+
+      if ([ProductTierType.Families, ProductTierType.Free].includes(organizationType)) {
+        organizationCategories.push(OrganizationCategories.family);
+      }
+    }
+
+    return {
+      id,
+      name,
+      type: CipherType.Login,
+      reprompt,
+      favorite,
+      ...(organizationCategories.length > 0 ? { organizationCategories } : {}),
+      icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
+      login: login && { username: login.username },
+    };
+  }
+
+  /**
+   * If there is a security task for this cipher at login, return the task, cipher view, and uri.
+   *
+   * @param modifyLoginData - The modified login form data
+   * @param activeUserId - The currently logged in user ID
+   */
+  private async getSecurityTaskAndCipherForLoginData(
+    modifyLoginData: ModifyLoginCipherFormData,
+    activeUserId: UserId,
+  ): Promise<LoginSecurityTaskInfo | null> {
+    const tasks: SecurityTask[] = await this.getSecurityTasks(activeUserId);
+    if (!(tasks?.length > 0)) {
+      return null;
+    }
+
+    const urlCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      modifyLoginData.uri,
+      activeUserId,
+    );
+    if (!(urlCiphers?.length > 0)) {
+      return null;
+    }
+
+    const securityTaskForLogin = urlCiphers.reduce(
+      (taskInfo: LoginSecurityTaskInfo | null, cipher: CipherView) => {
+        if (
+          // exit early if info was found already
+          taskInfo ||
+          // exit early if the cipher was deleted
+          cipher.deletedDate ||
+          // exit early if the entered login info doesn't match an existing cipher
+          modifyLoginData.username !== cipher.login.username ||
+          modifyLoginData.password !== cipher.login.password
+        ) {
+          return taskInfo;
+        }
+
+        // Find the first security task for the cipherId belonging to the entered login
+        const cipherSecurityTask = tasks.find(
+          ({ cipherId, status }) =>
+            cipher.id === cipherId && // match security task cipher id to url cipher id
+            status === SecurityTaskStatus.Pending, // security task has not been completed
+        );
+
+        if (cipherSecurityTask) {
+          return { securityTask: cipherSecurityTask, cipher, uri: modifyLoginData.uri };
+        }
+
+        return taskInfo;
+      },
+      null,
+    );
+
+    return securityTaskForLogin;
+  }
+
+  /**
+   * Gets the active user server config from the config service.
+   */
+  async getActiveUserServerConfig(): Promise<ServerConfig> {
+    return await firstValueFrom(this.configService.serverConfig$);
+  }
+
+  /**
+   * Gets the current authentication status of the user.
+   * @returns Promise<AuthenticationStatus> - The current authentication status of the user.
+   */
+  private async getAuthStatus() {
+    return await firstValueFrom(this.authService.activeAccountStatus$);
+  }
+
+  /**
+   * Checks the notification queue for any messages that need to be sent to the
+   * specified tab. If no tab is specified, the current tab will be used.
+   *
+   * @param tab - The tab to check the notification queue for
+   */
   async checkNotificationQueue(tab: chrome.tabs.Tab = null): Promise<void> {
     if (this.notificationQueue.length === 0) {
       return;
@@ -154,7 +426,9 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
-        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
+        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar").catch(
+          (error) => this.logService.error(error),
+        );
         this.notificationQueue.splice(i, 1);
       }
     }
@@ -162,67 +436,50 @@ export default class NotificationBackground {
   }
 
   private async doNotificationQueueCheck(tab: chrome.tabs.Tab): Promise<void> {
-    if (tab == null) {
-      return;
-    }
-
-    const tabDomain = Utils.getDomain(tab.url);
-    if (tabDomain == null) {
-      return;
-    }
-
-    for (let i = 0; i < this.notificationQueue.length; i++) {
-      if (
-        this.notificationQueue[i].tab.id !== tab.id ||
-        this.notificationQueue[i].domain !== tabDomain
-      ) {
-        continue;
-      }
-
-      if (this.notificationQueue[i].type === NotificationQueueMessageType.AddLogin) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "add",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-            removeIndividualVault: await this.removeIndividualVault(),
-            webVaultURL: await this.environmentService.getWebVaultUrl(),
-          },
-        });
-      } else if (this.notificationQueue[i].type === NotificationQueueMessageType.ChangePassword) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "change",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-            webVaultURL: await this.environmentService.getWebVaultUrl(),
-          },
-        });
-      } else if (this.notificationQueue[i].type === NotificationQueueMessageType.UnlockVault) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "unlock",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-          },
-        });
-      }
-      break;
+    const queueMessage = this.notificationQueue.find(
+      (message) => message.tab.id === tab.id && this.queueMessageIsFromTabOrigin(message, tab),
+    );
+    if (queueMessage) {
+      await this.sendNotificationQueueMessage(tab, queueMessage);
     }
   }
 
-  private async getCurrentTheme() {
-    const theme = await this.stateService.getTheme();
+  private async sendNotificationQueueMessage(
+    tab: chrome.tabs.Tab,
+    notificationQueueMessage: NotificationQueueMessageItem,
+  ) {
+    const {
+      type: notificationType,
+      wasVaultLocked: isVaultLocked,
+      launchTimestamp,
+      ...params
+    } = notificationQueueMessage;
 
-    if (theme !== ThemeType.System) {
-      return theme;
+    const typeData: NotificationTypeData = {
+      isVaultLocked,
+      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
+      launchTimestamp,
+    };
+
+    switch (notificationType) {
+      case NotificationType.AddLogin:
+        typeData.removeIndividualVault = await this.removeIndividualVault();
+        break;
     }
 
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
+    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+      type: notificationType,
+      typeData,
+      params,
+    });
   }
 
+  /**
+   * Removes any login messages from the notification queue that
+   * are associated with the specified tab.
+   *
+   * @param tab - The tab to remove messages for
+   */
   private removeTabFromNotificationQueue(tab: chrome.tabs.Tab) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].tab.id === tab.id) {
@@ -231,135 +488,710 @@ export default class NotificationBackground {
     }
   }
 
-  private async addLogin(loginInfo: AddLoginRuntimeMessage, tab: chrome.tabs.Tab) {
-    const authStatus = await this.authService.getAuthStatus();
+  /**
+   * Sends a message to trigger the at risk password notification
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  async triggerAtRiskPasswordNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+
+    if (!activeUserId) {
+      return false;
+    }
+    const loginSecurityTaskInfo = await this.getSecurityTaskAndCipherForLoginData(
+      data,
+      activeUserId,
+    );
+
+    if (!loginSecurityTaskInfo) {
+      return false;
+    }
+
+    const { securityTask, cipher } = loginSecurityTaskInfo;
+    const domain = Utils.getDomain(tab.url);
+    const passwordChangeUri =
+      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+
+    const authStatus = await this.getAuthStatus();
+
+    const wasVaultLocked = authStatus === AuthenticationStatus.Locked;
+
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(activeUserId)
+        .pipe(getOrganizationById(securityTask.organizationId)),
+    );
+
+    this.removeTabFromNotificationQueue(tab);
+    const launchTimestamp = new Date().getTime();
+    const queueMessage: AtRiskPasswordQueueMessage = {
+      domain,
+      wasVaultLocked,
+      type: NotificationType.AtRiskPassword,
+      data: {
+        passwordChangeUri,
+        organizationName: organization.name,
+      },
+      tab: tab,
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+    };
+    this.notificationQueue.push(queueMessage);
+    await this.checkNotificationQueue(tab);
+    return true;
+  }
+
+  /**
+   * Adds a login message to the notification queue, prompting the user to save
+   * the login if it does not already exist in the vault. If the cipher exists
+   * but the password has changed, the user will be prompted to update the password.
+   *
+   * @param message - The message to add to the queue
+   * @param sender - The contextual sender of the message
+   */
+  async triggerAddLoginNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const login = {
+      url: data.uri,
+      username: data.username,
+      password: data.password || data.newPassword,
+    };
+
+    const authStatus = await this.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return;
+      return false;
     }
 
-    const loginDomain = Utils.getDomain(loginInfo.url);
+    const normalizedUsername = login.username ? login.username.toLowerCase() : "";
+    const loginDomain = Utils.getDomain(login.url);
     if (loginDomain == null) {
-      return;
+      return false;
     }
 
-    let normalizedUsername = loginInfo.username;
-    if (normalizedUsername != null) {
-      normalizedUsername = normalizedUsername.toLowerCase();
-    }
+    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
 
-    const disabledAddLogin = await this.stateService.getDisableAddLoginNotification();
     if (authStatus === AuthenticationStatus.Locked) {
-      if (disabledAddLogin) {
-        return;
+      if (addLoginIsEnabled) {
+        await this.pushAddLoginToQueue(loginDomain, login, tab, true);
       }
 
-      this.pushAddLoginToQueue(loginDomain, loginInfo, tab, true);
-      return;
+      return false;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(loginInfo.url);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return false;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(login.url, activeUserId);
     const usernameMatches = ciphers.filter(
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
-    if (usernameMatches.length === 0) {
-      if (disabledAddLogin) {
-        return;
-      }
-
-      this.pushAddLoginToQueue(loginDomain, loginInfo, tab);
-    } else if (
-      usernameMatches.length === 1 &&
-      usernameMatches[0].login.password !== loginInfo.password
-    ) {
-      const disabledChangePassword =
-        await this.stateService.getDisableChangedPasswordNotification();
-      if (disabledChangePassword) {
-        return;
-      }
-      this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, loginInfo.password, tab);
+    if (addLoginIsEnabled && usernameMatches.length === 0) {
+      await this.pushAddLoginToQueue(loginDomain, login, tab);
+      return true;
     }
+
+    return false;
   }
 
   private async pushAddLoginToQueue(
     loginDomain: string,
-    loginInfo: AddLoginRuntimeMessage,
+    loginInfo: AddLoginMessageData,
     tab: chrome.tabs.Tab,
     isVaultLocked = false,
   ) {
     // remove any old messages for this tab
     this.removeTabFromNotificationQueue(tab);
+    const launchTimestamp = new Date().getTime();
     const message: AddLoginQueueMessage = {
-      type: NotificationQueueMessageType.AddLogin,
-      username: loginInfo.username,
-      password: loginInfo.password,
+      type: NotificationType.AddLogin,
+      data: {
+        username: loginInfo.username,
+        password: loginInfo.password,
+        uri: loginInfo.url,
+      },
       domain: loginDomain,
-      uri: loginInfo.url,
       tab: tab,
-      expires: new Date(new Date().getTime() + NOTIFICATION_BAR_LIFESPAN_MS),
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
       wasVaultLocked: isVaultLocked,
     };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
   }
 
-  private async changedPassword(changeData: ChangePasswordRuntimeMessage, tab: chrome.tabs.Tab) {
-    const loginDomain = Utils.getDomain(changeData.url);
-    if (loginDomain == null) {
-      return;
+  /**
+   * Receives filled form values and determines if a notification should be
+   * triggered, and if so, what kind and with what data.
+   *
+   * If an update scenario is identified, a change password message is added to the
+   * notification queue, prompting the user to update a stored login that has changed.
+   *
+   * A new cipher notification is triggered in other defined scenarios
+   * with the user's form input.
+   *
+   * Returns `true` or `false` to indicate if such a notification was
+   * triggered or not.
+   *
+   * For the purposes of this function, form field inputs should be assumed to be
+   * qualified accurately.
+   */
+  async triggerCipherNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const usernameFieldValue: string | null = data.username || null;
+    const currentPasswordFieldValue = data.password || null;
+    const newPasswordFieldValue = data.newPassword || null;
+
+    // If no values were entered, exit early
+    if (!usernameFieldValue && !currentPasswordFieldValue && !newPasswordFieldValue) {
+      return false;
     }
 
-    if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
-      return;
+    // If the entered data doesn't have an associated URI, exit early
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
+      return false;
     }
 
-    let id: string = null;
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url);
-    if (changeData.currentPassword != null) {
-      const passwordMatches = ciphers.filter(
-        (c) => c.login.password === changeData.currentPassword,
-      );
-      if (passwordMatches.length === 1) {
-        id = passwordMatches[0].id;
+    // If there is an active passkey prompt, exit early
+    if (this.fido2Background.isCredentialRequestInProgress(tab.id)) {
+      return false;
+    }
+
+    // If no cipher add/update notifications are enabled, we can exit early
+    const changePasswordNotificationIsEnabled = await this.getEnableChangedPasswordPrompt();
+    const newLoginNotificationIsEnabled = await this.getEnableAddedLoginPrompt();
+    if (!changePasswordNotificationIsEnabled && !newLoginNotificationIsEnabled) {
+      return false;
+    }
+
+    // If there is no account logged in (as opposed to only being locked), exit early
+    const authStatus = await this.getAuthStatus();
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return false;
+    }
+
+    // If there is no active user, exit early
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId === null) {
+      return false;
+    }
+
+    const normalizedUsername: string = usernameFieldValue ? usernameFieldValue.toLowerCase() : "";
+    const currentPasswordFieldHasValue =
+      typeof currentPasswordFieldValue === "string" && currentPasswordFieldValue.length > 0;
+    const newPasswordFieldHasValue =
+      typeof newPasswordFieldValue === "string" && newPasswordFieldValue.length > 0;
+    const usernameFieldHasValue =
+      typeof usernameFieldValue === "string" && usernameFieldValue.length > 0;
+
+    // If the current and new password inputs both have values and those values
+    // match, return early, since no change was made
+    if (
+      currentPasswordFieldHasValue &&
+      newPasswordFieldHasValue &&
+      currentPasswordFieldValue === newPasswordFieldValue
+    ) {
+      return false;
+    }
+
+    /*
+     * We only show the unlock notification if a new password field was filled, since
+     * it's very likely to blindly represent an updated cipher value whereas other
+     * scenarios below require the vault to be unlocked in order to determine
+     * if an update has been made.
+     */
+    if (authStatus === AuthenticationStatus.Locked) {
+      if (!newPasswordFieldHasValue) {
+        return false;
       }
-    } else if (ciphers.length === 1) {
-      id = ciphers[0].id;
+      // This needs to be the call that includes the full form data
+      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
+
+      return true;
     }
-    if (id != null) {
-      this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
+
+    const ciphersForURL: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    // Reducer structured to avoid subsequent array iterations
+    const ciphersByInputMatchCategory = ciphersForURL.reduce(
+      (acc, { id, login }) => {
+        const usernameInputMatchesCipher =
+          usernameFieldHasValue && login.username?.toLowerCase() === normalizedUsername;
+        const passwordInputMatchesCipher =
+          currentPasswordFieldHasValue && login.password === currentPasswordFieldValue;
+        const newPasswordInputMatchesCipher =
+          newPasswordFieldHasValue && login.password === newPasswordFieldValue;
+
+        if (
+          !newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, noFieldMatches: [...acc.noFieldMatches, id] };
+        } else if (
+          newPasswordInputMatchesCipher &&
+          usernameInputMatchesCipher &&
+          passwordInputMatchesCipher
+        ) {
+          // Note: this case should be unreachable due to the early exit comparing
+          // the password input values against each other, but leaving this bit here
+          // as a defense against future changes to the pre-match checks.
+          return { ...acc, allFieldMatches: [...acc.allFieldMatches, id] };
+        } else if (
+          newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, newPasswordOnlyMatches: [...acc.newPasswordOnlyMatches, id] };
+        } else if (
+          passwordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, passwordOnlyMatches: [...acc.passwordOnlyMatches, id] };
+        } else if (
+          passwordInputMatchesCipher &&
+          newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher
+        ) {
+          // Note: this case should be unreachable due to the early exit comparing
+          // the password input values against each other, but leaving this bit here
+          // as a defense against future changes to the pre-match checks.
+          return { ...acc, passwordNewPasswordMatches: [...acc.passwordNewPasswordMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, usernameOnlyMatches: [...acc.usernameOnlyMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          passwordInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, usernamePasswordMatches: [...acc.usernamePasswordMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          newPasswordInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, usernameNewPasswordMatches: [...acc.usernameNewPasswordMatches, id] };
+        }
+
+        return acc;
+      },
+      {
+        allFieldMatches: [],
+        newPasswordOnlyMatches: [],
+        noFieldMatches: [],
+        passwordNewPasswordMatches: [],
+        passwordOnlyMatches: [],
+        usernameNewPasswordMatches: [],
+        usernameOnlyMatches: [],
+        usernamePasswordMatches: [],
+      },
+    );
+
+    // Handle different field fill combinations and determine the input scenario
+    const inputScenariosByKey = {
+      upn: inputScenarios.usernamePasswordNewPassword,
+      un: inputScenarios.usernameNewPassword,
+      up: inputScenarios.usernamePassword,
+      u: inputScenarios.username,
+      pn: inputScenarios.passwordNewPassword,
+      n: inputScenarios.newPassword,
+      p: inputScenarios.password,
+    } as const;
+
+    type InputScenarioKeys = keyof typeof inputScenariosByKey;
+
+    const key = ((usernameFieldHasValue ? "u" : "") +
+      (currentPasswordFieldHasValue ? "p" : "") +
+      (newPasswordFieldHasValue ? "n" : "")) as InputScenarioKeys;
+
+    const inputScenario = key in inputScenariosByKey ? inputScenariosByKey[key] : null;
+
+    if (inputScenario) {
+      return await this.handleInputMatchScenario({
+        ciphersByInputMatchCategory,
+        ciphersForURL,
+        loginDomain,
+        tab,
+        data,
+        inputScenario,
+        changePasswordNotificationIsEnabled,
+        newLoginNotificationIsEnabled,
+      });
     }
+
+    return false;
   }
 
   /**
-   * Sets up a notification to unlock the vault when the user
-   * attempts to autofill a cipher while the vault is locked.
+   * Adds a change password message to the notification queue, prompting the user
+   * to update the password for a login that has changed.
    *
-   * @param message - Extension message, determines if the notification should be skipped
-   * @param tab - The tab that the message was sent from
+   * @param message - The message to add to the queue
+   * @param sender - The contextual sender of the message
    */
-  private async unlockVault(
-    message: { data?: { skipNotification?: boolean } },
+  async triggerChangedPasswordNotification(
+    data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
-  ) {
-    if (message.data?.skipNotification) {
-      return;
+  ): Promise<boolean> {
+    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
+    if (!changePasswordIsEnabled) {
+      return false;
+    }
+    const authStatus = await this.getAuthStatus();
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return false;
+    }
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId === null) {
+      return false;
+    }
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
+      return false;
     }
 
-    const currentAuthStatus = await this.authService.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Locked || this.notificationQueue.length) {
-      return;
+    const username: string | null = data.username || null;
+    const currentPasswordFieldValue = data.password || null;
+    const newPasswordFieldValue = data.newPassword || null;
+
+    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
+      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
+      return true;
     }
 
-    const loginDomain = Utils.getDomain(tab.url);
-    if (!loginDomain) {
-      return;
+    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    const normalizedUsername: string = username ? username.toLowerCase() : "";
+
+    const shouldMatchUsername = typeof username === "string" && username.length > 0;
+
+    if (shouldMatchUsername) {
+      // Presence of a username should filter ciphers further.
+      ciphers = ciphers.filter(
+        (cipher) =>
+          cipher.login.username !== null &&
+          cipher.login.username.toLowerCase() === normalizedUsername,
+      );
     }
 
-    this.pushUnlockVaultToQueue(loginDomain, tab);
+    if (ciphers.length === 1) {
+      const [cipher] = ciphers;
+      if (
+        username !== null &&
+        newPasswordFieldValue === null &&
+        cipher.login.username.toLowerCase() === normalizedUsername &&
+        cipher.login.password === currentPasswordFieldValue
+      ) {
+        // Assumed to be a login
+        return false;
+      }
+    }
+
+    if (
+      ciphers.length > 0 &&
+      (currentPasswordFieldValue?.length || 0) > 0 &&
+      // Only use current password for change if no new password present.
+      !newPasswordFieldValue
+    ) {
+      const currentPasswordMatchesAnExistingValue = ciphers.some(
+        (cipher) =>
+          (cipher.login?.password?.length || 0) > 0 &&
+          cipher.login.password === currentPasswordFieldValue,
+      );
+
+      // The password entered matched a stored cipher value with
+      // the same username (no change)
+      if (currentPasswordMatchesAnExistingValue) {
+        return false;
+      }
+
+      await this.pushChangePasswordToQueue(
+        ciphers.map((cipher) => cipher.id),
+        loginDomain,
+        currentPasswordFieldValue,
+        tab,
+      );
+
+      return true;
+    }
+
+    if (newPasswordFieldValue) {
+      // Otherwise include all known ciphers.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          newPasswordFieldValue,
+          tab,
+        );
+
+        return true;
+      }
+    }
+
+    return false;
   }
 
+  private async handleInputMatchScenario({
+    inputScenario,
+    ciphersByInputMatchCategory,
+    ciphersForURL,
+    loginDomain,
+    tab,
+    data,
+    changePasswordNotificationIsEnabled,
+    newLoginNotificationIsEnabled,
+  }: {
+    ciphersByInputMatchCategory: CiphersByInputMatchCategory;
+    ciphersForURL: CipherView[];
+    loginDomain: string;
+    tab: chrome.tabs.Tab;
+    data: ModifyLoginCipherFormData;
+    inputScenario: InputScenario;
+    changePasswordNotificationIsEnabled: boolean;
+    newLoginNotificationIsEnabled: boolean;
+  }): Promise<boolean> {
+    const {
+      newPasswordOnlyMatches,
+      noFieldMatches,
+      passwordOnlyMatches,
+      usernameNewPasswordMatches,
+      usernameOnlyMatches,
+      usernamePasswordMatches,
+    } = ciphersByInputMatchCategory;
+    // IMPORTANT! The order of statements matters here; later evaluations
+    // depend on the assumptions of the early exits in preceding logic
+
+    // If no ciphers match any filled input values
+    // (Note, this block may uniquely exit early since this match scenario
+    // involves all ciphers, making it mutually exclusive from any other scenario)
+    if (noFieldMatches.length === ciphersForURL.length) {
+      // trigger a new cipher notification in these input scenarios
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+            inputScenarios.usernamePassword,
+            inputScenarios.username,
+            inputScenarios.passwordNewPassword,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        newLoginNotificationIsEnabled
+      ) {
+        await this.pushAddLoginToQueue(
+          loginDomain,
+          { username: data.username, url: data.uri, password: data.newPassword || data.password },
+          tab,
+        );
+
+        return true;
+      }
+
+      // Trigger an update cipher notification with all URI ciphers
+      // in these input scenarios
+      if (
+        ([inputScenarios.password, inputScenarios.newPassword] as InputScenario[]).includes(
+          inputScenario,
+        ) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          ciphersForURL.map((c) => c.id),
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      return false;
+    }
+
+    // If ciphers match entered username and new password values
+    if (usernameNewPasswordMatches.length > 0) {
+      // Early exit in these scenarios as they represent "no change"
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+          ] as InputScenario[]
+        ).includes(inputScenario)
+      ) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered username and password values
+    if (usernamePasswordMatches.length > 0) {
+      // and username, password, and new password values were entered
+      if (
+        inputScenario === inputScenarios.usernamePasswordNewPassword &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          usernamePasswordMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      if (inputScenario === inputScenarios.usernamePassword) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered username value (only)
+    if (usernameOnlyMatches.length > 0) {
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+            inputScenarios.usernamePassword,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          usernameOnlyMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      // Early exit in this scenario as it represents "no change"
+      if (inputScenario === inputScenarios.username) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered new password value (only)
+    if (newPasswordOnlyMatches.length > 0) {
+      // Early exit in these scenarios
+      if (
+        (
+          [
+            inputScenarios.usernameNewPassword, // unclear user expectation
+            inputScenarios.password, // likely nothing to change
+            inputScenarios.newPassword, // nothing to change
+          ] as InputScenario[]
+        ).includes(inputScenario)
+      ) {
+        return false;
+      }
+
+      // and username, password, and new password values were entered
+      if (
+        inputScenario === inputScenarios.usernamePasswordNewPassword &&
+        newLoginNotificationIsEnabled
+      ) {
+        await this.pushAddLoginToQueue(
+          loginDomain,
+          { username: data.username, url: data.uri, password: data.newPassword || data.password },
+          tab,
+        );
+
+        return true;
+      }
+    }
+
+    // If ciphers match entered password value (only)
+    if (passwordOnlyMatches.length > 0) {
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernamePassword,
+            inputScenarios.passwordNewPassword,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          passwordOnlyMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      // Early exit in this scenario as it represents "no change"
+      if (inputScenario === inputScenarios.password) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Sends the page details to the notification bar. Will query all
+   * forms with a password field and pass them to the notification bar.
+   *
+   * @param message - The extension message
+   */
+  private async handleCollectPageDetailsResponseMessage(
+    message: NotificationBackgroundExtensionMessage,
+  ) {
+    if (message.sender !== "notificationBar") {
+      return;
+    }
+
+    const forms = this.autofillService.getFormsWithPasswordFields(message.details);
+    await BrowserApi.tabSendMessageData(message.tab, "notificationBarPageDetails", {
+      details: message.details,
+      forms: forms,
+    });
+  }
+
+  // @TODO this needs the whole input record, and not just newPassword
   private async pushChangePasswordToQueue(
-    cipherId: string,
+    cipherIds: CipherView["id"][],
     loginDomain: string,
     newPassword: string,
     tab: chrome.tabs.Tab,
@@ -367,173 +1199,454 @@ export default class NotificationBackground {
   ) {
     // remove any old messages for this tab
     this.removeTabFromNotificationQueue(tab);
-    const message: AddChangePasswordQueueMessage = {
-      type: NotificationQueueMessageType.ChangePassword,
-      cipherId: cipherId,
-      newPassword: newPassword,
+    const launchTimestamp = new Date().getTime();
+    const message: AddChangePasswordNotificationQueueMessage = {
+      type: NotificationType.ChangePassword,
+      data: { cipherIds: cipherIds, newPassword: newPassword },
       domain: loginDomain,
       tab: tab,
-      expires: new Date(new Date().getTime() + NOTIFICATION_BAR_LIFESPAN_MS),
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
       wasVaultLocked: isVaultLocked,
     };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
   }
 
-  private async pushUnlockVaultToQueue(loginDomain: string, tab: chrome.tabs.Tab) {
-    this.removeTabFromNotificationQueue(tab);
-    const message: AddUnlockVaultQueueMessage = {
-      type: NotificationQueueMessageType.UnlockVault,
-      domain: loginDomain,
-      tab: tab,
-      expires: new Date(new Date().getTime() + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: true,
-    };
-    this.notificationQueue.push(message);
-    await this.checkNotificationQueue(tab);
-    this.removeTabFromNotificationQueue(tab);
+  /**
+   * Saves a cipher based on the message sent from the notification bar. If the vault
+   * is locked, the message will be added to the notification queue and the unlock
+   * popout will be opened.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleSaveCipherMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+      await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
+        commandToRetry: {
+          message: {
+            command: message.command,
+            edit: message.edit,
+            folder: message.folder,
+          },
+          sender: sender,
+        },
+        target: "notification.background",
+      } as LockedVaultPendingNotificationsData);
+      await this.openUnlockPopout(sender.tab);
+      return;
+    }
+
+    await this.saveOrUpdateCredentials(sender.tab, message.cipherId, message.edit, message.folder);
   }
 
-  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
+  async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
+    if (message.success) {
+      await this.saveOrUpdateCredentials(message.tab, message.cipherId, false, undefined, true);
+    } else {
+      await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
+        error: "Password reprompt failed",
+      });
+      return;
+    }
+  }
+
+  /**
+   * Saves or updates credentials based on the message within the
+   * notification queue that is associated with the specified tab.
+   *
+   * @param tab - The tab to save or update credentials for
+   * @param edit - Identifies if the credentials should be edited or simply added
+   * @param folderId - The folder to add the cipher to
+   */
+  private async saveOrUpdateCredentials(
+    tab: chrome.tabs.Tab,
+    cipherId: CipherView["id"],
+    edit: boolean,
+    folderId?: string,
+    skipReprompt: boolean = false,
+  ) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
-      if (queueMessage.tab.id !== tab.id || !(queueMessage.type in NotificationQueueMessageType)) {
+      if (
+        queueMessage.tab.id !== tab.id ||
+        (queueMessage.type !== NotificationType.AddLogin &&
+          queueMessage.type !== NotificationType.ChangePassword)
+      ) {
         continue;
       }
 
-      const tabDomain = Utils.getDomain(tab.url);
-      if (tabDomain != null && tabDomain !== queueMessage.domain) {
+      if (!this.queueMessageIsFromTabOrigin(queueMessage, tab)) {
         continue;
       }
 
-      this.notificationQueue.splice(i, 1);
-      BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(getOptionalUserId),
+      );
 
-      if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
-        const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId);
-        await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+      if (queueMessage.type === NotificationType.ChangePassword) {
+        const {
+          data: { newPassword },
+        } = queueMessage;
+        const cipherView = await this.getDecryptedCipherById(cipherId, activeUserId);
+
+        await this.updatePassword(cipherView, newPassword, edit, tab, activeUserId, skipReprompt);
         return;
       }
 
-      if (queueMessage.type === NotificationQueueMessageType.AddLogin) {
-        // If the vault was locked, check if a cipher needs updating instead of creating a new one
-        if (queueMessage.wasVaultLocked) {
-          const allCiphers = await this.cipherService.getAllDecryptedForUrl(queueMessage.uri);
-          const existingCipher = allCiphers.find(
-            (c) =>
-              c.login.username != null && c.login.username.toLowerCase() === queueMessage.username,
+      this.notificationQueue.splice(i, 1);
+
+      // If the vault was locked, check if a cipher needs updating instead of creating a new one
+      if (queueMessage.wasVaultLocked) {
+        const allCiphers = await this.cipherService.getAllDecryptedForUrl(
+          queueMessage.data.uri,
+          activeUserId,
+        );
+        const existingCipher = allCiphers.find(
+          (c) =>
+            c.login.username != null &&
+            c.login.username.toLowerCase() === queueMessage.data.username,
+        );
+
+        if (existingCipher != null) {
+          await this.updatePassword(
+            existingCipher,
+            queueMessage.data.password,
+            edit,
+            tab,
+            activeUserId,
           );
-
-          if (existingCipher != null) {
-            await this.updatePassword(existingCipher, queueMessage.password, edit, tab);
-            return;
-          }
-        }
-
-        folderId = (await this.folderExists(folderId)) ? folderId : null;
-        const newCipher = AddLoginQueueMessage.toCipherView(queueMessage, folderId);
-
-        if (edit) {
-          await this.editItem(newCipher, tab);
           return;
         }
+      }
 
-        const cipher = await this.cipherService.encrypt(newCipher);
-        await this.cipherService.createWithServer(cipher);
-        BrowserApi.tabSendMessageData(tab, "addedCipher");
+      folderId = (await this.folderExists(folderId, activeUserId)) ? folderId : null;
+      const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
+
+      if (edit) {
+        await this.editItem(newCipher, activeUserId, tab);
+        await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+        return;
+      }
+
+      try {
+        const resultCipher = await this.cipherService.createWithServer(newCipher, activeUserId);
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          itemName: newCipher?.name && String(newCipher?.name),
+          cipherId: resultCipher?.id && String(resultCipher?.id),
+        });
+        await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
+      } catch (error) {
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          error: error?.message && String(error.message),
+        });
       }
     }
   }
 
+  /**
+   * Handles updating an existing cipher's password. If the cipher
+   * is being edited, a popup will be opened to allow the user to
+   * edit the cipher.
+   *
+   * @param cipherView - The cipher to update
+   * @param newPassword - The new password to update the cipher with
+   * @param edit - Identifies if the cipher should be edited or simply updated
+   * @param tab - The tab that the message was sent from
+   * @param userId - The active account user ID
+   */
   private async updatePassword(
     cipherView: CipherView,
     newPassword: string,
     edit: boolean,
     tab: chrome.tabs.Tab,
+    userId: UserId,
+    skipReprompt: boolean = false,
   ) {
     cipherView.login.password = newPassword;
 
     if (edit) {
-      await this.editItem(cipherView, tab);
-      BrowserApi.tabSendMessage(tab, "editedCipher");
+      await this.editItem(cipherView, userId, tab);
+      await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+      await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
 
-    const cipher = await this.cipherService.encrypt(cipherView);
-    await this.cipherService.updateWithServer(cipher);
-    // We've only updated the password, no need to broadcast editedCipher message
-    return;
+    try {
+      if (!cipherView.edit) {
+        throw new Error("You do not have permission to edit this cipher.");
+      }
+      const tasks = await this.getSecurityTasks(userId);
+      const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
+      const cipherHasTask = !!updatedCipherTask?.id;
+
+      let taskOrgName: string;
+      if (cipherHasTask && updatedCipherTask?.organizationId) {
+        const userOrgs = await this.getOrgData();
+        taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
+      }
+
+      const taskData = cipherHasTask
+        ? {
+            remainingTasksCount: tasks.length - 1,
+            orgName: taskOrgName,
+          }
+        : undefined;
+
+      if (cipherView.reprompt && !skipReprompt) {
+        await this.autofillService.isPasswordRepromptRequired(cipherView, tab, UPDATE_PASSWORD);
+
+        return;
+      }
+
+      await this.cipherService.updateWithServer(cipherView, userId);
+
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        itemName: cipherView?.name && String(cipherView?.name),
+        cipherId: cipherView?.id && String(cipherView.id),
+        task: taskData,
+      });
+
+      // If the cipher had a security task, mark it as complete
+      if (cipherHasTask) {
+        // guard against multiple (redundant) security tasks per cipher
+        await Promise.all(
+          tasks.map((task) => {
+            if (task.cipherId === cipherView?.id) {
+              return this.taskService.markAsComplete(task.id, userId);
+            }
+          }),
+        );
+      }
+    } catch (error) {
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        error: error?.message && String(error.message),
+      });
+    }
   }
 
-  private async editItem(cipherView: CipherView, senderTab: chrome.tabs.Tab) {
-    await this.stateService.setAddEditCipherInfo({
-      cipher: cipherView,
-      collectionIds: cipherView.collectionIds,
-    });
+  /**
+   * Sets the add/edit cipher info in the cipher service
+   * and opens the add/edit vault item popout.
+   *
+   * @param cipherView - The cipher to edit
+   * @param userId - The active account user ID
+   * @param senderTab - The tab that the message was sent from
+   */
+  private async editItem(cipherView: CipherView, userId: UserId, senderTab: chrome.tabs.Tab) {
+    await this.cipherService.setAddEditCipherInfo(
+      {
+        cipher: cipherView,
+        collectionIds: cipherView.collectionIds,
+      },
+      userId,
+    );
 
-    await openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView?.id });
   }
 
-  private async folderExists(folderId: string) {
+  private async openAddEditVaultItem(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
+    const { cipherId, organizationId, folder } = message;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (cipherId) {
+      await this.openAddEditVaultItemPopout(senderTab, { cipherId });
+      return;
+    }
+
+    const queueItem = this.notificationQueue.find((item) => item.tab.id === senderTab.id);
+
+    if (queueItem?.type === NotificationType.AddLogin) {
+      const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
+      cipherView.organizationId = organizationId;
+      cipherView.folderId = folder;
+
+      if (userId) {
+        await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
+      }
+
+      await this.openAddEditVaultItemPopout(senderTab);
+      this.removeTabFromNotificationQueue(senderTab);
+      return;
+    }
+
+    await this.openAddEditVaultItemPopout(senderTab);
+  }
+
+  private async viewItem(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
+    await Promise.all([
+      this.openViewVaultItemPopout(senderTab, {
+        cipherId: message.cipherId,
+        action: null,
+      }),
+      BrowserApi.tabSendMessageData(senderTab, "closeNotificationBar", {
+        fadeOutNotification: !!message.fadeOutNotification,
+      }),
+    ]);
+  }
+
+  private async folderExists(folderId: string, userId: UserId) {
     if (Utils.isNullOrWhitespace(folderId) || folderId === "null") {
       return false;
     }
-
-    const folders = await firstValueFrom(this.folderService.folderViews$);
+    const folders = await firstValueFrom(this.folderService.folderViews$(userId));
     return folders.some((x) => x.id === folderId);
   }
 
-  private async getDecryptedCipherById(cipherId: string) {
-    const cipher = await this.cipherService.get(cipherId);
+  private async getDecryptedCipherById(cipherId: string, userId: UserId) {
+    const cipher = await this.cipherService.get(cipherId, userId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      return await cipher.decrypt(await this.cipherService.getKeyForCipherKeyDecryption(cipher));
+      return await this.cipherService.decrypt(cipher, userId);
     }
     return null;
   }
 
+  async getSecurityTasks(userId: UserId) {
+    let tasks: SecurityTask[] = [];
+
+    if (userId) {
+      tasks = await firstValueFrom(
+        this.taskService.tasksEnabled$(userId).pipe(
+          switchMap((tasksEnabled) => {
+            if (!tasksEnabled) {
+              return of([]);
+            }
+
+            return this.taskService
+              .pendingTasks$(userId)
+              .pipe(
+                map((tasks) =>
+                  tasks.filter(({ type }) => type === SecurityTaskType.UpdateAtRiskCredential),
+                ),
+              );
+          }),
+        ),
+      );
+    }
+
+    return tasks;
+  }
+
+  /**
+   * Saves the current tab's domain to the never save list.
+   *
+   * @param tab - The tab that sent the neverSave message
+   */
   private async saveNever(tab: chrome.tabs.Tab) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
-      if (
-        queueMessage.tab.id !== tab.id ||
-        queueMessage.type !== NotificationQueueMessageType.AddLogin
-      ) {
+      if (queueMessage.tab.id !== tab.id || queueMessage.type !== NotificationType.AddLogin) {
         continue;
       }
 
-      const tabDomain = Utils.getDomain(tab.url);
-      if (tabDomain != null && tabDomain !== queueMessage.domain) {
+      if (!this.queueMessageIsFromTabOrigin(queueMessage, tab)) {
         continue;
       }
 
       this.notificationQueue.splice(i, 1);
-      BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
+      await BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       const hostname = Utils.getHostname(tab.url);
       await this.cipherService.saveNeverDomain(hostname);
     }
   }
 
-  private async getDataForTab(tab: chrome.tabs.Tab, responseCommand: string) {
-    const responseData: any = {};
-    if (responseCommand === "notificationBarGetFoldersList") {
-      responseData.folders = await firstValueFrom(this.folderService.folderViews$);
-    }
+  /**
+   * Returns the first value found from the folder service's folderViews$ observable.
+   */
+  private async getFolderData() {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    return await firstValueFrom(this.folderService.folderViews$(activeUserId));
+  }
 
-    await BrowserApi.tabSendMessageData(tab, responseCommand, responseData);
+  private async getCollectionData(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<CollectionView[]> {
+    const collections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+        map((collections) =>
+          collections.reduce<CollectionView[]>((acc, collection) => {
+            if (collection.organizationId === message?.orgId) {
+              acc.push({
+                id: collection.id,
+                name: collection.name,
+                organizationId: collection.organizationId,
+              });
+            }
+            return acc;
+          }, []),
+        ),
+      ),
+    );
+    return collections;
+  }
+
+  private async getWebVaultUrl(): Promise<string> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    return env.getWebVaultUrl();
   }
 
   private async removeIndividualVault(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        ),
+      ),
     );
   }
 
+  /**
+   * Returns the first value found from the organization service organizations$ observable.
+   */
+  private async getOrgData() {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(activeUserId),
+    );
+
+    return organizations.map((org) => {
+      const { id, name, productTierType } = org;
+      return {
+        id,
+        name,
+        productTierType,
+      };
+    });
+  }
+
+  /**
+   * Handles the unlockCompleted extension message. Will close the notification bar
+   * after an attempted autofill action, and retry the autofill action if the message
+   * contains a follow-up command.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
   private async handleUnlockCompleted(
-    messageData: LockedVaultPendingNotificationsItem,
+    message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
-    if (messageData.commandToRetry.msg.command === "autofill_login") {
+    this.unlockPopoutTabId = undefined;
+    const messageData = message.data as LockedVaultPendingNotificationsData;
+    const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
+    if (this.allowedRetryCommands.has(retryCommand)) {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 
@@ -541,9 +1654,183 @@ export default class NotificationBackground {
       return;
     }
 
-    await this.processMessage(
-      messageData.commandToRetry.msg.command,
-      messageData.commandToRetry.sender,
+    const retryHandler: CallableFunction | undefined = this.extensionMessageHandlers[retryCommand];
+    if (retryHandler) {
+      retryHandler({
+        message: messageData.commandToRetry.message,
+        sender: messageData.commandToRetry.sender,
+      });
+    }
+  }
+
+  /**
+   * Sends a message back to the sender tab which
+   * triggers closure of the notification bar.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleCloseNotificationBarMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+      fadeOutNotification: !!message.fadeOutNotification,
+    });
+  }
+
+  /**
+   * Sends a message to the background to open the
+   * at-risk passwords extension view. Triggers
+   * notification closure as a side-effect.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleOpenAtRiskPasswordsMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+
+      await Promise.all([
+        this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
+        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+          fadeOutNotification: !!message.fadeOutNotification,
+        }),
+      ]);
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: "popup/index.html#/",
+      });
+    }
+  }
+
+  /**
+   * Sends a message back to the sender tab which triggers
+   * an CSS adjustment of the notification bar.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleAdjustNotificationBarMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
+  }
+
+  /**
+   * Accepts a login queue message and converts it into a
+   * login uri view, login view, and cipher view.
+   *
+   * @param message - The message to convert to a cipher view
+   * @param folderId - The folder to add the cipher to
+   */
+  private convertAddLoginQueueMessageToCipherView(
+    message: AddLoginQueueMessage,
+    folderId?: string,
+  ): CipherView {
+    const uriView = new LoginUriView();
+    uriView.uri = message.data.uri;
+
+    const loginView = new LoginView();
+    loginView.uris = [uriView];
+    loginView.username = message.data.username;
+    loginView.password = message.data.password;
+
+    const cipherView = new CipherView();
+    cipherView.name = (Utils.getHostname(message.data.uri) || message.domain).replace(/^www\./, "");
+    cipherView.folderId = folderId;
+    cipherView.type = CipherType.Login;
+    cipherView.login = loginView;
+
+    return cipherView;
+  }
+
+  private setupExtensionMessageListener() {
+    BrowserApi.messageListener("notification.background", this.handleExtensionMessage);
+  }
+
+  private handleExtensionMessage = (
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
+    const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
+    if (!handler) {
+      return null;
+    }
+
+    const messageResponse = handler({ message, sender });
+    if (typeof messageResponse === "undefined") {
+      return null;
+    }
+
+    Promise.resolve(messageResponse)
+      .then((response) => sendResponse(response))
+      .catch((error) => this.logService.error(error));
+    return true;
+  };
+
+  /**
+   * Validates whether the queue message is associated with the passed tab.
+   *
+   * @param queueMessage - The queue message to check
+   * @param tab - The tab to check the queue message against
+   */
+  private queueMessageIsFromTabOrigin(
+    queueMessage: NotificationQueueMessageItem,
+    tab: chrome.tabs.Tab,
+  ) {
+    const tabDomain = Utils.getDomain(tab.url);
+    return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+  }
+
+  private setupUnlockPopoutCloseListener() {
+    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+      await this.handleUnlockPopoutClosed(tabId);
+    });
+  }
+
+  /**
+   * If the unlock popout is closed while the vault
+   * is still locked and there are pending autofill notifications, abandon them.
+   */
+  private async handleUnlockPopoutClosed(removedTabId: number) {
+    const authStatus = await this.getAuthStatus();
+    if (authStatus >= AuthenticationStatus.Unlocked) {
+      this.unlockPopoutTabId = undefined;
+      return;
+    }
+
+    if (this.unlockPopoutTabId === removedTabId) {
+      this.unlockPopoutTabId = undefined;
+      this.messagingService.send("abandonAutofillPendingNotifications");
+      return;
+    }
+
+    if (this.unlockPopoutTabId) {
+      return;
+    }
+
+    const extensionUrl = BrowserApi.getRuntimeURL("popup/index.html");
+    const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
+      (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
     );
+
+    if (unlockPopoutTabs.length === 0) {
+      this.messagingService.send("abandonAutofillPendingNotifications");
+    } else if (unlockPopoutTabs[0].id) {
+      this.unlockPopoutTabId = unlockPopoutTabs[0].id;
+    }
   }
 }

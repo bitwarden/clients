@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./menu.stories";
 
@@ -9,8 +9,27 @@ import * as stories from "./menu.stories";
 Menus are used to help organize related options. Menus are most often used for item options in
 tables.
 
-<Story of={stories.ClosedMenu} />
-<Controls />
+<Canvas of={stories.ClosedMenu} />
+
+<br />
+
+## Slots
+
+`bitMenuItem` supports the following slots:
+
+| Slot           | Description                                         |
+| -------------- | --------------------------------------------------- |
+| default        | primary text or arbitrary content                   |
+| `slot="start"` | commonly an icon or avatar; before the default slot |
+| `slot="end"`   | commonly an icon; after the default slot            |
+
+```html
+<button type="button" bitMenuItem>
+  <i class="bwi bwi-key" slot="start"></i>
+  Menu item with icons
+  <i class="bwi bwi-angle-right" slot="end"></i>
+</button>
+```
 
 ## Accessibility
 

@@ -1,19 +1,19 @@
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 
 export class Fido2CredentialData {
-  credentialId: string;
-  keyType: "public-key";
-  keyAlgorithm: "ECDSA";
-  keyCurve: "P-256";
-  keyValue: string;
-  rpId: string;
-  userHandle: string;
-  userName: string;
-  counter: string;
-  rpName: string;
-  userDisplayName: string;
-  discoverable: string;
-  creationDate: string;
+  credentialId!: string;
+  keyType!: string;
+  keyAlgorithm!: string;
+  keyCurve!: string;
+  keyValue!: string;
+  rpId!: string;
+  userHandle?: string;
+  userName?: string;
+  counter!: string;
+  rpName?: string;
+  userDisplayName?: string;
+  discoverable!: string;
+  creationDate!: string;
 
   constructor(data?: Fido2CredentialApi) {
     if (data == null) {

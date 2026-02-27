@@ -13,7 +13,7 @@
           aria-hidden="true"
           [ngClass]="{
             'bwi-angle-right': isCollapsed(foldersGrouping),
-            'bwi-angle-down': !isCollapsed(foldersGrouping)
+            'bwi-angle-down': !isCollapsed(foldersGrouping),
           }"
         ></i>
         &nbsp;{{ foldersGrouping.name | i18n }}
@@ -33,7 +33,7 @@
       <li
         *ngFor="let f of folders"
         [ngClass]="{
-          active: f.node.id === activeFilter.selectedFolderId && activeFilter.selectedFolder
+          active: f.node.id === activeFilter.selectedFolderId && activeFilter.selectedFolder,
         }"
         class="filter-option"
       >
@@ -52,7 +52,7 @@
               aria-hidden="true"
               [ngClass]="{
                 'bwi-angle-right': isCollapsed(f.node),
-                'bwi-angle-down': !isCollapsed(f.node)
+                'bwi-angle-down': !isCollapsed(f.node),
               }"
             ></i>
           </button>

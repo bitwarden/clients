@@ -1,18 +1,17 @@
-import { CollectionView } from "@bitwarden/common/src/vault/models/view/collection.view";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { VaultItemEvent as BaseVaultItemEvent } from "@bitwarden/vault";
+import { CollectionPermission } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
-import { VaultItem } from "./vault-item";
-
-export type VaultItemEvent =
-  | { type: "viewAttachments"; item: CipherView }
-  | { type: "viewCollections"; item: CipherView }
+// Extend base events with web-specific events
+export type VaultItemEvent<C extends CipherViewLike> =
+  | BaseVaultItemEvent<C>
+  | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
   | { type: "bulkEditCollectionAccess"; items: CollectionView[] }
-  | { type: "viewCollectionAccess"; item: CollectionView }
-  | { type: "viewEvents"; item: CipherView }
-  | { type: "editCollection"; item: CollectionView }
-  | { type: "clone"; item: CipherView }
-  | { type: "restore"; items: CipherView[] }
-  | { type: "delete"; items: VaultItem[] }
-  | { type: "copyField"; item: CipherView; field: "username" | "password" | "totp" }
-  | { type: "moveToFolder"; items: CipherView[] }
-  | { type: "moveToOrganization"; items: CipherView[] };
+  | {
+      type: "viewCollectionAccess";
+      item: CollectionView;
+      readonly: boolean;
+      initialPermission?: CollectionPermission;
+    }
+  | { type: "editCollection"; item: CollectionView; readonly: boolean };

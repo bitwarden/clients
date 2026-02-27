@@ -1,13 +1,8 @@
 {
   "devFlags": {
-    "storeSessionDecrypted": false,
     "managedEnvironment": {
       "base": "https://localhost:8080"
-    }
-  },
-  "flags": {
-    "showPasswordless": true,
-    "enableCipherKeyEncryption": false,
-    "accountSwitching": true
+    },
+    "skipWelcomeOnInstall": true
   }
 }

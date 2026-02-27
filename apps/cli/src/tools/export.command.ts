@@ -1,16 +1,23 @@
-import * as program from "commander";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ExportFormat,
   EXPORT_FORMATS,
   VaultExportServiceAbstraction,
-} from "@bitwarden/exporter/vault-export";
+  ExportedVault,
+  ExportedVaultAsBlob,
+} from "@bitwarden/vault-export-core";
 
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
@@ -20,19 +27,31 @@ export class ExportCommand {
     private exportService: VaultExportServiceAbstraction,
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
-  async run(options: program.OptionValues): Promise<Response> {
-    if (
-      options.organizationid == null &&
-      (await this.policyService.policyAppliesToUser(PolicyType.DisablePersonalVaultExport))
-    ) {
+  async run(options: OptionValues): Promise<Response> {
+    const policyApplies$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisablePersonalVaultExport, userId),
+      ),
+    );
+
+    if (options.organizationid == null && (await firstValueFrom(policyApplies$))) {
       return Response.badRequest(
         "One or more organization policies prevents you from exporting your personal vault.",
       );
     }
 
-    const format = options.format ?? "csv";
+    let password = options.password;
+
+    // has password and format is 'json' => should have the same behaviour as 'encrypted_json'
+    // format is 'undefined' => Defaults to 'csv'
+    // Any other case => returns the options.format
+    const format =
+      password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
+
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(
         `'${format}' is not a supported export format. Supported formats: ${EXPORT_FORMATS.join(
@@ -45,57 +64,53 @@ export class ExportCommand {
       return Response.error("`" + options.organizationid + "` is not a GUID.");
     }
 
-    let exportContent: string = null;
+    let exportContent: ExportedVault = null;
     try {
+      if (format === "encrypted_json") {
+        password = await this.promptPassword(password);
+      }
+
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
       exportContent =
-        format === "encrypted_json"
-          ? await this.getProtectedExport(options.password, options.organizationid)
-          : await this.getUnprotectedExport(format, options.organizationid);
+        options.organizationid == null
+          ? await this.exportService.getExport(userId, format, password)
+          : await this.exportService.getOrganizationExport(
+              userId,
+              options.organizationid,
+              format,
+              password,
+            );
 
       const eventType = options.organizationid
         ? EventType.Organization_ClientExportedVault
         : EventType.User_ClientExportedVault;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(eventType, null, true, options.organizationid);
     } catch (e) {
       return Response.error(e);
     }
-    return await this.saveFile(exportContent, options, format);
+    return await this.saveFile(exportContent, options);
   }
 
-  private async getProtectedExport(passwordOption: string | boolean, organizationId?: string) {
-    const password = await this.promptPassword(passwordOption);
-    return password == null
-      ? await this.exportService.getExport("encrypted_json", organizationId)
-      : await this.exportService.getPasswordProtectedExport(password, organizationId);
-  }
-
-  private async getUnprotectedExport(format: ExportFormat, organizationId?: string) {
-    return this.exportService.getExport(format, organizationId);
-  }
-
-  private async saveFile(
-    exportContent: string,
-    options: program.OptionValues,
-    format: ExportFormat,
-  ): Promise<Response> {
+  private async saveFile(exportContent: ExportedVault, options: OptionValues): Promise<Response> {
     try {
-      const fileName = this.getFileName(format, options.organizationid != null ? "org" : null);
-      return await CliUtils.saveResultToFile(exportContent, options.output, fileName);
+      if (exportContent.type === "application/zip") {
+        exportContent = exportContent as ExportedVaultAsBlob;
+        const arrayBuffer = await exportContent.data.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        return await CliUtils.saveResultToFile(buffer, options.output, exportContent.fileName);
+      }
+
+      return await CliUtils.saveResultToFile(
+        exportContent.data,
+        options.output,
+        exportContent.fileName,
+      );
     } catch (e) {
       return Response.error(e.toString());
     }
-  }
-
-  private getFileName(format: ExportFormat, prefix?: string) {
-    if (format === "encrypted_json") {
-      if (prefix == null) {
-        prefix = "encrypted";
-      } else {
-        prefix = "encrypted_" + prefix;
-      }
-      format = "json";
-    }
-    return this.exportService.getFileName(prefix, format);
   }
 
   private async promptPassword(password: string | boolean) {

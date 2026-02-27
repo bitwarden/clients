@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import * as papa from "papaparse";
 
 import { EventView } from "@bitwarden/common/models/view/event.view";
-import { ExportHelper } from "@bitwarden/exporter/export-helper";
+import { ExportHelper } from "@bitwarden/vault-export-core";
 
 import { EventExport } from "./event.export";
 
@@ -15,6 +17,6 @@ export class EventExportService {
   }
 
   getFileName(prefix: string = null, extension = "csv"): string {
-    return ExportHelper.getFileName(prefix, extension);
+    return ExportHelper.getFileName(prefix ?? "", extension);
   }
 }

@@ -1,14 +1,22 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 export class I18nMainService extends BaseI18nService {
-  constructor(systemLanguage: string, localesDirectory: string) {
-    super(systemLanguage, localesDirectory, (formattedLocale: string) =>
-      this.readLanguageFile(formattedLocale),
+  constructor(
+    systemLanguage: string,
+    localesDirectory: string,
+    globalStateProvider: GlobalStateProvider,
+  ) {
+    super(
+      systemLanguage,
+      localesDirectory,
+      (formattedLocale: string) => this.readLanguageFile(formattedLocale),
+      globalStateProvider,
     );
 
     ipcMain.handle("getLanguageFile", async (event, formattedLocale: string) =>
@@ -27,6 +35,7 @@ export class I18nMainService extends BaseI18nService {
       "bs",
       "ca",
       "cs",
+      "cy",
       "da",
       "de",
       "el",
@@ -40,6 +49,7 @@ export class I18nMainService extends BaseI18nService {
       "fi",
       "fil",
       "fr",
+      "gl",
       "he",
       "hi",
       "hr",
@@ -51,13 +61,18 @@ export class I18nMainService extends BaseI18nService {
       "km",
       "kn",
       "ko",
+      "lt",
       "lv",
       "me",
       "ml",
+      "mr",
+      "my",
       "nb",
+      "ne",
       "nl",
       "nn",
       "pl",
+      "or",
       "pt-BR",
       "pt-PT",
       "ro",
@@ -67,6 +82,8 @@ export class I18nMainService extends BaseI18nService {
       "sl",
       "sr",
       "sv",
+      "ta",
+      "te",
       "th",
       "tr",
       "uk",
@@ -74,6 +91,12 @@ export class I18nMainService extends BaseI18nService {
       "zh-CN",
       "zh-TW",
     ];
+  }
+
+  override async init(): Promise<void> {
+    // Set system language to electron language
+    this.systemLanguage = app.getLocale();
+    await super.init();
   }
 
   private readLanguageFile(formattedLocale: string): Promise<any> {

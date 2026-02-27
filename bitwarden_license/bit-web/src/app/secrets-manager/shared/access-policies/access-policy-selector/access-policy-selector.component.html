@@ -1,4 +1,4 @@
-<div class="tw-flex">
+<div class="tw-flex tw-gap-3">
   <ng-container *ngIf="!addButtonMode; else buttonMode">
     <bit-form-field class="tw-grow">
       <bit-label>{{ label }}</bit-label>
@@ -29,14 +29,17 @@
         bitRow
         *ngFor="let item of selectionList.selectedItems; let i = index"
         [formGroupName]="i"
+        [ngClass]="{ 'tw-text-muted': item.readOnly }"
       >
         <td bitCell class="tw-w-0 tw-pr-0">
-          <i class="bwi {{ item.icon }} tw-text-muted" aria-hidden="true"></i>
+          <i class="bwi {{ item.icon }}" aria-hidden="true"></i>
         </td>
-        <td bitCell class="tw-max-w-sm tw-truncate">{{ item.labelName }}</td>
+        <td bitCell class="tw-max-w-sm tw-truncate">
+          {{ item.labelName }}
+        </td>
         <td bitCell class="tw-mb-auto tw-inline-block tw-w-auto">
           <select
-            *ngIf="!staticPermission; else static"
+            *ngIf="!staticPermission && !item.readOnly; else readOnly"
             bitInput
             formControlName="permission"
             (blur)="handleBlur()"
@@ -45,18 +48,26 @@
               {{ p.labelId | i18n }}
             </option>
           </select>
+          <ng-template #readOnly>
+            <ng-container *ngIf="item.readOnly; else static">
+              <div class="tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap">
+                {{ item.permission | i18n }}
+              </div>
+            </ng-container>
+          </ng-template>
           <ng-template #static>
             <span>{{ staticPermission | i18n }}</span>
           </ng-template>
         </td>
         <td bitCell class="tw-w-0">
           <button
+            *ngIf="!item.readOnly"
             type="button"
             bitIconButton="bwi-close"
             buttonType="main"
             size="default"
-            [attr.title]="'remove' | i18n"
-            [attr.aria-label]="'remove' | i18n"
+            [disabled]="disabled"
+            [label]="'remove' | i18n"
             (click)="selectionList.deselectItem(item.id); handleBlur()"
           ></button>
         </td>
@@ -66,9 +77,11 @@
 </bit-table>
 
 <ng-template #empty>
-  <div class="tw-mt-4 tw-text-center">
-    {{ emptyMessage }}
-  </div>
+  <tr bitRow>
+    <td bitCell colspan="3" class="tw-text-center">
+      {{ emptyMessage }}
+    </td>
+  </tr>
 </ng-template>
 
 <ng-template #buttonMode>
@@ -83,8 +96,15 @@
     <bit-hint>{{ hint }}</bit-hint>
   </bit-form-field>
 
-  <div class="tw-ml-3 tw-mt-7 tw-shrink-0">
-    <button type="button" bitButton buttonType="secondary" (click)="addButton()">
+  <div class="tw-shrink-0 tw-mt-[0.6rem]">
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [loading]="loading"
+      [disabled]="disabled"
+      (click)="addButton()"
+    >
       {{ "add" | i18n }}
     </button>
   </div>

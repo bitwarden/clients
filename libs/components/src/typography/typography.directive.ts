@@ -1,18 +1,17 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Directive, HostBinding, Input } from "@angular/core";
+import { booleanAttribute, Directive, HostBinding, input } from "@angular/core";
 
 type TypographyType = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "body2" | "helper";
 
 const styles: Record<TypographyType, string[]> = {
-  h1: ["tw-text-3xl", "tw-font-semibold"],
-  h2: ["tw-text-2xl", "tw-font-semibold"],
-  h3: ["tw-text-xl", "tw-font-semibold"],
-  h4: ["tw-text-lg", "tw-font-semibold"],
-  h5: ["tw-text-base", "tw-font-semibold"],
-  h6: ["tw-text-sm", "tw-font-semibold"],
-  body1: ["tw-text-base"],
-  body2: ["tw-text-sm"],
-  helper: ["tw-text-xs"],
+  h1: ["!tw-text-3xl", "tw-text-main", "tw-font-medium"],
+  h2: ["!tw-text-2xl", "tw-text-main", "tw-font-medium"],
+  h3: ["!tw-text-xl", "tw-text-main", "tw-font-medium"],
+  h4: ["!tw-text-lg", "tw-text-main", "tw-font-medium"],
+  h5: ["!tw-text-base", "tw-text-main", "tw-font-medium"],
+  h6: ["!tw-text-sm", "tw-text-main", "tw-font-medium"],
+  body1: ["!tw-text-base"],
+  body2: ["!tw-text-sm"],
+  helper: ["!tw-text-xs"],
 };
 
 const margins: Record<TypographyType, string[]> = {
@@ -20,8 +19,8 @@ const margins: Record<TypographyType, string[]> = {
   h2: ["tw-mb-2"],
   h3: ["tw-mb-2"],
   h4: ["tw-mb-2"],
-  h5: ["tw-mb-2"],
-  h6: ["tw-mb-2"],
+  h5: ["tw-mb-1.5"],
+  h6: ["tw-mb-1.5"],
   body1: [],
   body2: [],
   helper: [],
@@ -31,15 +30,13 @@ const margins: Record<TypographyType, string[]> = {
   selector: "[bitTypography]",
 })
 export class TypographyDirective {
-  @Input("bitTypography") bitTypography: TypographyType;
+  readonly bitTypography = input.required<TypographyType>();
 
-  private _margin = true;
-  @Input()
-  set noMargin(value: boolean | "") {
-    this._margin = !coerceBooleanProperty(value);
-  }
+  readonly noMargin = input(false, { transform: booleanAttribute });
 
   @HostBinding("class") get classList() {
-    return styles[this.bitTypography].concat(this._margin ? margins[this.bitTypography] : []);
+    return styles[this.bitTypography()].concat(
+      !this.noMargin() ? margins[this.bitTypography()] : [],
+    );
   }
 }

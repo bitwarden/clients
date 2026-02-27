@@ -1,72 +1,113 @@
-import { ViewChild, ViewContainerRef, Component, OnDestroy, OnInit } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
+import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserPublicKey } from "@bitwarden/common/types/key";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
-import { ChangeAvatarComponent } from "./change-avatar.component";
+import { DynamicAvatarComponent } from "../../../components/dynamic-avatar.component";
+import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
+import { SharedModule } from "../../../shared";
 
+import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
+  imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   loading = true;
   profile: ProfileResponse;
   fingerprintMaterial: string;
-
-  formPromise: Promise<any>;
-  @ViewChild("avatarModalTemplate", { read: ViewContainerRef, static: true })
-  avatarModalRef: ViewContainerRef;
+  userPublicKey: UserPublicKey;
+  managingOrganization$: Observable<Organization>;
   private destroy$ = new Subject<void>();
+
+  protected formGroup = new FormGroup({
+    name: new FormControl(null),
+    email: new FormControl(null),
+  });
 
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
+    private accountService: AccountService,
+    private dialogService: DialogService,
+    private toastService: ToastService,
+    private organizationService: OrganizationService,
+    private keyService: KeyService,
     private logService: LogService,
-    private stateService: StateService,
-    private modalService: ModalService,
   ) {}
 
   async ngOnInit() {
     this.profile = await this.apiService.getProfile();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.fingerprintMaterial = userId;
+    const publicKey = (await firstValueFrom(
+      this.keyService.userPublicKey$(userId),
+    )) as UserPublicKey;
+    if (publicKey == null) {
+      this.logService.error(
+        "[ProfileComponent] No public key available for the user: " +
+          userId +
+          " fingerprint can't be displayed.",
+      );
+    } else {
+      this.userPublicKey = publicKey;
+    }
+
+    this.managingOrganization$ = this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+      );
+
+    this.formGroup.get("name").setValue(this.profile.name);
+    this.formGroup.get("email").setValue(this.profile.email);
+
+    this.formGroup
+      .get("name")
+      .valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((name) => {
+        this.profile.name = name;
+      });
+
     this.loading = false;
-    this.fingerprintMaterial = await this.stateService.getUserId();
   }
+
+  openChangeAvatar = async () => {
+    ChangeAvatarDialogComponent.open(this.dialogService, {
+      data: { profile: this.profile },
+    });
+  };
 
   async ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  async openChangeAvatar() {
-    const modalOpened = await this.modalService.openViewRef(
-      ChangeAvatarComponent,
-      this.avatarModalRef,
-      (modal) => {
-        modal.profile = this.profile;
-        modal.changeColor.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modalOpened[0].close();
-        });
-      },
-    );
-  }
-
-  async submit() {
-    try {
-      const request = new UpdateProfileRequest(this.profile.name, this.profile.masterPasswordHint);
-      this.formPromise = this.apiService.putProfile(request);
-      await this.formPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("accountUpdated"));
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
+  submit = async () => {
+    const request = new UpdateProfileRequest(this.formGroup.get("name").value);
+    await this.apiService.putProfile(request);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("accountUpdated"),
+    });
+  };
 }

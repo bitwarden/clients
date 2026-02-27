@@ -1,7 +1,7 @@
 import MainBackground from "../../background/main.background";
 
+import { OverlayBackground } from "./abstractions/overlay.background";
 import NotificationBackground from "./notification.background";
-import OverlayBackground from "./overlay.background";
 
 export default class TabsBackground {
   constructor(
@@ -10,7 +10,7 @@ export default class TabsBackground {
     private overlayBackground: OverlayBackground,
   ) {}
 
-  private focusedWindowId: number;
+  private focusedWindowId: number = -1;
 
   /**
    * Initializes the window and tab listeners.
@@ -20,6 +20,14 @@ export default class TabsBackground {
       return;
     }
 
+    void this.updateCurrentTabData();
+    void this.setupTabEventListeners();
+  }
+
+  /**
+   * Sets up the tab and window event listeners.
+   */
+  private setupTabEventListeners() {
     chrome.windows.onFocusChanged.addListener(this.handleWindowOnFocusChanged);
     chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
     chrome.tabs.onReplaced.addListener(this.handleTabOnReplaced);
@@ -33,7 +41,7 @@ export default class TabsBackground {
    * @param windowId - The ID of the window that was focused.
    */
   private handleWindowOnFocusChanged = async (windowId: number) => {
-    if (!windowId) {
+    if (windowId == null || windowId < 0) {
       return;
     }
 
@@ -73,14 +81,9 @@ export default class TabsBackground {
    */
   private handleTabOnUpdated = async (
     tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
+    changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
   ) => {
-    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (removePageDetailsStatus.has(changeInfo.status)) {
-      this.overlayBackground.removePageDetails(tabId);
-    }
-
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }
@@ -89,7 +92,7 @@ export default class TabsBackground {
       return;
     }
 
-    await this.overlayBackground.updateOverlayCiphers();
+    await this.overlayBackground.updateOverlayCiphers(false);
 
     if (this.main.onUpdatedRan) {
       return;
@@ -97,7 +100,6 @@ export default class TabsBackground {
     this.main.onUpdatedRan = true;
 
     await this.notificationBackground.checkNotificationQueue(tab);
-    await this.main.refreshBadge();
     await this.main.refreshMenu();
     this.main.messagingService.send("tabChanged");
   };
@@ -116,8 +118,9 @@ export default class TabsBackground {
    * for the current tab. Also updates the overlay ciphers.
    */
   private updateCurrentTabData = async () => {
-    await this.main.refreshBadge();
-    await this.main.refreshMenu();
-    await this.overlayBackground.updateOverlayCiphers();
+    await Promise.all([
+      this.main.refreshMenu(),
+      this.overlayBackground.updateOverlayCiphers(false),
+    ]);
   };
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -39,12 +41,19 @@ export class Client {
   async openVault(
     username: string,
     password: string,
+    fragmentId: string,
     clientInfo: ClientInfo,
     ui: Ui,
     options: ParserOptions,
   ): Promise<Account[]> {
     const lowercaseUsername = username.toLowerCase();
-    const [session, rest] = await this.login(lowercaseUsername, password, clientInfo, ui);
+    const [session, rest] = await this.login(
+      lowercaseUsername,
+      password,
+      fragmentId,
+      clientInfo,
+      ui,
+    );
     try {
       const blob = await this.downloadVault(session, rest);
       const key = await this.cryptoUtils.deriveKey(
@@ -102,7 +111,7 @@ export class Client {
 
   private isComplete(chunks: Chunk[]): boolean {
     if (chunks.length > 0 && chunks[chunks.length - 1].id === "ENDM") {
-      const okChunk = Utils.fromBufferToUtf8(chunks[chunks.length - 1].payload);
+      const okChunk = Utils.fromArrayToUtf8(chunks[chunks.length - 1].payload);
       return okChunk === "OK";
     }
     return false;
@@ -111,6 +120,7 @@ export class Client {
   private async login(
     username: string,
     password: string,
+    fragmentId: string,
     clientInfo: ClientInfo,
     ui: Ui,
   ): Promise<[Session, RestClient]> {
@@ -142,6 +152,7 @@ export class Client {
       response = await this.performSingleLoginRequest(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         new Map<string, any>(),
         clientInfo,
@@ -191,6 +202,7 @@ export class Client {
       session = await this.loginWithOtp(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         optMethod,
         clientInfo,
@@ -203,6 +215,7 @@ export class Client {
       session = await this.loginWithOob(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         this.getAllErrorAttributes(response),
         clientInfo,
@@ -223,6 +236,7 @@ export class Client {
   private async loginWithOtp(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     method: OtpMethod,
     clientInfo: ClientInfo,
@@ -251,6 +265,7 @@ export class Client {
     const response = await this.performSingleLoginRequest(
       username,
       password,
+      fragmentId,
       keyIterationCount,
       new Map<string, string>([["otp", passcode.passcode]]),
       clientInfo,
@@ -270,6 +285,7 @@ export class Client {
   private async loginWithOob(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     parameters: Map<string, string>,
     clientInfo: ClientInfo,
@@ -282,6 +298,7 @@ export class Client {
       const response = await this.performSingleLoginRequest(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         extraParameters,
         clientInfo,
@@ -494,6 +511,7 @@ export class Client {
   private async performSingleLoginRequest(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     extraParameters: Map<string, any>,
     clientInfo: ClientInfo,
@@ -505,7 +523,7 @@ export class Client {
       ["method", PlatformToUserAgent.get(clientInfo.platform)],
       ["xml", "2"],
       ["username", username],
-      ["hash", Utils.fromBufferToHex(hash.buffer)],
+      ["hash", Utils.fromArrayToHex(hash)],
       ["iterations", keyIterationCount],
       ["includeprivatekeyenc", "1"],
       ["outofbandsupported", "1"],
@@ -513,6 +531,10 @@ export class Client {
       // TODO: Test against the real server if it's ok to send this every time!
       ["trustlabel", clientInfo.description],
     ]);
+    if (fragmentId != null) {
+      parameters.set("alpfragmentid", fragmentId);
+      parameters.set("calculatedfragmentid", fragmentId);
+    }
     for (const [key, value] of extraParameters) {
       parameters.set(key, value);
     }

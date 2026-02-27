@@ -1,5 +1,5 @@
 import {
-  AbstractMemoryStorageService,
+  AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 
@@ -14,7 +14,7 @@ type MemoryStoragePortMessage = {
   data: string | string[] | StorageUpdate;
   originator: "foreground" | "background";
   action?:
-    | keyof Pick<AbstractMemoryStorageService, "get" | "getBypassCache" | "has" | "save" | "remove">
+    | keyof Pick<AbstractStorageService, "get" | "has" | "save" | "remove">
     | "subject_update"
     | "initialization";
 };

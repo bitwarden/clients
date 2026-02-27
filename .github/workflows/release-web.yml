@@ -1,4 +1,3 @@
----
 name: Release Web
 run-name: Release Web ${{ inputs.release_type }}
 
@@ -15,19 +14,20 @@ on:
           - Redeploy
           - Dry Run
 
-env:
-  _AZ_REGISTRY: bitwardenprod.azurecr.io
-
 jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -49,182 +49,13 @@ jobs:
           monorepo: true
           monorepo-project: web
 
-  self-host:
-    name: Release self-host docker
-    runs-on: ubuntu-22.04
-    needs: setup
-    env:
-      _BRANCH_NAME: ${{ github.ref_name }}
-      _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
-      _RELEASE_OPTION: ${{ github.event.inputs.release_type }}
-    steps:
-      - name: Print environment
-        run: |
-          whoami
-          docker --version
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-          echo "Github Release Option: $_RELEASE_OPTION"
-
-      - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-
-      ########## ACR ##########
-      - name: Login to Azure - PROD Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
-        with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
-
-      - name: Login to Azure ACR
-        run: az acr login -n bitwardenprod
-
-      - name: Pull branch image
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker pull $_AZ_REGISTRY/web:latest
-          else
-            docker pull $_AZ_REGISTRY/web:$_BRANCH_NAME
-          fi
-
-      - name: Tag version
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web:dryrun
-            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web-sh:dryrun
-          else
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:latest
-            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:latest
-          fi
-
-      - name: Push version
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            docker push $_AZ_REGISTRY/web:dryrun
-            docker push $_AZ_REGISTRY/web-sh:dryrun
-          else
-            docker push $_AZ_REGISTRY/web:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
-            docker push $_AZ_REGISTRY/web:latest
-            docker push $_AZ_REGISTRY/web-sh:latest
-          fi
-
-      - name: Log out of Docker
-        run: docker logout
-
-
-  ghpages-deploy:
-    name: Create Deploy PR for GitHub Pages
-    runs-on: ubuntu-22.04
-    needs: setup
-    env:
-      _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
-      _TAG_VERSION: ${{ needs.setup.outputs.tag_version }}
-      _BRANCH: "v${{ needs.setup.outputs.release_version }}-deploy"
-    steps:
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Retrieve bot secrets
-        id: retrieve-bot-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: bitwarden-ci
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
-
-      - name: Checkout GH pages repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-        with:
-          repository: bitwarden/web-vault-pages
-          path: ghpages-deployment
-          token: ${{ steps.retrieve-bot-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
-
-      - name: Download latest cloud asset
-        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          workflow: build-web.yml
-          path: assets
-          workflow_conclusion: success
-          branch: ${{ github.ref_name }}
-          artifacts: web-*-cloud-COMMERCIAL.zip
-
-      - name: Dry Run - Download latest cloud asset
-        if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          workflow: build-web.yml
-          path: assets
-          workflow_conclusion: success
-          branch: master
-          artifacts: web-*-cloud-COMMERCIAL.zip
-
-      - name: Unzip build asset
-        working-directory: assets
-        run: unzip web-*-cloud-COMMERCIAL.zip
-
-      - name: Create new branch
-        run: |
-          cd ${{ github.workspace }}/ghpages-deployment
-          git config user.name = "GitHub Action Bot"
-          git config user.email = "<>"
-          git config --global url."https://github.com/".insteadOf ssh://git@github.com/
-          git config --global url."https://".insteadOf ssh://
-          git checkout -b ${_BRANCH}
-
-      - name: Copy build files
-        run: |
-          rm -rf ${{ github.workspace }}/ghpages-deployment/*
-          cp -Rf ${{ github.workspace }}/assets/build/* ghpages-deployment/
-
-      - name: Commit and push changes
-        working-directory: ghpages-deployment
-        run: |
-          git add .
-          git commit -m "Deploy Web v${_RELEASE_VERSION} to GitHub Pages"
-          git push --set-upstream origin ${_BRANCH} --force
-
-      - name: Create GitHub Pages Deploy PR
-        working-directory: ghpages-deployment
-        env:
-          GITHUB_TOKEN: ${{ steps.retrieve-bot-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
-        run: |
-          if [[ "${{ github.event.inputs.release_type }}" == "Dry Run" ]]; then
-            gh pr create --title "Deploy v${_RELEASE_VERSION} to GitHub Pages" \
-              --draft \
-              --body "Deploying v${_RELEASE_VERSION}" \
-              --base master \
-              --head "${_BRANCH}"
-          else
-            gh pr create --title "Deploy v${_RELEASE_VERSION} to GitHub Pages" \
-              --body "Deploying v${_RELEASE_VERSION}" \
-              --base master \
-              --head "${_BRANCH}"
-          fi
-
   release:
     name: Create GitHub Release
     runs-on: ubuntu-22.04
-    needs:
-      - setup
-      - self-host
-      - ghpages-deploy
+    needs: setup
+    permissions:
+      contents: write
     steps:
-      - name: Create GitHub deployment
-        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: chrnorm/deployment-action@d42cde7132fcec920de534fffc3be83794335c00 # v2.0.5
-        id: deployment
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          initial-status: 'in_progress'
-          environment-url: http://vault.bitwarden.com
-          environment: 'Web Vault - Production'
-          description: 'Deployment ${{ needs.setup.outputs.release_version }} from branch ${{ github.ref_name }}'
-          task: release
-
       - name: Download latest build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -243,19 +74,21 @@ jobs:
           workflow: build-web.yml
           path: apps/web/artifacts
           workflow_conclusion: success
-          branch: master
+          branch: main
           artifacts: "web-*-selfhosted-COMMERCIAL.zip,
             web-*-selfhosted-open-source.zip"
 
       - name: Rename assets
         working-directory: apps/web/artifacts
+        env:
+          RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
-          mv web-*-selfhosted-COMMERCIAL.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-COMMERCIAL.zip
-          mv web-*-selfhosted-open-source.zip web-${{ needs.setup.outputs.release_version }}-selfhosted-open-source.zip
+          mv web-*-selfhosted-COMMERCIAL.zip "web-${RELEASE_VERSION}-selfhosted-COMMERCIAL.zip"
+          mv web-*-selfhosted-open-source.zip "web-${RELEASE_VERSION}-selfhosted-open-source.zip"
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e # v1.12.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           name: "Web v${{ needs.setup.outputs.release_version }}"
           commit: ${{ github.sha }}
@@ -265,21 +98,3 @@ jobs:
             apps/web/artifacts/web-${{ needs.setup.outputs.release_version }}-selfhosted-open-source.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
-
-      - name: Update deployment status to Success
-        if: ${{ github.event.inputs.release_type != 'Dry Run' && success() }}
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          environment-url: http://vault.bitwarden.com
-          state: 'success'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-      - name: Update deployment status to Failure
-        if: ${{ github.event.inputs.release_type != 'Dry Run' && failure() }}
-        uses: chrnorm/deployment-status@2afb7d27101260f4a764219439564d954d10b5b0 # v2.0.1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          environment-url: http://vault.bitwarden.com
-          state: 'failure'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}

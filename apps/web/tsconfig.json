@@ -1,30 +1,13 @@
 {
-  "extends": "../../libs/shared/tsconfig",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "module": "ES2020",
-    "resolveJsonModule": true,
-    "paths": {
-      "@bitwarden/angular/*": ["../../libs/angular/src/*"],
-      "@bitwarden/auth": ["../../libs/auth/src"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/components": ["../../libs/components/src"],
-      "@bitwarden/exporter/*": ["../../libs/exporter/src/*"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
-      "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
-      "@bitwarden/vault": ["../../libs/vault/src"],
-      "@bitwarden/web-vault/*": ["src/*"]
-    }
-  },
+  "extends": "../../tsconfig.base",
   "angularCompilerOptions": {
-    "strictTemplates": true,
-    "preserveWhitespaces": true
+    "strictTemplates": true
   },
-  "files": ["src/polyfills.ts", "src/main.ts", "../../bitwarden_license/bit-web/src/main.ts"],
+  "files": ["src/polyfills.ts", "src/main.ts", "src/theme.ts"],
   "include": [
     "src/connectors/*.ts",
+    "src/connectors/platform/*.ts",
     "src/**/*.stories.ts",
-    "src/**/*.spec.ts",
-    "../../libs/common/src/platform/services/**/*.worker.ts"
+    "src/**/*.spec.ts"
   ]
 }

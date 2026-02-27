@@ -65,15 +65,17 @@ export class AccountMenu implements IMenubarMenu {
       id: "changeMasterPass",
       click: async () => {
         const result = await dialog.showMessageBox(this._window, {
-          title: this.localize("changeMasterPass"),
-          message: this.localize("changeMasterPass"),
-          detail: this.localize("changeMasterPasswordConfirmation"),
-          buttons: [this.localize("yes"), this.localize("no")],
+          title: this.localize("continueToWebApp"),
+          message: this.localize("continueToWebApp"),
+          detail: this.localize("changeMasterPasswordOnWebConfirmation"),
+          buttons: [this.localize("continue"), this.localize("cancel")],
           cancelId: 1,
           defaultId: 0,
           noLink: true,
         });
         if (result.response === 0) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           shell.openExternal(this._webVaultUrl);
         }
       },
@@ -96,6 +98,8 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           shell.openExternal(this._webVaultUrl);
         }
       },

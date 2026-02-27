@@ -1,4 +1,4 @@
-[![Github Workflow build on master](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml/badge.svg?branch=master)](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml?query=branch:master)
+[![Github Workflow build on main](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml/badge.svg?branch=main)](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml?query=branch:main)
 [![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Command-line Interface
@@ -6,8 +6,6 @@
 [![Platforms](https://imgur.com/AnTLX0S.png "Platforms")](https://help.bitwarden.com/article/cli/#download--install)
 
 The Bitwarden CLI is a powerful, full-featured command-line interface (CLI) tool to access and manage a Bitwarden vault. The CLI is written with TypeScript and Node.js and can be run on Windows, macOS, and Linux distributions.
-
-![CLI](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/cli-macos.png "CLI")
 
 ## Developer Documentation
 
@@ -41,6 +39,9 @@ We provide natively packaged versions of the CLI for each platform which have no
   ```bash
   brew install bitwarden-cli
   ```
+  > ⚠️ The homebrew version is not recommended for all users.
+  >
+  > Homebrew pulls the CLI's GPL build and does not include device approval commands for Enterprise SSO customers.
 - [Snap](https://snapcraft.io/bw)
   ```bash
   sudo snap install bw

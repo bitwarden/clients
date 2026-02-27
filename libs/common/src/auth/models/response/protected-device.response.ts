@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { DeviceType } from "../../../enums";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { RotateableKeySet } from "../../../key-management/keys/models/rotateable-key-set";
 import { BaseResponse } from "../../../models/response/base.response";
-import { EncString } from "../../../platform/models/domain/enc-string";
 
 export class ProtectedDeviceResponse extends BaseResponse {
   constructor(response: Jsonify<ProtectedDeviceResponse>) {
@@ -36,4 +39,12 @@ export class ProtectedDeviceResponse extends BaseResponse {
    * This enabled a user to rotate the keys for all of their devices.
    */
   encryptedPublicKey: EncString;
+
+  getRotateableKeyset(): RotateableKeySet {
+    return new RotateableKeySet(this.encryptedUserKey, this.encryptedPublicKey);
+  }
+
+  isTrusted(): boolean {
+    return this.encryptedUserKey != null && this.encryptedPublicKey != null;
+  }
 }

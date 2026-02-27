@@ -1,21 +1,28 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-nested-checkbox",
   templateUrl: "nested-checkbox.component.html",
+  standalone: false,
 })
 export class NestedCheckboxComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() parentId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() checkboxes: FormGroup<Record<string, FormControl<boolean>>>;
-  @Output() onSavedUser = new EventEmitter();
-  @Output() onDeletedUser = new EventEmitter();
 
   get parentIndeterminate() {
     return (

@@ -1,3 +1,4 @@
+export { ArcCsvImporter } from "./arc-csv-importer";
 export { AscendoCsvImporter } from "./ascendo-csv-importer";
 export { AvastCsvImporter, AvastJsonImporter } from "./avast";
 export { AviraCsvImporter } from "./avira-csv-importer";
@@ -22,11 +23,12 @@ export { KasperskyTxtImporter } from "./kaspersky-txt-importer";
 export { KeePass2XmlImporter } from "./keepass2-xml-importer";
 export { KeePassXCsvImporter } from "./keepassx-csv-importer";
 export { KeeperCsvImporter, KeeperJsonImporter } from "./keeper";
-export { LastPassCsvImporter } from "./lastpass-csv-importer";
+export { LastPassCsvImporter } from "./lastpass";
 export { LogMeOnceCsvImporter } from "./logmeonce-csv-importer";
 export { MeldiumCsvImporter } from "./meldium-csv-importer";
 export { MSecureCsvImporter } from "./msecure-csv-importer";
 export { MykiCsvImporter } from "./myki-csv-importer";
+export { NetwrixPasswordSecureCsvImporter } from "./netwrix";
 export { NordPassCsvImporter } from "./nordpass-csv-importer";
 export {
   OnePassword1PifImporter,
@@ -41,9 +43,11 @@ export { PassmanJsonImporter } from "./passman-json-importer";
 export { PasspackCsvImporter } from "./passpack-csv-importer";
 export { PasswordAgentCsvImporter } from "./passwordagent-csv-importer";
 export { PasswordBossJsonImporter } from "./passwordboss-json-importer";
+export { PasswordDepot17XmlImporter } from "./password-depot";
 export { PasswordDragonXmlImporter } from "./passworddragon-xml-importer";
 export { PasswordSafeXmlImporter } from "./passwordsafe-xml-importer";
 export { PasswordWalletTxtImporter } from "./passwordwallet-txt-importer";
+export { PasswordXPCsvImporter } from "./passsordxp/passwordxp-csv-importer";
 export { ProtonPassJsonImporter } from "./protonpass/protonpass-json-importer";
 export { PsonoJsonImporter } from "./psono/psono-json-importer";
 export { RememBearCsvImporter } from "./remembear-csv-importer";

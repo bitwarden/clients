@@ -1,17 +1,19 @@
+import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
-import { DomElementVisibilityService as domElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";
+import { DomElementVisibilityService as DomElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";
 
-class DomElementVisibilityService implements domElementVisibilityServiceInterface {
+class DomElementVisibilityService implements DomElementVisibilityServiceInterface {
   private cachedComputedStyle: CSSStyleDeclaration | null = null;
 
+  constructor(private inlineMenuContentService?: AutofillInlineMenuContentService) {}
+
   /**
-   * Checks if a form field is viewable. This is done by checking if the element is within the
+   * Checks if an element is viewable. This is done by checking if the element is within the
    * viewport bounds, not hidden by CSS, and not hidden behind another element.
-   * @param {FormFieldElement} element
-   * @returns {Promise<boolean>}
+   * @param element
    */
-  async isFormFieldViewable(element: FormFieldElement): Promise<boolean> {
+  async isElementViewable(element: HTMLElement): Promise<boolean> {
     const elementBoundingClientRect = element.getBoundingClientRect();
     if (
       this.isElementOutsideViewportBounds(element, elementBoundingClientRect) ||
@@ -66,7 +68,7 @@ class DomElementVisibilityService implements domElementVisibilityServiceInterfac
    */
   private getElementStyle(element: HTMLElement, styleProperty: string): string {
     if (!this.cachedComputedStyle) {
-      this.cachedComputedStyle = (element.ownerDocument.defaultView || window).getComputedStyle(
+      this.cachedComputedStyle = (element.ownerDocument.defaultView || globalThis).getComputedStyle(
         element,
       );
     }
@@ -187,6 +189,10 @@ class DomElementVisibilityService implements domElementVisibilityServiceInterfac
       return true;
     }
 
+    if (this.inlineMenuContentService?.isElementInlineMenu(elementAtCenterPoint as HTMLElement)) {
+      return true;
+    }
+
     const targetElementLabelsSet = new Set((targetElement as FillableFormFieldElement).labels);
     if (targetElementLabelsSet.has(elementAtCenterPoint as HTMLLabelElement)) {
       return true;
@@ -194,7 +200,7 @@ class DomElementVisibilityService implements domElementVisibilityServiceInterfac
 
     const closestParentLabel = elementAtCenterPoint?.parentElement?.closest("label");
 
-    return targetElementLabelsSet.has(closestParentLabel);
+    return closestParentLabel ? targetElementLabelsSet.has(closestParentLabel) : false;
   }
 }
 

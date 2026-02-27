@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("./tsconfig");
+const { compilerOptions } = require("../../tsconfig.base");
 
 const sharedConfig = require("../../libs/shared/jest.config.ts");
 
@@ -10,7 +10,17 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
-  }),
+  moduleNameMapper: {
+    "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
+      "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
+    ...pathsToModuleNameMapper(
+      {
+        "@bitwarden/common/spec": ["libs/common/spec"],
+        ...(compilerOptions?.paths || {}),
+      },
+      {
+        prefix: "<rootDir>/../../",
+      },
+    ),
+  },
 };

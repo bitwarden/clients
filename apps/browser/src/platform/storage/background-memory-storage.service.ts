@@ -1,18 +1,25 @@
-import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+
+import { LogService } from "@bitwarden/logging";
+import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 
 import { BrowserApi } from "../browser/browser-api";
 
 import { MemoryStoragePortMessage } from "./port-messages";
 import { portName } from "./port-name";
 
-export class BackgroundMemoryStorageService extends MemoryStorageService {
+export class BackgroundMemoryStorageService extends SerializedMemoryStorageService {
   private _ports: chrome.runtime.Port[] = [];
 
-  constructor() {
+  constructor(private readonly logService: LogService) {
     super();
 
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name !== portName(chrome.storage.session)) {
+        return;
+      }
+      if (!BrowserApi.senderIsInternal(port.sender, this.logService)) {
         return;
       }
 
@@ -25,20 +32,23 @@ export class BackgroundMemoryStorageService extends MemoryStorageService {
       });
       port.onMessage.addListener(listenerCallback);
       // Initialize the new memory storage service with existing data
-      this.sendMessage({
+      this.sendMessageTo(port, {
         action: "initialization",
-        data: Array.from(this.store.keys()),
+        data: Array.from(Object.keys(this.store)),
       });
     });
     this.updates$.subscribe((update) => {
-      this.sendMessage({
+      this.broadcastMessage({
         action: "subject_update",
         data: update,
       });
     });
   }
 
-  private async onMessageFromForeground(message: MemoryStoragePortMessage) {
+  private async onMessageFromForeground(
+    message: MemoryStoragePortMessage,
+    port: chrome.runtime.Port,
+  ) {
     if (message.originator === "background") {
       return;
     }
@@ -47,7 +57,6 @@ export class BackgroundMemoryStorageService extends MemoryStorageService {
 
     switch (message.action) {
       case "get":
-      case "getBypassCache":
       case "has": {
         result = await this[message.action](message.key);
         break;
@@ -60,19 +69,26 @@ export class BackgroundMemoryStorageService extends MemoryStorageService {
         break;
     }
 
-    this.sendMessage({
+    this.sendMessageTo(port, {
       id: message.id,
       key: message.key,
       data: JSON.stringify(result),
     });
   }
 
-  private async sendMessage(data: Omit<MemoryStoragePortMessage, "originator">) {
+  private broadcastMessage(data: Omit<MemoryStoragePortMessage, "originator">) {
     this._ports.forEach((port) => {
-      port.postMessage({
-        ...data,
-        originator: "background",
-      });
+      this.sendMessageTo(port, data);
+    });
+  }
+
+  private sendMessageTo(
+    port: chrome.runtime.Port,
+    data: Omit<MemoryStoragePortMessage, "originator">,
+  ) {
+    port.postMessage({
+      ...data,
+      originator: "background",
     });
   }
 }

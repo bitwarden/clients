@@ -1,25 +1,45 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { Discount, DiscountTypes, Maybe } from "@bitwarden/pricing";
 
+import {
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
+} from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
+import {
+  OffboardingSurveyDialogResultType,
+  openOffboardingSurvey,
+} from "../shared/offboarding-survey.component";
+import { UpdateLicenseDialogComponent } from "../shared/update-license-dialog.component";
+import { UpdateLicenseDialogResult } from "../shared/update-license-types";
+
+// TODO: Remove with deletion of pm-29594-update-individual-subscription-page
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "user-subscription.component.html",
+  standalone: false,
 })
 export class UserSubscriptionComponent implements OnInit {
   loading = false;
   firstLoaded = false;
-  adjustStorageAdd = true;
-  showAdjustStorage = false;
-  showUpdateLicense = false;
   sub: SubscriptionResponse;
   selfHosted = false;
   cloudWebVaultUrl: string;
@@ -27,8 +47,11 @@ export class UserSubscriptionComponent implements OnInit {
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
 
+  protected enableDiscountDisplay$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM23341_Milestone_2,
+  );
+
   constructor(
-    private stateService: StateService,
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
@@ -37,12 +60,16 @@ export class UserSubscriptionComponent implements OnInit {
     private fileDownloadService: FileDownloadService,
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
+    private accountService: AccountService,
+    private configService: ConfigService,
   ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
-    this.cloudWebVaultUrl = this.environmentService.getCloudWebVaultUrl();
+    this.selfHosted = this.platformUtilsService.isSelfHost();
   }
 
   async ngOnInit() {
+    this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
     await this.load();
     this.firstLoaded = true;
   }
@@ -52,11 +79,15 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    if (this.stateService.getHasPremiumPersonally()) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
+    ) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/premium"]);
       return;
     }
@@ -66,18 +97,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   async reinstate() {
     if (this.loading) {
-      return;
-    }
-
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "cancelSubscription" },
-        content: { key: "manageSubscriptionFromStore" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
       return;
     }
 
@@ -94,53 +113,36 @@ export class UserSubscriptionComponent implements OnInit {
     try {
       this.reinstatePromise = this.apiService.postReinstatePremium();
       await this.reinstatePromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("reinstated"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("reinstated"),
+      });
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
     }
   }
 
-  async cancel() {
-    if (this.loading) {
-      return;
-    }
-
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "cancelSubscription" },
-        content: { key: "manageSubscriptionFromStore" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "cancelSubscription" },
-      content: { key: "cancelConfirmation" },
-      type: "warning",
+  cancelSubscription = async () => {
+    const reference = openOffboardingSurvey(this.dialogService, {
+      data: {
+        type: "User",
+      },
     });
 
-    if (!confirmed) {
+    this.cancelPromise = lastValueFrom(reference.closed);
+
+    const result = await this.cancelPromise;
+
+    if (result === OffboardingSurveyDialogResultType.Closed) {
       return;
     }
 
-    try {
-      this.cancelPromise = this.apiService.postCancelPremium();
-      await this.cancelPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("canceledSubscription"),
-      );
-      this.load();
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
+    await this.load();
+  };
 
   downloadLicense() {
     if (this.loading) {
@@ -154,42 +156,34 @@ export class UserSubscriptionComponent implements OnInit {
     });
   }
 
-  updateLicense() {
+  updateLicense = async () => {
     if (this.loading) {
       return;
     }
-    this.showUpdateLicense = true;
-  }
-
-  closeUpdateLicense(load: boolean) {
-    this.showUpdateLicense = false;
-    if (load) {
-      this.load();
+    const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService, {
+      data: { fromUserSubscriptionPage: true },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === UpdateLicenseDialogResult.Updated) {
+      await this.load();
     }
-  }
+  };
 
-  adjustStorage(add: boolean) {
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: add ? "addStorage" : "removeStorage" },
-        content: { key: "cannotPerformInAppPurchase" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
+  adjustStorage = async (add: boolean) => {
+    const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
+      data: {
+        price: 4,
+        cadence: "year",
+        type: add ? "Add" : "Remove",
+      },
+    });
 
-      return;
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result === AdjustStorageDialogResultType.Submitted) {
+      await this.load();
     }
-    this.adjustStorageAdd = add;
-    this.showAdjustStorage = true;
-  }
-
-  closeStorage(load: boolean) {
-    this.showAdjustStorage = false;
-    if (load) {
-      this.load();
-    }
-  }
+  };
 
   get subscriptionMarkedForCancel() {
     return (
@@ -205,21 +199,87 @@ export class UserSubscriptionComponent implements OnInit {
     return this.sub != null ? this.sub.upcomingInvoice : null;
   }
 
+  get subscriptionAmount(): number {
+    if (!this.subscription?.items || this.subscription.items.length === 0) {
+      return 0;
+    }
+
+    return this.subscription.items.reduce(
+      (sum, item) => sum + (item.amount || 0) * (item.quantity || 0),
+      0,
+    );
+  }
+
+  get discountedSubscriptionAmount(): number {
+    // Use the upcoming invoice amount from the server as it already includes discounts,
+    // taxes, prorations, and all other adjustments. Fall back to subscription amount
+    // if upcoming invoice is not available.
+    if (this.nextInvoice?.amount != null) {
+      return this.nextInvoice.amount;
+    }
+
+    return this.subscriptionAmount;
+  }
+
   get storagePercentage() {
     return this.sub != null && this.sub.maxStorageGb
       ? +(100 * (this.sub.storageGb / this.sub.maxStorageGb)).toFixed(2)
       : 0;
   }
 
-  get storageProgressWidth() {
-    return this.storagePercentage < 5 ? 5 : 0;
-  }
-
-  get usingInAppPurchase() {
-    return this.sub != null ? this.sub.usingInAppPurchase : false;
-  }
-
   get title(): string {
     return this.i18nService.t(this.selfHosted ? "subscription" : "premiumMembership");
+  }
+
+  get subscriptionStatus(): string | null {
+    if (!this.subscription) {
+      return null;
+    } else {
+      /*
+       Premium users who sign up with PayPal will have their subscription activated by a webhook.
+       This is an arbitrary 15-second grace period where we show their subscription as active rather than
+       incomplete while we wait for our webhook to process the `invoice.created` event.
+      */
+      if (this.subscription.status === "incomplete") {
+        const periodStartMS = new Date(this.subscription.periodStartDate).getTime();
+        const nowMS = new Date().getTime();
+        return nowMS - periodStartMS <= 15000
+          ? this.i18nService.t("active")
+          : this.subscription.status;
+      }
+
+      return this.subscription.status;
+    }
+  }
+
+  getDiscount(discount: BillingCustomerDiscount | null): Maybe<Discount> {
+    if (!discount) {
+      return null;
+    }
+    return discount.amountOff
+      ? { type: DiscountTypes.AmountOff, value: discount.amountOff }
+      : { type: DiscountTypes.PercentOff, value: discount.percentOff };
+  }
+
+  get isSubscriptionActive(): boolean {
+    if (!this.sub) {
+      return false;
+    }
+
+    if (this.selfHosted) {
+      return true;
+    }
+
+    const expiration = this.sub.expiration;
+    if (!expiration || expiration.trim() === "") {
+      return true;
+    }
+
+    const expirationDate = new Date(expiration);
+    if (isNaN(expirationDate.getTime())) {
+      return true;
+    }
+
+    return expirationDate > new Date();
   }
 }

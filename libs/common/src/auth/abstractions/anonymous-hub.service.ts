@@ -1,4 +1,4 @@
 export abstract class AnonymousHubService {
-  createHubConnection: (token: string) => void;
-  stopHubConnection: () => void;
+  abstract createHubConnection(token: string): Promise<void>;
+  abstract stopHubConnection(): Promise<void>;
 }

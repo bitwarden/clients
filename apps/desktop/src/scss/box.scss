@@ -217,9 +217,11 @@
     }
   }
 
-  .img-right {
+  .img-right,
+  .txt-right {
     float: right;
     margin-left: 10px;
+    width: 100px;
   }
 
   .row-main {
@@ -425,21 +427,6 @@
   select.field-type {
     margin: 5px 0 0 25px;
     width: calc(100% - 25px);
-  }
-
-  .row-sub-icon {
-    @include themify($themes) {
-      color: themed("disabledIconColor");
-    }
-  }
-
-  .row-sub-label {
-    margin: 0 15px;
-    white-space: nowrap;
-
-    @include themify($themes) {
-      color: themed("mutedColor");
-    }
   }
 
   .progress {

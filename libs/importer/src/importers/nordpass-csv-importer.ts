@@ -1,4 +1,6 @@
-import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -8,9 +10,10 @@ import { ImportResult } from "../models/import-result";
 import { BaseImporter } from "./base-importer";
 import { Importer } from "./importer";
 
-type nodePassCsvParsed = {
+type NordPassCsvParsed = {
   name: string;
   url: string;
+  additional_urls: string;
   username: string;
   password: string;
   note: string;
@@ -28,12 +31,20 @@ type nodePassCsvParsed = {
   city: string;
   country: string;
   state: string;
+  type: string;
+  custom_fields: string;
+};
+
+type NordPassCustomField = {
+  label: string;
+  type: string;
+  value: string;
 };
 
 export class NordPassCsvImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
-    const results: nodePassCsvParsed[] = this.parseCsv(data, true);
+    const results: NordPassCsvParsed[] = this.parseCsv(data, true);
     if (results == null) {
       result.success = false;
       return Promise.resolve(result);
@@ -45,13 +56,26 @@ export class NordPassCsvImporter extends BaseImporter implements Importer {
         return;
       }
 
-      if (!this.organization) {
-        this.processFolder(result, record.folder);
-      }
+      this.processFolder(result, record.folder);
 
       const cipher = new CipherView();
       cipher.name = this.getValueOrDefault(record.name, "--");
       cipher.notes = this.getValueOrDefault(record.note);
+
+      if (record.custom_fields) {
+        const customFieldsParsed: NordPassCustomField[] = JSON.parse(record.custom_fields);
+        if (customFieldsParsed && customFieldsParsed.length > 0) {
+          customFieldsParsed.forEach((field) => {
+            let fieldType = FieldType.Text;
+
+            if (field.type == "hidden") {
+              fieldType = FieldType.Hidden;
+            }
+
+            this.processKvp(cipher, field.label, field.value, fieldType);
+          });
+        }
+      }
 
       switch (recordType) {
         case CipherType.Login:
@@ -59,7 +83,13 @@ export class NordPassCsvImporter extends BaseImporter implements Importer {
           cipher.login = new LoginView();
           cipher.login.username = this.getValueOrDefault(record.username);
           cipher.login.password = this.getValueOrDefault(record.password);
-          cipher.login.uris = this.makeUriArray(record.url);
+          if (record.additional_urls) {
+            const additionalUrlsParsed: string[] = JSON.parse(record.additional_urls);
+            const uris = [record.url, ...additionalUrlsParsed];
+            cipher.login.uris = this.makeUriArray(uris);
+          } else {
+            cipher.login.uris = this.makeUriArray(record.url);
+          }
           break;
         case CipherType.Card:
           cipher.type = CipherType.Card;
@@ -106,21 +136,16 @@ export class NordPassCsvImporter extends BaseImporter implements Importer {
     return Promise.resolve(result);
   }
 
-  private evaluateType(record: nodePassCsvParsed): CipherType {
-    if (!this.isNullOrWhitespace(record.username)) {
-      return CipherType.Login;
-    }
-
-    if (!this.isNullOrWhitespace(record.cardnumber)) {
-      return CipherType.Card;
-    }
-
-    if (!this.isNullOrWhitespace(record.full_name)) {
-      return CipherType.Identity;
-    }
-
-    if (!this.isNullOrWhitespace(record.note)) {
-      return CipherType.SecureNote;
+  private evaluateType(record: NordPassCsvParsed): CipherType {
+    switch (record.type) {
+      case "password":
+        return CipherType.Login;
+      case "credit_card":
+        return CipherType.Card;
+      case "note":
+        return CipherType.SecureNote;
+      case "identity":
+        return CipherType.Identity;
     }
 
     return undefined;

@@ -1,14 +1,19 @@
+import { ConsoleLogService } from "@bitwarden/logging";
+
 import { interceptConsole, restoreConsole } from "../../../spec";
 
-import { ConsoleLogService } from "./console-log.service";
-
-let caughtMessage: any;
-
 describe("ConsoleLogService", () => {
+  const error = new Error("this is an error");
+  const obj = { a: 1, b: 2 };
+  let consoleSpy: {
+    log: jest.Mock<any, any>;
+    warn: jest.Mock<any, any>;
+    error: jest.Mock<any, any>;
+  };
   let logService: ConsoleLogService;
+
   beforeEach(() => {
-    caughtMessage = {};
-    interceptConsole(caughtMessage);
+    consoleSpy = interceptConsole();
     logService = new ConsoleLogService(true);
   });
 
@@ -18,41 +23,41 @@ describe("ConsoleLogService", () => {
 
   it("filters messages below the set threshold", () => {
     logService = new ConsoleLogService(true, () => true);
-    logService.debug("debug");
-    logService.info("info");
-    logService.warning("warning");
-    logService.error("error");
+    logService.debug("debug", error, obj);
+    logService.info("info", error, obj);
+    logService.warning("warning", error, obj);
+    logService.error("error", error, obj);
 
-    expect(caughtMessage).toEqual({});
+    expect(consoleSpy.log).not.toHaveBeenCalled();
+    expect(consoleSpy.warn).not.toHaveBeenCalled();
+    expect(consoleSpy.error).not.toHaveBeenCalled();
   });
+
   it("only writes debug messages in dev mode", () => {
     logService = new ConsoleLogService(false);
 
     logService.debug("debug message");
-    expect(caughtMessage.log).toBeUndefined();
+    expect(consoleSpy.log).not.toHaveBeenCalled();
   });
 
   it("writes debug/info messages to console.log", () => {
-    logService.debug("this is a debug message");
-    expect(caughtMessage).toMatchObject({
-      log: { "0": "this is a debug message" },
-    });
+    logService.debug("this is a debug message", error, obj);
+    logService.info("this is an info message", error, obj);
 
-    logService.info("this is an info message");
-    expect(caughtMessage).toMatchObject({
-      log: { "0": "this is an info message" },
-    });
+    expect(consoleSpy.log).toHaveBeenCalledTimes(2);
+    expect(consoleSpy.log).toHaveBeenCalledWith("this is a debug message", error, obj);
+    expect(consoleSpy.log).toHaveBeenCalledWith("this is an info message", error, obj);
   });
+
   it("writes warning messages to console.warn", () => {
-    logService.warning("this is a warning message");
-    expect(caughtMessage).toMatchObject({
-      warn: { 0: "this is a warning message" },
-    });
+    logService.warning("this is a warning message", error, obj);
+
+    expect(consoleSpy.warn).toHaveBeenCalledWith("this is a warning message", error, obj);
   });
+
   it("writes error messages to console.error", () => {
-    logService.error("this is an error message");
-    expect(caughtMessage).toMatchObject({
-      error: { 0: "this is an error message" },
-    });
+    logService.error("this is an error message", error, obj);
+
+    expect(consoleSpy.error).toHaveBeenCalledWith("this is an error message", error, obj);
   });
 });

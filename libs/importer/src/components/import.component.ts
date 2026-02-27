@@ -1,70 +1,96 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
+  Inject,
   Input,
   OnDestroy,
   OnInit,
+  Optional,
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { filter, map, takeUntil } from "rxjs/operators";
-
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
-  canAccessImportExport,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+  Observable,
+  Subject,
+  lastValueFrom,
+  combineLatest,
+  firstValueFrom,
+  BehaviorSubject,
+} from "rxjs";
+import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
+
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
+  CardComponent,
   DialogService,
   FormFieldModule,
   IconButtonModule,
   RadioButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
   SelectModule,
+  ToastService,
+  LinkModule,
 } from "@bitwarden/components";
 
+import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
-  ImportApiService,
-  ImportApiServiceAbstraction,
-  ImportService,
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
 } from "../services";
 
+import { ImportChromeComponent } from "./chrome";
 import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
 } from "./dialog";
+import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -75,30 +101,19 @@ import { ImportLastPassComponent } from "./lastpass";
     SelectModule,
     CalloutModule,
     ReactiveFormsModule,
+    ImportChromeComponent,
     ImportLastPassComponent,
     RadioButtonModule,
+    CardComponent,
+    SectionHeaderComponent,
+    SectionComponent,
+    LinkModule,
   ],
-  providers: [
-    {
-      provide: ImportApiServiceAbstraction,
-      useClass: ImportApiService,
-      deps: [ApiService],
-    },
-    {
-      provide: ImportServiceAbstraction,
-      useClass: ImportService,
-      deps: [
-        CipherService,
-        FolderService,
-        ImportApiServiceAbstraction,
-        I18nService,
-        CollectionService,
-        CryptoService,
-      ],
-    },
-  ],
+  providers: ImporterProviders,
 })
-export class ImportComponent implements OnInit, OnDestroy {
+export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
@@ -108,16 +123,37 @@ export class ImportComponent implements OnInit, OnDestroy {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
-  @Input() set organizationId(value: string) {
+  /**
+   * Enables the hosting control to pass in an organizationId
+   * If a organizationId is provided, the organization selection is disabled.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
     this._organizationId = value;
-    this.organizationService
-      .get$(this._organizationId)
+
+    getUserId(this.accountService.activeAccount$)
+      .pipe(
+        switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
         this._organizationId = organization?.id;
@@ -125,10 +161,26 @@ export class ImportComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected organization: Organization;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+
+  protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
 
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
+
   private _importBlockedByPolicy = false;
+  protected isFromAC = false;
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   formGroup = this.formBuilder.group({
     vaultSelector: [
@@ -143,17 +195,27 @@ export class ImportComponent implements OnInit, OnDestroy {
     fileContents: [],
     file: [],
     lastPassType: ["direct" as "csv" | "direct"],
+    // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
+    chromiumLoader: [Loader.file as DataLoader],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulImport = new EventEmitter<string>();
 
@@ -167,6 +229,26 @@ export class ImportComponent implements OnInit, OnDestroy {
     });
   }
 
+  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
+
+  /** emits `true` when the chromium instruction block should be visible. */
+  protected readonly showChromiumInstructions$ = this.importer$.pipe(
+    map((importer) => importer?.instructions === Instructions.chromium),
+  );
+
+  /** emits `true` when direct browser import is available. */
+  // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
+  //        strategy check with a check for multiple loaders
+  protected readonly browserImporterAvailable$ = this.importer$.pipe(
+    map((importer) => (importer?.loaders ?? []).includes(Loader.chromium)),
+  );
+
+  /** emits `true` when the chromium loader is selected. */
+  protected readonly showChromiumOptions$ =
+    this.formGroup.controls.chromiumLoader.valueChanges.pipe(
+      map((chromiumLoader) => chromiumLoader === Loader.chromium),
+    );
+
   constructor(
     protected i18nService: I18nService,
     protected importService: ImportServiceAbstraction,
@@ -176,9 +258,17 @@ export class ImportComponent implements OnInit, OnDestroy {
     protected syncService: SyncService,
     protected dialogService: DialogService,
     protected folderService: FolderService,
-    protected collectionService: CollectionService,
     protected organizationService: OrganizationService,
+    protected collectionService: CollectionService,
     protected formBuilder: FormBuilder,
+    @Inject(ImportCollectionServiceAbstraction)
+    @Optional()
+    protected importCollectionService: ImportCollectionServiceAbstraction,
+    protected toastService: ToastService,
+    protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
+    private destroyRef: DestroyRef,
+    protected importMetadataService: ImportMetadataServiceAbstraction,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -196,18 +286,122 @@ export class ImportComponent implements OnInit, OnDestroy {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.importMetadataService.init();
+
     this.setImportOptions();
 
-    this.organizations$ = concat(
-      this.organizationService.memberOrganizations$.pipe(
-        canAccessImportExport(this.i18nService),
-        map((orgs) => orgs.sort(Utils.getSortFunction(this.i18nService, "name"))),
+    this.importMetadataService
+      .metadata$(this.formGroup.controls.format.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (importer) => {
+          this.importer$.next(importer);
+
+          // when an importer is defined, the loader needs to be set to a value from
+          // its list.
+          const loader = importer.loaders?.includes(Loader.chromium)
+            ? Loader.chromium
+            : importer.loaders?.[0];
+          this.formGroup.controls.chromiumLoader.setValue(loader ?? Loader.file);
+        },
+        error: (err: unknown) => this.logService.error("an error occurred", err),
+      });
+
+    if (this.organizationId) {
+      await this.handleOrganizationImportInit();
+    } else {
+      await this.handleImportInit();
+    }
+
+    this.formGroup.controls.format.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        this.format = value;
+      });
+
+    await this.handlePolicies();
+  }
+
+  private async handleOrganizationImportInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService
+      .memberOrganizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (org) =>
+              org.id == this.organizationId && (org.canAccessImport || org.canCreateNewCollections),
+          ),
+        ),
+      );
+
+    this.formGroup.controls.vaultSelector.patchValue(this.organizationId);
+    this.formGroup.controls.vaultSelector.disable();
+
+    this.collections$ = Utils.asyncToObservable(() =>
+      this.importCollectionService
+        .getAllAdminCollections(this.organizationId, userId)
+        .then((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
+    );
+
+    this.isFromAC = true;
+  }
+
+  private async handleImportInit() {
+    // Filter out the no folder-item from folderViews$
+    this.folders$ = this.activeUserId$.pipe(
+      switchMap((userId) => {
+        return this.folderService.folderViews$(userId);
+      }),
+      map((folders) => folders.filter((f) => !!f.id)),
+    );
+
+    this.formGroup.controls.targetSelector.disable();
+
+    // Retrieve all organizations a user is a member of and has collections they can manage
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
+      combineLatestWith(this.collectionService.decryptedCollections$(userId)),
+      map(([organizations, collections]) =>
+        organizations
+          .filter((org) => collections.some((c) => c.organizationId === org.id && c.manage))
+          .sort(Utils.getSortFunction(this.i18nService, "name")),
       ),
     );
 
+    combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([value, organizations]) => {
+        this.organizationId = value !== "myVault" ? value : undefined;
+
+        if (!this._importBlockedByPolicy) {
+          this.formGroup.controls.targetSelector.enable();
+        }
+
+        if (value) {
+          this.collections$ = this.collectionService
+            .decryptedCollections$(userId)
+            .pipe(
+              map((decryptedCollections) =>
+                decryptedCollections
+                  .filter((c2) => c2.organizationId === value && c2.manage)
+                  .sort(Utils.getSortFunction(this.i18nService, "name")),
+              ),
+            );
+        }
+      });
+    this.formGroup.controls.vaultSelector.setValue("myVault");
+  }
+
+  private async handlePolicies() {
     combineLatest([
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        ),
+      ),
       this.organizations$,
     ])
       .pipe(takeUntil(this.destroy$))
@@ -216,46 +410,12 @@ export class ImportComponent implements OnInit, OnDestroy {
         if (policyApplies && orgs.length == 0) {
           this.formGroup.disable();
         }
-      });
 
-    if (this.organizationId) {
-      this.formGroup.controls.vaultSelector.patchValue(this.organizationId);
-      this.formGroup.controls.vaultSelector.disable();
-
-      this.collections$ = Utils.asyncToObservable(() =>
-        this.collectionService
-          .getAllDecrypted()
-          .then((c) => c.filter((c2) => c2.organizationId === this.organizationId)),
-      );
-    } else {
-      // Filter out the `no folder`-item from folderViews$
-      this.folders$ = this.folderService.folderViews$.pipe(
-        map((folders) => folders.filter((f) => f.id != null)),
-      );
-      this.formGroup.controls.targetSelector.disable();
-
-      this.formGroup.controls.vaultSelector.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((value) => {
-          this.organizationId = value != "myVault" ? value : undefined;
-          if (!this._importBlockedByPolicy) {
-            this.formGroup.controls.targetSelector.enable();
-          }
-          if (value) {
-            this.collections$ = Utils.asyncToObservable(() =>
-              this.collectionService
-                .getAllDecrypted()
-                .then((c) => c.filter((c2) => c2.organizationId === value)),
-            );
-          }
-        });
-
-      this.formGroup.controls.vaultSelector.setValue("myVault");
-    }
-    this.formGroup.controls.format.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.format = value;
+        // If there are orgs the user has access to import into set
+        // the default value to the first org in the collection.
+        if (policyApplies && orgs.length > 0) {
+          this.formGroup.controls.vaultSelector.setValue(orgs[0].id);
+        }
       });
   }
 
@@ -279,24 +439,7 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   protected async performImport() {
-    if (this.organization) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "warning" },
-        content: { key: "importWarning", placeholders: [this.organization.name] },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        return;
-      }
-    }
-
-    if (this.importBlockedByPolicy) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("personalOwnershipPolicyInEffectImports"),
-      );
+    if (!(await this.validateImport())) {
       return;
     }
 
@@ -311,57 +454,32 @@ export class ImportComponent implements OnInit, OnDestroy {
     );
 
     if (importer === null) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFormat"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFormat"),
+      });
       return;
     }
 
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl.files;
-    let fileContents = this.formGroup.controls.fileContents.value;
-    if ((files == null || files.length === 0) && (fileContents == null || fileContents === "")) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile"),
-      );
+    const importContents = await this.setImportContents();
+
+    if (importContents == null || importContents === "") {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
       return;
-    }
-
-    if (files != null && files.length > 0) {
-      try {
-        const content = await this.getFileContents(files[0]);
-        if (content != null) {
-          fileContents = content;
-        }
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-
-    if (fileContents == null || fileContents === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile"),
-      );
-      return;
-    }
-
-    if (this.organizationId) {
-      await this.organizationService.get(this.organizationId)?.isAdmin;
     }
 
     try {
       const result = await this.importService.import(
         importer,
-        fileContents,
+        importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
-        this.canAccessImportExport(this.organizationId),
+        this.organization?.canAccessImport && this.isFromAC,
       );
 
       //No errors, display success message
@@ -369,6 +487,8 @@ export class ImportComponent implements OnInit, OnDestroy {
         data: result,
       });
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.syncService.fullSync(true);
       this.onSuccessfulImport.emit(this._organizationId);
     } catch (e) {
@@ -377,20 +497,6 @@ export class ImportComponent implements OnInit, OnDestroy {
       });
       this.logService.error(e);
     }
-  }
-
-  private isUserAdmin(organizationId?: string): boolean {
-    if (!organizationId) {
-      return false;
-    }
-    return this.organizationService.get(this.organizationId)?.isAdmin;
-  }
-
-  private canAccessImportExport(organizationId?: string): boolean {
-    if (!organizationId) {
-      return false;
-    }
-    return this.organizationService.get(this.organizationId)?.canAccessImportExport;
   }
 
   getFormatInstructionTitle() {
@@ -408,13 +514,8 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   protected setImportOptions() {
-    this.featuredImportOptions = [
-      {
-        id: null,
-        name: "-- " + this.i18nService.t("select") + " --",
-      },
-      ...this.importService.featuredImportOptions,
-    ];
+    this.featuredImportOptions = [...this.importService.featuredImportOptions];
+
     this.importOptions = [...this.importService.regularImportOptions].sort((a, b) => {
       if (a.name == null && b.name != null) {
         return -1;
@@ -496,6 +597,50 @@ export class ImportComponent implements OnInit, OnDestroy {
     });
 
     return await lastValueFrom(dialog.closed);
+  }
+
+  private async validateImport(): Promise<boolean> {
+    if (this.organization) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "warning" },
+        content: { key: "importWarning", placeholders: [this.organization.name] },
+        type: "warning",
+      });
+
+      if (!confirmed) {
+        return false;
+      }
+    }
+
+    if (this.importBlockedByPolicy && this.organizationId == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("personalOwnershipPolicyInEffectImports"),
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  private async setImportContents(): Promise<string> {
+    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
+    const files = fileEl?.files;
+    let fileContents = this.formGroup.controls.fileContents.value;
+
+    if (files != null && files.length > 0) {
+      try {
+        const content = await this.getFileContents(files[0]);
+        if (content != null) {
+          fileContents = content;
+        }
+      } catch (e) {
+        this.logService.error(e);
+      }
+    }
+
+    return fileContents;
   }
 
   ngOnDestroy(): void {

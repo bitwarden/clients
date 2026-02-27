@@ -1,13 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
 import * as inquirer from "inquirer";
 import * as JSZip from "jszip";
 
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
@@ -159,7 +161,6 @@ export class CliUtils {
 
       process.stdin.setEncoding("utf8");
       process.stdin.on("readable", () => {
-        // eslint-disable-next-line
         while (true) {
           const chunk = process.stdin.read();
           if (chunk == null) {

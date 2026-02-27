@@ -1,17 +1,23 @@
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
 
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "input[type=radio][bitRadio]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
+  host: {
+    "[id]": "this.id()",
+    "[disabled]": "disabled",
+  },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  @HostBinding("attr.id") @Input() id = `bit-radio-input-${nextId++}`;
+  readonly id = input(`bit-radio-input-${nextId++}`);
 
   @HostBinding("class")
   protected inputClasses = [
@@ -24,77 +30,72 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "tw-rounded-full",
     "tw-border",
     "tw-border-solid",
-    "tw-border-secondary-500",
-    "tw-w-3.5",
-    "tw-h-3.5",
-    "tw-mr-1.5",
-    "tw-bottom-[-1px]", // Fix checkbox looking off-center
+    "tw-border-secondary-600",
+    "tw-w-[1.12rem]",
+    "tw-h-[1.12rem]",
+    "!tw-p-[.125rem]",
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "hover:tw-border-2",
     "[&>label:hover]:tw-border-2",
 
+    // if it exists, the parent form control handles focus
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-2",
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-offset-2",
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-primary-600",
+
     "before:tw-content-['']",
     "before:tw-transition",
     "before:tw-block",
-    "before:tw-absolute",
     "before:tw-rounded-full",
-    "before:tw-inset-[2px]",
-
-    "focus-visible:tw-ring-2",
-    "focus-visible:tw-ring-offset-2",
-    "focus-visible:tw-ring-primary-700",
+    "before:tw-size-full",
 
     "disabled:tw-cursor-auto",
-    "disabled:tw-border",
     "disabled:tw-bg-secondary-100",
+    "disabled:hover:tw-border",
 
     "checked:tw-bg-text-contrast",
-    "checked:tw-border-primary-500",
+    "checked:tw-border-primary-600",
+    "checked:tw-border-2",
 
-    "checked:hover:tw-border",
+    "checked:hover:tw-border-2",
     "checked:hover:tw-border-primary-700",
     "checked:hover:before:tw-bg-primary-700",
     "[&>label:hover]:checked:tw-bg-primary-700",
     "[&>label:hover]:checked:tw-border-primary-700",
 
-    "checked:before:tw-bg-primary-500",
+    "checked:before:tw-bg-primary-600",
 
-    "checked:disabled:tw-border-secondary-100",
-    "checked:disabled:tw-bg-secondary-100",
+    "checked:disabled:tw-border-secondary-600",
+    "checked:disabled:hover:tw-border-secondary-600",
+    "checked:disabled:hover:tw-border-2",
+    "checked:disabled:tw-bg-background",
 
-    "checked:disabled:before:tw-bg-text-muted",
+    "checked:disabled:hover:before:tw-bg-secondary-600",
+    "checked:disabled:before:tw-bg-secondary-600",
   ];
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
-  @HostBinding()
-  @Input()
-  get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
-  }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled: boolean;
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  @Input()
+  // TODO migrate to computed signal when Angular adds signal support to reactive forms
+  // https://bitwarden.atlassian.net/browse/CL-819
+  get disabled() {
+    return this.disabledInput() || this.ngControl?.disabled || false;
+  }
+
   get required() {
-    return (
-      this._required ?? this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false
-    );
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
   }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required: boolean;
 
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

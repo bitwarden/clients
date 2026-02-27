@@ -1,116 +1,135 @@
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "input[type=checkbox][bitCheckbox]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
+  host: {
+    "[disabled]": "disabled",
+  },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   @HostBinding("class")
   protected inputClasses = [
     "tw-appearance-none",
     "tw-outline-none",
+    "tw-box-border",
     "tw-relative",
     "tw-transition",
     "tw-cursor-pointer",
+    "disabled:tw-cursor-default",
     "tw-inline-block",
-    "tw-rounded",
-    "tw-border",
-    "tw-border-solid",
-    "tw-border-secondary-500",
-    "tw-h-3.5",
-    "tw-w-3.5",
-    "tw-mr-1.5",
-    "tw-bottom-[-1px]", // Fix checkbox looking off-center
+    "tw-align-sub",
     "tw-flex-none", // Flexbox fix for bit-form-control
+    "!tw-p-1",
+    // Give checkbox explicit height and width to fix iOS rendering bug
+    "tw-h-[calc(1.12rem_+_theme(spacing.2))]",
+    "tw-w-[calc(1.12rem_+_theme(spacing.2))]",
+    "after:tw-inset-1",
+    // negative margin to negate the positioning added by the padding
+    "!-tw-mt-1",
+    "!-tw-mb-1",
+    "!-tw-ms-1",
 
     "before:tw-content-['']",
     "before:tw-block",
-    "before:tw-absolute",
     "before:tw-inset-0",
+    "before:tw-h-[1.12rem]",
+    "before:tw-w-[1.12rem]",
+    "before:tw-rounded",
+    "before:tw-border",
+    "before:tw-border-solid",
+    "before:tw-border-secondary-500",
+    "before:tw-box-border",
 
-    "hover:tw-border-2",
-    "[&>label]:tw-border-2",
+    "after:tw-content-['']",
+    "after:tw-block",
+    "after:tw-absolute",
+    "after:tw-inset-0",
+    "after:tw-h-[1.12rem]",
+    "after:tw-w-[1.12rem]",
+    "after:tw-box-border",
 
-    "focus-visible:tw-ring-2",
-    "focus-visible:tw-ring-offset-2",
-    "focus-visible:tw-ring-primary-700",
+    "hover:before:tw-border-2",
+    "[&>label]:before:tw-border-2",
 
-    "disabled:tw-cursor-auto",
-    "disabled:tw-border",
-    "disabled:tw-bg-secondary-100",
+    // if it exists, the parent form control handles focus
+    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-2",
+    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-offset-2",
+    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-primary-600",
 
-    "checked:tw-bg-primary-500",
-    "checked:tw-border-primary-500",
-    "checked:hover:tw-bg-primary-700",
-    "checked:hover:tw-border-primary-700",
-    "[&>label:hover]:checked:tw-bg-primary-700",
-    "[&>label:hover]:checked:tw-border-primary-700",
-    "checked:before:tw-bg-text-contrast",
-    "checked:before:tw-mask-position-[center]",
-    "checked:before:tw-mask-repeat-[no-repeat]",
-    "checked:disabled:tw-border-secondary-100",
-    "checked:disabled:tw-bg-secondary-100",
-    "checked:disabled:before:tw-bg-text-muted",
+    "disabled:before:tw-cursor-default",
+    "disabled:before:tw-border",
+    "disabled:before:hover:tw-border",
+    "disabled:before:tw-bg-secondary-100",
+    "disabled:hover:before:tw-bg-secondary-100",
 
-    "[&:not(:indeterminate)]:checked:before:tw-mask-image-[var(--mask-image)]",
-    "indeterminate:before:tw-mask-image-[var(--indeterminate-mask-image)]",
+    "checked:before:tw-bg-primary-600",
+    "checked:before:tw-border-primary-600",
+    "checked:before:hover:tw-bg-primary-700",
+    "checked:before:hover:tw-border-primary-700",
+    "[&>label:hover]:checked:before:tw-bg-primary-700",
+    "[&>label:hover]:checked:before:tw-border-primary-700",
+    "checked:after:tw-bg-text-contrast",
+    "checked:after:tw-mask-position-[center]",
+    "checked:after:tw-mask-repeat-[no-repeat]",
+    "checked:disabled:before:tw-border-secondary-100",
+    "checked:disabled:hover:before:tw-border-secondary-100",
+    "checked:disabled:before:tw-bg-secondary-100",
+    "checked:disabled:after:tw-bg-text-muted",
 
-    "indeterminate:tw-bg-primary-500",
-    "indeterminate:tw-border-primary-500",
-    "indeterminate:hover:tw-bg-primary-700",
-    "indeterminate:hover:tw-border-primary-700",
-    "[&>label:hover]:indeterminate:tw-bg-primary-700",
-    "[&>label:hover]:indeterminate:tw-border-primary-700",
-    "indeterminate:before:tw-bg-text-contrast",
-    "indeterminate:before:tw-mask-position-[center]",
-    "indeterminate:before:tw-mask-repeat-[no-repeat]",
-    "indeterminate:before:tw-mask-image-[var(--indeterminate-mask-image)]",
+    "[&:not(:indeterminate)]:checked:after:tw-mask-image-[var(--mask-image)]",
+    "indeterminate:after:tw-mask-image-[var(--indeterminate-mask-image)]",
+
+    "indeterminate:before:tw-bg-primary-600",
+    "indeterminate:before:tw-border-primary-600",
+    "indeterminate:hover:before:tw-bg-primary-700",
+    "indeterminate:hover:before:tw-border-primary-700",
+    "[&>label:hover]:indeterminate:before:tw-bg-primary-700",
+    "[&>label:hover]:indeterminate:before:tw-border-primary-700",
+    "indeterminate:after:tw-bg-text-contrast",
+    "indeterminate:after:tw-mask-position-[center]",
+    "indeterminate:after:tw-mask-repeat-[no-repeat]",
+    "indeterminate:after:tw-mask-image-[var(--indeterminate-mask-image)]",
     "indeterminate:disabled:tw-border-secondary-100",
     "indeterminate:disabled:tw-bg-secondary-100",
-    "indeterminate:disabled:before:tw-bg-text-muted",
+    "indeterminate:disabled:after:tw-bg-text-muted",
   ];
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
   @HostBinding("style.--mask-image")
   protected maskImage =
-    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="8" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
+    `url('data:image/svg+xml,%3Csvg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10" height="10" viewBox="0 0 10 10"%3E%3Cpath d="M0.5 6.2L2.9 8.6L9.5 1.4" fill="none" stroke="white" stroke-width="2"%3E%3C/path%3E%3C/svg%3E')`;
 
   @HostBinding("style.--indeterminate-mask-image")
   protected indeterminateImage =
-    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
+    `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
-  @HostBinding()
-  @Input()
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
+
+  // TODO migrate to computed signal when Angular adds signal support to reactive forms
+  // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
+    return this.disabledInput() || this.ngControl?.disabled || false;
   }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled: boolean;
 
-  @Input()
   get required() {
-    return (
-      this._required ?? this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false
-    );
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
   }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required: boolean;
 
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

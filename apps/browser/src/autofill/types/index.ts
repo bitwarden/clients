@@ -1,6 +1,5 @@
+import { VaultTimeout, VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
-import { VaultTimeoutAction } from "@bitwarden/common/src/enums/vault-timeout-action.enum";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 export type UserSettings = {
@@ -32,17 +31,9 @@ export type UserSettings = {
     utcDate: string;
     version: string;
   };
-  settings: {
-    equivalentDomains: string[][];
-  };
-  vaultTimeout: number;
+  vaultTimeout: VaultTimeout;
   vaultTimeoutAction: VaultTimeoutAction;
 };
-
-export type GlobalSettings = Pick<
-  GlobalState,
-  "disableAddLoginNotification" | "disableChangedPasswordNotification" | "neverDomains"
->;
 
 /**
  * A HTMLElement (usually a form element) with additional custom properties added by this script
@@ -63,4 +54,7 @@ export type FormFieldElement = FillableFormFieldElement | HTMLSpanElement;
 
 export type FormElementWithAttribute = FormFieldElement & Record<string, string | null | undefined>;
 
-export type AutofillCipherTypeId = CipherType.Login | CipherType.Card | CipherType.Identity;
+export type AutofillCipherTypeId =
+  | typeof CipherType.Login
+  | typeof CipherType.Card
+  | typeof CipherType.Identity;

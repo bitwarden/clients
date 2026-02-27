@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SecretVerificationRequest } from "./secret-verification.request";
 
 export class UpdateDevicesTrustRequest extends SecretVerificationRequest {
@@ -6,10 +8,10 @@ export class UpdateDevicesTrustRequest extends SecretVerificationRequest {
 }
 
 export class DeviceKeysUpdateRequest {
-  encryptedPublicKey: string;
-  encryptedUserKey: string;
+  encryptedPublicKey: string | undefined;
+  encryptedUserKey: string | undefined;
 }
 
 export class OtherDeviceKeysUpdateRequest extends DeviceKeysUpdateRequest {
-  id: string;
+  deviceId: string;
 }

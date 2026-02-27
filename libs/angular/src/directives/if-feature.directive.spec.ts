@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { FeatureFlag, FeatureFlagValue } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { IfFeatureDirective } from "./if-feature.directive";
@@ -13,6 +13,8 @@ const testBooleanFeature: FeatureFlag = "boolean-feature" as FeatureFlag;
 const testStringFeature: FeatureFlag = "string-feature" as FeatureFlag;
 const testStringFeatureValue = "test-value";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <div *appIfFeature="testBooleanFeature">
@@ -27,6 +29,7 @@ const testStringFeatureValue = "test-value";
       </div>
     </div>
   `,
+  standalone: false,
 })
 class TestComponent {
   testBooleanFeature = testBooleanFeature;
@@ -39,26 +42,24 @@ class TestComponent {
 describe("IfFeatureDirective", () => {
   let fixture: ComponentFixture<TestComponent>;
   let content: HTMLElement;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
-  const mockConfigFlagValue = (flag: FeatureFlag, flagValue: FeatureFlagValue) => {
-    mockConfigService.getFeatureFlag.mockImplementation((f, defaultValue) =>
-      flag == f ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
-    );
+  const mockConfigFlagValue = (flag: FeatureFlag, flagValue: AllowedFeatureFlagTypes) => {
+    mockConfigService.getFeatureFlag.mockImplementation((f) => Promise.resolve(flagValue as any));
   };
 
   const queryContent = (testId: string) =>
     fixture.debugElement.query(By.css(`[data-testid="${testId}"]`))?.nativeElement;
 
   beforeEach(async () => {
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
       declarations: [IfFeatureDirective, TestComponent],
       providers: [
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: ConfigServiceAbstraction,
+          provide: ConfigService,
           useValue: mockConfigService,
         },
       ],

@@ -1,4 +1,5 @@
-import { ProductType } from "../../../enums";
+import { MemberDecryptionType } from "../../../auth/enums/sso";
+import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
@@ -14,6 +15,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -21,6 +23,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -36,20 +39,32 @@ export class ProfileOrganizationResponse extends BaseResponse {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
+  organizationUserId: string;
   providerId: string;
   providerName: string;
   providerType?: ProviderType;
   familySponsorshipFriendlyName: string;
   familySponsorshipAvailable: boolean;
-  planProductType: ProductType;
+  productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
   keyConnectorUrl: string;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
-  limitCollectionCreationDeletion: boolean;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+  limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
+  userIsManagedByOrganization: boolean;
+  useAccessIntelligence: boolean;
+  useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
+  isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
+  useMyItems: boolean;
 
   constructor(response: any) {
     super(response);
@@ -63,6 +78,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.use2fa = this.getResponseProperty("Use2fa");
     this.useApi = this.getResponseProperty("UseApi");
     this.useSso = this.getResponseProperty("UseSso");
+    this.useOrganizationDomains = this.getResponseProperty("UseOrganizationDomains");
     this.useKeyConnector = this.getResponseProperty("UseKeyConnector") ?? false;
     this.useScim = this.getResponseProperty("UseScim") ?? false;
     this.useCustomPermissions = this.getResponseProperty("UseCustomPermissions") ?? false;
@@ -70,6 +86,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
+    this.useAutomaticUserConfirmation = this.getResponseProperty("UseAutomaticUserConfirmation");
     this.selfHost = this.getResponseProperty("SelfHost");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
     this.seats = this.getResponseProperty("Seats");
@@ -85,12 +102,13 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.permissions = new PermissionsApi(this.getResponseProperty("permissions"));
     this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled");
     this.userId = this.getResponseProperty("UserId");
+    this.organizationUserId = this.getResponseProperty("OrganizationUserId");
     this.providerId = this.getResponseProperty("ProviderId");
     this.providerName = this.getResponseProperty("ProviderName");
     this.providerType = this.getResponseProperty("ProviderType");
     this.familySponsorshipFriendlyName = this.getResponseProperty("FamilySponsorshipFriendlyName");
     this.familySponsorshipAvailable = this.getResponseProperty("FamilySponsorshipAvailable");
-    this.planProductType = this.getResponseProperty("PlanProductType");
+    this.productTierType = this.getResponseProperty("ProductTierType");
     this.keyConnectorEnabled = this.getResponseProperty("KeyConnectorEnabled") ?? false;
     this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
     const familySponsorshipLastSyncDateString = this.getResponseProperty(
@@ -107,11 +125,21 @@ export class ProfileOrganizationResponse extends BaseResponse {
     }
     this.familySponsorshipToDelete = this.getResponseProperty("FamilySponsorshipToDelete");
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
-    this.limitCollectionCreationDeletion = this.getResponseProperty(
-      "LimitCollectionCreationDeletion",
-    );
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    this.limitItemDeletion = this.getResponseProperty("LimitItemDeletion");
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
+    this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
+    // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
+    this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
+    this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers") ?? false;
+    this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
+    this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
+    this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
+    this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
+    this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
   }
 }

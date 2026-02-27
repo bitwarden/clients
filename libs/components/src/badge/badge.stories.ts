@@ -1,40 +1,55 @@
 import { CommonModule } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { BadgeDirective } from "./badge.directive";
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+
+import { BadgeComponent } from "./badge.component";
 
 export default {
   title: "Component Library/Badge",
-  component: BadgeDirective,
+  component: BadgeComponent,
   decorators: [
     moduleMetadata({
-      imports: [CommonModule],
-      declarations: [BadgeDirective],
+      imports: [CommonModule, BadgeComponent],
     }),
   ],
   args: {
-    badgeType: "primary",
     truncate: false,
   },
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A16956",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26440&t=b5tDKylm5sWm2yKo-4",
     },
   },
-} as Meta<BadgeDirective>;
+} as Meta<BadgeComponent>;
 
-type Story = StoryObj<BadgeDirective>;
+type Story = StoryObj<BadgeComponent>;
+
+export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge containing lengthy text</span>
+    `,
+  }),
+};
 
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `
-      <span class="tw-text-main">Span </span><span bitBadge [badgeType]="badgeType" [truncate]="truncate">Badge containing lengthy text</span>
-      <br><br>
-      <span class="tw-text-main">Link </span><a href="#" bitBadge [badgeType]="badgeType" [truncate]="truncate">Badge</a>
-      <br><br>
-      <span class="tw-text-main">Button </span><button bitBadge [badgeType]="badgeType" [truncate]="truncate">Badge</button>
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <span class="tw-text-main">span</span><span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge containing lengthy text</span>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <span class="tw-text-main">link </span><a href="#" bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge</a>
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <span class="tw-text-main">button </span><button type="button" bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge</button>
+        </div>
+      </div>
     `,
   }),
 };
@@ -42,35 +57,42 @@ export const Primary: Story = {
 export const Secondary: Story = {
   ...Primary,
   args: {
-    badgeType: "secondary",
+    variant: "secondary",
   },
 };
 
 export const Success: Story = {
   ...Primary,
   args: {
-    badgeType: "success",
+    variant: "success",
   },
 };
 
 export const Danger: Story = {
   ...Primary,
   args: {
-    badgeType: "danger",
+    variant: "danger",
   },
 };
 
 export const Warning: Story = {
   ...Primary,
   args: {
-    badgeType: "warning",
+    variant: "warning",
   },
 };
 
 export const Info: Story = {
   ...Primary,
   args: {
-    badgeType: "info",
+    variant: "info",
+  },
+};
+
+export const Notification: Story = {
+  ...Primary,
+  args: {
+    variant: "notification",
   },
 };
 
@@ -79,4 +101,47 @@ export const Truncated: Story = {
   args: {
     truncate: true,
   },
+};
+
+export const VariantsAndInteractionStates: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <span class="tw-text-main tw-mx-1">Default</span>
+      <button type="button" class="tw-mx-1" bitBadge variant="primary" [truncate]="truncate">Primary</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="secondary" [truncate]="truncate">Secondary</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="success" [truncate]="truncate">Success</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="danger" [truncate]="truncate">Danger</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="warning" [truncate]="truncate">Warning</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button type="button" class="tw-mx-1" bitBadge variant="notification" [truncate]="truncate">Notification</button>
+      <br/><br/>
+      <span class="tw-text-main tw-mx-1">Hover</span>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="primary" [truncate]="truncate">Primary</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="secondary" [truncate]="truncate">Secondary</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="success" [truncate]="truncate">Success</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="danger" [truncate]="truncate">Danger</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="warning" [truncate]="truncate">Warning</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button type="button" class="tw-mx-1 tw-test-hover" bitBadge variant="notification" [truncate]="truncate">Notification</button>
+      <br/><br/>
+      <span class="tw-text-main tw-mx-1">Focus Visible</span>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="primary" [truncate]="truncate">Primary</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="secondary" [truncate]="truncate">Secondary</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="success" [truncate]="truncate">Success</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="danger" [truncate]="truncate">Danger</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="warning" [truncate]="truncate">Warning</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button type="button" class="tw-mx-1 tw-test-focus-visible" bitBadge variant="notification" [truncate]="truncate">Notification</button>
+      <br/><br/>
+      <span class="tw-text-main tw-mx-1">Disabled</span>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="primary" [truncate]="truncate">Primary</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="secondary" [truncate]="truncate">Secondary</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="success" [truncate]="truncate">Success</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="danger" [truncate]="truncate">Danger</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="warning" [truncate]="truncate">Warning</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="info" [truncate]="truncate">Info</button>
+      <button type="button" disabled class="tw-mx-1" bitBadge variant="notification" [truncate]="truncate">Notification</button>
+    `,
+  }),
 };

@@ -1,19 +1,21 @@
 import { Jsonify } from "type-fest";
 
+import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
+
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
 import { SafeUrls } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
-import { UriMatchType } from "../../enums";
 import { LoginUri } from "../domain/login-uri";
 
 export class LoginUriView implements View {
-  match: UriMatchType = null;
+  match?: UriMatchStrategySetting;
 
-  private _uri: string = null;
-  private _domain: string = null;
-  private _hostname: string = null;
-  private _host: string = null;
-  private _canLaunch: boolean = null;
+  private _uri?: string;
+  private _domain?: string;
+  private _hostname?: string;
+  private _host?: string;
+  private _canLaunch?: boolean;
 
   constructor(u?: LoginUri) {
     if (!u) {
@@ -23,59 +25,59 @@ export class LoginUriView implements View {
     this.match = u.match;
   }
 
-  get uri(): string {
+  get uri(): string | undefined {
     return this._uri;
   }
-  set uri(value: string) {
+  set uri(value: string | undefined) {
     this._uri = value;
-    this._domain = null;
-    this._canLaunch = null;
+    this._domain = undefined;
+    this._canLaunch = undefined;
   }
 
-  get domain(): string {
+  get domain(): string | undefined {
     if (this._domain == null && this.uri != null) {
       this._domain = Utils.getDomain(this.uri);
       if (this._domain === "") {
-        this._domain = null;
+        this._domain = undefined;
       }
     }
 
     return this._domain;
   }
 
-  get hostname(): string {
-    if (this.match === UriMatchType.RegularExpression) {
-      return null;
+  get hostname(): string | undefined {
+    if (this.match === UriMatchStrategy.RegularExpression) {
+      return undefined;
     }
     if (this._hostname == null && this.uri != null) {
       this._hostname = Utils.getHostname(this.uri);
       if (this._hostname === "") {
-        this._hostname = null;
+        this._hostname = undefined;
       }
     }
 
     return this._hostname;
   }
 
-  get host(): string {
-    if (this.match === UriMatchType.RegularExpression) {
-      return null;
+  get host(): string | undefined {
+    if (this.match === UriMatchStrategy.RegularExpression) {
+      return undefined;
     }
     if (this._host == null && this.uri != null) {
       this._host = Utils.getHost(this.uri);
       if (this._host === "") {
-        this._host = null;
+        this._host = undefined;
       }
     }
 
     return this._host;
   }
 
-  get hostnameOrUri(): string {
+  get hostnameOrUri(): string | undefined {
     return this.hostname != null ? this.hostname : this.uri;
   }
 
-  get hostOrUri(): string {
+  get hostOrUri(): string | undefined {
     return this.host != null ? this.host : this.uri;
   }
 
@@ -92,7 +94,7 @@ export class LoginUriView implements View {
     if (this._canLaunch != null) {
       return this._canLaunch;
     }
-    if (this.uri != null && this.match !== UriMatchType.RegularExpression) {
+    if (this.uri != null && this.match !== UriMatchStrategy.RegularExpression) {
       this._canLaunch = SafeUrls.canLaunch(this.launchUri);
     } else {
       this._canLaunch = false;
@@ -100,7 +102,10 @@ export class LoginUriView implements View {
     return this._canLaunch;
   }
 
-  get launchUri(): string {
+  get launchUri(): string | undefined {
+    if (this.uri == null) {
+      return undefined;
+    }
     return this.uri.indexOf("://") < 0 && !Utils.isNullOrWhitespace(Utils.getDomain(this.uri))
       ? "http://" + this.uri
       : this.uri;
@@ -110,41 +115,75 @@ export class LoginUriView implements View {
     return Object.assign(new LoginUriView(), obj);
   }
 
+  /**
+   * Converts a LoginUriView object from the SDK to a LoginUriView object.
+   */
+  static fromSdkLoginUriView(obj: SdkLoginUriView): LoginUriView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const view = new LoginUriView();
+    view.uri = obj.uri;
+    view.match = obj.match;
+
+    return view;
+  }
+
+  /** Converts a LoginUriView object to an SDK LoginUriView object. */
+  toSdkLoginUriView(): SdkLoginUriView {
+    return {
+      uri: this.uri ?? undefined,
+      match: this.match ?? undefined,
+      uriChecksum: undefined, // SDK handles uri checksum generation internally
+    };
+  }
+
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
-    defaultUriMatch: UriMatchType = null,
+    defaultUriMatch?: UriMatchStrategySetting,
+    /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
+    overrideNeverMatchStrategy?: true,
   ): boolean {
     if (!this.uri || !targetUri) {
       return false;
     }
 
     let matchType = this.match ?? defaultUriMatch;
-    matchType ??= UriMatchType.Domain;
+    matchType ??= UriMatchStrategy.Domain;
+
+    // Override the match strategy with `Domain` when it is `Never` and `overrideNeverMatchStrategy` is true.
+    // This is useful in scenarios when the cipher should be matched to rely other information other than autofill.
+    if (overrideNeverMatchStrategy && matchType === UriMatchStrategy.Never) {
+      matchType = UriMatchStrategy.Domain;
+    }
 
     const targetDomain = Utils.getDomain(targetUri);
     const matchDomains = equivalentDomains.add(targetDomain);
 
     switch (matchType) {
-      case UriMatchType.Domain:
+      case UriMatchStrategy.Domain:
         return this.matchesDomain(targetUri, matchDomains);
-      case UriMatchType.Host: {
+      case UriMatchStrategy.Host: {
         const urlHost = Utils.getHost(targetUri);
         return urlHost != null && urlHost === Utils.getHost(this.uri);
       }
-      case UriMatchType.Exact:
+      case UriMatchStrategy.Exact:
         return targetUri === this.uri;
-      case UriMatchType.StartsWith:
+      case UriMatchStrategy.StartsWith:
         return targetUri.startsWith(this.uri);
-      case UriMatchType.RegularExpression:
+      case UriMatchStrategy.RegularExpression:
         try {
           const regex = new RegExp(this.uri, "i");
           return regex.test(targetUri);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           // Invalid regex
           return false;
         }
-      case UriMatchType.Never:
+      case UriMatchStrategy.Never:
         return false;
       default:
         break;
@@ -160,7 +199,7 @@ export class LoginUriView implements View {
 
     if (Utils.DomainMatchBlacklist.has(this.domain)) {
       const domainUrlHost = Utils.getHost(targetUri);
-      return !Utils.DomainMatchBlacklist.get(this.domain).has(domainUrlHost);
+      return !Utils.DomainMatchBlacklist.get(this.domain)!.has(domainUrlHost);
     }
 
     return true;

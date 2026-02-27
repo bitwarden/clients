@@ -1,8 +1,8 @@
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 
 import {
   EncryptedMessageResponse,
@@ -10,8 +10,16 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { BiometricMessage, BiometricAction } from "../types/biometric-message";
-import { isDev, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsPortable,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -36,27 +44,34 @@ const passwords = {
     ipcRenderer.invoke("keytar", { action: "deletePassword", key, keySuffix }),
 };
 
-const biometric = {
-  enabled: (userId: string): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.EnabledForUser,
-      key: `${userId}_user_biometric`,
-      keySuffix: KeySuffixOptions.Biometric,
-      userId: userId,
-    } satisfies BiometricMessage),
-  osSupported: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.OsSupported,
-    } satisfies BiometricMessage),
-  authenticate: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.Authenticate,
-    } satisfies BiometricMessage),
-};
-
 const clipboard = {
   read: (): Promise<string> => ipcRenderer.invoke("clipboard.read"),
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
+};
+
+const sshAgent = {
+  init: async () => {
+    await ipcRenderer.invoke("sshagent.init");
+  },
+  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke("sshagent.setkeys", keys),
+  signRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
+  },
+  lock: async () => {
+    return await ipcRenderer.invoke("sshagent.lock");
+  },
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
+  },
+};
+
+const powermonitor = {
+  isLockMonitorAvailable: (): Promise<boolean> =>
+    ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
 };
 
 const nativeMessaging = {
@@ -65,6 +80,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;
@@ -74,16 +90,60 @@ const nativeMessaging = {
   onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
     ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
   },
+
+  manifests: {
+    generate: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.manifests", { create }),
+    generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
+};
+
+const ephemeralStore = {
+  setEphemeralValue: (key: string, value: string): Promise<void> =>
+    ipcRenderer.invoke("setEphemeralValue", { key, value }),
+  getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
+  removeEphemeralValue: (key: string): Promise<void> =>
+    ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
+};
+
+const localhostCallbackService = {
+  openSsoPrompt: (
+    codeChallenge: string,
+    state: string,
+    email: string,
+    orgSsoIdentifier?: string,
+  ): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email, orgSsoIdentifier });
+  },
 };
 
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
+    registerSdkVersionProvider: (provide: (resolve: (version: string) => void) => void) => {
+      const resolve = (version: string) => ipcRenderer.send("sdkVersion", version);
+
+      ipcRenderer.on("sdkVersion", () => {
+        provide(resolve);
+      });
+    },
   },
   deviceType: deviceType(),
   isDev: isDev(),
+  isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
+  isWindowsPortable: isWindowsPortable(),
+  isFlatpak: isFlatpak(),
+  isSnapStore: isSnapStore(),
+  isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  focusWindow: () => ipcRenderer.send("window-focus"),
+  hideWindow: () => ipcRenderer.send("window-hide"),
+  log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
+    ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
   openContextMenu: (
     menu: {
@@ -104,21 +164,34 @@ export default {
 
   sendMessage: (message: { command: string } & any) =>
     ipcRenderer.send("messagingService", message),
-  onMessage: (callback: (message: { command: string } & any) => void) => {
-    ipcRenderer.on("messagingService", (_event, message: any) => {
-      if (message.command) {
-        callback(message);
-      }
-    });
+  onMessage: {
+    addListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
+    removeListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
   },
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),
 
   storage,
   passwords,
-  biometric,
   clipboard,
+  sshAgent,
+  powermonitor,
   nativeMessaging,
+  crypto,
+  ephemeralStore,
+  localhostCallbackService,
 };
 
 function deviceType(): DeviceType {

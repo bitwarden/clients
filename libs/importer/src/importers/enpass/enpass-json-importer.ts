@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -62,7 +64,10 @@ export class EnpassJsonImporter extends BaseImporter implements Importer {
         }
       }
 
-      cipher.notes += "\n" + this.getValueOrDefault(item.note, "");
+      const note = this.getValueOrDefault(item.note, "");
+      if (note) {
+        cipher.notes = note.trimEnd();
+      }
       this.convertToNoteIfNeeded(cipher);
       this.cleanupCipher(cipher);
       result.ciphers.push(cipher);

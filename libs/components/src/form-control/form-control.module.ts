@@ -1,14 +1,11 @@
 import { NgModule } from "@angular/core";
 
-import { SharedModule } from "../shared";
-
 import { FormControlComponent } from "./form-control.component";
-import { BitHintComponent } from "./hint.component";
-import { BitLabel } from "./label.directive";
+import { BitHintDirective } from "./hint.directive";
+import { BitLabelComponent } from "./label.component";
 
 @NgModule({
-  imports: [SharedModule],
-  declarations: [FormControlComponent, BitLabel, BitHintComponent],
-  exports: [FormControlComponent, BitLabel, BitHintComponent],
+  imports: [BitLabelComponent, FormControlComponent, BitHintDirective],
+  exports: [FormControlComponent, BitLabelComponent, BitHintDirective],
 })
 export class FormControlModule {}

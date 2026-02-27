@@ -1,10 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as child_process from "child_process";
+
+import open from "open";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-
-// eslint-disable-next-line
-const open = require("open");
 
 export class CliPlatformUtilsService implements PlatformUtilsService {
   clientType: ClientType;
@@ -70,11 +71,15 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return false;
+  }
+
   isMacAppStore() {
     return false;
   }
 
-  isViewOpen() {
+  isPopupOpen() {
     return Promise.resolve(false);
   }
 
@@ -82,7 +87,8 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     if (process.platform === "linux") {
       child_process.spawnSync("xdg-open", [uri]);
     } else {
-      open(uri);
+      // eslint-disable-next-line no-console
+      open(uri).catch(console.error);
     }
   }
 
@@ -103,6 +109,14 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   }
 
   supportsDuo(): boolean {
+    return false;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
     return false;
   }
 
@@ -131,19 +145,15 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     throw new Error("Not implemented.");
   }
 
-  supportsBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
   supportsSecureStorage(): boolean {
     return false;
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
+  }
+
+  async packageType(): Promise<string | null> {
     return null;
   }
 }

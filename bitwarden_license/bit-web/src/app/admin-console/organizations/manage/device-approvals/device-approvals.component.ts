@@ -1,47 +1,72 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
 
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { DevicesIcon } from "@bitwarden/assets/svg";
+import { OrganizationAuthRequestApiService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request-api.service";
+import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request.service";
+import { PendingAuthRequestWithFingerprintView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request-with-fingerprint.view";
+import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request.view";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { TableDataSource } from "@bitwarden/components";
-import { Devices } from "@bitwarden/web-vault/app/admin-console/icons";
+import { TableDataSource, NoItemsModule, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
+import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 
-import { OrganizationAuthRequestService } from "../../core/services/auth-requests";
-import { PendingAuthRequestView } from "../../core/views/pending-auth-request.view";
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-device-approvals",
   templateUrl: "./device-approvals.component.html",
+  providers: [
+    safeProvider({
+      provide: OrganizationAuthRequestApiService,
+      deps: [ApiService],
+    }),
+    safeProvider({
+      provide: OrganizationAuthRequestService,
+      deps: [
+        OrganizationAuthRequestApiService,
+        KeyService,
+        EncryptService,
+        OrganizationUserApiService,
+        AccountService,
+      ],
+    }),
+  ] satisfies SafeProvider[],
+  imports: [SharedModule, NoItemsModule, HeaderModule],
 })
 export class DeviceApprovalsComponent implements OnInit, OnDestroy {
-  tableDataSource = new TableDataSource<PendingAuthRequestView>();
+  tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();
   organizationId: string;
   loading = true;
   actionInProgress = false;
 
-  protected readonly Devices = Devices;
+  protected readonly DevicesIcon = DevicesIcon;
 
   private destroy$ = new Subject<void>();
   private refresh$ = new BehaviorSubject<void>(null);
 
   constructor(
     private organizationAuthRequestService: OrganizationAuthRequestService,
-    private organizationUserService: OrganizationUserService,
-    private cryptoService: CryptoService,
     private route: ActivatedRoute,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private logService: LogService,
     private validationService: ValidationService,
+    private configService: ConfigService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -52,7 +77,9 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
           this.refresh$.pipe(
             tap(() => (this.loading = true)),
             switchMap(() =>
-              this.organizationAuthRequestService.listPendingRequests(this.organizationId),
+              this.organizationAuthRequestService.listPendingRequestsWithFingerprint(
+                this.organizationId,
+              ),
             ),
           ),
         ),
@@ -64,72 +91,57 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Creates a copy of the user key that has been encrypted with the provided device's public key.
-   * @param devicePublicKey
-   * @param resetPasswordDetails
-   * @private
-   */
-  private async getEncryptedUserKey(
-    devicePublicKey: string,
-    resetPasswordDetails: OrganizationUserResetPasswordDetailsResponse,
-  ): Promise<EncString> {
-    const encryptedUserKey = resetPasswordDetails.resetPasswordKey;
-    const encryptedOrgPrivateKey = resetPasswordDetails.encryptedPrivateKey;
-    const devicePubKey = Utils.fromB64ToArray(devicePublicKey);
-
-    // Decrypt Organization's encrypted Private Key with org key
-    const orgSymKey = await this.cryptoService.getOrgKey(this.organizationId);
-    const decOrgPrivateKey = await this.cryptoService.decryptToBytes(
-      new EncString(encryptedOrgPrivateKey),
-      orgSymKey,
-    );
-
-    // Decrypt user key with decrypted org private key
-    const decValue = await this.cryptoService.rsaDecrypt(encryptedUserKey, decOrgPrivateKey);
-    const userKey = new SymmetricCryptoKey(decValue);
-
-    // Re-encrypt user Key with the Device Public Key
-    return await this.cryptoService.rsaEncrypt(userKey.key, devicePubKey);
-  }
-
   async approveRequest(authRequest: PendingAuthRequestView) {
     await this.performAsyncAction(async () => {
-      const details = await this.organizationUserService.getOrganizationUserResetPasswordDetails(
-        this.organizationId,
-        authRequest.organizationUserId,
-      );
-
-      // The user must be enrolled in account recovery (password reset) in order for the request to be approved.
-      if (details == null || details.resetPasswordKey == null) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("resetPasswordDetailsError"),
+      try {
+        await this.organizationAuthRequestService.approvePendingRequest(
+          this.organizationId,
+          authRequest,
         );
-        return;
+
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("loginRequestApproved"),
+        });
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("resetPasswordDetailsError"),
+        });
       }
+    });
+  }
 
-      const encryptedKey = await this.getEncryptedUserKey(authRequest.publicKey, details);
+  async approveAllRequests() {
+    if (this.tableDataSource.data.length === 0) {
+      return;
+    }
 
-      await this.organizationAuthRequestService.approvePendingRequest(
+    await this.performAsyncAction(async () => {
+      await this.organizationAuthRequestService.approvePendingRequests(
         this.organizationId,
-        authRequest.id,
-        encryptedKey,
+        this.tableDataSource.data,
       );
-
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("loginRequestApproved"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("allLoginRequestsApproved"),
+      });
     });
   }
 
   async denyRequest(requestId: string) {
     await this.performAsyncAction(async () => {
       await this.organizationAuthRequestService.denyPendingRequests(this.organizationId, requestId);
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("loginRequestDenied"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("loginRequestDenied"),
+      });
     });
   }
 
@@ -143,11 +155,11 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
         this.organizationId,
         ...this.tableDataSource.data.map((r) => r.id),
       );
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("allLoginRequestsDenied"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("allLoginRequestsDenied"),
+      });
     });
   }
 

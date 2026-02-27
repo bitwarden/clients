@@ -1,0 +1,113 @@
+<bit-dialog dialogSize="default">
+  <span bitDialogTitle class="tw-font-medium">
+    {{ "subscribetoEnterprise" | i18n: currentPlanName }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "subscribeEnterpriseSubtitle" | i18n: currentPlanName }}</p>
+
+    <!-- Plan Features List -->
+    <ng-container [ngSwitch]="currentPlan?.productTier">
+      <ul class="bwi-ul tw-text-xs" *ngSwitchCase="productTypes.Enterprise">
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "includeEnterprisePolicies" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "passwordLessSso" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "accountRecovery" | i18n }}
+        </li>
+        <li *ngIf="!organization?.canAccessSecretsManager">
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "customRoles" | i18n }}
+        </li>
+        <li *ngIf="organization?.canAccessSecretsManager">
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "unlimitedSecretsAndProjects" | i18n }}
+        </li>
+      </ul>
+
+      <ul class="bwi-ul tw-text-xs" *ngSwitchCase="productTypes.Teams">
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "secureDataSharing" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "eventLogMonitoring" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "directoryIntegration" | i18n }}
+        </li>
+        <li *ngIf="organization?.canAccessSecretsManager">
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "unlimitedSecretsAndProjects" | i18n }}
+        </li>
+      </ul>
+
+      <ul class="bwi-ul tw-text-xs" *ngSwitchCase="productTypes.Families">
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "premiumAccounts" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "unlimitedSharing" | i18n }}
+        </li>
+        <li>
+          <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
+          {{ "createUnlimitedCollections" | i18n }}
+        </li>
+      </ul>
+    </ng-container>
+
+    <div *ngIf="!(currentPlan?.productTier === productTypes.Families)">
+      <div class="tw-mb-3 tw-flex tw-justify-between">
+        <h4 class="tw-text-lg tw-text-main">{{ "selectAPlan" | i18n }}</h4>
+      </div>
+
+      <ng-container *ngIf="planCards().length > 0">
+        <div
+          class="tw-grid tw-grid-flow-col tw-gap-4 tw-mb-2"
+          [class]="'tw-grid-cols-' + planCards().length"
+        >
+          @for (planCard of planCards(); track $index) {
+            <app-plan-card [plan]="planCard" (cardClicked)="setSelected(planCard)"></app-plan-card>
+          }
+        </div>
+      </ng-container>
+    </div>
+    <!-- Payment Information -->
+    <ng-container>
+      <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
+      <ng-container bitDialogContent>
+        <app-enter-payment-method [group]="formGroup.controls.paymentMethod">
+        </app-enter-payment-method>
+        <app-enter-billing-address
+          [group]="formGroup.controls.billingAddress"
+          [scenario]="{ type: 'checkout', supportsTaxId }"
+        >
+        </app-enter-billing-address>
+      </ng-container>
+      <!-- Pricing Breakdown -->
+      <app-pricing-summary
+        *ngIf="pricingSummaryData"
+        [summaryData]="pricingSummaryData"
+      ></app-pricing-summary>
+    </ng-container>
+  </div>
+  <!-- Dialog Footer -->
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" type="button" [bitAction]="onSubscribe.bind(this)">
+      {{ "subscribe" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.CLOSED">
+      {{ "later" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

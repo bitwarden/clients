@@ -1,0 +1,53 @@
+@if (hideEmail()) {
+  <bit-callout type="warning" title="{{ 'warning' | i18n }}">
+    {{ "viewSendHiddenEmailWarning" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
+      "learnMore" | i18n
+    }}</a>
+  </bit-callout>
+}
+
+@if (loading()) {
+  <div class="tw-text-center">
+    <bit-spinner></bit-spinner>
+  </div>
+} @else {
+  @if (unavailable()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+    </div>
+  }
+  @if (error()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
+    </div>
+  }
+  @if (send()) {
+    <div>
+      <p class="tw-text-center">
+        <b>{{ send().name }}</b>
+      </p>
+      <hr />
+      @switch (send().type) {
+        @case (sendType.Text) {
+          <app-send-access-text [send]="send()"></app-send-access-text>
+        }
+        @case (sendType.File) {
+          <app-send-access-file
+            [send]="send()"
+            [decKey]="decKey"
+            [accessRequest]="accessRequest()"
+            [accessToken]="accessToken()"
+          ></app-send-access-file>
+        }
+      }
+      @if (expirationDate()) {
+        @let formattedExpirationTime = expirationDate() | date: "shortTime";
+        @let formattedExpirationDate = expirationDate() | date: "mediumDate";
+        <p class="tw-text-center tw-text-muted tw-text-sm">
+          {{ "sendExpiresOn" | i18n: formattedExpirationTime : formattedExpirationDate }}
+        </p>
+      }
+    </div>
+  }
+}

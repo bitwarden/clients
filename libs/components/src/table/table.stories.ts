@@ -1,7 +1,14 @@
-import { ScrollingModule } from "@angular/cdk/scrolling";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { RouterTestingModule } from "@angular/router/testing";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { countries } from "../form/countries";
+import { LayoutComponent } from "../layout";
+import { mockLayoutI18n } from "../layout/mocks";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { TableDataSource } from "./table-data-source";
 import { TableModule } from "./table.module";
@@ -9,8 +16,25 @@ import { TableModule } from "./table.module";
 export default {
   title: "Component Library/Table",
   decorators: [
+    positionFixedWrapperDecorator(),
     moduleMetadata({
-      imports: [TableModule, ScrollingModule],
+      imports: [TableModule, LayoutComponent, RouterTestingModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService(mockLayoutI18n);
+          },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
+      ],
     }),
   ],
   argTypes: {
@@ -22,7 +46,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A18371",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-41282&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -44,7 +68,7 @@ export const Default: Story = {
         <ng-template body>
           <tr bitRow [alignContent]="alignRowContent">
             <td bitCell>Cell 1</td>
-            <td bitCell>Cell 2 <br> Multiline Cell</td>
+            <td bitCell>Cell 2 <br /> Multiline Cell</td>
             <td bitCell>Cell 3</td>
           </tr>
           <tr bitRow [alignContent]="alignRowContent">
@@ -53,7 +77,7 @@ export const Default: Story = {
             <td bitCell>Cell 6</td>
           </tr>
           <tr bitRow [alignContent]="alignRowContent">
-            <td bitCell>Cell 7 <br> Multiline Cell</td>
+            <td bitCell>Cell 7 <br /> Multiline Cell</td>
             <td bitCell>Cell 8</td>
             <td bitCell>Cell 9</td>
           </tr>
@@ -114,26 +138,23 @@ export const Scrollable: Story = {
     props: {
       dataSource: data2,
       sortFn: (a: any, b: any) => a.id - b.id,
+      trackBy: (index: number, item: any) => item.id,
     },
     template: `
-      <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-        <bit-table [dataSource]="dataSource">
+      <bit-layout>
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
           <ng-container header>
-            <tr>
-              <th bitCell bitSortable="id" default>Id</th>
-              <th bitCell bitSortable="name">Name</th>
-              <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
-            </tr>
+            <th bitCell bitSortable="id" default>Id</th>
+            <th bitCell bitSortable="name">Name</th>
+            <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
           </ng-container>
-          <ng-template body let-rows$>
-            <tr bitRow *cdkVirtualFor="let r of rows$">
-              <td bitCell>{{ r.id }}</td>
-              <td bitCell>{{ r.name }}</td>
-              <td bitCell>{{ r.other }}</td>
-            </tr>
+          <ng-template bitRowDef let-row>
+            <td bitCell>{{ row.id }}</td>
+            <td bitCell>{{ row.name }}</td>
+            <td bitCell>{{ row.other }}</td>
           </ng-template>
-        </bit-table>
-      </cdk-virtual-scroll-viewport>
+        </bit-table-scroll>
+      </bit-layout>
     `,
   }),
 };
@@ -150,23 +171,19 @@ export const Filterable: Story = {
       sortFn: (a: any, b: any) => a.id - b.id,
     },
     template: `
-      <input type="search" placeholder="Search" (input)="dataSource.filter = $event.target.value" />
-      <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-        <bit-table [dataSource]="dataSource">
+      <bit-layout>
+        <input type="search" placeholder="Search" (input)="dataSource.filter = $event.target.value" />
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
           <ng-container header>
-            <tr>
-              <th bitCell bitSortable="name" default>Name</th>
-              <th bitCell bitSortable="value" width="120px">Value</th>
-            </tr>
+            <th bitCell bitSortable="name" default>Name</th>
+            <th bitCell bitSortable="value" width="120px">Value</th>
           </ng-container>
-          <ng-template body let-rows$>
-            <tr bitRow *cdkVirtualFor="let r of rows$">
-              <td bitCell>{{ r.name }}</td>
-              <td bitCell>{{ r.value }}</td>
-            </tr>
+          <ng-template bitRowDef let-row>
+            <td bitCell>{{ row.name }}</td>
+            <td bitCell>{{ row.value }}</td>
           </ng-template>
-        </bit-table>
-      </cdk-virtual-scroll-viewport>
+        </bit-table-scroll>
+      </bit-layout>
     `,
   }),
 };

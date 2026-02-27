@@ -1,4 +1,3 @@
-@import "../../../../libs/angular/src/scss/webfonts.css";
 @import "../../../../libs/angular/src/scss/bwicons/styles/style.scss";
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "variables.scss";
@@ -11,10 +10,11 @@
 @import "buttons.scss";
 @import "misc.scss";
 @import "modal.scss";
-@import "plugins.scss";
 @import "environment.scss";
 @import "header.scss";
 @import "left-nav.scss";
 @import "loading.scss";
+@import "plugins.scss";
+@import "migration.scss";
 @import "../../../../libs/angular/src/scss/icons.scss";
 @import "../../../../libs/components/src/multi-select/scss/bw.theme";

@@ -1,42 +1,43 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { ExposedPasswordsReportComponent } from "../../../admin-console/organizations/tools/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent } from "../../../admin-console/organizations/tools/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent } from "../../../admin-console/organizations/tools/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent } from "../../../admin-console/organizations/tools/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent } from "../../../admin-console/organizations/tools/weak-passwords-report.component";
-import { IsPaidOrgGuard } from "../guards/is-paid-org.guard";
-import { OrganizationPermissionsGuard } from "../guards/org-permissions.guard";
-import { OrganizationRedirectGuard } from "../guards/org-redirect.guard";
+// eslint-disable-next-line no-restricted-imports
+import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports
+import { InactiveTwoFactorReportComponent } from "../../../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+// eslint-disable-next-line no-restricted-imports
+import { ReusedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/reused-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports
+import { UnsecuredWebsitesReportComponent } from "../../../dirt/reports/pages/organizations/unsecured-websites-report.component";
+// eslint-disable-next-line no-restricted-imports
+import { WeakPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/weak-passwords-report.component";
+import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
+import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
+import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
-import { ReportingComponent } from "./reporting.component";
 import { ReportsHomeComponent } from "./reports-home.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: ReportingComponent,
-    canActivate: [OrganizationPermissionsGuard],
-    data: { organizationPermissions: canAccessReportingTab },
+    canActivate: [organizationPermissionsGuard(canAccessReportingTab)],
     children: [
       {
         path: "",
         pathMatch: "full",
-        canActivate: [OrganizationRedirectGuard],
-        data: {
-          autoRedirectCallback: getReportRoute,
-        },
+        canActivate: [organizationRedirectGuard(getReportRoute)],
         children: [], // This is required to make the auto redirect work,
       },
       {
         path: "reports",
         component: ReportsHomeComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [organizationPermissionsGuard()],
         data: {
           titleId: "reports",
         },
@@ -47,7 +48,7 @@ const routes: Routes = [
             data: {
               titleId: "exposedPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "inactive-two-factor-report",
@@ -55,7 +56,7 @@ const routes: Routes = [
             data: {
               titleId: "inactive2faReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "reused-passwords-report",
@@ -63,7 +64,7 @@ const routes: Routes = [
             data: {
               titleId: "reusedPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "unsecured-websites-report",
@@ -71,7 +72,7 @@ const routes: Routes = [
             data: {
               titleId: "unsecuredWebsitesReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "weak-passwords-report",
@@ -79,17 +80,16 @@ const routes: Routes = [
             data: {
               titleId: "weakPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
         ],
       },
       {
         path: "events",
         component: EventsComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs || org.isOwner)],
         data: {
           titleId: "eventLogs",
-          organizationPermissions: (org: Organization) => org.canAccessEventLogs,
         },
       },
     ],

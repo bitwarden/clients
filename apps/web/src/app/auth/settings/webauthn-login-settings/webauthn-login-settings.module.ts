@@ -8,6 +8,7 @@ import { UserVerificationModule } from "../../shared/components/user-verificatio
 
 import { CreateCredentialDialogComponent } from "./create-credential-dialog/create-credential-dialog.component";
 import { DeleteCredentialDialogComponent } from "./delete-credential-dialog/delete-credential-dialog.component";
+import { EnableEncryptionDialogComponent } from "./enable-encryption-dialog/enable-encryption-dialog.component";
 import { WebauthnLoginSettingsComponent } from "./webauthn-login-settings.component";
 
 @NgModule({
@@ -16,6 +17,7 @@ import { WebauthnLoginSettingsComponent } from "./webauthn-login-settings.compon
     WebauthnLoginSettingsComponent,
     CreateCredentialDialogComponent,
     DeleteCredentialDialogComponent,
+    EnableEncryptionDialogComponent,
   ],
   exports: [WebauthnLoginSettingsComponent],
 })

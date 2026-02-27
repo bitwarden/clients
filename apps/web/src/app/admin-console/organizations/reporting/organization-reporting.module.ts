@@ -1,14 +1,21 @@
+import { OverlayModule } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
 
-import { ReportsSharedModule } from "../../../reports";
+import { ReportsSharedModule } from "../../../dirt/reports";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
 
 import { OrganizationReportingRoutingModule } from "./organization-reporting-routing.module";
-import { ReportingComponent } from "./reporting.component";
 import { ReportsHomeComponent } from "./reports-home.component";
 
 @NgModule({
-  imports: [SharedModule, ReportsSharedModule, OrganizationReportingRoutingModule],
-  declarations: [ReportsHomeComponent, ReportingComponent],
+  imports: [
+    SharedModule,
+    OverlayModule,
+    ReportsSharedModule,
+    OrganizationReportingRoutingModule,
+    HeaderModule,
+  ],
+  declarations: [ReportsHomeComponent],
 })
 export class OrganizationReportingModule {}

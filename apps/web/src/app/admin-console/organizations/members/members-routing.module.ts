@@ -3,18 +3,27 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessMembersTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
-import { OrganizationPermissionsGuard } from "../guards/org-permissions.guard";
+import { FreeBitwardenFamiliesComponent } from "../../../billing/members/free-bitwarden-families.component";
+import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 
-import { PeopleComponent } from "./people.component";
+import { canAccessSponsoredFamilies } from "./../../../billing/guards/can-access-sponsored-families.guard";
+import { MembersComponent } from "./members.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: PeopleComponent,
-    canActivate: [OrganizationPermissionsGuard],
+    component: MembersComponent,
+    canActivate: [organizationPermissionsGuard(canAccessMembersTab)],
     data: {
       titleId: "members",
-      organizationPermissions: canAccessMembersTab,
+    },
+  },
+  {
+    path: "sponsored-families",
+    component: FreeBitwardenFamiliesComponent,
+    canActivate: [organizationPermissionsGuard(canAccessMembersTab), canAccessSponsoredFamilies],
+    data: {
+      titleId: "sponsoredFamilies",
     },
   },
 ];

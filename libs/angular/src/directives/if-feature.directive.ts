@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
 
-import { FeatureFlag, FeatureFlagValue } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 /**
@@ -12,25 +14,30 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
  */
 @Directive({
   selector: "[appIfFeature]",
+  standalone: false,
 })
 export class IfFeatureDirective implements OnInit {
   /**
    * The feature flag to check.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() appIfFeature: FeatureFlag;
 
   /**
    * Optional value to compare against the value of the feature flag in the config service.
    * @default true
    */
-  @Input() appIfFeatureValue: FeatureFlagValue = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() appIfFeatureValue: AllowedFeatureFlagTypes = true;
 
   private hasView = false;
 
   constructor(
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private logService: LogService,
   ) {}
 

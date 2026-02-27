@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="default">
     <ng-container bitDialogTitle>
-      <span>{{ "newAccessToken" | i18n }}</span>
+      <span>{{ "createAccessToken" | i18n }}</span>
       <span class="tw-text-sm tw-normal-case tw-text-muted">
         {{ data.serviceAccountView.name }}
       </span>
@@ -21,7 +21,7 @@
 
     <ng-container bitDialogFooter>
       <button class="tw-normal-case" type="submit" bitButton buttonType="primary" bitFormButton>
-        {{ "newAccessToken" | i18n }}
+        {{ "createAccessToken" | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
         {{ "cancel" | i18n }}

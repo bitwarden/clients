@@ -1,45 +1,73 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Inject, OnInit } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared/shared.module";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 
+export type EmergencyAccessAddEditDialogData = {
+  /** display name of the account requesting emergency access */
+  name: string;
+  /** traces a unique emergency request  */
+  emergencyAccessId: string;
+  /** A boolean indicating whether the emergency access request is in read-only mode (true for view-only, false for editing). */
+  readOnly: boolean;
+};
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
+export enum EmergencyAccessAddEditDialogResult {
+  Saved = "saved",
+  Canceled = "canceled",
+  Deleted = "deleted",
+}
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
+  imports: [SharedModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
-  @Input() name: string;
-  @Input() emergencyAccessId: string;
-  @Output() onSaved = new EventEmitter();
-  @Output() onDeleted = new EventEmitter();
-
   loading = true;
   readOnly = false;
   editMode = false;
   title: string;
-  email: string;
   type: EmergencyAccessType = EmergencyAccessType.View;
-
-  formPromise: Promise<any>;
 
   emergencyAccessType = EmergencyAccessType;
   waitTimes: { name: string; value: number }[];
-  waitTime: number;
 
+  addEditForm = this.formBuilder.group({
+    email: ["", [Validators.email, Validators.required]],
+    emergencyAccessType: [this.emergencyAccessType.View],
+    waitTime: [{ value: null, disabled: this.readOnly }, [Validators.required]],
+  });
   constructor(
+    @Inject(DIALOG_DATA) protected params: EmergencyAccessAddEditDialogData,
+    private formBuilder: FormBuilder,
     private emergencyAccessService: EmergencyAccessService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
+    private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
+    private toastService: ToastService,
   ) {}
-
   async ngOnInit() {
-    this.editMode = this.loading = this.emergencyAccessId != null;
-
+    this.editMode = this.loading = this.params.emergencyAccessId != null;
     this.waitTimes = [
       { name: this.i18nService.t("oneDay"), value: 1 },
       { name: this.i18nService.t("days", "2"), value: 2 },
@@ -50,46 +78,75 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     ];
 
     if (this.editMode) {
-      this.editMode = true;
       this.title = this.i18nService.t("editEmergencyContact");
       try {
         const emergencyAccess = await this.emergencyAccessService.getEmergencyAccess(
-          this.emergencyAccessId,
+          this.params.emergencyAccessId,
         );
-        this.type = emergencyAccess.type;
-        this.waitTime = emergencyAccess.waitTimeDays;
+        this.addEditForm.patchValue({
+          email: emergencyAccess.email,
+          waitTime: emergencyAccess.waitTimeDays,
+          emergencyAccessType: emergencyAccess.type,
+        });
       } catch (e) {
         this.logService.error(e);
       }
     } else {
       this.title = this.i18nService.t("inviteEmergencyContact");
-      this.waitTime = this.waitTimes[2].value;
+      this.addEditForm.patchValue({ waitTime: this.waitTimes[2].value });
     }
 
     this.loading = false;
   }
 
-  async submit() {
+  submit = async () => {
+    if (this.addEditForm.invalid) {
+      this.addEditForm.markAllAsTouched();
+      return;
+    }
     try {
       if (this.editMode) {
-        await this.emergencyAccessService.update(this.emergencyAccessId, this.type, this.waitTime);
+        await this.emergencyAccessService.update(
+          this.params.emergencyAccessId,
+          this.addEditForm.value.emergencyAccessType,
+          this.addEditForm.value.waitTime,
+        );
       } else {
-        await this.emergencyAccessService.invite(this.email, this.type, this.waitTime);
+        await this.emergencyAccessService.invite(
+          this.addEditForm.value.email,
+          this.addEditForm.value.emergencyAccessType,
+          this.addEditForm.value.waitTime,
+        );
       }
-
-      await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.name),
-      );
-      this.onSaved.emit();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.editMode ? "editedUserId" : "invitedUsers",
+          this.params.name,
+        ),
+      });
+      this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 
-  async delete() {
-    this.onDeleted.emit();
-  }
+  delete = async () => {
+    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Deleted);
+  };
+  /**
+   * Strongly typed helper to open a EmergencyAccessAddEditComponent
+   * @param dialogService Instance of the dialog service that will be used to open the dialog
+   * @param config Configuration for the dialog
+   */
+  static open = (
+    dialogService: DialogService,
+    config: DialogConfig<EmergencyAccessAddEditDialogData>,
+  ) => {
+    return dialogService.open<EmergencyAccessAddEditDialogResult>(
+      EmergencyAccessAddEditComponent,
+      config,
+    );
+  };
 }

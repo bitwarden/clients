@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./popover.stories";
 
@@ -25,6 +25,13 @@ over a word or icon. Use popovers to show a longer text, or when you want to lin
 page.
 
 <Primary />
+
+## Implementation Notes
+
+The popover should have even spacing above and below the content. If you are using element(s) inside
+the popover that have built-in bottom margin, please remove the bottom margin on the last element.
+
+<Canvas of={stories.OpenLongTitle} />
 
 ## Open on Page Load
 
@@ -66,7 +73,7 @@ not work because there is not enough space to open the Popover to the right. The
 
 The first position that "fits" is `left-start`, and therefore that is where the Popover will open.
 
-<Story of={stories.LeftStart} />
+<Canvas of={stories.LeftStart} />
 
 ### Manually Setting a Position
 
@@ -74,10 +81,10 @@ You can manually set the initial position of the Popover by binding a `[position
 Popover's trigger element, such as:
 
 ```html
-<button [bitPopoverTriggerFor]="myPopover" [position]="'above-end'">Open Popover</button>
+<button [bitPopoverTriggerFor]="myPopover" position="above-end">Open Popover</button>
 ```
 
-<Story of={stories.AboveEnd} />
+<Canvas of={stories.AboveEnd} />
 
 Note that if the user resizes the page and the Popover no longer fits in the viewport, the Popover
 component will fall back to the list of default positions to find the best position.

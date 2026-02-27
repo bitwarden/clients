@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -6,18 +8,20 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
+import { import_ssh_key } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
 import {
-  CategoryEnum,
+  Category,
   Details,
   ExportData,
   FieldsEntity,
   Item,
-  LoginFieldTypeEnum,
+  LoginFieldType,
   Overview,
   PasswordHistoryEntity,
   SectionsEntity,
@@ -37,46 +41,50 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
       vault.items.forEach((item: Item) => {
-        if (item.trashed === true) {
+        if (item.state === "archived") {
           return;
         }
 
         const cipher = this.initLoginCipher();
 
-        const category = item.categoryUuid as CategoryEnum;
+        const category = item.categoryUuid as Category;
         switch (category) {
-          case CategoryEnum.Login:
-          case CategoryEnum.Database:
-          case CategoryEnum.Password:
-          case CategoryEnum.WirelessRouter:
-          case CategoryEnum.Server:
-          case CategoryEnum.API_Credential:
+          case Category.Login:
+          case Category.Database:
+          case Category.Password:
+          case Category.WirelessRouter:
+          case Category.Server:
+          case Category.API_Credential:
             cipher.type = CipherType.Login;
             cipher.login = new LoginView();
             break;
-          case CategoryEnum.CreditCard:
-          case CategoryEnum.BankAccount:
+          case Category.CreditCard:
+          case Category.BankAccount:
             cipher.type = CipherType.Card;
             cipher.card = new CardView();
             break;
-          case CategoryEnum.SecureNote:
-          case CategoryEnum.SoftwareLicense:
-          case CategoryEnum.EmailAccount:
-          case CategoryEnum.MedicalRecord:
+          case Category.SecureNote:
+          case Category.SoftwareLicense:
+          case Category.EmailAccount:
+          case Category.MedicalRecord:
             // case CategoryEnum.Document:
             cipher.type = CipherType.SecureNote;
             cipher.secureNote = new SecureNoteView();
             cipher.secureNote.type = SecureNoteType.Generic;
             break;
-          case CategoryEnum.Identity:
-          case CategoryEnum.DriversLicense:
-          case CategoryEnum.OutdoorLicense:
-          case CategoryEnum.Membership:
-          case CategoryEnum.Passport:
-          case CategoryEnum.RewardsProgram:
-          case CategoryEnum.SocialSecurityNumber:
+          case Category.Identity:
+          case Category.DriversLicense:
+          case Category.OutdoorLicense:
+          case Category.Membership:
+          case Category.Passport:
+          case Category.RewardsProgram:
+          case Category.SocialSecurityNumber:
             cipher.type = CipherType.Identity;
             cipher.identity = new IdentityView();
+            break;
+          case Category.SSH_Key:
+            cipher.type = CipherType.SshKey;
+            cipher.sshKey = new SshKeyView();
             break;
           default:
             break;
@@ -95,7 +103,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         this.processSections(category, item.details.sections, cipher);
 
         if (!this.isNullOrWhitespace(item.details.notesPlain)) {
-          cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n") + "\n";
+          cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n").trimEnd();
         }
 
         this.convertToNoteIfNeeded(cipher);
@@ -164,10 +172,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       let fieldValue = loginField.value;
       let fieldType: FieldType = FieldType.Text;
       switch (loginField.fieldType) {
-        case LoginFieldTypeEnum.Password:
+        case LoginFieldType.Password:
           fieldType = FieldType.Hidden;
           break;
-        case LoginFieldTypeEnum.CheckBox:
+        case LoginFieldType.CheckBox:
           fieldValue = loginField.value !== "" ? "true" : "false";
           fieldType = FieldType.Boolean;
           break;
@@ -178,8 +186,8 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     });
   }
 
-  private processDetails(category: CategoryEnum, details: Details, cipher: CipherView) {
-    if (category !== CategoryEnum.Password) {
+  private processDetails(category: Category, details: Details, cipher: CipherView) {
+    if (category !== Category.Password) {
       return;
     }
 
@@ -189,7 +197,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     cipher.login.password = details.password;
   }
 
-  private processSections(category: CategoryEnum, sections: SectionsEntity[], cipher: CipherView) {
+  private processSections(category: Category, sections: SectionsEntity[], cipher: CipherView) {
     if (sections == null || sections.length === 0) {
       return;
     }
@@ -199,11 +207,16 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         return;
       }
 
-      this.parseSectionFields(category, section.fields, cipher);
+      this.parseSectionFields(category, section.fields, cipher, section.title);
     });
   }
 
-  private parseSectionFields(category: CategoryEnum, fields: FieldsEntity[], cipher: CipherView) {
+  private parseSectionFields(
+    category: Category,
+    fields: FieldsEntity[],
+    cipher: CipherView,
+    sectionTitle: string,
+  ) {
     fields.forEach((field: FieldsEntity) => {
       const valueKey = Object.keys(field.value)[0];
       const anyField = field as any;
@@ -216,7 +229,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         return;
       }
 
-      const fieldName = this.getFieldName(field.id, field.title);
+      const fieldName = this.getFieldName(field.title, sectionTitle);
       const fieldValue = this.extractValue(field.value, valueKey);
 
       if (cipher.type === CipherType.Login) {
@@ -225,20 +238,20 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
 
         switch (category) {
-          case CategoryEnum.Login:
-          case CategoryEnum.Database:
-          case CategoryEnum.EmailAccount:
-          case CategoryEnum.WirelessRouter:
+          case Category.Login:
+          case Category.Database:
+          case Category.EmailAccount:
+          case Category.WirelessRouter:
             break;
 
-          case CategoryEnum.Server:
+          case Category.Server:
             if (this.isNullOrWhitespace(cipher.login.uri) && field.id === "url") {
               cipher.login.uris = this.makeUriArray(fieldValue);
               return;
             }
             break;
 
-          case CategoryEnum.API_Credential:
+          case Category.API_Credential:
             if (this.fillApiCredentials(field, fieldValue, cipher)) {
               return;
             }
@@ -251,7 +264,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           return;
         }
 
-        if (category === CategoryEnum.BankAccount) {
+        if (category === Category.BankAccount) {
           if (this.fillBankAccount(field, fieldValue, cipher)) {
             return;
           }
@@ -274,40 +287,53 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
 
         switch (category) {
-          case CategoryEnum.Identity:
+          case Category.Identity:
             break;
-          case CategoryEnum.DriversLicense:
+          case Category.DriversLicense:
             if (this.fillDriversLicense(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.OutdoorLicense:
+          case Category.OutdoorLicense:
             if (this.fillOutdoorLicense(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.Membership:
+          case Category.Membership:
             if (this.fillMembership(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.Passport:
+          case Category.Passport:
             if (this.fillPassport(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.RewardsProgram:
+          case Category.RewardsProgram:
             if (this.fillRewardsProgram(field, fieldValue, cipher)) {
               return;
             }
             break;
-          case CategoryEnum.SocialSecurityNumber:
+          case Category.SocialSecurityNumber:
             if (this.fillSSN(field, fieldValue, cipher)) {
               return;
             }
             break;
           default:
             break;
+        }
+      } else if (cipher.type === CipherType.SshKey) {
+        if (valueKey === "sshKey") {
+          // Use sshKey.metadata.privateKey instead of the sshKey.privateKey field.
+          // The sshKey.privateKey field doesn't have a consistent format for every item.
+          const { privateKey } = field.value.sshKey.metadata;
+          // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using SDK
+          // Note: 1Password does not store password-protected SSH keys, so no password handling needed for now
+          const parsedKey = import_ssh_key(privateKey);
+          cipher.sshKey.privateKey = parsedKey.privateKey;
+          cipher.sshKey.publicKey = parsedKey.publicKey;
+          cipher.sshKey.keyFingerprint = parsedKey.fingerprint;
+          return;
         }
       }
 
@@ -338,16 +364,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     });
   }
 
-  private getFieldName(id: string, title: string): string {
-    if (this.isNullOrWhitespace(title)) {
-      return id;
-    }
-
-    // Naive approach of checking if the fields id is usable
-    if (id.length > 25 && RegExp(/[0-9]{2}[A-Z]{2}/, "i").test(id)) {
+  // Use the title if available. If not use the sectionTitle if available.
+  // Default to an empty string in all other cases.
+  private getFieldName(title: string, sectionTitle?: string): string {
+    if (!this.isNullOrWhitespace(title)) {
       return title;
     }
-    return id;
+
+    if (!this.isNullOrWhitespace(sectionTitle)) {
+      return sectionTitle;
+    }
+
+    return "";
   }
 
   private extractValue(value: Value, valueKey: string): string {
@@ -363,7 +391,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
   }
 
   private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
-    const fieldName = this.getFieldName(field.id, field.title);
+    const fieldName = this.getFieldName(field.title);
 
     if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
       cipher.login.username = fieldValue;
@@ -388,7 +416,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
   }
 
   private fillApiCredentials(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
-    const fieldName = this.getFieldName(field.id, field.title);
+    const fieldName = this.getFieldName(field.title);
 
     if (this.isNullOrWhitespace(cipher.login.password) && fieldName === "credential") {
       cipher.login.password = fieldValue;

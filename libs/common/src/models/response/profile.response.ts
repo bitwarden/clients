@@ -1,25 +1,33 @@
+import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/response/private-keys.response";
+
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { UserId } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
 
 export class ProfileResponse extends BaseResponse {
-  id: string;
+  id: UserId;
   name: string;
   email: string;
   emailVerified: boolean;
-  masterPasswordHint: string;
   premiumPersonally: boolean;
   premiumFromOrganization: boolean;
   culture: string;
   twoFactorEnabled: boolean;
-  key: string;
+  key?: EncString;
   avatarColor: string;
+  creationDate: string;
+  // Cleanup: Can be removed after moving to accountKeys
   privateKey: string;
+  // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
+  accountKeys: PrivateKeysResponseModel | null = null;
   securityStamp: string;
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;
+  verifyDevices: boolean;
   organizations: ProfileOrganizationResponse[] = [];
   providers: ProfileProviderResponse[] = [];
   providerOrganizations: ProfileProviderOrganizationResponse[] = [];
@@ -30,17 +38,27 @@ export class ProfileResponse extends BaseResponse {
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.emailVerified = this.getResponseProperty("EmailVerified");
-    this.masterPasswordHint = this.getResponseProperty("MasterPasswordHint");
     this.premiumPersonally = this.getResponseProperty("Premium");
     this.premiumFromOrganization = this.getResponseProperty("PremiumFromOrganization");
     this.culture = this.getResponseProperty("Culture");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
-    this.key = this.getResponseProperty("Key");
+
+    const key = this.getResponseProperty("Key");
+    if (key) {
+      this.key = new EncString(key);
+    }
+    // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
+    if (this.getResponseProperty("AccountKeys") != null) {
+      this.accountKeys = new PrivateKeysResponseModel(this.getResponseProperty("AccountKeys"));
+    }
+
     this.avatarColor = this.getResponseProperty("AvatarColor");
+    this.creationDate = this.getResponseProperty("CreationDate");
     this.privateKey = this.getResponseProperty("PrivateKey");
     this.securityStamp = this.getResponseProperty("SecurityStamp");
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
+    this.verifyDevices = this.getResponseProperty("VerifyDevices") ?? true;
 
     const organizations = this.getResponseProperty("Organizations");
     if (organizations != null) {

@@ -2,39 +2,58 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { CalloutComponent } from "./components/callout.component";
-import { BitwardenToastModule } from "./components/toastr.component";
-import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
-import { A11yTitleDirective } from "./directives/a11y-title.directive";
+import {
+  AsyncActionsModule,
+  AutofocusDirective,
+  ButtonModule,
+  CalloutModule,
+  CheckboxModule,
+  DialogModule,
+  FormFieldModule,
+  IconButtonModule,
+  SvgModule,
+  LinkModule,
+  MenuModule,
+  RadioButtonModule,
+  SelectModule,
+  TableModule,
+  ToastModule,
+  TypographyModule,
+  CopyClickDirective,
+  A11yTitleDirective,
+  NoItemsModule,
+} from "@bitwarden/components";
+
+import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
+import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
-import { AutofocusDirective } from "./directives/autofocus.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
-import { CopyClickDirective } from "./directives/copy-click.directive";
-import { CopyTextDirective } from "./directives/copy-text.directive";
-import { FallbackSrcDirective } from "./directives/fallback-src.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
 import { InputStripSpacesDirective } from "./directives/input-strip-spaces.directive";
 import { InputVerbatimDirective } from "./directives/input-verbatim.directive";
 import { LaunchClickDirective } from "./directives/launch-click.directive";
-import { NotPremiumDirective } from "./directives/not-premium.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
-import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
-import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
-import { SearchCiphersPipe } from "./pipes/search-ciphers.pipe";
+import { TextDragDirective } from "./directives/text-drag.directive";
+import { PluralizePipe } from "./pipes/pluralize.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
-import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
-import { ExportScopeCalloutComponent } from "./tools/export/components/export-scope-callout.component";
-import { PasswordStrengthComponent } from "./tools/password-strength/password-strength.component";
 import { IconComponent } from "./vault/components/icon.component";
 
+/**
+ * @deprecated In 95% of cases you want I18nPipe from `@bitwarden/ui-common`. In the other 5%
+ * directly import the relevant directive/pipe/component. If you need one of the non standalone
+ * pipes/directives/components, make it standalone and import directly.
+ *
+ * This module is overly large and adds many unrelated modules to your dependency tree.
+ * https://angular.dev/guide/ngmodules/overview recommends not using `NgModule`s for new code.
+ */
 @NgModule({
   imports: [
-    BitwardenToastModule.forRoot({
+    ToastModule.forRoot({
       maxOpened: 5,
       autoDismiss: true,
       closeButton: true,
@@ -42,76 +61,68 @@ import { IconComponent } from "./vault/components/icon.component";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
+    RadioButtonModule,
+    FormFieldModule,
+    SelectModule,
+    ButtonModule,
+    CalloutModule,
+    CheckboxModule,
+    DialogModule,
+    TypographyModule,
+    TableModule,
+    MenuModule,
+    NoItemsModule,
+    IconButtonModule,
+    SvgModule,
+    LinkModule,
+    SvgModule,
+    TextDragDirective,
+    CopyClickDirective,
+    A11yTitleDirective,
+    AutofocusDirective,
   ],
   declarations: [
-    A11yInvalidDirective,
-    A11yTitleDirective,
     ApiActionDirective,
-    AutofocusDirective,
     BoxRowDirective,
-    CalloutComponent,
-    CopyTextDirective,
-    CreditCardNumberPipe,
     EllipsisPipe,
-    ExportScopeCalloutComponent,
-    FallbackSrcDirective,
     I18nPipe,
     IconComponent,
     InputStripSpacesDirective,
     InputVerbatimDirective,
     NotPremiumDirective,
-    SearchCiphersPipe,
     SearchPipe,
     StopClickDirective,
     StopPropDirective,
-    TrueFalseValueDirective,
-    CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
     UserTypePipe,
     IfFeatureDirective,
-    FingerprintPipe,
+    TwoFactorIconComponent,
   ],
   exports: [
-    A11yInvalidDirective,
     A11yTitleDirective,
     ApiActionDirective,
     AutofocusDirective,
-    BitwardenToastModule,
+    ToastModule,
     BoxRowDirective,
-    CalloutComponent,
-    CopyTextDirective,
-    CreditCardNumberPipe,
     EllipsisPipe,
-    ExportScopeCalloutComponent,
-    FallbackSrcDirective,
     I18nPipe,
     IconComponent,
     InputStripSpacesDirective,
     InputVerbatimDirective,
     NotPremiumDirective,
-    SearchCiphersPipe,
     SearchPipe,
     StopClickDirective,
     StopPropDirective,
-    TrueFalseValueDirective,
     CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
     UserTypePipe,
     IfFeatureDirective,
-    FingerprintPipe,
+    TwoFactorIconComponent,
+    TextDragDirective,
   ],
-  providers: [
-    CreditCardNumberPipe,
-    DatePipe,
-    I18nPipe,
-    SearchPipe,
-    UserNamePipe,
-    UserTypePipe,
-    FingerprintPipe,
-  ],
+  providers: [DatePipe, I18nPipe, SearchPipe, UserNamePipe, UserTypePipe, PluralizePipe],
 })
 export class JslibModule {}

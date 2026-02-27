@@ -1,10 +1,11 @@
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { OrgKey, UserPrivateKey } from "../../../types/key";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
 
 export abstract class BaseEncryptedOrganizationKey {
-  decrypt: (cryptoService: CryptoService) => Promise<SymmetricCryptoKey>;
+  abstract get encryptedOrganizationKey(): EncString;
 
   static fromData(data: EncryptedOrganizationKeyData) {
     switch (data.type) {
@@ -18,14 +19,26 @@ export abstract class BaseEncryptedOrganizationKey {
         return null;
     }
   }
+
+  static isProviderEncrypted(
+    key: EncryptedOrganizationKey | ProviderEncryptedOrganizationKey,
+  ): key is ProviderEncryptedOrganizationKey {
+    return key.toData().type === "provider";
+  }
 }
 
 export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   constructor(private key: string) {}
 
-  async decrypt(cryptoService: CryptoService) {
-    const decValue = await cryptoService.rsaDecrypt(this.key);
-    return new SymmetricCryptoKey(decValue);
+  async decrypt(encryptService: EncryptService, privateKey: UserPrivateKey) {
+    return (await encryptService.decapsulateKeyUnsigned(
+      this.encryptedOrganizationKey,
+      privateKey,
+    )) as OrgKey;
+  }
+
+  get encryptedOrganizationKey() {
+    return new EncString(this.key);
   }
 
   toData(): EncryptedOrganizationKeyData {
@@ -42,10 +55,19 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
     private providerId: string,
   ) {}
 
-  async decrypt(cryptoService: CryptoService) {
-    const providerKey = await cryptoService.getProviderKey(this.providerId);
-    const decValue = await cryptoService.decryptToBytes(new EncString(this.key), providerKey);
-    return new SymmetricCryptoKey(decValue);
+  async decrypt(encryptService: EncryptService, providerKeys: Record<string, SymmetricCryptoKey>) {
+    const decValue = await encryptService.unwrapSymmetricKey(
+      new EncString(this.key),
+      providerKeys[this.providerId],
+    );
+    if (decValue == null) {
+      throw new Error("Failed to decrypt organization key");
+    }
+    return decValue as OrgKey;
+  }
+
+  get encryptedOrganizationKey() {
+    return new EncString(this.key);
   }
 
   toData(): EncryptedOrganizationKeyData {

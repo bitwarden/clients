@@ -2,22 +2,17 @@ const originalConsole = console;
 
 declare let console: any;
 
-export function interceptConsole(interceptions: any): object {
+export function interceptConsole(): {
+  log: jest.Mock<any, any>;
+  warn: jest.Mock<any, any>;
+  error: jest.Mock<any, any>;
+} {
   console = {
-    log: function () {
-      // eslint-disable-next-line
-      interceptions.log = arguments;
-    },
-    warn: function () {
-      // eslint-disable-next-line
-      interceptions.warn = arguments;
-    },
-    error: function () {
-      // eslint-disable-next-line
-      interceptions.error = arguments;
-    },
+    log: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
   };
-  return interceptions;
+  return console;
 }
 
 export function restoreConsole() {

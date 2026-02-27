@@ -1,13 +1,26 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
@@ -23,7 +36,11 @@ describe("ImportService", () => {
   let importApiService: MockProxy<ImportApiServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let collectionService: MockProxy<CollectionService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
+  let accountService: MockProxy<AccountService>;
+  let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -31,7 +48,10 @@ describe("ImportService", () => {
     importApiService = mock<ImportApiServiceAbstraction>();
     i18nService = mock<I18nService>();
     collectionService = mock<CollectionService>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
+    keyGenerationService = mock<KeyGenerationService>();
+    restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
       cipherService,
@@ -39,14 +59,18 @@ describe("ImportService", () => {
       importApiService,
       i18nService,
       collectionService,
-      cryptoService,
+      keyService,
+      encryptService,
+      keyGenerationService,
+      accountService,
+      restrictedItemTypesService,
     );
   });
 
   describe("getImporterInstance", () => {
     describe("Get bitPasswordProtected importer", () => {
       let importer: Importer;
-      const organizationId = Utils.newGuid();
+      const organizationId = Utils.newGuid() as OrganizationId;
       const password = Utils.newGuid();
       const promptForPassword_callback = async () => {
         return password;
@@ -77,7 +101,7 @@ describe("ImportService", () => {
   });
 
   describe("setImportTarget", () => {
-    const organizationId = Utils.newGuid();
+    const organizationId = Utils.newGuid() as OrganizationId;
 
     let importResult: ImportResult;
 
@@ -86,7 +110,7 @@ describe("ImportService", () => {
     });
 
     it("empty importTarget does nothing", async () => {
-      await importService["setImportTarget"](importResult, null, "");
+      await importService["setImportTarget"](importResult, null, null);
       expect(importResult.folders.length).toBe(0);
     });
 
@@ -95,13 +119,9 @@ describe("ImportService", () => {
     mockImportTargetFolder.name = "myImportTarget";
 
     it("passing importTarget adds it to folders", async () => {
-      folderService.getAllDecryptedFromState.mockReturnValue(
-        Promise.resolve([mockImportTargetFolder]),
-      );
-
-      await importService["setImportTarget"](importResult, null, "myImportTarget");
+      await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(1);
-      expect(importResult.folders[0].name).toBe("myImportTarget");
+      expect(importResult.folders[0]).toBe(mockImportTargetFolder);
     });
 
     const mockFolder1 = new FolderView();
@@ -113,67 +133,182 @@ describe("ImportService", () => {
     mockFolder2.name = "folder2";
 
     it("passing importTarget sets it as new root for all existing folders", async () => {
-      folderService.getAllDecryptedFromState.mockResolvedValue([
-        mockImportTargetFolder,
-        mockFolder1,
-        mockFolder2,
-      ]);
-
-      const myImportTarget = "myImportTarget";
-
       importResult.folders.push(mockFolder1);
       importResult.folders.push(mockFolder2);
 
-      await importService["setImportTarget"](importResult, null, myImportTarget);
+      await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(3);
-      expect(importResult.folders[0].name).toBe(myImportTarget);
-      expect(importResult.folders[1].name).toBe(`${myImportTarget}/${mockFolder1.name}`);
-      expect(importResult.folders[2].name).toBe(`${myImportTarget}/${mockFolder2.name}`);
+      expect(importResult.folders[0]).toBe(mockImportTargetFolder);
+      expect(importResult.folders[1].name).toBe(
+        `${mockImportTargetFolder.name}/${mockFolder1.name}`,
+      );
+      expect(importResult.folders[2].name).toBe(
+        `${mockImportTargetFolder.name}/${mockFolder2.name}`,
+      );
     });
 
-    const mockImportTargetCollection = new CollectionView();
-    mockImportTargetCollection.id = "myImportTarget";
-    mockImportTargetCollection.name = "myImportTarget";
-    mockImportTargetCollection.organizationId = organizationId;
+    const mockName = "myImportTarget";
+    const mockId = "myImportTarget" as CollectionId;
+    const mockImportTargetCollection = new CollectionView({
+      name: mockName,
+      id: mockId,
+      organizationId,
+    });
 
-    const mockCollection1 = new CollectionView();
-    mockCollection1.id = "collection1";
-    mockCollection1.name = "collection1";
-    mockCollection1.organizationId = organizationId;
+    const mockName1 = "collection1";
+    const mockId1 = "collection1" as CollectionId;
+    const mockCollection1 = new CollectionView({
+      name: mockName1,
+      id: mockId1,
+      organizationId,
+    });
 
-    const mockCollection2 = new CollectionView();
-    mockCollection1.id = "collection2";
-    mockCollection1.name = "collection2";
-    mockCollection1.organizationId = organizationId;
+    const mockName2 = "collection2";
+    const mockId2 = "collection2" as CollectionId;
+    const mockCollection2 = new CollectionView({
+      name: mockName2,
+      id: mockId2,
+      organizationId,
+    });
 
     it("passing importTarget adds it to collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
         mockImportTargetCollection,
-        mockCollection1,
-      ]);
-
-      await importService["setImportTarget"](importResult, organizationId, "myImportTarget");
+      );
       expect(importResult.collections.length).toBe(1);
-      expect(importResult.collections[0].name).toBe("myImportTarget");
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
-
-      const myImportTarget = "myImportTarget";
-
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
 
-      await importService["setImportTarget"](importResult, organizationId, myImportTarget);
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
       expect(importResult.collections.length).toBe(3);
-      expect(importResult.collections[0].name).toBe(myImportTarget);
-      expect(importResult.collections[1].name).toBe(`${myImportTarget}/${mockCollection1.name}`);
-      expect(importResult.collections[2].name).toBe(`${myImportTarget}/${mockCollection2.name}`);
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+      expect(importResult.collections[1].name).toBe(
+        `${mockImportTargetCollection.name}/${mockCollection1.name}`,
+      );
+      expect(importResult.collections[2].name).toBe(
+        `${mockImportTargetCollection.name}/${mockCollection2.name}`,
+      );
+    });
+
+    it("passing importTarget as undefined on setImportTarget with organizationId throws error", async () => {
+      const setImportTargetMethod = importService["setImportTarget"](
+        null,
+        organizationId,
+        new Object() as FolderView,
+      );
+
+      await expect(setImportTargetMethod).rejects.toThrow();
+    });
+
+    it("passing importTarget as undefined on setImportTarget throws error", async () => {
+      const setImportTargetMethod = importService["setImportTarget"](
+        null,
+        undefined,
+        new Object() as CollectionView,
+      );
+
+      await expect(setImportTargetMethod).rejects.toThrow();
+    });
+
+    it("passing importTarget, collectionRelationship has the expected values", async () => {
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      expect(importResult.collectionRelationships.length).toEqual(2);
+      expect(importResult.collectionRelationships[0]).toEqual([1, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([0, 1]);
+    });
+
+    it("passing importTarget, folderRelationship has the expected values", async () => {
+      importResult.folders.push(mockFolder1);
+      importResult.folders.push(mockFolder2);
+
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: mockFolder1.id }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.folderRelationships.push([0, 0]);
+
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
+      expect(importResult.folderRelationships.length).toEqual(2);
+      expect(importResult.folderRelationships[0]).toEqual([1, 0]);
+      expect(importResult.folderRelationships[1]).toEqual([0, 1]);
+    });
+
+    it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.ciphers.push(createCipher({ name: "cipher3" }));
+
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collectionRelationships.push([1, 1]);
+      importResult.collectionRelationships.push([2, 0]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      expect(importResult.collections.length).toBe(1);
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+
+      expect(importResult.collectionRelationships.length).toEqual(3);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.collectionRelationships[2]).toEqual([2, 0]);
+
+      expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
+      expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
   });
 });
+
+describe("FolderWithIdRequest", () => {
+  function makeFolder(id: string): Folder {
+    const folder = new Folder();
+    folder.id = id;
+    return folder;
+  }
+
+  it("preserves a real folder id", () => {
+    const guid = "f1a2b3c4-d5e6-7890-abcd-ef1234567890";
+    const request = new FolderWithIdRequest(makeFolder(guid));
+    expect(request.id).toBe(guid);
+  });
+
+  it("sends null when folder id is empty string (new import folder)", () => {
+    const request = new FolderWithIdRequest(makeFolder(""));
+    expect(request.id).toBeNull();
+  });
+});
+
+function createCipher(options: Partial<CipherView> = {}) {
+  const cipher = new CipherView();
+
+  cipher.name = options.name;
+  cipher.type = options.type;
+  cipher.folderId = options.folderId;
+  cipher.collectionIds = options.collectionIds;
+  cipher.organizationId = options.organizationId;
+
+  return cipher;
+}

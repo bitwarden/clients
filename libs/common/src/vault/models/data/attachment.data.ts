@@ -1,12 +1,12 @@
 import { AttachmentResponse } from "../response/attachment.response";
 
 export class AttachmentData {
-  id: string;
-  url: string;
-  fileName: string;
-  key: string;
-  size: string;
-  sizeName: string;
+  id?: string;
+  url?: string;
+  fileName?: string;
+  key?: string;
+  size?: string;
+  sizeName?: string;
 
   constructor(response?: AttachmentResponse) {
     if (response == null) {

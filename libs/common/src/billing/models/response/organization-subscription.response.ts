@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OrganizationResponse } from "../../../admin-console/models/response/organization.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
@@ -14,7 +16,6 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   customerDiscount: BillingCustomerDiscount;
   expiration: string;
   expirationWithoutGracePeriod: string;
-  secretsManagerBeta: boolean;
 
   constructor(response: any) {
     super(response);
@@ -32,7 +33,6 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
       customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
-    this.secretsManagerBeta = this.getResponseProperty("SecretsManagerBeta");
   }
 }
 
@@ -40,17 +40,15 @@ export class BillingCustomerDiscount extends BaseResponse {
   id: string;
   active: boolean;
   percentOff?: number;
+  amountOff?: number;
+  appliesTo: string[];
 
   constructor(response: any) {
     super(response);
     this.id = this.getResponseProperty("Id");
     this.active = this.getResponseProperty("Active");
     this.percentOff = this.getResponseProperty("PercentOff");
+    this.amountOff = this.getResponseProperty("AmountOff");
+    this.appliesTo = this.getResponseProperty("AppliesTo") || [];
   }
-
-  discountPrice = (price: number) => {
-    const discount = this !== null && this.active ? price * (this.percentOff / 100) : 0;
-
-    return price - discount;
-  };
 }

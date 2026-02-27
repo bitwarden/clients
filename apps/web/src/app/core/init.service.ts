@@ -1,66 +1,74 @@
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, DOCUMENT } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import {
-  EnvironmentService as EnvironmentServiceAbstraction,
-  Urls,
-} from "@bitwarden/common/platform/abstractions/environment.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
+import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
-import { I18nService } from "../core/i18n.service";
+import { VersionService } from "../platform/version.service";
 
 @Injectable()
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private environmentService: EnvironmentServiceAbstraction,
-    private notificationsService: NotificationsServiceAbstraction,
-    private vaultTimeoutService: VaultTimeoutService,
+    private serverNotificationsService: ServerNotificationsService,
+    private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
-    private twoFactorService: TwoFactorServiceAbstraction,
-    private stateService: StateServiceAbstraction,
-    private cryptoService: CryptoServiceAbstraction,
+    private twoFactorService: TwoFactorService,
+    private keyService: KeyServiceAbstraction,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
-    private configService: ConfigService,
+    private userAutoUnlockKeyService: UserAutoUnlockKeyService,
+    private accountService: AccountService,
+    private versionService: VersionService,
+    private ipcService: IpcService,
+    private sdkLoadService: SdkLoadService,
+    private taskService: TaskService,
+    private readonly migrationRunner: MigrationRunner,
+    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
-      await this.stateService.init();
+      await this.sdkLoadService.loadAndInit();
+      await this.migrationRunner.run();
 
-      const urls = process.env.URLS as Urls;
-      urls.base ??= this.win.location.origin;
-      await this.environmentService.setUrls(urls);
-      // Workaround to ignore stateService.activeAccount until process.env.URLS are set
-      // TODO: Remove this when implementing ticket PM-2637
-      this.environmentService.initialized = true;
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+      if (activeAccount) {
+        // If there is an active account, we must await the process of setting the user key in memory
+        // if the auto user key is set to avoid race conditions of any code trying to access the user key from mem.
+        await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+      }
 
-      setTimeout(() => this.notificationsService.init(), 3000);
+      this.serverNotificationsService.startListening();
       await this.vaultTimeoutService.init(true);
-      const locale = await this.stateService.getLocale();
-      await (this.i18nService as I18nService).init(locale);
+      await this.i18nService.init();
       (this.eventUploadService as EventUploadService).init(true);
       this.twoFactorService.init();
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
-      await this.themingService.monitorThemeChanges();
-      const containerService = new ContainerService(this.cryptoService, this.encryptService);
-      containerService.attachToGlobal(this.win);
+      this.themingService.applyThemeChangesTo(this.document);
+      this.versionService.applyVersionToWindow();
+      void this.ipcService.init();
+      this.taskService.listenForTaskNotifications();
 
-      this.configService.init();
+      const containerService = new ContainerService(this.keyService, this.encryptService);
+      containerService.attachToGlobal(this.win);
     };
   }
 }

@@ -1,10 +1,16 @@
-import { EVENTS } from "../constants";
-import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
+import { mock } from "jest-mock-extended";
+
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
+import AutofillScript, { FillScript, FillScriptActionTypes } from "../models/autofill-script";
+import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
-import AutofillOverlayContentService from "./autofill-overlay-content.service";
-import CollectAutofillContentService from "./collect-autofill-content.service";
+import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
+import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
+import { CollectAutofillContentService } from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
+import { DomQueryService } from "./dom-query.service";
 import InsertAutofillContentService from "./insert-autofill-content.service";
 
 const mockLoginForm = `
@@ -20,7 +26,6 @@ const eventsToTest = [
   EVENTS.CHANGE,
   EVENTS.INPUT,
   EVENTS.KEYDOWN,
-  EVENTS.KEYPRESS,
   EVENTS.KEYUP,
   "blur",
   "click",
@@ -46,7 +51,7 @@ const initEventCount = Object.freeze(
 );
 
 let confirmSpy: jest.SpyInstance<boolean, [message?: string]>;
-let windowSpy: jest.SpyInstance<any>;
+let windowLocationSpy: jest.SpyInstance<any>;
 let savedURLs: string[] | null = ["https://bitwarden.com"];
 function setMockWindowLocation({
   protocol,
@@ -55,19 +60,25 @@ function setMockWindowLocation({
   protocol: "http:" | "https:";
   hostname: string;
 }) {
-  windowSpy.mockImplementation(() => ({
-    location: {
-      protocol,
-      hostname,
-    },
+  windowLocationSpy.mockImplementation(() => ({
+    protocol,
+    hostname,
   }));
 }
 
 describe("InsertAutofillContentService", () => {
+  const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
+  const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const domQueryService = new DomQueryService();
   const domElementVisibilityService = new DomElementVisibilityService();
-  const autofillOverlayContentService = new AutofillOverlayContentService();
+  const autofillOverlayContentService = new AutofillOverlayContentService(
+    domQueryService,
+    domElementVisibilityService,
+    inlineMenuFieldQualificationService,
+  );
   const collectAutofillContentService = new CollectAutofillContentService(
     domElementVisibilityService,
+    domQueryService,
     autofillOverlayContentService,
   );
   let insertAutofillContentService: InsertAutofillContentService;
@@ -75,23 +86,22 @@ describe("InsertAutofillContentService", () => {
 
   beforeEach(() => {
     document.body.innerHTML = mockLoginForm;
-    confirmSpy = jest.spyOn(window, "confirm");
-    windowSpy = jest.spyOn(window, "window", "get");
+    confirmSpy = jest.spyOn(globalThis, "confirm");
+    windowLocationSpy = jest.spyOn(globalThis, "location", "get");
     insertAutofillContentService = new InsertAutofillContentService(
       domElementVisibilityService,
       collectAutofillContentService,
     );
     fillScript = {
       script: [
-        ["click_on_opid", "username"],
-        ["focus_by_opid", "username"],
-        ["fill_by_opid", "username", "test"],
+        [FillScriptActionTypes.click_on_opid, "username"],
+        [FillScriptActionTypes.focus_by_opid, "username"],
+        [FillScriptActionTypes.fill_by_opid, "username", "test"],
       ],
       properties: {
         delay_between_operations: 20,
       },
-      metadata: {},
-      autosubmit: null,
+      autosubmit: [],
       savedUrls: ["https://bitwarden.com"],
       untrustedIframe: false,
       itemType: "login",
@@ -99,23 +109,37 @@ describe("InsertAutofillContentService", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
-    windowSpy.mockRestore();
+    jest.restoreAllMocks();
+    jest.clearAllTimers();
+    windowLocationSpy.mockRestore();
     confirmSpy.mockRestore();
     document.body.innerHTML = "";
   });
 
+  afterAll(() => {
+    mockQuerySelectorAll.mockRestore();
+  });
+
   describe("fillForm", () => {
+    afterEach(() => {
+      Object.defineProperty(globalThis, "window", {
+        value: { frameElement: null },
+        writable: true,
+      });
+      Object.defineProperty(globalThis, "frameElement", {
+        value: { hasAttribute: jest.fn(() => false) },
+        writable: true,
+      });
+    });
+
     it("returns early if the passed fill script does not have a script property", async () => {
       fillScript.script = [];
-      jest.spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe");
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
       jest.spyOn(insertAutofillContentService as any, "runFillScriptAction");
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledInsecureUrlAutofill"],
       ).not.toHaveBeenCalled();
@@ -126,16 +150,18 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if the script is filling within a sand boxed iframe", async () => {
-      jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(true);
+      Object.defineProperty(globalThis, "frameElement", {
+        value: {
+          getAttribute: jest.fn(() => ""),
+        },
+        writable: true,
+      });
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
       jest.spyOn(insertAutofillContentService as any, "runFillScriptAction");
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledInsecureUrlAutofill"],
       ).not.toHaveBeenCalled();
@@ -147,9 +173,6 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the autofill is occurring on an insecure url and the user cancels the autofill", async () => {
       jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
-      jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(true);
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
@@ -157,7 +180,6 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
@@ -167,9 +189,6 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the iframe is untrusted and the user cancelled the autofill", async () => {
       jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
-      jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(false);
       jest
@@ -179,7 +198,6 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
@@ -188,9 +206,6 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("runs the fill script action for all scripts found within the fill script", async () => {
-      jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
       jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(false);
@@ -201,65 +216,19 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
-      expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
-      expect(
-        insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
-      ).toHaveBeenCalled();
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenCalledTimes(3);
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         1,
         fillScript.script[0],
-        0,
-        fillScript.script,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         2,
         fillScript.script[1],
-        1,
-        fillScript.script,
       );
       expect(insertAutofillContentService["runFillScriptAction"]).toHaveBeenNthCalledWith(
         3,
         fillScript.script[2],
-        2,
-        fillScript.script,
       );
-    });
-  });
-
-  describe("fillingWithinSandboxedIframe", () => {
-    afterEach(() => {
-      Object.defineProperty(globalThis, "window", {
-        value: { frameElement: null },
-        writable: true,
-      });
-    });
-
-    it("returns false if the `self.origin` value is not null", () => {
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(false);
-      expect(self.origin).not.toBeNull();
-    });
-
-    it("returns true if the frameElement has a sandbox attribute", () => {
-      Object.defineProperty(globalThis, "window", {
-        value: { frameElement: { hasAttribute: jest.fn(() => true) } },
-        writable: true,
-      });
-
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(true);
-    });
-
-    it("returns true if the window location hostname is empty", () => {
-      setMockWindowLocation({ protocol: "http:", hostname: "" });
-
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(true);
     });
   });
 
@@ -403,40 +372,62 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if no opid is provided", async () => {
-      const action = "fill_by_opid";
+      const action = FillScriptActionTypes.fill_by_opid;
       const opid = "";
       const value = "value";
       const scriptAction: FillScript = [action, opid, value];
       jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-      await insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
+      await insertAutofillContentService["runFillScriptAction"](scriptAction);
       jest.advanceTimersByTime(20);
 
       expect(insertAutofillContentService["autofillInsertActions"][action]).not.toHaveBeenCalled();
     });
 
     describe("given a valid fill script action and opid", () => {
-      const fillScriptActions: FillScriptActions[] = [
-        "fill_by_opid",
-        "click_on_opid",
-        "focus_by_opid",
-      ];
-      fillScriptActions.forEach((action) => {
-        it(`triggers a ${action} action`, () => {
-          const opid = "opid";
-          const value = "value";
-          const scriptAction: FillScript = [action, opid, value];
-          jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+      it(`triggers a fill_by_opid action`, () => {
+        const action = FillScriptActionTypes.fill_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
-          insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
-          jest.advanceTimersByTime(20);
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
 
-          expect(
-            insertAutofillContentService["autofillInsertActions"][action],
-          ).toHaveBeenCalledWith({
-            opid,
-            value,
-          });
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+          value,
+        });
+      });
+
+      it(`triggers a click_on_opid action`, () => {
+        const action = FillScriptActionTypes.click_on_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
+        });
+      });
+
+      it(`triggers a focus_by_opid action`, () => {
+        const action = FillScriptActionTypes.focus_by_opid;
+        const opid = "opid";
+        const value = "value";
+        const scriptAction: FillScript = [action, opid, value];
+        jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
+
+        void insertAutofillContentService["runFillScriptAction"](scriptAction);
+        jest.advanceTimersByTime(20);
+
+        expect(insertAutofillContentService["autofillInsertActions"][action]).toHaveBeenCalledWith({
+          opid,
         });
       });
     });
@@ -550,16 +541,29 @@ describe("InsertAutofillContentService", () => {
         insertAutofillContentService as any,
         "simulateUserMouseClickAndFocusEventInteractions",
       );
+      jest.spyOn(targetInput, "blur");
 
       insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
       ).toBeCalledWith("__0");
+      expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
       ).toHaveBeenCalledWith(targetInput, true);
       expect(elementEventCount).toEqual(expectedElementEventCount);
+    });
+
+    it("blurs the element if it is currently the active element before simulating click and focus events", () => {
+      const targetInput = document.querySelector('input[type="text"]') as FormElementWithAttribute;
+      targetInput.opid = "__0";
+      targetInput.focus();
+      jest.spyOn(targetInput, "blur");
+
+      insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
+
+      expect(targetInput.blur).toHaveBeenCalled();
     });
   });
 
@@ -627,14 +631,12 @@ describe("InsertAutofillContentService", () => {
       });
     });
 
-    it("will set the `value` attribute of any passed input or textarea elements", () => {
-      document.body.innerHTML = `<input type="text" id="username" /><textarea id="bio"></textarea>`;
+    it("will set the `value` attribute of any passed input or textarea elements if the value differs", () => {
+      document.body.innerHTML = `<input type="text" id="username" value="old" /><textarea id="bio">old</textarea>`;
       const value1 = "test";
       const value2 = "test2";
       const textInputElement = document.getElementById("username") as HTMLInputElement;
-      textInputElement.value = value1;
       const textareaElement = document.getElementById("bio") as HTMLTextAreaElement;
-      textareaElement.value = value2;
       jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
 
       insertAutofillContentService["insertValueIntoField"](textInputElement, value1);
@@ -650,6 +652,45 @@ describe("InsertAutofillContentService", () => {
       expect(
         insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
       ).toHaveBeenCalledWith(textareaElement, expect.any(Function));
+    });
+
+    it("will NOT set the `value` attribute of any passed input or textarea elements if they already have values matching the passed value", () => {
+      document.body.innerHTML = `<input type="text" id="username" /><textarea id="bio"></textarea>`;
+      const value1 = "test";
+      const value2 = "test2";
+      const textInputElement = document.getElementById("username") as HTMLInputElement;
+      textInputElement.value = value1;
+      const textareaElement = document.getElementById("bio") as HTMLTextAreaElement;
+      textareaElement.value = value2;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](textInputElement, value1);
+
+      expect(textInputElement.value).toBe(value1);
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+
+      insertAutofillContentService["insertValueIntoField"](textareaElement, value2);
+
+      expect(textareaElement.value).toBe(value2);
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+    });
+
+    it("skips filling when the field already has the target value", () => {
+      const value = "test";
+      document.body.innerHTML = `<input type="text" id="username" value="${value}"/>`;
+      const element = document.getElementById("username") as FillableFormFieldElement;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](element, value);
+
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+      expect(element.value).toBe(value);
     });
   });
 
@@ -707,7 +748,7 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("triggerPostInsertEventsOnElement", () => {
-    it("triggers simulated event interactions and blurs the element after", () => {
+    it("triggers simulated event interactions", () => {
       const elementValue = "test";
       document.body.innerHTML = `<input type="text" id="username" value="${elementValue}"/>`;
       const element = document.getElementById("username") as FillableFormFieldElement;
@@ -723,7 +764,6 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["simulateInputElementChangedEvent"]).toHaveBeenCalledWith(
         element,
       );
-      expect(element.blur).toHaveBeenCalled();
       expect(element.value).toBe(elementValue);
     });
   });
@@ -976,11 +1016,11 @@ describe("InsertAutofillContentService", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       inputElement.value = "test";
       jest.spyOn(inputElement, "focus");
-      jest.spyOn(window, "String");
+      jest.spyOn(globalThis, "String");
 
       insertAutofillContentService["triggerFocusOnElement"](inputElement, true);
 
-      expect(window.String).toHaveBeenCalledWith(value);
+      expect(globalThis.String).toHaveBeenCalledWith(value);
       expect(inputElement.focus).toHaveBeenCalled();
       expect(inputElement.value).toEqual(value);
     });
@@ -990,11 +1030,11 @@ describe("InsertAutofillContentService", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       inputElement.value = "test";
       jest.spyOn(inputElement, "focus");
-      jest.spyOn(window, "String");
+      jest.spyOn(globalThis, "String");
 
       insertAutofillContentService["triggerFocusOnElement"](inputElement, false);
 
-      expect(window.String).not.toHaveBeenCalledWith();
+      expect(globalThis.String).not.toHaveBeenCalledWith();
       expect(inputElement.focus).toHaveBeenCalled();
       expect(inputElement.value).toEqual(value);
     });
@@ -1019,13 +1059,13 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("simulateUserKeyboardEventInteractions", () => {
-    it("will trigger `keydown`, `keypress`, and `keyup` events on the passed element", () => {
+    it("will trigger `keydown` and `keyup` events on the passed element", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       jest.spyOn(inputElement, "dispatchEvent");
 
       insertAutofillContentService["simulateUserKeyboardEventInteractions"](inputElement);
 
-      [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP].forEach((eventName) => {
+      [EVENTS.KEYDOWN, EVENTS.KEYUP].forEach((eventName) => {
         expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
           new KeyboardEvent(eventName, { bubbles: true }),
         );

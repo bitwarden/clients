@@ -1,6 +1,6 @@
 export abstract class BitFormControlAbstraction {
-  disabled: boolean;
-  required: boolean;
-  hasError: boolean;
-  error: [string, any];
+  abstract disabled: boolean;
+  abstract required: boolean;
+  abstract hasError: boolean;
+  abstract error: [string, any];
 }

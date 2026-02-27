@@ -1,0 +1,31 @@
+<bit-simple-dialog>
+  <div bitDialogIcon>
+    <i class="bwi bwi-info-circle bwi-2x tw-text-info" aria-hidden="true"></i>
+  </div>
+  <ng-container bitDialogContent>
+    <div bitTypography="h3">
+      {{ "cannotAutofillPasswordsWithoutExtensionTitle" | i18n }}
+    </div>
+    <div bitTypography="body1">{{ "cannotAutofillPasswordsWithoutExtensionDesc" | i18n }}</div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <a
+      bitButton
+      buttonType="primary"
+      [href]="webStoreUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ "getTheExtension" | i18n }}
+    </a>
+    <a
+      bitButton
+      buttonType="secondary"
+      routerLink="/vault"
+      bitDialogClose
+      (click)="dismissExtensionPage()"
+    >
+      {{ "skipToWebApp" | i18n }}
+    </a>
+  </ng-container>
+</bit-simple-dialog>

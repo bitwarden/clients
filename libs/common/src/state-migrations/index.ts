@@ -1,1 +1,2 @@
-export { migrate, CURRENT_VERSION } from "./migrate";
+// Compatibility re-export for @bitwarden/common/state-migrations
+export * from "@bitwarden/state";

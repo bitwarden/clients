@@ -1,10 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ListResponse } from "../../../models/response/list.response";
 import Domain from "../../../platform/models/domain/domain-base";
+import { OrganizationId, PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../data/policy.data";
+import { PolicyResponse } from "../response/policy.response";
 
 export class Policy extends Domain {
-  id: string;
-  organizationId: string;
+  id: PolicyId;
+  organizationId: OrganizationId;
   type: PolicyType;
   data: any;
 
@@ -14,6 +19,8 @@ export class Policy extends Domain {
    */
   enabled: boolean;
 
+  revisionDate: Date;
+
   constructor(obj?: PolicyData) {
     super();
     if (obj == null) {
@@ -21,9 +28,18 @@ export class Policy extends Domain {
     }
 
     this.id = obj.id;
-    this.organizationId = obj.organizationId;
+    this.organizationId = obj.organizationId as OrganizationId;
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;
+    this.revisionDate = new Date(obj.revisionDate);
+  }
+
+  static fromResponse(response: PolicyResponse): Policy {
+    return new Policy(new PolicyData(response));
+  }
+
+  static fromListResponse(response: ListResponse<PolicyResponse>): Policy[] {
+    return response.data.map((d) => Policy.fromResponse(d));
   }
 }

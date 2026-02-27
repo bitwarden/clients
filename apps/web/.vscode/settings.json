@@ -2,5 +2,6 @@
   "eslint.options": {
     "ignorePath": "${workspaceFolder}/../../../.eslintIgnore"
   },
-  "prettier.ignorePath": "${workspaceFolder}/../../../.prettierignore"
+  "prettier.ignorePath": "${workspaceFolder}/../../../.prettierignore",
+  "cSpell.words": ["bitwarden"]
 }

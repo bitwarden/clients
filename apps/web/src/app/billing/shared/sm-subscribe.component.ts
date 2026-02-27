@@ -1,14 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
+import { SecretsManagerAlt } from "@bitwarden/assets/svg";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ProductType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { SecretsManagerLogo } from "../../layouts/secrets-manager-logo";
 
 export interface SecretsManagerSubscription {
   enabled: boolean;
@@ -28,19 +29,32 @@ export const secretsManagerSubscribeFormFactory = (
     ],
   });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-subscribe",
   templateUrl: "sm-subscribe.component.html",
+  standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() upgradeOrganization: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showSubmitButton = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedPlan: PlanResponse;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() customerDiscount: BillingCustomerDiscount;
 
-  logo = SecretsManagerLogo;
-  productTypes = ProductType;
+  logo = SecretsManagerAlt;
+  productTypes = ProductTierType;
 
   private destroy$ = new Subject<void>();
 
@@ -75,17 +89,17 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   };
 
   get product() {
-    return this.selectedPlan.product;
+    return this.selectedPlan.productTier;
   }
 
   get planName() {
     switch (this.product) {
-      case ProductType.Free:
+      case ProductTierType.Free:
         return this.i18nService.t("free2PersonOrganization");
-      case ProductType.Teams:
-      case ProductType.TeamsStarter:
+      case ProductTierType.Teams:
+      case ProductTierType.TeamsStarter:
         return this.i18nService.t("planNameTeams");
-      case ProductType.Enterprise:
+      case ProductTierType.Enterprise:
         return this.i18nService.t("planNameEnterprise");
     }
   }

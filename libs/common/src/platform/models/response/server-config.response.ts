@@ -1,12 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
 import { BaseResponse } from "../../../models/response/base.response";
 import { Region } from "../../abstractions/environment.service";
+import { ServerSettings } from "../domain/server-settings";
 
 export class ServerConfigResponse extends BaseResponse {
   version: string;
   gitHash: string;
   server: ThirdPartyServerConfigResponse;
   environment: EnvironmentServerConfigResponse;
-  featureStates: { [key: string]: string } = {};
+  featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: PushSettingsConfigResponse;
+  settings: ServerSettings;
+  communication: CommunicationServerConfigResponse;
 
   constructor(response: any) {
     super(response);
@@ -20,6 +27,27 @@ export class ServerConfigResponse extends BaseResponse {
     this.server = new ThirdPartyServerConfigResponse(this.getResponseProperty("Server"));
     this.environment = new EnvironmentServerConfigResponse(this.getResponseProperty("Environment"));
     this.featureStates = this.getResponseProperty("FeatureStates");
+    this.push = new PushSettingsConfigResponse(this.getResponseProperty("Push"));
+    this.settings = new ServerSettings(this.getResponseProperty("Settings"));
+    this.communication = new CommunicationServerConfigResponse(
+      this.getResponseProperty("Communication"),
+    );
+  }
+}
+
+export class PushSettingsConfigResponse extends BaseResponse {
+  pushTechnology: number;
+  vapidPublicKey: string;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.pushTechnology = this.getResponseProperty("PushTechnology");
+    this.vapidPublicKey = this.getResponseProperty("VapidPublicKey");
   }
 }
 
@@ -60,5 +88,39 @@ export class ThirdPartyServerConfigResponse extends BaseResponse {
 
     this.name = this.getResponseProperty("Name");
     this.url = this.getResponseProperty("Url");
+  }
+}
+
+export class CommunicationServerConfigResponse extends BaseResponse {
+  bootstrap: BootstrapServerConfigResponse;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.bootstrap = new BootstrapServerConfigResponse(this.getResponseProperty("Bootstrap"));
+  }
+}
+
+export class BootstrapServerConfigResponse extends BaseResponse {
+  type: string;
+  idpLoginUrl: string;
+  cookieName: string;
+  cookieDomain: string;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.type = this.getResponseProperty("Type");
+    this.idpLoginUrl = this.getResponseProperty("IdpLoginUrl");
+    this.cookieName = this.getResponseProperty("CookieName");
+    this.cookieDomain = this.getResponseProperty("CookieDomain");
   }
 }

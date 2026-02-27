@@ -1,7 +1,10 @@
-export type ButtonType = "primary" | "secondary" | "danger" | "unstyled";
+import { ModelSignal } from "@angular/core";
+
+export type ButtonType = "primary" | "secondary" | "danger" | "dangerPrimary" | "unstyled";
+
+export type ButtonSize = "default" | "small";
 
 export abstract class ButtonLikeAbstraction {
-  loading: boolean;
-  disabled: boolean;
-  setButtonType: (value: ButtonType) => void;
+  abstract loading: ModelSignal<boolean>;
+  abstract disabled: ModelSignal<boolean>;
 }

@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AutofillInlineMenuIframeService initMenuIframe sets up the iframe's attributes 1`] = `
+<iframe
+  allowtransparency="true"
+  scrolling="no"
+  src="chrome-extension://id/overlay/menu.html"
+  style="all: initial !important; position: fixed !important; display: block !important; z-index: 2147483647 !important; line-height: 0 !important; overflow: hidden !important; transition: opacity 125ms ease-out 0s !important; visibility: visible !important; clip-path: none !important; pointer-events: auto !important; margin: 0px !important; padding: 0px !important; color-scheme: normal !important; opacity: 0 !important; height: 0px;"
+  tabindex="-1"
+  title="title"
+/>
+`;

@@ -1,14 +1,24 @@
-import { EVENTS, TYPE_CHECK } from "../constants";
-import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
-import { FormFieldElement } from "../types";
+import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
 
+import AutofillScript, {
+  AutofillInsertActions,
+  FillScript,
+  FillScriptActionTypes,
+} from "../models/autofill-script";
+import { FormFieldElement } from "../types";
+import {
+  currentlyInSandboxedIframe,
+  elementIsFillableFormField,
+  elementIsInputElement,
+  elementIsSelectElement,
+  elementIsTextAreaElement,
+} from "../utils";
+
+import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { InsertAutofillContentService as InsertAutofillContentServiceInterface } from "./abstractions/insert-autofill-content.service";
-import CollectAutofillContentService from "./collect-autofill-content.service";
-import DomElementVisibilityService from "./dom-element-visibility.service";
+import { CollectAutofillContentService } from "./collect-autofill-content.service";
 
 class InsertAutofillContentService implements InsertAutofillContentServiceInterface {
-  private readonly domElementVisibilityService: DomElementVisibilityService;
-  private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly autofillInsertActions: AutofillInsertActions = {
     fill_by_opid: ({ opid, value }) => this.handleFillFieldByOpidAction(opid, value),
     click_on_opid: ({ opid }) => this.handleClickOnFieldByOpidAction(opid),
@@ -20,12 +30,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * DomElementVisibilityService and CollectAutofillContentService classes.
    */
   constructor(
-    domElementVisibilityService: DomElementVisibilityService,
-    collectAutofillContentService: CollectAutofillContentService,
-  ) {
-    this.domElementVisibilityService = domElementVisibilityService;
-    this.collectAutofillContentService = collectAutofillContentService;
-  }
+    private domElementVisibilityService: DomElementVisibilityService,
+    private collectAutofillContentService: CollectAutofillContentService,
+  ) {}
 
   /**
    * Handles autofill of the forms on the current page based on the
@@ -37,29 +44,16 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   async fillForm(fillScript: AutofillScript) {
     if (
       !fillScript.script?.length ||
-      this.fillingWithinSandboxedIframe() ||
+      currentlyInSandboxedIframe() ||
       this.userCancelledInsecureUrlAutofill(fillScript.savedUrls) ||
       this.userCancelledUntrustedIframeAutofill(fillScript)
     ) {
       return;
     }
 
-    const fillActionPromises = fillScript.script.map(this.runFillScriptAction);
-    await Promise.all(fillActionPromises);
-  }
-
-  /**
-   * Identifies if the execution of this script is happening
-   * within a sandboxed iframe.
-   * @returns {boolean}
-   * @private
-   */
-  private fillingWithinSandboxedIframe() {
-    return (
-      String(self.origin).toLowerCase() === "null" ||
-      window.frameElement?.hasAttribute("sandbox") ||
-      window.location.hostname === ""
-    );
+    for (let index = 0; index < fillScript.script.length; index++) {
+      await this.runFillScriptAction(fillScript.script[index]);
+    }
   }
 
   /**
@@ -71,8 +65,8 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private userCancelledInsecureUrlAutofill(savedUrls?: string[] | null): boolean {
     if (
-      !savedUrls?.some((url) => url.startsWith(`https://${window.location.hostname}`)) ||
-      window.location.protocol !== "http:" ||
+      !savedUrls?.some((url) => url.startsWith(`https://${globalThis.location.hostname}`)) ||
+      globalThis.location.protocol !== "http:" ||
       !this.isPasswordFieldWithinDocument()
     ) {
       return false;
@@ -80,10 +74,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("insecurePageWarning"),
-      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [window.location.hostname]),
+      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**
@@ -93,13 +87,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private isPasswordFieldWithinDocument(): boolean {
-    return Boolean(
-      this.collectAutofillContentService.queryAllTreeWalkerNodes(
-        document.documentElement,
-        (node: Node) => node instanceof HTMLInputElement && node.type === "password",
-        false,
-      )?.length,
-    );
+    return this.collectAutofillContentService.isPasswordFieldWithinDocument();
   }
 
   /**
@@ -121,36 +109,37 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("autofillIframeWarning"),
-      chrome.i18n.getMessage("autofillIframeWarningTip", [window.location.hostname]),
+      chrome.i18n.getMessage("autofillIframeWarningTip", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**
    * Runs the autofill action based on the action type and the opid.
    * Each action is subsequently delayed by 20 milliseconds.
-   * @param {"click_on_opid" | "focus_by_opid" | "fill_by_opid"} action
-   * @param {string} opid
-   * @param {string} value
-   * @param {number} actionIndex
+   * @param {FillScript} [action, opid, value]
    * @returns {Promise<void>}
    * @private
    */
-  private runFillScriptAction = (
-    [action, opid, value]: FillScript,
-    actionIndex: number,
-  ): Promise<void> => {
+  private runFillScriptAction = ([action, opid, value]: FillScript): Promise<void> => {
     if (!opid || !this.autofillInsertActions[action]) {
-      return;
+      return Promise.resolve();
     }
 
     const delayActionsInMilliseconds = 20;
     return new Promise((resolve) =>
       setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
+        if (action === FillScriptActionTypes.fill_by_opid && !!value?.length) {
+          this.autofillInsertActions.fill_by_opid({ opid, value });
+        } else if (action === FillScriptActionTypes.click_on_opid) {
+          this.autofillInsertActions.click_on_opid({ opid });
+        } else if (action === FillScriptActionTypes.focus_by_opid) {
+          this.autofillInsertActions.focus_by_opid({ opid });
+        }
+
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
@@ -172,16 +161,30 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleClickOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
-    this.triggerClickOnElement(element);
+
+    if (element) {
+      this.triggerClickOnElement(element);
+    }
   }
 
   /**
    * Handles finding an element by opid and triggering click and focus events on the element.
-   * @param {string} opid
-   * @private
+   * To ensure that we trigger a blur event correctly on a filled field, we first check if the
+   * element is already focused. If it is, we blur the element before focusing on it again.
+   *
+   * @param {string} opid - The opid of the element to focus on.
    */
   private handleFocusOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
+
+    if (!element) {
+      return;
+    }
+
+    if (document.activeElement === element) {
+      element.blur();
+    }
+
     this.simulateUserMouseClickAndFocusEventInteractions(element, true);
   }
 
@@ -194,26 +197,32 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private insertValueIntoField(element: FormFieldElement | null, value: string) {
+    if (!element || !value) {
+      return;
+    }
+
     const elementCanBeReadonly =
-      element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement;
-    const elementCanBeFilled = elementCanBeReadonly || element instanceof HTMLSelectElement;
+      elementIsInputElement(element) || elementIsTextAreaElement(element);
+    const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
+    const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
+
+    const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
     if (
-      !element ||
-      !value ||
+      elementAlreadyHasTheValue ||
       (elementCanBeReadonly && element.readOnly) ||
       (elementCanBeFilled && element.disabled)
     ) {
       return;
     }
 
-    if (element instanceof HTMLSpanElement) {
+    if (!elementIsFillableFormField(element)) {
       this.handleInsertValueAndTriggerSimulatedEvents(element, () => (element.innerText = value));
       return;
     }
 
     const isFillableCheckboxOrRadioElement =
-      element instanceof HTMLInputElement &&
+      elementIsInputElement(element) &&
       new Set(["checkbox", "radio"]).has(element.type) &&
       new Set(["true", "y", "1", "yes", "✓"]).has(String(value).toLowerCase());
     if (isFillableCheckboxOrRadioElement) {
@@ -274,7 +283,6 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     }
 
     this.simulateInputElementChangedEvent(element);
-    element.blur();
   }
 
   /**
@@ -285,7 +293,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
     const skipAnimatingElement =
-      !(element instanceof HTMLSpanElement) &&
+      elementIsFillableFormField(element) &&
       !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);
 
     if (this.domElementVisibilityService.isElementHiddenByCss(element) || skipAnimatingElement) {
@@ -302,7 +310,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerClickOnElement(element?: HTMLElement): void {
-    if (typeof element?.click !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.click !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -317,7 +325,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFocusOnElement(element: HTMLElement | undefined, shouldResetValue = false): void {
-    if (typeof element?.focus !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.focus !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -353,7 +361,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
       element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
     }

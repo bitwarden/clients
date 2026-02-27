@@ -5,15 +5,16 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { I18nMockService } from "@bitwarden/components/src";
+import { I18nMockService, ToastService } from "@bitwarden/components/src";
 
 import { canAccessFeature } from "./feature-flag.guard";
 
-@Component({ template: "" })
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({ template: "", standalone: false })
 export class EmptyComponent {}
 
 describe("canAccessFeature", () => {
@@ -21,12 +22,12 @@ describe("canAccessFeature", () => {
   const featureRoute = "enabled-feature";
   const redirectRoute = "redirect";
 
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockToastService: MockProxy<ToastService>;
 
   const setup = (featureGuard: CanActivateFn, flagValue: any) => {
-    mockConfigService = mock<ConfigServiceAbstraction>();
-    mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockConfigService = mock<ConfigService>();
+    mockToastService = mock<ToastService>();
 
     // Mock the correct getter based on the type of flagValue; also mock default values if one is not provided
     if (typeof flagValue === "boolean") {
@@ -34,12 +35,12 @@ describe("canAccessFeature", () => {
         flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
       );
     } else if (typeof flagValue === "string") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = "") =>
-        flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
+      mockConfigService.getFeatureFlag.mockImplementation((flag) =>
+        flag == testFlag ? Promise.resolve(flagValue as any) : Promise.resolve(""),
       );
     } else if (typeof flagValue === "number") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = 0) =>
-        flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
+      mockConfigService.getFeatureFlag.mockImplementation((flag) =>
+        flag == testFlag ? Promise.resolve(flagValue as any) : Promise.resolve(0),
       );
     }
 
@@ -56,8 +57,8 @@ describe("canAccessFeature", () => {
         ]),
       ],
       providers: [
-        { provide: ConfigServiceAbstraction, useValue: mockConfigService },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -117,11 +118,11 @@ describe("canAccessFeature", () => {
 
     await router.navigate([featureRoute]);
 
-    expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
-      "error",
-      null,
-      "Access Denied!",
-    );
+    expect(mockToastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      title: null,
+      message: "Access Denied!",
+    });
   });
 
   it("does not show an error toast when the feature flag is enabled", async () => {
@@ -129,7 +130,7 @@ describe("canAccessFeature", () => {
 
     await router.navigate([featureRoute]);
 
-    expect(mockPlatformUtilsService.showToast).not.toHaveBeenCalled();
+    expect(mockToastService.showToast).not.toHaveBeenCalled();
   });
 
   it("redirects to the specified redirect url when the feature flag is disabled", async () => {

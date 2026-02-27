@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export type RendererMenuItem = {
   label?: string;
   type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
@@ -8,6 +10,8 @@ export function invokeMenu(menu: RendererMenuItem[]) {
   const menuWithoutClick = menu.map((m) => {
     return { label: m.label, type: m.type };
   });
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   ipc.platform.openContextMenu(menuWithoutClick).then((i: number) => {
     if (i !== -1) {
       menu[i].click();
@@ -16,11 +20,7 @@ export function invokeMenu(menu: RendererMenuItem[]) {
 }
 
 export function isDev() {
-  // ref: https://github.com/sindresorhus/electron-is-dev
-  if ("ELECTRON_IS_DEV" in process.env) {
-    return parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
-  }
-  return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
+  return BIT_ENVIRONMENT === "development";
 }
 
 export function isLinux() {
@@ -53,15 +53,29 @@ export function isWindowsStore() {
   if (
     windows &&
     !windowsStore &&
-    process.resourcesPath.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
+    (process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1 ||
+      process.resourcesPath?.indexOf("8bitSolutionsLLC.BitwardenBeta_") > -1)
   ) {
     windowsStore = true;
   }
   return windows && windowsStore === true;
 }
 
+export function isFlatpak() {
+  return process.platform === "linux" && process.env.container != null;
+}
+
 export function isWindowsPortable() {
   return isWindows() && process.env.PORTABLE_EXECUTABLE_DIR != null;
+}
+
+/**
+ * We block the browser integration on some unsupported platforms prevents
+ * experimenting with the feature for QA. So this env var allows overriding
+ * the block.
+ */
+export function allowBrowserintegrationOverride() {
+  return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";
 }
 
 /**
@@ -79,4 +93,12 @@ export function cleanUserAgent(userAgent: string): string {
     .replace(userAgentItem("(", ")"), systemInformation)
     .replace(userAgentItem("Bitwarden", " "), "")
     .replace(userAgentItem("Electron", " "), "");
+}
+
+/**
+ * Returns `true` if the provided string is not undefined, not null, and not empty.
+ * Otherwise, returns `false`.
+ */
+export function stringIsNotUndefinedNullAndEmpty(str: string): boolean {
+  return str?.length > 0;
 }

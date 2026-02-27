@@ -1,0 +1,689 @@
+import { ComponentFixture, fakeAsync, flush, TestBed, waitForAsync } from "@angular/core/testing";
+import { ReactiveFormsModule } from "@angular/forms";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
+
+import { ClientType } from "@bitwarden/client-type";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  MaximumSessionTimeoutPolicyData,
+  SessionTimeoutTypeService,
+} from "@bitwarden/common/key-management/session-timeout";
+import {
+  VaultTimeout,
+  VaultTimeoutAction,
+  VaultTimeoutOption,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
+
+import { SessionTimeoutInputComponent } from "../components/session-timeout-input.component";
+import { SessionTimeoutSettingsComponentService } from "../services/session-timeout-settings-component.service";
+
+import { SessionTimeoutSettingsComponent } from "./session-timeout-settings.component";
+
+describe("SessionTimeoutSettingsComponent", () => {
+  let component: SessionTimeoutSettingsComponent;
+  let fixture: ComponentFixture<SessionTimeoutSettingsComponent>;
+
+  // Mock services
+  let mockVaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
+  let mockSessionTimeoutSettingsComponentService: MockProxy<SessionTimeoutSettingsComponentService>;
+  let mockI18nService: MockProxy<I18nService>;
+  let mockToastService: MockProxy<ToastService>;
+  let mockPolicyService: MockProxy<PolicyService>;
+  let accountService: FakeAccountService;
+  let mockDialogService: MockProxy<DialogService>;
+  let mockLogService: MockProxy<LogService>;
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockSessionTimeoutTypeService = mock<SessionTimeoutTypeService>();
+
+  const mockUserId = "user-id" as UserId;
+  const mockEmail = "test@example.com";
+  const mockInitialTimeout = 5;
+  const mockInitialTimeoutAction = VaultTimeoutAction.Lock;
+  let refreshTimeoutActionSettings$: BehaviorSubject<void>;
+  let availableTimeoutOptions$: BehaviorSubject<VaultTimeoutOption[]>;
+  let policies$: BehaviorSubject<Policy[]>;
+
+  beforeEach(async () => {
+    refreshTimeoutActionSettings$ = new BehaviorSubject<void>(undefined);
+    availableTimeoutOptions$ = new BehaviorSubject<VaultTimeoutOption[]>([
+      { name: "oneMinute-used-i18n", value: 1 },
+      { name: "fiveMinutes-used-i18n", value: 5 },
+      { name: "onRestart-used-i18n", value: VaultTimeoutStringType.OnRestart },
+      { name: "onLocked-used-i18n", value: VaultTimeoutStringType.OnLocked },
+      { name: "onSleep-used-i18n", value: VaultTimeoutStringType.OnSleep },
+      { name: "onIdle-used-i18n", value: VaultTimeoutStringType.OnIdle },
+      { name: "never-used-i18n", value: VaultTimeoutStringType.Never },
+    ]);
+    policies$ = new BehaviorSubject<Policy[]>([]);
+
+    mockVaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+    mockSessionTimeoutSettingsComponentService = mock<SessionTimeoutSettingsComponentService>();
+    mockI18nService = mock<I18nService>();
+    mockToastService = mock<ToastService>();
+    mockPolicyService = mock<PolicyService>();
+    accountService = mockAccountServiceWith(mockUserId, { email: mockEmail });
+    mockDialogService = mock<DialogService>();
+    mockLogService = mock<LogService>();
+
+    mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
+
+    mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation(() =>
+      of(mockInitialTimeout),
+    );
+    mockVaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation(() =>
+      of(mockInitialTimeoutAction),
+    );
+    mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+      of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
+    );
+    mockSessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$.mockImplementation(
+      (userId) => availableTimeoutOptions$.asObservable(),
+    );
+    mockPolicyService.policiesByType$.mockReturnValue(policies$.asObservable());
+
+    await TestBed.configureTestingModule({
+      imports: [
+        SessionTimeoutSettingsComponent,
+        ReactiveFormsModule,
+        SessionTimeoutInputComponent,
+        NoopAnimationsModule,
+      ],
+      providers: [
+        { provide: VaultTimeoutSettingsService, useValue: mockVaultTimeoutSettingsService },
+        {
+          provide: SessionTimeoutSettingsComponentService,
+          useValue: mockSessionTimeoutSettingsComponentService,
+        },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: ToastService, useValue: mockToastService },
+        { provide: PolicyService, useValue: mockPolicyService },
+        { provide: AccountService, useValue: accountService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: SessionTimeoutTypeService, useValue: mockSessionTimeoutTypeService },
+      ],
+    })
+      .overrideComponent(SessionTimeoutSettingsComponent, {
+        set: {
+          providers: [{ provide: DialogService, useValue: mockDialogService }],
+        },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(SessionTimeoutSettingsComponent);
+    component = fixture.componentInstance;
+
+    fixture.componentRef.setInput("refreshTimeoutActionSettings", refreshTimeoutActionSettings$);
+  });
+
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
+
+  describe("canLock", () => {
+    it("should return true when Lock action is available", fakeAsync(() => {
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.canLock).toBe(true);
+    }));
+
+    it("should return false when Lock action is not available", fakeAsync(() => {
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.LogOut]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.canLock).toBe(false);
+    }));
+  });
+
+  describe("supportsLock", () => {
+    it.each([ClientType.Desktop, ClientType.Browser, ClientType.Cli])(
+      "should return true when client is %s and policy action is null",
+      fakeAsync((clientType: ClientType) => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(clientType);
+
+        fixture.detectChanges();
+        flush();
+
+        expect(component.supportsLock).toBe(true);
+      }),
+    );
+
+    it.each([ClientType.Desktop, ClientType.Browser, ClientType.Cli])(
+      "should return true when client is %s and policy action is lock",
+      fakeAsync((clientType: ClientType) => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(clientType);
+
+        fixture.detectChanges();
+        flush();
+
+        const policyData: MaximumSessionTimeoutPolicyData = {
+          minutes: 15,
+          action: VaultTimeoutAction.Lock,
+        };
+        policies$.next([{ id: "1", enabled: true, data: policyData } as Policy]);
+        flush();
+
+        expect(component.supportsLock).toBe(true);
+      }),
+    );
+
+    it.each([ClientType.Desktop, ClientType.Browser, ClientType.Cli, ClientType.Web])(
+      "should return false when client is %s and policy action is logOut",
+      fakeAsync((clientType: ClientType) => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(clientType);
+
+        fixture.detectChanges();
+        flush();
+
+        const policyData: MaximumSessionTimeoutPolicyData = {
+          minutes: 15,
+          action: VaultTimeoutAction.LogOut,
+        };
+        policies$.next([{ id: "1", enabled: true, data: policyData } as Policy]);
+        flush();
+
+        expect(component.supportsLock).toBe(false);
+      }),
+    );
+
+    it("should return false when client is Web and policy action is null", fakeAsync(() => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.supportsLock).toBe(false);
+    }));
+
+    it("should return false when client is Web and policy action is lock", fakeAsync(() => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
+
+      fixture.detectChanges();
+      flush();
+
+      const policyData: MaximumSessionTimeoutPolicyData = {
+        minutes: 15,
+        action: VaultTimeoutAction.Lock,
+      };
+      policies$.next([{ id: "1", enabled: true, data: policyData } as Policy]);
+      flush();
+
+      expect(component.supportsLock).toBe(false);
+    }));
+  });
+
+  describe("ngOnInit", () => {
+    it("should initialize available timeout options", fakeAsync(async () => {
+      fixture.detectChanges();
+      flush();
+
+      const options = await firstValueFrom(
+        component["availableTimeoutOptions$"].pipe(filter((options) => options.length > 0)),
+      );
+
+      expect(options).toContainEqual({ name: "oneMinute-used-i18n", value: 1 });
+      expect(options).toContainEqual({ name: "fiveMinutes-used-i18n", value: 5 });
+      expect(options).toContainEqual({
+        name: "onIdle-used-i18n",
+        value: VaultTimeoutStringType.OnIdle,
+      });
+      expect(options).toContainEqual({
+        name: "onSleep-used-i18n",
+        value: VaultTimeoutStringType.OnSleep,
+      });
+      expect(options).toContainEqual({
+        name: "onLocked-used-i18n",
+        value: VaultTimeoutStringType.OnLocked,
+      });
+      expect(options).toContainEqual({
+        name: "onRestart-used-i18n",
+        value: VaultTimeoutStringType.OnRestart,
+      });
+      expect(options).toContainEqual({
+        name: "never-used-i18n",
+        value: VaultTimeoutStringType.Never,
+      });
+    }));
+
+    it("should initialize available timeout actions signal", fakeAsync(() => {
+      const expectedActions = [VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut];
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of(expectedActions),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component["availableTimeoutActions"]()).toEqual(expectedActions);
+    }));
+
+    it("should initialize timeout and action", fakeAsync(() => {
+      const expectedTimeout = 15;
+      const expectedAction = VaultTimeoutAction.Lock;
+
+      mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation(() =>
+        of(expectedTimeout),
+      );
+      mockVaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation(() =>
+        of(expectedAction),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.value.timeout).toBe(expectedTimeout);
+      expect(component.formGroup.value.timeoutAction).toBe(expectedAction);
+    }));
+
+    it("should initialize userId from active account", fakeAsync(() => {
+      fixture.detectChanges();
+      flush();
+
+      expect(component["userId"]).toBe(mockUserId);
+    }));
+
+    it("should initialize sessionTimeoutActionFromPolicy signal with null when no policy exists", fakeAsync(() => {
+      fixture.detectChanges();
+      flush();
+
+      expect(component["sessionTimeoutActionFromPolicy"]()).toBeNull();
+    }));
+
+    it.each([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut])(
+      "should initialize sessionTimeoutActionFromPolicy signal with policy action %s when policy exists",
+      fakeAsync((timeoutAction: VaultTimeoutAction) => {
+        const policyData: MaximumSessionTimeoutPolicyData = {
+          minutes: 15,
+          action: timeoutAction,
+        };
+
+        fixture.detectChanges();
+        flush();
+
+        policies$.next([{ id: "1", enabled: true, data: policyData } as Policy]);
+        flush();
+
+        expect(component["sessionTimeoutActionFromPolicy"]()).toBe(timeoutAction);
+      }),
+    );
+
+    it("should initialize sessionTimeoutActionFromPolicy signal with null when policy exists and action is user preference", fakeAsync(() => {
+      const policyData: MaximumSessionTimeoutPolicyData = {
+        minutes: 15,
+        action: null,
+      };
+
+      fixture.detectChanges();
+      flush();
+
+      policies$.next([{ id: "1", enabled: true, data: policyData } as Policy]);
+      flush();
+
+      expect(component["sessionTimeoutActionFromPolicy"]()).toBeNull();
+    }));
+
+    it("should disable timeout action control when policy enforces action", fakeAsync(() => {
+      const policyData: MaximumSessionTimeoutPolicyData = {
+        minutes: 15,
+        action: VaultTimeoutAction.LogOut,
+      };
+      mockPolicyService.policiesByType$.mockImplementation(() =>
+        of([{ id: "1", data: policyData }] as Policy[]),
+      );
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.disabled).toBe(true);
+    }));
+
+    it("should disable timeout action control when only one action is available", fakeAsync(() => {
+      mockPolicyService.policiesByType$.mockImplementation(() => of([]));
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.disabled).toBe(true);
+    }));
+
+    it("should disable timeout action control when policy enforces action and refreshed", fakeAsync(() => {
+      const policies$ = new BehaviorSubject<Policy[]>([]);
+      mockPolicyService.policiesByType$.mockReturnValue(policies$);
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.enabled).toBe(true);
+
+      const policyData: MaximumSessionTimeoutPolicyData = {
+        minutes: 15,
+        action: VaultTimeoutAction.LogOut,
+      };
+      policies$.next([{ id: "1", data: policyData }] as Policy[]);
+
+      refreshTimeoutActionSettings$.next(undefined);
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.disabled).toBe(true);
+    }));
+
+    it("should disable timeout action control when only one action is available and refreshed", fakeAsync(() => {
+      mockPolicyService.policiesByType$.mockImplementation(() => of([]));
+
+      const availableActions$ = new BehaviorSubject<VaultTimeoutAction[]>([
+        VaultTimeoutAction.Lock,
+        VaultTimeoutAction.LogOut,
+      ]);
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(
+        availableActions$,
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.enabled).toBe(true);
+
+      availableActions$.next([VaultTimeoutAction.Lock]);
+
+      refreshTimeoutActionSettings$.next(undefined);
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.disabled).toBe(true);
+    }));
+
+    it("should enable timeout action control when multiple actions available and no policy and refreshed", fakeAsync(() => {
+      mockPolicyService.policiesByType$.mockImplementation(() => of([]));
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock]),
+      );
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.disabled).toBe(true);
+
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation(() =>
+        of([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]),
+      );
+
+      refreshTimeoutActionSettings$.next(undefined);
+      flush();
+
+      expect(component.formGroup.controls.timeoutAction.enabled).toBe(true);
+    }));
+
+    it("should subscribe to timeout value changes", fakeAsync(() => {
+      const saveSpy = jest.spyOn(component, "saveTimeout").mockResolvedValue(undefined);
+
+      fixture.detectChanges();
+      flush();
+
+      const newTimeout = 30;
+      component.formGroup.controls.timeout.setValue(newTimeout);
+      flush();
+
+      expect(saveSpy).toHaveBeenCalledWith(mockInitialTimeout, newTimeout);
+    }));
+
+    it("should subscribe to timeout action value changes", fakeAsync(() => {
+      const saveSpy = jest.spyOn(component, "saveTimeoutAction").mockResolvedValue(undefined);
+
+      fixture.detectChanges();
+      flush();
+
+      component.formGroup.controls.timeoutAction.setValue(VaultTimeoutAction.LogOut);
+      flush();
+
+      expect(saveSpy).toHaveBeenCalledWith(VaultTimeoutAction.LogOut);
+    }));
+
+    it("should sync form timeout when service emits new timeout value", fakeAsync(() => {
+      const timeout$ = new BehaviorSubject<VaultTimeout>(mockInitialTimeout);
+      mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(timeout$);
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component.formGroup.controls.timeout.value).toBe(mockInitialTimeout);
+
+      const newTimeout = 30;
+      timeout$.next(newTimeout);
+      flush();
+
+      expect(component.formGroup.controls.timeout.value).toBe(newTimeout);
+    }));
+
+    it("should not sync form timeout when service emits same timeout value", fakeAsync(() => {
+      const timeout$ = new BehaviorSubject<VaultTimeout>(mockInitialTimeout);
+      mockVaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(timeout$);
+
+      fixture.detectChanges();
+      flush();
+
+      const setValueSpy = jest.spyOn(component.formGroup.controls.timeout, "setValue");
+
+      timeout$.next(mockInitialTimeout);
+      flush();
+
+      expect(setValueSpy).not.toHaveBeenCalled();
+    }));
+
+    it("should update availableTimeoutActions signal when service emits new actions", fakeAsync(() => {
+      const actions$ = new BehaviorSubject<VaultTimeoutAction[]>([VaultTimeoutAction.Lock]);
+      mockVaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(actions$);
+
+      fixture.detectChanges();
+      flush();
+
+      expect(component["availableTimeoutActions"]()).toEqual([VaultTimeoutAction.Lock]);
+
+      actions$.next([VaultTimeoutAction.Lock, VaultTimeoutAction.LogOut]);
+      refreshTimeoutActionSettings$.next(undefined);
+      flush();
+
+      expect(component["availableTimeoutActions"]()).toEqual([
+        VaultTimeoutAction.Lock,
+        VaultTimeoutAction.LogOut,
+      ]);
+    }));
+  });
+
+  describe("saveTimeout", () => {
+    it("should not save when form control timeout is invalid", fakeAsync(async () => {
+      fixture.detectChanges();
+      flush();
+
+      component.formGroup.controls.timeout.setValue(null);
+
+      await component.saveTimeout(mockInitialTimeout, 30);
+      flush();
+
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+    }));
+
+    it("should set new value and show confirmation dialog when setting timeout to Never and dialog confirmed", waitForAsync(async () => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const previousTimeout = component.formGroup.controls.timeout.value!;
+      const newTimeout = VaultTimeoutStringType.Never;
+
+      await component.saveTimeout(previousTimeout, newTimeout);
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "warning" },
+        content: { key: "neverLockWarning" },
+        type: "warning",
+      });
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+        mockUserId,
+        newTimeout,
+        mockInitialTimeoutAction,
+      );
+      expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).toHaveBeenCalledWith(
+        newTimeout,
+      );
+    }));
+
+    it("should revert to previous value when Never confirmation is declined", waitForAsync(async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
+
+      const previousTimeout = component.formGroup.controls.timeout.value!;
+      const newTimeout = VaultTimeoutStringType.Never;
+
+      await component.saveTimeout(previousTimeout, newTimeout);
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "warning" },
+        content: { key: "neverLockWarning" },
+        type: "warning",
+      });
+      expect(component.formGroup.controls.timeout.value).toBe(previousTimeout);
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).not.toHaveBeenCalled();
+    }));
+
+    it.each([
+      30,
+      VaultTimeoutStringType.OnRestart,
+      VaultTimeoutStringType.OnLocked,
+      VaultTimeoutStringType.OnSleep,
+      VaultTimeoutStringType.OnIdle,
+    ])(
+      "should set new value when setting timeout to %s",
+      fakeAsync(async (timeout: VaultTimeout) => {
+        fixture.detectChanges();
+        flush();
+
+        const previousTimeout = component.formGroup.controls.timeout.value!;
+        await component.saveTimeout(previousTimeout, timeout);
+        flush();
+
+        expect(mockDialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+          mockUserId,
+          timeout,
+          mockInitialTimeoutAction,
+        );
+        expect(mockSessionTimeoutSettingsComponentService.onTimeoutSave).toHaveBeenCalledWith(
+          timeout,
+        );
+      }),
+    );
+  });
+
+  describe("saveTimeoutAction", () => {
+    it("should set new value and show confirmation dialog when setting action to LogOut and dialog confirmed", waitForAsync(async () => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.saveTimeoutAction(VaultTimeoutAction.LogOut);
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "vaultTimeoutLogOutConfirmationTitle" },
+        content: { key: "vaultTimeoutLogOutConfirmation" },
+        type: "warning",
+      });
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+        mockUserId,
+        mockInitialTimeout,
+        VaultTimeoutAction.LogOut,
+      );
+    }));
+
+    it("should revert to Lock when LogOut confirmation is declined", waitForAsync(async () => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.saveTimeoutAction(VaultTimeoutAction.LogOut);
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "vaultTimeoutLogOutConfirmationTitle" },
+        content: { key: "vaultTimeoutLogOutConfirmation" },
+        type: "warning",
+      });
+      expect(component.formGroup.controls.timeoutAction.value).toBe(VaultTimeoutAction.Lock);
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+    }));
+
+    it("should set timeout action to Lock value when setting timeout action to Lock", fakeAsync(async () => {
+      fixture.detectChanges();
+      flush();
+
+      component.formGroup.controls.timeoutAction.setValue(VaultTimeoutAction.LogOut, {
+        emitEvent: false,
+      });
+
+      await component.saveTimeoutAction(VaultTimeoutAction.Lock);
+      flush();
+
+      expect(mockDialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+        mockUserId,
+        mockInitialTimeout,
+        VaultTimeoutAction.Lock,
+      );
+    }));
+
+    it("should not save and show error toast when timeout has policy error", fakeAsync(async () => {
+      fixture.detectChanges();
+      flush();
+
+      component.formGroup.controls.timeout.setErrors({ policyError: true });
+
+      await component.saveTimeoutAction(VaultTimeoutAction.Lock);
+      flush();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "vaultTimeoutTooLarge-used-i18n",
+      });
+      expect(mockVaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+    }));
+  });
+});

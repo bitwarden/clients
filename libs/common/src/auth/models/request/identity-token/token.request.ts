@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DeviceRequest } from "./device.request";
 import { TokenTwoFactorRequest } from "./token-two-factor.request";
 
@@ -10,11 +12,6 @@ export abstract class TokenRequest {
     device?: DeviceRequest,
   ) {
     this.device = device != null ? device : null;
-  }
-
-  // eslint-disable-next-line
-  alterIdentityTokenHeaders(headers: Headers) {
-    // Implemented in subclass if required
   }
 
   setTwoFactor(twoFactor: TokenTwoFactorRequest | undefined) {

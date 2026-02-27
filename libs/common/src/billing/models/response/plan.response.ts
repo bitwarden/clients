@@ -1,10 +1,11 @@
-import { ProductType } from "../../../enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ProductTierType, PlanType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { PlanType } from "../../enums";
 
 export class PlanResponse extends BaseResponse {
   type: PlanType;
-  product: ProductType;
+  productTier: ProductTierType;
   name: string;
   isAnnual: boolean;
   nameLocalizationKey: string;
@@ -13,6 +14,7 @@ export class PlanResponse extends BaseResponse {
   trialPeriodDays: number;
   hasSelfHost: boolean;
   hasPolicies: boolean;
+  hasMyItems: boolean;
   hasGroups: boolean;
   hasDirectory: boolean;
   hasEvents: boolean;
@@ -32,7 +34,7 @@ export class PlanResponse extends BaseResponse {
   constructor(response: any) {
     super(response);
     this.type = this.getResponseProperty("Type");
-    this.product = this.getResponseProperty("Product");
+    this.productTier = this.getResponseProperty("ProductTier");
     this.name = this.getResponseProperty("Name");
     this.isAnnual = this.getResponseProperty("IsAnnual");
     this.nameLocalizationKey = this.getResponseProperty("NameLocalizationKey");
@@ -41,6 +43,7 @@ export class PlanResponse extends BaseResponse {
     this.trialPeriodDays = this.getResponseProperty("TrialPeriodDays");
     this.hasSelfHost = this.getResponseProperty("HasSelfHost");
     this.hasPolicies = this.getResponseProperty("HasPolicies");
+    this.hasMyItems = this.getResponseProperty("HasMyItems");
     this.hasGroups = this.getResponseProperty("HasGroups");
     this.hasDirectory = this.getResponseProperty("HasDirectory");
     this.hasEvents = this.getResponseProperty("HasEvents");
@@ -111,9 +114,11 @@ export class PasswordManagerPlanFeaturesResponse extends BaseResponse {
   // Seats
   stripePlanId: string;
   stripeSeatPlanId: string;
+  stripeProviderPortalSeatPlanId: string;
   stripePremiumAccessPlanId: string;
   basePrice: number;
   seatPrice: number;
+  providerPortalSeatPrice: number;
   premiumAccessOptionPrice: number;
   baseSeats: number;
   maxAdditionalSeats: number;
@@ -135,10 +140,14 @@ export class PasswordManagerPlanFeaturesResponse extends BaseResponse {
     super(response);
     this.stripePlanId = this.getResponseProperty("StripePlanId");
     this.stripeSeatPlanId = this.getResponseProperty("StripeSeatPlanId");
+    this.stripeProviderPortalSeatPlanId = this.getResponseProperty(
+      "StripeProviderPortalSeatPlanId",
+    );
     this.stripeStoragePlanId = this.getResponseProperty("StripeStoragePlanId");
     this.stripePremiumAccessPlanId = this.getResponseProperty("StripePremiumAccessPlanId");
     this.basePrice = this.getResponseProperty("BasePrice");
     this.seatPrice = this.getResponseProperty("SeatPrice");
+    this.providerPortalSeatPrice = this.getResponseProperty("ProviderPortalSeatPrice");
     this.baseSeats = this.getResponseProperty("BaseSeats");
     this.maxAdditionalSeats = this.getResponseProperty("MaxAdditionalSeats");
     this.premiumAccessOptionPrice = this.getResponseProperty("PremiumAccessOptionPrice");

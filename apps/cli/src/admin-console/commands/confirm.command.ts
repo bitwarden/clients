@@ -1,16 +1,34 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map, switchMap } from "rxjs";
+
+import {
+  OrganizationUserApiService,
+  OrganizationUserConfirmRequest,
+  OrganizationUserDetailsResponse,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
-import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Response } from "../../models/response";
 
 export class ConfirmCommand {
   constructor(
     private apiService: ApiService,
-    private cryptoService: CryptoService,
-    private organizationUserService: OrganizationUserService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private accountService: AccountService,
+    private i18nService: I18nService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -38,23 +56,34 @@ export class ConfirmCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.cryptoService.getOrgKey(options.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
+
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
-      const orgUser = await this.organizationUserService.getOrganizationUser(
+      const orgUser = await this.organizationUserApiService.getOrganizationUser(
         options.organizationId,
         id,
       );
       if (orgUser == null) {
         throw new Error("Member id does not exist for this organization.");
       }
+
+      this.validateOrganizationUserStatus(orgUser);
+
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey);
+      const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
-      await this.organizationUserService.postOrganizationUserConfirm(
+      req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
+      await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
         req,
@@ -62,6 +91,30 @@ export class ConfirmCommand {
       return Response.success();
     } catch (e) {
       return Response.error(e);
+    }
+  }
+
+  private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
+    const defaultCollectionName = this.i18nService.t("myItems");
+    const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
+    return encrypted.encryptedString;
+  }
+
+  private validateOrganizationUserStatus(orgUser: OrganizationUserDetailsResponse): void {
+    if (orgUser.status === OrganizationUserStatusType.Invited) {
+      throw new Error("User must accept the invitation before they can be confirmed.");
+    }
+
+    if (orgUser.status === OrganizationUserStatusType.Confirmed) {
+      throw new Error("User is already confirmed.");
+    }
+
+    if (orgUser.status === OrganizationUserStatusType.Revoked) {
+      throw new Error("User is revoked and cannot be confirmed.");
+    }
+
+    if (orgUser.status !== OrganizationUserStatusType.Accepted) {
+      throw new Error("User is not in a valid state to be confirmed.");
     }
   }
 }

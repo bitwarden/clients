@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base",
+  "exclude": ["node_modules", "dist"],
+  "files": ["empty.ts"]
+}

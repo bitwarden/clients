@@ -1,0 +1,10 @@
+@if (!isDecryptionFailure()) {
+  <button
+    [bitAction]="download"
+    bitIconButton="bwi-download"
+    buttonType="main"
+    size="small"
+    type="button"
+    [label]="'downloadAttachmentLabel' | i18n"
+  ></button>
+}

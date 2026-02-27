@@ -1,18 +1,30 @@
-<div class="tw-flex tw-flex-row tw-justify-between">
-  <h1>{{ "domainVerification" | i18n }}</h1>
-
+<app-header>
   <button *ngIf="!loading" type="button" buttonType="primary" bitButton (click)="addDomain()">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
   </button>
-</div>
+</app-header>
+
+<p bitTypography="body1" class="tw-text-main tw-max-w-4xl">
+  {{ "claimedDomainsDescription" | i18n }}
+  <a
+    bitLink
+    target="_blank"
+    rel="noreferrer"
+    appA11yTitle="{{ 'learnMore' | i18n }}"
+    href="https://bitwarden.com/help/claimed-accounts/"
+    slot="end"
+  >
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</p>
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 
 <ng-container *ngIf="!loading">
@@ -41,18 +53,18 @@
               </button>
             </td>
             <td bitCell>
-              <span *ngIf="!orgDomain?.verifiedDate" bitBadge badgeType="warning">{{
-                "domainStatusUnverified" | i18n
+              <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
+                "domainStatusPending" | i18n
               }}</span>
-              <span *ngIf="orgDomain?.verifiedDate" bitBadge badgeType="success">{{
-                "domainStatusVerified" | i18n
+              <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
+                "domainStatusClaimed" | i18n
               }}</span>
             </td>
             <td bitCell class="tw-text-muted">
               {{ orgDomain.lastCheckedDate | date: "medium" }}
             </td>
 
-            <td bitCell class="table-list-options tw-text-right">
+            <td bitCell class="tw-text-right">
               <button
                 [bitMenuTriggerFor]="orgDomainOptions"
                 class="tw-border-none tw-bg-transparent tw-text-main"
@@ -72,7 +84,7 @@
                   type="button"
                 >
                   <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                  {{ "verifyDomain" | i18n }}
+                  {{ "claimDomain" | i18n }}
                 </button>
                 <button bitMenuItem (click)="deleteDomain(orgDomain.id)" type="button">
                   <span class="tw-text-danger">
@@ -91,21 +103,13 @@
       class="tw-mt-6 tw-flex tw-flex-col tw-items-center tw-justify-center"
       *ngIf="orgDomains?.length == 0"
     >
-      <img src="../../images/domain-verification/domain.svg" class="tw-mb-4" alt="" />
-
-      <div class="tw-mb-2 tw-flex tw-flex-row tw-justify-center">
-        <span class="tw-text-lg tw-font-bold">{{ "noDomains" | i18n }}</span>
-      </div>
-
-      <div class="tw-mb-4 tw-flex tw-flex-row tw-justify-center">
-        <span>
-          {{ "noDomainsSubText" | i18n }}
-        </span>
-      </div>
-
-      <button type="button" buttonType="secondary" bitButton (click)="addDomain()">
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
-      </button>
+      <bit-no-items [icon]="domainIcon">
+        <div slot="title">{{ "noDomains" | i18n }}</div>
+        <div slot="description">{{ "noDomainsSubText" | i18n }}</div>
+        <button slot="button" type="button" buttonType="secondary" bitButton (click)="addDomain()">
+          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+        </button>
+      </bit-no-items>
     </div>
   </ng-container>
 </ng-container>

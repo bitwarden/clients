@@ -1,12 +1,12 @@
 import { CardApi } from "../api/card.api";
 
 export class CardData {
-  cardholderName: string;
-  brand: string;
-  number: string;
-  expMonth: string;
-  expYear: string;
-  code: string;
+  cardholderName?: string;
+  brand?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
 
   constructor(data?: CardApi) {
     if (data == null) {

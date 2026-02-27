@@ -1,6 +1,12 @@
-import { Meta, Story, Source } from "@storybook/addon-docs";
+import { Meta, Canvas, Source } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./dialog.service.stories";
 
 <Meta title="Component Library/Dialogs" />
+
+```ts
+import { DialogModule } from "@bitwarden/components";
+```
 
 # Dialog
 
@@ -16,6 +22,45 @@ For alerts or simple confirmation actions, like speedbumps, use the
 Dialogs's should be used sparingly as they do call extra attention to themselves and can be
 interruptive if overused.
 
+For non-blocking, supplementary content, open dialogs as a
+[Drawer](?path=/story/component-library-dialogs-service--drawer) (requires `bit-layout`).
+
+### Closing Drawers on Navigation
+
+When using drawers, you may want to close them automatically when the user navigates to another page
+to prevent the drawer from persisting across route changes. In most cases you can achieve this by
+using the `closeOnNavigation` option when opening the drawer.
+
+```ts
+this.dialogService.open(MyDialogComponent, { closeOnNavigation: true });
+```
+
+In some cases you may want more control of when the drawer is closed, such as if you have nested
+routes and want the drawer to persist across some route changes but not others. In this case, you
+can manually close the drawer in `ngOnDestroy`. To do this:
+
+1. Store a reference to the dialog when opening it
+2. Implement `OnDestroy` and close the dialog in `ngOnDestroy`
+
+```ts
+import { Component, OnDestroy } from "@angular/core";
+import { DialogRef } from "@bitwarden/components";
+
+export class MyComponent implements OnDestroy {
+  private myDialogRef: DialogRef;
+
+  ngOnDestroy() {
+    this.myDialogRef?.close();
+  }
+
+  openDrawer() {
+    this.myDialogRef = this.dialogService.open(MyDialogComponent, {
+      // dialog options
+    });
+  }
+}
+```
+
 ## Placement
 
 Dialogs should be centered vertically and horizontally on screen. Dialogs height should expand to
@@ -24,7 +69,7 @@ dialog should become scrollable.
 
 A backdrop should be used to hide the content below the dialog. Use `#000000` with `30% opacity`.
 
-<Story id="component-library-dialogs-service--default" />
+<Canvas of={stories.Default} />
 
 ## Accessibility
 
@@ -50,7 +95,16 @@ element after close since a user may not want to close the dialog immediately if
 additional interactive elements. See
 [WCAG Focus Order success criteria](https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html)
 
-Once closed, focus should remain on the the element which triggered the Dialog.
+Once closed, focus should remain on the element which triggered the Dialog.
 
 **Note:** If a Simple Dialog is triggered from a main Dialog, be sure to make sure focus is moved to
 the Simple Dialog.
+
+## Using Forms with Dialogs
+
+When using forms with dialogs, apply the `bit-dialog` attribute directly to the `<form>` element
+instead of wrapping the dialog in a form. This ensures proper styling.
+
+```html
+<form bit-dialog>...</form>
+```

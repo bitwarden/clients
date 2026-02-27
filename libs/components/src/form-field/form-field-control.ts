@@ -1,3 +1,5 @@
+import { ModelSignal, Signal } from "@angular/core";
+
 export type InputTypes =
   | "text"
   | "password"
@@ -11,13 +13,14 @@ export type InputTypes =
   | "time";
 
 export abstract class BitFormFieldControl {
-  ariaDescribedBy: string;
-  id: string;
-  labelForId: string;
-  required: boolean;
-  hasError: boolean;
-  error: [string, any];
-  type?: InputTypes;
-  spellcheck?: boolean;
-  focus?: () => void;
+  abstract ariaDescribedBy?: string;
+  abstract id: Signal<string>;
+  abstract labelForId: string;
+  abstract required: boolean;
+  abstract hasError: boolean;
+  abstract error: [string, any];
+  abstract type?: ModelSignal<InputTypes | undefined>;
+  abstract spellcheck?: ModelSignal<boolean | undefined>;
+  abstract readOnly?: boolean;
+  abstract focus?: () => void;
 }

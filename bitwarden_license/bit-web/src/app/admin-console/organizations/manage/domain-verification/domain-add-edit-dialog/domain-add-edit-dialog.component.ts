@@ -1,4 +1,5 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
@@ -9,12 +10,9 @@ import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abst
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";
@@ -24,26 +22,16 @@ export interface DomainAddEditDialogData {
   existingDomainNames: Array<string>;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "domain-add-edit-dialog.component.html",
+  standalone: false,
 })
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   private componentDestroyed$: Subject<void> = new Subject();
 
-  domainForm: FormGroup = this.formBuilder.group({
-    domainName: [
-      "",
-      [
-        Validators.required,
-        domainNameValidator(this.i18nService.t("invalidDomainNameMessage")),
-        uniqueInArrayValidator(
-          this.data.existingDomainNames,
-          this.i18nService.t("duplicateDomainError"),
-        ),
-      ],
-    ],
-    txt: [{ value: null, disabled: true }],
-  });
+  domainForm: FormGroup;
 
   get domainNameCtrl(): FormControl {
     return this.domainForm.controls.domainName as FormControl;
@@ -60,18 +48,31 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) public data: DomainAddEditDialogData,
     private formBuilder: FormBuilder,
-    private cryptoFunctionService: CryptoFunctionServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private orgDomainService: OrgDomainServiceAbstraction,
     private validationService: ValidationService,
     private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   // Angular Method Implementations
 
   async ngOnInit(): Promise<void> {
+    this.domainForm = this.formBuilder.group({
+      domainName: [
+        "",
+        [
+          Validators.required,
+          domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
+          uniqueInArrayValidator(
+            this.data.existingDomainNames,
+            this.i18nService.t("duplicateDomainError"),
+          ),
+        ],
+      ],
+      txt: [{ value: null, disabled: true }],
+    });
     // If we have data.orgDomain, then editing, otherwise creating new domain
     await this.populateForm();
   }
@@ -90,17 +91,6 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       // Edit
       this.domainForm.patchValue(this.data.orgDomain);
       this.domainForm.disable();
-    } else {
-      // Add
-
-      // Figuring out the proper length of our DNS TXT Record value was fun.
-      // DNS-Based Service Discovery RFC: https://www.ietf.org/rfc/rfc6763.txt; see section 6.1
-      // Google uses 43 chars for their TXT record value: https://support.google.com/a/answer/2716802
-      // So, chose a magic # of 33 bytes to achieve at least that once converted to base 64 (47 char length).
-      const generatedTxt = `bw=${Utils.fromBufferToB64(
-        await this.cryptoFunctionService.randomBytes(33),
-      )}`;
-      this.txtCtrl.setValue(generatedTxt);
     }
 
     this.setupFormListeners();
@@ -116,28 +106,42 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
 
   copyDnsTxt(): void {
     this.orgDomainService.copyDnsTxt(this.txtCtrl.value);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   // End Form methods
 
   // Async Form Actions
+  // Creates a new domain record. The DNS TXT Record will be generated server-side and returned in the response.
   saveDomain = async (): Promise<void> => {
     if (this.domainForm.invalid) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("domainFormInvalid"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("domainFormInvalid"),
+      });
       return;
     }
 
     this.domainNameCtrl.disable();
 
     const request: OrganizationDomainRequest = new OrganizationDomainRequest(
-      this.txtCtrl.value,
       this.domainNameCtrl.value,
     );
 
     try {
       this.data.orgDomain = await this.orgDomainApiService.post(this.data.organizationId, request);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("domainSaved"));
-      await this.verifyDomain();
+      // Patch the DNS TXT Record that was generated server-side
+      this.domainForm.controls.txt.patchValue(this.data.orgDomain.txt);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("domainSaved"),
+      });
     } catch (e) {
       this.handleDomainSaveError(e);
     }
@@ -188,7 +192,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   verifyDomain = async (): Promise<void> => {
     if (this.domainForm.invalid) {
       // Note: shouldn't be possible, but going to leave this to be safe.
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("domainFormInvalid"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("domainFormInvalid"),
+      });
       return;
     }
 
@@ -199,12 +207,16 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       );
 
       if (this.data.orgDomain.verifiedDate) {
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("domainVerified"));
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("domainClaimed"),
+        });
         this.dialogRef.close();
       } else {
         this.domainNameCtrl.setErrors({
           errorPassthrough: {
-            message: this.i18nService.t("domainNotVerified", this.domainNameCtrl.value),
+            message: this.i18nService.t("domainNotClaimed", this.domainNameCtrl.value),
           },
         });
         // For the case where user opens dialog and reverifies when domain name formControl disabled.
@@ -261,7 +273,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     }
 
     await this.orgDomainApiService.delete(this.data.organizationId, this.data.orgDomain.id);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("domainRemoved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("domainRemoved"),
+    });
 
     this.dialogRef.close();
   };

@@ -4,30 +4,35 @@
  */
 
 import { trackEmissions } from "@bitwarden/common/../spec/utils";
+import { mock, MockProxy } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/logging";
+
+import { mockPorts } from "../../../spec/mock-port.spec-util";
 
 import { BackgroundMemoryStorageService } from "./background-memory-storage.service";
 import { ForegroundMemoryStorageService } from "./foreground-memory-storage.service";
-import { mockPort } from "./mock-port.spec-util";
-import { portName } from "./port-name";
 
 describe("foreground background memory storage interaction", () => {
   let foreground: ForegroundMemoryStorageService;
   let background: BackgroundMemoryStorageService;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
-    mockPort(portName(chrome.storage.session));
+    mockPorts();
+    logService = mock();
 
-    background = new BackgroundMemoryStorageService();
+    background = new BackgroundMemoryStorageService(logService);
     foreground = new ForegroundMemoryStorageService();
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
-  test.each(["has", "get", "getBypassCache"])(
+  test.each(["has", "get"])(
     "background should respond with the correct value for %s",
-    async (action: "get" | "has" | "getBypassCache") => {
+    async (action: "get" | "has") => {
       const key = "key";
       const value = "value";
       background[action] = jest.fn().mockResolvedValue(value);
@@ -62,5 +67,17 @@ describe("foreground background memory storage interaction", () => {
     await background.save(key, value);
 
     expect(emissions).toEqual([{ key, updateType }]);
+  });
+
+  test("background should message only the requesting foreground", async () => {
+    const secondForeground = new ForegroundMemoryStorageService();
+    const secondPort = secondForeground["_port"];
+    const secondPost = secondPort.postMessage as jest.Mock;
+    secondPost.mockClear();
+
+    const key = "key";
+    await foreground.get(key);
+
+    expect(secondPost).not.toHaveBeenCalled();
   });
 });

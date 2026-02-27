@@ -1,20 +1,14 @@
-<div class="tabbed-nav d-flex flex-column" *ngIf="!selfHosted">
-  <ul class="nav nav-tabs">
-    <li class="nav-item">
-      <a class="nav-link" [routerLink]="subscriptionRoute" routerLinkActive="active">
-        {{ "subscription" | i18n }}
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="payment-method" routerLinkActive="active">
-        {{ "paymentMethod" | i18n }}
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="billing-history" routerLinkActive="active">
-        {{ "billingHistory" | i18n }}
-      </a>
-    </li>
-  </ul>
-</div>
+<app-header>
+  @if (!selfHosted) {
+    <bit-tab-nav-bar slot="tabs">
+      <bit-tab-link
+        [route]="(showSubscriptionPageLink$ | async) ? 'user-subscription' : 'premium'"
+        >{{ "subscription" | i18n }}</bit-tab-link
+      >
+      <bit-tab-link route="payment-details">{{ "paymentDetails" | i18n }}</bit-tab-link>
+      <bit-tab-link route="billing-history">{{ "billingHistory" | i18n }}</bit-tab-link>
+    </bit-tab-nav-bar>
+  }
+</app-header>
+
 <router-outlet></router-outlet>

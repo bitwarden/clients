@@ -1,0 +1,10 @@
+<app-header></app-header>
+<bit-container>
+  <h3 bitTypography="h3">{{ "invoices" | i18n }}</h3>
+  <p bitTypography="body1">{{ "billingHistoryDescription" | i18n }}</p>
+  <app-invoices
+    [getInvoices]="getInvoices"
+    [getClientInvoiceReport]="getClientInvoiceReport"
+    [getClientInvoiceReportName]="getClientInvoiceReportName"
+  ></app-invoices>
+</bit-container>

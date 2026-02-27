@@ -12,34 +12,48 @@ export type ClipboardOptions = {
 };
 
 export abstract class PlatformUtilsService {
-  getDevice: () => DeviceType;
-  getDeviceString: () => string;
-  getClientType: () => ClientType;
-  isFirefox: () => boolean;
-  isChrome: () => boolean;
-  isEdge: () => boolean;
-  isOpera: () => boolean;
-  isVivaldi: () => boolean;
-  isSafari: () => boolean;
-  isMacAppStore: () => boolean;
-  isViewOpen: () => Promise<boolean>;
-  launchUri: (uri: string, options?: any) => void;
-  getApplicationVersion: () => Promise<string>;
-  getApplicationVersionNumber: () => Promise<string>;
-  supportsWebAuthn: (win: Window) => boolean;
-  supportsDuo: () => boolean;
-  showToast: (
+  abstract getDevice(): DeviceType;
+  abstract getDeviceString(): string;
+  abstract getClientType(): ClientType;
+  abstract isFirefox(): boolean;
+  abstract isChrome(): boolean;
+  abstract isEdge(): boolean;
+  abstract isOpera(): boolean;
+  abstract isVivaldi(): boolean;
+  abstract isSafari(): boolean;
+  abstract isChromium(): boolean;
+  abstract isMacAppStore(): boolean;
+  abstract isPopupOpen(): Promise<boolean>;
+  abstract launchUri(uri: string, options?: any): void;
+  abstract getApplicationVersion(): Promise<string>;
+  abstract getApplicationVersionNumber(): Promise<string>;
+  abstract supportsWebAuthn(win: Window): boolean;
+  abstract supportsDuo(): boolean;
+  /**
+   * Returns true if the device supports autofill functionality
+   */
+  abstract supportsAutofill(): boolean;
+  /**
+   * Returns true if the device supports native file downloads without
+   * the need for `target="_blank"`
+   */
+  abstract supportsFileDownloads(): boolean;
+  /**
+   * @deprecated use `@bitwarden/components/ToastService.showToast` instead
+   *
+   * Jira: [CL-213](https://bitwarden.atlassian.net/browse/CL-213)
+   */
+  abstract showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
     options?: ToastOptions,
-  ) => void;
-  isDev: () => boolean;
-  isSelfHost: () => boolean;
-  copyToClipboard: (text: string, options?: ClipboardOptions) => void | boolean;
-  readFromClipboard: () => Promise<string>;
-  supportsBiometric: () => Promise<boolean>;
-  authenticateBiometric: () => Promise<boolean>;
-  supportsSecureStorage: () => boolean;
-  getAutofillKeyboardShortcut: () => Promise<string>;
+  ): void;
+  abstract isDev(): boolean;
+  abstract isSelfHost(): boolean;
+  abstract copyToClipboard(text: string, options?: ClipboardOptions): void | boolean;
+  abstract readFromClipboard(): Promise<string>;
+  abstract supportsSecureStorage(): boolean;
+  abstract getAutofillKeyboardShortcut(): Promise<string>;
+  abstract packageType(): Promise<string | null>;
 }

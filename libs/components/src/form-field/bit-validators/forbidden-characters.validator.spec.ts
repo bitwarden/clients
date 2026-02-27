@@ -40,6 +40,6 @@ describe("forbiddenCharacters", () => {
   });
 });
 
-function createControl(input: string) {
+function createControl(input: string | null) {
   return new FormControl(input);
 }

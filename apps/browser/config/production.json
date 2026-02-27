@@ -1,6 +1,0 @@
-{
-  "flags": {
-    "enableCipherKeyEncryption": false,
-    "accountSwitching": true
-  }
-}

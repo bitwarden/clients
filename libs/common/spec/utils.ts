@@ -1,7 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptionType } from "../src/platform/enums";
+import { Utils } from "../src/platform/misc/utils";
+import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -24,9 +32,15 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
 
 export function mockEnc(s: string): MockProxy<EncString> {
   const mocked = mock<EncString>();
+  mocked.decryptedValue = s;
   mocked.decrypt.mockResolvedValue(s);
 
   return mocked;
+}
+
+export function makeEncString(data?: string) {
+  data ??= Utils.newGuid();
+  return new EncString(EncryptionType.AesCbc256_HmacSha256_B64, data, "test", "test");
 }
 
 export function makeStaticByteArray(length: number, start = 0) {
@@ -38,57 +52,43 @@ export function makeStaticByteArray(length: number, start = 0) {
 }
 
 /**
+ * Creates a symmetric crypto key for use in tests. This is deterministic, i.e. it will produce identical keys
+ * for identical argument values. Provide a unique value to the `seed` parameter to create different keys.
+ */
+export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
+  length: 32 | 64 = 64,
+  seed = 0,
+) {
+  return new SymmetricCryptoKey(makeStaticByteArray(length, seed)) as T;
+}
+
+/**
  * Use to mock a return value of a static fromJSON method.
  */
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
 
 /**
- * Tracks the emissions of the given observable.
- *
- * Call this function before you expect any emissions and then use code that will cause the observable to emit values,
- * then assert after all expected emissions have occurred.
- * @param observable
- * @returns An array that will be populated with all emissions of the observable.
+ * Use to mock a return value of a static fromSdk method.
  */
-export function trackEmissions<T>(observable: Observable<T>): T[] {
-  const emissions: T[] = [];
-  observable.subscribe((value) => {
-    switch (value) {
-      case undefined:
-      case null:
-        emissions.push(value);
-        return;
-      default:
-        // process by type
-        break;
-    }
+export const mockFromSdk = (stub: any) => {
+  if (typeof stub === "object") {
+    return {
+      ...stub,
+      __fromSdk: true,
+    };
+  }
 
-    switch (typeof value) {
-      case "string":
-      case "number":
-      case "boolean":
-        emissions.push(value);
-        break;
-      default: {
-        emissions.push(clone(value));
-      }
-    }
+  return `${stub}_fromSdk`;
+};
+
+export const mockContainerService = () => {
+  const keyService = mock<KeyService>();
+  const encryptService = mock<EncryptService>();
+  encryptService.decryptString.mockImplementation(async (encStr, _key) => {
+    return encStr.decryptedValue;
   });
-  return emissions;
-}
+  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  return (window as any).bitwardenContainerService;
+};
 
-function clone(value: any): any {
-  if (global.structuredClone != undefined) {
-    return structuredClone(value);
-  } else {
-    return JSON.parse(JSON.stringify(value));
-  }
-}
-
-export async function awaitAsync(ms = 0) {
-  if (ms < 1) {
-    await Promise.resolve();
-  } else {
-    await new Promise((resolve) => setTimeout(resolve, ms));
-  }
-}
+export { trackEmissions, awaitAsync } from "@bitwarden/core-test-utils";

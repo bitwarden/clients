@@ -1,3 +1,7 @@
 export class ProviderUserConfirmRequest {
-  key: string;
+  protected key: string;
+
+  constructor(key: string) {
+    this.key = key;
+  }
 }

@@ -13,7 +13,7 @@
           aria-hidden="true"
           [ngClass]="{
             'bwi-angle-right': isCollapsed(collectionsGrouping),
-            'bwi-angle-down': !isCollapsed(collectionsGrouping)
+            'bwi-angle-down': !isCollapsed(collectionsGrouping),
           }"
         ></i>
         &nbsp;{{ collectionsGrouping.name | i18n }}
@@ -42,7 +42,7 @@
               aria-hidden="true"
               [ngClass]="{
                 'bwi-angle-right': isCollapsed(c.node),
-                'bwi-angle-down': !isCollapsed(c.node)
+                'bwi-angle-down': !isCollapsed(c.node),
               }"
             ></i>
           </button>
@@ -55,7 +55,10 @@
           >
             <i
               *ngIf="c.children.length === 0"
-              class="bwi bwi-fw bwi-collection"
+              [class]="
+                'bwi bwi-fw ' +
+                (c.node.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+              "
               aria-hidden="true"
             ></i>
             &nbsp;{{ c.node.name }}

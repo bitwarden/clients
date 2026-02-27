@@ -1,11 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
 
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -15,8 +19,9 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 import { ImportResult } from "../models/import-result";
 
 export abstract class BaseImporter {
-  organizationId: string = null;
+  organizationId: OrganizationId = null;
 
+  // FIXME: This should be replaced by injecting the log service.
   protected logService: LogService = new ConsoleLogService(false);
 
   protected newLineRegex = /(?:\r\n|\r|\n)/;
@@ -186,7 +191,6 @@ export abstract class BaseImporter {
       if (this.isNullOrWhitespace(loginUri.uri)) {
         return null;
       }
-      loginUri.match = null;
       return [loginUri];
     }
 
@@ -198,7 +202,6 @@ export abstract class BaseImporter {
         if (this.isNullOrWhitespace(loginUri.uri)) {
           return;
         }
-        loginUri.match = null;
         returnArr.push(loginUri);
       });
       return returnArr.length === 0 ? null : returnArr;
@@ -229,7 +232,7 @@ export abstract class BaseImporter {
     return hostname.startsWith("www.") ? hostname.replace("www.", "") : hostname;
   }
 
-  protected isNullOrWhitespace(str: string): boolean {
+  protected isNullOrWhitespace(str: string | undefined | null): boolean {
     return Utils.isNullOrWhitespace(str);
   }
 
@@ -263,16 +266,19 @@ export abstract class BaseImporter {
 
     cipher.card.expMonth = expiryMatch.groups.month;
     const year: string = expiryMatch.groups.year;
-    cipher.card.expYear = year.length === 2 ? "20" + year : year;
+    cipher.card.expYear = normalizeExpiryYearFormat(year);
+
     return true;
   }
 
   protected moveFoldersToCollections(result: ImportResult) {
     result.folderRelationships.forEach((r) => result.collectionRelationships.push(r));
     result.collections = result.folders.map((f) => {
-      const collection = new CollectionView();
-      collection.name = f.name;
-      collection.id = f.id;
+      const collection = new CollectionView({
+        name: f.name,
+        organizationId: this.organizationId,
+        id: f.id && f.id !== "" ? (f.id as CollectionId) : null,
+      });
       return collection;
     });
     result.folderRelationships = [];
@@ -310,14 +316,6 @@ export abstract class BaseImporter {
     }
     if (this.isNullOrWhitespace(cipher.notes)) {
       cipher.notes = null;
-    } else {
-      cipher.notes = cipher.notes.trim();
-    }
-    if (cipher.fields != null && cipher.fields.length === 0) {
-      cipher.fields = null;
-    }
-    if (cipher.passwordHistory != null && cipher.passwordHistory.length === 0) {
-      cipher.passwordHistory = null;
     }
   }
 
@@ -350,14 +348,18 @@ export abstract class BaseImporter {
     }
   }
 
-  protected processFolder(result: ImportResult, folderName: string) {
+  protected processFolder(
+    result: ImportResult,
+    folderName: string,
+    addRelationship: boolean = true,
+  ) {
     if (this.isNullOrWhitespace(folderName)) {
       return;
     }
 
     let folderIndex = result.folders.length;
     // Replace backslashes with forward slashes, ensuring we create sub-folders
-    folderName = folderName.replace("\\", "/");
+    folderName = folderName.replace(/\\/g, "/");
     let addFolder = true;
 
     for (let i = 0; i < result.folders.length; i++) {
@@ -374,7 +376,21 @@ export abstract class BaseImporter {
       result.folders.push(f);
     }
 
-    result.folderRelationships.push([result.ciphers.length, folderIndex]);
+    //Some folders can have sub-folders but no ciphers directly, we should not add to the folderRelationships array
+    if (addRelationship) {
+      result.folderRelationships.push([result.ciphers.length, folderIndex]);
+    }
+
+    // if the folder name is a/b/c/d, we need to create a/b/c and a/b and a
+    const parts = folderName.split("/");
+    for (let i = parts.length - 1; i > 0; i--) {
+      const parentName = parts.slice(0, i).join("/") as string;
+      if (result.folders.find((c) => c.name === parentName) == null) {
+        const folder = new FolderView();
+        folder.name = parentName;
+        result.folders.push(folder);
+      }
+    }
   }
 
   protected convertToNoteIfNeeded(cipher: CipherView) {

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – Ilmainen salasanahallinta</value>
+    <value>Bitwarden Salasanahallinta</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Turvallinen ja ilmainen salasanahallinta kaikille laitteillesi</value>
+    <value>Kotona, töissä tai reissussa, Bitwarden suojaa salasanasi, pääsyavaimesi ja arkaluonteiset tietosi helposti.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. on 8bit Solutions LLC:n emoyhtiö.
+    <value>Muun muassa PCMag, WIRED, The Verge, CNET sekä G2 ovat nimenneet Bitwardenin parhaaksi salasanahallinnaksi!
 
-NIMENNYT PARHAAKSI SALASANOJEN HALLINNAKSI MM. THE VERGE, U.S. NEWS &amp; WORLD REPORT JA CNET.
+SUOJAA DIGITAALINEN ELÄMÄSI
+Varjele digielämääsi varautumalla tietovuotoihin luomalla kaikille tileillesi yksilölliset, vahvat salasanat ja säilyttämällä ne turvallisesti. Hallitse kaikkea päästä päähän salatussa salasanaholvissa, johon vain sinulla on käyttöoikeus.
 
-Hallinnoi, säilytä, suojaa ja jaa salasanoja rajattomalta laitemäärältä mistä tahansa. Bitwarden tarjoaa avoimeen lähdekoodin perustuvan salasanojen hallintaratkaisun kaikille, olitpa sitten kotona, töissä tai liikkeellä.
+TAVOITA TIETOSI MISTÄ, MILLOIN JA MILLÄ LAITTEELLA TAHANSA
+Hallitse, säilytä, suojaa ja jaa salasanoja niin paljon kuin haluat, niin monella laitteella kuin haluat.
 
-Luo usein käyttämillesi sivustoille automaattisesti vahvoja, yksilöllisiä ja satunnaisia salasanoja.
+KAIKILLA TULISI OLLA TYÖKALUT VERKOSSA SUOJAUTUMISEEN
+Hyödynnä Bitwardenia ilmaiseksi ilman mainoksia tai käyttäjätietojen myyntiä. Bitwardenin mielestä kaikkien tulee voida suojautua verkossa. Premium-tilaukset tarjoavat lisäominaisuuksia.
 
-Bitwarden Send -ominaisuudella lähetät tietoa nopeasti salattuna — tiedostoja ja tekstiä — suoraan kenelle tahansa.
+TEHOSTA TIIMIESI TYÖSKENTELYÄ BITWARDENILLA
+Teams- ja Enterprise-tilaukset tarjoavat esimerkiksi SSO- ja hakemistointegraatioiden, SCIM-hallinnan, oman palvelinympäristön, laajan käytäntöhallinnan, rajapinnan sekä käyttölokien kaltaisia ammattitason yritysominaisuuksia.
 
-Yritystoimintaan Bitwarden tarjoaa tilaukset Tiimeille ja Yrityksille, jotta salasanojen jakaminen kollegoiden kesken on turvallista.
+Suojaa henkilökuntasi Bitwardenilla ja jaa arkaluonteisia tietoja kollegoidesi kanssa.
 
-Miksi Bitwarden?:
 
-Maailmanluokan salaus
-Salasanat on suojattu tehokkaalla päästä päähän salauksella (AES-256 bit, suolattu hajautus ja PBKDF2 SHA-256), joten tietosi pysyvät turvassa ja yksityisinä.
+Lisää syitä valita Bitwarden:
 
-Sisäänrakennettu salasanageneraattori
-Luo usein käyttämillesi sivustoille vahvoja, yksilöllisiä ja satunnaisia salasanoja.
+Maailmanluoka salaus:
+Salasanat on suojattu edistyneellä päästä päähän salauksella (AES-256 bit, suolattu hajautus sekä PBKDF2 SHA-256), joten tietosi pysyvät turvassa ja yksityisinä.
 
-Monikielinen
-Bitwardenin sovelluksia on käännetty yli 40 kielelle ja määrä kasvaa jatkuvasti, kiitos kansainvälisen yhteisömme.
+Riippumattomat auditoinnit
+Bitwarden teetättää säännöllisesti kattavia riippumattomia tietoturva-arviointeja tunnettuilla tietoturvayrityksillä. Näissä vuotuisissa auditoinneissa arvioidaan lähdekoodia ja suoritetaan murtotestausta Bitwardenin IP-osoitteille, palvelimille ja verkkosovelluksille.
 
-Alustariippumattomaton
-Suojaa, käytä ja jaa Bitwarden-holvisi arkaluontoisia tietoja kaikilla selaimilla, mobiililaitteilla, pöytätietokoneilla ja muissa järjestelmissä.
+Edistynyt kaksivaiheinen tunnistautuminen
+Suojaa kirjautumistietosi riippumattomalla todennussovelluksella, sähköpostikoodeilla, tai FIDO2 WEBAuthn -standardin mukaisilla tunnistustavoilla kuten fyysisillä suojausavaimilla tai pääsyavaimilla.
+
+Bitwarden Send
+Välitä tietoja muille suoraan, päästä päähän salausta menettämättä ja rajoitaen niiden näkyvyyttä.
+
+Sisäänrakennettu generaattori
+Luo pitkät, monimutkaiset ja yksilölliset salasanat sekä ainutlaatuiset käyttäjätunnukset kaikille käyttämillesi verkkosivustoille. Sähköpostialiaksia toimittavien palveluiden liitäntämahdollisuus tehostaa yksityisyyttä.
+
+Maailmanlaajuinen kielituki
+Bitwarden on maailmanlaajuisen Crowdin-yhteisön toimesta yli 60 kielelle.
+
+Sovellukset eri alustoille
+Suojaa ja jaa Bitwarden-holvisi arkaluonteisia tietoja mm. mistä tahansa selaimesta, mobiililaitteesta tai pöytätietokoneesta.
+
+Bitwarden suojaa muutakin kuin salasanoja
+Bitwardenin päästä päähän salatut käyttäjätietojen hallintaratkaisut tarjoavat organisaatiolle mahdollisuuden suojata paljon muutakin, kuten kehityssalaisuuksia ja suojausavaintoteutuksia. Vieraile osoitteessa Bitwaren.com ja tutustu Bitwarden Salaisuushallinta ja Bitwarden Passwordless.dev -palveluihin!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Turvallinen ja ilmainen salasanahallinta kaikille laitteillesi</value>
+    <value>Kotona, töissä tai reissussa, Bitwarden suojaa salasanasi, pääsyavaimesi ja arkaluonteiset tietosi helposti.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkronoi ja hallitse holviasi useilla laitteilla</value>

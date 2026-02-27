@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,43 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – 免费密码管理器</value>
+    <value>Bitwarden 密码管理器</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>安全免费的跨平台密码管理器</value>
+    <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. 是 8bit Solutions LLC 的母公司。
+    <value>被 PCMag、WIRED、The Verge、CNET、G2 等评选为最佳的密码管理器！
 
-被 THE VERGE、U.S. NEWS &amp; WORLD REPORT、CNET 等评为最佳的密码管理器。
+守护您的数字生活
+为每个账户生成并保存独特且强大的密码，守护您的数字生活，防止数据泄露。所有信息均存储在只有您才能访问的端到端加密密码库中。
 
-从任何地方，不限制设备，管理、存储、保护和共享无限的密码。Bitwarden 为每个人提供开源的密码管理解决方案，无论是在家里，在工作中，还是在旅途中。
+随时随地在任何设备上访问您的数据
+轻松管理、存储、保护和共享无限数量的密码，不受任何限制，支持无限设备。
 
-基于安全要求，为您经常访问的每个网站生成强大、唯一和随机的密码。
+人人皆应享有的网络安全工具
+Bitwarden 提供无广告、不出售数据的免费服务。Bitwarden 认为每个人都应享有网络安全防护的权利。高级版计划提供更多高级功能。
 
-Bitwarden Send 快速传输加密的信息---文件和文本---直接给任何人。
+使用 Bitwarden 为您的团队赋能
+团队版与企业版计划配备专业的商业功能。包括 SSO 集成、自托管、目录集成和 SCIM 配置、全局策略、API 访问、事件日志等等。
 
-Bitwarden 为公司提供团队和企业计划，因此您可以安全地与同事共享密码。
 
-为何选择 Bitwarden：
+选择 Bitwarden 的更多理由：
 
-世界级的加密技术
-密码受到先进的端到端加密（AES-256 位、盐化标签和 PBKDF2 SHA-256）的保护，为您的数据保持安全和隐密。
+世界一流的加密技术
+密码受到高级端到端加密（AES-256 位加密、盐化哈希、以及 PBKDF2 SHA-256 算法）的保护，确保您的数据绝对安全私密。
 
-内置密码生成器
-基于安全要求，为您经常访问的每个网站生成强大、唯一和随机的密码。
+第三方审计
+Bitwarden 定期与知名安全公司合作进行全面的第三方安全审计。这些年度审计包括对 Bitwarden IP、服务器和网页应用程序的源代码评估和渗透测试。
 
-全球翻译 
-Bitwarden 的翻译有 40 种语言，而且还在不断增加，感谢我们的全球社区。
+高级 2FA
+使用第三方身份验证器、电子邮件代码或 FIDO2 WebAuthn 凭证（如硬件安全密钥/通行密钥）保护您的登录信息。
 
-跨平台应用程序 
-从任何浏览器、移动设备或桌面操作系统，以及更多的地方，在您的 Bitwarden 密码库中保护和分享敏感数据。</value>
+Bitwarden Send
+在保持端到端加密安全的同时，将数据直接传输给他人并限制暴露范围。
+
+内置生成器
+为您访问的每个网站创建长、复杂且独特的密码和唯一的用户名。与电子邮件别名提供商集成，进一步增强隐私保护。
+
+全球化翻译
+Bitwarden 提供超过 60 种语言的翻译，由全球社区通过 Crowdin 平台协作翻译。
+
+跨平台应用程序
+通过任何浏览器、移动设备、桌面操作系统等，保护和共享 Bitwarden 密码库中的敏感数据。
+
+Bitwarden 保护的不仅仅是密码
+Bitwarden 提供的端到端加密凭证管理解决方案使组织能够保护一切，包括开发人员机密和通行密钥体验。访问 Bitwarden.com，了解有关 Bitwarden Secrets Manager 和 Bitwarden Passwordless.dev 的更多信息！</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>安全免费的跨平台密码管理器</value>
+    <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>从多台设备同步和访问密码库</value>
+    <value>在多个设备间同步和访问您的密码库</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>在一个安全的密码库中管理您所有的登录信息和密码</value>

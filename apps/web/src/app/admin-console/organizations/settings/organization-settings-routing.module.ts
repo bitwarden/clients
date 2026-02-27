@@ -4,42 +4,45 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { OrganizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
-import { OrganizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
+import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
+import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
 import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
-import { SettingsComponent } from "./settings.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: SettingsComponent,
-    canActivate: [OrganizationPermissionsGuard],
-    data: { organizationPermissions: canAccessSettingsTab },
+    canActivate: [organizationPermissionsGuard(canAccessSettingsTab)],
     children: [
       {
         path: "",
         pathMatch: "full",
-        canActivate: [OrganizationRedirectGuard],
-        data: {
-          autoRedirectCallback: getSettingsRoute,
-        },
+        canActivate: [organizationRedirectGuard(getSettingsRoute)],
         children: [], // This is required to make the auto redirect work,
       },
-      { path: "account", component: AccountComponent, data: { titleId: "organizationInfo" } },
+      {
+        path: "account",
+        component: AccountComponent,
+        canActivate: [organizationPermissionsGuard((o) => o.isOwner)],
+        data: {
+          titleId: "organizationInfo",
+        },
+      },
       {
         path: "two-factor",
         component: TwoFactorSetupComponent,
-        data: { titleId: "twoStepLogin" },
+        canActivate: [organizationPermissionsGuard((o) => o.use2fa && o.isOwner)],
+        data: {
+          titleId: "twoStepLogin",
+        },
       },
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
         data: {
-          organizationPermissions: (org: Organization) => org.canManagePolicies,
           titleId: "policies",
         },
       },
@@ -49,21 +52,24 @@ const routes: Routes = [
           {
             path: "import",
             loadComponent: () =>
-              import("../../../tools/import/import-web.component").then(
-                (mod) => mod.ImportWebComponent,
+              import("../../../tools/import/org-import.component").then(
+                (mod) => mod.OrgImportComponent,
               ),
-            canActivate: [OrganizationPermissionsGuard],
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
-              titleId: "importData",
-              organizationPermissions: (org: Organization) => org.canAccessImportExport,
+              titleId: "importNoun",
             },
           },
           {
             path: "export",
-            loadChildren: () =>
-              import("../tools/vault-export/org-vault-export.module").then(
-                (m) => m.OrganizationVaultExportModule,
+            loadComponent: () =>
+              import("../../../tools/vault-export/org-vault-export.component").then(
+                (mod) => mod.OrganizationVaultExportComponent,
               ),
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],
+            data: {
+              titleId: "exportNoun",
+            },
           },
         ],
       },
@@ -78,7 +84,7 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManagePolicies) {
     return "policies";
   }
-  if (organization.canAccessImportExport) {
+  if (organization.canAccessImport) {
     return ["tools", "import"];
   }
   if (organization.canManageSso) {
@@ -90,7 +96,8 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManageDeviceApprovals) {
     return "device-approvals";
   }
-  return undefined;
+
+  return "/";
 }
 
 @NgModule({

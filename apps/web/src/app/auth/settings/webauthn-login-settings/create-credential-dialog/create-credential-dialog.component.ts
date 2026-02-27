@@ -1,23 +1,28 @@
-import { DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { PrfKeySet } from "@bitwarden/auth";
+import {
+  TwoFactorAuthSecurityKeyFailedIcon,
+  TwoFactorAuthSecurityKeyIcon,
+} from "@bitwarden/assets/svg";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
+import { PrfKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { WebauthnLoginAdminService } from "../../../core";
 import { CredentialCreateOptionsView } from "../../../core/views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../../core/views/pending-webauthn-login-credential.view";
 
-import { CreatePasskeyFailedIcon } from "./create-passkey-failed.icon";
-import { CreatePasskeyIcon } from "./create-passkey.icon";
-
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CreateCredentialDialogResult {
   Success,
 }
@@ -28,13 +33,19 @@ type Step =
   | "credentialCreationFailed"
   | "credentialNaming";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-credential-dialog.component.html",
+  standalone: false,
 })
 export class CreateCredentialDialogComponent implements OnInit {
   protected readonly NameMaxCharacters = 50;
   protected readonly CreateCredentialDialogResult = CreateCredentialDialogResult;
-  protected readonly Icons = { CreatePasskeyIcon, CreatePasskeyFailedIcon };
+  protected readonly Icons = {
+    TwoFactorAuthSecurityKeyIcon,
+    TwoFactorAuthSecurityKeyFailedIcon,
+  };
 
   protected currentStep: Step = "userVerification";
   protected invalidSecret = false;
@@ -44,7 +55,7 @@ export class CreateCredentialDialogComponent implements OnInit {
     }),
     credentialNaming: this.formBuilder.group({
       name: ["", Validators.maxLength(50)],
-      useForEncryption: [false],
+      useForEncryption: [true],
     }),
   });
 
@@ -57,9 +68,10 @@ export class CreateCredentialDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef,
     private webauthnService: WebauthnLoginAdminService,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private logService: LogService,
+    private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -94,7 +106,7 @@ export class CreateCredentialDialogComponent implements OnInit {
     }
 
     try {
-      this.credentialOptions = await this.webauthnService.getCredentialCreateOptions(
+      this.credentialOptions = await this.webauthnService.getCredentialAttestationOptions(
         this.formGroup.value.userVerification.secret,
       );
     } catch (error) {
@@ -102,11 +114,11 @@ export class CreateCredentialDialogComponent implements OnInit {
         this.invalidSecret = true;
       } else {
         this.logService?.error(error);
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("unexpectedError"),
-          error.message,
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("unexpectedError"),
+          message: error.message,
+        });
       }
       return;
     }
@@ -135,10 +147,14 @@ export class CreateCredentialDialogComponent implements OnInit {
     if (this.formGroup.controls.credentialNaming.controls.name.invalid) {
       return;
     }
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     let keySet: PrfKeySet | undefined;
-    if (this.formGroup.value.credentialNaming.useForEncryption) {
-      keySet = await this.webauthnService.createKeySet(this.pendingCredential);
+    if (
+      this.pendingCredential.supportsPrf &&
+      this.formGroup.value.credentialNaming.useForEncryption
+    ) {
+      keySet = await this.webauthnService.createKeySet(this.pendingCredential, userId);
 
       if (keySet === undefined) {
         this.formGroup.controls.credentialNaming.controls.useForEncryption?.setErrors({
@@ -159,17 +175,17 @@ export class CreateCredentialDialogComponent implements OnInit {
     );
 
     if (await firstValueFrom(this.hasPasskeys$)) {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("passkeySaved", name),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passkeySaved", name),
+      });
     } else {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("loginWithPasskeyEnabled"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("loginWithPasskeyEnabled"),
+      });
     }
 
     this.dialogRef.close(CreateCredentialDialogResult.Success);

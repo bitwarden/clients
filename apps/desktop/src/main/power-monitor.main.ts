@@ -1,6 +1,9 @@
-import { powerMonitor } from "electron";
+import { ipcMain, powerMonitor } from "electron";
 
-import { ElectronMainMessagingService } from "../services/electron-main-messaging.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { powermonitors } from "@bitwarden/desktop-napi";
+
 import { isSnapStore } from "../utils";
 
 // tslint:disable-next-line
@@ -10,7 +13,10 @@ const IdleCheckInterval = 30 * 1000; // 30 seconds
 export class PowerMonitorMain {
   private idle = false;
 
-  constructor(private messagingService: ElectronMainMessagingService) {}
+  constructor(
+    private messagingService: MessageSender,
+    private logService: LogService,
+  ) {}
 
   init() {
     // ref: https://github.com/electron/electron/issues/13767
@@ -26,7 +32,22 @@ export class PowerMonitorMain {
       powerMonitor.on("lock-screen", () => {
         this.messagingService.send("systemLocked");
       });
+    } else {
+      powermonitors
+        .onLock(() => {
+          this.messagingService.send("systemLocked");
+        })
+        .catch((error) => {
+          this.logService.error("Error setting up lock monitor", { error });
+        });
     }
+    ipcMain.handle("powermonitor.isLockMonitorAvailable", async (_event: any, _message: any) => {
+      if (process.platform !== "linux") {
+        return true;
+      } else {
+        return await powermonitors.isLockMonitorAvailable();
+      }
+    });
 
     // System idle
     global.setInterval(() => {

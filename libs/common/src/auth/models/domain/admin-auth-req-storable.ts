@@ -1,11 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Jsonify } from "type-fest";
+
 import { Utils } from "../../../platform/misc/utils";
 
-// TODO: Tech Debt: potentially create a type Storage shape vs using a class here in the future
-// type StorageShape {
-//   id: string;
-//   privateKey: string;
-// }
-// so we can get rid of the any type passed into fromJSON and coming out of ToJSON
 export class AdminAuthRequestStorable {
   id: string;
   privateKey: Uint8Array;
@@ -23,7 +21,7 @@ export class AdminAuthRequestStorable {
     };
   }
 
-  static fromJSON(obj: any): AdminAuthRequestStorable {
+  static fromJSON(obj: Jsonify<AdminAuthRequestStorable>): AdminAuthRequestStorable {
     if (obj == null) {
       return null;
     }

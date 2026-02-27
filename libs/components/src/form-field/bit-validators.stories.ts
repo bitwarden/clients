@@ -35,7 +35,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/f32LSg3jaegICkMu7rPARm/Tailwind-Component-Library-Update?node-id=1881%3A17689",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -49,7 +49,7 @@ const template = `
   </form>`;
 
 export const ForbiddenCharacters: StoryObj<BitFormFieldComponent> = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormBuilder().group({
         name: ["", forbiddenCharacters(["\\", "/", "@", "#", "$", "%", "^", "&", "*", "(", ")"])],
@@ -60,7 +60,7 @@ export const ForbiddenCharacters: StoryObj<BitFormFieldComponent> = {
 };
 
 export const TrimValidator: StoryObj<BitFormFieldComponent> = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormBuilder().group({
         name: [

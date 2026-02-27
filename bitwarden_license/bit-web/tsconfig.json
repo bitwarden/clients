@@ -1,15 +1,20 @@
 {
   "extends": "../../apps/web/tsconfig",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/angular/*": ["../../libs/angular/src/*"],
-      "@bitwarden/auth": ["../../libs/auth/src"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/components": ["../../libs/components/src"],
-      "@bitwarden/exporter/*": ["../../libs/exporter/src/*"],
-      "@bitwarden/vault": ["../../libs/vault/src"],
-      "@bitwarden/web-vault/*": ["../../apps/web/src/*"]
-    }
-  },
-  "include": ["src/**/*.stories.ts"]
+  "files": [
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts",
+
+    "../../apps/web/src/polyfills.ts",
+    "../../apps/web/src/main.ts",
+    "../../apps/web/src/theme.ts",
+
+    "../../bitwarden_license/bit-web/src/main.ts"
+  ],
+  "include": [
+    "../../apps/web/src/connectors/*.ts",
+    "../../apps/web/src/connectors/platform/*.ts",
+    "../../apps/web/src/**/*.stories.ts",
+    "../../apps/web/src/**/*.spec.ts",
+    "src/**/*.stories.ts",
+    "src/**/*.spec.ts"
+  ]
 }

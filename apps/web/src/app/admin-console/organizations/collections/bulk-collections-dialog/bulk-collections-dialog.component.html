@@ -1,0 +1,41 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading" dialogSize="large">
+    <span bitDialogTitle>
+      {{ "assignCollectionAccess" | i18n }}
+      <span class="tw-text-sm tw-normal-case tw-text-muted">
+        {{ numCollections }} {{ (numCollections == 1 ? "collection" : "collections") | i18n }}
+      </span>
+    </span>
+
+    <div bitDialogContent>
+      <bit-access-selector
+        *ngIf="organization?.useGroups"
+        [permissionMode]="PermissionMode.Edit"
+        formControlName="access"
+        [items]="accessItems"
+        [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
+        [selectorLabelText]="'selectGroupsAndMembers' | i18n"
+        [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
+        [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
+      ></bit-access-selector>
+      <bit-access-selector
+        *ngIf="!organization?.useGroups"
+        [permissionMode]="PermissionMode.Edit"
+        formControlName="access"
+        [items]="accessItems"
+        [columnHeader]="'memberColumnHeader' | i18n"
+        [selectorLabelText]="'selectMembers' | i18n"
+        [emptySelectionText]="'noMembersAdded' | i18n"
+      ></bit-access-selector>
+    </div>
+
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

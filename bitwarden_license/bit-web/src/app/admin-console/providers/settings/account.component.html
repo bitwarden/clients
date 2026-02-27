@@ -1,52 +1,42 @@
-<div class="page-header">
-  <h1>{{ "myProvider" | i18n }}</h1>
-</div>
-<div *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
-</div>
-<form
-  *ngIf="provider && !loading"
-  #form
-  (ngSubmit)="submit()"
-  [appApiAction]="formPromise"
-  ngNativeValidate
->
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <label for="name">{{ "providerName" | i18n }}</label>
-        <input
-          id="name"
-          class="form-control"
-          type="text"
-          name="Name"
-          [(ngModel)]="provider.name"
-          [disabled]="selfHosted"
-        />
-      </div>
-      <div class="form-group">
-        <label for="billingEmail">{{ "billingEmail" | i18n }}</label>
-        <input
-          id="billingEmail"
-          class="form-control"
-          type="text"
-          name="BillingEmail"
-          [(ngModel)]="provider.billingEmail"
-          [disabled]="selfHosted"
-        />
-      </div>
-    </div>
-    <div class="col-6">
-      <bit-avatar [text]="provider.name" [id]="provider.id" size="large"></bit-avatar>
-    </div>
+<app-header></app-header>
+<bit-container>
+  <div *ngIf="loading">
+    <i
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
-  <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "save" | i18n }}</span>
-  </button>
-</form>
+  <form *ngIf="provider && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+      <div class="tw-col-span-6">
+        <bit-form-field>
+          <bit-label>{{ "providerName" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="providerName" [disabled]="selfHosted" />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "billingEmail" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="providerBillingEmail"
+            [disabled]="selfHosted"
+          />
+        </bit-form-field>
+      </div>
+      <div class="tw-col-span-6">
+        <bit-avatar [text]="provider.name" [id]="provider.id" size="large"></bit-avatar>
+      </div>
+    </div>
+    <button type="submit" bitFormButton bitButton buttonType="primary">
+      {{ "save" | i18n }}
+    </button>
+  </form>
+
+  <app-danger-zone>
+    <button type="button" bitButton buttonType="danger" (click)="deleteProvider()">
+      {{ "deleteProvider" | i18n }}
+    </button>
+  </app-danger-zone>
+</bit-container>

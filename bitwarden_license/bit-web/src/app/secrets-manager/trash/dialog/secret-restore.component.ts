@@ -1,8 +1,10 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
 import { SecretService } from "../../secrets/secret.service";
 
@@ -11,8 +13,11 @@ export interface SecretRestoreOperation {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./secret-restore.component.html",
+  standalone: false,
 })
 export class SecretRestoreDialogComponent {
   constructor(
@@ -21,6 +26,7 @@ export class SecretRestoreDialogComponent {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     @Inject(DIALOG_DATA) public data: SecretRestoreOperation,
+    private toastService: ToastService,
   ) {}
 
   get title() {
@@ -35,6 +41,10 @@ export class SecretRestoreDialogComponent {
         ? "secretRestoredSuccessToast"
         : "secretsRestoredSuccessToast";
     this.dialogRef.close(this.data.secretIds);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(message),
+    });
   };
 }

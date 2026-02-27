@@ -1,11 +1,16 @@
-import { Component, OnDestroy } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
 import { EventService } from "@bitwarden/web-vault/app/core";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
@@ -13,12 +18,16 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
 import { ServiceAccountEventLogApiService } from "./service-account-event-log-api.service";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "sm-service-accounts-events",
   templateUrl: "./service-accounts-events.component.html",
+  standalone: false,
 })
-export class ServiceAccountEventsComponent extends BaseEventsComponent implements OnDestroy {
-  exportFileName = "service-account-events";
-  private destroy$ = new Subject<void>();
+export class ServiceAccountEventsComponent
+  extends BaseEventsComponent
+  implements OnInit, OnDestroy
+{
+  exportFileName = "machine-account-events";
   private serviceAccountId: string;
 
   constructor(
@@ -30,6 +39,9 @@ export class ServiceAccountEventsComponent extends BaseEventsComponent implement
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
+    toastService: ToastService,
+    protected organizationService: OrganizationService,
+    protected accountService: AccountService,
   ) {
     super(
       eventService,
@@ -38,10 +50,15 @@ export class ServiceAccountEventsComponent extends BaseEventsComponent implement
       platformUtilsService,
       logService,
       fileDownloadService,
+      toastService,
+      route,
+      accountService,
+      organizationService,
     );
   }
 
   async ngOnInit() {
+    this.initBase();
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
       this.serviceAccountId = params.serviceAccountId;
@@ -50,8 +67,8 @@ export class ServiceAccountEventsComponent extends BaseEventsComponent implement
   }
 
   async load() {
-    await this.loadEvents(true);
-    this.loaded = true;
+    await this.refreshEvents();
+    this.loaded.set(true);
   }
 
   protected requestEvents(startDate: string, endDate: string, continuationToken: string) {
@@ -65,13 +82,8 @@ export class ServiceAccountEventsComponent extends BaseEventsComponent implement
 
   protected getUserName() {
     return {
-      name: this.i18nService.t("serviceAccount") + " " + this.serviceAccountId,
+      name: this.i18nService.t("machineAccount") + " " + this.serviceAccountId,
       email: "",
     };
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

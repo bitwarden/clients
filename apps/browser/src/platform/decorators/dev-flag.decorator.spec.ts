@@ -9,7 +9,7 @@ jest.mock("../flags", () => ({
 }));
 
 class TestClass {
-  @devFlag("storeSessionDecrypted") test() {
+  @devFlag("managedEnvironment") test() {
     return "test";
   }
 }

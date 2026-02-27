@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – מנהל ססמאות חינמי</value>
+    <value>מנהל הסיסמאות Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>מנהל ססמאות חינמי ומאובטח עבור כל המכשירים שלך</value>
+    <value>בבית, בעבודה, או בדרך, Bitwarden מאבטח בקלות את כל הסיסמאות, מפתחות הגישה, והמידע הרגיש שלך.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. is the parent company of 8bit Solutions LLC.
+    <value>מוכר בתור מנהל הסיסמאות הטוב ביותר על ידי G2, CNET, The Verge, WIRED, PCMag, ועוד!
 
-NAMED BEST PASSWORD MANAGER BY THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET, AND MORE.
+אבטח את החיים הדיגיטליים שלך
+אבטח את החיים הדיגיטלים שלך והגן מפני פרצות נתונים על ידי יצירת ושמירת סיסמה ייחודית וחזקה עבור כל חשבון. שמור הכל בכספת סיסמאות מוצפנת מקצה־לקצה שרק אתה יכול לגשת אליה.
 
-Manage, store, secure, and share unlimited passwords across unlimited devices from anywhere. Bitwarden delivers open source password management solutions to everyone, whether at  home, at work, or on the go.
+לגשת לנתונים שלך בכל מקום, זמן, ומכשיר
+נהל, אחסן, אבטח, ושתף בקלות מספר בלתי מוגבל של סיסמאות בין מספר בלתי מוגבל של מכשירים ללא הגבלות.
 
-Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+כל אחד צריך את הכלים כדי להישאר בטוח באינטרנט
+השתמש ב־Bitwarden בחינם ללא פרסומות או מכירת נתונים. ב־Bitwarden מאמינים שכל אחד צריך את היכולת להישאר בטוח באינטרנט. תוכניות פרימיום מציעות גישה לתכונות מתקדמות.
 
-Bitwarden Send quickly transmits encrypted information --- files and plaintext -- directly to anyone.
+העצימו את הצוותים שלכם עם Bitwarden
+תוכניות עבור צוותים וארגונים באות עם תכונות עסקים מקצועיות. חלק מהדוגמאות כוללות שילוב SSO, אירוח עצמי, שילוב מדריך כתובות והקצאת SCIM, פוליסות גלובליות, גישת API, יומני אירועים, ועוד.
 
-Bitwarden offers Teams and Enterprise plans for companies so you can securely share passwords with colleagues.
+השתמש ב־Bitwarden כדי לאבטח את כוח העבודה שלך ולשתף מידע רגיש עם עמיתים.
 
-Why Choose Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+עוד סיבות לבחור ב־Bitwarden:
 
-Built-in Password Generator
-Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+הצפנה ברמה עולמית
+סיסמאות מוגנת עם הצפנה מקצה־לקצה מתקדמת (AES-256 סיביות, גיבוב מלוח, ו־PBKDF2 SHA-256) כך שהנתונים שלך נשארים מאובטחים ופרטיים.
 
-Global Translations 
-Bitwarden translations exist in 40 languages and are growing, thanks to our global community.
+ביקורות צד שלישי
+Bitwarden באופן קבוע מבצעת ביקורות אבטחה מקיפות של צד שלישי עם חברות אבטחה בולטות. הביקורות השנתיות הללו כוללות הערכות קוד מקור ובדיקות חדירה על פני פרוטוקולי אינטרנט, שרתים, ויישומי רשת של Bitwarden.
 
-Cross-Platform Applications 
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+2FA מתקדם
+אבטח את הכניסות שלך עם מאמת צד שלישי, קודים בדוא"ל, או אישורי FIDO2 WebAuthn כמו מפתח אבטחת חומרה או מפתח גישה.
+
+Bitwarden סֵנְד
+שדר נתונים ישירות אל אחרים תוך שמירה על אבטחת הצפנה מקצה־לקצה והגבלת חשיפה.
+
+מחולל מובנה
+צור סיסמאות ארוכות, מורכבות, ושונות ושמות משתמש ייחודיים עבור כל אתר שאתה מבקר. שלב עם ספקי כינויי דוא"ל עבור פרטיות נוספת.
+
+תרגומים גלובליים
+תרגומים של Bitwarden קיימים ביותר מ־60 שפות, תורגמו על ידי הקהילה הגלובלית דרך Crowdin.
+
+יישומים חוצי פלטפורמות
+אבטח ושתף מידע רגיש בתוך כספת ה־Bitwarden שלך מכל דפדפן, מכשיר נייד, או מערכת הפעלה של שולחן עבודה, ועוד.
+
+Bitwarden מאבטח יותר מרק סיסמאות
+פתרונות ניהול אישורים מוצפנים מקצה־לקצה מאת Bitwarden מעצימות ארגונים לאבטח הכל, כולל סודות פיתוח וחוויות מפתח גישה. בקר ב־Bitwarden.com כדי ללמוד עוד על מנהל הסודות של Bitwarden ו־Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>מנהל סיסמאות חינמי ומאובטח עבור כל המכשירים שלך</value>
+    <value>בבית, בעבודה, או בדרך, Bitwarden מאבטח בקלות את כל הסיסמאות, מפתחות הגישה, והמידע הרגיש שלך.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>סנכרון וגישה לכספת שלך ממגוון מכשירים</value>

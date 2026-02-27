@@ -1,14 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
-import { WindowState } from "@bitwarden/common/models/domain/window-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { processisolations } from "@bitwarden/desktop-napi";
+import { BiometricStateService } from "@bitwarden/key-management";
 
+import { WindowState } from "../platform/models/domain/window-state";
+import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import {
   cleanUserAgent,
   isDev,
@@ -29,15 +36,17 @@ export class WindowMain {
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
-  private session: Electron.Session;
+  private enableRendererProcessForceCrashReload = true;
+  session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 600;
+  readonly defaultHeight = 790;
 
   constructor(
-    private stateService: StateService,
+    private biometricStateService: BiometricStateService,
     private logService: LogService,
     private storageService: AbstractStorageService,
+    private desktopSettingsService: DesktopSettingsService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
@@ -46,29 +55,81 @@ export class WindowMain {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
+      if (isDev()) {
+        this.logService.info("Process reload requested, but skipping in development mode");
+        return;
+      }
+
+      this.logService.info("Reloading render process");
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
 
       // By default some linux distro collect core dumps on crashes which gets written to disk.
-      if (!isLinux()) {
+      if (this.enableRendererProcessForceCrashReload) {
         const crashEvent = once(this.win.webContents, "render-process-gone");
         this.win.webContents.forcefullyCrashRenderer();
         await crashEvent;
       }
 
       this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
+      this.logService.info("Render process reloaded");
+    });
+
+    ipcMain.on("window-focus", () => {
+      if (this.win != null) {
+        this.win.show();
+        this.win.focus();
+      }
+    });
+
+    ipcMain.on("window-hide", () => {
+      if (this.win != null) {
+        if (isWindows()) {
+          // On windows, to return focus we need minimize
+          this.win.minimize();
+        } else {
+          this.win.hide();
+        }
+      }
+    });
+
+    this.desktopSettingsService.modalMode$
+      .pipe(
+        pairwise(),
+        concatMap(async ([lastValue, newValue]) => {
+          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
+            // Reset the window state to the main window state
+            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+            // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+            this.win.hide();
+          } else if (newValue.isModalModeActive) {
+            // Apply the popup modal styles
+            this.logService.info("Applying popup modal styles", newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
+            this.win.show();
+          }
+        }),
+      )
+      .subscribe();
+
+    this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(prevent);
     });
 
     return new Promise<void>((resolve, reject) => {
       try {
-        if (!isMacAppStore() && !isSnapStore()) {
+        if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
             app.quit();
             return;
           } else {
-            // eslint-disable-next-line
             app.on("second-instance", (event, argv, workingDirectory) => {
               // Someone tried to run a second instance, we should focus our window.
               if (this.win != null) {
@@ -88,7 +149,9 @@ export class WindowMain {
 
         // This method will be called when Electron is shutting
         // down the application.
-        app.on("before-quit", () => {
+        app.on("before-quit", async () => {
+          // Allow biometric to auto-prompt on reload
+          await this.biometricStateService.resetAllPromptCancelled();
           this.isQuitting = true;
         });
 
@@ -96,8 +159,38 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          if (!isDev()) {
+            // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (!isSnapStore()) {
+              this.logService.info(
+                "[Process Isolation] Isolating process from debuggers and memory dumps",
+              );
+              try {
+                await processisolations.isolateProcess();
+              } catch (e) {
+                this.logService.error("[Process Isolation] Failed to isolate main process", e);
+              }
+            }
+
+            if (isLinux()) {
+              if (await processisolations.isCoreDumpingDisabled()) {
+                this.logService.info("Coredumps are disabled in renderer process");
+              } else {
+                this.enableRendererProcessForceCrashReload = false;
+                this.logService.info("Disabling coredumps in main process");
+                try {
+                  await processisolations.disableCoredumps();
+                  this.enableRendererProcessForceCrashReload = true;
+                } catch (e) {
+                  this.logService.error("Failed to disable coredumps", e);
+                }
+              }
+            }
+          }
+
           await this.createWindow();
           resolve();
+
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
           }
@@ -115,7 +208,7 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win === null) {
+          if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon
@@ -130,12 +223,54 @@ export class WindowMain {
     });
   }
 
-  async createWindow(): Promise<void> {
+  /// Show the window with main window styles
+  show() {
+    if (this.win != null) {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      this.win.show();
+    }
+  }
+
+  // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
+  // Only used for development
+  async loadUrl(targetPath: string, modal: boolean = false) {
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("modal-app");
+      return;
+    }
+
+    await this.desktopSettingsService.setModalMode(modal);
+    await this.win.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: targetPath,
+        query: {
+          redirectUrl: targetPath,
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      },
+    );
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
+  }
+
+  /**
+   * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
+   * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
+   * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
+   */
+  async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
     );
-    this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
+    this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
@@ -143,7 +278,7 @@ export class WindowMain {
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 680,
+      minWidth: 600,
       minHeight: 500,
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
@@ -154,37 +289,73 @@ export class WindowMain {
       backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
-        // preload: path.join(__dirname, "preload.js"),
+        preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
-        nodeIntegration: true,
+        nodeIntegration: false,
         backgroundThrottling: false,
-        contextIsolation: false,
+        contextIsolation: true,
         session: this.session,
+        devTools: isDev(),
       },
     });
 
+    if (template === "modal-app") {
+      applyPopupModalStyles(this.win);
+    } else {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+    }
+
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+    });
+
+    // Persist zoom changes from mouse wheel and programmatic zoom operations
+    // NOTE: This event does NOT fire for keyboard shortcuts (Ctrl+/-/0, Cmd+/-/0)
+    // which are handled by custom menu click handlers in ViewMenu
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }
 
-    // Show it later since it might need to be maximized.
     this.win.show();
 
-    // and load the index.html of the app.
-    this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-      }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
+    if (template === "full-app") {
+      // and load the index.html of the app.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      void this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    } else {
+      // we're in modal mode - load the passkeys page
+      await this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+          hash: "/passkeys",
+          query: {
+            redirectUrl: "/passkeys",
+          },
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    }
 
     // Open the DevTools.
     if (isDev()) {
@@ -229,18 +400,29 @@ export class WindowMain {
       });
     });
 
+    firstValueFrom(this.desktopSettingsService.preventScreenshots$)
+      .then((preventScreenshots) => {
+        this.win.setContentProtection(preventScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
+
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
     }
   }
 
   // Retrieve the background color
-  // Resolves background color missmatch when starting the application.
+  // Resolves background color mismatch when starting the application.
   async getBackgroundColor(): Promise<string> {
-    const data: { theme?: string } = await this.storageService.get("global");
-    let theme = data?.theme;
+    let theme = await this.storageService.get("global_theming_selection");
 
-    if (theme == null || theme === "system") {
+    if (
+      theme == null ||
+      !Object.values(ThemeTypes).includes(theme as Theme) ||
+      theme === "system"
+    ) {
       theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
     }
 
@@ -249,15 +431,18 @@ export class WindowMain {
         return "#ededed";
       case "dark":
         return "#15181e";
-      case "nord":
-        return "#3b4252";
     }
   }
 
   async toggleAlwaysOnTop() {
     this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
     this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
-    await this.stateService.setEnableAlwaysOnTop(this.enableAlwaysOnTop);
+    await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
+  }
+
+  async saveZoomFactor(zoomFactor: number) {
+    this.windowStates[mainWindowSizeKey].zoomFactor = zoomFactor;
+    await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
@@ -268,7 +453,13 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    if (win == null) {
+    if (win == null || win.isDestroyed()) {
+      return;
+    }
+
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
+
+    if (modalMode.isModalModeActive) {
       return;
     }
 
@@ -276,14 +467,19 @@ export class WindowMain {
       const bounds = win.getBounds();
 
       if (this.windowStates[configKey] == null) {
-        this.windowStates[configKey] = await this.stateService.getWindow();
+        this.windowStates[configKey] = await firstValueFrom(this.desktopSettingsService.window$);
         if (this.windowStates[configKey] == null) {
           this.windowStates[configKey] = <WindowState>{};
         }
       }
 
-      this.windowStates[configKey].isMaximized = win.isMaximized();
+      // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
+      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
+
+      // Maybe store these as well?
+      // win.isFocused();
+      // win.isVisible();
 
       if (!win.isMaximized() && !win.isMinimized() && !win.isFullScreen()) {
         this.windowStates[configKey].x = bounds.x;
@@ -296,14 +492,14 @@ export class WindowMain {
         this.windowStates[configKey].zoomFactor = win.webContents.zoomFactor;
       }
 
-      await this.stateService.setWindow(this.windowStates[configKey]);
+      await this.desktopSettingsService.setWindow(this.windowStates[configKey]);
     } catch (e) {
       this.logService.error(e);
     }
   }
 
   private async getWindowState(defaultWidth: number, defaultHeight: number) {
-    const state = await this.stateService.getWindow();
+    const state = await firstValueFrom(this.desktopSettingsService.window$);
 
     const isValid = state != null && (this.stateHasBounds(state) || state.isMaximized);
     let displayBounds: Electron.Rectangle = null;
@@ -322,9 +518,9 @@ export class WindowMain {
         displayBounds.x !== state.displayBounds.x ||
         displayBounds.y !== state.displayBounds.y
       ) {
-        state.x = undefined;
-        state.y = undefined;
         displayBounds = screen.getPrimaryDisplay().bounds;
+        state.x = displayBounds.x + displayBounds.width / 2 - state.width / 2;
+        state.y = displayBounds.y + displayBounds.height / 2 - state.height / 2;
       }
     }
 

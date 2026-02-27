@@ -1,34 +1,30 @@
-import { Observable } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitwarden/auth/common";
 
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { PrfKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { AuthService } from "../../abstractions/auth.service";
+import { PrfKey } from "../../../types/key";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
-import { WebAuthnLoginPrfCryptoServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "../../abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "../../models/domain/auth-result";
-import { WebAuthnLoginCredentials } from "../../models/domain/login-credentials";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
 import { WebAuthnLoginCredentialAssertionView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion.view";
 
 import { WebAuthnLoginAssertionResponseRequest } from "./request/webauthn-login-assertion-response.request";
 
 export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
-  readonly enabled$: Observable<boolean>;
-
   private navigatorCredentials: CredentialsContainer;
 
   constructor(
     private webAuthnLoginApiService: WebAuthnLoginApiServiceAbstraction,
-    private authService: AuthService,
-    private configService: ConfigServiceAbstraction,
-    private webAuthnLoginPrfCryptoService: WebAuthnLoginPrfCryptoServiceAbstraction,
+    private loginStrategyService: LoginStrategyServiceAbstraction,
+    private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
     private window: Window,
     private logService?: LogService,
   ) {
-    this.enabled$ = this.configService.getFeatureFlag$(FeatureFlag.PasswordlessLogin, false);
     this.navigatorCredentials = this.window.navigator.credentials;
   }
 
@@ -45,7 +41,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
     };
     // TODO: Remove `any` when typescript typings add support for PRF
     nativeOptions.publicKey.extensions = {
-      prf: { eval: { first: await this.webAuthnLoginPrfCryptoService.getLoginWithPrfSalt() } },
+      prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
     } as any;
 
     try {
@@ -58,7 +54,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
       let symmetricPrfKey: PrfKey | undefined;
       if (prfResult != undefined) {
         symmetricPrfKey =
-          await this.webAuthnLoginPrfCryptoService.createSymmetricKeyFromPrf(prfResult);
+          await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
       }
 
       const deviceResponse = new WebAuthnLoginAssertionResponseRequest(response);
@@ -86,7 +82,7 @@ export class WebAuthnLoginService implements WebAuthnLoginServiceAbstraction {
       assertion.deviceResponse,
       assertion.prfKey,
     );
-    const result = await this.authService.logIn(credential);
+    const result = await this.loginStrategyService.logIn(credential);
     return result;
   }
 }

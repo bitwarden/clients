@@ -1,14 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AccessTokenRequest } from "../models/requests/access-token.request";
 import { RevokeAccessTokensRequest } from "../models/requests/revoke-access-tokens.request";
@@ -26,10 +31,11 @@ export class AccessService {
   accessToken$ = this._accessToken.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
-    private cryptoFunctionService: CryptoFunctionService,
+    private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
 
   async getAccessTokens(
@@ -48,24 +54,33 @@ export class AccessService {
     return await this.createAccessTokenViews(organizationId, results.data);
   }
 
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
+
   async createAccessToken(
     organizationId: string,
     serviceAccountId: string,
     accessTokenView: AccessTokenView,
   ): Promise<string> {
-    const keyMaterial = await this.cryptoFunctionService.aesGenerateKey(128);
-    const key = await this.cryptoFunctionService.hkdf(
-      keyMaterial,
-      "bitwarden-accesstoken",
+    const key = await this.keyGenerationService.createKeyWithPurpose(
+      128,
       "sm-access-token",
-      64,
-      "sha256",
+      "bitwarden-accesstoken",
     );
-    const encryptionKey = new SymmetricCryptoKey(key);
 
     const request = await this.createAccessTokenRequest(
       organizationId,
-      encryptionKey,
+      key.derivedKey,
       accessTokenView,
     );
     const r = await this.apiService.send(
@@ -77,8 +92,8 @@ export class AccessService {
     );
     const result = new AccessTokenCreationResponse(r);
     this._accessToken.next(null);
-    const b64Key = Utils.fromBufferToB64(keyMaterial);
-    return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${b64Key}`;
+    const keyB64 = Utils.fromBufferToB64(key.material);
+    return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${keyB64}`;
   }
 
   async revokeAccessTokens(serviceAccountId: string, accessTokenIds: string[]): Promise<void> {
@@ -104,12 +119,12 @@ export class AccessService {
     const organizationKey = await this.getOrganizationKey(organizationId);
     const accessTokenRequest = new AccessTokenRequest();
     const [name, encryptedPayload, key] = await Promise.all([
-      await this.encryptService.encrypt(accessTokenView.name, organizationKey),
-      await this.encryptService.encrypt(
+      await this.encryptService.encryptString(accessTokenView.name, organizationKey),
+      await this.encryptService.encryptString(
         JSON.stringify({ encryptionKey: organizationKey.keyB64 }),
         encryptionKey,
       ),
-      await this.encryptService.encrypt(encryptionKey.keyB64, organizationKey),
+      await this.encryptService.encryptString(encryptionKey.keyB64, organizationKey),
     ]);
 
     accessTokenRequest.name = name;
@@ -117,10 +132,6 @@ export class AccessService {
     accessTokenRequest.key = key;
     accessTokenRequest.expireAt = accessTokenView.expireAt;
     return accessTokenRequest;
-  }
-
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
   }
 
   private async createAccessTokenViews(
@@ -132,7 +143,7 @@ export class AccessService {
       accessTokenResponses.map(async (s) => {
         const view = new AccessTokenView();
         view.id = s.id;
-        view.name = await this.encryptService.decryptToUtf8(new EncString(s.name), orgKey);
+        view.name = await this.encryptService.decryptString(new EncString(s.name), orgKey);
         view.scopes = s.scopes;
         view.expireAt = s.expireAt ? new Date(s.expireAt) : null;
         view.creationDate = new Date(s.creationDate);

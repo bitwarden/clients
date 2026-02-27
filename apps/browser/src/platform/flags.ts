@@ -9,15 +9,10 @@ import {
 import { GroupPolicyEnvironment } from "../admin-console/types/group-policy-environment";
 
 // required to avoid linting errors when there are no flags
-/* eslint-disable-next-line @typescript-eslint/ban-types */
-export type Flags = {
-  accountSwitching?: boolean;
-} & SharedFlags;
+export type Flags = SharedFlags;
 
 // required to avoid linting errors when there are no flags
-/* eslint-disable-next-line @typescript-eslint/ban-types */
 export type DevFlags = {
-  storeSessionDecrypted?: boolean;
   managedEnvironment?: GroupPolicyEnvironment;
 } & SharedDevFlags;
 

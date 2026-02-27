@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ApiService } from "../../abstractions/api.service";
 import { ListResponse } from "../../models/response/list.response";
 import { Utils } from "../../platform/misc/utils";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
+import { UntrustDevicesRequestModel } from "../models/request/untrust-devices.request";
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
@@ -71,27 +73,59 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     return new DeviceResponse(result);
   }
 
-  async updateTrust(updateDevicesTrustRequestModel: UpdateDevicesTrustRequest): Promise<void> {
+  async updateTrust(
+    updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
+    deviceIdentifier: string,
+  ): Promise<void> {
     await this.apiService.send(
       "POST",
       "/devices/update-trust",
       updateDevicesTrustRequestModel,
       true,
       false,
+      null,
+      (headers) => {
+        headers.set("Device-Identifier", deviceIdentifier);
+      },
     );
   }
 
-  async getDeviceKeys(
-    deviceIdentifier: string,
-    secretVerificationRequest: SecretVerificationRequest,
-  ): Promise<ProtectedDeviceResponse> {
+  async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {
     const result = await this.apiService.send(
       "POST",
       `/devices/${deviceIdentifier}/retrieve-keys`,
-      secretVerificationRequest,
+      null,
       true,
       true,
     );
     return new ProtectedDeviceResponse(result);
+  }
+
+  async postDeviceTrustLoss(deviceIdentifier: string): Promise<void> {
+    await this.apiService.send(
+      "POST",
+      "/devices/lost-trust",
+      null,
+      true,
+      false,
+      null,
+      (headers) => {
+        headers.set("Device-Identifier", deviceIdentifier);
+      },
+    );
+  }
+
+  async deactivateDevice(deviceId: string): Promise<void> {
+    await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, true, false);
+  }
+
+  async untrustDevices(deviceIds: string[]): Promise<void> {
+    await this.apiService.send(
+      "POST",
+      "/devices/untrust",
+      new UntrustDevicesRequestModel(deviceIds),
+      true,
+      false,
+    );
   }
 }

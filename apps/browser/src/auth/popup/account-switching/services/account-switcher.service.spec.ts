@@ -1,78 +1,126 @@
 import { matches, mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
+import { BehaviorSubject, ReplaySubject, firstValueFrom, of, timeout } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  Account,
+  AccountInfo,
+  AccountService,
+} from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "./account-switcher.service";
 
 describe("AccountSwitcherService", () => {
-  const accountsSubject = new BehaviorSubject<Record<UserId, AccountInfo>>(null);
-  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+  let accountsSubject: BehaviorSubject<Record<UserId, AccountInfo>>;
+  let activeAccountSubject: BehaviorSubject<Account | null>;
+  let authStatusSubject: ReplaySubject<Record<UserId, AuthenticationStatus>>;
+
+  let envBSubject: BehaviorSubject<Environment | undefined>;
+  const mockHostName = "mockHostName";
+  const mockEnv: Partial<Environment> = {
+    getHostname: () => mockHostName,
+  };
 
   const accountService = mock<AccountService>();
-  const stateService = mock<StateService>();
+  const avatarService = mock<AvatarService>();
   const messagingService = mock<MessagingService>();
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
+  const authService = mock<AuthService>();
+  const configService = mock<ConfigService>();
 
   let accountSwitcherService: AccountSwitcherService;
 
   beforeEach(() => {
     jest.resetAllMocks();
+    accountsSubject = new BehaviorSubject<Record<UserId, AccountInfo>>(null);
+    activeAccountSubject = new BehaviorSubject<Account | null>(null);
+    authStatusSubject = new ReplaySubject<Record<UserId, AuthenticationStatus>>(1);
+
+    // Use subject to allow for easy updates
     accountService.accounts$ = accountsSubject;
     accountService.activeAccount$ = activeAccountSubject;
+    authService.authStatuses$ = authStatusSubject;
+
+    envBSubject = new BehaviorSubject<Environment | undefined>(mockEnv as Environment);
+    environmentService.getEnvironment$.mockReturnValue(envBSubject);
+
     accountSwitcherService = new AccountSwitcherService(
       accountService,
-      stateService,
+      avatarService,
       messagingService,
       environmentService,
       logService,
+      configService,
+      authService,
     );
   });
 
+  afterEach(() => {
+    accountsSubject.complete();
+    activeAccountSubject.complete();
+    authStatusSubject.complete();
+  });
+
   describe("availableAccounts$", () => {
-    it("should return all accounts and an add account option when accounts are less than 5", async () => {
-      const user1AccountInfo: AccountInfo = {
+    it("should return all logged in accounts and an add account option when accounts are less than 5", async () => {
+      const accountInfo = mockAccountInfoWith({
         name: "Test User 1",
         email: "test1@email.com",
-        status: AuthenticationStatus.Unlocked,
-      };
+      });
 
-      accountsSubject.next({
-        "1": user1AccountInfo,
-      } as Record<UserId, AccountInfo>);
-
-      activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "1" as UserId }));
+      avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
+      accountsSubject.next({ ["1" as UserId]: accountInfo, ["2" as UserId]: accountInfo });
+      authStatusSubject.next({
+        ["1" as UserId]: AuthenticationStatus.Unlocked,
+        ["2" as UserId]: AuthenticationStatus.Locked,
+      });
+      activeAccountSubject.next(Object.assign(accountInfo, { id: "1" as UserId }));
 
       const accounts = await firstValueFrom(
         accountSwitcherService.availableAccounts$.pipe(timeout(20)),
       );
-      expect(accounts).toHaveLength(2);
+      expect(accounts).toHaveLength(3);
       expect(accounts[0].id).toBe("1");
       expect(accounts[0].isActive).toBeTruthy();
 
-      expect(accounts[1].id).toBe("addAccount");
+      expect(accounts[0].server).toBe(mockHostName);
+
+      expect(accounts[1].id).toBe("2");
       expect(accounts[1].isActive).toBeFalsy();
+      expect(accounts[1].server).toBe(mockHostName);
+
+      expect(accounts[2].id).toBe("addAccount");
+      expect(accounts[2].isActive).toBeFalsy();
+      expect(accounts[2].server).toBe(undefined);
     });
 
     it.each([5, 6])(
       "should return only accounts if there are %i accounts",
       async (numberOfAccounts) => {
         const seedAccounts: Record<UserId, AccountInfo> = {};
+        const seedStatuses: Record<UserId, AuthenticationStatus> = {};
         for (let i = 0; i < numberOfAccounts; i++) {
-          seedAccounts[`${i}` as UserId] = {
+          seedAccounts[`${i}` as UserId] = mockAccountInfoWith({
             email: `test${i}@email.com`,
             name: "Test User ${i}",
-            status: AuthenticationStatus.Unlocked,
-          };
+          });
+          seedStatuses[`${i}` as UserId] = AuthenticationStatus.Unlocked;
         }
+        avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
         accountsSubject.next(seedAccounts);
+        authStatusSubject.next(seedStatuses);
         activeAccountSubject.next(
           Object.assign(seedAccounts["1" as UserId], { id: "1" as UserId }),
         );
@@ -85,6 +133,26 @@ describe("AccountSwitcherService", () => {
         });
       },
     );
+
+    it("excludes logged out accounts", async () => {
+      const user1AccountInfo = mockAccountInfoWith({
+        name: "Test User 1",
+        email: "",
+      });
+      accountsSubject.next({ ["1" as UserId]: user1AccountInfo });
+      authStatusSubject.next({ ["1" as UserId]: AuthenticationStatus.LoggedOut });
+      accountsSubject.next({
+        "1": user1AccountInfo,
+      } as Record<UserId, AccountInfo>);
+
+      const accounts = await firstValueFrom(
+        accountSwitcherService.availableAccounts$.pipe(timeout(20)),
+      );
+
+      // Add account only
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("addAccount");
+    });
   });
 
   describe("selectAccount", () => {
@@ -107,7 +175,7 @@ describe("AccountSwitcherService", () => {
 
       await selectAccountPromise;
 
-      expect(accountService.switchAccount).toBeCalledWith(null);
+      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: null });
 
       expect(removeListenerSpy).toBeCalledTimes(1);
     });
@@ -130,7 +198,7 @@ describe("AccountSwitcherService", () => {
 
       await selectAccountPromise;
 
-      expect(accountService.switchAccount).toBeCalledWith("1");
+      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: "1" });
       expect(messagingService.send).toBeCalledWith(
         "switchAccount",
         matches((payload) => {

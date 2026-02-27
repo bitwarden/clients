@@ -1,5 +1,8 @@
+import { Jsonify } from "type-fest";
+
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherResponse } from "../response/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
@@ -9,34 +12,39 @@ import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
+import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
-  id: string;
-  organizationId: string;
-  folderId: string;
-  edit: boolean;
-  viewPassword: boolean;
-  organizationUseTotp: boolean;
-  favorite: boolean;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  edit: boolean = false;
+  viewPassword: boolean = true;
+  permissions?: CipherPermissionsApi;
+  organizationUseTotp: boolean = false;
+  favorite: boolean = false;
   revisionDate: string;
-  type: CipherType;
-  name: string;
-  notes: string;
+  type: CipherType = CipherType.Login;
+  name: string = "";
+  notes?: string;
   login?: LoginData;
   secureNote?: SecureNoteData;
   card?: CardData;
   identity?: IdentityData;
+  sshKey?: SshKeyData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string;
-  reprompt: CipherRepromptType;
-  key: string;
+  deletedDate?: string;
+  archivedDate?: string;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  key?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
+      this.creationDate = this.revisionDate = new Date().toISOString();
       return;
     }
 
@@ -45,15 +53,17 @@ export class CipherData {
     this.folderId = response.folderId;
     this.edit = response.edit;
     this.viewPassword = response.viewPassword;
+    this.permissions = response.permissions;
     this.organizationUseTotp = response.organizationUseTotp;
     this.favorite = response.favorite;
     this.revisionDate = response.revisionDate;
-    this.type = response.type;
+    this.type = response.type as CipherType;
     this.name = response.name;
     this.notes = response.notes;
     this.collectionIds = collectionIds != null ? collectionIds : response.collectionIds;
     this.creationDate = response.creationDate;
     this.deletedDate = response.deletedDate;
+    this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
 
@@ -70,6 +80,9 @@ export class CipherData {
       case CipherType.Identity:
         this.identity = new IdentityData(response.identity);
         break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyData(response.sshKey);
+        break;
       default:
         break;
     }
@@ -83,5 +96,13 @@ export class CipherData {
     if (response.passwordHistory != null) {
       this.passwordHistory = response.passwordHistory.map((ph) => new PasswordHistoryData(ph));
     }
+  }
+
+  static fromJSON(obj: Jsonify<CipherData>) {
+    const result = Object.assign(new CipherData(), obj);
+    if (obj.permissions != null) {
+      result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    }
+    return result;
   }
 }

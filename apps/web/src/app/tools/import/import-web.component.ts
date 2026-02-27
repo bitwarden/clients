@@ -1,51 +1,44 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 
 import {
-  OrganizationService,
-  canAccessVaultTab,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { ImportComponent } from "@bitwarden/importer/ui";
+  DefaultImportMetadataService,
+  ImportMetadataServiceAbstraction,
+} from "@bitwarden/importer-core";
+import {
+  ImportComponent,
+  ImporterProviders,
+  SYSTEM_SERVICE_PROVIDER,
+} from "@bitwarden/importer-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "import-web.component.html",
-  standalone: true,
-  imports: [SharedModule, ImportComponent],
+  imports: [SharedModule, ImportComponent, HeaderModule],
+  providers: [
+    ...ImporterProviders,
+    safeProvider({
+      provide: ImportMetadataServiceAbstraction,
+      useClass: DefaultImportMetadataService,
+      deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
+  ],
 })
-export class ImportWebComponent implements OnInit {
-  protected routeOrgId: string = null;
+export class ImportWebComponent {
   protected loading = false;
   protected disabled = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private router: Router,
-  ) {}
-
-  ngOnInit(): void {
-    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId");
-  }
+  constructor(private router: Router) {}
 
   /**
    * Callback that is called after a successful import.
    */
   protected async onSuccessfulImport(organizationId: string): Promise<void> {
-    if (!organizationId) {
-      await this.router.navigate(["vault"]);
-      return;
-    }
-
-    const organization = await firstValueFrom(this.organizationService.get$(organizationId));
-    if (organization == null) {
-      return;
-    }
-
-    if (canAccessVaultTab(organization)) {
-      await this.router.navigate(["organizations", organizationId, "vault"]);
-    }
+    await this.router.navigate(["vault"]);
   }
 }

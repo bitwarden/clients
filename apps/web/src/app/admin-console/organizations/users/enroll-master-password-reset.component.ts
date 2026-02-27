@@ -1,81 +1,118 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
+import {
+  OrganizationUserApiService,
+  OrganizationUserResetPasswordEnrollmentRequest,
+} from "@bitwarden/admin-console/common";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { Verification } from "@bitwarden/common/auth/types/verification";
+import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
+import { AccountRecoveryTrustComponent } from "@bitwarden/key-management-ui";
 
-import { AccountRecoveryService } from "../members/services/account-recovery/account-recovery.service";
+import { OrganizationUserResetPasswordService } from "../members/services/organization-user-reset-password/organization-user-reset-password.service";
 
 interface EnrollMasterPasswordResetData {
   organization: Organization;
 }
 
-@Component({
-  selector: "app-enroll-master-password-reset",
-  templateUrl: "enroll-master-password-reset.component.html",
-})
 export class EnrollMasterPasswordReset {
-  protected organization: Organization;
+  constructor() {}
 
-  protected formGroup = new FormGroup({
-    verification: new FormControl<Verification>(null, Validators.required),
-  });
-
-  constructor(
-    private dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: EnrollMasterPasswordResetData,
-    private accountRecoveryService: AccountRecoveryService,
-    private userVerificationService: UserVerificationService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private syncService: SyncService,
-    private logService: LogService,
-    private organizationUserService: OrganizationUserService,
+  static async open(
+    dialogService: DialogService,
+    data: EnrollMasterPasswordResetData,
+    resetPasswordService: OrganizationUserResetPasswordService,
+    organizationUserApiService: OrganizationUserApiService,
+    i18nService: I18nService,
+    syncService: SyncService,
+    logService: LogService,
+    userVerificationService: UserVerificationService,
+    toastService: ToastService,
+    keyService: KeyService,
+    accountService: AccountService,
+    organizationApiService: OrganizationApiServiceAbstraction,
   ) {
-    this.organization = data.organization;
-  }
+    const result = await UserVerificationDialogComponent.open(dialogService, {
+      title: "enrollAccountRecovery",
+      calloutOptions: {
+        text: "resetPasswordEnrollmentWarning",
+        type: "warning",
+      },
+      verificationType: {
+        type: "custom",
+        verificationFn: async (secret: VerificationWithSecret) => {
+          const activeUserId = (await firstValueFrom(accountService.activeAccount$)).id;
 
-  submit = async () => {
-    try {
-      await this.userVerificationService
-        .buildRequest(
-          this.formGroup.value.verification,
-          OrganizationUserResetPasswordEnrollmentRequest,
-        )
-        .then(async (request) => {
-          // Create request and execute enrollment
-          request.resetPasswordKey = await this.accountRecoveryService.buildRecoveryKey(
-            this.organization.id,
+          const publicKey = Utils.fromB64ToArray(
+            (await organizationApiService.getKeys(data.organization.id)).publicKey,
           );
-          await this.organizationUserService.putOrganizationUserResetPasswordEnrollment(
-            this.organization.id,
-            this.organization.userId,
+
+          const request =
+            await userVerificationService.buildRequest<OrganizationUserResetPasswordEnrollmentRequest>(
+              secret,
+            );
+          const dialogRef = AccountRecoveryTrustComponent.open(dialogService, {
+            name: data.organization.name,
+            orgId: data.organization.id,
+            publicKey,
+          });
+          const result = await lastValueFrom(dialogRef.closed);
+          if (result !== true) {
+            throw new Error("Organization not trusted, aborting user key rotation");
+          }
+
+          const trustedOrgPublicKeys = [publicKey];
+          const userKey = await firstValueFrom(keyService.userKey$(activeUserId));
+
+          request.resetPasswordKey = await resetPasswordService.buildRecoveryKey(
+            data.organization.id,
+            userKey,
+            trustedOrgPublicKeys,
+          );
+
+          // Process the enrollment request, which is an endpoint that is
+          // gated by a server-side check of the master password hash
+          await organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
+            data.organization.id,
+            data.organization.userId,
             request,
           );
+          return true;
+        },
+      },
+    });
 
-          await this.syncService.fullSync(true);
-        });
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("enrollPasswordResetSuccess"),
-      );
-      this.dialogRef.close();
-    } catch (e) {
-      this.logService.error(e);
+    // User canceled enrollment
+    if (result.userAction === "cancel") {
+      return;
     }
-  };
 
-  static open(dialogService: DialogService, data: EnrollMasterPasswordResetData) {
-    return dialogService.open(EnrollMasterPasswordReset, { data });
+    // Enrollment failed
+    if (!result.verificationSuccess) {
+      return;
+    }
+
+    // Enrollment succeeded
+    try {
+      toastService.showToast({
+        variant: "success",
+        title: null,
+        message: i18nService.t("enrollPasswordResetSuccess"),
+      });
+      await syncService.fullSync(true);
+    } catch (e) {
+      logService.error(e);
+    }
   }
 }

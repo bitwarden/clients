@@ -1,7 +1,4 @@
-import { PolicyType } from "../../enums";
-
-export class PolicyRequest {
-  type: PolicyType;
+export type PolicyRequest = {
   enabled: boolean;
   data: any;
-}
+};

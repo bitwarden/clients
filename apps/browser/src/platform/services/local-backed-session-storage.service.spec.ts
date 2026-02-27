@@ -1,319 +1,332 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FakeStorageService, makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
+import { StorageService } from "@bitwarden/storage-core";
 
 import BrowserLocalStorageService from "./browser-local-storage.service";
-import BrowserMemoryStorageService from "./browser-memory-storage.service";
-import { KeyGenerationService } from "./key-generation.service";
-import { LocalBackedSessionStorageService } from "./local-backed-session-storage.service";
+import {
+  LocalBackedSessionStorageService,
+  SessionKeyResolveService,
+} from "./local-backed-session-storage.service";
 
-describe("Browser Session Storage Service", () => {
-  let encryptService: MockProxy<EncryptService>;
+describe("SessionKeyResolveService", () => {
+  let storageService: FakeStorageService;
   let keyGenerationService: MockProxy<KeyGenerationService>;
+  let sut: SessionKeyResolveService;
 
-  let cache: Map<string, any>;
-  const testObj = { a: 1, b: 2 };
+  const mockKey = makeSymmetricCryptoKey();
 
-  let localStorage: BrowserLocalStorageService;
-  let sessionStorage: BrowserMemoryStorageService;
+  beforeEach(() => {
+    storageService = new FakeStorageService();
+    keyGenerationService = mock<KeyGenerationService>();
+    sut = new SessionKeyResolveService(storageService, keyGenerationService);
+  });
 
-  const key = new SymmetricCryptoKey(Utils.fromUtf8ToArray("00000000000000000000000000000000"));
-  let getSessionKeySpy: jest.SpyInstance;
-  const mockEnc = (input: string) => Promise.resolve(new EncString("ENCRYPTED" + input));
+  describe("get", () => {
+    it("returns null when no session key exists", async () => {
+      const result = await sut.get();
+      expect(result).toBeNull();
+    });
+
+    it("returns the session key from storage", async () => {
+      await storageService.save("session-key", mockKey);
+      const result = await sut.get();
+      expect(result).toEqual(mockKey);
+    });
+
+    it("deserializes the session key when storage requires deserialization", async () => {
+      const mockStorageService = mock<FakeStorageService>();
+      Object.defineProperty(mockStorageService, "valuesRequireDeserialization", {
+        get: () => true,
+      });
+      mockStorageService.get.mockResolvedValue(mockKey.toJSON());
+
+      const deserializableSut = new SessionKeyResolveService(
+        mockStorageService,
+        keyGenerationService,
+      );
+
+      const result = await deserializableSut.get();
+
+      expect(result).toBeInstanceOf(SymmetricCryptoKey);
+      expect(result?.toJSON()).toEqual(mockKey.toJSON());
+    });
+  });
+
+  describe("create", () => {
+    it("creates a new session key and saves it to storage", async () => {
+      keyGenerationService.createKeyWithPurpose.mockResolvedValue({
+        salt: "salt",
+        material: new Uint8Array(16) as any,
+        derivedKey: mockKey,
+      });
+
+      const result = await sut.create();
+
+      expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalledWith(
+        128,
+        "ephemeral",
+        "bitwarden-ephemeral",
+      );
+      expect(result).toEqual(mockKey);
+      expect(await storageService.get("session-key")).toEqual(mockKey.toJSON());
+    });
+  });
+});
+
+describe("LocalBackedSessionStorage", () => {
+  const sessionKey = makeSymmetricCryptoKey();
+  let memoryStorage: MockProxy<StorageService>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
+  let localStorage: MockProxy<BrowserLocalStorageService>;
+  let encryptService: MockProxy<EncryptService>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let logService: MockProxy<LogService>;
 
   let sut: LocalBackedSessionStorageService;
 
   beforeEach(() => {
-    encryptService = mock<EncryptService>();
+    memoryStorage = mock<StorageService>();
     keyGenerationService = mock<KeyGenerationService>();
+    localStorage = mock<BrowserLocalStorageService>();
+    encryptService = mock<EncryptService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    logService = mock<LogService>();
 
-    sut = new LocalBackedSessionStorageService(encryptService, keyGenerationService);
+    // Default: session key exists
+    memoryStorage.get.mockResolvedValue(sessionKey);
+    Object.defineProperty(memoryStorage, "valuesRequireDeserialization", {
+      get: () => true,
+    });
 
-    cache = sut["cache"];
-    localStorage = sut["localStorage"];
-    sessionStorage = sut["sessionStorage"];
-    getSessionKeySpy = jest.spyOn(sut, "getSessionEncKey");
-    getSessionKeySpy.mockResolvedValue(key);
-  });
-
-  it("should exist", () => {
-    expect(sut).toBeInstanceOf(LocalBackedSessionStorageService);
+    sut = new LocalBackedSessionStorageService(
+      memoryStorage,
+      localStorage,
+      keyGenerationService,
+      encryptService,
+      platformUtilsService,
+      logService,
+    );
   });
 
   describe("get", () => {
-    it("should return from cache", async () => {
-      cache.set("test", testObj);
+    const encString = makeEncString("encrypted");
+
+    it("returns the cached value when one is cached", async () => {
+      sut["cache"]["test"] = "cached";
       const result = await sut.get("test");
-      expect(result).toStrictEqual(testObj);
+      expect(result).toEqual("cached");
     });
 
-    describe("not in cache", () => {
-      const session = { test: testObj };
+    it("returns null when both cache and storage are null", async () => {
+      sut["cache"]["test"] = null;
+      localStorage.get.mockResolvedValue(null);
 
-      beforeEach(() => {
-        jest.spyOn(sut, "getSessionEncKey").mockResolvedValue(key);
+      const result = await sut.get("test");
+
+      expect(result).toBeNull();
+      expect(localStorage.get).toHaveBeenCalledWith("session_test");
+    });
+
+    it("returns a decrypted value when one is stored in local storage", async () => {
+      localStorage.get.mockResolvedValue(encString.encryptedString);
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
+
+      const result = await sut.get("test");
+
+      expect(encryptService.decryptString).toHaveBeenCalledWith(encString, sessionKey);
+      expect(result).toEqual("decrypted");
+      expect(sut["cache"]["test"]).toEqual("decrypted");
+    });
+
+    it("returns the cached value when cache is populated during storage retrieval", async () => {
+      localStorage.get.mockImplementation(async () => {
+        sut["cache"]["test"] = "cached-during-read";
+        return encString.encryptedString;
+      });
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted-from-storage"));
+
+      const result = await sut.get("test");
+
+      expect(result).toEqual("cached-during-read");
+    });
+
+    it("returns the cached value when storage returns null but cache was filled", async () => {
+      localStorage.get.mockImplementation(async () => {
+        sut["cache"]["test"] = "cached-during-read";
+        return null;
       });
 
-      describe("no session retrieved", () => {
-        let result: any;
-        let spy: jest.SpyInstance;
-        beforeEach(async () => {
-          spy = jest.spyOn(sut, "getLocalSession").mockResolvedValue(null);
-          result = await sut.get("test");
-        });
+      const result = await sut.get("test");
 
-        it("should grab from session if not in cache", async () => {
-          expect(spy).toHaveBeenCalledWith(key);
-        });
+      expect(result).toEqual("cached-during-read");
+    });
 
-        it("should return null if session is null", async () => {
-          expect(result).toBeNull();
-        });
+    it("creates new session key, clears old data, and returns null when session key is missing", async () => {
+      const newSessionKey = makeSymmetricCryptoKey();
+      const clearSpy = jest.spyOn(sut as any, "clear");
+      memoryStorage.get.mockResolvedValue(null);
+      keyGenerationService.createKeyWithPurpose.mockResolvedValue({
+        salt: "salt",
+        material: new Uint8Array(16) as any,
+        derivedKey: newSessionKey,
       });
+      localStorage.get.mockResolvedValue(null);
+      localStorage.getKeys.mockResolvedValue([]);
 
-      describe("session retrieved from storage", () => {
-        beforeEach(() => {
-          jest.spyOn(sut, "getLocalSession").mockResolvedValue(session);
-        });
+      const result = await sut.get("test");
 
-        it("should return null if session does not have the key", async () => {
-          const result = await sut.get("DNE");
-          expect(result).toBeNull();
-        });
-
-        it("should return the value retrieved from session", async () => {
-          const result = await sut.get("test");
-          expect(result).toEqual(session.test);
-        });
-
-        it("should set retrieved values in cache", async () => {
-          await sut.get("test");
-          expect(cache.has("test")).toBe(true);
-          expect(cache.get("test")).toEqual(session.test);
-        });
-
-        it("should use a deserializer if provided", async () => {
-          const deserializer = jest.fn().mockReturnValue(testObj);
-          const result = await sut.get("test", { deserializer: deserializer });
-          expect(deserializer).toHaveBeenCalledWith(session.test);
-          expect(result).toEqual(testObj);
-        });
-      });
+      expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalled();
+      expect(clearSpy).toHaveBeenCalled();
+      expect(result).toBeNull();
     });
   });
 
   describe("has", () => {
-    it("should be false if `get` returns null", async () => {
-      const spy = jest.spyOn(sut, "get");
-      spy.mockResolvedValue(null);
-      expect(await sut.has("test")).toBe(false);
-      expect(spy).toHaveBeenCalledWith("test");
+    it("returns true when the key is in cache", async () => {
+      sut["cache"]["test"] = "cached";
+      const result = await sut.has("test");
+      expect(result).toBe(true);
     });
 
-    it("should be true if `get` returns non-null", async () => {
-      const spy = jest.spyOn(sut, "get");
-      spy.mockResolvedValue({});
-      expect(await sut.has("test")).toBe(true);
-      expect(spy).toHaveBeenCalledWith("test");
+    it("returns true when the key is in local storage", async () => {
+      const encString = makeEncString("encrypted");
+      localStorage.get.mockResolvedValue(encString.encryptedString);
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
+      const result = await sut.has("test");
+      expect(result).toBe(true);
+    });
+
+    it.each([null, undefined])(
+      "returns false when the key does not exist in local storage (%s)",
+      async (value) => {
+        localStorage.get.mockResolvedValue(value);
+        await expect(sut.has("test")).resolves.toBe(false);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe("save", () => {
+    const encString = makeEncString("encrypted");
+
+    beforeEach(() => {
+      encryptService.encryptString.mockResolvedValue(encString);
+    });
+
+    it("logs a warning when saving the same value twice and in a dev environment", async () => {
+      platformUtilsService.isDev.mockReturnValue(true);
+      sut["cache"]["test"] = "cached";
+      await sut.save("test", "cached");
+      expect(logService.warning).toHaveBeenCalled();
+    });
+
+    it("does not log when saving the same value twice and not in a dev environment", async () => {
+      platformUtilsService.isDev.mockReturnValue(false);
+      sut["cache"]["test"] = "cached";
+      await sut.save("test", "cached");
+      expect(logService.warning).not.toHaveBeenCalled();
+    });
+
+    it("removes the key when saving a null value", async () => {
+      const removeSpy = jest.spyOn(sut, "remove");
+      await sut.save("test", null);
+      expect(removeSpy).toHaveBeenCalledWith("test");
+    });
+
+    it("uses the session key when encrypting", async () => {
+      await sut.save("test", "value");
+
+      expect(memoryStorage.get).toHaveBeenCalledWith("session-key");
+      expect(encryptService.encryptString).toHaveBeenCalledWith(
+        JSON.stringify("value"),
+        sessionKey,
+      );
+    });
+
+    it("emits an update", async () => {
+      const updateSpy = jest.spyOn(sut["updatesSubject"], "next");
+      await sut.save("test", "value");
+      expect(updateSpy).toHaveBeenCalledWith({ key: "test", updateType: "save" });
+    });
+
+    it("creates a new session key when session key is missing before saving", async () => {
+      const newSessionKey = makeSymmetricCryptoKey();
+      memoryStorage.get.mockResolvedValue(null);
+      keyGenerationService.createKeyWithPurpose.mockResolvedValue({
+        salt: "salt",
+        material: new Uint8Array(16) as any,
+        derivedKey: newSessionKey,
+      });
+      localStorage.getKeys.mockResolvedValue([]);
+
+      await sut.save("test", "value");
+
+      expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalled();
+      expect(encryptService.encryptString).toHaveBeenCalledWith(
+        JSON.stringify("value"),
+        newSessionKey,
+      );
     });
   });
 
   describe("remove", () => {
-    it("should save null", async () => {
-      const spy = jest.spyOn(sut, "save");
-      spy.mockResolvedValue(null);
+    it("nulls the value in cache", async () => {
+      sut["cache"]["test"] = "cached";
       await sut.remove("test");
-      expect(spy).toHaveBeenCalledWith("test", null);
+      expect(sut["cache"]["test"]).toBeNull();
+    });
+
+    it("removes the key from local storage", async () => {
+      await sut.remove("test");
+      expect(localStorage.remove).toHaveBeenCalledWith("session_test");
+    });
+
+    it("emits an update", async () => {
+      const updateSpy = jest.spyOn(sut["updatesSubject"], "next");
+      await sut.remove("test");
+      expect(updateSpy).toHaveBeenCalledWith({ key: "test", updateType: "remove" });
     });
   });
 
-  describe("save", () => {
-    describe("caching", () => {
-      beforeEach(() => {
-        jest.spyOn(localStorage, "get").mockResolvedValue(null);
-        jest.spyOn(sessionStorage, "get").mockResolvedValue(null);
-        jest.spyOn(localStorage, "save").mockResolvedValue();
-        jest.spyOn(sessionStorage, "save").mockResolvedValue();
-
-        encryptService.encrypt.mockResolvedValue(mockEnc("{}"));
-      });
-
-      it("should remove key from cache if value is null", async () => {
-        cache.set("test", {});
-        const deleteSpy = jest.spyOn(cache, "delete");
-        expect(cache.has("test")).toBe(true);
-        await sut.save("test", null);
-        expect(cache.has("test")).toBe(false);
-        expect(deleteSpy).toHaveBeenCalledWith("test");
-      });
-
-      it("should set cache if value is non-null", async () => {
-        expect(cache.has("test")).toBe(false);
-        const setSpy = jest.spyOn(cache, "set");
-        await sut.save("test", testObj);
-        expect(cache.get("test")).toBe(testObj);
-        expect(setSpy).toHaveBeenCalledWith("test", testObj);
-      });
-    });
-
-    describe("local storing", () => {
-      let setSpy: jest.SpyInstance;
-
-      beforeEach(() => {
-        setSpy = jest.spyOn(sut, "setLocalSession").mockResolvedValue();
-      });
-
-      it("should store a new session", async () => {
-        jest.spyOn(sut, "getLocalSession").mockResolvedValue(null);
-        await sut.save("test", testObj);
-
-        expect(setSpy).toHaveBeenCalledWith({ test: testObj }, key);
-      });
-
-      it("should update an existing session", async () => {
-        const existingObj = { test: testObj };
-        jest.spyOn(sut, "getLocalSession").mockResolvedValue(existingObj);
-        await sut.save("test2", testObj);
-
-        expect(setSpy).toHaveBeenCalledWith({ test2: testObj, ...existingObj }, key);
-      });
-
-      it("should overwrite an existing item in session", async () => {
-        const existingObj = { test: {} };
-        jest.spyOn(sut, "getLocalSession").mockResolvedValue(existingObj);
-        await sut.save("test", testObj);
-
-        expect(setSpy).toHaveBeenCalledWith({ test: testObj }, key);
-      });
+  describe("sessionStorageKey", () => {
+    it("prefixes keys with session_ prefix", () => {
+      expect(sut["sessionStorageKey"]("test")).toBe("session_test");
     });
   });
 
-  describe("getSessionKey", () => {
-    beforeEach(() => {
-      getSessionKeySpy.mockRestore();
-    });
+  describe("clear", () => {
+    it("only removes keys with session_ prefix", async () => {
+      const removeSpy = jest.spyOn(sut, "remove");
+      localStorage.getKeys.mockResolvedValue([
+        "session_data1",
+        "session_data2",
+        "regular_key",
+        "another_key",
+        "session_data3",
+        "my_session_key",
+        "mysession",
+        "sessiondata",
+        "user_session",
+      ]);
 
-    it("should return the stored symmetric crypto key", async () => {
-      jest.spyOn(sessionStorage, "get").mockResolvedValue({ ...key });
-      const result = await sut.getSessionEncKey();
+      await sut["clear"]();
 
-      expect(result).toStrictEqual(key);
-    });
-
-    describe("new key creation", () => {
-      beforeEach(() => {
-        jest.spyOn(sessionStorage, "get").mockResolvedValue(null);
-        keyGenerationService.makeEphemeralKey.mockResolvedValue(key);
-        jest.spyOn(sut, "setSessionEncKey").mockResolvedValue();
-      });
-
-      it("should create a symmetric crypto key", async () => {
-        const result = await sut.getSessionEncKey();
-
-        expect(result).toStrictEqual(key);
-        expect(keyGenerationService.makeEphemeralKey).toBeCalledTimes(1);
-      });
-
-      it("should store a symmetric crypto key if it makes one", async () => {
-        const spy = jest.spyOn(sut, "setSessionEncKey").mockResolvedValue();
-        await sut.getSessionEncKey();
-
-        expect(spy).toBeCalledWith(key);
-      });
-    });
-  });
-
-  describe("getLocalSession", () => {
-    it("should return null if session is null", async () => {
-      const spy = jest.spyOn(localStorage, "get").mockResolvedValue(null);
-      const result = await sut.getLocalSession(key);
-
-      expect(result).toBeNull();
-      expect(spy).toBeCalledWith("session");
-    });
-
-    describe("non-null sessions", () => {
-      const session = { test: "test" };
-      const encSession = new EncString(JSON.stringify(session));
-      const decryptedSession = JSON.stringify(session);
-
-      beforeEach(() => {
-        jest.spyOn(localStorage, "get").mockResolvedValue(encSession.encryptedString);
-      });
-
-      it("should decrypt returned sessions", async () => {
-        encryptService.decryptToUtf8
-          .calledWith(expect.anything(), key)
-          .mockResolvedValue(decryptedSession);
-        await sut.getLocalSession(key);
-        expect(encryptService.decryptToUtf8).toHaveBeenNthCalledWith(1, encSession, key);
-      });
-
-      it("should parse session", async () => {
-        encryptService.decryptToUtf8
-          .calledWith(expect.anything(), key)
-          .mockResolvedValue(decryptedSession);
-        const result = await sut.getLocalSession(key);
-        expect(result).toEqual(session);
-      });
-
-      it("should remove state if decryption fails", async () => {
-        encryptService.decryptToUtf8.mockResolvedValue(null);
-        const setSessionEncKeySpy = jest.spyOn(sut, "setSessionEncKey").mockResolvedValue();
-        const removeLocalSessionSpy = jest.spyOn(localStorage, "remove").mockResolvedValue();
-
-        const result = await sut.getLocalSession(key);
-
-        expect(result).toBeNull();
-        expect(setSessionEncKeySpy).toHaveBeenCalledWith(null);
-        expect(removeLocalSessionSpy).toHaveBeenCalledWith("session");
-      });
-    });
-  });
-
-  describe("setLocalSession", () => {
-    const testSession = { test: "a" };
-    const testJSON = JSON.stringify(testSession);
-
-    it("should encrypt a stringified session", async () => {
-      encryptService.encrypt.mockImplementation(mockEnc);
-      jest.spyOn(localStorage, "save").mockResolvedValue();
-      await sut.setLocalSession(testSession, key);
-
-      expect(encryptService.encrypt).toHaveBeenNthCalledWith(1, testJSON, key);
-    });
-
-    it("should remove local session if null", async () => {
-      encryptService.encrypt.mockResolvedValue(null);
-      const spy = jest.spyOn(localStorage, "remove").mockResolvedValue();
-      await sut.setLocalSession(null, key);
-
-      expect(spy).toHaveBeenCalledWith("session");
-    });
-
-    it("should save encrypted string", async () => {
-      encryptService.encrypt.mockImplementation(mockEnc);
-      const spy = jest.spyOn(localStorage, "save").mockResolvedValue();
-      await sut.setLocalSession(testSession, key);
-
-      expect(spy).toHaveBeenCalledWith("session", (await mockEnc(testJSON)).encryptedString);
-    });
-  });
-
-  describe("setSessionKey", () => {
-    it("should remove if null", async () => {
-      const spy = jest.spyOn(sessionStorage, "remove").mockResolvedValue();
-      await sut.setSessionEncKey(null);
-      expect(spy).toHaveBeenCalledWith("localEncryptionKey");
-    });
-
-    it("should save key when not null", async () => {
-      const spy = jest.spyOn(sessionStorage, "save").mockResolvedValue();
-      await sut.setSessionEncKey(key);
-      expect(spy).toHaveBeenCalledWith("localEncryptionKey", key);
+      expect(removeSpy).toHaveBeenCalledWith("data1");
+      expect(removeSpy).toHaveBeenCalledWith("data2");
+      expect(removeSpy).toHaveBeenCalledWith("data3");
+      expect(removeSpy).not.toHaveBeenCalledWith("regular_key");
+      expect(removeSpy).not.toHaveBeenCalledWith("another_key");
+      expect(removeSpy).not.toHaveBeenCalledWith("my_session_key");
+      expect(removeSpy).not.toHaveBeenCalledWith("mysession");
+      expect(removeSpy).not.toHaveBeenCalledWith("sessiondata");
+      expect(removeSpy).not.toHaveBeenCalledWith("user_session");
+      expect(removeSpy).toHaveBeenCalledTimes(3);
     });
   });
 });

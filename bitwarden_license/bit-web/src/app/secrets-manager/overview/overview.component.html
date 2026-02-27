@@ -1,44 +1,53 @@
+<app-organization-free-trial-warning
+  [organization]="organization"
+  (clicked)="navigateToPaymentMethod()"
+>
+</app-organization-free-trial-warning>
 <app-header [title]="organizationName">
   <sm-new-menu></sm-new-menu>
 </app-header>
 
 <div *ngIf="!loading && view$ | async as view; else spinner">
-  <sm-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
-    <sm-onboarding-task
-      [title]="'createServiceAccount' | i18n"
+  <app-onboarding [title]="'getStarted' | i18n" *ngIf="showOnboarding" (dismiss)="hideOnboarding()">
+    <app-onboarding-task
+      [title]="'createMachineAccount' | i18n"
       (click)="openServiceAccountDialog()"
       icon="bwi-cli"
       [completed]="view.tasks.createServiceAccount"
     >
       <span class="tw-pl-1">
         {{ "downloadThe" | i18n }}
-        <a bitLink href="https://bitwarden.com/help/secrets-manager-cli/" target="_blank">{{
-          "smCLI" | i18n
-        }}</a>
+        <a
+          bitLink
+          href="https://bitwarden.com/help/secrets-manager-cli/"
+          target="_blank"
+          rel="noreferrer"
+          >{{ "smCLI" | i18n }}</a
+        >
       </span>
-    </sm-onboarding-task>
-    <sm-onboarding-task
+    </app-onboarding-task>
+    <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'createProject' | i18n"
       (click)="openNewProjectDialog()"
       icon="bwi-collection"
       [completed]="view.tasks.createProject"
-    ></sm-onboarding-task>
-    <sm-onboarding-task
+    ></app-onboarding-task>
+    <app-onboarding-task
       *ngIf="userIsAdmin"
       [title]="'importSecrets' | i18n"
       [route]="['settings', 'import']"
-      icon="bwi-download"
+      icon="bwi-import"
       [completed]="view.tasks.importSecrets"
-    ></sm-onboarding-task>
-    <sm-onboarding-task
+    ></app-onboarding-task>
+    <app-onboarding-task
       *ngIf="view.tasks.createProject"
       [title]="'createSecret' | i18n"
       (click)="openSecretDialog()"
       icon="bwi-key"
       [completed]="view.tasks.createSecret"
-    ></sm-onboarding-task>
-  </sm-onboarding>
+    ></app-onboarding-task>
+  </app-onboarding>
 
   <div class="tw-mt-6 tw-flex tw-flex-col tw-gap-6">
     <sm-section>
@@ -50,7 +59,7 @@
         [projects]="view.latestProjects"
       ></sm-projects-list>
       <div *ngIf="view.allProjects.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.allProjects.length }}
+        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.counts.projects }}
         <a bitLink routerLink="projects" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
       </div>
     </sm-section>
@@ -61,13 +70,14 @@
         (deleteSecretsEvent)="openDeleteSecret($event)"
         (newSecretEvent)="openNewSecretDialog()"
         (editSecretEvent)="openEditSecret($event)"
+        (viewSecretEvent)="openViewSecret($event)"
         (copySecretNameEvent)="copySecretName($event)"
         (copySecretValueEvent)="copySecretValue($event)"
         (copySecretUuidEvent)="copySecretUuid($event)"
         [secrets]="view.latestSecrets"
       ></sm-secrets-list>
       <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.allSecrets.length }}
+        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.counts.secrets }}
         <a bitLink routerLink="secrets" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
       </div>
     </sm-section>

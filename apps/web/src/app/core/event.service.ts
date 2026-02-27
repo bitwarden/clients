@@ -1,8 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType, EventType } from "@bitwarden/common/enums";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,10 +19,16 @@ export class EventService {
   constructor(
     private i18nService: I18nService,
     policyService: PolicyService,
+    accountService: AccountService,
   ) {
-    policyService.policies$.subscribe((policies) => {
-      this.policies = policies;
-    });
+    accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => policyService.policies$(userId)),
+      )
+      .subscribe((policies) => {
+        this.policies = policies;
+      });
   }
 
   getDefaultDateFilters() {
@@ -85,6 +96,9 @@ export class EventService {
         break;
       case EventType.User_RequestedDeviceApproval:
         msg = humanReadableMsg = this.i18nService.t("requestedDeviceApproval");
+        break;
+      case EventType.User_TdeOffboardingPasswordSet:
+        msg = humanReadableMsg = this.i18nService.t("tdeOffboardingPasswordSet");
         break;
       // Cipher
       case EventType.Cipher_Created:
@@ -327,6 +341,27 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Deleted:
+        msg = this.i18nService.t("deletedUserIdEventMessage", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedUserIdEventMessage",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Left:
+        msg = this.i18nService.t("userLeftOrganization", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "userLeftOrganization",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_AutomaticallyConfirmed:
+        msg = this.i18nService.t("automaticallyConfirmedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "automaticallyConfirmedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -344,7 +379,7 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("enabledSso");
         break;
       case EventType.Organization_DisabledSso:
-        msg = humanReadableMsg = this.i18nService.t("disabledSso");
+        msg = humanReadableMsg = this.i18nService.t("ssoTurnedOff");
         break;
       case EventType.Organization_EnabledKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("enabledKeyConnector");
@@ -361,6 +396,86 @@ export class EventService {
           "modifiedCollectionManagement",
           this.getShortId(ev.organizationId),
         );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
+        msg = this.i18nService.t("limitCollectionCreationEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
+        msg = this.i18nService.t("limitCollectionCreationDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
+        msg = this.i18nService.t("limitCollectionDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
+        msg = this.i18nService.t("limitCollectionDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionEnabled:
+        msg = this.i18nService.t("limitItemDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionDisabled:
+        msg = this.i18nService.t("limitItemDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_ItemOrganization_Accepted:
+        msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
+        break;
+      case EventType.Organization_ItemOrganization_Declined:
+        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        break;
+      case EventType.Organization_AutoConfirmEnabled_Admin:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
+        break;
+      case EventType.Organization_AutoConfirmDisabled_Admin:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByAdmin");
+        break;
+      case EventType.Organization_AutoConfirmEnabled_Portal:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByPortal");
+        break;
+      case EventType.Organization_AutoConfirmDisabled_Portal:
+        msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByPortal");
         break;
 
       // Policies
@@ -426,21 +541,152 @@ export class EventService {
         break;
       // Org Domain claiming events
       case EventType.OrganizationDomain_Added:
-        msg = humanReadableMsg = this.i18nService.t("addedDomain", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t("addedDomain", this.escapeHtml(ev.domainName));
         break;
       case EventType.OrganizationDomain_Removed:
-        msg = humanReadableMsg = this.i18nService.t("removedDomain", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "removedDomain",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       case EventType.OrganizationDomain_Verified:
-        msg = humanReadableMsg = this.i18nService.t("domainVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "domainClaimedEvent",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       case EventType.OrganizationDomain_NotVerified:
-        msg = humanReadableMsg = this.i18nService.t("domainNotVerifiedEvent", ev.domainName);
+        msg = humanReadableMsg = this.i18nService.t(
+          "domainNotClaimedEvent",
+          this.escapeHtml(ev.domainName),
+        );
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecret", this.formatSecretId(ev));
-        humanReadableMsg = this.i18nService.t("accessedSecret", this.getShortId(ev.secretId));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Created:
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Deleted:
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Permanently_Deleted:
+        msg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.formatSecretId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secret_Restored:
+        msg = this.i18nService.t("restoredSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("restoredSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Edited:
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Project_Retrieved:
+        msg = this.i18nService.t(
+          "accessedProjectWithIdentifier",
+          this.formatProjectId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedProjectWithIdentifier",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Created:
+        msg = this.i18nService.t("createdProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Deleted:
+        msg = this.i18nService.t("deletedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Edited:
+        msg = this.i18nService.t("editedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
+        break;
+      case EventType.ServiceAccount_UserAdded:
+        msg = this.i18nService.t(
+          "addedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "addedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_UserRemoved:
+        msg = this.i18nService.t(
+          "removedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "removedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_GroupRemoved:
+        msg = this.i18nService.t(
+          "removedGroupFromServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "removedGroupFromServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_GroupAdded:
+        msg = this.i18nService.t(
+          "addedGroupToServiceAccountId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "addedGroupToServiceAccountId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_Created:
+        msg = this.i18nService.t(
+          "serviceAccountCreatedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "serviceAccountCreatedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_Deleted:
+        msg = this.i18nService.t(
+          "serviceAccountDeletedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "serviceAccountDeletedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
         break;
       default:
         break;
@@ -458,45 +704,47 @@ export class EventService {
 
     switch (ev.deviceType) {
       case DeviceType.Android:
-        return ["bwi-android", this.i18nService.t("mobile") + " - Android"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - Android"];
       case DeviceType.iOS:
-        return ["bwi-apple", this.i18nService.t("mobile") + " - iOS"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - iOS"];
       case DeviceType.UWP:
-        return ["bwi-windows", this.i18nService.t("mobile") + " - Windows"];
+        return ["bwi-mobile", this.i18nService.t("mobile") + " - Windows"];
       case DeviceType.ChromeExtension:
-        return ["bwi-chrome", this.i18nService.t("extension") + " - Chrome"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Chrome"];
       case DeviceType.FirefoxExtension:
-        return ["bwi-firefox", this.i18nService.t("extension") + " - Firefox"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Firefox"];
       case DeviceType.OperaExtension:
-        return ["bwi-opera", this.i18nService.t("extension") + " - Opera"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Opera"];
       case DeviceType.EdgeExtension:
-        return ["bwi-edge", this.i18nService.t("extension") + " - Edge"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Edge"];
       case DeviceType.VivaldiExtension:
         return ["bwi-puzzle", this.i18nService.t("extension") + " - Vivaldi"];
       case DeviceType.SafariExtension:
-        return ["bwi-safari", this.i18nService.t("extension") + " - Safari"];
+        return ["bwi-puzzle", this.i18nService.t("extension") + " - Safari"];
       case DeviceType.WindowsDesktop:
-        return ["bwi-windows", this.i18nService.t("desktop") + " - Windows"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - Windows"];
       case DeviceType.MacOsDesktop:
-        return ["bwi-apple", this.i18nService.t("desktop") + " - macOS"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - macOS"];
       case DeviceType.LinuxDesktop:
-        return ["bwi-linux", this.i18nService.t("desktop") + " - Linux"];
+        return ["bwi-desktop", this.i18nService.t("desktop") + " - Linux"];
       case DeviceType.ChromeBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Chrome"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Chrome"];
       case DeviceType.FirefoxBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Firefox"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Firefox"];
       case DeviceType.OperaBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Opera"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Opera"];
       case DeviceType.SafariBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Safari"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Safari"];
       case DeviceType.VivaldiBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Vivaldi"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Vivaldi"];
       case DeviceType.EdgeBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - Edge"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - Edge"];
       case DeviceType.IEBrowser:
-        return ["bwi-globe", this.i18nService.t("webVault") + " - IE"];
+        return ["bwi-browser", this.i18nService.t("webVault") + " - IE"];
+      case DeviceType.DuckDuckGoBrowser:
+        return ["bwi-browser", this.i18nService.t("webVault") + " - DuckDuckGo"];
       case DeviceType.Server:
-        return ["bwi-server", this.i18nService.t("server")];
+        return ["bwi-user-monitor", this.i18nService.t("server")];
       case DeviceType.WindowsCLI:
         return ["bwi-cli", this.i18nService.t("cli") + " - Windows"];
       case DeviceType.MacOsCLI:
@@ -505,7 +753,7 @@ export class EventService {
         return ["bwi-cli", this.i18nService.t("cli") + " - Linux"];
       case DeviceType.UnknownBrowser:
         return [
-          "bwi-globe",
+          "bwi-browser",
           this.i18nService.t("webVault") + " - " + this.i18nService.t("unknown"),
         ];
       default:
@@ -597,10 +845,70 @@ export class EventService {
     return a.outerHTML;
   }
 
-  formatSecretId(ev: EventResponse): string {
+  formatSecretId(ev: EventResponse, options: EventOptions): string {
     const shortId = this.getShortId(ev.secretId);
+    if (options.disableLink) {
+      return shortId;
+    }
     const a = this.makeAnchor(shortId);
-    a.setAttribute("href", "#/sm/" + ev.organizationId + "/secrets?search=" + shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/secrets?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.secretId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatServiceAccountId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.grantedServiceAccountId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/machine-accounts?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.grantedServiceAccountId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatUserId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.userId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
+    return a.outerHTML;
+  }
+
+  formatProjectId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.projectId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/projects?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.projectId +
+        "&type=all",
+    );
     return a.outerHTML;
   }
 
@@ -613,6 +921,15 @@ export class EventService {
 
   private getShortId(id: string) {
     return id?.substring(0, 8);
+  }
+
+  private escapeHtml(unsafe: string): string {
+    if (!unsafe) {
+      return unsafe;
+    }
+    const div = document.createElement("div");
+    div.textContent = unsafe;
+    return div.innerHTML;
   }
 
   private toDateTimeLocalString(date: Date) {
@@ -644,4 +961,5 @@ export class EventInfo {
 
 export class EventOptions {
   cipherInfo = true;
+  disableLink = false;
 }

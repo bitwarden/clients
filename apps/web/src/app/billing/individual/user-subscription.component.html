@@ -1,28 +1,10 @@
-<div
-  [ngClass]="{
-    'page-header': selfHosted,
-    'tabbed-header': !selfHosted
-  }"
->
-  <h1>
-    {{ title }}
-    <small *ngIf="firstLoaded && loading">
-      <i
-        class="bwi bwi-spinner bwi-spin text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="sr-only">{{ "loading" | i18n }}</span>
-    </small>
-  </h1>
-</div>
 <ng-container *ngIf="!firstLoaded && loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="sub">
   <bit-callout
@@ -37,99 +19,137 @@
     title="{{ 'pendingCancellation' | i18n }}"
     *ngIf="subscriptionMarkedForCancel"
   >
-    <p>{{ "subscriptionPendingCanceled" | i18n }}</p>
+    <p bitTypography="body1">{{ "subscriptionPendingCanceled" | i18n }}</p>
     <button
       bitButton
       type="button"
       buttonType="secondary"
       #reinstateBtn
-      class="btn-submit"
       (click)="reinstate()"
       [appApiAction]="reinstatePromise"
-      [disabled]="$any(reinstateBtn).loading"
+      [disabled]="$any(reinstateBtn).loading()"
     >
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span>{{ "reinstateSubscription" | i18n }}</span>
+      {{ "reinstateSubscription" | i18n }}
     </button>
   </bit-callout>
-  <dl *ngIf="selfHosted">
-    <dt>{{ "expiration" | i18n }}</dt>
-    <dd *ngIf="sub.expiration">{{ sub.expiration | date: "mediumDate" }}</dd>
-    <dd *ngIf="!sub.expiration">{{ "neverExpires" | i18n }}</dd>
-  </dl>
-  <div class="row" *ngIf="!selfHosted">
-    <div class="col-4">
-      <dl>
-        <dt>{{ "status" | i18n }}</dt>
-        <dd>
-          <span class="text-capitalize">{{ (subscription && subscription.status) || "-" }}</span>
-          <span bitBadge badgeType="warning" *ngIf="subscriptionMarkedForCancel">{{
-            "pendingCancellation" | i18n
-          }}</span>
-        </dd>
-        <dt>{{ "nextCharge" | i18n }}</dt>
-        <dd>
-          {{
-            nextInvoice
-              ? (nextInvoice.date | date: "mediumDate") +
-                ", " +
-                (nextInvoice.amount | currency: "$")
-              : "-"
-          }}
-        </dd>
-      </dl>
-    </div>
-    <div class="col-8" *ngIf="subscription">
-      <strong class="d-block mb-1">{{ "details" | i18n }}</strong>
-      <table class="table">
-        <tbody>
-          <tr *ngFor="let i of subscription.items">
-            <td>
-              {{ i.name }} {{ i.quantity > 1 ? "&times;" + i.quantity : "" }} @
-              {{ i.amount | currency: "$" }}
-            </td>
-            <td>{{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="tw-flex tw-max-w-[1340px] tw-pt-6" *ngIf="!selfHosted">
+    <div class="tw-flex tw-gap-16 tw-justify-between tw-w-full">
+      <div class="tw-flex tw-flex-col">
+        <div class="tw-font-semibold tw-mb-2">{{ "plan" | i18n }}</div>
+        <div>{{ "premiumMembership" | i18n }}</div>
+      </div>
+      <div class="tw-flex tw-flex-col">
+        <div class="tw-font-semibold tw-mb-2">{{ "status" | i18n }}</div>
+        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+          <span class="tw-capitalize">{{ (subscription && subscriptionStatus) || "-" }}</span>
+          <span
+            bitBadge
+            variant="warning"
+            *ngIf="subscriptionMarkedForCancel"
+            class="tw-inline-flex"
+            >{{ "pendingCancellation" | i18n }}</span
+          >
+        </div>
+      </div>
+      <div class="tw-flex tw-flex-col">
+        <div class="tw-font-semibold tw-mb-2 tw-text-right">{{ "nextChargeHeader" | i18n }}</div>
+        <div>
+          <ng-container *ngIf="subscription">
+            <ng-container *ngIf="enableDiscountDisplay$ | async as enableDiscount; else noDiscount">
+              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
+                </span>
+                <billing-discount-badge
+                  [discount]="getDiscount(sub?.customerDiscount)"
+                ></billing-discount-badge>
+              </div>
+            </ng-container>
+            <ng-template #noDiscount>
+              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
+                <span [attr.aria-label]="'nextChargeDate' | i18n">
+                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
+                </span>
+              </div>
+            </ng-template>
+          </ng-container>
+          <span
+            *ngIf="!subscription"
+            class="tw-block tw-text-right"
+            [attr.aria-label]="'noChargeScheduled' | i18n"
+            >-</span
+          >
+        </div>
+      </div>
     </div>
   </div>
   <ng-container *ngIf="selfHosted">
-    <div>
-      <button type="button" bitButton buttonType="secondary" (click)="updateLicense()">
-        {{ "updateLicense" | i18n }}
-      </button>
-      <a
-        bitButton
-        buttonType="secondary"
-        href="{{ this.cloudWebVaultUrl }}/#/settings/subscription"
-        target="_blank"
-        rel="noopener"
-      >
-        {{ "launchCloudSubscription" | i18n }}
-      </a>
-    </div>
-    <div class="card mt-3" *ngIf="showUpdateLicense">
-      <div class="card-body">
-        <button
-          type="button"
-          class="close"
-          appA11yTitle="{{ 'cancel' | i18n }}"
-          (click)="closeUpdateLicense(false)"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h3 class="card-body-header">{{ "updateLicense" | i18n }}</h3>
-        <app-update-license
-          (onUpdated)="closeUpdateLicense(true)"
-          (onCanceled)="closeUpdateLicense(false)"
-        >
-        </app-update-license>
+    <div class="tw-mt-10 tw-text-center tw-pb-4">
+      <h1 class="tw-text-4xl tw-my-0">{{ "youHaveBitwardenPremium" | i18n }}</h1>
+      <div class="tw-text-muted tw-text-xs tw-mb-4 tw-mt-2">
+        {{ "viewAndManagePremiumSubscription" | i18n }}
       </div>
     </div>
+    <div class="tw-flex tw-justify-center">
+      <bit-base-card class="tw-w-[800px] tw-p-4 sm:tw-p-6">
+        <div class="tw-flex tw-flex-col tw-gap-5">
+          <div class="tw-flex tw-items-center tw-justify-between">
+            <div>
+              <h2 bitTypography="h2" class="tw-font-semibold tw-mb-0">
+                {{ "premiumMembership" | i18n }}
+              </h2>
+            </div>
+            <span bitBadge variant="success" *ngIf="isSubscriptionActive">{{
+              "active" | i18n
+            }}</span>
+          </div>
+
+          <p bitTypography="body1" class="tw-m-0" *ngIf="sub.expiration">
+            {{ "youNeedToUpdateLicenseFile" | i18n }}
+            <strong>{{ sub.expiration | date: "MMMM d, y" }}</strong
+            >.
+          </p>
+
+          <div class="tw-flex tw-gap-4">
+            <button type="button" bitButton buttonType="secondary" (click)="updateLicense()">
+              {{ "updateLicense" | i18n }}
+            </button>
+            <a
+              bitButton
+              buttonType="secondary"
+              href="{{ this.cloudWebVaultUrl }}/#/settings/subscription"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {{ "launchCloudSubscriptionSentenceCase" | i18n }}
+              <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </bit-base-card>
+    </div>
   </ng-container>
-  <ng-container *ngIf="!selfHosted">
-    <div class="d-flex">
+  <div class="tw-max-w-[1340px]" *ngIf="!selfHosted">
+    <h3 bitTypography="h3" class="tw-mt-8">{{ "storage" | i18n }}</h3>
+    <p bitTypography="body1">
+      {{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}
+    </p>
+    <bit-progress [barWidth]="storagePercentage" bgColor="success" size="default"></bit-progress>
+    <ng-container *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel">
+      <div class="tw-mt-3">
+        <div class="tw-flex tw-gap-4">
+          <button bitButton type="button" buttonType="secondary" (click)="adjustStorage(true)">
+            {{ "addStorage" | i18n }}
+          </button>
+          <button bitButton type="button" buttonType="secondary" (click)="adjustStorage(false)">
+            {{ "removeStorage" | i18n }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+    <h3 bitTypography="h3" class="tw-mt-16">{{ "additionalOptions" | i18n }}</h3>
+    <p bitTypography="body1" class="tw-mt-3">{{ "additionalOptionsDesc" | i18n }}</p>
+    <div class="tw-flex tw-gap-4 tw-mt-3">
       <button
         bitButton
         type="button"
@@ -144,54 +164,13 @@
         #cancelBtn
         type="button"
         buttonType="danger"
-        class="btn-submit tw-ml-auto"
-        (click)="cancel()"
+        (click)="cancelSubscription()"
         [appApiAction]="cancelPromise"
-        [disabled]="$any(cancelBtn).loading"
+        [disabled]="$any(cancelBtn).loading()"
         *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
       >
-        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-        <span>{{ "cancelSubscription" | i18n }}</span>
+        {{ "cancelSubscription" | i18n }}
       </button>
     </div>
-    <h2 class="spaced-header">{{ "storage" | i18n }}</h2>
-    <p>{{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}</p>
-    <div class="progress">
-      <div
-        class="progress-bar bg-success"
-        role="progressbar"
-        [ngStyle]="{ width: storageProgressWidth + '%' }"
-        [attr.aria-valuenow]="storagePercentage"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        {{ storagePercentage / 100 | percent }}
-      </div>
-    </div>
-    <ng-container *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel">
-      <div class="mt-3">
-        <div class="d-flex" *ngIf="!showAdjustStorage">
-          <button bitButton type="button" buttonType="secondary" (click)="adjustStorage(true)">
-            {{ "addStorage" | i18n }}
-          </button>
-          <button
-            bitButton
-            type="button"
-            buttonType="secondary"
-            class="tw-ml-1"
-            (click)="adjustStorage(false)"
-          >
-            {{ "removeStorage" | i18n }}
-          </button>
-        </div>
-        <app-adjust-storage
-          [storageGbPrice]="4"
-          [add]="adjustStorageAdd"
-          (onAdjusted)="closeStorage(true)"
-          (onCanceled)="closeStorage(false)"
-          *ngIf="showAdjustStorage"
-        ></app-adjust-storage>
-      </div>
-    </ng-container>
-  </ng-container>
+  </div>
 </ng-container>

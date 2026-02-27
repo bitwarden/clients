@@ -1,8 +1,8 @@
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { UriMatchType } from "../../enums";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -14,23 +14,35 @@ import { Fido2CredentialView } from "../view/fido2-credential.view";
 import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
+  beforeEach(() => {
+    mockContainerService();
+  });
+
   it("Convert from empty LoginData", () => {
     const data = new LoginData();
     const login = new Login(data);
 
     expect(login).toEqual({
-      passwordRevisionDate: null,
+      passwordRevisionDate: undefined,
       autofillOnPageLoad: undefined,
-      username: null,
-      password: null,
-      totp: null,
+      username: undefined,
+      password: undefined,
+      totp: undefined,
     });
+
+    expect(data.username).toBeUndefined();
+    expect(data.password).toBeUndefined();
+    expect(data.passwordRevisionDate).toBeUndefined();
+    expect(data.totp).toBeUndefined();
+    expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.uris).toBeUndefined();
+    expect(data.fido2Credentials).toBeUndefined();
   });
 
   it("Convert from full LoginData", () => {
     const fido2CredentialData = initializeFido2Credential(new Fido2CredentialData());
     const data: LoginData = {
-      uris: [{ uri: "uri", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -46,7 +58,13 @@ describe("Login DTO", () => {
       username: { encryptedString: "username", encryptionType: 0 },
       password: { encryptedString: "password", encryptionType: 0 },
       totp: { encryptedString: "123", encryptionType: 0 },
-      uris: [{ match: 0, uri: { encryptedString: "uri", encryptionType: 0 } }],
+      uris: [
+        {
+          match: 0,
+          uri: { encryptedString: "uri", encryptionType: 0 },
+          uriChecksum: { encryptedString: "checksum", encryptionType: 0 },
+        },
+      ],
       fido2Credentials: [encryptFido2Credential(fido2CredentialData)],
     });
   });
@@ -57,48 +75,62 @@ describe("Login DTO", () => {
     expect(login).toEqual({});
   });
 
-  it("Decrypts correctly", async () => {
-    const loginUri = mock<LoginUri>();
+  describe("decrypt", () => {
+    let loginUri: MockProxy<LoginUri>;
     const loginUriView = new LoginUriView();
-    loginUriView.uri = "decrypted uri";
-    loginUri.decrypt.mockResolvedValue(loginUriView);
-
-    const login = new Login();
     const decryptedFido2Credential = Symbol();
-    login.uris = [loginUri];
-    login.username = mockEnc("encrypted username");
-    login.password = mockEnc("encrypted password");
-    login.passwordRevisionDate = new Date("2022-01-31T12:00:00.000Z");
-    login.totp = mockEnc("encrypted totp");
-    login.autofillOnPageLoad = true;
-    login.fido2Credentials = [
-      { decrypt: jest.fn().mockReturnValue(decryptedFido2Credential) } as any,
-    ];
-
-    const loginView = await login.decrypt(null);
-    expect(loginView).toEqual({
+    const login = Object.assign(new Login(), {
+      username: mockEnc("encrypted username"),
+      password: mockEnc("encrypted password"),
+      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
+      totp: mockEnc("encrypted totp"),
+      autofillOnPageLoad: true,
+      fido2Credentials: [{ decrypt: jest.fn().mockReturnValue(decryptedFido2Credential) } as any],
+    });
+    const expectedView = {
       username: "encrypted username",
       password: "encrypted password",
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       totp: "encrypted totp",
       uris: [
         {
-          match: null,
           _uri: "decrypted uri",
-          _domain: null,
-          _hostname: null,
-          _host: null,
-          _canLaunch: null,
         },
       ],
       autofillOnPageLoad: true,
       fido2Credentials: [decryptedFido2Credential],
+    };
+
+    beforeEach(() => {
+      loginUri = mock();
+      loginUriView.uri = "decrypted uri";
+    });
+
+    it("should decrypt to a view", async () => {
+      loginUri.decrypt.mockResolvedValue(loginUriView);
+      loginUri.validateChecksum.mockResolvedValue(true);
+      login.uris = [loginUri];
+
+      const loginView = await login.decrypt(true, null);
+      expect(loginView).toEqual(expectedView);
+    });
+
+    it("should ignore uris that fail checksum", async () => {
+      loginUri.decrypt.mockResolvedValue(loginUriView);
+      loginUri.validateChecksum
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+      login.uris = [loginUri, loginUri, loginUri];
+
+      const loginView = await login.decrypt(false, null);
+      expect(loginView).toEqual(expectedView);
     });
   });
 
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
-      uris: [{ uri: "uri", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -126,6 +158,7 @@ describe("Login DTO", () => {
         password: "myPassword" as EncryptedString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
         totp: "myTotp" as EncryptedString,
+        // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
         fido2Credentials: [
           {
             credentialId: "keyId" as EncryptedString,
@@ -142,7 +175,7 @@ describe("Login DTO", () => {
             discoverable: "discoverable" as EncryptedString,
             creationDate: fido2CreationDate.toISOString(),
           },
-        ],
+        ] as any,
       });
 
       expect(actual).toEqual({
@@ -172,8 +205,56 @@ describe("Login DTO", () => {
       expect(actual).toBeInstanceOf(Login);
     });
 
-    it("returns null if object is null", () => {
-      expect(Login.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Login.fromJSON(null)).toBeUndefined();
+    });
+  });
+
+  describe("toSdkLogin", () => {
+    it("should map to SDK login", () => {
+      const data: LoginData = {
+        uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
+      };
+      const login = new Login(data);
+      const sdkLogin = login.toSdkLogin();
+
+      expect(sdkLogin).toEqual({
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        uris: [
+          {
+            match: 0,
+            uri: "uri",
+            uriChecksum: "checksum",
+          },
+        ],
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [
+          {
+            credentialId: "credentialId",
+            keyType: "public-key",
+            keyAlgorithm: "ECDSA",
+            keyCurve: "P-256",
+            keyValue: "keyValue",
+            rpId: "rpId",
+            userHandle: "userHandle",
+            userName: "userName",
+            counter: "counter",
+            rpName: "rpName",
+            userDisplayName: "userDisplayName",
+            discoverable: "discoverable",
+            creationDate: "2023-01-01T12:00:00.000Z",
+          },
+        ],
+      });
     });
   });
 });

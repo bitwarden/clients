@@ -1,15 +1,23 @@
 import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { Observable, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
+import { TranslationService } from "@bitwarden/common/platform/services/translation.service";
 
 import eng from "../../../locales/en/messages.json";
 
-class PreloadedEnglishI18nService extends BaseI18nService {
+class PreloadedEnglishI18nService extends TranslationService implements I18nService {
+  translationLocale = "en";
+  userSetLocale$: Observable<string | undefined> = of("en");
+  locale$: Observable<string> = of("en");
   constructor() {
     super("en", "", () => {
       return Promise.resolve(eng);
     });
+  }
+
+  setLocale(): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 }
 

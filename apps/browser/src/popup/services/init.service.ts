@@ -1,39 +1,47 @@
-import { Injectable } from "@angular/core";
+import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
-import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
+import { BrowserApi } from "../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
 export class InitService {
+  private sizeService = inject(PopupSizeService);
+
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private stateService: StateServiceAbstraction,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
-    private configService: ConfigService,
+    private sdkLoadService: SdkLoadService,
+    private viewCacheService: PopupViewCacheService,
+    private readonly migrationRunner: MigrationRunner,
+    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
-      await this.stateService.init();
-
-      if (!BrowserPopupUtils.inPopup(window)) {
-        window.document.body.classList.add("body-full");
-      } else if (window.screen.availHeight < 600) {
-        window.document.body.classList.add("body-xs");
-      } else if (window.screen.availHeight <= 800) {
-        window.document.body.classList.add("body-sm");
-      }
+      await this.sdkLoadService.loadAndInit();
+      await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
+      await this.i18nService.init();
+      this.twoFactorService.init();
+      await this.viewCacheService.init();
+      await this.sizeService.init();
 
       const htmlEl = window.document.documentElement;
-      await this.themingService.monitorThemeChanges();
+      this.themingService.applyThemeChangesTo(this.document);
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
       // Workaround for slow performance on external monitors on Chrome + MacOS
@@ -51,7 +59,25 @@ export class InitService {
         this.logService.info("Force redraw is on");
       }
 
-      this.configService.init();
+      this.setupVaultPopupHeartbeat();
     };
+  }
+
+  /**
+   * Sets up a runtime message listener to indicate to the background
+   * script that the extension popup is open in some manner.
+   */
+  private setupVaultPopupHeartbeat() {
+    const respondToHeartbeat = (
+      message: { command: string },
+      _sender: chrome.runtime.MessageSender,
+      sendResponse: (response?: any) => void,
+    ) => {
+      if (message?.command === "checkVaultPopupHeartbeat") {
+        sendResponse(true);
+      }
+    };
+
+    BrowserApi.messageListener("vaultPopupHeartbeat", respondToHeartbeat);
   }
 }

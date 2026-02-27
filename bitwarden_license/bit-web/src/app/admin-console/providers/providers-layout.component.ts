@@ -1,54 +1,127 @@
-import { Component } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, RouterModule } from "@angular/router";
+import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SvgModule } from "@bitwarden/components";
+import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
+import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
+import { ProviderWarningsService } from "../../billing/providers/warnings/services";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    WebLayoutModule,
+    SvgModule,
+    TaxIdWarningComponent,
+  ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ProvidersLayoutComponent {
-  provider: Provider;
-  private providerId: string;
+export class ProvidersLayoutComponent implements OnInit, OnDestroy {
+  protected readonly logo = ProviderPortalLogo;
+
+  private destroy$ = new Subject<void>();
+  protected provider$: Observable<Provider>;
+
+  protected logo$: Observable<BitSvg>;
+
+  protected canAccessBilling$: Observable<boolean>;
+
+  protected clientsTranslationKey$: Observable<string>;
+
+  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
+    private providerWarningsService: ProviderWarningsService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.params.subscribe(async (params) => {
-      this.providerId = params.providerId;
-      await this.load();
-    });
+
+    const providerId$: Observable<string> = this.route.params.pipe(
+      map((params) => params.providerId),
+    );
+
+    this.provider$ = combineLatest([
+      providerId$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
+      takeUntil(this.destroy$),
+    );
+
+    this.logo$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit
+          ? BusinessUnitPortalLogo
+          : ProviderPortalLogo,
+      ),
+    );
+
+    this.canAccessBilling$ = this.provider$.pipe(map((provider) => provider.isProviderAdmin));
+
+    this.clientsTranslationKey$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
+      ),
+    );
+
+    this.provider$
+      .pipe(
+        switchMap((provider) =>
+          this.providerWarningsService.showProviderSuspendedDialog$(provider),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.subscriber$ = this.provider$.pipe(
+      map((provider) => ({
+        type: "provider",
+        data: provider,
+      })),
+    );
+
+    this.getTaxIdWarning$ = () =>
+      this.provider$.pipe(
+        switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
+      );
   }
 
-  async load() {
-    this.provider = await this.providerService.get(this.providerId);
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  get showMenuBar() {
-    return this.showManageTab || this.showSettingsTab;
+  showManageTab(provider: Provider) {
+    return provider.canManageUsers || provider.canAccessEventLogs;
   }
 
-  get showManageTab() {
-    return this.provider.canManageUsers || this.provider.canAccessEventLogs;
+  showSettingsTab(provider: Provider) {
+    return provider.isProviderAdmin;
   }
 
-  get showSettingsTab() {
-    return this.provider.isProviderAdmin;
-  }
-
-  get manageRoute(): string {
-    switch (true) {
-      case this.provider.canManageUsers:
-        return "manage/people";
-      case this.provider.canAccessEventLogs:
-        return "manage/events";
-    }
-  }
+  refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
 }

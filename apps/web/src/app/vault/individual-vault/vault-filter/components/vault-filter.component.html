@@ -1,31 +1,35 @@
-<div class="card vault-filters">
-  <div class="container loading-spinner" *ngIf="!isLoaded">
-    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+<div class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded" data-testid="filters">
+  <div class="tw-text-center tw-p-5" *ngIf="!isLoaded">
+    <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
   </div>
   <div *ngIf="isLoaded">
-    <div class="card-header d-flex">
+    <div
+      class="tw-bg-background-alt tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-rounded-t tw-px-5 tw-py-2.5 tw-font-medium tw-uppercase"
+      data-testid="filters-header"
+    >
       {{ "filters" | i18n }}
       <a
-        class="ml-auto"
+        bitLink
+        class="tw-float-right"
         href="https://bitwarden.com/help/searching-vault/"
         target="_blank"
-        rel="noopener"
-        appA11yTitle="{{ 'learnMore' | i18n }}"
+        rel="noreferrer"
+        appA11yTitle="{{ 'learnMoreAboutSearchingYourVault' | i18n }}"
       >
         <i class="bwi bwi-question-circle" aria-hidden="true"></i>
       </a>
     </div>
-    <div class="card-body">
-      <input
-        type="search"
-        placeholder="{{ searchPlaceholder | i18n }}"
-        id="search"
-        class="form-control"
-        [ngModel]="searchText"
-        (ngModelChange)="onSearchTextChanged($event)"
-        autocomplete="off"
-        appAutofocus
-      />
+    <div class="tw-p-5" data-testid="filters-body">
+      <div class="tw-mb-4">
+        <bit-search
+          id="search"
+          placeholder="{{ searchPlaceholder | i18n }}"
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearchTextChanged($event)"
+          autocomplete="off"
+          appAutofocus
+        />
+      </div>
       <ng-container *ngFor="let f of filtersList">
         <div class="filter">
           <app-filter-section [activeFilter]="activeFilter" [section]="f"> </app-filter-section>

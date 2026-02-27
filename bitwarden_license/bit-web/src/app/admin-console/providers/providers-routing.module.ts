@@ -1,29 +1,41 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ProvidersComponent } from "@bitwarden/web-vault/app/admin-console/providers/providers.component";
+import { AnonLayoutWrapperComponent } from "@bitwarden/components";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
+import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
-import { ClientsComponent } from "./clients/clients.component";
-import { CreateOrganizationComponent } from "./clients/create-organization.component";
-import { ProviderPermissionsGuard } from "./guards/provider-permissions.guard";
+import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
+import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
+import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
+import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
+
+import { ManageClientsComponent } from "./clients/manage-clients.component";
+import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
-import { ManageComponent } from "./manage/manage.component";
-import { PeopleComponent } from "./manage/people.component";
+import { MembersComponent } from "./manage/members.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
+import { ProvidersComponent } from "./providers.component";
 import { AccountComponent } from "./settings/account.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
 import { SetupComponent } from "./setup/setup.component";
 
 const routes: Routes = [
   {
     path: "",
-    canActivate: [AuthGuard],
-    component: ProvidersComponent,
+    canActivate: [authGuard],
+    component: UserLayoutComponent,
+    children: [
+      {
+        path: "",
+        canActivate: [authGuard],
+        component: ProvidersComponent,
+        data: { titleId: "providers" },
+      },
+    ],
   },
   {
     path: "",
@@ -35,15 +47,31 @@ const routes: Routes = [
         data: { titleId: "setupProvider" },
       },
       {
-        path: "accept-provider",
-        component: AcceptProviderComponent,
-        data: { titleId: "acceptProvider" },
+        path: "setup-business-unit",
+        component: SetupBusinessUnitComponent,
+        data: { titleId: "setupProvider" },
       },
     ],
   },
   {
     path: "",
-    canActivate: [AuthGuard],
+    component: AnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "accept-provider",
+        component: AcceptProviderComponent,
+        data: {
+          pageTitle: {
+            key: "joinProvider",
+          },
+          titleId: "acceptProvider",
+        },
+      },
+    ],
+  },
+  {
+    path: "",
+    canActivate: [authGuard],
     children: [
       {
         path: "setup",
@@ -52,43 +80,76 @@ const routes: Routes = [
       {
         path: ":providerId",
         component: ProvidersLayoutComponent,
-        canActivate: [ProviderPermissionsGuard],
+        canActivate: [providerPermissionsGuard()],
         children: [
           { path: "", pathMatch: "full", redirectTo: "clients" },
-          { path: "clients/create", component: CreateOrganizationComponent },
-          { path: "clients", component: ClientsComponent, data: { titleId: "clients" } },
+          { path: "clients", component: ManageClientsComponent, data: { titleId: "clients" } },
           {
             path: "manage",
-            component: ManageComponent,
             children: [
               {
                 path: "",
                 pathMatch: "full",
-                redirectTo: "people",
+                redirectTo: "members",
               },
               {
-                path: "people",
-                component: PeopleComponent,
-                canActivate: [ProviderPermissionsGuard],
+                path: "members",
+                component: MembersComponent,
+                canActivate: [
+                  providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
+                ],
                 data: {
-                  titleId: "people",
-                  providerPermissions: (provider: Provider) => provider.canManageUsers,
+                  titleId: "members",
                 },
               },
               {
                 path: "events",
                 component: EventsComponent,
-                canActivate: [ProviderPermissionsGuard],
+                canActivate: [
+                  providerPermissionsGuard((provider: Provider) => provider.canAccessEventLogs),
+                ],
                 data: {
                   titleId: "eventLogs",
-                  providerPermissions: (provider: Provider) => provider.canAccessEventLogs,
+                },
+              },
+            ],
+          },
+          {
+            path: "billing",
+            canActivate: [
+              providerPermissionsGuard((provider: Provider) => provider.isProviderAdmin),
+            ],
+            children: [
+              {
+                path: "",
+                pathMatch: "full",
+                redirectTo: "subscription",
+              },
+              {
+                path: "subscription",
+                component: ProviderSubscriptionComponent,
+                data: {
+                  titleId: "subscription",
+                },
+              },
+              {
+                path: "payment-details",
+                component: ProviderPaymentDetailsComponent,
+                data: {
+                  titleId: "paymentDetails",
+                },
+              },
+              {
+                path: "history",
+                component: ProviderBillingHistoryComponent,
+                data: {
+                  titleId: "billingHistory",
                 },
               },
             ],
           },
           {
             path: "settings",
-            component: SettingsComponent,
             children: [
               {
                 path: "",
@@ -98,10 +159,11 @@ const routes: Routes = [
               {
                 path: "account",
                 component: AccountComponent,
-                canActivate: [ProviderPermissionsGuard],
+                canActivate: [
+                  providerPermissionsGuard((provider: Provider) => provider.isProviderAdmin),
+                ],
                 data: {
                   titleId: "myProvider",
-                  providerPermissions: (provider: Provider) => provider.isProviderAdmin,
                 },
               },
             ],

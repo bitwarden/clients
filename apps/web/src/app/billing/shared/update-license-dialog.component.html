@@ -1,0 +1,55 @@
+<form [formGroup]="updateLicenseForm" [bitSubmit]="submitLicenseDialog">
+  <bit-dialog
+    dialogSize="default"
+    [title]="(fromUserSubscriptionPage ? 'uploadLicense' : 'uploadLicenseFile') | i18n"
+  >
+    <ng-container bitDialogContent>
+      <p class="tw-mb-4">{{ "uploadLicenseFileDesc" | i18n: "bitwarden_license.json" }}</p>
+      <div class="tw-mb-4">
+        <label class="tw-block tw-text-sm tw-text-muted tw-mb-2">{{
+          (fromUserSubscriptionPage ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile")
+            | i18n
+        }}</label>
+        <div class="tw-mb-2">
+          <button
+            bitButton
+            type="button"
+            buttonType="unstyled"
+            class="tw-text-primary-600 tw-p-0 tw-border-0 tw-bg-transparent hover:tw-underline tw-cursor-pointer"
+            (click)="fileSelector.click()"
+          >
+            {{ "chooseFile" | i18n }}
+          </button>
+          <span class="tw-ml-2 tw-text-muted">{{
+            licenseFile ? licenseFile.name : ("noFileChosen" | i18n)
+          }}</span>
+        </div>
+        <input
+          #fileSelector
+          type="file"
+          formControlName="file"
+          (change)="setSelectedFile($event)"
+          hidden
+          class="tw-hidden"
+        />
+        <p class="tw-text-sm tw-text-muted">{{ "maxFileSizeSansPunctuation" | i18n }}</p>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" buttonType="primary" bitButton bitFormButton [disabled]="!licenseFile">
+        {{ "upload" | i18n }}
+      </button>
+      <button
+        bitButton
+        *ngIf="showCancel"
+        bitFormButton
+        buttonType="secondary"
+        type="button"
+        bitDialogClose
+        [bitAction]="cancel"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

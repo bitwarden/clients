@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
 import { Importer } from "./importer";
 
+/** This is the importer for the xml format from pwsafe.org  */
 export class PasswordSafeXmlImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();

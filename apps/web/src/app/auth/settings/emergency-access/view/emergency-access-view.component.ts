@@ -1,76 +1,57 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
 
+import { SharedModule } from "../../../../shared/shared.module";
 import { EmergencyAccessService } from "../../../emergency-access";
-import { EmergencyAccessAttachmentsComponent } from "../attachments/emergency-access-attachments.component";
 
-import { EmergencyAddEditCipherComponent } from "./emergency-add-edit-cipher.component";
+import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-view",
   templateUrl: "emergency-access-view.component.html",
+  providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
+  imports: [SharedModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessViewComponent implements OnInit {
-  @ViewChild("cipherAddEdit", { read: ViewContainerRef, static: true })
-  cipherAddEditModalRef: ViewContainerRef;
-  @ViewChild("attachments", { read: ViewContainerRef, static: true })
-  attachmentsModalRef: ViewContainerRef;
-
-  id: string;
+  id: EmergencyAccessId | null = null;
   ciphers: CipherView[] = [];
   loaded = false;
 
   constructor(
-    private modalService: ModalService,
     private router: Router,
     private route: ActivatedRoute,
     private emergencyAccessService: EmergencyAccessService,
+    private dialogService: DialogService,
+    private accountService: AccountService,
   ) {}
 
-  ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.route.params.subscribe((qParams) => {
-      if (qParams.id == null) {
-        return this.router.navigate(["settings/emergency-access"]);
-      }
+  async ngOnInit() {
+    const qParams = await firstValueFrom(this.route.params);
+    if (qParams.id == null) {
+      await this.router.navigate(["settings/emergency-access"]);
+      return;
+    }
 
-      this.id = qParams.id;
-
-      this.load();
-    });
-  }
-
-  async selectCipher(cipher: CipherView) {
-    // eslint-disable-next-line
-    const [_, childComponent] = await this.modalService.openViewRef(
-      EmergencyAddEditCipherComponent,
-      this.cipherAddEditModalRef,
-      (comp) => {
-        comp.cipherId = cipher == null ? null : cipher.id;
-        comp.cipher = cipher;
-      },
-    );
-
-    return childComponent;
-  }
-
-  async load() {
-    this.ciphers = await this.emergencyAccessService.getViewOnlyCiphers(this.id);
+    this.id = qParams.id;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.ciphers = await this.emergencyAccessService.getViewOnlyCiphers(qParams.id, userId);
     this.loaded = true;
   }
 
-  async viewAttachments(cipher: CipherView) {
-    await this.modalService.openViewRef(
-      EmergencyAccessAttachmentsComponent,
-      this.attachmentsModalRef,
-      (comp) => {
-        comp.cipher = cipher;
-        comp.emergencyAccessId = this.id;
-      },
-    );
+  async selectCipher(cipher: CipherView) {
+    EmergencyViewDialogComponent.open(this.dialogService, {
+      cipher,
+      emergencyAccessId: this.id!,
+    });
+    return;
   }
 }

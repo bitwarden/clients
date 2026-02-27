@@ -1,15 +1,23 @@
 import { Jsonify } from "type-fest";
 
+import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import {
+  normalizeUriMatchStrategyForSdk,
+  UriMatchStrategySetting,
+} from "../../../models/domain/domain-service";
+import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { UriMatchType } from "../../enums";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
 
 export class LoginUri extends Domain {
-  uri: EncString;
-  match: UriMatchType;
+  uri?: EncString;
+  uriChecksum?: EncString;
+  match?: UriMatchStrategySetting;
 
   constructor(obj?: LoginUriData) {
     super();
@@ -17,26 +25,34 @@ export class LoginUri extends Domain {
       return;
     }
 
-    this.match = obj.match;
-    this.buildDomainModel(
+    this.uri = conditionalEncString(obj.uri);
+    this.uriChecksum = conditionalEncString(obj.uriChecksum);
+    this.match = obj.match ?? undefined;
+  }
+
+  decrypt(
+    encKey: SymmetricCryptoKey,
+    context: string = "No Cipher Context",
+  ): Promise<LoginUriView> {
+    return this.decryptObj<LoginUri, LoginUriView>(
       this,
-      obj,
-      {
-        uri: null,
-      },
-      [],
+      new LoginUriView(this),
+      ["uri"],
+      encKey,
+      context,
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<LoginUriView> {
-    return this.decryptObj(
-      new LoginUriView(this),
-      {
-        uri: null,
-      },
-      orgId,
-      encKey,
-    );
+  async validateChecksum(clearTextUri: string, encKey: SymmetricCryptoKey) {
+    if (this.uriChecksum == null) {
+      return false;
+    }
+
+    const encryptService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await encryptService.hash(clearTextUri, "sha256");
+
+    const remoteChecksum = await encryptService.decryptString(this.uriChecksum, encKey);
+    return remoteChecksum === localChecksum;
   }
 
   toLoginUriData(): LoginUriData {
@@ -46,6 +62,7 @@ export class LoginUri extends Domain {
       u,
       {
         uri: null,
+        uriChecksum: null,
         match: null,
       },
       ["match"],
@@ -53,14 +70,42 @@ export class LoginUri extends Domain {
     return u;
   }
 
-  static fromJSON(obj: Jsonify<LoginUri>): LoginUri {
+  static fromJSON(obj: Jsonify<LoginUri> | undefined): LoginUri | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const uri = EncString.fromJSON(obj.uri);
-    return Object.assign(new LoginUri(), obj, {
-      uri,
-    });
+    const loginUri = new LoginUri();
+    loginUri.uri = encStringFrom(obj.uri);
+    loginUri.match = obj.match ?? undefined;
+    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+
+    return loginUri;
+  }
+
+  /**
+   *  Maps LoginUri to SDK format.
+   *
+   * @returns {SdkLoginUri} The SDK login uri object.
+   */
+  toSdkLoginUri(): SdkLoginUri {
+    return {
+      uri: this.uri?.toSdk(),
+      uriChecksum: this.uriChecksum?.toSdk(),
+      match: normalizeUriMatchStrategyForSdk(this.match),
+    };
+  }
+
+  static fromSdkLoginUri(obj?: SdkLoginUri): LoginUri | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const loginUri = new LoginUri();
+    loginUri.uri = encStringFrom(obj.uri);
+    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+    loginUri.match = obj.match;
+
+    return loginUri;
   }
 }

@@ -3,7 +3,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WebauthnLoginAuthenticatorResponseRequest } from "./webauthn-login-authenticator-response.request";
 
 /**
- * The response received from an authentiator after a successful attestation.
+ * The response received from an authenticator after a successful attestation.
  * This request is used to save newly created webauthn login credentials to the server.
  */
 export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthenticatorResponseRequest {
@@ -20,8 +20,8 @@ export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthen
     }
 
     this.response = {
-      attestationObject: Utils.fromBufferToB64(credential.response.attestationObject),
-      clientDataJson: Utils.fromBufferToB64(credential.response.clientDataJSON),
+      attestationObject: Utils.fromBufferToUrlB64(credential.response.attestationObject),
+      clientDataJson: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
     };
   }
 }

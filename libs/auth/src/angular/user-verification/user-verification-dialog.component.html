@@ -1,0 +1,105 @@
+<form [formGroup]="verificationForm" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{
+        dialogOptions.title ? (dialogOptions.title | i18n) : ("verificationRequired" | i18n)
+      }}</span
+    >
+    <ng-container bitDialogContent>
+      <!-- Show optional content when verification is server side or client side and verification methods were found. -->
+      <ng-container
+        *ngIf="
+          dialogOptions.verificationType !== 'client' ||
+          (dialogOptions.verificationType === 'client' &&
+            activeClientVerificationOption !== ActiveClientVerificationOption.None)
+        "
+      >
+        <p bitTypography="body1" *ngIf="dialogOptions.bodyText">
+          {{ dialogOptions.bodyText | i18n }}
+        </p>
+
+        <bit-callout
+          *ngIf="dialogOptions.calloutOptions"
+          [type]="dialogOptions.calloutOptions.type"
+        >
+          {{ dialogOptions.calloutOptions.text | i18n }}
+        </bit-callout>
+      </ng-container>
+
+      <!-- Shown when client side verification methods picked and no verification methods found -->
+      <ng-container
+        *ngIf="
+          dialogOptions.verificationType === 'client' &&
+          activeClientVerificationOption === ActiveClientVerificationOption.None
+        "
+      >
+        <p bitTypography="body1">
+          {{ "verificationRequiredForActionSetPinToContinue" | i18n }}
+        </p>
+      </ng-container>
+
+      <app-user-verification-form-input
+        [(invalidSecret)]="invalidSecret"
+        formControlName="secret"
+        [verificationType]="dialogOptions.verificationType === 'client' ? 'client' : 'server'"
+        (activeClientVerificationOptionChange)="handleActiveClientVerificationOptionChange($event)"
+        (biometricsVerificationResultChange)="handleBiometricsVerificationResultChange($event)"
+      ></app-user-verification-form-input>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <!-- Confirm button container - shown for server side validation but hidden if client side validation + biometrics  -->
+      <ng-container
+        *ngIf="
+          dialogOptions.verificationType !== 'client' ||
+          (dialogOptions.verificationType === 'client' &&
+            activeClientVerificationOption !== ActiveClientVerificationOption.Biometrics)
+        "
+      >
+        <!--  Default / custom buttons shown for server verifications or any valid, non biometric client verifications (MP or PIN) -->
+        <ng-container
+          *ngIf="activeClientVerificationOption !== ActiveClientVerificationOption.None"
+        >
+          <!-- Default confirm button -->
+          <button
+            *ngIf="!dialogOptions.confirmButtonOptions"
+            type="submit"
+            bitButton
+            bitFormButton
+            buttonType="primary"
+          >
+            {{ "submit" | i18n }}
+          </button>
+
+          <!-- Custom confirm button -->
+          <button
+            *ngIf="dialogOptions.confirmButtonOptions"
+            type="submit"
+            bitButton
+            bitFormButton
+            [buttonType]="dialogOptions.confirmButtonOptions.type"
+          >
+            {{ dialogOptions.confirmButtonOptions.text | i18n }}
+          </button>
+        </ng-container>
+
+        <ng-container
+          *ngIf="activeClientVerificationOption === ActiveClientVerificationOption.None"
+        >
+          <!--
+            For no client verifications found, show set a pin confirm button.
+            Note: this doesn't make sense for web as web doesn't support PINs, but this is how we are handling it for now
+            as the expectation is that only browser and desktop will use the new verificationType 'client' flow.
+            We might genericize this in the future to just tell the user they need to configure a valid user verification option like PIN or Biometrics.
+          -->
+          <button type="submit" bitButton bitFormButton buttonType="primary">
+            {{ "setPin" | i18n }}
+          </button>
+        </ng-container>
+      </ng-container>
+
+      <button type="button" bitButton bitFormButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,10 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as FormData from "form-data";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import * as fe from "node-fetch";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 
@@ -20,7 +25,11 @@ export class NodeApiService extends ApiService {
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
     appIdService: AppIdService,
-    logoutCallback: (expired: boolean) => Promise<void>,
+    refreshAccessTokenErrorCallback: () => Promise<void>,
+    logService: LogService,
+    logoutCallback: () => Promise<void>,
+    vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    accountService: AccountService,
     customUserAgent: string = null,
   ) {
     super(
@@ -28,7 +37,12 @@ export class NodeApiService extends ApiService {
       platformUtilsService,
       environmentService,
       appIdService,
+      refreshAccessTokenErrorCallback,
+      logService,
       logoutCallback,
+      vaultTimeoutSettingsService,
+      accountService,
+      { createRequest: (url, request) => new Request(url, request) },
       customUserAgent,
     );
   }

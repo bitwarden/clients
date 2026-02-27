@@ -1,6 +1,17 @@
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { PasswordGeneratorOptions } from "@bitwarden/common/tools/generator/password/password-generator-options";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, of, switchMap } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import {
+  DefaultPasswordGenerationOptions,
+  DefaultPassphraseGenerationOptions,
+} from "@bitwarden/generator-core";
+import {
+  PasswordGeneratorOptions,
+  PasswordGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
 
 import { Response } from "../models/response";
 import { StringResponse } from "../models/response/string.response";
@@ -9,7 +20,8 @@ import { CliUtils } from "../utils";
 export class GenerateCommand {
   constructor(
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private stateService: StateService,
+    private tokenService: TokenService,
+    private accountService: AccountService,
   ) {}
 
   async run(cmdOptions: Record<string, any>): Promise<Response> {
@@ -27,10 +39,21 @@ export class GenerateCommand {
       includeNumber: normalizedOptions.includeNumber,
       minNumber: normalizedOptions.minNumber,
       minSpecial: normalizedOptions.minSpecial,
-      ambiguous: normalizedOptions.ambiguous,
+      ambiguous: !normalizedOptions.ambiguous,
     };
 
-    const enforcedOptions = (await this.stateService.getIsAuthenticated())
+    const shouldEnforceOptions = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) => {
+          if (account == null) {
+            return of(false);
+          }
+
+          return this.tokenService.hasAccessToken$(account.id);
+        }),
+      ),
+    );
+    const enforcedOptions = shouldEnforceOptions
       ? (await this.passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions(options))[0]
       : options;
 
@@ -63,12 +86,27 @@ class Options {
     this.capitalize = CliUtils.convertBooleanOption(passedOptions?.capitalize);
     this.includeNumber = CliUtils.convertBooleanOption(passedOptions?.includeNumber);
     this.ambiguous = CliUtils.convertBooleanOption(passedOptions?.ambiguous);
-    this.length = CliUtils.convertNumberOption(passedOptions?.length, 14);
+    this.length = CliUtils.convertNumberOption(
+      passedOptions?.length,
+      DefaultPasswordGenerationOptions.length,
+    );
     this.type = passedOptions?.passphrase ? "passphrase" : "password";
-    this.separator = CliUtils.convertStringOption(passedOptions?.separator, "-");
-    this.words = CliUtils.convertNumberOption(passedOptions?.words, 3);
-    this.minNumber = CliUtils.convertNumberOption(passedOptions?.minNumber, 1);
-    this.minSpecial = CliUtils.convertNumberOption(passedOptions?.minSpecial, 1);
+    this.separator = CliUtils.convertStringOption(
+      passedOptions?.separator,
+      DefaultPassphraseGenerationOptions.wordSeparator,
+    );
+    this.words = CliUtils.convertNumberOption(
+      passedOptions?.words,
+      DefaultPassphraseGenerationOptions.numWords,
+    );
+    this.minNumber = CliUtils.convertNumberOption(
+      passedOptions?.minNumber,
+      DefaultPasswordGenerationOptions.minNumber,
+    );
+    this.minSpecial = CliUtils.convertNumberOption(
+      passedOptions?.minSpecial,
+      DefaultPasswordGenerationOptions.minSpecial,
+    );
 
     if (!this.uppercase && !this.lowercase && !this.special && !this.number) {
       this.lowercase = true;
@@ -83,6 +121,8 @@ class Options {
     }
     if (this.separator === "space") {
       this.separator = " ";
+    } else if (this.separator === "empty") {
+      this.separator = "";
     } else if (this.separator != null && this.separator.length > 1) {
       this.separator = this.separator[0];
     }

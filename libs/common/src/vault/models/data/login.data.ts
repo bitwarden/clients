@@ -4,12 +4,12 @@ import { Fido2CredentialData } from "./fido2-credential.data";
 import { LoginUriData } from "./login-uri.data";
 
 export class LoginData {
-  uris: LoginUriData[];
-  username: string;
-  password: string;
-  passwordRevisionDate: string;
-  totp: string;
-  autofillOnPageLoad: boolean;
+  uris?: LoginUriData[];
+  username?: string;
+  password?: string;
+  passwordRevisionDate?: string;
+  totp?: string;
+  autofillOnPageLoad?: boolean;
   fido2Credentials?: Fido2CredentialData[];
 
   constructor(data?: LoginApi) {

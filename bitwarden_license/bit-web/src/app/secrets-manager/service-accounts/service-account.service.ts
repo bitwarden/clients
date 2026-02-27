@@ -1,12 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   ServiceAccountSecretsDetailsView,
@@ -29,10 +34,24 @@ export class ServiceAccountService {
   serviceAccount$ = this._serviceAccount.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
+
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
 
   async getServiceAccounts(
     organizationId: string,
@@ -89,7 +108,10 @@ export class ServiceAccountService {
     );
   }
 
-  async create(organizationId: string, serviceAccountView: ServiceAccountView) {
+  async create(
+    organizationId: string,
+    serviceAccountView: ServiceAccountView,
+  ): Promise<ServiceAccountView> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = await this.getServiceAccountRequest(orgKey, serviceAccountView);
     const r = await this.apiService.send(
@@ -99,9 +121,14 @@ export class ServiceAccountService {
       true,
       true,
     );
-    this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
+
+    const serviceAccount = await this.createServiceAccountView(
+      orgKey,
+      new ServiceAccountResponse(r),
     );
+    this._serviceAccount.next(serviceAccount);
+
+    return serviceAccount;
   }
 
   async delete(serviceAccounts: ServiceAccountView[]): Promise<BulkOperationStatus[]> {
@@ -119,16 +146,15 @@ export class ServiceAccountService {
     });
   }
 
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
-  }
-
   private async getServiceAccountRequest(
     organizationKey: SymmetricCryptoKey,
     serviceAccountView: ServiceAccountView,
   ) {
     const request = new ServiceAccountRequest();
-    request.name = await this.encryptService.encrypt(serviceAccountView.name, organizationKey);
+    request.name = await this.encryptService.encryptString(
+      serviceAccountView.name,
+      organizationKey,
+    );
     return request;
   }
 
@@ -142,7 +168,7 @@ export class ServiceAccountService {
     serviceAccountView.creationDate = serviceAccountResponse.creationDate;
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
     serviceAccountView.name = serviceAccountResponse.name
-      ? await this.encryptService.decryptToUtf8(
+      ? await this.encryptService.decryptString(
           new EncString(serviceAccountResponse.name),
           organizationKey,
         )
@@ -161,7 +187,7 @@ export class ServiceAccountService {
     view.revisionDate = response.revisionDate;
     view.accessToSecrets = response.accessToSecrets;
     view.name = response.name
-      ? await this.encryptService.decryptToUtf8(new EncString(response.name), organizationKey)
+      ? await this.encryptService.decryptString(new EncString(response.name), organizationKey)
       : null;
     return view;
   }

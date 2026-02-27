@@ -6,6 +6,32 @@
     "analytics": false
   },
   "projects": {
+    "bit-web": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "bitwarden_license/bit-web",
+      "sourceRoot": "bitwarden_license/bit-web/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/web",
+            "index": "apps/web/src/index.html",
+            "main": "bitwarden_license/bit-web/src/app/main.ts",
+            "polyfills": "apps/web/src/polyfills.ts",
+            "tsConfig": "bitwarden_license/bit-web/tsconfig.json",
+            "assets": ["apps/web/src/favicon.ico"],
+            "styles": [],
+            "scripts": []
+          }
+        }
+      }
+    },
     "web": {
       "projectType": "application",
       "schematics": {
@@ -22,8 +48,8 @@
           "options": {
             "outputPath": "dist/web",
             "index": "apps/web/src/index.html",
-            "main": "apps/web/src/app/main.ts",
-            "polyfills": "apps/web/src/app/polyfills.ts",
+            "main": "apps/web/src/main.ts",
+            "polyfills": "apps/web/src/polyfills.ts",
             "tsConfig": "apps/web/tsconfig.json",
             "assets": ["apps/web/src/favicon.ico"],
             "styles": [],
@@ -128,10 +154,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "test-storybook:build:production"
+              "buildTarget": "test-storybook:build:production"
             },
             "development": {
-              "browserTarget": "test-storybook:build:development"
+              "buildTarget": "test-storybook:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -142,7 +168,19 @@
             "configDir": ".storybook",
             "browserTarget": "components:build",
             "compodoc": true,
-            "compodocArgs": ["-p", "./tsconfig.json", "-e", "json", "-d", "."],
+            "compodocArgs": [
+              "-p",
+              "./tsconfig.json",
+              "-e",
+              "json",
+              "--disableInternal",
+              "--disableLifeCycleHooks",
+              "--disablePrivate",
+              "--disableProtected",
+              "-d",
+              ".",
+              "--disableRoutesGraph"
+            ],
             "port": 6006
           }
         },
@@ -152,7 +190,19 @@
             "configDir": ".storybook",
             "browserTarget": "components:build",
             "compodoc": true,
-            "compodocArgs": ["-e", "json", "-d", "."],
+            "compodocArgs": [
+              "-p",
+              "./tsconfig.json",
+              "-e",
+              "json",
+              "--disableInternal",
+              "--disableLifeCycleHooks",
+              "--disablePrivate",
+              "--disableProtected",
+              "-d",
+              ".",
+              "--disableRoutesGraph"
+            ],
             "outputDir": "storybook-static"
           }
         }
@@ -169,6 +219,32 @@
           "defaultConfiguration": "production"
         }
       }
+    }
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
     }
   }
 }

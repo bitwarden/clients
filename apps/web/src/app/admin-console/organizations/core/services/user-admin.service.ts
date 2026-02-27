@@ -1,29 +1,23 @@
 import { Injectable } from "@angular/core";
 
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import {
+  OrganizationUserApiService,
   OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
-} from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
-import { OrganizationUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+} from "@bitwarden/admin-console/common";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
 @Injectable({ providedIn: CoreOrganizationModule })
 export class UserAdminService {
-  constructor(
-    private configService: ConfigServiceAbstraction,
-    private organizationUserService: OrganizationUserService,
-  ) {}
+  constructor(private organizationUserApiService: OrganizationUserApiService) {}
 
   async get(
     organizationId: string,
     organizationUserId: string,
   ): Promise<OrganizationUserAdminView | undefined> {
-    const userResponse = await this.organizationUserService.getOrganizationUser(
+    const userResponse = await this.organizationUserApiService.getOrganizationUser(
       organizationId,
       organizationUserId,
       {
@@ -35,70 +29,33 @@ export class UserAdminService {
       return undefined;
     }
 
-    const [view] = await this.decryptMany(organizationId, [userResponse]);
-
-    return view;
+    return OrganizationUserAdminView.fromResponse(organizationId, userResponse);
   }
 
   async save(user: OrganizationUserAdminView): Promise<void> {
     const request = new OrganizationUserUpdateRequest();
-    request.accessAll = user.accessAll;
     request.permissions = user.permissions;
     request.type = user.type;
     request.collections = user.collections;
     request.groups = user.groups;
     request.accessSecretsManager = user.accessSecretsManager;
 
-    await this.organizationUserService.putOrganizationUser(user.organizationId, user.id, request);
+    await this.organizationUserApiService.putOrganizationUser(
+      user.organizationId,
+      user.id,
+      request,
+    );
   }
 
   async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {
     const request = new OrganizationUserInviteRequest();
     request.emails = emails;
-    request.accessAll = user.accessAll;
     request.permissions = user.permissions;
     request.type = user.type;
     request.collections = user.collections;
     request.groups = user.groups;
     request.accessSecretsManager = user.accessSecretsManager;
 
-    await this.organizationUserService.postOrganizationUserInvite(user.organizationId, request);
-  }
-
-  private async decryptMany(
-    organizationId: string,
-    users: OrganizationUserDetailsResponse[],
-  ): Promise<OrganizationUserAdminView[]> {
-    const promises = users.map(async (u) => {
-      const view = new OrganizationUserAdminView();
-
-      view.id = u.id;
-      view.organizationId = organizationId;
-      view.userId = u.userId;
-      view.type = u.type;
-      view.status = u.status;
-      view.externalId = u.externalId;
-      view.accessAll = (await this.configService.getFeatureFlag(
-        FeatureFlag.FlexibleCollections,
-        false,
-      ))
-        ? false
-        : u.accessAll;
-      view.permissions = u.permissions;
-      view.resetPasswordEnrolled = u.resetPasswordEnrolled;
-      view.collections = u.collections.map((c) => ({
-        id: c.id,
-        hidePasswords: c.hidePasswords,
-        readOnly: c.readOnly,
-        manage: c.manage,
-      }));
-      view.groups = u.groups;
-      view.accessSecretsManager = u.accessSecretsManager;
-      view.hasMasterPassword = u.hasMasterPassword;
-
-      return view;
-    });
-
-    return await Promise.all(promises);
+    await this.organizationUserApiService.postOrganizationUserInvite(user.organizationId, request);
   }
 }

@@ -1,10 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../../models/response/base.response";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 
 export interface ITrustedDeviceUserDecryptionOptionServerResponse {
   HasAdminApproval: boolean;
   HasLoginApprovingDevice: boolean;
   HasManageResetPasswordPermission: boolean;
+  IsTdeOffboarding: boolean;
   EncryptedPrivateKey?: string;
   EncryptedUserKey?: string;
 }
@@ -13,6 +16,7 @@ export class TrustedDeviceUserDecryptionOptionResponse extends BaseResponse {
   hasAdminApproval: boolean;
   hasLoginApprovingDevice: boolean;
   hasManageResetPasswordPermission: boolean;
+  isTdeOffboarding: boolean;
   encryptedPrivateKey: EncString;
   encryptedUserKey: EncString;
 
@@ -24,6 +28,8 @@ export class TrustedDeviceUserDecryptionOptionResponse extends BaseResponse {
     this.hasManageResetPasswordPermission = this.getResponseProperty(
       "HasManageResetPasswordPermission",
     );
+
+    this.isTdeOffboarding = this.getResponseProperty("IsTdeOffboarding");
 
     if (response.EncryptedPrivateKey) {
       this.encryptedPrivateKey = new EncString(this.getResponseProperty("EncryptedPrivateKey"));

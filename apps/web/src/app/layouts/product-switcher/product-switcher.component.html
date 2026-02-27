@@ -1,10 +1,9 @@
-<ng-template [ngIf]="isEnabled">
-  <button
-    type="button"
-    bitIconButton="bwi bwi-fw bwi-filter"
-    [bitMenuTriggerFor]="content?.menu"
-    [buttonType]="buttonType"
-    [attr.aria-label]="'switchProducts' | i18n"
-  ></button>
-  <product-switcher-content #content></product-switcher-content>
-</ng-template>
+<button
+  type="button"
+  bitIconButton="bwi bwi-fw bwi-filter"
+  [bitMenuTriggerFor]="content?.menu"
+  [buttonType]="buttonType"
+  [label]="'switchProducts' | i18n"
+  *ngIf="products$ | async"
+></button>
+<product-switcher-content #content></product-switcher-content>

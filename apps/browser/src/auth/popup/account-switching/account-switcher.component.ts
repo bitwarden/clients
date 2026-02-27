@@ -1,20 +1,58 @@
-import { Location } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
+import { Observable, Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { UserId } from "@bitwarden/common/types/guid";
+import {
+  AvatarModule,
+  ButtonModule,
+  DialogService,
+  IconModule,
+  ItemModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+
+import { AccountComponent } from "./account.component";
+import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-switcher.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    ButtonModule,
+    ItemModule,
+    AvatarModule,
+    IconModule,
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopOutComponent,
+    CurrentAccountComponent,
+    AccountComponent,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
 export class AccountSwitcherComponent implements OnInit, OnDestroy {
   readonly lockedStatus = AuthenticationStatus.Locked;
@@ -22,17 +60,22 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   loading = false;
   activeUserCanLock = false;
+  enableAccountSwitching$: Observable<boolean>;
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
     private accountService: AccountService,
     private vaultTimeoutService: VaultTimeoutService,
-    private messagingService: MessagingService,
     private dialogService: DialogService,
     private location: Location,
     private router: Router,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-  ) {}
+    private authService: AuthService,
+    private lockService: LockService,
+    private logoutService: LogoutService,
+  ) {
+    this.enableAccountSwitching$ = this.accountSwitcherService.accountSwitchingEnabled$();
+  }
 
   get accountLimit() {
     return this.accountSwitcherService.ACCOUNT_LIMIT;
@@ -42,13 +85,34 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     return this.accountSwitcherService.SPECIAL_ADD_ACCOUNT_ID;
   }
 
-  get availableAccounts$() {
-    return this.accountSwitcherService.availableAccounts$;
-  }
+  readonly availableAccounts$ = this.accountSwitcherService.availableAccounts$;
+  readonly currentAccount$ = this.accountService.activeAccount$.pipe(
+    switchMap((a) =>
+      a == null
+        ? of(null)
+        : this.authService.activeAccountStatus$.pipe(map((s) => ({ ...a, status: s }))),
+    ),
+  );
 
-  get currentAccount$() {
-    return this.accountService.activeAccount$;
-  }
+  readonly showLockAll$ = this.availableAccounts$.pipe(
+    startWith([]),
+    map((accounts) => accounts.filter((a) => !a.isActive)),
+    switchMap((accounts) => {
+      // If account switching is disabled, don't show the lock all button
+      // as only one account should be shown.
+      return this.accountSwitcherService.accountSwitchingEnabled$().pipe(
+        switchMap((enabled) => {
+          if (!enabled) {
+            return of(false);
+          }
+
+          // When there are inactive accounts provide the option to lock all accounts
+          // Note: "Add account" is counted as an inactive account, so check for more than one account
+          return of(accounts.length > 1);
+        }),
+      );
+    }),
+  );
 
   async ngOnInit() {
     const availableVaultTimeoutActions = await firstValueFrom(
@@ -61,37 +125,19 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     this.location.back();
   }
 
-  async lock(userId?: string) {
+  async lock(userId: string) {
     this.loading = true;
-    await this.vaultTimeoutService.lock(userId ? userId : null);
-    this.router.navigate(["lock"]);
+    await this.lockService.lock(userId as UserId);
+    await this.router.navigate(["lock"]);
   }
 
   async lockAll() {
     this.loading = true;
-    this.availableAccounts$
-      .pipe(
-        map((accounts) =>
-          accounts
-            .filter((account) => account.id !== this.specialAddAccountId)
-            .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0)) // Log out of the active account first
-            .map((account) => account.id),
-        ),
-        switchMap(async (accountIds) => {
-          if (accountIds.length === 0) {
-            return;
-          }
-
-          // Must lock active (first) account first, then order doesn't matter
-          await this.vaultTimeoutService.lock(accountIds.shift());
-          await Promise.all(accountIds.map((id) => this.vaultTimeoutService.lock(id)));
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => this.router.navigate(["lock"]));
+    await this.lockService.lockAll();
+    await this.router.navigate(["lock"]);
   }
 
-  async logOut() {
+  async logOut(userId: UserId) {
     this.loading = true;
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
@@ -100,10 +146,11 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed) {
-      this.messagingService.send("logout");
+      await this.logoutService.logout(userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
     }
-
-    this.router.navigate(["account-switcher"]);
+    this.loading = false;
   }
 
   ngOnDestroy() {

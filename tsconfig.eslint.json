@@ -1,35 +1,12 @@
 {
-  "compilerOptions": {
-    "pretty": true,
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "target": "ES6",
-    "module": "commonjs",
-    "lib": ["es5", "es6", "es7", "dom"],
-    "sourceMap": true,
-    "declaration": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "declarationDir": "dist/types",
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@bitwarden/angular/*": ["./libs/angular/src/*"],
-      "@bitwarden/auth": ["./libs/auth/src"],
-      "@bitwarden/common/*": ["./libs/common/src/*"],
-      "@bitwarden/components": ["./libs/components/src"],
-      "@bitwarden/exporter/*": ["./libs/exporter/src/*"],
-      "@bitwarden/importer/core": ["./libs/importer/src"],
-      "@bitwarden/importer/ui": ["./libs/importer/src/components"],
-      "@bitwarden/node/*": ["./libs/node/src/*"],
-      "@bitwarden/vault": ["./libs/vault/src"]
-    },
-    "plugins": [
-      {
-        "transform": "typescript-transform-paths"
-      }
-    ]
-  },
-  "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*"]
+  "extends": "./tsconfig.base",
+  "files": [
+    ".storybook/main.ts",
+    ".storybook/manager.js",
+    ".storybook/test-runner.ts",
+    ".storybook/format-args-for-code-snippet.ts",
+    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
+  ],
+  "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
+  "exclude": ["**/build", "**/dist"]
 }

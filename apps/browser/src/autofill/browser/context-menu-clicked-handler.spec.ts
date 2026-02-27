@@ -1,24 +1,27 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AUTOFILL_ID,
+  COPY_IDENTIFIER_ID,
+  COPY_PASSWORD_ID,
+  COPY_USERNAME_ID,
+  COPY_VERIFICATION_CODE_ID,
+  GENERATE_PASSWORD_ID,
+  NOOP_COMMAND_SUFFIX,
+} from "@bitwarden/common/autofill/constants";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import {
-  AUTOFILL_ID,
-  COPY_PASSWORD_ID,
-  COPY_USERNAME_ID,
-  COPY_VERIFICATION_CODE_ID,
-  GENERATE_PASSWORD_ID,
-  NOOP_COMMAND_SUFFIX,
-} from "../constants";
 
 import {
   CopyToClipboardAction,
@@ -61,12 +64,14 @@ describe("ContextMenuClickedHandler", () => {
     return cipherView;
   };
 
+  const mockUserId = "UserId" as UserId;
+
   let copyToClipboard: CopyToClipboardAction;
   let generatePasswordToClipboard: GeneratePasswordToClipboardAction;
   let autofill: AutofillAction;
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
-  let stateService: MockProxy<StateService>;
+  let accountService: FakeAccountService;
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
@@ -79,9 +84,10 @@ describe("ContextMenuClickedHandler", () => {
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
     authService = mock();
     cipherService = mock();
-    stateService = mock();
+    accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
     eventCollectionService = mock();
+    userVerificationService = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -89,16 +95,103 @@ describe("ContextMenuClickedHandler", () => {
       autofill,
       authService,
       cipherService,
-      stateService,
       totpService,
       eventCollectionService,
       userVerificationService,
+      accountService,
     );
   });
 
   afterEach(() => jest.resetAllMocks());
 
   describe("run", () => {
+    beforeEach(() => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(false);
+    });
+
+    const runWithUrl = (data: chrome.contextMenus.OnClickData) =>
+      sut.run(data, { url: "https://test.com" } as any);
+
+    describe("early returns", () => {
+      it.each([
+        {
+          name: "tab id is missing",
+          data: createData(COPY_IDENTIFIER_ID),
+          tab: { url: "https://test.com" } as any,
+          expectNotCalled: () => expect(copyToClipboard).not.toHaveBeenCalled(),
+        },
+        {
+          name: "tab url is missing",
+          data: createData(`${COPY_USERNAME_ID}_${NOOP_COMMAND_SUFFIX}`, COPY_USERNAME_ID),
+          tab: {} as any,
+          expectNotCalled: () => {
+            expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+            expect(copyToClipboard).not.toHaveBeenCalled();
+          },
+        },
+      ])("returns early when $name", async ({ data, tab, expectNotCalled }) => {
+        await expect(sut.run(data, tab)).resolves.toBeUndefined();
+        expectNotCalled();
+      });
+    });
+
+    describe("missing cipher", () => {
+      it.each([
+        {
+          label: "AUTOFILL",
+          parentId: AUTOFILL_ID,
+          extra: () => expect(autofill).not.toHaveBeenCalled(),
+        },
+        { label: "username", parentId: COPY_USERNAME_ID, extra: () => {} },
+        { label: "password", parentId: COPY_PASSWORD_ID, extra: () => {} },
+        {
+          label: "totp",
+          parentId: COPY_VERIFICATION_CODE_ID,
+          extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
+        },
+      ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
+        cipherService.getAllDecrypted.mockResolvedValue([]);
+
+        await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
+
+        expect(copyToClipboard).not.toHaveBeenCalled();
+        extra();
+      });
+    });
+
+    describe("missing login properties", () => {
+      it.each([
+        {
+          label: "username",
+          parentId: COPY_USERNAME_ID,
+          unset: (c: CipherView): void => (c.login.username = undefined),
+        },
+        {
+          label: "password",
+          parentId: COPY_PASSWORD_ID,
+          unset: (c: CipherView): void => (c.login.password = undefined),
+        },
+        {
+          label: "totp",
+          parentId: COPY_VERIFICATION_CODE_ID,
+          unset: (c: CipherView): void => (c.login.totp = undefined),
+          isTotp: true,
+        },
+      ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
+        const cipher = createCipher();
+        unset(cipher);
+        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+
+        await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
+
+        expect(copyToClipboard).not.toHaveBeenCalled();
+        if (isTotp) {
+          expect(totpService.getCode$).not.toHaveBeenCalled();
+        }
+      });
+    });
+
     it("can generate password", async () => {
       await sut.run(createData(GENERATE_PASSWORD_ID), { id: 5 } as any);
 
@@ -157,19 +250,25 @@ describe("ContextMenuClickedHandler", () => {
     it("copies totp code to clipboard", async () => {
       cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
 
-      totpService.getCode.mockImplementation((seed) => {
+      jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {
-          return Promise.resolve("123456");
+          return of({
+            code: "123456",
+            period: 30,
+          });
         }
 
-        return Promise.resolve("654321");
+        return of({
+          code: "654321",
+          period: 30,
+        });
       });
 
       await sut.run(createData(`${COPY_VERIFICATION_CODE_ID}_1`, COPY_VERIFICATION_CODE_ID), {
         url: "https://test.com",
       } as any);
 
-      expect(totpService.getCode).toHaveBeenCalledTimes(1);
+      expect(totpService.getCode$).toHaveBeenCalledTimes(1);
 
       expect(copyToClipboard).toHaveBeenCalledWith({
         text: "123456",
@@ -191,7 +290,11 @@ describe("ContextMenuClickedHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com", []);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://test.com",
+        mockUserId,
+        [],
+      );
 
       expect(copyToClipboard).toHaveBeenCalledTimes(1);
 
@@ -215,7 +318,11 @@ describe("ContextMenuClickedHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com", []);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://test.com",
+        mockUserId,
+        [],
+      );
     });
   });
 });

@@ -1,10 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
 import { Region } from "../../abstractions/environment.service";
+import { ServerSettings } from "../domain/server-settings";
 import {
   ServerConfigResponse,
   ThirdPartyServerConfigResponse,
   EnvironmentServerConfigResponse,
+  PushSettingsConfigResponse,
 } from "../response/server-config.response";
 
 export class ServerConfigData {
@@ -13,7 +18,9 @@ export class ServerConfigData {
   server?: ThirdPartyServerConfigData;
   environment?: EnvironmentServerConfigData;
   utcDate: string;
-  featureStates: { [key: string]: string } = {};
+  featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: PushSettingsConfigData;
+  settings: ServerSettings;
 
   constructor(serverConfigResponse: Partial<ServerConfigResponse>) {
     this.version = serverConfigResponse?.version;
@@ -26,6 +33,10 @@ export class ServerConfigData {
       ? new EnvironmentServerConfigData(serverConfigResponse.environment)
       : null;
     this.featureStates = serverConfigResponse?.featureStates;
+    this.settings = new ServerSettings(serverConfigResponse.settings);
+    this.push = serverConfigResponse?.push
+      ? new PushSettingsConfigData(serverConfigResponse.push)
+      : null;
   }
 
   static fromJSON(obj: Jsonify<ServerConfigData>): ServerConfigData {
@@ -33,6 +44,20 @@ export class ServerConfigData {
       server: obj?.server ? ThirdPartyServerConfigData.fromJSON(obj.server) : null,
       environment: obj?.environment ? EnvironmentServerConfigData.fromJSON(obj.environment) : null,
     });
+  }
+}
+
+export class PushSettingsConfigData {
+  pushTechnology: number;
+  vapidPublicKey?: string;
+
+  constructor(response: Partial<PushSettingsConfigResponse>) {
+    this.pushTechnology = response.pushTechnology;
+    this.vapidPublicKey = response.vapidPublicKey;
+  }
+
+  static fromJSON(obj: Jsonify<PushSettingsConfigData>): PushSettingsConfigData {
+    return Object.assign(new PushSettingsConfigData({}), obj);
   }
 }
 

@@ -1,20 +1,29 @@
 import { ListResponse } from "../../../models/response/list.response";
 import { PolicyType } from "../../enums";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
+import { Policy } from "../../models/domain/policy";
 import { PolicyRequest } from "../../models/request/policy.request";
+import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
-export class PolicyApiServiceAbstraction {
-  getPolicy: (organizationId: string, type: PolicyType) => Promise<PolicyResponse>;
-  getPolicies: (organizationId: string) => Promise<ListResponse<PolicyResponse>>;
+export abstract class PolicyApiServiceAbstraction {
+  abstract getPolicy: (organizationId: string, type: PolicyType) => Promise<PolicyStatusResponse>;
+  abstract getPolicies: (organizationId: string) => Promise<ListResponse<PolicyResponse>>;
 
-  getPoliciesByToken: (
+  abstract getPoliciesByToken: (
     organizationId: string,
     token: string,
     email: string,
     organizationUserId: string,
-  ) => Promise<ListResponse<PolicyResponse>>;
+  ) => Promise<Policy[] | undefined>;
 
-  getMasterPasswordPolicyOptsForOrgUser: (orgId: string) => Promise<MasterPasswordPolicyOptions>;
-  putPolicy: (organizationId: string, type: PolicyType, request: PolicyRequest) => Promise<any>;
+  abstract getMasterPasswordPolicyOptsForOrgUser: (
+    orgId: string,
+  ) => Promise<MasterPasswordPolicyOptions | null>;
+  abstract putPolicy: (
+    organizationId: string,
+    type: PolicyType,
+    request: PolicyRequest,
+  ) => Promise<any>;
+  abstract putPolicyVNext: (organizationId: string, type: PolicyType, request: any) => Promise<any>;
 }

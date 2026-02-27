@@ -1,0 +1,121 @@
+<form *ngIf="authed" [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog
+    dialogSize="large"
+    [title]="'twoStepLogin' | i18n"
+    [subtitle]="'webAuthnTitle' | i18n"
+  >
+    <ng-container bitDialogContent>
+      <bit-callout
+        type="success"
+        title="{{ 'enabled' | i18n }}"
+        icon="bwi bwi-check-circle"
+        *ngIf="enabled"
+      >
+        {{ "twoStepLoginProviderEnabled" | i18n }}
+      </bit-callout>
+      <img class="tw-float-right tw-ml-5 mfaType7" alt="FIDO2 WebAuthn logo" />
+      <ul class="bwi-ul">
+        <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
+          <ng-container *ngIf="k.configured">
+            <bit-icon name="bwi-key" class="bwi-li"></bit-icon>
+            <span *ngIf="k.configured" bitTypography="body1" class="tw-font-medium">
+              {{ k.name || ("unnamedKey" | i18n) }}
+            </span>
+            <ng-container *ngIf="k.configured && !$any(removeKeyBtn).loading">
+              <ng-container *ngIf="k.migrated">
+                <span>{{ "webAuthnMigrated" | i18n }}</span>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="keysConfiguredCount > 1 && k.configured">
+              <bit-icon
+                name="bwi-spinner"
+                class="bwi-spin tw-text-muted bwi-fw"
+                [ariaLabel]="'loading' | i18n"
+                *ngIf="$any(removeKeyBtn).loading"
+              ></bit-icon>
+              -
+              <a bitLink href="#" appStopClick (click)="remove(k)">{{ "remove" | i18n }}</a>
+            </ng-container>
+          </ng-container>
+        </li>
+      </ul>
+      <hr />
+      <p bitTypography="body1">{{ "twoFactorWebAuthnAdd" | i18n }}:</p>
+      <ol bitTypography="body1">
+        <li>{{ "twoFactorU2fGiveName" | i18n }}</li>
+        <li>{{ "twoFactorU2fPlugInReadKey" | i18n }}</li>
+        <li>{{ "twoFactorU2fTouchButton" | i18n }}</li>
+        <li>{{ "twoFactorU2fSaveForm" | i18n }}</li>
+      </ol>
+      <div class="tw-flex">
+        <bit-form-field class="tw-basis-1/2">
+          <bit-label>{{ "name" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="name" />
+        </bit-form-field>
+      </div>
+      <button
+        bitButton
+        bitFormButton
+        type="button"
+        [bitAction]="readKey"
+        buttonType="secondary"
+        [disabled]="
+          $any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable || formGroup.invalid
+        "
+        class="tw-mr-2"
+        #readKeyBtn
+      >
+        {{ "readKey" | i18n }}
+      </button>
+      <ng-container *ngIf="$any(readKeyBtn).loading()">
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin tw-text-muted"
+          [ariaLabel]="'loading' | i18n"
+        ></bit-icon>
+      </ng-container>
+      <ng-container *ngIf="!$any(readKeyBtn).loading()">
+        <ng-container *ngIf="webAuthnListening">
+          <bit-icon
+            name="bwi-spinner"
+            class="bwi-spin tw-text-muted"
+            [ariaLabel]="'loading' | i18n"
+          ></bit-icon>
+          {{ "twoFactorU2fWaiting" | i18n }}...
+        </ng-container>
+        <ng-container *ngIf="webAuthnResponse">
+          <bit-icon name="bwi-check-circle" class="tw-text-success"></bit-icon>
+          {{ "twoFactorU2fClickSave" | i18n }}
+        </ng-container>
+        <ng-container *ngIf="webAuthnError">
+          <bit-icon name="bwi-exclamation-triangle" class="tw-text-danger"></bit-icon>
+          {{ "twoFactorU2fProblemReadingTryAgain" | i18n }}
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button
+        bitButton
+        bitFormButton
+        type="submit"
+        buttonType="primary"
+        [disabled]="!webAuthnResponse"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button
+        bitButton
+        bitFormButton
+        *ngIf="enabled"
+        type="button"
+        buttonType="secondary"
+        [bitAction]="disable"
+      >
+        {{ "disableAllKeys" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

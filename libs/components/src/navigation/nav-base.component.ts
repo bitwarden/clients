@@ -1,47 +1,81 @@
-import { Directive, EventEmitter, Input, Output } from "@angular/core";
+import { Directive, output, input, model } from "@angular/core";
+import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
- * Base class used in `NavGroupComponent` and `NavItemComponent`
+ * Base class for navigation components in the side navigation.
+ *
+ * `NavGroupComponent` builds upon `NavItemComponent`. This class represents the properties
+ * that are passed down to `NavItemComponent`.
  */
 @Directive()
 export abstract class NavBaseComponent {
   /**
    * Text to display in main content
    */
-  @Input() text: string;
+  readonly text = input<string>();
 
   /**
    * `aria-label` for main content
    */
-  @Input() ariaLabel: string;
+  readonly ariaLabel = input<string>();
 
   /**
-   * Optional icon, e.g. `"bwi-collection"`
+   * Optional icon, e.g. `"bwi-collection-shared"`
    */
-  @Input() icon: string;
-
-  /**
-   * Route to be passed to internal `routerLink`
-   */
-  @Input() route: string | any[];
+  readonly icon = input<string>();
 
   /**
    * If this item is used within a tree, set `variant` to `"tree"`
    */
-  @Input() variant: "default" | "tree" = "default";
+  readonly variant = input<"default" | "tree">("default");
 
   /**
    * Depth level when nested inside of a `'tree'` variant
    */
-  @Input() treeDepth = 0;
+  readonly treeDepth = model(0);
+
+  /**
+   * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
+   *
+   * See: {@link RouterLink.routerLink}
+   *
+   * ---
+   *
+   * @remarks
+   * We can't name this "routerLink" because Angular will mount the `RouterLink` directive.
+   *
+   * @see {@link RouterLink.routerLink}
+   * @see {@link https://github.com/angular/angular/issues/24482}
+   */
+  readonly route = input<RouterLink["routerLink"]>();
+
+  /**
+   * Passed to internal `routerLink`
+   *
+   * @see {@link RouterLink.relativeTo}
+   */
+  readonly relativeTo = input<RouterLink["relativeTo"]>();
+
+  /**
+   * Passed to internal `routerLink`
+   *
+   * @default { paths: "subset", queryParams: "ignored", fragment: "ignored", matrixParams: "ignored" }
+   * @see {@link RouterLinkActive.routerLinkActiveOptions}
+   */
+  readonly routerLinkActiveOptions = input<RouterLinkActive["routerLinkActiveOptions"]>({
+    paths: "subset",
+    queryParams: "ignored",
+    fragment: "ignored",
+    matrixParams: "ignored",
+  });
 
   /**
    * If `true`, do not change styles when nav item is active.
    */
-  @Input() hideActiveStyles = false;
+  readonly hideActiveStyles = input(false);
 
   /**
    * Fires when main content is clicked
    */
-  @Output() mainContentClicked: EventEmitter<MouseEvent> = new EventEmitter();
+  readonly mainContentClicked = output<void>();
 }

@@ -3,8 +3,6 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
-import { ToastrModule } from "ngx-toastr";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -16,15 +14,19 @@ import {
   CalloutModule,
   CheckboxModule,
   ColorPasswordModule,
+  ContainerComponent,
   DialogModule,
   FormFieldModule,
   IconButtonModule,
   IconModule,
+  SvgModule,
   LinkModule,
   MenuModule,
   MultiSelectModule,
+  NoItemsModule,
   ProgressModule,
   RadioButtonModule,
+  SectionComponent,
   SelectModule,
   TableModule,
   TabsModule,
@@ -32,15 +34,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-// Register the locales for the application
-import "./locales";
-
 /**
- * This NgModule should contain the most basic shared directives, pipes, and components. They
- * should be widely used by other modules to be considered for adding to this module. If in doubt
- * do not add to this module.
+ * @deprecated Please directly import the relevant directive/pipe/component.
  *
- * See: https://angular.io/guide/module-types#shared-ngmodules
+ * This module is overly large and adds many unrelated modules to your dependency tree.
+ * https://angular.dev/guide/ngmodules/overview recommends not using `NgModule`s for new code.
  */
 @NgModule({
   imports: [
@@ -48,9 +46,7 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
     // Component library modules
@@ -63,15 +59,19 @@ import "./locales";
     CalloutModule,
     CheckboxModule,
     ColorPasswordModule,
+    ContainerComponent,
     DialogModule,
     FormFieldModule,
     IconButtonModule,
     IconModule,
+    SvgModule,
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
+    SectionComponent,
     TableModule,
     TabsModule,
     ToggleGroupModule,
@@ -84,9 +84,7 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
     // Component library
@@ -98,15 +96,19 @@ import "./locales";
     CalloutModule,
     CheckboxModule,
     ColorPasswordModule,
+    ContainerComponent,
     DialogModule,
     FormFieldModule,
     IconButtonModule,
     IconModule,
+    SvgModule,
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
+    SectionComponent,
     SelectModule,
     TableModule,
     TabsModule,

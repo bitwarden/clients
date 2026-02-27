@@ -1,17 +1,36 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable, Optional } from "@angular/core";
-import { BehaviorSubject, filter, from, map, Observable, shareReplay, switchMap, tap } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  tap,
+} from "rxjs";
 
-import { PrfKeySet } from "@bitwarden/auth";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
+import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
+import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { Verification } from "@bitwarden/common/auth/types/verification";
+import { PrfKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
+import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { KeyService, UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
 import { WebauthnLoginCredentialView } from "../../views/webauthn-login-credential.view";
-import { RotateableKeySetService } from "../rotateable-key-set.service";
 
+import { EnableCredentialEncryptionRequest } from "./request/enable-credential-encryption.request";
 import { SaveCredentialRequest } from "./request/save-credential.request";
 import { WebauthnLoginAttestationResponseRequest } from "./request/webauthn-login-attestation-response.request";
 import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service";
@@ -20,7 +39,7 @@ import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service
 /**
  * Service for managing WebAuthnLogin credentials.
  */
-export class WebauthnLoginAdminService {
+export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<WebauthnRotateCredentialRequest> {
   static readonly MaxCredentialCount = 5;
 
   private navigatorCredentials: CredentialsContainer;
@@ -43,7 +62,8 @@ export class WebauthnLoginAdminService {
     private apiService: WebAuthnLoginAdminApiService,
     private userVerificationService: UserVerificationService,
     private rotateableKeySetService: RotateableKeySetService,
-    private webAuthnLoginPrfCryptoService: WebAuthnLoginPrfCryptoServiceAbstraction,
+    private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
+    private keyService: KeyService,
     @Optional() navigatorCredentials?: CredentialsContainer,
     @Optional() private logService?: LogService,
   ) {
@@ -52,14 +72,31 @@ export class WebauthnLoginAdminService {
   }
 
   /**
-   * Get the credential attestation options needed for initiating the WebAuthnLogin credentail creation process.
+   * Get the credential assertion options needed for initiating the WebAuthnLogin credential update process.
+   * The options contains assertion options and other data for the authenticator.
+   * This method requires user verification.
+   *
+   * @param verification User verification data to be used for the request.
+   * @returns The credential assertion options and a token to be used for the credential update request.
+   */
+  async getCredentialAssertOptions(
+    verification: Verification,
+  ): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
+    const request = await this.userVerificationService.buildRequest(verification);
+    const response = await this.apiService.getCredentialAssertionOptions(request);
+    return new WebAuthnLoginCredentialAssertionOptionsView(response.options, response.token);
+  }
+
+  /**
+   * Get the credential attestation options needed for initiating the WebAuthnLogin credential creation process.
    * The options contains a challenge and other data for the authenticator.
    * This method requires user verification.
    *
    * @param verification User verification data to be used for the request.
    * @returns The credential attestation options and a token to be used for the credential creation request.
    */
-  async getCredentialCreateOptions(
+
+  async getCredentialAttestationOptions(
     verification: Verification,
   ): Promise<CredentialCreateOptionsView> {
     const request = await this.userVerificationService.buildRequest(verification);
@@ -103,10 +140,12 @@ export class WebauthnLoginAdminService {
    * This will trigger the browsers WebAuthn API to generate a PRF-output.
    *
    * @param pendingCredential A credential created using `createCredential`.
+   * @param userId The target users id.
    * @returns A key set that can be saved to the server. Undefined is returned if the credential doesn't support PRF.
    */
   async createKeySet(
     pendingCredential: PendingWebauthnLoginCredentialView,
+    userId: UserId,
   ): Promise<PrfKeySet | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: {
@@ -118,7 +157,7 @@ export class WebauthnLoginAdminService {
           pendingCredential.createOptions.options.authenticatorSelection.userVerification,
         // TODO: Remove `any` when typescript typings add support for PRF
         extensions: {
-          prf: { eval: { first: await this.webAuthnLoginPrfCryptoService.getLoginWithPrfSalt() } },
+          prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
         } as any,
       },
     };
@@ -137,8 +176,9 @@ export class WebauthnLoginAdminService {
       }
 
       const symmetricPrfKey =
-        await this.webAuthnLoginPrfCryptoService.createSymmetricKeyFromPrf(prfResult);
-      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey);
+        await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey, userKey);
     } catch (error) {
       this.logService?.error(error);
       return undefined;
@@ -162,10 +202,48 @@ export class WebauthnLoginAdminService {
     request.token = credential.createOptions.token;
     request.name = name;
     request.supportsPrf = credential.supportsPrf;
-    request.encryptedUserKey = prfKeySet?.encryptedUserKey.encryptedString;
+    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey.encryptedString;
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
     await this.apiService.saveCredential(request);
+    this.refresh();
+  }
+
+  /**
+   * Enable encryption for a credential that has already been saved to the server.
+   * This will update the KeySet associated with the credential in the database.
+   * We short circuit the process here incase the WebAuthnLoginCredential doesn't support PRF or
+   * if there was a problem with the Credential Assertion.
+   *
+   * @param assertionOptions Options received from the server using `getCredentialAssertOptions`.
+   * @param userId  The target users id.
+   * @returns void
+   */
+  async enableCredentialEncryption(
+    assertionOptions: WebAuthnLoginCredentialAssertionView,
+    userId: UserId,
+  ): Promise<void> {
+    if (assertionOptions === undefined || assertionOptions?.prfKey === undefined) {
+      throw new Error("invalid credential");
+    }
+    if (!userId) {
+      throw new Error("userId is required");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    const prfKeySet: PrfKeySet = await this.rotateableKeySetService.createKeySet(
+      assertionOptions.prfKey,
+      userKey,
+    );
+
+    const request = new EnableCredentialEncryptionRequest();
+    request.token = assertionOptions.token;
+    request.deviceResponse = assertionOptions.deviceResponse;
+    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
+    request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
+    request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
+    await this.apiService.updateCredential(request);
     this.refresh();
   }
 
@@ -222,5 +300,47 @@ export class WebauthnLoginAdminService {
 
   private refresh() {
     this._refresh$.next();
+  }
+
+  /**
+   * Creates rotate credential requests for the purpose of user key rotation.
+   * This works by fetching the current webauthn credentials, filtering out the ones that have a PRF keyset,
+   * and rotating these using the rotateable key set service.
+   *
+   * @param oldUserKey The old user key
+   * @param newUserKey The new user key
+   * @param userId The user id
+   * @returns A promise that returns an array of rotate credential requests when resolved.
+   */
+  async getRotatedData(
+    oldUserKey: UserKey,
+    newUserKey: UserKey,
+    userId: UserId,
+  ): Promise<WebauthnRotateCredentialRequest[]> {
+    if (!oldUserKey) {
+      throw new Error("oldUserKey is required");
+    }
+    if (!newUserKey) {
+      throw new Error("newUserKey is required");
+    }
+
+    return Promise.all(
+      (await this.apiService.getCredentials()).data
+        .filter((credential) => credential.hasPrfKeyset())
+        .map(async (response) => {
+          const keyset = response.getRotateableKeyset();
+          const rotatedKeyset = await this.rotateableKeySetService.rotateKeySet(
+            keyset,
+            oldUserKey,
+            newUserKey,
+          );
+          const request = new WebauthnRotateCredentialRequest(
+            response.id,
+            rotatedKeyset.encryptedPublicKey,
+            rotatedKeyset.encapsulatedDownstreamKey,
+          );
+          return request;
+        }),
+    );
   }
 }

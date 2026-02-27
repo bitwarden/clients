@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import {
@@ -23,10 +25,11 @@ import {
 
 import { LastPassDirectImportService } from "./lastpass-direct-import.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "import-lastpass",
   templateUrl: "import-lastpass.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -59,6 +62,8 @@ export class ImportLastPassComponent implements OnInit, OnDestroy {
     }),
   );
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() csvDataLoaded = new EventEmitter<string>();
 
   constructor(

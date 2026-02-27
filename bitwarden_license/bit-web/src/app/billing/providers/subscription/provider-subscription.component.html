@@ -1,0 +1,69 @@
+<app-header></app-header>
+<bit-container>
+  <ng-container *ngIf="!firstLoaded && loading">
+    <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+  <ng-container *ngIf="firstLoaded && !loading">
+    <app-provider-subscription-status
+      [subscription]="subscription"
+    ></app-provider-subscription-status>
+    <ng-container>
+      <div class="tw-flex-col">
+        <strong
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+          <span
+            *ngIf="subscription.discountPercentage"
+            bitBadge
+            variant="success"
+            class="tw-inline-flex tw-items-center"
+            >{{ "providerDiscount" | i18n: subscription.discountPercentage }}</span
+          >
+        </strong>
+        <bit-table>
+          <ng-template body>
+            <ng-container *ngIf="subscription">
+              <tr bitRow *ngFor="let i of activePlans">
+                <td bitCell class="tw-pl-0 tw-py-3">
+                  {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
+                    getFormattedPlanNameCadence(i.cadence) | i18n
+                  }}) {{ "&times;" }}{{ getFormattedSeatCount(i.seatMinimum, i.purchasedSeats) }}
+                  &#64;
+                  {{
+                    getFormattedCost(
+                      i.cost,
+                      i.seatMinimum,
+                      i.purchasedSeats,
+                      subscription.discountPercentage
+                    ) | currency: "$"
+                  }}
+                </td>
+                <td bitCell class="tw-text-right tw-py-3">
+                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /
+                  {{ getBillingCadenceLabel(i) | i18n }}
+                  <div *ngIf="subscription.discountPercentage">
+                    <bit-hint class="tw-text-sm tw-line-through">
+                      {{ i.cost | currency: "$" }} / {{ getBillingCadenceLabel(i) | i18n }}
+                    </bit-hint>
+                  </div>
+                </td>
+              </tr>
+
+              <tr bitRow>
+                <td bitCell class="tw-pl-0 tw-py-3"></td>
+                <td bitCell class="tw-text-right">
+                  <span class="tw-font-medium">Total:</span> {{ totalCost | currency: "$" }} /
+                  {{
+                    getBillingCadenceLabel(activePlans.length > 0 ? activePlans[0] : null) | i18n
+                  }}
+                </td>
+              </tr>
+            </ng-container>
+          </ng-template>
+        </bit-table>
+      </div>
+    </ng-container>
+  </ng-container>
+</bit-container>

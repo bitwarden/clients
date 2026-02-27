@@ -1,48 +1,84 @@
----
-name: Version Auto Bump
+name: Auto Bump Desktop Version
 
 on:
   push:
     tags:
       - desktop-v**
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
-  setup:
-    name: "Setup"
-    runs-on: ubuntu-22.04
-    outputs:
-      version_number: ${{ steps.version.outputs.new-version }}
+  bump-version:
+    name: Bump Desktop Version
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: write
     steps:
-      - name: Checkout Branch
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Calculate bumped version
-        id: version
-        env:
-          RELEASE_TAG: ${{ github.ref }}
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write # for committing and pushing to the current branch
+
+      - name: Check out target ref
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
+
+      - name: Configure Git
         run: |
-          CURR_MAJOR=$(echo $RELEASE_TAG | sed -r 's/refs\/tags\/[a-z]*-v([0-9]{4}\.[0-9]{1,2})\.([0-9]{1,2})/\1/')
-          CURR_PATCH=$(echo $RELEASE_TAG | sed -r 's/refs\/tags\/[a-z]*-v([0-9]{4}\.[0-9]{1,2})\.([0-9]{1,2})/\2/')
-          echo "Current Major: $CURR_MAJOR"
-          echo "Current Patch: $CURR_PATCH"
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
 
-          NEW_PATCH=$((CURR_PATCH+1))
+      - name: Get current Desktop version
+        id: current-desktop-version
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+        working-directory: apps/desktop
 
-          echo "New patch: $NEW_PATCH"
+      - name: Calculate next Desktop release version
+        id: calculate-next-desktop-version
+        uses: bitwarden/gh-actions/version-next@main
+        with:
+          version: ${{ steps.current-desktop-version.outputs.version }}
 
-          NEW_VER=$CURR_MAJOR.$NEW_PATCH
-          echo "New Version: $NEW_VER"
-          echo "new-version=$NEW_VER" >> $GITHUB_OUTPUT
+      - name: Bump Desktop Version - Root - Automatic Calculation
+        id: bump-desktop-version-automatic
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
-  trigger_version_bump:
-    name: Bump version to ${{ needs.setup.outputs.version_number }}
-    needs: setup
-    uses: ./.github/workflows/version-bump.yml
-    with:
-      version_number: ${{ needs.setup.outputs.version_number }}
-      bump_desktop: true
-    secrets: inherit
+      - name: Bump Desktop Version - App - Automatic Calculation
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version "$VERSION"
+        working-directory: "apps/desktop/src"
+
+      - name: Commit files
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: git commit -m "Bumped Desktop client to $VERSION" -a
+
+      - name: Push changes
+        run: git push

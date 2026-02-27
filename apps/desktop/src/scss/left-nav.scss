@@ -72,7 +72,7 @@
 
   &.active {
     .filter-button {
-      font-weight: bold;
+      font-weight: 500;
       @include themify($themes) {
         color: themed("primaryColor");
       }
@@ -114,8 +114,9 @@
       .filter-button {
         @include themify($themes) {
           color: themed("primaryColor");
-          font-weight: bold;
+          font-weight: 500;
         }
+        max-width: 90%;
       }
 
       .edit-button {
@@ -140,6 +141,8 @@
     @include themify($themes) {
       color: themed("headingButtonColor");
     }
+
+    margin-right: 0.25rem;
 
     &:hover,
     &:focus {

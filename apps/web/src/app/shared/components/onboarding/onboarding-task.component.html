@@ -1,0 +1,29 @@
+<ng-template #content>
+  <bit-icon
+    [name]="completed ? 'bwi-check' : icon"
+    class="bwi-fw !tw-mr-4"
+    [ngClass]="completed ? 'tw-text-success' : ''"
+  ></bit-icon
+  ><span
+    [ngClass]="{
+      'tw-text-primary-700 tw-line-through tw-decoration-primary-700 tw-opacity-50': completed,
+    }"
+    >{{ title }}<bit-icon name="bwi-angle-right" class="tw-ml-1"></bit-icon
+  ></span>
+</ng-template>
+
+<li class="tw-list-none">
+  <a bitLink *ngIf="route" [routerLink]="route">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </a>
+  <button type="button" bitLink *ngIf="!route" [disabled]="isDisabled">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </button>
+  <div
+    class="tw-ml-8 tw-mt-1 tw-text-sm"
+    [ngClass]="{ 'tw-opacity-50': completed }"
+    (click)="handleClick($event)"
+  >
+    <ng-content></ng-content>
+  </div>
+</li>

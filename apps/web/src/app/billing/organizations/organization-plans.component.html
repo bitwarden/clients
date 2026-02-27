@@ -1,400 +1,421 @@
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="createOrganization && selfHosted">
-  <p>{{ "uploadLicenseFileOrg" | i18n }}</p>
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-    <div class="form-group">
-      <label for="file">{{ "licenseFile" | i18n }}</label>
-      <input type="file" id="file" class="form-control-file" name="file" required />
-      <small class="form-text text-muted">{{
-        "licenseFileDesc" | i18n: "bitwarden_organization_license.json"
-      }}</small>
-    </div>
-    <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span>{{ "submit" | i18n }}</span>
-    </button>
-  </form>
+  <organization-self-hosting-license-uploader
+    (onLicenseFileUploaded)="onLicenseFileUploaded($event)"
+  />
 </ng-container>
 <form
-  #form
   [formGroup]="formGroup"
-  (ngSubmit)="submit()"
-  [appApiAction]="formPromise"
-  ngNativeValidate
+  [bitSubmit]="submit"
   *ngIf="!loading && !selfHosted && this.passwordManagerPlans && this.secretsManagerPlans"
   class="tw-pt-6"
 >
-  <app-org-info
-    (changedBusinessOwned)="changedOwnedBusiness()"
-    [formGroup]="formGroup"
-    [createOrganization]="createOrganization"
-    [isProvider]="!!providerId"
-    [acceptingSponsorship]="acceptingSponsorship"
-  ></app-org-info>
-  <h2 class="mt-5">{{ "chooseYourPlan" | i18n }}</h2>
-  <div *ngFor="let selectableProduct of selectableProducts" class="form-check form-check-block">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="product"
-      id="product{{ selectableProduct.product }}"
-      [value]="selectableProduct.product"
-      formControlName="product"
-      (change)="changedProduct()"
-    />
-    <label class="form-check-label" for="product{{ selectableProduct.product }}">
-      {{ selectableProduct.nameLocalizationKey | i18n }}
-      <small class="mb-1">{{ selectableProduct.descriptionLocalizationKey | i18n: "1" }}</small>
-      <ng-container
-        *ngIf="selectableProduct.product === productTypes.Enterprise; else nonEnterprisePlans"
-      >
-        <small>• {{ "includeAllTeamsFeatures" | i18n }}</small>
-        <small *ngIf="selectableProduct.hasSelfHost">• {{ "onPremHostingOptional" | i18n }}</small>
-        <small *ngIf="selectableProduct.hasSso">• {{ "includeSsoAuthentication" | i18n }}</small>
-        <small *ngIf="selectableProduct.hasPolicies"
-          >• {{ "includeEnterprisePolicies" | i18n }}</small
-        >
-        <small *ngIf="selectableProduct.trialPeriodDays && createOrganization"
-          >•
-          {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
-        </small>
-      </ng-container>
-      <ng-template #nonEnterprisePlans>
-        <ng-container
-          *ngIf="selectableProduct.product === productTypes.Teams; else fullFeatureList"
-        >
-          <small>• {{ "includeAllTeamsStarterFeatures" | i18n }}</small>
-          <small>• {{ "chooseMonthlyOrAnnualBilling" | i18n }}</small>
-          <small>• {{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</small>
-          <small *ngIf="selectableProduct.trialPeriodDays && createOrganization">
-            • {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
-          </small>
-        </ng-container>
-        <ng-template #fullFeatureList>
-          <small *ngIf="selectableProduct.product == productTypes.Free"
-            >• {{ "limitedUsers" | i18n: selectableProduct.PasswordManager.maxSeats }}</small
+  <bit-section [ngClass]="{ 'tw-hidden': !createOrganization }">
+    <app-org-info
+      (changedBusinessOwned)="changedOwnedBusiness()"
+      [formGroup]="formGroup"
+      [createOrganization]="createOrganization"
+      [isProvider]="!!providerId"
+      [acceptingSponsorship]="acceptingSponsorship"
+    >
+    </app-org-info>
+  </bit-section>
+  <bit-section>
+    <h2 bitTypography="h2">{{ "chooseYourPlan" | i18n }}</h2>
+    <bit-radio-group formControlName="productTier" [block]="true">
+      <div *ngFor="let selectableProduct of selectableProducts" class="tw-mb-3">
+        <bit-radio-button [value]="selectableProduct.productTier" (change)="changedProduct()">
+          <bit-label>{{ selectableProduct.nameLocalizationKey | i18n }}</bit-label>
+          <bit-hint class="tw-text-sm"
+            >{{ selectableProduct.descriptionLocalizationKey | i18n: "1" }}
+            <ng-container
+              *ngIf="
+                selectableProduct.productTier === productTypes.Enterprise;
+                else nonEnterprisePlans
+              "
+            >
+              <ul class="tw-pl-0 tw-list-inside tw-mb-0">
+                <li>{{ "includeAllTeamsFeatures" | i18n }}</li>
+                <li *ngIf="selectableProduct.hasSelfHost">{{ "onPremHostingOptional" | i18n }}</li>
+                <li *ngIf="selectableProduct.hasSso">{{ "includeSsoAuthentication" | i18n }}</li>
+                <li *ngIf="selectableProduct.hasPolicies">
+                  {{ "includeEnterprisePolicies" | i18n }}
+                </li>
+                <li *ngIf="selectableProduct.trialPeriodDays && createOrganization">
+                  {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
+                </li>
+              </ul>
+            </ng-container>
+            <ng-template #nonEnterprisePlans>
+              <ng-container
+                *ngIf="
+                  selectableProduct.productTier === productTypes.Teams &&
+                    teamsStarterPlanIsAvailable;
+                  else fullFeatureList
+                "
+              >
+                <ul class="tw-pl-0 tw-list-inside tw-mb-0">
+                  <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
+                  <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
+                  <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
+                  <li *ngIf="selectableProduct.trialPeriodDays && createOrganization">
+                    {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
+                  </li>
+                </ul>
+              </ng-container>
+              <ng-template #fullFeatureList>
+                <ul class="tw-pl-0 tw-list-inside tw-mb-0">
+                  <li *ngIf="selectableProduct.productTier == productTypes.Free">
+                    {{ "limitedUsers" | i18n: selectableProduct.PasswordManager.maxSeats }}
+                  </li>
+                  <li
+                    *ngIf="
+                      selectableProduct.productTier != productTypes.Free &&
+                      selectableProduct.productTier != productTypes.TeamsStarter &&
+                      selectableProduct.PasswordManager.maxSeats
+                    "
+                  >
+                    {{ "addShareLimitedUsers" | i18n: selectableProduct.PasswordManager.maxSeats }}
+                  </li>
+                  <li *ngIf="!selectableProduct.PasswordManager.maxSeats">
+                    {{ "addShareUnlimitedUsers" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.PasswordManager.maxCollections">
+                    {{
+                      "limitedCollections" | i18n: selectableProduct.PasswordManager.maxCollections
+                    }}
+                  </li>
+                  <li *ngIf="selectableProduct.PasswordManager.maxAdditionalSeats">
+                    {{
+                      "addShareLimitedUsers"
+                        | i18n: selectableProduct.PasswordManager.maxAdditionalSeats
+                    }}
+                  </li>
+                  <li *ngIf="!selectableProduct.PasswordManager.maxCollections">
+                    {{ "createUnlimitedCollections" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.PasswordManager.baseStorageGb">
+                    {{
+                      "gbEncryptedFileStorage"
+                        | i18n: selectableProduct.PasswordManager.baseStorageGb + " GB"
+                    }}
+                  </li>
+                  <li *ngIf="selectableProduct.hasGroups">
+                    {{ "controlAccessWithGroups" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.hasApi">{{ "trackAuditLogs" | i18n }}</li>
+                  <li *ngIf="selectableProduct.hasDirectory">
+                    {{ "syncUsersFromDirectory" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.hasSelfHost">
+                    {{ "onPremHostingOptional" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.usersGetPremium">{{ "usersGetPremium" | i18n }}</li>
+                  <li *ngIf="selectableProduct.productTier != productTypes.Free">
+                    {{ "priorityCustomerSupport" | i18n }}
+                  </li>
+                  <li *ngIf="selectableProduct.trialPeriodDays && createOrganization">
+                    {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
+                  </li>
+                </ul>
+              </ng-template>
+            </ng-template>
+          </bit-hint>
+        </bit-radio-button>
+        <span *ngIf="selectableProduct.productTier != productTypes.Free" class="tw-pl-4">
+          <ng-container
+            *ngIf="selectableProduct.PasswordManager.basePrice && !acceptingSponsorship"
           >
-          <small
-            *ngIf="
-              selectableProduct.product != productTypes.Free &&
-              selectableProduct.product != productTypes.TeamsStarter &&
-              selectableProduct.PasswordManager.maxSeats
-            "
-            >•
-            {{ "addShareLimitedUsers" | i18n: selectableProduct.PasswordManager.maxSeats }}</small
-          >
-          <small *ngIf="!selectableProduct.PasswordManager.maxSeats"
-            >• {{ "addShareUnlimitedUsers" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.PasswordManager.maxCollections"
-            >•
-            {{
-              "limitedCollections" | i18n: selectableProduct.PasswordManager.maxCollections
-            }}</small
-          >
-          <small *ngIf="selectableProduct.PasswordManager.maxAdditionalSeats"
-            >•
-            {{
-              "addShareLimitedUsers" | i18n: selectableProduct.PasswordManager.maxAdditionalSeats
-            }}</small
-          >
-          <small *ngIf="!selectableProduct.PasswordManager.maxCollections"
-            >• {{ "createUnlimitedCollections" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.PasswordManager.baseStorageGb"
-            >•
-            {{
-              "gbEncryptedFileStorage"
-                | i18n: selectableProduct.PasswordManager.baseStorageGb + "GB"
-            }}</small
-          >
-          <small *ngIf="selectableProduct.hasGroups"
-            >• {{ "controlAccessWithGroups" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.hasApi">• {{ "trackAuditLogs" | i18n }}</small>
-          <small *ngIf="selectableProduct.hasDirectory"
-            >• {{ "syncUsersFromDirectory" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.hasSelfHost"
-            >• {{ "onPremHostingOptional" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.usersGetPremium">• {{ "usersGetPremium" | i18n }}</small>
-          <small *ngIf="selectableProduct.product != productTypes.Free"
-            >• {{ "priorityCustomerSupport" | i18n }}</small
-          >
-          <small *ngIf="selectableProduct.trialPeriodDays && createOrganization"
-            >•
-            {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
-          </small>
-        </ng-template>
-      </ng-template>
-      <span *ngIf="selectableProduct.product != productTypes.Free">
-        <ng-container *ngIf="selectableProduct.PasswordManager.basePrice && !acceptingSponsorship">
-          {{
-            (selectableProduct.isAnnual
-              ? selectableProduct.PasswordManager.basePrice / 12
-              : selectableProduct.PasswordManager.basePrice
-            ) | currency: "$"
-          }}
-          /{{ "month" | i18n }},
-          {{ "includesXUsers" | i18n: selectableProduct.PasswordManager.baseSeats }}
-          <ng-container *ngIf="selectableProduct.PasswordManager.hasAdditionalSeatsOption">
-            {{ ("additionalUsers" | i18n).toLowerCase() }}
             {{
               (selectableProduct.isAnnual
-                ? selectableProduct.PasswordManager.seatPrice / 12
-                : selectableProduct.PasswordManager.seatPrice
+                ? selectableProduct.PasswordManager.basePrice / 12
+                : selectableProduct.PasswordManager.basePrice
               ) | currency: "$"
             }}
-            /{{ "month" | i18n }}
-          </ng-container>
-        </ng-container>
-      </span>
-      <span
-        *ngIf="
-          !selectableProduct.PasswordManager.basePrice &&
-          selectableProduct.PasswordManager.hasAdditionalSeatsOption
-        "
-      >
-        {{
-          "costPerUser"
-            | i18n
-              : ((selectableProduct.isAnnual
+            /{{ "month" | i18n }},
+            {{ "includesXUsers" | i18n: selectableProduct.PasswordManager.baseSeats }}
+            <ng-container *ngIf="selectableProduct.PasswordManager.hasAdditionalSeatsOption">
+              {{ ("additionalUsers" | i18n).toLowerCase() }}
+              {{
+                (selectableProduct.isAnnual
                   ? selectableProduct.PasswordManager.seatPrice / 12
                   : selectableProduct.PasswordManager.seatPrice
-                )
-                  | currency: "$")
-        }}
-        /{{ "month" | i18n }}
-      </span>
-      <span *ngIf="selectableProduct.product == productTypes.Free">{{ "freeForever" | i18n }}</span>
-    </label>
-  </div>
-  <div *ngIf="formGroup.value.product !== productTypes.Free">
-    <ng-container
+                ) | currency: "$"
+              }}
+              /{{ "month" | i18n }}
+            </ng-container>
+          </ng-container>
+        </span>
+        <span
+          *ngIf="
+            !selectableProduct.PasswordManager.basePrice &&
+            selectableProduct.PasswordManager.hasAdditionalSeatsOption
+          "
+          class="tw-pl-4"
+        >
+          {{
+            "costPerUser"
+              | i18n
+                : ((selectableProduct.isAnnual
+                    ? selectableProduct.PasswordManager.seatPrice / 12
+                    : selectableProduct.PasswordManager.seatPrice
+                  )
+                    | currency: "$")
+          }}
+          /{{ "month" | i18n }}
+        </span>
+        <span *ngIf="selectableProduct.productTier == productTypes.Free" class="tw-pl-4">{{
+          "freeForever" | i18n
+        }}</span>
+      </div>
+    </bit-radio-group>
+  </bit-section>
+  <bit-section *ngIf="formGroup.value.productTier !== productTypes.Free">
+    <bit-section
       *ngIf="
         selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
         !selectedPlan.PasswordManager.baseSeats
       "
     >
-      <h2 class="mt-5">{{ "users" | i18n }}</h2>
-      <div class="row">
-        <div class="col-6">
-          <label for="additionalSeats">{{ "userSeats" | i18n }}</label>
+      <h2 bitTypography="h2">{{ "users" | i18n }}</h2>
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <bit-form-field class="tw-col-span-6">
+          <bit-label>{{ "userSeats" | i18n }}</bit-label>
           <input
-            id="additionalSeats"
-            class="form-control"
+            bitInput
             type="number"
-            name="additionalSeats"
             formControlName="additionalSeats"
             placeholder="{{ 'userSeatsDesc' | i18n }}"
             required
           />
-          <small class="text-muted form-text">{{ "userSeatsHowManyDesc" | i18n }}</small>
-        </div>
+          <bit-hint class="tw-text-sm">{{ "userSeatsHowManyDesc" | i18n }}</bit-hint>
+        </bit-form-field>
       </div>
-    </ng-container>
-    <h2 class="mt-5">{{ "addons" | i18n }}</h2>
-    <div
-      class="row"
-      *ngIf="
-        selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
-        selectedPlan.PasswordManager.baseSeats
-      "
-    >
-      <div class="form-group col-6">
-        <label for="additionalSeats">{{ "additionalUserSeats" | i18n }}</label>
-        <input
-          id="additionalSeats"
-          class="form-control"
-          type="number"
-          name="additionalSeats"
-          formControlName="additionalSeats"
-          placeholder="{{ 'userSeatsDesc' | i18n }}"
-        />
-        <small class="text-muted form-text">{{
-          "userSeatsAdditionalDesc"
-            | i18n
-              : selectedPlan.PasswordManager.baseSeats
-              : (seatPriceMonthly(selectedPlan) | currency: "$")
-        }}</small>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-6">
-        <label for="additionalStorage">{{ "additionalStorageGb" | i18n }}</label>
-        <input
-          id="additionalStorage"
-          class="form-control"
-          type="number"
-          name="additionalStorageGb"
-          formControlName="additionalStorage"
-          step="1"
-          placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
-        />
-        <small class="text-muted form-text">{{
-          "additionalStorageIntervalDesc"
-            | i18n
-              : "1 GB"
-              : (additionalStoragePriceMonthly(selectedPlan) | currency: "$")
-              : ("month" | i18n)
-        }}</small>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-6" *ngIf="selectedPlan.PasswordManager.hasPremiumAccessOption">
-        <div class="form-check">
+    </bit-section>
+    <bit-section>
+      <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
+      <div
+        class="tw-grid tw-grid-cols-12 tw-gap-4"
+        *ngIf="
+          selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
+          selectedPlan.PasswordManager.baseSeats
+        "
+      >
+        <bit-form-field class="tw-col-span-6">
+          <bit-label>{{ "additionalUserSeats" | i18n }}</bit-label>
           <input
-            id="premiumAccess"
-            class="form-check-input"
-            type="checkbox"
-            name="premiumAccessAddon"
-            formControlName="premiumAccessAddon"
+            bitInput
+            type="number"
+            formControlName="additionalSeats"
+            placeholder="{{ 'userSeatsDesc' | i18n }}"
           />
-          <label for="premiumAccess" class="form-check-label bold">{{
-            "premiumAccess" | i18n
-          }}</label>
-        </div>
-        <small class="text-muted form-text">{{
-          "premiumAccessDesc" | i18n: (3.33 | currency: "$") : ("month" | i18n)
-        }}</small>
+          <bit-hint class="tw-text-sm"
+            >{{
+              "userSeatsAdditionalDesc"
+                | i18n
+                  : selectedPlan.PasswordManager.baseSeats
+                  : (seatPriceMonthly(selectedPlan) | currency: "$")
+            }}
+          </bit-hint>
+        </bit-form-field>
       </div>
-    </div>
-    <h2 class="spaced-header">{{ "summary" | i18n }}</h2>
-    <div class="form-check form-check-block" *ngFor="let selectablePlan of selectablePlans">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="plan"
-        id="interval{{ selectablePlan.type }}"
-        [value]="selectablePlan.type"
-        formControlName="plan"
-      />
-      <label class="form-check-label" for="interval{{ selectablePlan.type }}">
-        <ng-container *ngIf="selectablePlan.isAnnual">
-          {{ "annually" | i18n }}
-          <small *ngIf="selectablePlan.PasswordManager.basePrice">
-            {{ "basePrice" | i18n }}:
-            {{
-              (selectablePlan.isAnnual
-                ? selectablePlan.PasswordManager.basePrice / 12
-                : selectablePlan.PasswordManager.basePrice
-              ) | currency: "$"
-            }}
-            &times; 12
-            {{ "monthAbbr" | i18n }}
-            =
-            <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
-              <span style="text-decoration: line-through">{{
-                selectablePlan.PasswordManager.basePrice | currency: "$"
-              }}</span>
-              {{ "freeWithSponsorship" | i18n }}
-            </ng-container>
-            <ng-template #notAcceptingSponsorship>
-              {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
-              /{{ "year" | i18n }}
-            </ng-template>
-          </small>
-          <small *ngIf="selectablePlan.PasswordManager.hasAdditionalSeatsOption">
-            <span *ngIf="selectablePlan.PasswordManager.baseSeats"
-              >{{ "additionalUsers" | i18n }}:</span
-            >
-            <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
-            {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
-            {{
-              (selectablePlan.isAnnual
-                ? selectablePlan.PasswordManager.seatPrice / 12
-                : selectablePlan.PasswordManager.seatPrice
-              ) | currency: "$"
-            }}
-            &times; 12 {{ "monthAbbr" | i18n }} =
-            {{
-              passwordManagerSeatTotal(selectablePlan, formGroup.value.additionalSeats)
-                | currency: "$"
-            }}
-            /{{ "year" | i18n }}
-          </small>
-          <small *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption">
-            {{ "additionalStorageGb" | i18n }}:
-            {{ formGroup.controls["additionalStorage"].value || 0 }} &times;
-            {{
-              (selectablePlan.isAnnual
-                ? selectablePlan.PasswordManager.additionalStoragePricePerGb / 12
-                : selectablePlan.PasswordManager.additionalStoragePricePerGb
-              ) | currency: "$"
-            }}
-            &times; 12 {{ "monthAbbr" | i18n }} =
-            {{ additionalStorageTotal(selectablePlan) | currency: "$" }} /{{ "year" | i18n }}
-          </small>
-        </ng-container>
-        <ng-container *ngIf="!selectablePlan.isAnnual">
-          {{ "monthly" | i18n }}
-          <small *ngIf="selectablePlan.PasswordManager.basePrice">
-            {{ "basePrice" | i18n }}:
-            {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
-            {{ "monthAbbr" | i18n }}
-            =
-            {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
-            /{{ "month" | i18n }}
-          </small>
-          <small *ngIf="selectablePlan.PasswordManager.hasAdditionalSeatsOption">
-            <span *ngIf="selectablePlan.PasswordManager.baseSeats"
-              >{{ "additionalUsers" | i18n }}:</span
-            >
-            <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
-            {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
-            {{ selectablePlan.PasswordManager.seatPrice | currency: "$" }}
-            {{ "monthAbbr" | i18n }} =
-            {{
-              passwordManagerSeatTotal(selectablePlan, formGroup.value.additionalSeats)
-                | currency: "$"
-            }}
-            /{{ "month" | i18n }}
-          </small>
-          <small *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption">
-            {{ "additionalStorageGb" | i18n }}:
-            {{ formGroup.controls["additionalStorage"].value || 0 }} &times;
-            {{ selectablePlan.PasswordManager.additionalStoragePricePerGb | currency: "$" }}
-            {{ "monthAbbr" | i18n }} =
-            {{ additionalStorageTotal(selectablePlan) | currency: "$" }} /{{ "month" | i18n }}
-          </small>
-        </ng-container>
-      </label>
-    </div>
-  </div>
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <bit-form-field class="tw-col-span-6">
+          <bit-label>{{ "additionalStorageGb" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="number"
+            formControlName="additionalStorage"
+            step="1"
+            placeholder="{{ 'additionalStorageGbDesc' | i18n }}"
+          />
+          <bit-hint class="tw-text-sm">{{
+            "additionalStorageIntervalDesc"
+              | i18n
+                : `${selectedPlan.PasswordManager.baseStorageGb} GB`
+                : (additionalStoragePriceMonthly(selectedPlan) | currency: "$")
+                : ("month" | i18n)
+          }}</bit-hint>
+        </bit-form-field>
+      </div>
+    </bit-section>
+    <bit-section>
+      <div
+        class="tw-grid tw-grid-cols-12 tw-gap-4"
+        *ngIf="selectedPlan.PasswordManager.hasPremiumAccessOption"
+      >
+        <bit-form-control class="tw-col-span-6">
+          <bit-label>{{ "premiumAccess" | i18n }}</bit-label>
+          <input type="checkbox" bitCheckbox formControlName="premiumAccessAddon" />
+          <bit-hint class="tw-text-sm">{{
+            "premiumAccessDesc" | i18n: (3.33 | currency: "$") : ("month" | i18n)
+          }}</bit-hint>
+        </bit-form-control>
+      </div>
+    </bit-section>
+    <bit-section>
+      <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
+      <bit-radio-group formControlName="plan">
+        <div *ngFor="let selectablePlan of selectablePlans">
+          <bit-radio-button
+            type="radio"
+            id="interval{{ selectablePlan.type }}"
+            [value]="selectablePlan.type"
+          >
+            <bit-label>{{ (selectablePlan.isAnnual ? "annually" : "monthly") | i18n }}</bit-label>
+            <bit-hint *ngIf="selectablePlan.isAnnual">
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.basePrice"
+              >
+                {{ "basePrice" | i18n }}:
+                {{
+                  (selectablePlan.isAnnual
+                    ? selectablePlan.PasswordManager.basePrice / 12
+                    : selectablePlan.PasswordManager.basePrice
+                  ) | currency: "$"
+                }}
+                &times; 12
+                {{ "monthAbbr" | i18n }}
+                =
+                <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
+                  <span class="tw-line-through">{{
+                    selectablePlan.PasswordManager.basePrice | currency: "$"
+                  }}</span>
+                  {{ "freeWithSponsorship" | i18n }}
+                </ng-container>
+                <ng-template #notAcceptingSponsorship>
+                  {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
+                  /{{ "year" | i18n }}
+                </ng-template>
+              </p>
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.hasAdditionalSeatsOption"
+              >
+                <span *ngIf="selectablePlan.PasswordManager.baseSeats"
+                  >{{ "additionalUsers" | i18n }}:</span
+                >
+                <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
+                {{ formGroup.controls.additionalSeats.value || 0 }} &times;
+                {{
+                  (selectablePlan.isAnnual
+                    ? selectablePlan.PasswordManager.seatPrice / 12
+                    : selectablePlan.PasswordManager.seatPrice
+                  ) | currency: "$"
+                }}
+                &times; 12 {{ "monthAbbr" | i18n }} =
+                {{
+                  passwordManagerSeatTotal(selectablePlan, formGroup.value.additionalSeats)
+                    | currency: "$"
+                }}
+                /{{ "year" | i18n }}
+              </p>
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption"
+              >
+                {{ "additionalStorageGb" | i18n }}:
+                {{ formGroup.controls.additionalStorage.value || 0 }} &times;
+                {{
+                  (selectablePlan.isAnnual
+                    ? selectablePlan.PasswordManager.additionalStoragePricePerGb / 12
+                    : selectablePlan.PasswordManager.additionalStoragePricePerGb
+                  ) | currency: "$"
+                }}
+                &times; 12 {{ "monthAbbr" | i18n }} =
+                {{ additionalStorageTotal(selectablePlan) | currency: "$" }} /{{ "year" | i18n }}
+              </p>
+            </bit-hint>
+            <bit-hint *ngIf="!selectablePlan.isAnnual">
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.basePrice"
+              >
+                {{ "basePrice" | i18n }}:
+                {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
+                {{ "monthAbbr" | i18n }}
+                =
+                {{ selectablePlan.PasswordManager.basePrice | currency: "$" }}
+                /{{ "month" | i18n }}
+              </p>
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.hasAdditionalSeatsOption"
+              >
+                <span *ngIf="selectablePlan.PasswordManager.baseSeats"
+                  >{{ "additionalUsers" | i18n }}:</span
+                >
+                <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
+                {{ formGroup.controls.additionalSeats.value || 0 }} &times;
+                {{ selectablePlan.PasswordManager.seatPrice | currency: "$" }}
+                {{ "monthAbbr" | i18n }} =
+                {{
+                  passwordManagerSeatTotal(selectablePlan, formGroup.value.additionalSeats)
+                    | currency: "$"
+                }}
+                /{{ "month" | i18n }}
+              </p>
+              <p
+                class="tw-mb-0"
+                bitTypography="body2"
+                *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption"
+              >
+                {{ "additionalStorageGb" | i18n }}:
+                {{ formGroup.controls.additionalStorage.value || 0 }} &times;
+                {{ selectablePlan.PasswordManager.additionalStoragePricePerGb | currency: "$" }}
+                {{ "monthAbbr" | i18n }} =
+                {{ additionalStorageTotal(selectablePlan) | currency: "$" }} /{{ "month" | i18n }}
+              </p>
+            </bit-hint>
+          </bit-radio-button>
+        </div>
+      </bit-radio-group>
+    </bit-section>
+  </bit-section>
 
   <!-- Secrets Manager -->
-  <div class="tw-my-10">
+  <bit-section>
     <sm-subscribe
       *ngIf="planOffersSecretsManager && !hasProvider"
       [formGroup]="formGroup.controls.secretsManager"
       [selectedPlan]="selectedSecretsManagerPlan"
       [upgradeOrganization]="!createOrganization"
     ></sm-subscribe>
-  </div>
+  </bit-section>
 
   <!-- Payment info -->
-  <div *ngIf="formGroup.value.product !== productTypes.Free">
-    <h2 class="mb-4">
+  <bit-section *ngIf="formGroup.value.productTier !== productTypes.Free">
+    <h2 bitTypography="h2">
       {{ (createOrganization ? "paymentInformation" : "billingInformation") | i18n }}
     </h2>
-    <small class="text-muted font-italic mb-3 d-block">
+    <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
       {{ paymentDesc }}
-    </small>
-    <app-payment
-      *ngIf="createOrganization || upgradeRequiresPaymentMethod"
-      [hideCredit]="true"
-    ></app-payment>
-    <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
-    <div id="price" class="my-4">
-      <div class="text-muted text-sm">
+    </p>
+    @if (createOrganization || upgradeRequiresPaymentMethod) {
+      <app-enter-payment-method [group]="billingFormGroup.controls.paymentMethod">
+      </app-enter-payment-method>
+    }
+    <app-enter-billing-address
+      [group]="billingFormGroup.controls.billingAddress"
+      [scenario]="{ type: 'checkout', supportsTaxId: showTaxIdField }"
+      class="tw-my-4"
+    >
+    </app-enter-billing-address>
+    <div id="price" class="tw-my-4">
+      <div class="tw-text-muted tw-text-base">
         {{ "passwordManagerPlanPrice" | i18n }}: {{ passwordManagerSubtotal | currency: "USD $" }}
         <br />
         <span *ngIf="planOffersSecretsManager && formGroup.value.secretsManager.enabled">
@@ -402,35 +423,42 @@
           <br />
         </span>
         <ng-container>
-          {{ "estimatedTax" | i18n }}: {{ taxCharges | currency: "USD $" }}
+          {{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}
         </ng-container>
       </div>
-      <hr class="my-1 col-3 ml-0" />
-      <p class="text-lg">
+      <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
+      <p class="tw-text-lg">
         <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{
           selectedPlanInterval | i18n
         }}
       </p>
     </div>
-    <ng-container *ngIf="!createOrganization">
-      <app-payment [showMethods]="false"></app-payment>
-    </ng-container>
-  </div>
-  <div *ngIf="singleOrgPolicyBlock" class="mt-4">
-    <app-callout [type]="'error'">{{ "singleOrgBlockCreateMessage" | i18n }}</app-callout>
-  </div>
-  <div class="mt-4">
+  </bit-section>
+  <bit-section *ngIf="singleOrgPolicyBlock">
+    <bit-callout type="danger" [title]="'error' | i18n">
+      {{ "singleOrgBlockCreateMessage" | i18n }}
+    </bit-callout>
+  </bit-section>
+  <bit-section>
     <button
       type="submit"
       buttonType="primary"
       bitButton
-      [loading]="form.loading"
+      bitFormButton
       [disabled]="!formGroup.valid"
     >
       {{ "submit" | i18n }}
     </button>
-    <button type="button" buttonType="secondary" bitButton (click)="cancel()" *ngIf="showCancel">
+    <button
+      type="button"
+      buttonType="secondary"
+      bitButton
+      bitFormButton
+      (click)="cancel()"
+      *ngIf="showCancel"
+    >
       {{ "cancel" | i18n }}
     </button>
-  </div>
+    <bit-error-summary [formGroup]="formGroup"></bit-error-summary>
+  </bit-section>
 </form>

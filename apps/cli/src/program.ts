@@ -1,34 +1,36 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
-import * as program from "commander";
+import { program, Command, OptionValues } from "commander";
+import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { LockCommand } from "./auth/commands/lock.command";
 import { LoginCommand } from "./auth/commands/login.command";
 import { LogoutCommand } from "./auth/commands/logout.command";
-import { UnlockCommand } from "./auth/commands/unlock.command";
-import { Main } from "./bw";
+import { BaseProgram } from "./base-program";
 import { CompletionCommand } from "./commands/completion.command";
-import { ConfigCommand } from "./commands/config.command";
 import { EncodeCommand } from "./commands/encode.command";
-import { ServeCommand } from "./commands/serve.command";
 import { StatusCommand } from "./commands/status.command";
 import { UpdateCommand } from "./commands/update.command";
+import { UnlockCommand } from "./key-management/commands/unlock.command";
 import { Response } from "./models/response";
-import { ListResponse } from "./models/response/list.response";
 import { MessageResponse } from "./models/response/message.response";
-import { StringResponse } from "./models/response/string.response";
-import { TemplateResponse } from "./models/response/template.response";
+import { ConfigCommand } from "./platform/commands/config.command";
 import { GenerateCommand } from "./tools/generate.command";
 import { CliUtils } from "./utils";
 import { SyncCommand } from "./vault/sync.command";
 
 const writeLn = CliUtils.writeLn;
 
-export class Program {
-  constructor(protected main: Main) {}
-
+export class Program extends BaseProgram {
   async register() {
+    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     program
       .option("--pretty", "Format output. JSON is tabbed with two spaces.")
       .option("--raw", "Return raw output instead of a descriptive message.")
@@ -37,7 +39,10 @@ export class Program {
       .option("--quiet", "Don't return anything to stdout.")
       .option("--nointeraction", "Do not prompt for interactive user input.")
       .option("--session <session>", "Pass session key instead of reading from env.")
-      .version(await this.main.platformUtilsService.getApplicationVersion(), "-v, --version");
+      .version(
+        await this.serviceContainer.platformUtilsService.getApplicationVersion(),
+        "-v, --version",
+      );
 
     program.on("option:pretty", () => {
       process.env.BW_PRETTY = "true";
@@ -74,6 +79,11 @@ export class Program {
     });
 
     program.on("--help", () => {
+      writeLn(
+        chalk.yellowBright(
+          "\n  Tip: Managing and retrieving secrets for dev environments is easier with Bitwarden Secrets Manager. Learn more under https://bitwarden.com/products/secrets-manager/",
+        ),
+      );
       writeLn("\n  Examples:");
       writeLn("");
       writeLn("    bw login");
@@ -89,6 +99,9 @@ export class Program {
         "    bw edit folder c7c7b60b-9c61-40f2-8ccd-36c49595ed72 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==",
       );
       writeLn("    bw delete item 99ee88d2-6046-4ea7-92c2-acac464b1412");
+      if (isArchivedEnabled) {
+        writeLn("    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412");
+      }
       writeLn("    bw generate -lusn --length 18");
       writeLn("    bw config server https://bitwarden.example.com");
       writeLn("    bw send -f ./file.ext");
@@ -101,11 +114,22 @@ export class Program {
     });
 
     program
+      .command("sdk-version")
+      .description("Print the SDK version.")
+      .action(async () => {
+        const sdkVersion = await firstValueFrom(this.serviceContainer.sdkService.version$);
+        writeLn(sdkVersion, true);
+      });
+
+    program
       .command("login [email] [password]")
       .description("Log into a user account.")
       .option("--method <method>", "Two-step login method.")
       .option("--code <code>", "Two-step login code.")
-      .option("--sso", "Log in with Single-Sign On.")
+      .option(
+        "--sso [identifier]",
+        "Log in with Single-Sign On with optional organization identifier.",
+      )
       .option("--apikey", "Log in with an Api Key.")
       .option("--passwordenv <passwordenv>", "Environment variable storing your password")
       .option(
@@ -113,7 +137,17 @@ export class Program {
         "Path to a file containing your password as its first line",
       )
       .option("--check", "Check login status.", async () => {
-        const authed = await this.main.stateService.getIsAuthenticated();
+        const authed = await firstValueFrom(
+          this.serviceContainer.accountService.activeAccount$.pipe(
+            switchMap((account) => {
+              if (account == null) {
+                return of(false);
+              }
+
+              return this.serviceContainer.tokenService.hasAccessToken$(account.id);
+            }),
+          ),
+        );
         if (authed) {
           const res = new MessageResponse("You are logged in!", null);
           this.processResponse(Response.success(res), true);
@@ -135,26 +169,34 @@ export class Program {
         writeLn("    bw login --sso");
         writeLn("", true);
       })
-      .action(async (email: string, password: string, options: program.OptionValues) => {
+      .action(async (email: string, password: string, options: OptionValues) => {
         if (!options.check) {
           await this.exitIfAuthed();
           const command = new LoginCommand(
-            this.main.authService,
-            this.main.apiService,
-            this.main.cryptoFunctionService,
-            this.main.environmentService,
-            this.main.passwordGenerationService,
-            this.main.passwordStrengthService,
-            this.main.platformUtilsService,
-            this.main.stateService,
-            this.main.cryptoService,
-            this.main.policyService,
-            this.main.twoFactorService,
-            this.main.syncService,
-            this.main.keyConnectorService,
-            this.main.policyApiService,
-            this.main.organizationService,
-            async () => await this.main.logout(),
+            this.serviceContainer.loginStrategyService,
+            this.serviceContainer.authService,
+            this.serviceContainer.twoFactorApiService,
+            this.serviceContainer.masterPasswordApiService,
+            this.serviceContainer.cryptoFunctionService,
+            this.serviceContainer.environmentService,
+            this.serviceContainer.passwordGenerationService,
+            this.serviceContainer.passwordStrengthService,
+            this.serviceContainer.platformUtilsService,
+            this.serviceContainer.accountService,
+            this.serviceContainer.keyService,
+            this.serviceContainer.policyService,
+            this.serviceContainer.twoFactorService,
+            this.serviceContainer.syncService,
+            this.serviceContainer.keyConnectorService,
+            this.serviceContainer.policyApiService,
+            this.serviceContainer.organizationService,
+            async () => await this.serviceContainer.logout(),
+            this.serviceContainer.kdfConfigService,
+            this.serviceContainer.ssoUrlService,
+            this.serviceContainer.i18nService,
+            this.serviceContainer.masterPasswordService,
+            this.serviceContainer.userDecryptionOptionsService,
+            this.serviceContainer.encryptedMigrator,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -173,9 +215,9 @@ export class Program {
       .action(async (cmd) => {
         await this.exitIfNotAuthed();
         const command = new LogoutCommand(
-          this.main.authService,
-          this.main.i18nService,
-          async () => await this.main.logout(),
+          this.serviceContainer.authService,
+          this.serviceContainer.i18nService,
+          async () => await this.serviceContainer.logout(),
         );
         const response = await command.run();
         this.processResponse(response);
@@ -191,13 +233,13 @@ export class Program {
         writeLn("", true);
       })
       .action(async (cmd) => {
-        await this.exitIfNotAuthed();
+        const userId = await this.exitIfNotAuthed();
 
-        if (await this.main.keyConnectorService.getUsesKeyConnector()) {
+        if (await this.serviceContainer.keyConnectorService.getUsesKeyConnector(userId)) {
           const logoutCommand = new LogoutCommand(
-            this.main.authService,
-            this.main.i18nService,
-            async () => await this.main.logout(),
+            this.serviceContainer.authService,
+            this.serviceContainer.i18nService,
+            async () => await this.serviceContainer.logout(),
           );
           await logoutCommand.run();
           this.processResponse(
@@ -210,7 +252,10 @@ export class Program {
           return;
         }
 
-        const command = new LockCommand(this.main.vaultTimeoutService);
+        const command = new LockCommand(
+          this.serviceContainer.lockService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });
@@ -234,8 +279,13 @@ export class Program {
       })
       .option("--check", "Check lock status.", async () => {
         await this.exitIfNotAuthed();
+        const userId = (await firstValueFrom(this.serviceContainer.accountService.activeAccount$))
+          ?.id;
+        await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
+          userId,
+        );
 
-        const authStatus = await this.main.authService.getAuthStatus();
+        const authStatus = await this.serviceContainer.authService.getAuthStatus();
         if (authStatus === AuthenticationStatus.Unlocked) {
           const res = new MessageResponse("Vault is unlocked!", null);
           this.processResponse(Response.success(res), true);
@@ -252,16 +302,17 @@ export class Program {
         if (!cmd.check) {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
-            this.main.cryptoService,
-            this.main.stateService,
-            this.main.cryptoFunctionService,
-            this.main.apiService,
-            this.main.logService,
-            this.main.keyConnectorService,
-            this.main.environmentService,
-            this.main.syncService,
-            this.main.organizationApiService,
-            async () => await this.main.logout(),
+            this.serviceContainer.accountService,
+            this.serviceContainer.keyService,
+            this.serviceContainer.cryptoFunctionService,
+            this.serviceContainer.logService,
+            this.serviceContainer.keyConnectorService,
+            this.serviceContainer.environmentService,
+            this.serviceContainer.organizationApiService,
+            async () => await this.serviceContainer.logout(),
+            this.serviceContainer.i18nService,
+            this.serviceContainer.encryptedMigrator,
+            this.serviceContainer.masterPasswordUnlockService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
@@ -283,7 +334,7 @@ export class Program {
       })
       .action(async (cmd) => {
         await this.exitIfNotAuthed();
-        const command = new SyncCommand(this.main.syncService);
+        const command = new SyncCommand(this.serviceContainer.syncService);
         const response = await command.run(cmd);
         this.processResponse(response);
       });
@@ -321,12 +372,14 @@ export class Program {
         writeLn("    bw generate -ul");
         writeLn("    bw generate -p --separator _");
         writeLn("    bw generate -p --words 5 --separator space");
+        writeLn("    bw generate -p --words 5 --separator empty");
         writeLn("", true);
       })
       .action(async (options) => {
         const command = new GenerateCommand(
-          this.main.passwordGenerationService,
-          this.main.stateService,
+          this.serviceContainer.passwordGenerationService,
+          this.serviceContainer.tokenService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(options);
         this.processResponse(response);
@@ -386,7 +439,10 @@ export class Program {
         writeLn("", true);
       })
       .action(async (setting, value, options) => {
-        const command = new ConfigCommand(this.main.environmentService);
+        const command = new ConfigCommand(
+          this.serviceContainer.environmentService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
       });
@@ -408,7 +464,10 @@ export class Program {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.main.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });
@@ -427,7 +486,7 @@ export class Program {
         writeLn("    bw completion --shell zsh");
         writeLn("", true);
       })
-      .action(async (options: program.OptionValues, cmd: program.Command) => {
+      .action(async (options: OptionValues, cmd: Command) => {
         const command = new CompletionCommand();
         const response = await command.run(options);
         this.processResponse(response);
@@ -459,176 +518,14 @@ export class Program {
       })
       .action(async () => {
         const command = new StatusCommand(
-          this.main.environmentService,
-          this.main.syncService,
-          this.main.stateService,
-          this.main.authService,
+          this.serviceContainer.environmentService,
+          this.serviceContainer.syncService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.authService,
+          this.serviceContainer.userAutoUnlockKeyService,
         );
         const response = await command.run();
         this.processResponse(response);
       });
-
-    program
-      .command("serve")
-      .description("Start a RESTful API webserver.")
-      .option("--hostname <hostname>", "The hostname to bind your API webserver to.")
-      .option("--port <port>", "The port to run your API webserver on.")
-      .option(
-        "--disable-origin-protection",
-        "If set, allows requests with origin header. Warning, this option exists for backwards compatibility reasons and exposes your environment to known CSRF attacks.",
-      )
-      .on("--help", () => {
-        writeLn("\n  Notes:");
-        writeLn("");
-        writeLn("    Default hostname is `localhost`.");
-        writeLn("    Use hostname `all` for no hostname binding.");
-        writeLn("    Default port is `8087`.");
-        writeLn("");
-        writeLn("  Examples:");
-        writeLn("");
-        writeLn("    bw serve");
-        writeLn("    bw serve --port 8080");
-        writeLn("    bw serve --hostname bwapi.mydomain.com --port 80");
-        writeLn("", true);
-      })
-      .action(async (cmd) => {
-        await this.exitIfNotAuthed();
-        const command = new ServeCommand(this.main);
-        await command.run(cmd);
-      });
-  }
-
-  protected processResponse(response: Response, exitImmediately = false) {
-    if (!response.success) {
-      if (process.env.BW_QUIET !== "true") {
-        if (process.env.BW_RESPONSE === "true") {
-          writeLn(this.getJson(response), true, false);
-        } else {
-          writeLn(chalk.redBright(response.message), true, true);
-        }
-      }
-      const exitCode = process.env.BW_CLEANEXIT ? 0 : 1;
-      if (exitImmediately) {
-        process.exit(exitCode);
-      } else {
-        process.exitCode = exitCode;
-      }
-      return;
-    }
-
-    if (process.env.BW_RESPONSE === "true") {
-      writeLn(this.getJson(response), true, false);
-    } else if (response.data != null) {
-      let out: string = null;
-
-      if (response.data.object === "template") {
-        out = this.getJson((response.data as TemplateResponse).template);
-      }
-
-      if (out == null) {
-        if (response.data.object === "string") {
-          const data = (response.data as StringResponse).data;
-          if (data != null) {
-            out = data;
-          }
-        } else if (response.data.object === "list") {
-          out = this.getJson((response.data as ListResponse).data);
-        } else if (response.data.object === "message") {
-          out = this.getMessage(response);
-        } else {
-          out = this.getJson(response.data);
-        }
-      }
-
-      if (out != null && process.env.BW_QUIET !== "true") {
-        writeLn(out, true, false);
-      }
-    }
-    if (exitImmediately) {
-      process.exit(0);
-    } else {
-      process.exitCode = 0;
-    }
-  }
-
-  private getJson(obj: any): string {
-    if (process.env.BW_PRETTY === "true") {
-      return JSON.stringify(obj, null, "  ");
-    } else {
-      return JSON.stringify(obj);
-    }
-  }
-
-  private getMessage(response: Response): string {
-    const message = response.data as MessageResponse;
-    if (process.env.BW_RAW === "true") {
-      return message.raw;
-    }
-
-    let out = "";
-    if (message.title != null) {
-      if (message.noColor) {
-        out = message.title;
-      } else {
-        out = chalk.greenBright(message.title);
-      }
-    }
-    if (message.message != null) {
-      if (message.title != null) {
-        out += "\n";
-      }
-      out += message.message;
-    }
-    return out.trim() === "" ? null : out;
-  }
-
-  private async exitIfAuthed() {
-    const authed = await this.main.stateService.getIsAuthenticated();
-    if (authed) {
-      const email = await this.main.stateService.getEmail();
-      this.processResponse(Response.error("You are already logged in as " + email + "."), true);
-    }
-  }
-
-  private async exitIfNotAuthed() {
-    const authed = await this.main.stateService.getIsAuthenticated();
-    if (!authed) {
-      this.processResponse(Response.error("You are not logged in."), true);
-    }
-  }
-
-  protected async exitIfLocked() {
-    await this.exitIfNotAuthed();
-    if (await this.main.cryptoService.hasUserKey()) {
-      return;
-    } else if (process.env.BW_NOINTERACTION !== "true") {
-      // must unlock
-      if (await this.main.keyConnectorService.getUsesKeyConnector()) {
-        const response = Response.error(
-          "Your vault is locked. You must unlock your vault using your session key.\n" +
-            "If you do not have your session key, you can get a new one by logging out and logging in again.",
-        );
-        this.processResponse(response, true);
-      } else {
-        const command = new UnlockCommand(
-          this.main.cryptoService,
-          this.main.stateService,
-          this.main.cryptoFunctionService,
-          this.main.apiService,
-          this.main.logService,
-          this.main.keyConnectorService,
-          this.main.environmentService,
-          this.main.syncService,
-          this.main.organizationApiService,
-          this.main.logout,
-        );
-        const response = await command.run(null, null);
-        if (!response.success) {
-          this.processResponse(response, true);
-        }
-      }
-    } else {
-      this.processResponse(Response.error("Vault is locked."), true);
-    }
   }
 }

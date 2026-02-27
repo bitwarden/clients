@@ -1,7 +1,7 @@
 import { Observable, Subject, filter, firstValueFrom, map } from "rxjs";
 
 import {
-  AbstractMemoryStorageService,
+  AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -11,7 +11,7 @@ import { fromChromeEvent } from "../browser/from-chrome-event";
 import { MemoryStoragePortMessage } from "./port-messages";
 import { portName } from "./port-name";
 
-export class ForegroundMemoryStorageService extends AbstractMemoryStorageService {
+export class ForegroundMemoryStorageService extends AbstractStorageService {
   private _port: chrome.runtime.Port;
   private _backgroundResponses$: Observable<MemoryStoragePortMessage>;
   private updatesSubject = new Subject<StorageUpdate>();
@@ -21,12 +21,16 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
   }
   updates$;
 
-  constructor() {
+  constructor(private partitionName?: string) {
     super();
 
     this.updates$ = this.updatesSubject.asObservable();
 
-    this._port = chrome.runtime.connect({ name: portName(chrome.storage.session) });
+    let name = portName(chrome.storage.session);
+    if (this.partitionName) {
+      name = `${name}_${this.partitionName}`;
+    }
+    this._port = chrome.runtime.connect({ name });
     this._backgroundResponses$ = fromChromeEvent(this._port.onMessage).pipe(
       map(([message]) => message),
       filter((message) => message.originator === "background"),
@@ -54,9 +58,6 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
 
   async get<T>(key: string): Promise<T> {
     return await this.delegateToBackground<T>("get", key);
-  }
-  async getBypassCache<T>(key: string): Promise<T> {
-    return await this.delegateToBackground<T>("getBypassCache", key);
   }
   async has(key: string): Promise<boolean> {
     return await this.delegateToBackground<boolean>("has", key);

@@ -1,28 +1,19 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, Input } from "@angular/core";
+import { Component, booleanAttribute, input } from "@angular/core";
 
-import { Option } from "./option";
+import { MappedOptionComponent } from "./option";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-option",
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
-export class OptionComponent<T = unknown> implements Option<T> {
-  @Input()
-  icon?: string;
+export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
+  readonly icon = input<string>();
 
-  @Input()
-  value?: T = undefined;
+  readonly value = input.required<T>();
 
-  @Input()
-  label?: string;
+  readonly label = input.required<string>();
 
-  private _disabled = false;
-  @Input()
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value: boolean | "") {
-    this._disabled = coerceBooleanProperty(value);
-  }
+  readonly disabled = input(undefined, { transform: booleanAttribute });
 }

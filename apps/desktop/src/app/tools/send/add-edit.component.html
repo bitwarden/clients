@@ -2,12 +2,12 @@
   <div class="content">
     <div class="inner-content" *ngIf="send">
       <div class="box">
-        <app-callout *ngIf="disableSend">
+        <bit-callout *ngIf="disableSend">
           <span>{{ "sendDisabledWarning" | i18n }}</span>
-        </app-callout>
-        <app-callout type="info" *ngIf="disableHideEmail && !disableSend">
+        </bit-callout>
+        <bit-callout type="info" *ngIf="disableHideEmail && !disableSend">
           {{ "sendOptionsPolicyInEffect" | i18n }}
-        </app-callout>
+        </bit-callout>
       </div>
       <div class="box">
         <h2 class="box-header">
@@ -46,7 +46,9 @@
           </div>
           <div class="box-content-row" appBoxRow *ngIf="editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
-            <div class="row-main">{{ send.file.fileName }} ({{ send.file.sizeName }})</div>
+            <div class="row-main tw-text-wrap tw-break-all">
+              {{ send.file.fileName }} ({{ send.file.sizeName }})
+            </div>
           </div>
           <div class="box-content-row" appBoxRow *ngIf="type === sendType.Text">
             <label for="text">{{ "text" | i18n }}</label>
@@ -59,14 +61,14 @@
             ></textarea>
           </div>
         </div>
-        <div id="fileHelp" class="box-footer" *ngIf="!editMode && send.type === sendType.File">
+        <div id="fileHelp" class="box-footer" *ngIf="!editMode && type === sendType.File">
           {{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}
         </div>
-        <div id="textHelp" class="box-footer" *ngIf="send.type === sendType.Text">
+        <div id="textHelp" class="box-footer" *ngIf="type === sendType.Text">
           {{ "sendTextDesc" | i18n }}
         </div>
       </div>
-      <div class="box" *ngIf="send.type === sendType.Text">
+      <div class="box" *ngIf="type === sendType.Text">
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="hideText">{{ "textHiddenByDefault" | i18n }}</label>
@@ -282,14 +284,9 @@
     </div>
   </div>
   <div class="footer">
-    <button
-      type="submit"
-      class="primary btn-submit"
-      appA11yTitle="{{ 'save' | i18n }}"
-      *ngIf="!disableSend"
-    >
+    <button type="submit" class="primary btn-submit" *ngIf="!disableSend">
       <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span><i class="bwi bwi-save-changes bwi-lg bwi-fw" aria-hidden="true"></i></span>
+      {{ "save" | i18n }}
     </button>
     <button type="button" (click)="cancel()">
       {{ "cancel" | i18n }}

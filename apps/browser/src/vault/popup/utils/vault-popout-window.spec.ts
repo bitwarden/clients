@@ -2,7 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import {
   openViewVaultItemPopout,
@@ -22,6 +23,19 @@ describe("VaultPopoutWindow", () => {
   const closeSingleActionPopoutSpy = jest
     .spyOn(BrowserPopupUtils, "closeSingleActionPopout")
     .mockImplementation();
+
+  beforeEach(() => {
+    jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+    jest.spyOn(BrowserApi, "updateWindowProperties").mockResolvedValue();
+    global.chrome = {
+      ...global.chrome,
+      runtime: {
+        ...global.chrome?.runtime,
+        sendMessage: jest.fn().mockResolvedValue(undefined),
+        getURL: jest.fn((path) => `chrome-extension://extension-id/${path}`),
+      },
+    };
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -123,6 +137,32 @@ describe("VaultPopoutWindow", () => {
         },
       );
     });
+
+    it("sends a message to refresh data when the popup is already open", async () => {
+      const existingPopupTab = {
+        id: 123,
+        windowId: 456,
+        url: `chrome-extension://extension-id/popup/index.html#/edit-cipher?singleActionPopout=${VaultPopoutType.addEditVaultItem}_${CipherType.Login}`,
+      } as chrome.tabs.Tab;
+
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([existingPopupTab]);
+      const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
+      const updateWindowSpy = jest.spyOn(BrowserApi, "updateWindowProperties");
+
+      await openAddEditVaultItemPopout(
+        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
+        {
+          cipherType: CipherType.Login,
+        },
+      );
+
+      expect(openPopoutSpy).not.toHaveBeenCalled();
+      expect(sendMessageSpy).toHaveBeenCalledWith({
+        command: "reloadAddEditCipherData",
+        data: { cipherId: undefined, cipherType: CipherType.Login },
+      });
+      expect(updateWindowSpy).toHaveBeenCalledWith(456, { focused: true });
+    });
   });
 
   describe("closeAddEditVaultItemPopout", () => {
@@ -161,7 +201,7 @@ describe("VaultPopoutWindow", () => {
           singleActionKey: `${VaultPopoutType.fido2Popout}_sessionId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
-          windowOptions: { height: 450 },
+          windowOptions: { height: 570 },
         },
       );
       expect(returnedWindowId).toEqual(10);

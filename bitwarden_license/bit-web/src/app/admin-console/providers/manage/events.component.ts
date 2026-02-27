@@ -1,23 +1,32 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
 import { EventService } from "@bitwarden/web-vault/app/core";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "provider-events",
   templateUrl: "events.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "provider-events";
   providerId: string;
@@ -37,6 +46,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     logService: LogService,
     private userNamePipe: UserNamePipe,
     fileDownloadService: FileDownloadService,
+    toastService: ToastService,
+    accountService: AccountService,
+    organizationService: OrganizationService,
   ) {
     super(
       eventService,
@@ -45,6 +57,10 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       platformUtilsService,
       logService,
       fileDownloadService,
+      toastService,
+      route,
+      accountService,
+      organizationService,
     );
   }
 
@@ -52,8 +68,16 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.providerId = params.providerId;
-      const provider = await this.providerService.get(this.providerId);
+      const provider = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.providerService.get$(this.providerId, userId)),
+        ),
+      );
+
       if (provider == null || !provider.useEvents) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/providers", this.providerId]);
         return;
       }
@@ -62,14 +86,15 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
   }
 
   async load() {
+    this.initBase();
     const response = await this.apiService.getProviderUsers(this.providerId);
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);
       this.providerUsersIdMap.set(u.id, { name: name, email: u.email });
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
-    await this.loadEvents(true);
-    this.loaded = true;
+    await this.refreshEvents();
+    this.loaded.set(true);
   }
 
   protected requestEvents(startDate: string, endDate: string, continuationToken: string) {

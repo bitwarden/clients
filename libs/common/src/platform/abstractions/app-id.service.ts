@@ -1,4 +1,4 @@
 export abstract class AppIdService {
-  getAppId: () => Promise<string>;
-  getAnonymousAppId: () => Promise<string>;
+  abstract getAppId(): Promise<string>;
+  abstract getAnonymousAppId(): Promise<string>;
 }

@@ -1,0 +1,88 @@
+<bit-dialog dialogSize="large" [title]="'removeMembers' | i18n">
+  <ng-container bitDialogContent>
+    <bit-callout type="danger" *ngIf="users.length <= 0">
+      {{ "noSelectedUsersApplicable" | i18n }}
+    </bit-callout>
+    <bit-callout type="danger" [title]="'error' | i18n" *ngIf="error">
+      {{ error }}
+    </bit-callout>
+    <ng-container *ngIf="!done">
+      <bit-callout type="warning" *ngIf="users.length > 0 && !error">
+        <p bitTypography="body1">{{ removeUsersWarning }}</p>
+        <p *ngIf="this.showNoMasterPasswordWarning" bitTypography="body1">
+          {{ "removeMembersWithoutMasterPasswordWarning" | i18n }}
+        </p>
+      </bit-callout>
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell colspan="2">{{ "user" | i18n }}</th>
+            <th bitCell *ngIf="this.showNoMasterPasswordWarning">{{ "details" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          <tr bitRow *ngFor="let user of users">
+            <td bitCell class="tw-w-5">
+              <bit-avatar [text]="user | userName" [id]="user.id" size="small"></bit-avatar>
+            </td>
+            <td bitCell>
+              {{ user.email }}
+              <small class="tw-text-muted tw-block" *ngIf="user.name">{{ user.name }}</small>
+            </td>
+            <td bitCell *ngIf="this.showNoMasterPasswordWarning">
+              <span class="tw-text-muted tw-block tw-lowercase">
+                <ng-container *ngIf="user.hasMasterPassword === true"> - </ng-container>
+                <ng-container *ngIf="user.hasMasterPassword === false">
+                  <i class="bwi bwi-exclamation-triangle" aria-hidden="true"></i>
+                  {{ "noMasterPassword" | i18n }}
+                </ng-container>
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    </ng-container>
+    <ng-container *ngIf="done">
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell colspan="2">{{ "user" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          <tr bitRow *ngFor="let user of users">
+            <td bitCell class="tw-w-5">
+              <bit-avatar [text]="user | userName" [id]="user.id" size="small"></bit-avatar>
+            </td>
+            <td bitCell>
+              {{ user.email }}
+              <small class="tw-text-muted tw-block" *ngIf="user.name">{{ user.name }}</small>
+            </td>
+            <td *ngIf="statuses.has(user.id)" bitCell>
+              {{ statuses.get(user.id) }}
+            </td>
+            <td *ngIf="!statuses.has(user.id)" bitCell>
+              {{ "bulkFilteredMessage" | i18n }}
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    </ng-container>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button
+      *ngIf="!done && users.length > 0"
+      bitButton
+      type="submit"
+      buttonType="primary"
+      [disabled]="loading"
+      [bitAction]="submit"
+    >
+      {{ "removeMembers" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

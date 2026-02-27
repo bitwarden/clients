@@ -1,5 +1,5 @@
----
 name: Staged Rollout Desktop
+run-name: Staged Rollout Desktop - ${{ inputs.rollout_percentage }}%
 
 on:
   workflow_dispatch:
@@ -18,11 +18,15 @@ jobs:
   rollout:
     name: Update Rollout Percentage
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
     steps:
-      - name: Login to Azure
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -31,29 +35,24 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "aws-electron-access-id,
             aws-electron-access-key,
-            aws-electron-bucket-name,
-            r2-electron-access-id,
-            r2-electron-access-key,
-            r2-electron-bucket-name,
-            cf-prod-account"
+            aws-electron-bucket-name"
 
-      - name: Download channel update info files from R2
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Download channel update info files from S3
         env:
-          AWS_ACCESS_KEY_ID: ${{ steps.retrieve-secrets.outputs.r2-electron-access-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.retrieve-secrets.outputs.r2-electron-access-key }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.r2-electron-bucket-name }}
-          CF_ACCOUNT: ${{ steps.retrieve-secrets.outputs.cf-prod-account }}
+          AWS_ACCESS_KEY_ID: ${{ steps.retrieve-secrets.outputs.aws-electron-access-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.retrieve-secrets.outputs.aws-electron-access-key }}
+          AWS_DEFAULT_REGION: 'us-west-2'
+          AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         run: |
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest.yml . \
-          --quiet \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest-linux.yml . \
-          --quiet \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest-mac.yml . \
-          --quiet \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest.yml" . \
+          --quiet
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest-linux.yml" . \
+          --quiet
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest-mac.yml" . \
+          --quiet
 
       - name: Check new rollout percentage
         env:
@@ -87,28 +86,11 @@ jobs:
           AWS_DEFAULT_REGION: 'us-west-2'
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         run: |
-          aws s3 cp latest.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"
 
-          aws s3 cp latest-linux.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest-linux.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"
 
-          aws s3 cp latest-mac.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest-mac.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"
-
-      - name: Publish channel update info files to R2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.retrieve-secrets.outputs.r2-electron-access-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.retrieve-secrets.outputs.r2-electron-access-key }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.r2-electron-bucket-name }}
-          CF_ACCOUNT: ${{ steps.retrieve-secrets.outputs.cf-prod-account }}
-        run: |
-          aws s3 cp latest.yml $AWS_S3_BUCKET_NAME/desktop/ \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
-
-          aws s3 cp latest-linux.yml $AWS_S3_BUCKET_NAME/desktop/ \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com
-
-          aws s3 cp latest-mac.yml $AWS_S3_BUCKET_NAME/desktop/ \
-          --endpoint-url https://${CF_ACCOUNT}.r2.cloudflarestorage.com

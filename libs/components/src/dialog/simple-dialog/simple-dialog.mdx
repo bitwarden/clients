@@ -1,8 +1,12 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./simple-dialog.stories";
 
 <Meta of={stories} />
+
+```ts
+import { DialogModule, DialogService } from "@bitwarden/components";
+```
 
 # Simple Dialogs
 
@@ -33,15 +37,24 @@ the simple dialog's type is specified.
 
 | type    | icon name                | icon                                         | color       |
 | ------- | ------------------------ | -------------------------------------------- | ----------- |
-| primary | bwi-business             | <i class="bwi bwi-business"></i>             | primary-500 |
-| success | bwi-star                 | <i class="bwi bwi-star"></i>                 | success-500 |
-| info    | bwi-info-circle          | <i class="bwi bwi-info-circle"></i>          | info-500    |
-| warning | bwi-exclamation-triangle | <i class="bwi bwi-exclamation-triangle"></i> | warning-500 |
-| danger  | bwi-error                | <i class="bwi bwi-error"></i>                | danger-500  |
+| primary | bwi-business             | <i class="bwi bwi-business"></i>             | primary-600 |
+| success | bwi-star                 | <i class="bwi bwi-star"></i>                 | success-600 |
+| info    | bwi-info-circle          | <i class="bwi bwi-info-circle"></i>          | info-600    |
+| warning | bwi-exclamation-triangle | <i class="bwi bwi-exclamation-triangle"></i> | warning-600 |
+| danger  | bwi-error                | <i class="bwi bwi-error"></i>                | danger-600  |
 
 ## Scrolling Content
 
 Simple dialogs can support scrolling content if necessary, but typically with larger quantities of
 content a [Dialog component](?path=/docs/component-library-dialogs-dialog--docs).
 
-<Story of={stories.ScrollingContent} />
+<Canvas of={stories.ScrollingContent} />
+
+## Using Forms with Dialogs
+
+When using forms with dialogs, apply the `bit-simple-dialog` attribute directly to the `<form>`
+element instead of wrapping the dialog in a form. This ensures proper styling.
+
+```html
+<form bit-simple-dialog>...</form>
+```

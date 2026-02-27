@@ -1,26 +1,35 @@
-import { EncString } from "../../platform/models/domain/enc-string";
-import { Collection as CollectionDomain } from "../../vault/models/domain/collection";
-import { CollectionView } from "../../vault/models/view/collection.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  CollectionView,
+  Collection as CollectionDomain,
+} from "@bitwarden/common/admin-console/models/collections";
+
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
+
+import { safeGetString } from "./utils";
 
 export class CollectionExport {
   static template(): CollectionExport {
     const req = new CollectionExport();
-    req.organizationId = "00000000-0000-0000-0000-000000000000";
+    req.organizationId = emptyGuid as OrganizationId;
     req.name = "Collection name";
     req.externalId = null;
     return req;
   }
 
-  static toView(req: CollectionExport, view = new CollectionView()) {
-    view.name = req.name;
+  static toView(req: CollectionExport, id: CollectionId) {
+    const view = new CollectionView({
+      name: req.name,
+      organizationId: req.organizationId,
+      id,
+    });
     view.externalId = req.externalId;
-    if (view.organizationId == null) {
-      view.organizationId = req.organizationId;
-    }
     return view;
   }
 
-  static toDomain(req: CollectionExport, domain = new CollectionDomain()) {
+  static toDomain(req: CollectionExport, domain: CollectionDomain) {
     domain.name = req.name != null ? new EncString(req.name) : null;
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
@@ -29,18 +38,14 @@ export class CollectionExport {
     return domain;
   }
 
-  organizationId: string;
+  organizationId: OrganizationId;
   name: string;
   externalId: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
     this.organizationId = o.organizationId;
-    if (o instanceof CollectionView) {
-      this.name = o.name;
-    } else {
-      this.name = o.name?.encryptedString;
-    }
+    this.name = safeGetString(o.name);
     this.externalId = o.externalId;
   }
 }

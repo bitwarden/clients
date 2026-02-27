@@ -20,19 +20,4 @@
       <input bitInput type="email" formControlName="clientOwnerEmail" />
     </bit-form-field>
   </div>
-  <div *ngIf="!isProvider && !acceptingSponsorship">
-    <input
-      type="checkbox"
-      name="businessOwned"
-      formControlName="businessOwned"
-      (change)="changedBusinessOwned.emit()"
-    />
-    <bit-label for="businessOwned" class="tw-mb-3">{{ "accountOwnedBusiness" | i18n }}</bit-label>
-    <div class="tw-mt-4" *ngIf="formGroup.controls['businessOwned'].value">
-      <bit-form-field class="tw-w-1/2">
-        <bit-label>{{ "businessName" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="businessName" />
-      </bit-form-field>
-    </div>
-  </div>
 </form>

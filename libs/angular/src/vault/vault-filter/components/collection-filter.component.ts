@@ -1,7 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
 import { TopLevelTreeNode } from "../models/top-level-tree-node.model";
@@ -9,14 +14,27 @@ import { VaultFilter } from "../models/vault-filter.model";
 
 @Directive()
 export class CollectionFilterComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hide = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collapsedFilterNodes: Set<string>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collectionNodes: DynamicTreeNode<CollectionView>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
     new EventEmitter<ITreeNodeObject>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
   readonly collectionsGrouping: TopLevelTreeNode = {
     id: "collections",

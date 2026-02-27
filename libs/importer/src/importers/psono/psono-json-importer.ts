@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
@@ -39,30 +42,43 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
     return Promise.resolve(result);
   }
 
-  private parseFolders(result: ImportResult, folders: FoldersEntity[]) {
+  private parseFolders(result: ImportResult, folders: FoldersEntity[], parentName?: string) {
     if (folders == null || folders.length === 0) {
       return;
     }
 
     folders.forEach((folder) => {
-      if (folder.items == null || folder.items.length == 0) {
+      const folderHasItems = folder.items != null && folder.items.length > 0;
+      const folderHasSubfolders = folder.folders != null && folder.folders.length > 0;
+
+      if (!folderHasItems && !folderHasSubfolders) {
         return;
       }
 
-      this.processFolder(result, folder.name);
+      if (!Utils.isNullOrWhitespace(parentName)) {
+        folder.name = parentName + "/" + folder.name;
+      }
 
-      this.handleItemParsing(result, folder.items);
+      if (folderHasSubfolders) {
+        this.parseFolders(result, folder.folders, folder.name);
+      }
+
+      if (!folderHasItems) {
+        this.processFolder(result, folder.name, folderHasItems);
+      } else {
+        this.handleItemParsing(result, folder.items, folder.name);
+      }
     });
   }
 
-  private handleItemParsing(result: ImportResult, items?: PsonoItemTypes[]) {
+  private handleItemParsing(result: ImportResult, items?: PsonoItemTypes[], folderName?: string) {
     if (items == null || items.length === 0) {
       return;
     }
 
     items.forEach((record) => {
       const cipher = this.parsePsonoItem(record);
-
+      this.processFolder(result, folderName, true);
       this.cleanupCipher(cipher);
       result.ciphers.push(cipher);
     });

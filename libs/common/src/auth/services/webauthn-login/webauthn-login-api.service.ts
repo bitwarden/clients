@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
@@ -11,13 +13,14 @@ export class WebAuthnLoginApiService implements WebAuthnLoginApiServiceAbstracti
   ) {}
 
   async getCredentialAssertionOptions(): Promise<CredentialAssertionOptionsResponse> {
+    const env = await firstValueFrom(this.environmentService.environment$);
     const response = await this.apiService.send(
       "GET",
       `/accounts/webauthn/assertion-options`,
       null,
       false,
       true,
-      this.environmentService.getIdentityUrl(),
+      env.getIdentityUrl(),
     );
     return new CredentialAssertionOptionsResponse(response);
   }

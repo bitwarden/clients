@@ -1,57 +1,55 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-
-import { ModalRef } from "../../components/modal/modal.ref";
+import { DialogRef } from "@bitwarden/components";
 
 @Directive()
 export class SetPinComponent implements OnInit {
-  pin = "";
-  showPin = false;
-  masterPassOnRestart = true;
-  showMasterPassOnRestart = true;
+  showMasterPasswordOnClientRestartOption = true;
+
+  setPinForm = this.formBuilder.group({
+    pin: ["", [Validators.required, Validators.minLength(4)]],
+    requireMasterPasswordOnClientRestart: true,
+  });
 
   constructor(
-    private modalRef: ModalRef,
-    private cryptoService: CryptoService,
+    private accountService: AccountService,
+    private dialogRef: DialogRef,
+    private formBuilder: FormBuilder,
+    private pinService: PinServiceAbstraction,
     private userVerificationService: UserVerificationService,
-    private stateService: StateService,
   ) {}
 
   async ngOnInit() {
-    this.showMasterPassOnRestart = this.masterPassOnRestart =
-      await this.userVerificationService.hasMasterPassword();
+    const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
+
+    this.setPinForm.controls.requireMasterPasswordOnClientRestart.setValue(hasMasterPassword);
+    this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
   }
 
-  toggleVisibility() {
-    this.showPin = !this.showPin;
-  }
+  submit = async () => {
+    const pinFormControl = this.setPinForm.controls.pin;
+    const requireMasterPasswordOnClientRestart = this.setPinForm.get(
+      "requireMasterPasswordOnClientRestart",
+    ).value;
 
-  async submit() {
-    if (Utils.isNullOrWhitespace(this.pin)) {
-      this.modalRef.close(false);
+    if (Utils.isNullOrWhitespace(pinFormControl.value) || pinFormControl.invalid) {
       return;
     }
 
-    const pinKey = await this.cryptoService.makePinKey(
-      this.pin,
-      await this.stateService.getEmail(),
-      await this.stateService.getKdfType(),
-      await this.stateService.getKdfConfig(),
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.pinService.setPin(
+      pinFormControl.value,
+      requireMasterPasswordOnClientRestart ? "EPHEMERAL" : "PERSISTENT",
+      userId,
     );
-    const userKey = await this.cryptoService.getUserKey();
-    const pinProtectedKey = await this.cryptoService.encrypt(userKey.key, pinKey);
-    const encPin = await this.cryptoService.encrypt(this.pin, userKey);
-    await this.stateService.setProtectedPin(encPin.encryptedString);
-    if (this.masterPassOnRestart) {
-      await this.stateService.setPinKeyEncryptedUserKeyEphemeral(pinProtectedKey);
-    } else {
-      await this.stateService.setPinKeyEncryptedUserKey(pinProtectedKey);
-    }
-
-    this.modalRef.close(true);
-  }
+    this.dialogRef.close(true);
+  };
 }

@@ -4,48 +4,77 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild,
   EventEmitter,
   HostBinding,
   Optional,
   Self,
+  input,
+  model,
+  booleanAttribute,
+  viewChild,
 } from "@angular/core";
-import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import {
+  ControlValueAccessor,
+  NgControl,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from "@angular/forms";
+import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BadgeModule } from "../badge";
 import { BitFormFieldControl } from "../form-field/form-field-control";
+import { SpinnerComponent } from "../spinner";
 
 import { SelectItemView } from "./models/select-item-view";
 
 // Increments for each instance of this component
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
+  imports: [
+    NgSelectModule,
+    ReactiveFormsModule,
+    FormsModule,
+    BadgeModule,
+    I18nPipe,
+    SpinnerComponent,
+  ],
+  host: {
+    "[id]": "this.id()",
+  },
 })
 /**
  * This component has been implemented to only support Multi-select list events
  */
 export class MultiSelectComponent implements OnInit, BitFormFieldControl, ControlValueAccessor {
-  @ViewChild(NgSelectComponent) select: NgSelectComponent;
+  readonly select = viewChild.required(NgSelectComponent);
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
-  @Input() baseItems: SelectItemView[];
+  readonly baseItems = model.required<SelectItemView[]>();
   // Defaults to native ng-select behavior - set to "true" to clear selected items on dropdown close
-  @Input() removeSelectedItems = false;
-  @Input() placeholder: string;
-  @Input() loading = false;
-  @Input() disabled = false;
+  readonly removeSelectedItems = input(false);
+  readonly placeholder = model<string>();
+  readonly loading = input(false);
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ transform: booleanAttribute }) disabled?: boolean;
 
   // Internal tracking of selected items
-  @Input() selectedItems: SelectItemView[];
+  protected selectedItems: SelectItemView[] | null = null;
 
   // Default values for our implementation
-  loadingText: string;
+  loadingText?: string;
 
   protected searchInputId = `search-input-${nextId++}`;
 
@@ -54,6 +83,8 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   /**Implemented as part of NG_VALUE_ACCESSOR */
   private notifyOnTouched?: () => void;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onItemsConfirmed = new EventEmitter<any[]>();
 
   constructor(
@@ -67,20 +98,23 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
 
   ngOnInit(): void {
     // Default Text Values
-    this.placeholder = this.placeholder ?? this.i18nService.t("multiSelectPlaceholder");
+    this.placeholder.update(
+      (placeholder) => placeholder ?? this.i18nService.t("multiSelectPlaceholder"),
+    );
     this.loadingText = this.i18nService.t("multiSelectLoading");
   }
 
   /** Function for customizing keyboard navigation */
   /** Needs to be arrow function to retain `this` scope. */
   keyDown = (event: KeyboardEvent) => {
-    if (!this.select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
+    const select = this.select();
+    if (!select.isOpen() && event.key === "Enter" && !hasModifierKey(event)) {
       return false;
     }
 
-    if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (select.isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
       this.selectedItems = [];
-      this.select.close();
+      select.close();
       event.stopPropagation();
       return false;
     }
@@ -107,15 +141,15 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     this.onItemsConfirmed.emit(this.selectedItems);
 
     // Remove selected items from base list based on input property
-    if (this.removeSelectedItems) {
-      let updatedBaseItems = this.baseItems;
+    if (this.removeSelectedItems()) {
+      let updatedBaseItems = this.baseItems();
       this.selectedItems.forEach((selectedItem) => {
         updatedBaseItems = updatedBaseItems.filter((item) => selectedItem.id !== item.id);
       });
 
       // Reset Lists
       this.selectedItems = null;
-      this.baseItems = updatedBaseItems;
+      this.baseItems.set(updatedBaseItems);
     }
   }
 
@@ -162,11 +196,13 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   get ariaDescribedBy() {
     return this._ariaDescribedBy;
   }
-  set ariaDescribedBy(value: string) {
+  set ariaDescribedBy(value: string | undefined) {
     this._ariaDescribedBy = value;
-    this.select?.searchInput.nativeElement.setAttribute("aria-describedby", value);
+    this.select()
+      ?.searchInput()
+      .nativeElement.setAttribute("aria-describedby", value ?? "");
   }
-  private _ariaDescribedBy: string;
+  private _ariaDescribedBy?: string;
 
   /**Implemented as part of BitFormFieldControl */
   get labelForId() {
@@ -174,10 +210,14 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
 
   /**Implemented as part of BitFormFieldControl */
-  @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
+  readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get required() {
     return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
@@ -185,16 +225,17 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   set required(value: any) {
     this._required = value != null && value !== false;
   }
-  private _required: boolean;
+  private _required?: boolean;
 
   /**Implemented as part of BitFormFieldControl */
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   /**Implemented as part of BitFormFieldControl */
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl?.errors)[0];
-    return [key, this.ngControl?.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

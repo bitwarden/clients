@@ -1,15 +1,18 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BitValidators } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../../projects/project.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
@@ -22,8 +25,11 @@ export interface ProjectOperation {
   projectId?: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./project-dialog.component.html",
+  standalone: false,
 })
 export class ProjectDialogComponent implements OnInit {
   protected formGroup = new FormGroup({
@@ -41,6 +47,7 @@ export class ProjectDialogComponent implements OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -54,7 +61,10 @@ export class ProjectDialogComponent implements OnInit {
 
   async loadData() {
     this.loading = true;
-    const project: ProjectView = await this.projectService.getByProjectId(this.data.projectId);
+    const project: ProjectView = await this.projectService.getByProjectId(
+      this.data.projectId,
+      true,
+    );
     this.loading = false;
     this.formGroup.setValue({ name: project.name });
   }
@@ -65,11 +75,11 @@ export class ProjectDialogComponent implements OnInit {
 
   submit = async () => {
     if (!this.data.organizationEnabled) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("projectsCannotCreate"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("projectsCannotCreate"),
+      });
       return;
     }
 
@@ -82,7 +92,7 @@ export class ProjectDialogComponent implements OnInit {
     const projectView = this.getProjectView();
     if (this.data.operation === OperationType.Add) {
       const newProject = await this.createProject(projectView);
-      this.router.navigate(["sm", this.data.organizationId, "projects", newProject.id]);
+      await this.router.navigate(["sm", this.data.organizationId, "projects", newProject.id]);
     } else {
       projectView.id = this.data.projectId;
       await this.updateProject(projectView);
@@ -92,13 +102,21 @@ export class ProjectDialogComponent implements OnInit {
 
   private async createProject(projectView: ProjectView) {
     const newProject = await this.projectService.create(this.data.organizationId, projectView);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("projectCreated"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("projectCreated"),
+    });
     return newProject;
   }
 
   private async updateProject(projectView: ProjectView) {
     await this.projectService.update(this.data.organizationId, projectView);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("projectSaved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("projectSaved"),
+    });
   }
 
   private getProjectView() {

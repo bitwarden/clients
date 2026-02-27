@@ -5,12 +5,13 @@ import { Folder } from "../domain/folder";
 import { ITreeNodeObject } from "../domain/tree-node";
 
 export class FolderView implements View, ITreeNodeObject {
-  id: string = null;
-  name: string = null;
-  revisionDate: Date = null;
+  id: string = "";
+  name: string = "";
+  revisionDate: Date;
 
   constructor(f?: Folder) {
     if (!f) {
+      this.revisionDate = new Date();
       return;
     }
 
@@ -19,7 +20,12 @@ export class FolderView implements View, ITreeNodeObject {
   }
 
   static fromJSON(obj: Jsonify<FolderView>) {
-    const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
-    return Object.assign(new FolderView(), obj, { revisionDate });
+    const folderView = new FolderView();
+    folderView.id = obj.id ?? "";
+    folderView.name = obj.name ?? "";
+    if (obj.revisionDate != null) {
+      folderView.revisionDate = new Date(obj.revisionDate);
+    }
+    return folderView;
   }
 }

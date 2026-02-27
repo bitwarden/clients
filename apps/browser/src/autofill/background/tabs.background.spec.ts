@@ -8,14 +8,14 @@ import {
   triggerTabOnReplacedEvent,
   triggerTabOnUpdatedEvent,
   triggerWindowOnFocusedChangedEvent,
-} from "../jest/testing-utils";
+} from "../spec/testing-utils";
 
 import NotificationBackground from "./notification.background";
-import OverlayBackground from "./overlay.background";
+import { OverlayBackground } from "./overlay.background";
 import TabsBackground from "./tabs.background";
 
 describe("TabsBackground", () => {
-  let tabsBackgorund: TabsBackground;
+  let tabsBackground: TabsBackground;
   const mainBackground = mock<MainBackground>({
     messagingService: {
       send: jest.fn(),
@@ -25,7 +25,7 @@ describe("TabsBackground", () => {
   const overlayBackground = mock<OverlayBackground>();
 
   beforeEach(() => {
-    tabsBackgorund = new TabsBackground(mainBackground, notificationBackground, overlayBackground);
+    tabsBackground = new TabsBackground(mainBackground, notificationBackground, overlayBackground);
   });
 
   afterEach(() => {
@@ -35,11 +35,11 @@ describe("TabsBackground", () => {
   describe("init", () => {
     it("sets up a window on focusChanged listener", () => {
       const handleWindowOnFocusChangedSpy = jest.spyOn(
-        tabsBackgorund as any,
+        tabsBackground as any,
         "handleWindowOnFocusChanged",
       );
 
-      tabsBackgorund.init();
+      void tabsBackground.init();
 
       expect(chrome.windows.onFocusChanged.addListener).toHaveBeenCalledWith(
         handleWindowOnFocusChangedSpy,
@@ -49,7 +49,7 @@ describe("TabsBackground", () => {
 
   describe("tab event listeners", () => {
     beforeEach(() => {
-      tabsBackgorund.init();
+      tabsBackground["setupTabEventListeners"]();
     });
 
     describe("window onFocusChanged event", () => {
@@ -64,14 +64,13 @@ describe("TabsBackground", () => {
         triggerWindowOnFocusedChangedEvent(10);
         await flushPromises();
 
-        expect(tabsBackgorund["focusedWindowId"]).toBe(10);
+        expect(tabsBackground["focusedWindowId"]).toBe(10);
       });
 
       it("updates the current tab data", async () => {
         triggerWindowOnFocusedChangedEvent(10);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -89,7 +88,6 @@ describe("TabsBackground", () => {
         triggerTabOnActivatedEvent({ tabId: 10, windowId: 20 });
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -125,7 +123,6 @@ describe("TabsBackground", () => {
         triggerTabOnReplacedEvent(10, 20);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -144,7 +141,8 @@ describe("TabsBackground", () => {
 
       beforeEach(() => {
         mainBackground.onUpdatedRan = false;
-        tabsBackgorund["focusedWindowId"] = focusedWindowId;
+        mainBackground.configService.getFeatureFlag = jest.fn().mockResolvedValue(true);
+        tabsBackground["focusedWindowId"] = focusedWindowId;
         tab = mock<chrome.tabs.Tab>({
           windowId: focusedWindowId,
           active: true,
@@ -152,24 +150,11 @@ describe("TabsBackground", () => {
         });
       });
 
-      it("removes the cached page details from the overlay background if the tab status is `loading`", () => {
-        triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
-
-        expect(overlayBackground.removePageDetails).toHaveBeenCalledWith(focusedWindowId);
-      });
-
-      it("removes the cached page details from the overlay background if the tab status is `unloaded`", () => {
-        triggerTabOnUpdatedEvent(focusedWindowId, { status: "unloaded" }, tab);
-
-        expect(overlayBackground.removePageDetails).toHaveBeenCalledWith(focusedWindowId);
-      });
-
       it("skips updating the current tab data the focusedWindowId is set to a value less than zero", async () => {
         tab.windowId = -1;
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -179,7 +164,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -189,7 +173,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -199,7 +182,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
       });
 
@@ -214,7 +196,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });

@@ -1,14 +1,14 @@
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { FileUploadType } from "../../enums";
 import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
-import { EncString } from "../../models/domain/enc-string";
 
 export abstract class FileUploadService {
-  upload: (
+  abstract upload(
     uploadData: { url: string; fileUploadType: FileUploadType },
     fileName: EncString,
     encryptedFileData: EncArrayBuffer,
     fileUploadMethods: FileUploadApiMethods,
-  ) => Promise<void>;
+  ): Promise<void>;
 }
 
 export type FileUploadApiMethods = {

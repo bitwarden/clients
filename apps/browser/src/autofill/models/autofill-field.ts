@@ -1,37 +1,46 @@
+import { FieldRect } from "../background/abstractions/overlay.background";
+import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
+import {
+  InlineMenuAccountCreationFieldTypes,
+  InlineMenuFillType,
+} from "../enums/autofill-overlay.enum";
+
 /**
  * Represents a single field that is collected from the page source and is potentially autofilled.
  */
 export default class AutofillField {
   [key: string]: any;
   /**
-   * The unique identifier assigned to this field during collection of the page details
+   * Non-null asserted. The unique identifier assigned to this field during collection of the page details
    */
-  opid: string;
+  opid!: string;
   /**
-   * Sequential number assigned to each element collected, based on its position in the DOM.
+   * Non-null asserted. Sequential number assigned to each element collected, based on its position in the DOM.
    * Used to do perform proximal checks for username and password fields on the DOM.
    */
-  elementNumber: number;
+  elementNumber!: number;
   /**
-   * Designates whether the field is viewable on the current part of the DOM that the user can see
+   * Non-null asserted. Designates whether the field is viewable on the current part of the DOM that the user can see
    */
-  viewable: boolean;
+  viewable!: boolean;
   /**
-   * The HTML `id` attribute of the field
+   * Non-null asserted. The HTML `id` attribute of the field
    */
-  htmlID: string | null;
+  htmlID!: string | null;
   /**
-   * The HTML `name` attribute of the field
+   * Non-null asserted. The HTML `name` attribute of the field
    */
-  htmlName: string | null;
+  htmlName!: string | null;
   /**
-   * The HTML `class` attribute of the field
+   * Non-null asserted. The HTML `class` attribute of the field
    */
-  htmlClass: string | null;
+  htmlClass!: string | null;
 
-  tabindex: string | null;
+  /** Non-null asserted. */
+  tabindex!: string | null;
 
-  title: string | null;
+  /** Non-null asserted. */
+  title!: string | null;
   /**
    * The `tagName` for the field
    */
@@ -103,7 +112,22 @@ export default class AutofillField {
    */
   maxLength?: number | null;
 
+  dataSetValues?: string;
+
   rel?: string | null;
 
   checked?: boolean;
+
+  inlineMenuFillType?: InlineMenuFillType;
+
+  showPasskeys?: boolean;
+
+  fieldQualifier?: AutofillFieldQualifierType;
+
+  accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
+
+  /**
+   * used for totp multiline calculations
+   */
+  fieldRect?: FieldRect;
 }

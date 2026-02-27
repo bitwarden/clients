@@ -1,7 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+
+import { isDev } from "../../utils";
+import { WindowMain } from "../window.main";
 
 import { IMenubarMenu } from "./menubar";
 
@@ -13,7 +18,7 @@ export class ViewMenu implements IMenubarMenu {
   }
 
   get items(): MenuItemConstructorOptions[] {
-    return [
+    const items = [
       this.searchVault,
       this.separator,
       this.generator,
@@ -26,18 +31,30 @@ export class ViewMenu implements IMenubarMenu {
       this.toggleFullscreen,
       this.separator,
       this.reload,
-      this.toggleDevTools,
     ];
+
+    if (isDev()) {
+      items.push(this.toggleDevTools);
+    }
+
+    return items;
   }
 
   private readonly _i18nService: I18nService;
   private readonly _messagingService: MessagingService;
   private readonly _isLocked: boolean;
+  private readonly _windowMain: WindowMain;
 
-  constructor(i18nService: I18nService, messagingService: MessagingService, isLocked: boolean) {
+  constructor(
+    i18nService: I18nService,
+    messagingService: MessagingService,
+    isLocked: boolean,
+    windowMain: WindowMain,
+  ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._isLocked = isLocked;
+    this._windowMain = windowMain;
   }
 
   private get searchVault(): MenuItemConstructorOptions {
@@ -67,7 +84,7 @@ export class ViewMenu implements IMenubarMenu {
   private get passwordHistory(): MenuItemConstructorOptions {
     return {
       id: "passwordHistory",
-      label: this.localize("passwordHistory"),
+      label: this.localize("generatorHistory"),
       click: () => this.sendMessage("openPasswordHistory"),
       enabled: !this._isLocked,
     };
@@ -77,7 +94,12 @@ export class ViewMenu implements IMenubarMenu {
     return {
       id: "zoomIn",
       label: this.localize("zoomIn"),
-      role: "zoomIn",
+      click: async () => {
+        const currentZoom = this._windowMain.win.webContents.zoomFactor;
+        const newZoom = currentZoom + 0.1;
+        this._windowMain.win.webContents.zoomFactor = newZoom;
+        await this._windowMain.saveZoomFactor(newZoom);
+      },
       accelerator: "CmdOrCtrl+=",
     };
   }
@@ -86,7 +108,12 @@ export class ViewMenu implements IMenubarMenu {
     return {
       id: "zoomOut",
       label: this.localize("zoomOut"),
-      role: "zoomOut",
+      click: async () => {
+        const currentZoom = this._windowMain.win.webContents.zoomFactor;
+        const newZoom = Math.max(0.2, currentZoom - 0.1);
+        this._windowMain.win.webContents.zoomFactor = newZoom;
+        await this._windowMain.saveZoomFactor(newZoom);
+      },
       accelerator: "CmdOrCtrl+-",
     };
   }
@@ -95,7 +122,11 @@ export class ViewMenu implements IMenubarMenu {
     return {
       id: "resetZoom",
       label: this.localize("resetZoom"),
-      role: "resetZoom",
+      click: async () => {
+        const newZoom = 1.0;
+        this._windowMain.win.webContents.zoomFactor = newZoom;
+        await this._windowMain.saveZoomFactor(newZoom);
+      },
       accelerator: "CmdOrCtrl+0",
     };
   }

@@ -1,0 +1,25 @@
+<router-outlet></router-outlet>
+
+@if (!homepage) {
+  <!-- Focus bridge: redirects Tab to the overlay back button (which is outside cdkTrapFocus) -->
+  <span
+    tabindex="0"
+    aria-hidden="true"
+    class="tw-sr-only"
+    (keydown.tab)="focusOverlayButton($event)"
+  ></span>
+}
+
+<ng-template #backButtonTemplate>
+  <div class="tw-p-3 tw-rounded-lg tw-opacity-90">
+    <a
+      bitButton
+      buttonType="primary"
+      routerLink="./"
+      tabindex="0"
+      (keydown.tab)="returnFocusToPage($event)"
+    >
+      {{ "backToReports" | i18n }}
+    </a>
+  </div>
+</ng-template>

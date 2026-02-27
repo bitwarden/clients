@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -6,8 +8,9 @@ import {
   PlatformUtilsService,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { isMacAppStore } from "../../utils";
 import { ClipboardWriteMessage } from "../types/clipboard";
+
+export const ELECTRON_SUPPORTS_SECURE_STORAGE = true;
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
   constructor(
@@ -52,15 +55,21 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
-  isMacAppStore(): boolean {
-    return isMacAppStore();
+  isChromium(): boolean {
+    return true;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isMacAppStore(): boolean {
+    return ipc.platform.isMacAppStore;
+  }
+
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
   launchUri(uri: string, options?: any): void {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ipc.platform.launchUri(uri);
   }
 
@@ -72,14 +81,21 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return (await this.getApplicationVersion()).split(/[+|-]/)[0].trim();
   }
 
-  // Temporarily restricted to only Windows until https://github.com/electron/electron/pull/28349
-  // has been merged and an updated electron build is available.
+  // Linux and Mac are missing a ui to enter a pin, so this works for two-factor security keys, when always-uv is not active
   supportsWebAuthn(win: Window): boolean {
-    return this.getDevice() === DeviceType.WindowsDesktop;
+    return true;
   }
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   showToast(
@@ -108,6 +124,8 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     const clearing = options?.clearing === true;
     const clearMs = options?.clearMs ?? null;
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ipc.platform.clipboard.write({
       text: text,
       password: (options?.allowHistory ?? false) === false, // default to false
@@ -126,23 +144,33 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return ipc.platform.clipboard.read();
   }
 
-  async supportsBiometric(): Promise<boolean> {
-    return await ipc.platform.biometric.osSupported();
-  }
-
-  /** This method is used to authenticate the user presence _only_.
-   * It should not be used in the process to retrieve
-   * biometric keys, which has a separate authentication mechanism.
-   * For biometric keys, invoke "keytar" with a biometric key suffix */
-  async authenticateBiometric(): Promise<boolean> {
-    return await ipc.platform.biometric.authenticate();
-  }
-
   supportsSecureStorage(): boolean {
-    return true;
+    return ELECTRON_SUPPORTS_SECURE_STORAGE;
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
+  }
+
+  async packageType(): Promise<string> {
+    if (ipc.platform.isMacAppStore) {
+      return "MacAppStore";
+    } else if (ipc.platform.isWindowsStore) {
+      return "WindowsStore";
+    } else if (ipc.platform.isAppImage) {
+      return "AppImage";
+    } else if (ipc.platform.isSnapStore) {
+      return "Snap";
+    } else if (ipc.platform.isFlatpak) {
+      return "Flatpak";
+    } else if (this.getDevice() === DeviceType.WindowsDesktop) {
+      return "WindowsUnknown";
+    } else if (this.getDevice() === DeviceType.MacOsDesktop) {
+      return "MacOSUnknown";
+    } else if (this.getDevice() === DeviceType.LinuxDesktop) {
+      return "LinuxUnknown";
+    } else {
+      return "DesktopUnknown";
+    }
   }
 }

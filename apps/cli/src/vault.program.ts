@@ -1,40 +1,48 @@
-import * as program from "commander";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { program, Command } from "commander";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
-import { Main } from "./bw";
+import { BaseProgram } from "./base-program";
 import { EditCommand } from "./commands/edit.command";
 import { GetCommand } from "./commands/get.command";
 import { ListCommand } from "./commands/list.command";
 import { RestoreCommand } from "./commands/restore.command";
 import { Response } from "./models/response";
-import { Program } from "./program";
 import { ExportCommand } from "./tools/export.command";
 import { ImportCommand } from "./tools/import.command";
 import { CliUtils } from "./utils";
+import { ArchiveCommand } from "./vault/archive.command";
 import { CreateCommand } from "./vault/create.command";
 import { DeleteCommand } from "./vault/delete.command";
 
 const writeLn = CliUtils.writeLn;
 
-export class VaultProgram extends Program {
-  constructor(protected main: Main) {
-    super(main);
-  }
-
+export class VaultProgram extends BaseProgram {
   async register() {
+    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+
     program
-      .addCommand(this.listCommand())
+      .addCommand(this.listCommand(isArchivedEnabled))
       .addCommand(this.getCommand())
       .addCommand(this.createCommand())
       .addCommand(this.editCommand())
       .addCommand(this.deleteCommand())
-      .addCommand(this.restoreCommand())
+      .addCommand(this.restoreCommand(isArchivedEnabled))
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
       .addCommand(this.importCommand())
       .addCommand(this.exportCommand())
       .addCommand(this.shareCommand("share", true));
+
+    if (isArchivedEnabled) {
+      program.addCommand(this.archiveCommand());
+    }
   }
 
   private validateObject(requestedObject: string, validObjects: string[]): boolean {
@@ -45,7 +53,7 @@ export class VaultProgram extends Program {
         Response.badRequest(
           'Unknown object "' +
             requestedObject +
-            '". Allowed objects are ' +
+            '". Allowed objects are: ' +
             validObjects.join(", ") +
             ".",
         ),
@@ -54,7 +62,7 @@ export class VaultProgram extends Program {
     return success;
   }
 
-  private listCommand(): program.Command {
+  private listCommand(isArchivedEnabled: boolean): Command {
     const listObjects = [
       "items",
       "folders",
@@ -64,11 +72,9 @@ export class VaultProgram extends Program {
       "organizations",
     ];
 
-    return new program.Command("list")
-      .arguments("<object>")
-      .description("List an array of objects from the vault.", {
-        object: "Valid objects are: " + listObjects.join(", "),
-      })
+    const command = new Command("list")
+      .argument("<object>", "Valid objects are: " + listObjects.join(", "))
+      .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
       .option("--url <url>", "Filter items of type login with a url-match search.")
       .option("--folderid <folderid>", "Filter items by folder id.")
@@ -99,6 +105,9 @@ export class VaultProgram extends Program {
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
         writeLn("    bw list items --trash");
+        if (isArchivedEnabled) {
+          writeLn("    bw list items --archived");
+        }
         writeLn("    bw list folders --search email");
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
@@ -110,22 +119,32 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new ListCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.collectionService,
-          this.main.organizationService,
-          this.main.searchService,
-          this.main.organizationUserService,
-          this.main.apiService,
-          this.main.eventCollectionService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.searchService,
+          this.serviceContainer.organizationUserApiService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.cipherArchiveService,
         );
         const response = await command.run(object, cmd);
 
         this.processResponse(response);
       });
+
+    if (isArchivedEnabled) {
+      command.option("--archived", "Filter items that are archived.");
+    }
+
+    return command;
   }
 
-  private getCommand(): program.Command {
+  private getCommand(): Command {
     const getObjects = [
       "item",
       "username",
@@ -143,12 +162,10 @@ export class VaultProgram extends Program {
       "fingerprint",
       "send",
     ];
-    return new program.Command("get")
-      .arguments("<object> <id>")
-      .description("Get an object from the vault.", {
-        object: "Valid objects are: " + getObjects.join(", "),
-        id: "Search term or object's globally unique `id`.",
-      })
+    return new Command("get")
+      .argument("<object>", "Valid objects are: " + getObjects.join(", "))
+      .argument("<id>", "Search term or object's globally unique `id`.")
+      .description("Get an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
       .option("--output <output>", "Output directory or filename for attachment.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
@@ -181,17 +198,20 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new GetCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.collectionService,
-          this.main.totpService,
-          this.main.auditService,
-          this.main.cryptoService,
-          this.main.stateService,
-          this.main.searchService,
-          this.main.apiService,
-          this.main.organizationService,
-          this.main.eventCollectionService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.totpService,
+          this.serviceContainer.auditService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.searchService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.eventCollectionService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -200,12 +220,13 @@ export class VaultProgram extends Program {
 
   private createCommand() {
     const createObjects = ["item", "attachment", "folder", "org-collection"];
-    return new program.Command("create")
-      .arguments("<object> [encodedJson]")
-      .description("Create an object in the vault.", {
-        object: "Valid objects are: " + createObjects.join(", "),
-        encodedJson: "Encoded json of the object to create. Can also be piped into stdin.",
-      })
+    return new Command("create")
+      .argument("<object>", "Valid objects are: " + createObjects.join(", "))
+      .argument(
+        "[encodedJson]",
+        "Encoded json of the object to create. Can also be piped into stdin.",
+      )
+      .description("Create an object in the vault.")
       .option("--file <file>", "Path to file for attachment.")
       .option("--itemid <itemid>", "Attachment's item id.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
@@ -227,27 +248,32 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new CreateCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.stateService,
-          this.main.cryptoService,
-          this.main.apiService,
-          this.main.folderApiService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, encodedJson, cmd);
         this.processResponse(response);
       });
   }
 
-  private editCommand(): program.Command {
+  private editCommand(): Command {
     const editObjects = ["item", "item-collections", "folder", "org-collection"];
-    return new program.Command("edit")
-      .arguments("<object> <id> [encodedJson]")
-      .description("Edit an object from the vault.", {
-        object: "Valid objects are: " + editObjects.join(", "),
-        id: "Object's globally unique `id`.",
-        encodedJson: "Encoded json of the object to create. Can also be piped into stdin.",
-      })
+    return new Command("edit")
+      .argument("<object>", "Valid objects are: " + editObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .argument(
+        "[encodedJson]",
+        "Encoded json of the object to create. Can also be piped into stdin.",
+      )
+      .description("Edit an object from the vault.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
       .on("--help", () => {
         writeLn("\n  Examples:");
@@ -272,25 +298,28 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new EditCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.cryptoService,
-          this.main.apiService,
-          this.main.folderApiService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.policyService,
+          this.serviceContainer.billingAccountProfileStateService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
       });
   }
 
-  private deleteCommand(): program.Command {
+  private deleteCommand(): Command {
     const deleteObjects = ["item", "attachment", "folder", "org-collection"];
-    return new program.Command("delete")
-      .arguments("<object> <id>")
-      .description("Delete an object from the vault.", {
-        object: "Valid objects are: " + deleteObjects.join(", "),
-        id: "Object's globally unique `id`.",
-      })
+    return new Command("delete")
+      .argument("<object>", "Valid objects are: " + deleteObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .description("Delete an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
       .option(
@@ -315,25 +344,55 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new DeleteCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.stateService,
-          this.main.apiService,
-          this.main.folderApiService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
       });
   }
 
-  private restoreCommand(): program.Command {
-    const restoreObjects = ["item"];
-    return new program.Command("restore")
-      .arguments("<object> <id>")
-      .description("Restores an object from the trash.", {
-        object: "Valid objects are: " + restoreObjects.join(", "),
-        id: "Object's globally unique `id`.",
+  private archiveCommand(): Command {
+    const archiveObjects = ["item"];
+    return new Command("archive")
+      .argument("<object>", "Valid objects are: " + archiveObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .description("Archive an object from the vault.")
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn("    bw archive item 7063feab-4b10-472e-b64c-785e2b870b92");
+        writeLn("", true);
       })
+      .action(async (object, id) => {
+        if (!this.validateObject(object, archiveObjects)) {
+          return;
+        }
+
+        await this.exitIfLocked();
+        const command = new ArchiveCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.billingAccountProfileStateService,
+        );
+        const response = await command.run(object, id);
+        this.processResponse(response);
+      });
+  }
+
+  private restoreCommand(isArchivedEnabled: boolean): Command {
+    const restoreObjects = ["item"];
+    const command = new Command("restore")
+      .argument("<object>", "Valid objects are: " + restoreObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -346,20 +405,35 @@ export class VaultProgram extends Program {
         }
 
         await this.exitIfLocked();
-        const command = new RestoreCommand(this.main.cipherService);
+        const command = new RestoreCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.configService,
+        );
         const response = await command.run(object, id);
         this.processResponse(response);
       });
+
+    if (isArchivedEnabled) {
+      command.description("Restores an object from the trash or archive.");
+    } else {
+      command.description("Restores an object from the trash.");
+    }
+
+    return command;
   }
 
-  private shareCommand(commandName: string, deprecated: boolean): program.Command {
-    return new program.Command(commandName)
-      .arguments("<id> <organizationId> [encodedJson]")
-      .description((deprecated ? "--DEPRECATED-- " : "") + "Move an item to an organization.", {
-        id: "Object's globally unique `id`.",
-        organizationId: "Organization's globally unique `id`.",
-        encodedJson: "Encoded json of an array of collection ids. Can also be piped into stdin.",
-      })
+  private shareCommand(commandName: string, deprecated: boolean): Command {
+    return new Command(commandName)
+      .argument("<id>", "Object's globally unique `id`.")
+      .argument("<organizationId>", "Organization's globally unique `id`.")
+      .argument(
+        "[encodedJson]",
+        "Encoded json of an array of collection ids. Can also be piped into stdin.",
+      )
+      .description((deprecated ? "--DEPRECATED-- " : "") + "Move an item to an organization.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -383,20 +457,21 @@ export class VaultProgram extends Program {
       })
       .action(async (id, organizationId, encodedJson, cmd) => {
         await this.exitIfLocked();
-        const command = new ShareCommand(this.main.cipherService);
+        const command = new ShareCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run(id, organizationId, encodedJson);
         this.processResponse(response);
       });
   }
 
-  private confirmCommand(): program.Command {
+  private confirmCommand(): Command {
     const confirmObjects = ["org-member"];
-    return new program.Command("confirm")
-      .arguments("<object> <id>")
-      .description("Confirm an object to the organization.", {
-        object: "Valid objects are: " + confirmObjects.join(", "),
-        id: "Object's globally unique `id`.",
-      })
+    return new Command("confirm")
+      .argument("<object>", "Valid objects are: " + confirmObjects.join(", "))
+      .argument("<id>", "Object's globally unique `id`.")
+      .description("Confirm an object to the organization.")
       .option("--organizationid <organizationid>", "Organization id for an organization object.")
       .on("--help", () => {
         writeLn("\n  Examples:");
@@ -414,22 +489,23 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new ConfirmCommand(
-          this.main.apiService,
-          this.main.cryptoService,
-          this.main.organizationUserService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.organizationUserApiService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
       });
   }
 
-  private importCommand(): program.Command {
-    return new program.Command("import")
-      .arguments("[format] [input]")
-      .description("Import vault data from a file.", {
-        format: "The format of [input]",
-        input: "Filepath to data to import",
-      })
+  private importCommand(): Command {
+    return new Command("import")
+      .argument("[format]", "The format of [input]")
+      .argument("[input]", "Filepath to data to import")
+      .description("Import vault data from a file.")
       .option("--formats", "List formats")
       .option("--organizationid <organizationid>", "ID of the organization to import to.")
       .on("--help", () => {
@@ -445,18 +521,19 @@ export class VaultProgram extends Program {
       .action(async (format, filepath, options) => {
         await this.exitIfLocked();
         const command = new ImportCommand(
-          this.main.importService,
-          this.main.organizationService,
-          this.main.syncService,
+          this.serviceContainer.importService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.syncService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);
       });
   }
 
-  private exportCommand(): program.Command {
-    return new program.Command("export")
-      .description("Export vault data to a CSV or JSON file.", {})
+  private exportCommand(): Command {
+    return new Command("export")
+      .description("Export vault data to a CSV, JSON or ZIP file.")
       .option("--output <output>", "Output directory or filename.")
       .option("--format <format>", "Export file format.")
       .option(
@@ -468,7 +545,7 @@ export class VaultProgram extends Program {
         writeLn("\n  Notes:");
         writeLn("");
         writeLn(
-          "    Valid formats are `csv`, `json`, and `encrypted_json`. Default format is `csv`.",
+          "    Valid formats are `csv`, `json`, `encrypted_json` and zip. Default format is `csv`.",
         );
         writeLn("");
         writeLn(
@@ -492,9 +569,10 @@ export class VaultProgram extends Program {
       .action(async (options) => {
         await this.exitIfLocked();
         const command = new ExportCommand(
-          this.main.exportService,
-          this.main.policyService,
-          this.main.eventCollectionService,
+          this.serviceContainer.exportService,
+          this.serviceContainer.policyService,
+          this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(options);
         this.processResponse(response);

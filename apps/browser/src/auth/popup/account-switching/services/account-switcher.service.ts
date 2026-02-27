@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import {
   Observable,
@@ -5,19 +7,25 @@ import {
   filter,
   firstValueFrom,
   map,
+  of,
   switchMap,
   throwError,
   timeout,
 } from "rxjs";
 
+import { NewActiveUser } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { fromChromeEvent } from "../../../../platform/browser/from-chrome-event";
 
 export type AvailableAccount = {
@@ -40,58 +48,97 @@ export class AccountSwitcherService {
   SPECIAL_ADD_ACCOUNT_ID = "addAccount";
   availableAccounts$: Observable<AvailableAccount[]>;
 
-  switchAccountFinished$: Observable<string>;
+  switchAccountFinished$: Observable<NewActiveUser | null>;
 
   constructor(
     private accountService: AccountService,
-    private stateService: StateService,
+    private avatarService: AvatarService,
     private messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private logService: LogService,
+    private configService: ConfigService,
+    authService: AuthService,
   ) {
     this.availableAccounts$ = combineLatest([
-      this.accountService.accounts$,
+      accountService.accounts$,
+      authService.authStatuses$,
       this.accountService.activeAccount$,
     ]).pipe(
-      switchMap(async ([accounts, activeAccount]) => {
-        const accountEntries = Object.entries(accounts).filter(
-          ([_, account]) => account.status !== AuthenticationStatus.LoggedOut,
+      switchMap(async ([accounts, accountStatuses, activeAccount]) => {
+        const loggedInIds = Object.keys(accounts).filter(
+          (id: UserId) => accountStatuses[id] !== AuthenticationStatus.LoggedOut,
         );
         // Accounts shouldn't ever be more than ACCOUNT_LIMIT but just in case do a greater than
-        const hasMaxAccounts = accountEntries.length >= this.ACCOUNT_LIMIT;
+        const hasMaxAccounts = loggedInIds.length >= this.ACCOUNT_LIMIT;
         const options: AvailableAccount[] = await Promise.all(
-          accountEntries.map(async ([id, account]) => {
+          loggedInIds.map(async (id: UserId) => {
+            const userEnv = await firstValueFrom(this.environmentService.getEnvironment$(id));
             return {
-              name: account.name ?? account.email,
-              email: account.email,
+              name: accounts[id].name ?? accounts[id].email,
+              email: accounts[id].email,
               id: id,
-              server: await this.environmentService.getHost(id),
-              status: account.status,
+              server: userEnv?.getHostname(),
+              status: accountStatuses[id],
               isActive: id === activeAccount?.id,
-              avatarColor: await this.stateService.getAvatarColor({ userId: id }),
+              avatarColor: await firstValueFrom(
+                this.avatarService.getUserAvatarColor$(id as UserId),
+              ),
             };
           }),
         );
 
         if (!hasMaxAccounts) {
           options.push({
-            name: "Add account",
+            name: "addAccount",
             id: this.SPECIAL_ADD_ACCOUNT_ID,
-            isActive: activeAccount?.id == null,
+            isActive: false,
           });
         }
 
-        return options;
+        return options.sort((a, b) => {
+          /**
+           * Make sure the compare function is "well-formed" to account for browser inconsistencies.
+           *
+           * For specifics, see the sections "Description" and "Sorting with a non-well-formed comparator"
+           * on this page:
+           * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+           */
+
+          // Active account (if one exists) is always first
+          if (a.isActive) {
+            return -1;
+          }
+
+          // If account "b" is the 'Add account' button, keep original order of "a" and "b"
+          if (b.id === this.SPECIAL_ADD_ACCOUNT_ID) {
+            return 0;
+          }
+
+          return 1;
+        });
       }),
     );
 
-    // Create a reusable observable that listens to the the switchAccountFinish message and returns the userId from the message
-    this.switchAccountFinished$ = fromChromeEvent<[message: { command: string; userId: string }]>(
-      chrome.runtime.onMessage,
-    ).pipe(
+    // Create a reusable observable that listens to the switchAccountFinish message and returns the userId from the message
+    this.switchAccountFinished$ = fromChromeEvent<
+      [message: { command: string; userId: UserId; status: AuthenticationStatus }]
+    >(chrome.runtime.onMessage).pipe(
       filter(([message]) => message.command === "switchAccountFinish"),
-      map(([message]) => message.userId),
+      map(([message]) => ({ userId: message.userId, authenticationStatus: message.status })),
     );
+  }
+
+  /*
+   * PM-5594: This was a compile-time flag (default true) which made an exception for Safari in platform/flags.
+   * The truthiness of AccountSwitching has been enshrined at this point, so those compile-time flags have been removed
+   * in favor of this method to allow easier access to the config service for controlling Safari. Unwinding the Safari
+   * flag should be more straightforward from this consolidation.
+   */
+  accountSwitchingEnabled$(): Observable<boolean> {
+    if (BrowserApi.isSafariApi) {
+      return this.configService.getFeatureFlag$(FeatureFlag.SafariAccountSwitching);
+    }
+    return of(true);
   }
 
   get specialAccountAddId() {
@@ -102,12 +149,25 @@ export class AccountSwitcherService {
     if (id === this.SPECIAL_ADD_ACCOUNT_ID) {
       id = null;
     }
+    const userId = id as UserId;
 
     // Creates a subscription to the switchAccountFinished observable but further
     // filters it to only care about the current userId.
-    const switchAccountFinishedPromise = firstValueFrom(
+    const switchAccountFinishedPromise = this.listenForSwitchAccountFinish(userId);
+
+    // Initiate the actions required to make account switching happen
+    this.messagingService.send("switchAccount", { userId }); // This message should cause switchAccountFinish to be sent
+
+    // Wait until we receive the switchAccountFinished message
+    return await switchAccountFinishedPromise;
+  }
+
+  // Listens for the switchAccountFinish message and returns the userId from the message
+  // Optionally filters switchAccountFinish to an expected userId
+  listenForSwitchAccountFinish(expectedUserId: UserId | null): Promise<NewActiveUser | null> {
+    return firstValueFrom(
       this.switchAccountFinished$.pipe(
-        filter((userId) => userId === id),
+        filter(({ userId }) => (expectedUserId ? userId === expectedUserId : true)),
         timeout({
           // Much longer than account switching is expected to take for normal accounts
           // but the account switching process includes a possible full sync so we need to account
@@ -118,20 +178,13 @@ export class AccountSwitcherService {
             throwError(() => new Error(AccountSwitcherService.incompleteAccountSwitchError)),
         }),
       ),
-    );
-
-    // Initiate the actions required to make account switching happen
-    await this.accountService.switchAccount(id as UserId);
-    this.messagingService.send("switchAccount", { userId: id }); // This message should cause switchAccountFinish to be sent
-
-    // Wait until we recieve the switchAccountFinished message
-    await switchAccountFinishedPromise.catch((err) => {
+    ).catch((err): any => {
       if (
         err instanceof Error &&
         err.message === AccountSwitcherService.incompleteAccountSwitchError
       ) {
         this.logService.warning("message 'switchAccount' never responded.");
-        return;
+        return null;
       }
       throw err;
     });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TranslationService as TranslationServiceAbstraction } from "../abstractions/translation.service";
 
 export abstract class TranslationService implements TranslationServiceAbstraction {
@@ -16,6 +18,7 @@ export abstract class TranslationService implements TranslationServiceAbstractio
     ["bs", "bosanski jezik"],
     ["ca", "català"],
     ["cs", "čeština"],
+    ["cy", "Cymraeg, y Gymraeg"],
     ["da", "dansk"],
     ["de", "Deutsch"],
     ["el", "Ελληνικά"],
@@ -30,6 +33,7 @@ export abstract class TranslationService implements TranslationServiceAbstractio
     ["fi", "suomi"],
     ["fil", "Wikang Filipino"],
     ["fr", "français"],
+    ["gl", "galego"],
     ["he", "עברית"],
     ["hi", "हिन्दी"],
     ["hr", "hrvatski"],
@@ -45,9 +49,13 @@ export abstract class TranslationService implements TranslationServiceAbstractio
     ["lv", "Latvietis"],
     ["me", "црногорски"],
     ["ml", "മലയാളം"],
+    ["mr", "मराठी"],
+    ["my", "ဗမာစကား"],
     ["nb", "norsk (bokmål)"],
+    ["ne", "नेपाली"],
     ["nl", "Nederlands"],
     ["nn", "Norsk Nynorsk"],
+    ["or", "ଓଡ଼ିଆ"],
     ["pl", "polski"],
     ["pt-BR", "português do Brasil"],
     ["pt-PT", "português"],
@@ -58,6 +66,8 @@ export abstract class TranslationService implements TranslationServiceAbstractio
     ["sl", "Slovenski jezik, Slovenščina"],
     ["sr", "Српски"],
     ["sv", "svenska"],
+    ["ta", "தமிழ்"],
+    ["te", "తెలుగు"],
     ["th", "ไทย"],
     ["tr", "Türkçe"],
     ["uk", "українська"],

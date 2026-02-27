@@ -1,6 +1,10 @@
-import { EncString } from "../../platform/models/domain/enc-string";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Password } from "../../vault/models/domain/password";
 import { PasswordHistoryView } from "../../vault/models/view/password-history.view";
+
+import { safeGetString } from "./utils";
 
 export class PasswordHistoryExport {
   static template(): PasswordHistoryExport {
@@ -12,13 +16,13 @@ export class PasswordHistoryExport {
 
   static toView(req: PasswordHistoryExport, view = new PasswordHistoryView()) {
     view.password = req.password;
-    view.lastUsedDate = req.lastUsedDate;
+    view.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : null;
     return view;
   }
 
   static toDomain(req: PasswordHistoryExport, domain = new Password()) {
     domain.password = req.password != null ? new EncString(req.password) : null;
-    domain.lastUsedDate = req.lastUsedDate;
+    domain.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : null;
     return domain;
   }
 
@@ -30,11 +34,7 @@ export class PasswordHistoryExport {
       return;
     }
 
-    if (o instanceof PasswordHistoryView) {
-      this.password = o.password;
-    } else {
-      this.password = o.password?.encryptedString;
-    }
+    this.password = safeGetString(o.password);
     this.lastUsedDate = o.lastUsedDate;
   }
 }

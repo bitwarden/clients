@@ -1,0 +1,383 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "browser",
+  "projectType": "application",
+  "sourceRoot": "apps/browser/src",
+  "tags": ["scope:browser", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "chrome-dev",
+      "options": {
+        "outputPath": "dist/apps/browser",
+        "webpackConfig": "apps/browser/webpack.config.js",
+        "tsConfig": "apps/browser/tsconfig.json",
+        "main": "apps/browser/src/popup/main.ts",
+        "target": "web",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "chrome": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/chrome",
+          "env": {
+            "BROWSER": "chrome",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "chrome-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/chrome-dev",
+          "env": {
+            "BROWSER": "chrome",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "edge": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/edge",
+          "env": {
+            "BROWSER": "edge",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "edge-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/edge-dev",
+          "env": {
+            "BROWSER": "edge",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "firefox": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/firefox",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "firefox-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/firefox-dev",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "firefox-mv2": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/firefox-mv2",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "production"
+          }
+        },
+        "firefox-mv2-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/firefox-mv2-dev",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "development"
+          }
+        },
+        "opera": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/opera",
+          "env": {
+            "BROWSER": "opera",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "opera-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/opera-dev",
+          "env": {
+            "BROWSER": "opera",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "safari": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/safari",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "safari-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/safari-dev",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "safari-mv2": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/safari-mv2",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "production"
+          }
+        },
+        "safari-mv2-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/safari-mv2-dev",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-chrome": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-chrome",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "chrome",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-chrome-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-chrome-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "chrome",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-edge": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-edge",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "edge",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-edge-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-edge-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "edge",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-firefox": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-firefox",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-firefox-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-firefox-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-firefox-mv2": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-firefox-mv2",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-firefox-mv2-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-firefox-mv2-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "firefox",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-opera": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-opera",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "opera",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-opera-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-opera-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "opera",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-safari": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-safari",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-safari-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-safari-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "3",
+            "NODE_ENV": "development"
+          }
+        },
+        "commercial-safari-mv2": {
+          "mode": "production",
+          "outputPath": "dist/apps/browser/commercial-safari-mv2",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "production"
+          }
+        },
+        "commercial-safari-mv2-dev": {
+          "mode": "development",
+          "outputPath": "dist/apps/browser/commercial-safari-mv2-dev",
+          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
+          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
+          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
+          "env": {
+            "BROWSER": "safari",
+            "MANIFEST_VERSION": "2",
+            "NODE_ENV": "development"
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "chrome-dev",
+      "options": {
+        "cwd": "apps/browser"
+      },
+      "configurations": {
+        "chrome-dev": {
+          "command": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/chrome-dev"
+        },
+        "firefox-dev": {
+          "command": "cross-env BROWSER=firefox MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/firefox-dev"
+        },
+        "firefox-mv2-dev": {
+          "command": "cross-env BROWSER=firefox MANIFEST_VERSION=2 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/firefox-mv2-dev"
+        },
+        "safari-dev": {
+          "command": "cross-env BROWSER=safari MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/safari-dev"
+        },
+        "safari-mv2-dev": {
+          "command": "cross-env BROWSER=safari MANIFEST_VERSION=2 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/safari-mv2-dev"
+        },
+        "edge-dev": {
+          "command": "cross-env BROWSER=edge MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/edge-dev"
+        },
+        "opera-dev": {
+          "command": "cross-env BROWSER=opera MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack --watch --output-path=../../dist/apps/browser/opera-dev"
+        },
+        "commercial-chrome-dev": {
+          "command": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-chrome-dev"
+        },
+        "commercial-firefox-dev": {
+          "command": "cross-env BROWSER=firefox MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-firefox-dev"
+        },
+        "commercial-firefox-mv2-dev": {
+          "command": "cross-env BROWSER=firefox MANIFEST_VERSION=2 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-firefox-mv2-dev"
+        },
+        "commercial-safari-dev": {
+          "command": "cross-env BROWSER=safari MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-safari-dev"
+        },
+        "commercial-safari-mv2-dev": {
+          "command": "cross-env BROWSER=safari MANIFEST_VERSION=2 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-safari-mv2-dev"
+        },
+        "commercial-edge-dev": {
+          "command": "cross-env BROWSER=edge MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-edge-dev"
+        },
+        "commercial-opera-dev": {
+          "command": "cross-env BROWSER=opera MANIFEST_VERSION=3 NODE_ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-browser/webpack.config.js --watch --output-path=../../dist/apps/browser/commercial-opera-dev"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/browser/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/browser/**/*.ts", "apps/browser/**/*.html"]
+      }
+    }
+  }
+}

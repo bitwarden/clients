@@ -1,5 +1,6 @@
-import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
-import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
+import { DestroyRef, Directive, HostListener, inject, model, Optional } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, finalize, tap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -14,21 +15,15 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
 @Directive({
   selector: "[bitAction]",
 })
-export class BitActionDirective implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class BitActionDirective {
   private _loading$ = new BehaviorSubject<boolean>(false);
 
-  disabled = false;
-
-  @Input("bitAction") handler: FunctionReturningAwaitable;
-
+  /**
+   * Observable of loading behavior subject
+   *
+   * Used in `form-button.directive.ts`
+   */
   readonly loading$ = this._loading$.asObservable();
-
-  constructor(
-    private buttonComponent: ButtonLikeAbstraction,
-    @Optional() private validationService?: ValidationService,
-    @Optional() private logService?: LogService,
-  ) {}
 
   get loading() {
     return this._loading$.value;
@@ -36,17 +31,29 @@ export class BitActionDirective implements OnDestroy {
 
   set loading(value: boolean) {
     this._loading$.next(value);
-    this.buttonComponent.loading = value;
+    this.buttonComponent.loading.set(value);
   }
+
+  disabled = false;
+
+  readonly handler = model.required<FunctionReturningAwaitable>({ alias: "bitAction" });
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor(
+    private buttonComponent: ButtonLikeAbstraction,
+    @Optional() private validationService?: ValidationService,
+    @Optional() private logService?: LogService,
+  ) {}
 
   @HostListener("click")
   protected async onClick() {
-    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled) {
+    if (!this.handler() || this.loading || this.disabled || this.buttonComponent.disabled()) {
       return;
     }
 
     this.loading = true;
-    functionToObservable(this.handler)
+    functionToObservable(this.handler())
       .pipe(
         tap({
           error: (err: unknown) => {
@@ -55,13 +62,8 @@ export class BitActionDirective implements OnDestroy {
           },
         }),
         finalize(() => (this.loading = false)),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

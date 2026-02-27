@@ -1,40 +1,35 @@
-<div class="tw-mb-4 tw-flex tw-items-start tw-justify-between">
-  <div>
-    <bit-breadcrumbs *ngIf="showBreadcrumbs">
+<app-header [title]="title" [icon]="icon">
+  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
+    <bit-breadcrumb
+      *ngIf="activeOrganizationId"
+      [route]="[]"
+      [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
+      queryParamsHandling="merge"
+    >
+      {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+    </bit-breadcrumb>
+    <ng-container>
       <bit-breadcrumb
-        *ngIf="activeOrganizationId"
+        *ngFor="let collection of collections"
+        icon="bwi-collection-shared"
         [route]="[]"
-        [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
+        [queryParams]="{ collectionId: collection.id }"
         queryParamsHandling="merge"
       >
-        {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+        {{ collection.name }}
       </bit-breadcrumb>
+    </ng-container>
+  </bit-breadcrumbs>
+
+  <ng-container slot="title-suffix">
+    @if (collection != null && (canEditCollection || canDeleteCollection)) {
       <ng-container>
-        <bit-breadcrumb
-          *ngFor="let collection of collections"
-          icon="bwi-collection"
-          [route]="[]"
-          [queryParams]="{ collectionId: collection.id }"
-          queryParamsHandling="merge"
-        >
-          {{ collection.name }}
-        </bit-breadcrumb>
-      </ng-container>
-    </bit-breadcrumbs>
-    <h1 class="tw-mb-0 tw-mt-1 tw-flex tw-items-center tw-space-x-2">
-      <i
-        *ngIf="filter.collectionId && filter.collectionId !== All"
-        class="bwi bwi-collection"
-        aria-hidden="true"
-      ></i>
-      <span>{{ title }}</span>
-      <ng-container *ngIf="collection !== undefined && (canEditCollection || canDeleteCollection)">
         <button
           bitIconButton="bwi-angle-down"
           [bitMenuTriggerFor]="editCollectionMenu"
           size="small"
           type="button"
-          aria-haspopup
+          [label]="'editCollection' | i18n"
         ></button>
         <bit-menu #editCollectionMenu>
           <button
@@ -68,43 +63,26 @@
           </button>
         </bit-menu>
       </ng-container>
-      <small *ngIf="loading">
-        <i
-          class="bwi bwi-spinner bwi-spin text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-      </small>
-    </h1>
-  </div>
+    }
+    <small *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </small>
+  </ng-container>
 
   <div *ngIf="filter.type !== 'trash'" class="tw-shrink-0">
-    <div appListDropdown>
-      <button
-        bitButton
-        buttonType="primary"
-        type="button"
-        [bitMenuTriggerFor]="addOptions"
-        id="newItemDropdown"
-        appA11yTitle="{{ 'new' | i18n }}"
-      >
-        {{ "new" | i18n }}<i class="bwi bwi-angle-down tw-ml-2" aria-hidden="true"></i>
-      </button>
-      <bit-menu #addOptions aria-labelledby="newItemDropdown">
-        <button type="button" bitMenuItem (click)="addCipher()">
-          <i class="bwi bwi-fw bwi-globe" aria-hidden="true"></i>
-          {{ "item" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="addFolder()">
-          <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-          {{ "folder" | i18n }}
-        </button>
-        <button *ngIf="canCreateCollections" type="button" bitMenuItem (click)="addCollection()">
-          <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
-          {{ "collection" | i18n }}
-        </button>
-      </bit-menu>
-    </div>
+    <vault-new-cipher-menu
+      [canCreateCipher]="canCreateCipher"
+      [canCreateFolder]="true"
+      [canCreateSshKey]="true"
+      [canCreateCollection]="canCreateCollections"
+      (cipherAdded)="addCipher($event)"
+      (folderAdded)="addFolder()"
+      (collectionAdded)="addCollection()"
+    />
   </div>
-</div>
+</app-header>

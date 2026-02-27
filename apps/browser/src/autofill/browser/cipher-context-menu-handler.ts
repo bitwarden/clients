@@ -1,151 +1,31 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import {
-  authServiceFactory,
-  AuthServiceInitOptions,
-} from "../../auth/background/service-factories/auth-service.factory";
-import { Account } from "../../models/account";
-import { CachedServices } from "../../platform/background/service-factories/factory-options";
-import { BrowserApi } from "../../platform/browser/browser-api";
-import {
-  cipherServiceFactory,
-  CipherServiceInitOptions,
-} from "../../vault/background/service_factories/cipher-service.factory";
 import { AutofillCipherTypeId } from "../types";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
-
-const NOT_IMPLEMENTED = (..._args: unknown[]) => Promise.resolve();
-
-const LISTENED_TO_COMMANDS = [
-  "loggedIn",
-  "unlocked",
-  "syncCompleted",
-  "bgUpdateContextMenu",
-  "editedCipher",
-  "addedCipher",
-  "deletedCipher",
-];
 
 export class CipherContextMenuHandler {
   constructor(
     private mainContextMenuHandler: MainContextMenuHandler,
     private authService: AuthService,
     private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
-  static async create(cachedServices: CachedServices) {
-    const stateFactory = new StateFactory(GlobalState, Account);
-    const serviceOptions: AuthServiceInitOptions & CipherServiceInitOptions = {
-      apiServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      cryptoFunctionServiceOptions: {
-        win: self,
-      },
-      encryptServiceOptions: {
-        logMacFailures: false,
-      },
-      i18nServiceOptions: {
-        systemLanguage: chrome.i18n.getUILanguage(),
-      },
-      keyConnectorServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      logServiceOptions: {
-        isDev: false,
-      },
-      platformUtilsServiceOptions: {
-        biometricCallback: () => Promise.resolve(false),
-        clipboardWriteCallback: NOT_IMPLEMENTED,
-        win: self,
-      },
-      stateServiceOptions: {
-        stateFactory: stateFactory,
-      },
-    };
-    return new CipherContextMenuHandler(
-      await MainContextMenuHandler.mv3Create(cachedServices),
-      await authServiceFactory(cachedServices, serviceOptions),
-      await cipherServiceFactory(cachedServices, serviceOptions),
-    );
-  }
-
-  static async windowsOnFocusChangedListener(windowId: number, serviceCache: CachedServices) {
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    const tab = await BrowserApi.getTabFromCurrentWindow();
-    await cipherContextMenuHandler.update(tab?.url);
-  }
-
-  static async tabsOnActivatedListener(
-    activeInfo: chrome.tabs.TabActiveInfo,
-    serviceCache: CachedServices,
-  ) {
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    const tab = await BrowserApi.getTab(activeInfo.tabId);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async tabsOnReplacedListener(
-    addedTabId: number,
-    removedTabId: number,
-    serviceCache: CachedServices,
-  ) {
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    const tab = await BrowserApi.getTab(addedTabId);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async tabsOnUpdatedListener(
-    tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
-    tab: chrome.tabs.Tab,
-    serviceCache: CachedServices,
-  ) {
-    if (changeInfo.status !== "complete") {
-      return;
-    }
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async messageListener(
-    message: { command: string },
-    sender: chrome.runtime.MessageSender,
-    cachedServices: CachedServices,
-  ) {
-    if (!CipherContextMenuHandler.shouldListen(message)) {
-      return;
-    }
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(cachedServices);
-    await cipherContextMenuHandler.messageListener(message);
-  }
-
-  private static shouldListen(message: { command: string }) {
-    return LISTENED_TO_COMMANDS.includes(message.command);
-  }
-
-  async messageListener(message: { command: string }, sender?: chrome.runtime.MessageSender) {
-    if (!CipherContextMenuHandler.shouldListen(message)) {
+  async update(url: string, currentUriIsBlocked: boolean = false) {
+    if (this.mainContextMenuHandler.initRunning) {
       return;
     }
 
-    const activeTabs = await BrowserApi.getActiveTabs();
-    if (!activeTabs || activeTabs.length === 0) {
-      return;
-    }
-
-    await this.update(activeTabs[0].url);
-  }
-
-  async update(url: string) {
     const authStatus = await this.authService.getAuthStatus();
     await MainContextMenuHandler.removeAll();
     if (authStatus !== AuthenticationStatus.Unlocked) {
@@ -160,7 +40,14 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, [
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
       CipherType.Card,
       CipherType.Identity,
     ]);
@@ -201,12 +88,18 @@ export class CipherContextMenuHandler {
     for (const cipher of ciphers) {
       await this.updateForCipher(cipher);
     }
+
+    if (currentUriIsBlocked) {
+      await this.mainContextMenuHandler.removeBlockedUriMenuItems();
+    }
   }
 
   private async updateForCipher(cipher: CipherView) {
     if (
       cipher == null ||
-      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity]).has(cipher.type)
+      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).has(
+        cipher.type,
+      )
     ) {
       return;
     }

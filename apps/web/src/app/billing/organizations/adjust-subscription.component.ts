@@ -1,84 +1,150 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import {
+  getOrganizationById,
+  InternalOrganizationServiceAbstraction,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-adjust-subscription",
   templateUrl: "adjust-subscription.component.html",
+  standalone: false,
 })
-export class AdjustSubscription {
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class AdjustSubscription implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() maxAutoscaleSeats: number;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentSeatCount: number;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() seatPrice = 0;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() interval = "year";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAdjusted = new EventEmitter();
 
-  formPromise: Promise<void>;
-  limitSubscription: boolean;
-  newSeatCount: number;
-  newMaxSeats: number;
+  private destroy$ = new Subject<void>();
+
+  adjustSubscriptionForm = this.formBuilder.group({
+    newSeatCount: [0, [Validators.min(0)]],
+    limitSubscription: [false],
+    newMaxSeats: [0, [Validators.min(0)]],
+  });
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private formBuilder: FormBuilder,
+    private toastService: ToastService,
+    private internalOrganizationService: InternalOrganizationServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
-    this.limitSubscription = this.maxAutoscaleSeats != null;
-    this.newSeatCount = this.currentSeatCount;
-    this.newMaxSeats = this.maxAutoscaleSeats;
+    this.adjustSubscriptionForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      const maxAutoscaleSeatsControl = this.adjustSubscriptionForm.controls.newMaxSeats;
+
+      if (value.limitSubscription) {
+        maxAutoscaleSeatsControl.setValidators([Validators.min(value.newSeatCount)]);
+        maxAutoscaleSeatsControl.enable({ emitEvent: false });
+      } else {
+        maxAutoscaleSeatsControl.disable({ emitEvent: false });
+      }
+    });
+
+    this.adjustSubscriptionForm.patchValue({
+      newSeatCount: this.currentSeatCount,
+      newMaxSeats: this.maxAutoscaleSeats,
+      limitSubscription: this.maxAutoscaleSeats != null,
+    });
   }
 
-  async submit() {
-    try {
-      const request = new OrganizationSubscriptionUpdateRequest(
-        this.additionalSeatCount,
-        this.newMaxSeats,
-      );
-      this.formPromise = this.organizationApiService.updatePasswordManagerSeats(
-        this.organizationId,
-        request,
-      );
-
-      await this.formPromise;
-
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("subscriptionUpdated"),
-      );
-    } catch (e) {
-      this.logService.error(e);
+  submit = async () => {
+    this.adjustSubscriptionForm.markAllAsTouched();
+    if (this.adjustSubscriptionForm.invalid) {
+      return;
     }
+    const request = new OrganizationSubscriptionUpdateRequest(
+      this.additionalSeatCount,
+      this.adjustSubscriptionForm.value.newMaxSeats,
+    );
+
+    const response = await this.organizationApiService.updatePasswordManagerSeats(
+      this.organizationId,
+      request,
+    );
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.internalOrganizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
+
+    const organizationData = new OrganizationData(response, {
+      isMember: organization.isMember,
+      isProviderUser: organization.isProviderUser,
+    });
+
+    await this.internalOrganizationService.upsert(organizationData, userId);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("subscriptionUpdated"),
+    });
+
     this.onAdjusted.emit();
-  }
+  };
 
   limitSubscriptionChanged() {
-    if (!this.limitSubscription) {
-      this.newMaxSeats = null;
+    if (!this.adjustSubscriptionForm.value.limitSubscription) {
+      this.adjustSubscriptionForm.value.newMaxSeats = null;
     }
   }
 
   get additionalSeatCount(): number {
-    return this.newSeatCount ? this.newSeatCount - this.currentSeatCount : 0;
-  }
-
-  get additionalMaxSeatCount(): number {
-    return this.newMaxSeats ? this.newMaxSeats - this.currentSeatCount : 0;
-  }
-
-  get adjustedSeatTotal(): number {
-    return this.additionalSeatCount * this.seatPrice;
+    return this.adjustSubscriptionForm.value.newSeatCount
+      ? this.adjustSubscriptionForm.value.newSeatCount - this.currentSeatCount
+      : 0;
   }
 
   get maxSeatTotal(): number {
-    return this.additionalMaxSeatCount * this.seatPrice;
+    return Math.abs((this.adjustSubscriptionForm.value.newMaxSeats ?? 0) * this.seatPrice);
+  }
+
+  get seatTotalCost(): number {
+    return Math.abs(this.adjustSubscriptionForm.value.newSeatCount * this.seatPrice);
+  }
+
+  get limitSubscription(): boolean {
+    return this.adjustSubscriptionForm.value.limitSubscription;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

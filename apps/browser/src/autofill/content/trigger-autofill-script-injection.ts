@@ -1,3 +1,3 @@
 (function () {
-  chrome.runtime.sendMessage({ command: "triggerAutofillScriptInjection" });
+  void chrome.runtime.sendMessage({ command: "triggerAutofillScriptInjection" });
 })();

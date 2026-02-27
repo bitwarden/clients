@@ -1,22 +1,31 @@
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { UserVerificationPromptComponent as BaseUserVerificationPrompt } from "@bitwarden/angular/auth/components/user-verification-prompt.component";
-import { ModalConfig } from "@bitwarden/angular/services/modal.service";
+import {
+  UserVerificationPromptComponent as BaseUserVerificationPrompt,
+  UserVerificationPromptParams,
+} from "@bitwarden/angular/auth/components/user-verification-prompt.component";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
-export interface UserVerificationPromptParams {
-  confirmDescription: string;
-  confirmButtonText: string;
-  modalTitle: string;
-}
-
+/**
+ * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent instead.
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "user-verification-prompt.component.html",
+  standalone: false,
 })
 export class UserVerificationPromptComponent extends BaseUserVerificationPrompt {
   constructor(
@@ -26,16 +35,16 @@ export class UserVerificationPromptComponent extends BaseUserVerificationPrompt 
     formBuilder: FormBuilder,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
+    toastService: ToastService,
   ) {
-    // TODO: Remove when BaseUserVerificationPrompt has support for CL
-    const modalConfig: ModalConfig = { data };
     super(
       null,
-      modalConfig,
+      data,
       userVerificationService,
       formBuilder,
       platformUtilsService,
       i18nService,
+      toastService,
     );
   }
 

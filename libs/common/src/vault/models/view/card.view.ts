@@ -1,51 +1,54 @@
 import { Jsonify } from "type-fest";
 
+import { CardView as SdkCardView } from "@bitwarden/sdk-internal";
+
+import { normalizeExpiryYearFormat } from "../../../autofill/utils";
 import { CardLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
-export class CardView extends ItemView {
-  @linkedFieldOption(LinkedId.CardholderName)
-  cardholderName: string = null;
-  @linkedFieldOption(LinkedId.ExpMonth, "expirationMonth")
-  expMonth: string = null;
-  @linkedFieldOption(LinkedId.ExpYear, "expirationYear")
-  expYear: string = null;
-  @linkedFieldOption(LinkedId.Code, "securityCode")
-  code: string = null;
+export class CardView extends ItemView implements SdkCardView {
+  @linkedFieldOption(LinkedId.CardholderName, { sortPosition: 0 })
+  cardholderName: string | undefined;
+  @linkedFieldOption(LinkedId.ExpMonth, { sortPosition: 3, i18nKey: "expirationMonth" })
+  expMonth: string | undefined;
+  @linkedFieldOption(LinkedId.ExpYear, { sortPosition: 4, i18nKey: "expirationYear" })
+  expYear: string | undefined;
+  @linkedFieldOption(LinkedId.Code, { sortPosition: 5, i18nKey: "securityCode" })
+  code: string | undefined;
 
-  private _brand: string = null;
-  private _number: string = null;
-  private _subTitle: string = null;
+  private _brand?: string;
+  private _number?: string;
+  private _subTitle?: string;
 
-  get maskedCode(): string {
-    return this.code != null ? "•".repeat(this.code.length) : null;
+  get maskedCode(): string | undefined {
+    return this.code != null ? "•".repeat(this.code.length) : undefined;
   }
 
-  get maskedNumber(): string {
-    return this.number != null ? "•".repeat(this.number.length) : null;
+  get maskedNumber(): string | undefined {
+    return this.number != null ? "•".repeat(this.number.length) : undefined;
   }
 
-  @linkedFieldOption(LinkedId.Brand)
-  get brand(): string {
+  @linkedFieldOption(LinkedId.Brand, { sortPosition: 2 })
+  get brand(): string | undefined {
     return this._brand;
   }
-  set brand(value: string) {
+  set brand(value: string | undefined) {
     this._brand = value;
-    this._subTitle = null;
+    this._subTitle = undefined;
   }
 
-  @linkedFieldOption(LinkedId.Number)
-  get number(): string {
+  @linkedFieldOption(LinkedId.Number, { sortPosition: 1 })
+  get number(): string | undefined {
     return this._number;
   }
-  set number(value: string) {
+  set number(value: string | undefined) {
     this._number = value;
-    this._subTitle = null;
+    this._subTitle = undefined;
   }
 
-  get subTitle(): string {
+  get subTitle(): string | undefined {
     if (this._subTitle == null) {
       this._subTitle = this.brand;
       if (this.number != null && this.number.length >= 4) {
@@ -64,28 +67,27 @@ export class CardView extends ItemView {
     return this._subTitle;
   }
 
-  get expiration(): string {
-    if (!this.expMonth && !this.expYear) {
-      return null;
+  get expiration(): string | undefined {
+    const normalizedYear = this.expYear ? normalizeExpiryYearFormat(this.expYear) : undefined;
+
+    if (!this.expMonth && !normalizedYear) {
+      return undefined;
     }
 
     let exp = this.expMonth != null ? ("0" + this.expMonth).slice(-2) : "__";
-    exp += " / " + (this.expYear != null ? this.formatYear(this.expYear) : "____");
+    exp += " / " + (normalizedYear || "____");
+
     return exp;
   }
 
-  private formatYear(year: string): string {
-    return year.length === 2 ? "20" + year : year;
-  }
-
-  static fromJSON(obj: Partial<Jsonify<CardView>>): CardView {
+  static fromJSON(obj: Partial<Jsonify<CardView>> | undefined): CardView {
     return Object.assign(new CardView(), obj);
   }
 
   // ref https://stackoverflow.com/a/5911300
-  static getCardBrandByPatterns(cardNum: string): string {
+  static getCardBrandByPatterns(cardNum: string | undefined | null): string | undefined {
     if (cardNum == null || typeof cardNum !== "string" || cardNum.trim() === "") {
-      return null;
+      return undefined;
     }
 
     // Visa
@@ -142,6 +144,30 @@ export class CardView extends ItemView {
       return "Visa";
     }
 
-    return null;
+    return undefined;
+  }
+
+  /**
+   * Converts an SDK CardView to a CardView.
+   */
+  static fromSdkCardView(obj: SdkCardView): CardView {
+    const cardView = new CardView();
+
+    cardView.cardholderName = obj.cardholderName;
+    cardView.brand = obj.brand;
+    cardView.number = obj.number;
+    cardView.expMonth = obj.expMonth;
+    cardView.expYear = obj.expYear;
+    cardView.code = obj.code;
+
+    return cardView;
+  }
+
+  /**
+   * Converts the CardView to an SDK CardView.
+   * The view implements the SdkView so we can safely return `this`
+   */
+  toSdkCardView(): SdkCardView {
+    return this;
   }
 }

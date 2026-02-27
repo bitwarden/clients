@@ -5,6 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 @Pipe({
   name: "userType",
+  standalone: false,
 })
 export class UserTypePipe implements PipeTransform {
   constructor(private i18nService: I18nService) {}
@@ -20,8 +21,6 @@ export class UserTypePipe implements PipeTransform {
         return this.i18nService.t("admin");
       case OrganizationUserType.User:
         return this.i18nService.t("user");
-      case OrganizationUserType.Manager:
-        return this.i18nService.t("manager");
       case OrganizationUserType.Custom:
         return this.i18nService.t("custom");
     }

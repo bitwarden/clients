@@ -1,4 +1,17 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChild,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
+
+import { BadgeComponent } from "../badge";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
@@ -7,77 +20,90 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
-  preserveWhitespaces: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    tabindex: "-1",
+    "[class]": "hostClasses",
+  },
 })
 export class ToggleComponent<TValue> {
-  id = nextId++;
+  protected readonly id = "bit-toggle-" + nextId++;
 
-  @Input() value?: TValue;
+  private readonly groupComponent = inject(ToggleGroupComponent<TValue>);
 
-  constructor(private groupComponent: ToggleGroupComponent<TValue>) {}
+  readonly value = input.required<TValue>();
+  protected readonly labelContent = viewChild<ElementRef<HTMLSpanElement>>("labelContent");
+  protected readonly badgeElement = contentChild(BadgeComponent);
+  protected readonly hasBadge = computed(() => !!this.badgeElement());
 
-  @HostBinding("tabIndex") tabIndex = "-1";
-  @HostBinding("class") classList = ["tw-group"];
+  protected readonly labelTitle = signal<string | null>(null);
 
-  get name() {
-    return this.groupComponent.name;
+  constructor() {
+    // Set label title after view is initialized
+    afterNextRender(() => {
+      const labelText = this.labelContent()?.nativeElement.innerText;
+      if (labelText) {
+        this.labelTitle.set(labelText);
+      }
+    });
   }
 
-  get selected() {
-    return this.groupComponent.selected === this.value;
+  protected readonly name = this.groupComponent.name;
+  readonly selected = computed(() => this.groupComponent.selected() === this.value());
+
+  protected handleInputChange() {
+    this.groupComponent.onInputInteraction(this.value());
   }
 
-  get inputClasses() {
-    return ["tw-peer", "tw-appearance-none", "tw-outline-none"];
-  }
+  protected readonly hostClasses = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
 
-  get labelClasses() {
-    return [
-      "!tw-font-semibold",
-      "tw-transition",
-      "tw-text-center",
-      "tw-border-text-muted",
-      "!tw-text-muted",
-      "tw-border-solid",
-      "tw-border-y",
-      "tw-border-r",
-      "tw-border-l-0",
-      "tw-cursor-pointer",
-      "group-first-of-type:tw-border-l",
-      "group-first-of-type:tw-rounded-l",
-      "group-last-of-type:tw-rounded-r",
+  protected readonly inputClasses = [
+    "tw-peer/toggle-input",
+    "tw-appearance-none",
+    "tw-outline-none",
+  ];
 
-      "peer-focus:tw-outline-none",
-      "peer-focus:tw-ring",
-      "peer-focus:tw-ring-offset-2",
-      "peer-focus:tw-ring-primary-500",
-      "peer-focus:tw-z-10",
-      "peer-focus:tw-bg-primary-500",
-      "peer-focus:tw-border-primary-500",
-      "peer-focus:!tw-text-contrast",
+  protected readonly labelClasses = [
+    "tw-h-full",
+    "tw-w-full",
+    "tw-flex",
+    "tw-items-center",
+    "tw-justify-center",
+    "tw-gap-1.5",
+    "!tw-font-medium",
+    "tw-leading-5",
+    "tw-transition",
+    "tw-text-center",
+    "tw-text-sm",
+    "tw-border-primary-600",
+    "!tw-text-primary-600",
+    "tw-border-solid",
+    "tw-border-y",
+    "tw-border-r",
+    "tw-border-l-0",
+    "tw-cursor-pointer",
+    "hover:tw-bg-hover-default",
 
-      "hover:tw-no-underline",
-      "hover:tw-bg-text-muted",
-      "hover:tw-border-text-muted",
-      "hover:!tw-text-contrast",
+    "group-first-of-type/toggle:tw-border-l",
+    "group-first-of-type/toggle:tw-rounded-s-full",
+    "group-last-of-type/toggle:tw-rounded-e-full",
 
-      "peer-checked:tw-bg-primary-500",
-      "peer-checked:tw-border-primary-500",
-      "peer-checked:!tw-text-contrast",
-      "tw-py-1.5",
-      "tw-px-3",
+    "peer-focus-visible/toggle-input:tw-outline-none",
+    "peer-focus-visible/toggle-input:tw-ring",
+    "peer-focus-visible/toggle-input:tw-ring-offset-2",
+    "peer-focus-visible/toggle-input:tw-ring-primary-600",
+    "peer-focus-visible/toggle-input:tw-z-10",
+    "peer-focus-visible/toggle-input:tw-bg-primary-600",
+    "peer-focus-visible/toggle-input:tw-border-primary-600",
+    "peer-focus-visible/toggle-input:!tw-text-contrast",
 
-      // Fix for bootstrap styles that add bottom margin
-      "!tw-mb-0",
+    "peer-checked/toggle-input:tw-bg-primary-600",
+    "peer-checked/toggle-input:tw-border-primary-600",
+    "peer-checked/toggle-input:!tw-text-contrast",
+    "tw-py-1.5",
+    "tw-px-3",
 
-      // Fix for badge being pushed slightly lower when inside a button.
-      // Inspired by bootstrap, which does the same.
-      "[&>[bitBadge]]:tw-relative",
-      "[&>[bitBadge]]:tw--top-px",
-    ];
-  }
-
-  onInputInteraction() {
-    this.groupComponent.onInputInteraction(this.value);
-  }
+    // Fix for bootstrap styles that add bottom margin
+    "!tw-mb-0",
+  ];
 }

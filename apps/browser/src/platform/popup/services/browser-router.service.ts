@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 import { filter } from "rxjs";
@@ -19,7 +21,7 @@ export class BrowserRouterService {
           child = child.firstChild;
         }
 
-        const updateUrl = !child?.data?.doNotSaveUrl ?? true;
+        const updateUrl = !child?.data?.doNotSaveUrl;
 
         if (updateUrl) {
           this.setPreviousUrl(event.url);

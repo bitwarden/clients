@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
@@ -5,18 +7,25 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { ModalRef } from "../../components/modal/modal.ref";
-import { ModalConfig } from "../../services/modal.service";
+
+export interface UserVerificationPromptParams {
+  confirmDescription: string;
+  confirmButtonText: string;
+  modalTitle: string;
+}
 
 /**
  * Used to verify the user's identity (using their master password or email-based OTP for Key Connector users). You can customize all of the text in the modal.
+ * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent instead.
  */
 @Directive()
 export class UserVerificationPromptComponent {
-  confirmDescription = this.config.data.confirmDescription;
-  confirmButtonText = this.config.data.confirmButtonText;
-  modalTitle = this.config.data.modalTitle;
+  confirmDescription = this.config.confirmDescription;
+  confirmButtonText = this.config.confirmButtonText;
+  modalTitle = this.config.modalTitle;
 
   formGroup = this.formBuilder.group({
     secret: this.formBuilder.control<Verification | null>(null),
@@ -26,11 +35,12 @@ export class UserVerificationPromptComponent {
 
   constructor(
     private modalRef: ModalRef,
-    protected config: ModalConfig,
+    protected config: UserVerificationPromptParams,
     protected userVerificationService: UserVerificationService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   get secret() {
@@ -50,7 +60,11 @@ export class UserVerificationPromptComponent {
       this.invalidSecret = false;
     } catch (e) {
       this.invalidSecret = true;
-      this.platformUtilsService.showToast("error", this.i18nService.t("error"), e.message);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("error"),
+        message: e.message,
+      });
       return;
     }
 
