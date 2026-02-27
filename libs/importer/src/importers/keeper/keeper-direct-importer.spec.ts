@@ -18,6 +18,18 @@ describe("Keeper Direct Importer", () => {
   let result: ImportResult;
 
   beforeAll(async () => {
+    // Pin locale and timezone so date formatting is machine-independent. In production we use the user's locale and timezone.
+    const originalToLocaleString = Date.prototype.toLocaleString;
+    jest.spyOn(Date.prototype, "toLocaleString").mockImplementation(function (
+      this: Date,
+      ...args: Parameters<Date["toLocaleString"]>
+    ) {
+      if (args.length === 0) {
+        return originalToLocaleString.call(this, "en-US", { timeZone: "UTC" });
+      }
+      return originalToLocaleString.apply(this, args);
+    });
+
     jest.spyOn(console, "warn").mockImplementation();
 
     const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
@@ -102,7 +114,7 @@ describe("Keeper Direct Importer", () => {
     // Fields
     expect(cipher.fields.length).toBe(2);
     expect(getField(cipher, "name")?.value).toBe("John Michael Doe");
-    expect(getField(cipher, "birthDate")?.value).toBe("5/15/1990, 12:00:00 AM");
+    expect(getField(cipher, "birthDate")?.value).toBe("5/14/1990, 10:00:00 PM");
   });
 
   it("should parse contact", () => {
@@ -150,8 +162,8 @@ describe("Keeper Direct Importer", () => {
     expect(cipher.fields.length).toBe(4);
     expect(getField(cipher, "dlNumber")?.value).toBe("DL-7482693");
     expect(getField(cipher, "name")?.value).toBe("Robert William Anderson");
-    expect(getField(cipher, "birthDate")?.value).toBe("3/15/1985, 12:00:00 AM");
-    expect(getField(cipher, "expirationDate")?.value).toBe("3/15/2028, 12:00:00 AM");
+    expect(getField(cipher, "birthDate")?.value).toBe("3/14/1985, 11:00:00 PM");
+    expect(getField(cipher, "expirationDate")?.value).toBe("3/14/2028, 11:00:00 PM");
   });
 
   it("should parse encryptedNotes", () => {
@@ -168,7 +180,7 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "note")?.value).toBe(
       "Q4 2024 Strategic Planning - Discussed budget allocations, team restructuring, and new product launch timeline",
     );
-    expect(getField(cipher, "date")?.value).toBe("10/15/2024, 12:00:00 AM");
+    expect(getField(cipher, "date")?.value).toBe("10/14/2024, 10:00:00 PM");
   });
 
   it("should parse file", () => {
@@ -273,7 +285,7 @@ describe("Keeper Direct Importer", () => {
     ]);
 
     // 12
-    expect(getField(cipher, "some date")?.value).toBe("11/30/2025, 9:50:48 PM");
+    expect(getField(cipher, "some date")?.value).toBe("11/30/2025, 8:50:48 PM");
 
     // 13
     expect(getField(cipher, "email")?.value).toBe("blah@blah.com");
@@ -320,9 +332,9 @@ describe("Keeper Direct Importer", () => {
     expect(cipher.fields.length).toBe(5);
     expect(getField(cipher, "passportNumber")?.value).toBe("543826194");
     expect(getField(cipher, "name")?.value).toBe("Jennifer Lynn Williams");
-    expect(getField(cipher, "birthDate")?.value).toBe("7/22/1990, 12:00:00 AM");
-    expect(getField(cipher, "expirationDate")?.value).toBe("7/22/2033, 12:00:00 AM");
-    expect(getField(cipher, "dateIssued")?.value).toBe("8/15/2023, 12:00:00 AM");
+    expect(getField(cipher, "birthDate")?.value).toBe("7/21/1990, 10:00:00 PM");
+    expect(getField(cipher, "expirationDate")?.value).toBe("7/21/2033, 10:00:00 PM");
+    expect(getField(cipher, "dateIssued")?.value).toBe("8/14/2023, 10:00:00 PM");
   });
 
   it("should parse photo", () => {
@@ -363,8 +375,8 @@ describe("Keeper Direct Importer", () => {
     // Fields
     expect(cipher.fields.length).toBe(3);
     expect(getField(cipher, "licenseNumber")?.value).toBe("ACDB-7849-2635-1947-8520");
-    expect(getField(cipher, "expirationDate")?.value).toBe("12/31/2025, 12:00:00 AM");
-    expect(getField(cipher, "dateActive")?.value).toBe("1/15/2024, 12:00:00 AM");
+    expect(getField(cipher, "expirationDate")?.value).toBe("12/30/2025, 11:00:00 PM");
+    expect(getField(cipher, "dateActive")?.value).toBe("1/14/2024, 11:00:00 PM");
   });
 
   it("should parse sshKeys", () => {
