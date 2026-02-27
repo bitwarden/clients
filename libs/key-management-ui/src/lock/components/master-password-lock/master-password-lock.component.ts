@@ -31,8 +31,8 @@ import {
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
-import { UserId } from "@bitwarden/user-core";
 import { UnlockService } from "@bitwarden/unlock";
+import { UserId } from "@bitwarden/user-core";
 
 import {
   UnlockOption,
