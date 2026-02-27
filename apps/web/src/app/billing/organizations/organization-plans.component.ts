@@ -810,10 +810,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         const canUpgradeFromPremium = this.canUpgradeFromPremium();
         const account = await firstValueFrom(this.accountService.activeAccount$);
         if (canUpgradeFromPremium) {
-          orgId = await this.upgradeFromPremiumToOrganization(account);
+          orgId = await this.upgradeFromPremiumToOrganization(account!);
         } else {
           const encryptionData =
-            await this.premiumOrgUpgradeService.generateOrganizationEncryptionData(account.id);
+            await this.premiumOrgUpgradeService.generateOrganizationEncryptionData(account!.id);
           orgId = await this.createCloudHosted(encryptionData);
         }
         this.toastService.showToast({
@@ -1288,13 +1288,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private async upgradeFromPremiumToOrganization(account: Account): Promise<string> {
-    const organizationName = this.formGroup.controls.name.value;
+    const organizationName = this.formGroup.controls.name.value ?? "";
     const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
     const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
       this.formGroup.controls.productTier.value!,
     );
     return await this.premiumOrgUpgradeService.upgradeToOrganization(
-      account,
+      account!,
       organizationName,
       tier,
       billingAddress,
