@@ -72,7 +72,7 @@ export class AccountMenu implements IMenubarMenu {
         enabled: !this._isLocked,
       };
     }
-
+    // TODO: PM-32419 - remove old change password menu item once multi client password management is fully rolled out
     return {
       label: this.localize("changeMasterPass"),
       id: "changeMasterPass",
