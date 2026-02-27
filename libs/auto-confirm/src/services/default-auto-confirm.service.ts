@@ -95,7 +95,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       }),
     );
 
-    const publicKeyResponse = await this.apiService.getUserPublicKey(userId);
+    const publicKeyResponse = await this.apiService.getUserPublicKey(confirmedUserId);
     const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
     await firstValueFrom(

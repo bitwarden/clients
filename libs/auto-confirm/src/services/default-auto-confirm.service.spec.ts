@@ -403,7 +403,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should successfully auto-confirm a user with organizationId", async () => {
       await service.autoConfirmUser(mockUserId, mockConfirmingUserId, mockOrganizationId);
 
-      expect(apiService.getUserPublicKey).toHaveBeenCalledWith(mockUserId);
+      expect(apiService.getUserPublicKey).toHaveBeenCalledWith(mockConfirmingUserId);
       expect(organizationUserService.buildConfirmRequest).toHaveBeenCalledWith(
         mockOrganization,
         mockPublicKeyArray,
