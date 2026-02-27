@@ -19,7 +19,8 @@ use anyhow::{anyhow, Error};
 use rkyv::{deserialize, rancor::Error as RancorError, Archive, Deserialize, Serialize};
 use ssh_key::{private::KeypairData, LineEnding};
 
-use super::{PrivateKey, PublicKey, SSHKeyData};
+use super::keydata::SSHKeyData;
+use crate::crypto::{PrivateKey, PublicKey};
 
 #[derive(Archive, Serialize, Deserialize, PartialEq)]
 struct SSHKeyDataSerializable {
