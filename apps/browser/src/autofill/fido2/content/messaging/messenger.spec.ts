@@ -74,6 +74,39 @@ describe("Messenger", () => {
     expect(received[0].abortController?.signal.aborted).toBe(true);
   });
 
+  it("should ignore messages when event.isTrusted is false", () => {
+    let capturedListener: ((event: MessageEvent<MessageWithMetadata>) => void) | null = null;
+    const channel: Channel = {
+      addEventListener: (listener) => {
+        capturedListener = listener;
+      },
+      removeEventListener: () => {
+        capturedListener = null;
+      },
+      postMessage: () => {},
+    };
+
+    messengerB = new Messenger(channel);
+    messengerB.handler = handlerB.handler;
+
+    const request = createRequest();
+    const requestChannel = new MockMessageChannel<MessageWithMetadata>();
+    const { port2: remotePort } = requestChannel;
+
+    const untrustedEvent = {
+      isTrusted: false,
+      origin: "https://bitwarden.com",
+      data: { ...request, SENDER: "bitwarden-webauthn", senderId: "other-sender" },
+      ports: [remotePort],
+    } as unknown as MessageEvent<MessageWithMetadata>;
+
+    expect(capturedListener).not.toBeNull();
+    capturedListener!(untrustedEvent);
+
+    const received = handlerB.receive();
+    expect(received.length).toBe(0);
+  });
+
   describe("destroy", () => {
     beforeEach(() => {
       /**
@@ -207,13 +240,13 @@ class MockMessagePort<T> {
   remotePort: MockMessagePort<T>;
 
   postMessage(message: T, port?: MessagePort) {
-    this.remotePort.onmessage?.(
-      new MessageEvent("message", {
-        data: message,
-        ports: port ? [port] : [],
-        origin: "https://bitwarden.com",
-      }),
-    );
+    const event = {
+      isTrusted: true,
+      origin: "https://bitwarden.com",
+      data: message,
+      ports: port ? [port] : [],
+    } as unknown as MessageEvent<T>;
+    this.remotePort.onmessage?.(event);
   }
 
   close() {
