@@ -25,7 +25,6 @@ describe("PremiumOrgUpgradeService", () => {
   let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let syncService: jest.Mocked<SyncService>;
   let keyService: jest.Mocked<KeyService>;
-  let organizationService: jest.Mocked<OrganizationService>;
   let encryptService: jest.Mocked<EncryptService>;
   let i18nService: jest.Mocked<I18nService>;
 
@@ -77,17 +76,6 @@ describe("PremiumOrgUpgradeService", () => {
     i18nService = {
       t: jest.fn().mockReturnValue("Default Collection"),
     } as any;
-    organizationService = {
-      organizations$: jest.fn().mockReturnValue(
-        of([
-          {
-            id: "new-org-id",
-            name: "Test Organization",
-            isOwner: true,
-          } as Organization,
-        ]),
-      ),
-    } as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -97,7 +85,6 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
         { provide: KeyService, useValue: keyService },
-        { provide: OrganizationService, useValue: organizationService },
         { provide: EncryptService, useValue: encryptService },
         { provide: I18nService, useValue: i18nService },
       ],
@@ -111,7 +98,7 @@ describe("PremiumOrgUpgradeService", () => {
       const result = await service.upgradeToOrganization(
         mockAccount,
         "Test Organization",
-        mockPlanDetails,
+        mockPlanDetails.tier,
         mockBillingAddress,
       );
 
@@ -137,7 +124,7 @@ describe("PremiumOrgUpgradeService", () => {
 
     it("should throw an error if organization name is missing", async () => {
       await expect(
-        service.upgradeToOrganization(mockAccount, "", mockPlanDetails, mockBillingAddress),
+        service.upgradeToOrganization(mockAccount, "", mockPlanDetails.tier, mockBillingAddress),
       ).rejects.toThrow("Organization name is required for organization upgrade");
     });
 
@@ -155,7 +142,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           incompleteBillingAddress,
         ),
       ).rejects.toThrow("Billing address information is incomplete");
@@ -171,7 +158,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          invalidPlanDetails,
+          invalidPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Invalid plan tier for organization upgrade");
@@ -183,7 +170,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Key generation failed");
@@ -197,7 +184,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("API call failed");
@@ -209,7 +196,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
