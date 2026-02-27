@@ -98,6 +98,17 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     }
   }
 
+  protected override loadData() {
+    if (!this.policyResponse?.data) {
+      return;
+    }
+
+    const data = this.policyResponse.data as OrganizationDataOwnershipPolicyData;
+    this.data.patchValue({
+      enableIndividualItemsTransfer: data.enableIndividualItemsTransfer ?? false,
+    });
+  }
+
   protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
     return this.data.getRawValue();
   }
