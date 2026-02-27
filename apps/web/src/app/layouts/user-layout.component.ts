@@ -16,6 +16,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -49,8 +50,6 @@ export class UserLayoutComponent implements OnInit {
     map((isDisabled) => !isDisabled),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
-  protected hasSubscription$: Observable<boolean>;
   protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
@@ -60,6 +59,7 @@ export class UserLayoutComponent implements OnInit {
     private policyService: PolicyService,
     private configService: ConfigService,
     private accountBillingClient: AccountBillingClient,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
@@ -74,30 +74,50 @@ export class UserLayoutComponent implements OnInit {
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
-    this.hasPremiumFromAnyOrganization$ = this.ifAccountExistsCheck((userId) =>
+    const hasPremiumFromAnyOrganization$ = this.ifAccountExistsCheck((userId) =>
       this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(userId),
     );
 
-    this.hasSubscription$ = this.ifAccountExistsCheck(() =>
-      from(this.accountBillingClient.getSubscription()).pipe(
-        map((subscription) => !!subscription),
-        catchError(() => of(false)),
-      ),
-    );
+    if (this.platformUtilsService.isSelfHost()) {
+      const hasPremiumPersonally$ = this.ifAccountExistsCheck((userId) =>
+        this.billingAccountProfileStateService.hasPremiumPersonally$(userId),
+      );
 
-    this.subscriptionRoute$ = combineLatest([
-      this.hasSubscription$,
-      this.hasPremiumFromAnyOrganization$,
-    ]).pipe(
-      map(([hasSubscription, hasPremiumFromAnyOrganization]) => {
-        if (!hasPremiumFromAnyOrganization || hasSubscription) {
-          return hasSubscription
-            ? "settings/subscription/user-subscription"
-            : "settings/subscription/premium";
-        }
-        return null;
-      }),
-    );
+      this.subscriptionRoute$ = combineLatest([
+        hasPremiumFromAnyOrganization$,
+        hasPremiumPersonally$,
+      ]).pipe(
+        map(([hasPremiumFromAnyOrganization, hasPremiumPersonally]) => {
+          if (!hasPremiumFromAnyOrganization) {
+            return hasPremiumPersonally
+              ? "settings/subscription/user-subscription"
+              : "settings/subscription/premium";
+          }
+          return null;
+        }),
+      );
+    } else {
+      const hasSubscription$ = this.ifAccountExistsCheck(() =>
+        from(this.accountBillingClient.getSubscription()).pipe(
+          map((subscription) => !!subscription),
+          catchError(() => of(false)),
+        ),
+      );
+
+      this.subscriptionRoute$ = combineLatest([
+        hasSubscription$,
+        hasPremiumFromAnyOrganization$,
+      ]).pipe(
+        map(([hasSubscription, hasPremiumFromAnyOrganization]) => {
+          if (!hasPremiumFromAnyOrganization || hasSubscription) {
+            return hasSubscription
+              ? "settings/subscription/user-subscription"
+              : "settings/subscription/premium";
+          }
+          return null;
+        }),
+      );
+    }
   }
 
   async ngOnInit() {

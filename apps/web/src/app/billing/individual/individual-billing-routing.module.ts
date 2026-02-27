@@ -1,17 +1,26 @@
 import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
 import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
-import { AccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/account-subscription.component";
+import { CloudHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/cloud-hosted-account-subscription.component";
+import { SelfHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/self-hosted-account-subscription.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
 import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
+
+const isSubscriptionPageEnabled = () =>
+  inject(ConfigService)
+    .getFeatureFlag$(FeatureFlag.PM29594_UpdateIndividualSubscriptionPage)
+    .pipe(map((flagValue) => flagValue === true));
+
+const isSelfHosted = () => inject(PlatformUtilsService).isSelfHost();
 
 const routes: Routes = [
   {
@@ -20,15 +29,32 @@ const routes: Routes = [
     data: { titleId: "subscription" },
     children: [
       { path: "", pathMatch: "full", redirectTo: "user-subscription" },
-      ...featureFlaggedRoute({
-        defaultComponent: UserSubscriptionComponent,
-        flaggedComponent: AccountSubscriptionComponent,
-        featureFlag: FeatureFlag.PM29594_UpdateIndividualSubscriptionPage,
-        routeOptions: {
-          path: "user-subscription",
-          data: { titleId: "premiumMembership" },
-        },
-      }),
+      /**
+       * Three-Route Matching Strategy for /user-subscription:
+       *
+       * Routes are evaluated in order using canMatch guards.
+       *
+       * 1. Feature flag ON + Self-Hosted → SelfHostedAccountSubscriptionComponent
+       * 2. Feature flag ON + Cloud-Hosted → CloudHostedAccountSubscriptionComponent
+       * 3. Default (flag OFF) → UserSubscriptionComponent
+       */
+      {
+        path: "user-subscription",
+        component: SelfHostedAccountSubscriptionComponent,
+        data: { titleId: "premiumMembership" },
+        canMatch: [isSubscriptionPageEnabled, isSelfHosted],
+      },
+      {
+        path: "user-subscription",
+        component: CloudHostedAccountSubscriptionComponent,
+        data: { titleId: "premiumMembership" },
+        canMatch: [isSubscriptionPageEnabled],
+      },
+      {
+        path: "user-subscription",
+        component: UserSubscriptionComponent,
+        data: { titleId: "premiumMembership" },
+      },
       /**
        * Two-Route Matching Strategy for /premium:
        *
