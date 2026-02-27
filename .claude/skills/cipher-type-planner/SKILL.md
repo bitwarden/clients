@@ -36,10 +36,8 @@ the user has already provided.
    and Identity support autofill.)
 4. **Linked fields** - Should this type support linked custom fields? If yes, which properties
    should be linkable?
-5. **Import/Export** - Should this type support CSV export, or JSON-only? (CSV currently only
-   supports Login and SecureNote.)
-6. **Feature flag** - What is the feature flag name? (Convention: `vault-<type-kebab-case>`,
-   e.g., `vault-bank-account`.)
+5. **Import/Export** - Should this type support import and export? Yes/No.
+6. **Feature flag** - What is the feature flag name? (e.g., `vault-bank-account`.)
 7. **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
    to be planned as well?
 
@@ -83,12 +81,18 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 
 - **Cipher type name:** (e.g., `BankAccount`)
 - **Integer value:** (e.g., `6`)
-- **Feature flag:** (e.g., `vault-bank-account`)
+  <<<<<<< HEAD
+- # **Feature flag:** (e.g., `vault-bank-account`)
+- **Feature flag:** (e.g., `pm-32009-new-item-types`)
+  > > > > > > > vault/PM-32687-cipher-type-skill
 - **Minimum client version:** (e.g., `2026.3.0`)
 - **Fields:** Table of all fields with name, type, encrypted (yes/no), required (yes/no)
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
-- **Supports CSV export:** Yes/No
+  <<<<<<< HEAD
+- # **Supports CSV export:** Yes/No
+- **Supports import/export:** Yes/No
+  > > > > > > > vault/PM-32687-cipher-type-skill
 
 ### 2. Cross-Repository Prerequisites
 
@@ -183,6 +187,7 @@ change needed.
 - `apps/web/src/locales/en/messages.json`
 - `apps/desktop/src/locales/en/messages.json`
 - `apps/browser/src/_locales/en/messages.json`
+  <<<<<<< HEAD
 - `apps/cli/src/locales/en/messages.json`
 
 **CLI:**
@@ -192,7 +197,8 @@ change needed.
 
 **Import/Export:**
 
-- `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`
+- # `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`
+  > > > > > > > vault/PM-32687-cipher-type-skill
 
 **Linked fields (if applicable):**
 
@@ -244,11 +250,19 @@ Follow the order from `docs/cipher-types.md` Section 14, customized for this spe
 7. Localization keys
 8. Shared UI (icon, filters)
 9. Per-app UI (form section, view section)
+   <<<<<<< HEAD
 10. Import/Export and importer migration
 11. CLI
 12. Autofill (if applicable)
 13. Tests
-14. Feature flag gating
+14. # Feature flag gating
+15. Context menu / copy actions (see Section 10)
+16. Import/Export and importer migration
+17. CLI
+18. Autofill (if applicable)
+19. Tests
+20. Feature flag gating
+    > > > > > > > vault/PM-32687-cipher-type-skill
 
 ### 8. Importer Migration
 
@@ -275,6 +289,48 @@ Key importer files to check:
 - **i18n key reuse** - Before adding new locale keys, check whether existing keys already have the
   desired display value. If an existing key has the same message text, reuse it instead of creating
   a duplicate. Only create new keys when no existing key matches.
+
+# <<<<<<< HEAD
+
+### 10. Context Menu / Copy Actions
+
+Each cipher type can expose copiable fields in the vault list item context menus (right-click / more
+menu). This requires changes across **7 files** spanning core infrastructure and all 3 clients.
+
+#### Core Infrastructure (2 files)
+
+| File                                                    | What to add                                                                                                                                                                                                                                     |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `libs/vault/src/services/copy-cipher-field.service.ts`  | Add field names to the `CopyAction` type union. Add entries to the `CopyActions` record with `typeI18nKey` (i18n key for the toast message), `protected` (whether it requires password re-prompt), and optional `event` (for event collection). |
+| `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field (e.g., `case "accountNumber": return !!cipher.bankAccount?.accountNumber;`).                                                      |
+
+#### Browser (2 files)
+
+| File                                                                                              | What to add                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.ts`   | Add a `singleCopyable<Type>` getter (for single-field quick copy button), a `has<Type>Values` getter, and a `getNumberOf<Type>Values()` method. Follow the Card pattern. |
+| `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.html` | Add a section using `@if` syntax (NOT `*ngIf`) with the single/multi field pattern.                                                                                      |
+
+#### Web (2 files)
+
+| File                                                                            | What to add                                                                                                               |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.ts`   | Add `is<Type>Cipher` and `hasVisible<Type>Options` getters. Add `hasVisible<Type>Options` to the `showMenuDivider` check. |
+| `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html` | Add copy buttons using `@if` syntax with `appCopyField` directive.                                                        |
+
+#### Desktop (1 file)
+
+| File                                                                            | What to add                                                                                                                                                                              |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.ts` | Add a `CipherType.<Type>` case to the `copyFields` computed signal, returning `CopyFieldConfig[]` entries. This is the most modern pattern — uses a computed signal rather than getters. |
+
+#### Critical Warnings
+
+- **CLI has no copy menu UI** — do not add copy-related i18n keys to the CLI locale.
+- **Only expose fields that should be copiable** — not every cipher field needs a copy action. Check
+  with product requirements for which fields get copy buttons.
+
+> > > > > > > vault/PM-32687-cipher-type-skill
 
 ---
 
