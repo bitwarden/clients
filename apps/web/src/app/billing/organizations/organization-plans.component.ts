@@ -524,13 +524,24 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
 
+    // Set initial values from inputs, allowing preSelectedProductTier to take precedence if higher
+    const initialPlan = this.initialPlan();
+    const initialProductTier = this.initialProductTier();
     const preSelectedProductTier = this.preSelectedProductTier();
+    if (initialPlan !== PlanType.Free) {
+      this.formGroup.controls.plan.setValue(initialPlan);
+    }
+    if (initialProductTier !== ProductTierType.Free) {
+      this.formGroup.controls.productTier.setValue(initialProductTier);
+    }
+
     if (
       preSelectedProductTier != null &&
       (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
     ) {
       this.formGroup.controls.productTier.setValue(preSelectedProductTier);
     }
+
     if (!this.selfHosted) {
       this.changedProduct();
     }
