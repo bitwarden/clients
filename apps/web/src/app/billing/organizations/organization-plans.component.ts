@@ -474,6 +474,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private premiumOrgUpgradeService: PremiumOrgUpgradeService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -522,7 +523,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const preSelectedProductTier = this.preSelectedProductTier();
     if (
       preSelectedProductTier != null &&
-      (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
+      (this.formValues()?.productTier ?? 0) < preSelectedProductTier
     ) {
       this.formGroup.controls.productTier.setValue(preSelectedProductTier);
     }
@@ -803,10 +804,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       let orgId: string;
       if (this.createOrganization()) {
         const canUpgradeFromPremium = this.canUpgradeFromPremium();
-        const encryptionData = await this.generateOrganizationEncryptionData();
+        const account = await firstValueFrom(this.accountService.activeAccount$);
         if (canUpgradeFromPremium) {
-          orgId = await this.upgradePremiumToOrganization(encryptionData);
+          orgId = await this.upgradeFromPremiumToOrganization(account);
         } else {
+          const encryptionData =
+            await this.premiumOrgUpgradeService.generateOrganizationEncryptionData(account.id);
           orgId = await this.createCloudHosted(encryptionData);
         }
         this.toastService.showToast({
@@ -1349,5 +1352,19 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId: organizationId });
+  }
+
+  private async upgradeFromPremiumToOrganization(account: Account): Promise<string> {
+    const organizationName = this.formGroup.controls.name.value;
+    const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
+    const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
+      this.formGroup.controls.productTier.value!,
+    );
+    return await this.premiumOrgUpgradeService.upgradeToOrganization(
+      account,
+      organizationName,
+      tier,
+      billingAddress,
+    );
   }
 }
