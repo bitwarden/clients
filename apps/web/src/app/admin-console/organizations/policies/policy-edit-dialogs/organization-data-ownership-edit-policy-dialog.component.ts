@@ -46,7 +46,7 @@ import {
   PolicyEditDialogResult,
 } from "../policy-edit-dialog.component";
 
-import { MultiStepSubmit } from "./models";
+import { PolicyStep } from "./models";
 
 /**
  * Custom policy dialog component for Centralize Organization Data
@@ -78,7 +78,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   );
 
   protected readonly currentStep: WritableSignal<number> = signal(0);
-  protected readonly multiStepSubmit: WritableSignal<MultiStepSubmit[]> = signal([]);
+  protected readonly multiStepSubmit: WritableSignal<PolicyStep[]> = signal([]);
 
   private readonly policyForm = viewChild.required<TemplateRef<unknown>>("step0");
   private readonly warningContent = viewChild.required<TemplateRef<unknown>>("step1");
@@ -126,7 +126,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     this.multiStepSubmit.set(this.buildMultiStepSubmit());
   }
 
-  private buildMultiStepSubmit(): MultiStepSubmit[] {
+  private buildMultiStepSubmit(): PolicyStep[] {
     if (this.policyComponent?.policyResponse?.enabled) {
       return [
         {
