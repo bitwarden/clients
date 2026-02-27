@@ -78,7 +78,7 @@ export class PremiumOrgUpgradeService {
   async upgradeToOrganization(
     account: Account,
     organizationName: string,
-    planDetails: PremiumOrgUpgradePlanDetails,
+    tier: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId,
     billingAddress: BillingAddress,
   ): Promise<string> {
     if (!organizationName) {
@@ -89,7 +89,7 @@ export class PremiumOrgUpgradeService {
       throw new Error("Billing address information is incomplete");
     }
 
-    const tier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(planDetails.tier);
+    const productTier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(tier);
     const encryptionData = await this.generateOrganizationEncryptionData(account.id);
 
     const orgId = await this.accountBillingClient.upgradePremiumToOrganization({
