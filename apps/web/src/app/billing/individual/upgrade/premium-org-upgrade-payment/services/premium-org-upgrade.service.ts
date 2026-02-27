@@ -98,7 +98,7 @@ export class PremiumOrgUpgradeService {
       collectionName: encryptionData.collectionCt,
       publicKey: encryptionData.orgKeys[0],
       encryptedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
-      planTier: tier,
+      planTier: productTier,
       cadence: SubscriptionCadenceIds.Annually,
       billingAddress,
     });
@@ -164,6 +164,7 @@ export class PremiumOrgUpgradeService {
       collectionCt,
       orgKeys,
       orgKey: orgKey[1],
+      activeUserId,
     };
   }
 }
