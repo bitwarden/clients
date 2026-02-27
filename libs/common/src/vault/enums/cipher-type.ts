@@ -4,6 +4,7 @@ const _CipherType = Object.freeze({
   Card: 3,
   Identity: 4,
   SshKey: 5,
+  BankAccount: 6,
 } as const);
 
 type _CipherType = typeof _CipherType;
