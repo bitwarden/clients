@@ -214,7 +214,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           provide: SyncService,
           useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
         },
-        { provide: OrganizationService, useValue: mockOrganizationService },
       ],
     })
       .overrideComponent(PremiumOrgUpgradePaymentComponent, {
@@ -327,7 +326,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
         mockAccount,
         "My New Org",
-        component["selectedPlan"](),
+        "teams",
         expect.objectContaining({
           country: "US",
           postalCode: "90210",
@@ -570,7 +569,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
         mockAccount,
         "Test Organization",
-        expect.objectContaining({ tier: "teams" }),
+        "teams",
         expect.objectContaining({
           country: "US",
           postalCode: "12345",

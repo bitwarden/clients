@@ -32,6 +32,7 @@ import {
 } from "@bitwarden/web-vault/app/billing/clients";
 
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
+import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
 import { SecretsManagerSubscribeComponent } from "../shared";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "../shared/self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
@@ -411,6 +412,7 @@ describe("OrganizationPlansComponent", () => {
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
   let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
+  let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
 
   // Mock data
   let mockPasswordManagerPlans: PlanResponse[];
@@ -537,6 +539,37 @@ describe("OrganizationPlansComponent", () => {
       getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
     } as any;
 
+    mockPremiumOrgUpgradeService = {
+      upgradeToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
+      generateOrganizationEncryptionData: jest.fn().mockResolvedValue({
+        key: "mock-key",
+        collectionCt: "mock-collection",
+        orgKeys: ["public-key", { encryptedString: "private-key" }],
+        orgKey: {} as any,
+        activeUserId: "user-id" as any,
+      }),
+      previewProratedInvoice: jest.fn().mockResolvedValue({
+        tax: 2.5,
+        total: 25.0,
+        credit: 10.0,
+        newPlanProratedMonths: 6,
+        newPlanProratedAmount: 24.0,
+      }),
+      SubscriptionTierIdFromProductTier: jest.fn().mockImplementation((productTier) => {
+        // Mock implementation that returns appropriate tier based on product tier
+        if (productTier === ProductTierType.Families) {
+          return "families";
+        }
+        if (productTier === ProductTierType.Teams) {
+          return "teams";
+        }
+        if (productTier === ProductTierType.Enterprise) {
+          return "enterprise";
+        }
+        throw new Error(`Unsupported product tier: ${productTier}`);
+      }),
+    } as any;
+
     // Setup mock plan data
     mockPasswordManagerPlans = createMockPlans();
 
@@ -574,6 +607,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
+        { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
@@ -2274,21 +2308,17 @@ describe("OrganizationPlansComponent", () => {
         setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       });
 
-      it("should call accountBillingClient.upgradePremiumToOrganization() instead of create()", async () => {
+      it("should call premiumOrgUpgradeService.upgradeToOrganization() instead of create()", async () => {
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
 
         await component.submit();
 
-        expect(mockAccountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
-          organizationName: newOrgName,
-          organizationKey: "mock-key",
-          collectionName: "mock-collection",
-          publicKey: "public-key",
-          encryptedPrivateKey: "private-key",
-          planTier: ProductTierType.Teams,
-          cadence: "annually",
-          billingAddress: expect.objectContaining({ country: "US", postalCode: "12345" }),
-        });
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "user-id" }),
+          newOrgName,
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
         expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "success",
@@ -2310,7 +2340,7 @@ describe("OrganizationPlansComponent", () => {
         });
       });
 
-      it("should not call upgradePremiumToOrganization when billing address is incomplete", async () => {
+      it("should not call upgradeToOrganization when billing address is incomplete", async () => {
         component["billingFormGroup"].controls.billingAddress.patchValue({
           country: "",
           postalCode: "",
@@ -2318,7 +2348,7 @@ describe("OrganizationPlansComponent", () => {
 
         await component.submit();
 
-        expect(mockAccountBillingClient.upgradePremiumToOrganization).not.toHaveBeenCalled();
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
       });
     });
 
