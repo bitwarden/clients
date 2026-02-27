@@ -19,7 +19,6 @@ import { ChipSize } from "./base-chip.directive";
  */
 @Component({
   selector: "bit-chip-content, [bitChipContent]",
-  standalone: true,
   templateUrl: "./chip-content.component.html",
   imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
