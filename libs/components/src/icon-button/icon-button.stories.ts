@@ -3,7 +3,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
-import { ButtonType, ButtonTypes, ButtonSize } from "../shared/button-like.abstraction";
+import { ButtonType, ButtonTypes } from "../shared/button-like.abstraction";
 import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils";
 
@@ -92,7 +92,6 @@ export default {
 // Extend BitIconButtonComponent type to include host directive inputs for Storybook
 type BitIconButtonComponentWithHostDirectiveInputs = BitIconButtonComponent & {
   buttonType: ButtonType;
-  size: ButtonSize;
   loading: boolean;
   disabled: boolean;
 };
