@@ -101,7 +101,6 @@ const Allowed2020PlansForLegacyProviders = [
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // ViewChildren
   readonly enterPaymentMethodComponent = viewChild(EnterPaymentMethodComponent);
-  readonly cartSummaryComponent = viewChild(CartSummaryComponent);
 
   // Inputs
   readonly organizationId = input<string | null>(null);
