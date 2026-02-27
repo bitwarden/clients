@@ -250,7 +250,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   protected formPromise: Promise<string> | null = null;
   protected singleOrgPolicyAppliesToActiveUser = false;
   protected isInTrialFlow = false;
-  protected selectedFile: File | null = null;
 
   protected get discount(): number {
     if (!this.acceptingSponsorship()) {
