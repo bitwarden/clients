@@ -487,9 +487,7 @@ describe("OrganizationPlansComponent", () => {
       showToast: jest.fn(),
     } as any;
 
-    mockAccountBillingClient = {
-      upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
-    } as any;
+    mockAccountBillingClient = {} as any;
 
     mockSubscriberBillingClient = {
       getBillingAddress: jest.fn().mockResolvedValue({
@@ -581,7 +579,6 @@ describe("OrganizationPlansComponent", () => {
         { provide: ProviderApiServiceAbstraction, useValue: mockProviderApiService },
         { provide: ToastService, useValue: mockToastService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: AccountBillingClient, useValue: mockAccountBillingClient },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: ConfigService, useValue: mockConfigService },
