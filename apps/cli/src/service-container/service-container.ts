@@ -206,6 +206,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -230,7 +231,6 @@ import { LowdbStorageService } from "../platform/services/lowdb-storage.service"
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 
 // Polyfills
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
