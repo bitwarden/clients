@@ -31,7 +31,11 @@ describe("sso", () => {
 
   afterEach(() => {
     // Restore original window methods
-    Object.defineProperty(window, "location", { value: originalLocation });
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
     window.postMessage = originalPostMessage;
 
     // Clean up document

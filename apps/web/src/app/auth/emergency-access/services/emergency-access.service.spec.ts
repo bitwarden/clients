@@ -447,7 +447,7 @@ describe("EmergencyAccessService", () => {
           params.email,
           params.activeUserId,
         ),
-      ).rejects.toThrowError("Failed to unwrap grantor key");
+      ).rejects.toThrow("Failed to unwrap grantor key");
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
