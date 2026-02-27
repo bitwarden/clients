@@ -34,8 +34,8 @@ import {
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -64,7 +64,7 @@ class JsTokenProvider implements TokenProvider {
   constructor(
     private apiService: ApiService,
     private userId?: UserId,
-  ) {}
+  ) { }
 
   async get_access_token(): Promise<string | undefined> {
     if (this.userId == null) {
@@ -107,12 +107,12 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private securityStateService: SecurityStateService,
+    private accountCryptographyStateService: AccountCryptographicStateService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
-  ) {}
+  ) { }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
@@ -167,107 +167,70 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.keyService
-      .userEncryptedPrivateKey$(userId)
+    const accountCryptographicState$ = this.accountCryptographyStateService
+      .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged());
-    const signingKey$ = this.keyService.userSigningKey$(userId).pipe(distinctUntilChanged());
     const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
     const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
-    const securityState$ = this.securityStateService
-      .accountSecurityState$(userId)
-      .pipe(distinctUntilChanged(compareValues));
-    const signedPublicKey$ = this.keyService
-      .userSignedPublicKey$(userId)
-      .pipe(distinctUntilChanged(compareValues));
 
     const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
-      privateKey$,
+      accountCryptographicState$,
       userKey$,
-      signingKey$,
       orgKeys$,
-      securityState$,
-      signedPublicKey$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(
-        ([
-          env,
-          account,
-          kdfParams,
-          privateKey,
-          // We still listen to the user-key in case it changes. However,
-          // the value is discarded here.
-          userKey,
-          signingKey,
-          orgKeys,
-          securityState,
-          signedPublicKey,
-        ]) => {
-          // Create our own observable to be able to implement clean-up logic
-          return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
-            const createAndInitializeClient = async () => {
-              if (env == null || kdfParams == null || privateKey == null || userKey == null) {
-                return undefined;
-              }
+      switchMap(([env, account, kdfParams, accountCryptographicState, userKey, orgKeys]) => {
+        // Create our own observable to be able to implement clean-up logic
+        return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
+          const createAndInitializeClient = async () => {
+            if (
+              env == null ||
+              kdfParams == null ||
+              accountCryptographicState == null ||
+              userKey == null
+            ) {
+              return undefined;
+            }
 
-              const settings = await this.toSettings(env);
-              const client = await this.sdkClientFactory.createSdkClient(
-                new JsTokenProvider(this.apiService, userId),
-                settings,
-              );
+            const settings = await this.toSettings(env);
+            const client = await this.sdkClientFactory.createSdkClient(
+              new JsTokenProvider(this.apiService, userId),
+              settings,
+            );
 
-              let accountCryptographicState: WrappedAccountCryptographicState;
-              if (signingKey != null && securityState != null && signedPublicKey != null) {
-                accountCryptographicState = {
-                  V2: {
-                    private_key: privateKey,
-                    signing_key: signingKey,
-                    security_state: securityState,
-                    signed_public_key: signedPublicKey,
-                  },
-                };
-              } else {
-                accountCryptographicState = {
-                  V1: {
-                    private_key: privateKey,
-                  },
-                };
-              }
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              userKey,
+              accountCryptographicState,
+              orgKeys,
+            );
 
-              await this.initializeClient(
-                userId,
-                client,
-                account,
-                kdfParams,
-                userKey,
-                accountCryptographicState,
-                orgKeys,
-              );
+            return client;
+          };
 
-              return client;
-            };
+          let client: Rc<PasswordManagerClient> | undefined;
+          createAndInitializeClient()
+            .then((c) => {
+              client = c === undefined ? undefined : new Rc(c);
 
-            let client: Rc<PasswordManagerClient> | undefined;
-            createAndInitializeClient()
-              .then((c) => {
-                client = c === undefined ? undefined : new Rc(c);
+              subscriber.next(client);
+            })
+            .catch((e) => {
+              subscriber.error(e);
+            });
 
-                subscriber.next(client);
-              })
-              .catch((e) => {
-                subscriber.error(e);
-              });
-
-            return () => client?.markForDisposal();
-          });
-        },
-      ),
+          return () => client?.markForDisposal();
+        });
+      }),
       tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       share({
         connector: () => new ReplaySubject(1),
@@ -300,12 +263,12 @@ export class DefaultSdkService implements SdkService {
           kdfParams.kdfType === KdfType.PBKDF2_SHA256
             ? { pBKDF2: { iterations: kdfParams.iterations } }
             : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
+              argon2id: {
+                iterations: kdfParams.iterations,
+                memory: kdfParams.memory,
+                parallelism: kdfParams.parallelism,
               },
+            },
         accountCryptographicState: accountCryptographicState,
       });
     } else {
@@ -321,12 +284,12 @@ export class DefaultSdkService implements SdkService {
           kdfParams.kdfType === KdfType.PBKDF2_SHA256
             ? { pBKDF2: { iterations: kdfParams.iterations } }
             : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
+              argon2id: {
+                iterations: kdfParams.iterations,
+                memory: kdfParams.memory,
+                parallelism: kdfParams.parallelism,
               },
+            },
         accountCryptographicState: accountCryptographicState,
       });
     }

@@ -12877,6 +12877,21 @@
   "storageFullDescription": {
     "message": "Utilizou os $GB$ GB do seu armazenamento encriptado. Para continuar a guardar ficheiros, adicione mais espaço de armazenamento."
   },
+  "extensionPromptHeading": {
+    "message": "Obtenha a extensão para aceder facilmente ao seu cofre"
+  },
+  "extensionPromptBody": {
+    "message": "Com a extensão do navegador instalada, terá o Bitwarden sempre disponível online. Esta preencherá automaticamente as palavras-passe, para que possa iniciar sessão nas suas contas com um único clique."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Um navegador web a apresentar a extensão Bitwarden com itens de preenchimento automático para a página atual."
+  },
+  "skip": {
+    "message": "Saltar"
+  },
+  "downloadExtension": {
+    "message": "Transferir extensão"
+  },
   "whoCanView": {
     "message": "Quem pode ver"
   },

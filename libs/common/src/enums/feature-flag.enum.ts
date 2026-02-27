@@ -19,6 +19,7 @@ export enum FeatureFlag {
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
+  PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
 
   /* Autofill */
@@ -87,12 +88,10 @@ export enum FeatureFlag {
   /* Desktop */
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
   DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
+  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
-
-  /* Secrets Manager */
-  SM1719_RemoveSecretsManagerAds = "sm-1719-remove-secrets-manager-ads",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -150,6 +149,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
+  [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
 
   /* Billing */
@@ -186,12 +186,10 @@ export const DefaultFeatureFlagValue = {
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
-
-  /* Secrets Manager */
-  [FeatureFlag.SM1719_RemoveSecretsManagerAds]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
