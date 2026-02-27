@@ -183,7 +183,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private unlockService: UnlockService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
@@ -417,7 +417,7 @@ export class LockComponent implements OnInit, OnDestroy {
     try {
       await this.biometricStateService.setUserPromptCancelled();
 
-      let userKey: UserKey;
+      let userKey: UserKey | null;
       if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
         await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
         userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
