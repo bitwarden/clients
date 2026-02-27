@@ -17,7 +17,6 @@ import {
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { I18nPipe } from "@bitwarden/ui-common";
 
