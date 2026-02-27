@@ -19,7 +19,7 @@ import { CliUtils } from "./utils";
 const writeLn = CliUtils.writeLn;
 
 export abstract class BaseProgram {
-  constructor(protected serviceContainer: ServiceContainer) { }
+  constructor(protected serviceContainer: ServiceContainer) {}
 
   protected processResponse(response: Response, exitImmediately = false) {
     if (!response.success) {
@@ -166,7 +166,7 @@ export abstract class BaseProgram {
     if (await this.serviceContainer.keyConnectorService.getUsesKeyConnector(userId)) {
       const response = Response.error(
         "Your vault is locked. You must unlock your vault using your session key.\n" +
-        "If you do not have your session key, you can get a new one by logging out and logging in again.",
+          "If you do not have your session key, you can get a new one by logging out and logging in again.",
       );
       this.processResponse(response, true);
     } else {

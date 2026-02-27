@@ -56,16 +56,16 @@ describe("UnlockCommand", () => {
   const expectedSuccessMessage = new MessageResponse(
     "Your vault is now unlocked!",
     "\n" +
-    "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
-    '$ export BW_SESSION="' +
-    b64sessionKey +
-    '"\n' +
-    '> $env:BW_SESSION="' +
-    b64sessionKey +
-    '"\n\n' +
-    "You can also pass the session key to any command with the `--session` option. ex:\n" +
-    "$ bw list items --session " +
-    b64sessionKey,
+      "To unlock your vault, set your session key to the `BW_SESSION` environment variable. ex:\n" +
+      '$ export BW_SESSION="' +
+      b64sessionKey +
+      '"\n' +
+      '> $env:BW_SESSION="' +
+      b64sessionKey +
+      '"\n\n' +
+      "You can also pass the session key to any command with the `--session` option. ex:\n" +
+      "$ bw list items --session " +
+      b64sessionKey,
   );
   expectedSuccessMessage.raw = b64sessionKey;
 

@@ -183,7 +183,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private unlockService: UnlockService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();

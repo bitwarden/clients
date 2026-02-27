@@ -245,7 +245,7 @@ export class Program extends BaseProgram {
           this.processResponse(
             Response.error(
               "You cannot lock your vault because you are using Key Connector. " +
-              "To protect your vault, you have been logged out.",
+                "To protect your vault, you have been logged out.",
             ),
             true,
           );
