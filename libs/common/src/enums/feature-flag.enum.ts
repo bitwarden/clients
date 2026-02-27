@@ -20,6 +20,7 @@ export enum FeatureFlag {
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
+  PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -147,6 +148,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
+  [FeatureFlag.PM32413_MultiClientPasswordManagement]: true,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -163,7 +165,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
-  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.NoLogoutOnKdfChange]: true,
   [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
