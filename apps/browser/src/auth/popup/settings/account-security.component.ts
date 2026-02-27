@@ -65,6 +65,7 @@ import {
   TypographyModule,
   ToastService,
   SwitchComponent,
+  SpinnerComponent,
 } from "@bitwarden/components";
 import {
   KeyService,
@@ -115,6 +116,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     TypographyModule,
     SessionTimeoutInputLegacyComponent,
     SwitchComponent,
+    SpinnerComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {

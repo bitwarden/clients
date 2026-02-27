@@ -12,7 +12,9 @@
     (onDismiss)="dismissAccountSecurityNudge()"
     class="tw-mb-6"
   ></bit-spotlight>
-  @if (!loading()) {
+  @if (loading()) {
+    <div class="tw-h-full tw-place-content-center"><bit-spinner></bit-spinner></div>
+  } @else {
     <div [formGroup]="form">
       <bit-section>
         <bit-section-header>
