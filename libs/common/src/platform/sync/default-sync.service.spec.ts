@@ -353,6 +353,67 @@ describe("DefaultSyncService", () => {
       expect(apiService.getSync).toHaveBeenCalledTimes(1);
     });
 
+    it("emits sync progress updates that can be subscribed to", async () => {
+      jest.useFakeTimers();
+      apiService.getSync.mockImplementation(
+        () =>
+          new Promise<SyncResponse>((resolve) => {
+            setTimeout(() => resolve(emptySyncResponse), 50);
+          }),
+      );
+
+      const syncProgress: boolean[] = [];
+      const subscription = sut.syncInProgress$().subscribe((inProgress) => {
+        syncProgress.push(inProgress);
+      });
+
+      const syncPromise = sut.fullSync(true);
+      await Promise.resolve();
+      for (let i = 0; i < 10 && apiService.getSync.mock.calls.length === 0; i++) {
+        await Promise.resolve();
+      }
+
+      expect(syncProgress).toContain(true);
+
+      jest.advanceTimersByTime(50);
+      await syncPromise;
+
+      expect(syncProgress[syncProgress.length - 1]).toBe(false);
+      subscription.unsubscribe();
+      jest.useRealTimers();
+    });
+
+    it("waits until an in-flight sync operation is complete", async () => {
+      jest.useFakeTimers();
+      apiService.getSync.mockImplementation(
+        () =>
+          new Promise<SyncResponse>((resolve) => {
+            setTimeout(() => resolve(emptySyncResponse), 50);
+          }),
+      );
+
+      const syncPromise = sut.fullSync(true);
+      await Promise.resolve();
+      for (let i = 0; i < 10 && apiService.getSync.mock.calls.length === 0; i++) {
+        await Promise.resolve();
+      }
+
+      let isWaitResolved = false;
+      const waitPromise = sut.waitForSyncToComplete().then(() => {
+        isWaitResolved = true;
+      });
+
+      await Promise.resolve();
+      expect(isWaitResolved).toBe(false);
+
+      jest.advanceTimersByTime(50);
+      await syncPromise;
+      await waitPromise;
+
+      expect(isWaitResolved).toBe(true);
+      jest.useRealTimers();
+    });
+
     describe("in-flight syncs", () => {
       beforeEach(() => {
         jest.useFakeTimers();

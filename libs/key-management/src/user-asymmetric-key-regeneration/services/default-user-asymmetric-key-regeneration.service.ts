@@ -26,7 +26,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private apiService: ApiService,
     private configService: ConfigService,
     private accountCryptographyStateService: AccountCryptographicStateService,
-  ) {}
+  ) { }
 
   async regenerateIfNeeded(userId: UserId): Promise<void> {
     try {
@@ -34,7 +34,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
         FeatureFlag.PrivateKeyRegeneration,
       );
 
-      if (privateKeyRegenerationFlag) {
+      if (false) {
         const shouldRegenerate = await this.shouldRegenerate(userId);
         if (shouldRegenerate) {
           await this.regenerateUserPublicKeyEncryptionKeyPair(userId);
@@ -43,8 +43,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     } catch (error) {
       this.logService.error(
         "[UserAsymmetricKeyRegeneration] An error occurred: " +
-          error +
-          " Skipping regeneration for the user.",
+        error +
+        " Skipping regeneration for the user.",
       );
     }
   }
@@ -158,7 +158,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       } else {
         this.logService.error(
           "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server: " +
-            error,
+          error,
         );
         return false;
       }

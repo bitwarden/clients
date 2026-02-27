@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
@@ -43,6 +44,7 @@ describe("MasterPasswordLockComponent", () => {
   const logService = mock<LogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const messageListener = mock<MessageListener>();
+  const syncService = mock<SyncService>();
   const webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
   const dialogService = mock<DialogService>();
 
@@ -95,6 +97,8 @@ describe("MasterPasswordLockComponent", () => {
     jest.clearAllMocks();
 
     i18nService.t.mockImplementation((key: string) => key);
+    syncService.syncInProgress = false;
+    syncService.fullSync.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -115,6 +119,7 @@ describe("MasterPasswordLockComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: MessageListener, useValue: messageListener },
+        { provide: SyncService, useValue: syncService },
         { provide: WebAuthnPrfUnlockService, useValue: webAuthnPrfUnlockService },
         { provide: DialogService, useValue: dialogService },
       ],
@@ -448,6 +453,7 @@ describe("MasterPasswordLockComponent", () => {
           title: i18nService.t("errorOccurred"),
           message: i18nService.t("masterPasswordRequired"),
         });
+        expect(syncService.fullSync).not.toHaveBeenCalled();
         expect(masterPasswordUnlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
       },
     );
@@ -472,6 +478,7 @@ describe("MasterPasswordLockComponent", () => {
 
       await component.submit();
 
+      expect(syncService.fullSync).toHaveBeenCalledWith(false);
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
         mockMasterPassword,
         activeAccount.id,
@@ -500,6 +507,7 @@ describe("MasterPasswordLockComponent", () => {
 
       await component.submit();
 
+      expect(syncService.fullSync).toHaveBeenCalledWith(false);
       expect(emittedEvent?.userKey).toEqual(mockUserKey);
       expect(emittedEvent?.masterPassword).toEqual(mockMasterPassword);
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(

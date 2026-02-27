@@ -109,9 +109,10 @@ describe("LockComponent", () => {
     mockBiometricStateService.resetUserPromptCancelled.mockResolvedValue();
     mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(null));
     mockSyncService.fullSync.mockResolvedValue(true);
+    mockSyncService.waitForSyncToComplete.mockResolvedValue();
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
-    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
+    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => { });
 
     await TestBed.configureTestingModule({
       imports: [
@@ -270,7 +271,7 @@ describe("LockComponent", () => {
         jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
           await mockBiometricStateService.resetUserPromptCancelled();
           mockMessagingService.send("unlocked");
-          await mockSyncService.fullSync(false);
+          await mockSyncService.waitForSyncToComplete();
           await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
           await mockRouter.navigate([navigateUrl]);
         });
@@ -289,7 +290,7 @@ describe("LockComponent", () => {
       jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
         await mockBiometricStateService.resetUserPromptCancelled();
         mockMessagingService.send("unlocked");
-        await mockSyncService.fullSync(false);
+        await mockSyncService.waitForSyncToComplete();
         await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
           component.activeAccount!.id,
         );

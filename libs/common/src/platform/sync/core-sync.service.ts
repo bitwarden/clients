@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, map, Observable, of, switchMap, take } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -42,6 +42,7 @@ const LAST_SYNC_DATE = new UserKeyDefinition<Date>(SYNC_DISK, "lastSync", {
  */
 export abstract class CoreSyncService implements SyncService {
   syncInProgress = false;
+  private syncInProgressSubject = new BehaviorSubject<boolean>(false);
 
   constructor(
     readonly tokenService: TokenService,
@@ -57,10 +58,23 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly sendService: InternalSendService,
     protected readonly sendApiService: SendApiService,
     protected readonly stateProvider: StateProvider,
-  ) {}
+  ) { }
 
   abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
+
+  syncInProgress$(): Observable<boolean> {
+    return this.syncInProgressSubject.asObservable();
+  }
+
+  async waitForSyncToComplete(): Promise<void> {
+    await firstValueFrom(
+      this.syncInProgress$().pipe(
+        filter((inProgress) => inProgress === false),
+        take(1),
+      ),
+    );
+  }
 
   async getLastSync(): Promise<Date> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
@@ -276,11 +290,13 @@ export abstract class CoreSyncService implements SyncService {
 
   protected syncStarted() {
     this.syncInProgress = true;
+    this.syncInProgressSubject.next(true);
     this.messageSender.send("syncStarted");
   }
 
   protected syncCompleted(successfully: boolean, userId: UserId | undefined): boolean {
     this.syncInProgress = false;
+    this.syncInProgressSubject.next(false);
     this.messageSender.send("syncCompleted", { successfully: successfully, userId });
     return successfully;
   }

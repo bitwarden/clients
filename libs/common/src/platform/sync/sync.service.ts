@@ -40,6 +40,18 @@ export abstract class SyncService {
   abstract syncInProgress: boolean;
 
   /**
+   * A stream that emits whenever sync progress changes for this sync service instance.
+   * Emits `true` when a sync starts and `false` when all in-flight sync operations have completed.
+   */
+  abstract syncInProgress$(): Observable<boolean>;
+
+  /**
+   * Waits until this sync service instance is no longer syncing.
+   * Resolves immediately when no sync is currently in progress.
+   */
+  abstract waitForSyncToComplete(): Promise<void>;
+
+  /**
    * Gets the date of the last sync for the currently active user.
    *
    * @returns The date of the last sync or null if there is no active user or the active user has not synced before.

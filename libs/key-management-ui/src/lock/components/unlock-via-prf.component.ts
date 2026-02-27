@@ -11,6 +11,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/components";
 
 import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -65,7 +66,8 @@ export class UnlockViaPrfComponent implements OnInit {
     private dialogService: DialogService,
     private i18nService: I18nService,
     private logService: LogService,
-  ) {}
+    private syncService: SyncService
+  ) { }
 
   async ngOnInit(): Promise<void> {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
@@ -81,6 +83,8 @@ export class UnlockViaPrfComponent implements OnInit {
     }
 
     this.unlocking = true;
+
+    (async () => { this.syncService.fullSync(false) })();
 
     try {
       const userKey = await this.webAuthnPrfUnlockService.unlockVaultWithPrf(this.userId);

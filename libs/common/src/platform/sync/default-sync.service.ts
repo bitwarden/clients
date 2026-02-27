@@ -76,9 +76,9 @@ export class DefaultSyncService extends CoreSyncService {
     refreshToken: Promise<void> | null;
     sync: Promise<SyncResponse> | null;
   } = {
-    refreshToken: null,
-    sync: null,
-  };
+      refreshToken: null,
+      sync: null,
+    };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -215,6 +215,7 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     const lastSync = await this.getLastSync();
+    console.log("lastsync", lastSync);
     if (lastSync == null || lastSync.getTime() === 0) {
       return true;
     }

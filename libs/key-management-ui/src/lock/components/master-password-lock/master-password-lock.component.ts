@@ -18,6 +18,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -61,6 +62,7 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly logService = inject(LogService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly messageListener = inject(MessageListener);
+  private readonly syncService = inject(SyncService);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
@@ -120,6 +122,8 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     }
 
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    (async () => { this.syncService.fullSync(false) })();
 
     await this.unlockViaMasterPassword(masterPassword, activeUserId);
   };

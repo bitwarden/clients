@@ -178,7 +178,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // desktop deps
     private broadcasterService: BroadcasterService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
@@ -409,6 +409,8 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
+    (async () => { this.syncService.fullSync(false) })();
+
     try {
       await this.biometricStateService.setUserPromptCancelled();
       const userKey = await this.biometricService.unlockWithBiometricsForUser(
@@ -486,6 +488,8 @@ export class LockComponent implements OnInit, OnDestroy {
     if (!this.validatePin() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
+
+    (async () => { this.syncService.fullSync(false) })();
 
     const pin = this.formGroup.controls.pin.value;
 
@@ -612,11 +616,11 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
-    const startSync = new Date().getTime();
-    // TODO: This should probably not be blocking
-    await this.syncService.fullSync(false);
-    this.logService.info(`[LockComponent] Sync took ${new Date().getTime() - startSync}ms`);
+    const syncWaitStarted = new Date().getTime();
+    await this.syncService.waitForSyncToComplete();
+    this.logService.info(
+      `[LockComponent] Waiting for sync completion took ${new Date().getTime() - syncWaitStarted}ms`,
+    );
 
     const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking
