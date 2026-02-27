@@ -2372,7 +2372,7 @@
   "weakMasterPasswordDesc": {
     "message": "The master password you have chosen is weak. You should use a strong master password (or a passphrase) to properly protect your Bitwarden account. Are you sure you want to use this master password?"
   },
-    "rotateAccountEncKey": {
+  "rotateAccountEncKey": {
     "message": "Also rotate my account's encryption key"
   },
   "rotateEncKeyTitle": {
@@ -2392,6 +2392,9 @@
   },
   "impactOfRotatingYourEncryptionKey": {
     "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "pin": {
     "message": "PIN",
