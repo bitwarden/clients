@@ -10,6 +10,7 @@
       type="submit"
       buttonType="primary"
       [loading]="loading()"
+      [disabled]="!validateEmail()"
       [block]="true"
     >
       <span>{{ "sendCode" | i18n }} </span>

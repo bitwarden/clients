@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -33,7 +33,6 @@ import {
   BadgeModule,
 } from "@bitwarden/components";
 import {
-  ArchiveCipherUtilitiesService,
   CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
@@ -57,6 +56,7 @@ import { PopupCloseWarningService } from "../../../../../popup/services/popup-cl
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
+import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
 import {
   fido2PopoutSessionData$,
   Fido2SessionData,
@@ -233,9 +233,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
-    private location: Location,
     private archiveService: CipherArchiveService,
-    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
+    private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
   ) {
     this.subscribeToParams();
   }
@@ -496,21 +495,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.routeAfterDeletion !== ROUTES_AFTER_EDIT_DELETION.tabsVault) {
-      const history = await firstValueFrom(this.popupRouterCacheService.history$());
-      const targetIndex = history.map((h) => h.url).lastIndexOf(this.routeAfterDeletion);
-
-      if (targetIndex !== -1) {
-        const stepsBack = targetIndex - (history.length - 1);
-        // Use historyGo to navigate back to the target route in history
-        // This allows downstream calls to `back()` to continue working as expected
-        await this.location.historyGo(stepsBack);
-      } else {
-        await this.router.navigate([this.routeAfterDeletion]);
-      }
-    } else {
-      await this.router.navigate([this.routeAfterDeletion]);
-    }
+    await this.afterDeletionNavigationService.navigateAfterDeletion(this.routeAfterDeletion);
 
     this.toastService.showToast({
       variant: "success",
