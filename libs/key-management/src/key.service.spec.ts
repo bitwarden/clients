@@ -825,21 +825,6 @@ describe("keyService", () => {
       );
       expect(result).toBe(mockReturnedHashB64);
     });
-
-    it("hashes master key with 100000 iterations when hashPurpose is ServerAuthorization", async () => {
-      const mockReturnedHashB64 = "bXlfaGFzaA==";
-      cryptoFunctionService.pbkdf2.mockResolvedValue(Utils.fromB64ToArray(mockReturnedHashB64));
-
-      const result = await keyService.hashMasterKey(password, masterKey);
-
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        masterKey.inner().encryptionKey,
-        password,
-        "sha256",
-        1,
-      );
-      expect(result).toBe(mockReturnedHashB64);
-    });
   });
 
   describe("makeOrgKey", () => {
