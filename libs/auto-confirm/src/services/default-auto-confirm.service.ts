@@ -68,6 +68,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
   async autoConfirmUser(
     userId: UserId,
     confirmedUserId: UserId,
+    confirmedOrganizationUserId: UserId,
     organizationId: OrganizationId,
   ): Promise<void> {
     const canManage = await firstValueFrom(this.canManageAutoConfirm$(userId));
@@ -104,7 +105,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
         switchMap((request) =>
           this.organizationUserApiService.postOrganizationUserAutoConfirm(
             organizationId,
-            confirmedUserId,
+            confirmedOrganizationUserId,
             request,
           ),
         ),
