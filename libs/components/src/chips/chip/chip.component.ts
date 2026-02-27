@@ -7,6 +7,11 @@ import { BaseChipDirective } from "../shared/base-chip.directive";
 import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
+/**
+ * Chips represent user-provided values, entities, or selections that can be reviewed, edited, or
+ * removed. Use input chips when users are entering or managing multiple discrete items, such as
+ * tags, users, or permissions.
+ */
 @Component({
   selector: "bit-chip",
   standalone: true,

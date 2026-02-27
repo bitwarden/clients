@@ -1,14 +1,10 @@
 import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
 
-import * as stories from "./chip/chip.stories";
+import * as chipStories from "./chip/chip.stories";
+import * as filterChipStories from "./chip-filter/chip-filter.stories";
+import * as actionChipStories from "./chip-action/chip-action.stories";
 
 <Meta title="Component Library/Chips" />
-
-```ts
-import { ChipComponent } from "@bitwarden/components";
-```
-
-<Title />
 
 ## Overview
 
@@ -29,19 +25,21 @@ Use chips when information or controls need to be:
 
 The component library provides three types of chips, each designed for specific use cases:
 
-### Chip (Base Component)
+### Chip
 
-The base `bit-chip` component represents user-provided values, entities, or selections that can be
-reviewed, edited, or removed. Use chips when users are entering or managing multiple discrete items,
-such as tags, users, or permissions.
+The `bit-chip` component represents user-provided values, entities, or selections that can be
+reviewed, edited, or removed.
 
-<Canvas of={stories.Default} />
+<Canvas of={chipStories.Default} />
 
-**Use the base chip when:**
+**Use the chip when:**
 
 - Displaying user-entered tags or labels
 - Showing selected items that can be dismissed
 - Representing discrete entities with remove functionality
+
+See [Chip](?path=/docs/component-library-chips-chip--docs) for detailed usage, variants, and
+examples.
 
 ### Action Chip
 
@@ -49,13 +47,15 @@ Action chips trigger a single contextual action related to the current view or t
 act quickly without changing selection state or entering input. Action chips can be implemented as
 buttons or links.
 
+<Canvas of={actionChipStories.Default} />
+
 **Use action chips when:**
 
 - Providing quick access to contextual actions
 - Offering lightweight interactive elements that don't change state
 - Creating actions that complement but don't compete with primary buttons
 
-See [Chip Action](?path=/docs/component-library-chip-chip-action--docs) for detailed usage,
+See [Chip Action](?path=/docs/component-library-chips-chip-action--docs) for detailed usage,
 variants, and examples.
 
 ### Filter Chip
@@ -64,103 +64,26 @@ Filter chips allow users to narrow or refine a list of items by predefined crite
 single-select or multi-select with dropdown menus, supporting both flat and nested option
 structures.
 
+<Canvas of={filterChipStories.Default} />
+
 **Use filter chips when:**
 
 - Filtering lists or tables by specific criteria
 - Allowing users to select from predefined options
 - Supporting hierarchical filter selections
 
-See [Chip Filter](?path=/docs/component-library-chip-chip-filter--docs) for detailed usage and
+See [Chip Filter](?path=/docs/component-library-chips-chip-filter--docs) for detailed usage and
 examples.
 
 ## Content Guidelines
 
 Chip copy should be **1-2 words** for optimal scannability.
 
-If necessary, chip text should always be truncated with ellipses, not wrapped to a second line.
+Long chip text will truncate with ellipses rather than wrap to a second line.
 
----
-
-## Base Chip Component (`bit-chip`)
-
-The sections below describe the specific functionality and usage of the base chip component. For
-general information about chips and other chip types, see the overview above.
-
-### Basic Usage
-
-The base chip component displays a label with an optional start icon and a dismiss button.
-
-```html
-<bit-chip label="Tag name" startIcon="bwi-tag" (chipDismissed)="handleRemove()"> </bit-chip>
-```
-
-```ts
-@Component({
-  selector: "app-my-component",
-  template: `
-    <div class="tw-flex tw-flex-wrap tw-gap-2">
-      @for (tag of tags; track tag.id) {
-        <bit-chip [label]="tag.name" startIcon="bwi-tag" (chipDismissed)="removeTag(tag)">
-        </bit-chip>
-      }
-    </div>
-  `,
-})
-class MyComponent {
-  protected tags = [
-    { id: 1, name: "Work" },
-    { id: 2, name: "Personal" },
-    { id: 3, name: "Important" },
-  ];
-
-  protected removeTag(tag: Tag) {
-    this.tags = this.tags.filter((t) => t.id !== tag.id);
-  }
-}
-```
-
-### Dismissing Chips
-
-The chip component includes a built-in dismiss button (X icon) that emits a `chipDismissed` event
-when clicked. Handle this event to remove the chip from your collection.
-
-```html
-<bit-chip label="Removable tag" (chipDismissed)="handleDismiss()"> </bit-chip>
-```
-
-### Sizes
-
-Chips are available in two sizes: small and large (default).
-
-```html
-<!-- Small size -->
-<bit-chip label="Small" size="small"></bit-chip>
-
-<!-- Large size (default) -->
-<bit-chip label="Large" size="large"></bit-chip>
-```
-
-### Inactive State
-
-Chips can be inactive to prevent interaction.
-
-```html
-<bit-chip label="Inactive chip" [disabled]="true"> </bit-chip>
-```
-
-### With Icons
-
-Add a start icon to provide additional visual context.
-
-```html
-<bit-chip label="User" startIcon="bwi-user"> </bit-chip>
-
-<bit-chip label="Folder" startIcon="bwi-folder"> </bit-chip>
-```
+<Canvas of={chipStories.WithLongLabel} />
 
 ### Accessibility
 
-- The chip includes proper `aria-disabled` attributes when disabled
-- The dismiss button includes an internationalized aria-label for screen readers
 - Ensure sufficient color contrast when using chips on different backgrounds
 - Use descriptive labels that clearly identify what the chip represents

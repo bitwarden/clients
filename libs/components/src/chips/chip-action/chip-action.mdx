@@ -12,9 +12,7 @@ import { ChipActionComponent } from "@bitwarden/components";
 
 ## Overview
 
-Action chips trigger a single contextual action related to the current view or task. They do not
-have selection state and do not manage input. Use action chips for quick, one-off actions like
-filtering, sorting, or navigating to related content.
+<Description />
 
 <Canvas of={stories.Default} />
 
@@ -47,40 +45,11 @@ Use `<a>` when the chip navigates to a new page.
 Action chips support four visual variants to provide different levels of emphasis and semantic
 meaning.
 
-### Primary
+- The primary variant uses brand colors for high emphasis actions.
 
-The primary variant uses brand colors for high emphasis actions.
-
-<Canvas of={stories.WithStartIcon} />
-
-### Subtle
-
-The subtle variant uses muted colors for lower emphasis actions.
-
-```html
-<button bit-chip-action label="Subtle" variant="subtle" startIcon="bwi-folder"></button>
-```
-
-### Accent Primary
-
-The accent primary variant uses accent brand colors.
-
-```html
-<button bit-chip-action label="Info" variant="accent-primary" startIcon="bwi-info-circle"></button>
-```
-
-### Accent Secondary
-
-The accent secondary variant uses secondary accent colors.
-
-```html
-<button
-  bit-chip-action
-  label="Warning"
-  variant="accent-secondary"
-  startIcon="bwi-exclamation-triangle"
-></button>
-```
+- The subtle variant uses muted colors for lower emphasis actions.
+- The accent primary variant uses accent brand colors.
+- The accent secondary variant uses secondary accent colors.
 
 <Canvas of={stories.AllVariants} />
 
@@ -111,23 +80,3 @@ Action chips can be inactive to prevent interaction.
 ```
 
 <Canvas of={stories.Inactive} />
-
-## Groups of Action Chips
-
-When displaying multiple action chips together, use consistent spacing:
-
-```html
-<div class="tw-flex tw-flex-wrap tw-gap-2">
-  <button bit-chip-action label="Filter" startIcon="bwi-filter"></button>
-  <button bit-chip-action label="Sort" startIcon="bwi-sort"></button>
-  <button bit-chip-action label="Export" startIcon="bwi-download"></button>
-</div>
-```
-
-## Accessibility
-
-- The component includes proper `aria-disabled` attributes when disabled
-- Use descriptive labels that clearly communicate the action
-- Ensure sufficient color contrast when using chips on different backgrounds
-- For icon-only chips (if the label is empty), ensure the icon conveys clear meaning or add an
-  `aria-label`
