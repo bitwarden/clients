@@ -167,6 +167,17 @@
         </button>
       </ng-container>
 
+      @if (isBankAccountCipher) {
+        <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="cipher">
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyAccountNumber" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="cipher">
+          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          {{ "copyRoutingNumber" | i18n }}
+        </button>
+      }
+
       <ng-container *ngIf="isSecureNoteCipher">
         <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher">
           <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
