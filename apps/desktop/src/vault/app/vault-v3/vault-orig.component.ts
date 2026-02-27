@@ -10,28 +10,26 @@ import {
   OnInit,
   signal,
   ViewChild,
-  ViewContainerRef,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
+  combineLatest,
   firstValueFrom,
   Subject,
   takeUntil,
   switchMap,
   lastValueFrom,
   Observable,
-  BehaviorSubject,
-  combineLatest,
+  from,
 } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
-import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ItemTypes } from "@bitwarden/assets/svg";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -39,11 +37,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -77,8 +73,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
-  AddEditFolderDialogComponent,
-  AddEditFolderDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
@@ -89,35 +83,36 @@ import {
   CipherFormModule,
   CipherViewComponent,
   CollectionAssignmentResult,
+  createFilterFunction,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
   ArchiveCipherUtilitiesService,
+  VaultFilter,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
-import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
-
-import { AssignCollectionsDesktopComponent } from "./assign-collections";
-import { ItemFooterComponent } from "./item-footer.component";
-import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
-import { VaultFilterModule } from "./vault-filter/vault-filter.module";
-import { VaultItemsV2Component } from "./vault-items-v2.component";
+import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
+import { ItemFooterComponent } from "../vault/item-footer.component";
+import { VaultItemsV2Component } from "../vault/vault-items-v2.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-vault",
-  templateUrl: "vault-v2.component.html",
+  selector: "app-vault-v3",
+  templateUrl: "vault-orig.component.html",
   imports: [
     BadgeModule,
     CommonModule,
@@ -128,8 +123,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     ItemModule,
     ButtonModule,
     PremiumBadgeComponent,
-    NavComponent,
-    VaultFilterModule,
     VaultItemsV2Component,
     NoItemsModule,
   ],
@@ -153,26 +146,16 @@ const BroadcasterSubscriptionId = "VaultComponent";
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
     {
       provide: COPY_CLICK_LISTENER,
-      useExisting: VaultV2Component,
+      useExisting: VaultComponent,
     },
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
-export class VaultV2Component<C extends CipherViewLike>
-  implements OnInit, OnDestroy, CopyClickListener
-{
+export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(VaultItemsV2Component, { static: true })
-  vaultItemsComponent: VaultItemsV2Component<C> | null = null;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(VaultFilterComponent, { static: true })
-  vaultFilterComponent: VaultFilterComponent | null = null;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef | null = null;
+  vaultItemsComponent: VaultItemsV2Component<CipherView> | null = null;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent)
@@ -185,40 +168,43 @@ export class VaultV2Component<C extends CipherViewLike>
   folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: OrganizationId | null = null;
-  myVaultOnly = false;
   addType: CipherType | undefined = undefined;
   addOrganizationId: string | null = null;
   addCollectionIds: string[] | null = null;
   showingModal = false;
   deleted = false;
-  userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
-  private activeFilterSubject = new BehaviorSubject<VaultFilter>(new VaultFilter());
-  private activeFilter$ = this.activeFilterSubject.asObservable();
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
-  showPremiumCallout$ = this.userId$.pipe(
-    switchMap((userId) =>
-      combineLatest([
-        this.activeFilter$,
-        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
-      ]).pipe(
-        map(([activeFilter, showMessaging]) => activeFilter.status === "archive" && showMessaging),
-      ),
-    ),
-  );
   activeUserId: UserId | null = null;
   cipherRepromptId: string | null = null;
   readonly cipher = signal<CipherView | null>(null);
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
-  readonly userHasPremium = signal<boolean>(false);
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
+
+  /** Tracks the disabled status of the edit cipher form */
+  protected formDisabled: boolean = false;
+
+  readonly userHasPremium = toSignal(
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => !!account),
+      switchMap((account) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    ),
+    { initialValue: false },
+  );
   readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
     initialValue: false,
   });
   protected itemTypesIcon = ItemTypes;
-
-  /** Tracks the disabled status of the edit cipher form */
-  protected formDisabled: boolean = false;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -243,6 +229,7 @@ export class VaultV2Component<C extends CipherViewLike>
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
   private allCollections: CollectionView[] = [];
+  private filteredCollections: CollectionView[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -258,7 +245,6 @@ export class VaultV2Component<C extends CipherViewLike>
     private totpService: TotpService,
     private passwordRepromptService: PasswordRepromptService,
     private searchBarService: SearchBarService,
-    private apiService: ApiService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
@@ -269,26 +255,31 @@ export class VaultV2Component<C extends CipherViewLike>
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private folderService: FolderService,
+    private authRequestService: AuthRequestServiceAbstraction,
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
-    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
+    private routedVaultFilterService: RoutedVaultFilterService,
+    private vaultFilterService: VaultFilterService,
     private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
+    // Subscribe to filter changes from router params via the bridge service
+    // Use combineLatest to react to changes in both the filter and archive flag
+    combineLatest([
+      this.routedVaultFilterBridgeService.activeFilter$,
+      this.routedVaultFilterService.filter$,
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
+    ])
       .pipe(
-        filter((account): account is Account => !!account),
-        switchMap((account) =>
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
+          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
         ),
         takeUntil(this.componentIsDestroyed$),
       )
-      .subscribe((canAccessPremium: boolean) => {
-        this.userHasPremiumAccess = canAccessPremium;
-        this.userHasPremium.set(canAccessPremium);
-      });
+      .subscribe();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
       this.ngZone
@@ -317,15 +308,7 @@ export class VaultV2Component<C extends CipherViewLike>
                 break;
               case "syncCompleted":
                 if (this.vaultItemsComponent) {
-                  await this.vaultItemsComponent
-                    .reload(this.activeFilter.buildFilter())
-                    .catch(() => {});
-                }
-                if (this.vaultFilterComponent) {
-                  await this.vaultFilterComponent
-                    .reloadCollectionsAndFolders(this.activeFilter)
-                    .catch(() => {});
-                  await this.vaultFilterComponent.reloadOrganizations().catch(() => {});
+                  await this.vaultItemsComponent.refresh().catch(() => {});
                 }
                 if (this.activeUserId) {
                   void this.vaultItemTransferService.enforceOrganizationDataOwnership(
@@ -367,10 +350,10 @@ export class VaultV2Component<C extends CipherViewLike>
               case "copyTotp": {
                 if (
                   this.cipher()?.login?.hasTotp &&
-                  (this.cipher()?.organizationUseTotp || this.userHasPremiumAccess)
+                  (this.cipher().organizationUseTotp || this.userHasPremium())
                 ) {
                   const value = await firstValueFrom(
-                    this.totpService.getCode$(this.cipher()?.login.totp),
+                    this.totpService.getCode$(this.cipher().login.totp),
                   ).catch((): any => null);
                   if (value) {
                     this.copyValue(this.cipher(), value.code, "verificationCodeTotp", "TOTP");
@@ -399,11 +382,18 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
+    const authRequests = await firstValueFrom(
+      this.authRequestService.getLatestPendingAuthRequest$()!,
+    );
+    if (authRequests != null) {
+      this.messagingService.send("openLoginApproval", {
+        notificationId: authRequests.id,
+      });
+    }
+
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
     ).catch((): any => null);
-
-    await this.sendOpenLoginApprovalMessage(this.activeUserId);
 
     if (this.activeUserId) {
       this.cipherService
@@ -436,6 +426,12 @@ export class VaultV2Component<C extends CipherViewLike>
         this.allCollections = collections;
       });
 
+    this.vaultFilterService.filteredCollections$
+      .pipe(takeUntil(this.componentIsDestroyed$))
+      .subscribe((collections) => {
+        this.filteredCollections = collections;
+      });
+
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
@@ -463,20 +459,6 @@ export class VaultV2Component<C extends CipherViewLike>
       this.addType = paramCipherAddType;
       await this.addCipher(this.addType).catch(() => {});
     }
-
-    const paramCipherType = toCipherType(params.type);
-    this.activeFilter = new VaultFilter({
-      status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
-      cipherType: params.action === "add" || paramCipherType == null ? undefined : paramCipherType,
-      selectedFolderId: params.folderId,
-      selectedCollectionId: params.selectedCollectionId,
-      selectedOrganizationId: params.selectedOrganizationId,
-      myVaultOnly: params.myVaultOnly ?? false,
-    });
-    this.activeFilterSubject.next(this.activeFilter);
-    if (this.vaultItemsComponent) {
-      await this.vaultItemsComponent.reload(this.activeFilter.buildFilter()).catch(() => {});
-    }
   }
 
   /**
@@ -500,9 +482,7 @@ export class VaultV2Component<C extends CipherViewLike>
     this.cipherId = cipher.id;
     this.cipher.set(cipher);
     this.collections =
-      this.vaultFilterComponent?.collections?.fullList.filter((c) =>
-        cipher.collectionIds.includes(c.id),
-      ) ?? null;
+      this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
     this.action = "view";
 
     await this.go().catch(() => {});
@@ -519,7 +499,7 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   async openAttachmentsDialog() {
-    if (!this.userHasPremiumAccess) {
+    if (!this.userHasPremium()) {
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
@@ -649,80 +629,77 @@ export class VaultV2Component<C extends CipherViewLike>
       });
     }
 
-    if (!cipher.isDeleted) {
-      switch (cipher.type) {
-        case CipherType.Login:
-          if (
-            cipher.login.canLaunch ||
-            cipher.login.username != null ||
-            cipher.login.password != null
-          ) {
-            menu.push({ type: "separator" });
-          }
-          if (cipher.login.canLaunch) {
-            menu.push({
-              label: this.i18nService.t("launch"),
-              click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
-            });
-          }
-          if (cipher.login.username != null) {
-            menu.push({
-              label: this.i18nService.t("copyUsername"),
-              click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
-            });
-          }
-          if (cipher.login.password != null && cipher.viewPassword) {
-            menu.push({
-              label: this.i18nService.t("copyPassword"),
-              click: () => {
-                this.copyValue(cipher, cipher.login.password, "password", "Password");
-                this.eventCollectionService
-                  .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
-                  .catch(() => {});
-              },
-            });
-          }
-          if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
-            menu.push({
-              label: this.i18nService.t("copyVerificationCodeTotp"),
-              click: async () => {
-                const value = await firstValueFrom(
-                  this.totpService.getCode$(cipher.login.totp),
-                ).catch((): any => null);
-                if (value) {
-                  this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
-                }
-              },
-            });
-          }
-          break;
-        case CipherType.Card:
-          if (cipher.card.number != null || cipher.card.code != null) {
-            menu.push({ type: "separator" });
-          }
-          if (cipher.card.number != null) {
-            menu.push({
-              label: this.i18nService.t("copyNumber"),
-              click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
-            });
-          }
-          if (cipher.card.code != null) {
-            menu.push({
-              label: this.i18nService.t("copySecurityCode"),
-              click: () => {
-                this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-                this.eventCollectionService
-                  .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
-                  .catch(() => {});
-              },
-            });
-          }
-          break;
-        default:
-          break;
-      }
+    switch (cipher.type) {
+      case CipherType.Login:
+        if (
+          cipher.login.canLaunch ||
+          cipher.login.username != null ||
+          cipher.login.password != null
+        ) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.login.canLaunch) {
+          menu.push({
+            label: this.i18nService.t("launch"),
+            click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
+          });
+        }
+        if (cipher.login.username != null) {
+          menu.push({
+            label: this.i18nService.t("copyUsername"),
+            click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
+          });
+        }
+        if (cipher.login.password != null && cipher.viewPassword) {
+          menu.push({
+            label: this.i18nService.t("copyPassword"),
+            click: () => {
+              this.copyValue(cipher, cipher.login.password, "password", "Password");
+              this.eventCollectionService
+                .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
+                .catch(() => {});
+            },
+          });
+        }
+        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremium())) {
+          menu.push({
+            label: this.i18nService.t("copyVerificationCodeTotp"),
+            click: async () => {
+              const value = await firstValueFrom(
+                this.totpService.getCode$(cipher.login.totp),
+              ).catch((): any => null);
+              if (value) {
+                this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+              }
+            },
+          });
+        }
+        break;
+      case CipherType.Card:
+        if (cipher.card.number != null || cipher.card.code != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.card.number != null) {
+          menu.push({
+            label: this.i18nService.t("copyNumber"),
+            click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
+          });
+        }
+        if (cipher.card.code != null) {
+          menu.push({
+            label: this.i18nService.t("copySecurityCode"),
+            click: () => {
+              this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
+              this.eventCollectionService
+                .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
+                .catch(() => {});
+            },
+          });
+        }
+        break;
+      default:
+        break;
     }
-
     invokeMenu(menu);
   }
 
@@ -863,20 +840,19 @@ export class VaultV2Component<C extends CipherViewLike>
     await this.go().catch(() => {});
   }
 
-  async applyVaultFilter(vaultFilter: VaultFilter) {
+  async applyVaultFilter(
+    vaultFilter: VaultFilter,
+    routedFilter: Parameters<typeof createFilterFunction>[0],
+    archiveEnabled: boolean,
+  ) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
-    this.activeFilterSubject.next(vaultFilter);
-    await this.vaultItemsComponent
-      ?.reload(
-        this.activeFilter.buildFilter(),
-        vaultFilter.status === "trash",
-        vaultFilter.status === "archive",
-      )
-      .catch(() => {});
-    await this.go().catch(() => {});
+
+    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
+
+    await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
   }
 
   private getAvailableCollections(cipher: CipherView): CollectionView[] {
@@ -890,25 +866,25 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
-    if (vaultFilter.status === "favorites") {
+    if (vaultFilter.isFavorites) {
       return "searchFavorites";
     }
-    if (vaultFilter.status === "trash") {
+    if (vaultFilter.isDeleted) {
       return "searchTrash";
     }
     if (vaultFilter.cipherType != null) {
       return "searchType";
     }
-    if (vaultFilter.selectedFolderId != null && vaultFilter.selectedFolderId !== "none") {
+    if (vaultFilter.folderId != null && vaultFilter.folderId !== "none") {
       return "searchFolder";
     }
-    if (vaultFilter.selectedCollectionId != null) {
+    if (vaultFilter.collectionId != null) {
       return "searchCollection";
     }
-    if (vaultFilter.selectedOrganizationId != null) {
+    if (vaultFilter.organizationId != null) {
       return "searchOrganization";
     }
-    if (vaultFilter.myVaultOnly) {
+    if (vaultFilter.isMyVaultSelected) {
       return "searchMyVault";
     }
     return "searchVault";
@@ -928,23 +904,6 @@ export class VaultV2Component<C extends CipherViewLike>
 
     if (!folderView) {
       return;
-    }
-
-    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
-      editFolderConfig: {
-        folder: {
-          ...folderView,
-        },
-      },
-    });
-
-    const result = await lastValueFrom(dialogRef.closed);
-
-    if (
-      result === AddEditFolderDialogResult.Deleted ||
-      result === AddEditFolderDialogResult.Created
-    ) {
-      await this.vaultFilterComponent?.reloadCollectionsAndFolders(this.activeFilter);
     }
   }
 
@@ -987,19 +946,13 @@ export class VaultV2Component<C extends CipherViewLike>
       queryParams = {
         action: this.action,
         cipherId: this.cipherId,
-        favorites: this.favorites ? true : null,
-        type: this.type,
-        folderId: this.folderId,
-        collectionId: this.collectionId,
-        deleted: this.deleted ? true : null,
-        organizationId: this.organizationId,
-        myVaultOnly: this.myVaultOnly,
       };
     }
     this.router
       .navigate([], {
         relativeTo: this.route,
         queryParams: queryParams,
+        queryParamsHandling: "merge",
         replaceUrl: true,
       })
       .catch(() => {});
@@ -1034,21 +987,23 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   private prefillCipherFromFilter() {
-    if (this.activeFilter.selectedCollectionId != null && this.vaultFilterComponent != null) {
-      const collections = this.vaultFilterComponent.collections?.fullList.filter(
-        (c) => c.id === this.activeFilter.selectedCollectionId,
+    if (this.activeFilter.collectionId != null) {
+      const collections = this.filteredCollections?.filter(
+        (c) => c.id === this.activeFilter.collectionId,
       );
-      if (collections.length > 0) {
+      if (collections?.length > 0) {
         this.addOrganizationId = collections[0].organizationId;
-        this.addCollectionIds = [this.activeFilter.selectedCollectionId];
+        this.addCollectionIds = [this.activeFilter.collectionId];
       }
-    } else if (this.activeFilter.selectedOrganizationId) {
-      this.addOrganizationId = this.activeFilter.selectedOrganizationId;
+    } else if (this.activeFilter.organizationId && this.activeFilter.organizationId !== "MyVault") {
+      this.addOrganizationId = this.activeFilter.organizationId;
     } else {
       // clear out organizationId when the user switches to a personal vault filter
       this.addOrganizationId = null;
     }
-    this.folderId = this.activeFilter.selectedFolderId;
+    if (this.activeFilter.folderId && this.activeFilter.selectedFolderNode) {
+      this.folderId = this.activeFilter.folderId;
+    }
 
     if (this.config == null) {
       return;
@@ -1056,9 +1011,9 @@ export class VaultV2Component<C extends CipherViewLike>
 
     this.config.initialValues = {
       ...this.config.initialValues,
-      organizationId: this.addOrganizationId as OrganizationId,
       folderId: this.folderId,
-      collectionIds: this.addCollectionIds ? (this.addCollectionIds as CollectionId[]) : [],
+      organizationId: this.addOrganizationId as OrganizationId,
+      collectionIds: this.addCollectionIds as CollectionId[],
     };
   }
 
@@ -1084,28 +1039,5 @@ export class VaultV2Component<C extends CipherViewLike>
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
-  }
-
-  /**
-   * Sends a message that will retrieve any pending auth requests from the server. If there are
-   * pending auth requests for this user, a LoginApprovalDialogComponent will open. If there
-   * are no pending auth requests, nothing happens (see AppComponent: "openLoginApproval").
-   */
-  private async sendOpenLoginApprovalMessage(activeUserId: UserId) {
-    // This is a defensive check against a race condition where a user may have successfully logged
-    // in with no forceSetPasswordReason, but while the vault component is loading, a sync sets
-    // forceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission (see DefaultSyncService).
-    // This could potentially happen if an Admin upgrades the user's permissions as the user is logging
-    // in. In this rare case we do not want to send an "openLoginApproval" message.
-    //
-    // This also keeps parity with other usages of the "openLoginApproval" message. That is: don't send
-    // an "openLoginApproval" message if the user is required to set/change their password.
-    const forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(activeUserId),
-    );
-    if (forceSetPasswordReason === ForceSetPasswordReason.None) {
-      // If there are pending auth requests for this user, a LoginApprovalDialogComponent will open
-      this.messagingService.send("openLoginApproval");
-    }
   }
 }
