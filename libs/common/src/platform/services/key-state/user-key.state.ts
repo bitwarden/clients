@@ -11,7 +11,7 @@ export const USER_EVER_HAD_USER_KEY = new UserKeyDefinition<boolean>(
   },
 );
 
-export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
+export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
 });
