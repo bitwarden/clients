@@ -130,7 +130,7 @@ export class Fido2ClientService<
       throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
     }
 
-    const userId = Fido2Utils.stringToBuffer(params.user.id);
+    const userId = Fido2Utils.stringToArray(params.user.id);
     if (userId.byteLength < 1 || userId.byteLength > 64) {
       this.logService?.warning(
         `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.byteLength})`,
@@ -195,7 +195,7 @@ export class Fido2ClientService<
     const makeCredentialParams = mapToMakeCredentialParams({
       params,
       credTypesAndPubKeyAlgs,
-      clientDataHash,
+      clientDataHash: new Uint8Array(clientDataHash),
     });
 
     // Set timeout before invoking authenticator
@@ -255,11 +255,11 @@ export class Fido2ClientService<
     timeoutSubscription?.unsubscribe();
 
     return {
-      credentialId: Fido2Utils.bufferToString(makeCredentialResult.credentialId),
-      attestationObject: Fido2Utils.bufferToString(makeCredentialResult.attestationObject),
-      authData: Fido2Utils.bufferToString(makeCredentialResult.authData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
+      credentialId: Fido2Utils.arrayToString(makeCredentialResult.credentialId),
+      attestationObject: Fido2Utils.arrayToString(makeCredentialResult.attestationObject),
+      authData: Fido2Utils.arrayToString(makeCredentialResult.authData),
+      clientDataJSON: Fido2Utils.arrayToString(clientDataJSONBytes),
+      publicKey: Fido2Utils.arrayToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
       transports: ["internal", "hybrid"],
       extensions: { credProps },
@@ -383,7 +383,7 @@ export class Fido2ClientService<
     params: AssertCredentialParams,
     tab: ParentWindowReference,
     abortController: AbortController,
-    clientDataJSONBytes: Uint8Array,
+    clientDataJSONBytes: Uint8Array<ArrayBuffer>,
   ): Promise<AssertCredentialResult> {
     let getAssertionResult;
     let assumeUserPresence = false;
@@ -414,7 +414,7 @@ export class Fido2ClientService<
       }
 
       params.allowedCredentialIds = [
-        Fido2Utils.bufferToString(guidToRawFormat(requestResult.credentialId)),
+        Fido2Utils.arrayToString(guidToRawFormat(requestResult.credentialId)),
       ];
       assumeUserPresence = true;
 
@@ -441,17 +441,17 @@ export class Fido2ClientService<
 
   private generateAssertCredentialResult(
     getAssertionResult: Fido2AuthenticatorGetAssertionResult,
-    clientDataJSONBytes: Uint8Array,
+    clientDataJSONBytes: Uint8Array<ArrayBuffer>,
   ): AssertCredentialResult {
     return {
-      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
+      authenticatorData: Fido2Utils.arrayToString(getAssertionResult.authenticatorData),
+      clientDataJSON: Fido2Utils.arrayToString(clientDataJSONBytes),
+      credentialId: Fido2Utils.arrayToString(getAssertionResult.selectedCredential.id),
       userHandle:
         getAssertionResult.selectedCredential.userHandle !== undefined
-          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
+          ? Fido2Utils.arrayToString(getAssertionResult.selectedCredential.userHandle)
           : undefined,
-      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
+      signature: Fido2Utils.arrayToString(getAssertionResult.signature),
     };
   }
 
@@ -489,11 +489,11 @@ function mapToMakeCredentialParams({
 }: {
   params: CreateCredentialParams;
   credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
-  clientDataHash: ArrayBuffer;
+  clientDataHash: Uint8Array<ArrayBuffer>;
 }): Fido2AuthenticatorMakeCredentialsParams {
   const excludeCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
     params.excludeCredentials?.map((credential) => ({
-      id: Fido2Utils.stringToBuffer(credential.id),
+      id: Fido2Utils.stringToArray(credential.id),
       transports: credential.transports,
       type: credential.type,
     })) ?? [];
@@ -525,7 +525,7 @@ function mapToMakeCredentialParams({
       name: params.rp.name,
     },
     userEntity: {
-      id: Fido2Utils.stringToBuffer(params.user.id),
+      id: Fido2Utils.stringToArray(params.user.id),
       displayName: params.user.displayName,
       name: params.user.name,
     },
@@ -547,7 +547,7 @@ function mapToGetAssertionParams({
 }): Fido2AuthenticatorGetAssertionParams {
   const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
     params.allowedCredentialIds.map((id) => ({
-      id: Fido2Utils.stringToBuffer(id),
+      id: Fido2Utils.stringToArray(id),
       type: "public-key",
     }));
 

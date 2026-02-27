@@ -10,7 +10,9 @@ export class BitwardenFileUploadService {
     const fd = new FormData();
 
     if (Utils.isBrowser) {
-      const blob = new Blob([encryptedFileData.buffer], { type: "application/octet-stream" });
+      const blob = new Blob([encryptedFileData.buffer as BlobPart], {
+        type: "application/octet-stream",
+      });
       fd.append("data", blob, encryptedFileName);
     } else if (Utils.isNode) {
       fd.append(
