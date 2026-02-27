@@ -130,6 +130,8 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
+      case cipher.type === "bankAccount":
+        return CipherType.BankAccount;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
@@ -272,6 +274,10 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "accountNumber":
+        return !!cipher.bankAccount?.accountNumber;
+      case "routingNumber":
+        return !!cipher.bankAccount?.routingNumber;
       default:
         return false;
     }
