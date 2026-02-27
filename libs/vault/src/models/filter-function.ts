@@ -35,6 +35,9 @@ export function createFilterFunction(
     if (filter.type === "sshKey" && type !== CipherType.SshKey) {
       return false;
     }
+    if (filter.type === "bankAccount" && type !== CipherType.BankAccount) {
+      return false;
+    }
     if (filter.type === "trash" && !isDeleted) {
       return false;
     }

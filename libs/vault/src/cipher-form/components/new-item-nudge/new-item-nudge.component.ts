@@ -9,7 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/sdk-internal";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -75,6 +75,12 @@ export class NewItemNudgeComponent {
         this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-medium" target="_blank">${sshPartTwo}</a>`;
         return NudgeType.NewSshItemStatus;
       }
+      case CipherType.BankAccount:
+        this.dismissalNudgeType = NudgeType.NewBankAccountItemStatus;
+        this.nudgeTitle = this.i18nService.t("newBankAccountNudgeTitle");
+        this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
+        return NudgeType.NewBankAccountItemStatus;
+
       default:
         throw new Error("Unsupported cipher type");
     }
