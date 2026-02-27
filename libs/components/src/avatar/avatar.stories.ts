@@ -59,7 +59,7 @@ export const Sizes: Story = {
         <div class="tw-flex tw-gap-4 tw-mb-10">
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> small </span>
-            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'small'"></bit-avatar>
+            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'sm'"></bit-avatar>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> base </span>
@@ -67,15 +67,15 @@ export const Sizes: Story = {
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> large </span>
-            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'large'"></bit-avatar>
+            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'lg'"></bit-avatar>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> xlarge </span>
-            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'xlarge'"></bit-avatar>
+            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'xl'"></bit-avatar>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> 2xlarge </span>
-            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'2xlarge'"></bit-avatar>
+            <bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'2xl'"></bit-avatar>
           </div>
         </div>
 
@@ -83,7 +83,7 @@ export const Sizes: Story = {
         <div class="tw-flex tw-gap-4 tw-mb-10">
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> small </span>
-            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'small'"></button>
+            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'sm'"></button>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> base </span>
@@ -91,15 +91,15 @@ export const Sizes: Story = {
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> large </span>
-            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'large'"></button>
+            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'lg'"></button>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> xlarge </span>
-            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'xlarge'"></button>
+            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'xl'"></button>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span> 2xlarge </span>
-            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'2xlarge'"></button>
+            <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" [size]="'2xl'"></button>
           </div>
         </div>
       `,

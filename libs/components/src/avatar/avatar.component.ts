@@ -12,17 +12,17 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type AvatarSize = "2xlarge" | "xlarge" | "large" | "base" | "small";
+export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
 export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"] as const;
 export type AvatarColor = (typeof AvatarDefaultColors)[number];
 
 const sizeClasses: Record<AvatarSize, string[]> = {
-  "2xlarge": ["tw-h-16", "tw-w-16", "tw-min-w-16"],
-  xlarge: ["tw-h-14", "tw-w-14", "tw-min-w-14"],
-  large: ["tw-h-11", "tw-w-11", "tw-min-w-11"],
+  "2xl": ["tw-h-16", "tw-w-16", "tw-min-w-16"],
+  xl: ["tw-h-14", "tw-w-14", "tw-min-w-14"],
+  lg: ["tw-h-11", "tw-w-11", "tw-min-w-11"],
   base: ["tw-h-8", "tw-w-8", "tw-min-w-8"],
-  small: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
+  sm: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
 };
 
 /**

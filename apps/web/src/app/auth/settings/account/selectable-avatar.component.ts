@@ -19,7 +19,7 @@ import { AvatarModule } from "@bitwarden/components";
     <bit-avatar
       appStopClick
       [text]="text"
-      size="2xlarge"
+      size="2xl"
       [text]="text"
       [color]="color"
       [id]="id"
