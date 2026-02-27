@@ -28,7 +28,7 @@ import {
   AutoConfirmExtensionSetupDialogComponent,
   AutoConfirmState,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -164,7 +164,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
-  protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
   protected hasPremium$ = this.activeUserId$.pipe(

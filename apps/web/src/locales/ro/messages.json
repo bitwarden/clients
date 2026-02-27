@@ -3338,6 +3338,15 @@
   "reinstated": {
     "message": "Abonamentul a fost restabilit."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled"
+  },
   "cancelConfirmation": {
     "message": "Sigur doriți să anulați? Veți pierde accesul la toate funcționalitățile acestui abonament la sfârșitul acestui ciclu de facturare."
   },
@@ -4328,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Utilizatorul $ID$ a fost editat.",
     "placeholders": {
@@ -4587,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
   },
-  "fetchingMemberData": {
-    "message": "Fetching member data..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Analyzing password health..."
-  },
-  "calculatingRiskScores": {
-    "message": "Calculating risk scores..."
-  },
-  "generatingReportData": {
-    "message": "Generating report data..."
-  },
-  "savingReport": {
-    "message": "Saving report..."
-  },
-  "compilingInsights": {
-    "message": "Compiling insights..."
-  },
   "loadingProgress": {
     "message": "Loading progress"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "This might take a few minutes."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "Run report"
@@ -5840,10 +5855,6 @@
     "message": "Nu știți parola? Solicitați expeditorului parola necesară pentru a accesa acest Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Acest Send este ascuns în mod implicit. Puteți comuta vizibilitatea acestuia cu butonul de mai jos.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Download attachments"
   },
@@ -6136,6 +6147,21 @@
   "autoConfirmCheckBoxLabel": {
     "message": "I accept these risks and policy updates"
   },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "System"
+  },
   "personalOwnership": {
     "message": "Înlăturați seiful personal"
   },
@@ -6427,6 +6453,10 @@
   },
   "viewSend": {
     "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -7386,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Cod de verificare nevalid"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -11896,14 +11929,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "bulkArchiveItems": {
     "message": "Items archived"
@@ -12847,6 +12877,21 @@
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
   "whoCanView": {
     "message": "Who can view"
   },
@@ -12858,6 +12903,9 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -12882,6 +12930,18 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "You're in! Welcome to Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Start tour"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Skip"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -12938,5 +12998,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Invalid password. Ask the sender for the password needed to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }
