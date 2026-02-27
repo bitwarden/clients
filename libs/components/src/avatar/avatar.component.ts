@@ -5,7 +5,6 @@ import {
   ElementRef,
   inject,
   input,
-  signal,
 } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -33,11 +32,11 @@ const sizeClasses: Record<AvatarSize, string[]> = {
  * dark mode.
  */
 export const defaultAvatarColors: Record<AvatarColor, string> = {
-  teal: "tw-bg-bg-avatar-teal",
-  coral: "tw-bg-bg-avatar-coral",
-  brand: "tw-bg-bg-avatar-brand",
-  green: "tw-bg-bg-avatar-green",
-  purple: "tw-bg-bg-avatar-purple",
+  teal: "var(--color-bg-avatar-teal)",
+  coral: "var(--color-bg-avatar-coral)",
+  brand: "var(--color-bg-avatar-brand)",
+  green: "var(--color-bg-avatar-green)",
+  purple: "var(--color-bg-avatar-purple)",
 };
 
 /**
@@ -45,12 +44,12 @@ export const defaultAvatarColors: Record<AvatarColor, string> = {
  * color variables defined in tw-theme.css to ensure the avatar color handles light and
  * dark mode.
  */
-const defaultAvatarHoverColors: Record<AvatarColor, string> = {
-  teal: "tw-bg-bg-avatar-teal-hover",
-  coral: "tw-bg-bg-avatar-coral-hover",
-  brand: "tw-bg-bg-avatar-brand-hover",
-  green: "tw-bg-bg-avatar-green-hover",
-  purple: "tw-bg-bg-avatar-purple-hover",
+export const defaultAvatarHoverColors: Record<AvatarColor, string> = {
+  teal: "var(--color-bg-avatar-teal-hover)",
+  coral: "var(--color-bg-avatar-coral-hover)",
+  brand: "var(--color-bg-avatar-brand-hover)",
+  green: "var(--color-bg-avatar-green-hover)",
+  purple: "var(--color-bg-avatar-purple-hover)",
 };
 
 // Typeguard to check if a given color is an AvatarColor
@@ -79,7 +78,10 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   host: {
     "(mouseenter)": "isHovering.set(true)",
     "(mouseleave)": "isHovering.set(false)",
-    "[class]": "avatarClass()",
+    class:
+      "tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed",
+    "[style.--avatar-bg]": "avatarBgColors().avatarBgColor",
+    "[style.--avatar-bg-hover]": "avatarBgColors().avatarBgColorHover",
   },
   hostDirectives: [AriaDisableDirective],
 })
@@ -124,50 +126,14 @@ export class AvatarComponent {
     ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 
-  readonly showDisabledStyles = computed(() => {
-    return this.isInteractive() && this.disabled();
-  });
-
   protected readonly svgCharCount = 2;
   protected readonly svgFontSize = 12;
   protected readonly svgFontWeight = 400;
   protected readonly svgSize = 32;
 
-  protected readonly isInteractive = computed(() => {
-    return this.el.nativeElement.nodeName === "BUTTON";
-  });
-
-  protected readonly avatarClass = computed(() => {
-    const classes = [
-      "tw-leading-[0px]",
-      "focus-visible:tw-outline-none",
-      "tw-rounded-full",
-      "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-offset-1",
-      "focus-visible:tw-ring-border-focus",
-      "!focus-visible:tw-border-[transparent]",
-      "focus-visible:tw-z-10",
-    ].concat(this.showDisabledStyles() ? ["tw-cursor-not-allowed"] : []);
-    return classes;
-  });
-
   protected readonly svgClass = computed(() => {
-    return ["tw-rounded-full"]
-      .concat(sizeClasses[this.size()] ?? [])
-      .concat(this.showDisabledStyles() ? ["tw-bg-bg-disabled"] : this.avatarBackgroundColor());
+    return sizeClasses[this.size()] ?? [];
   });
-
-  /**
-   * Manually track the hover state.
-   *
-   * We're doing this instead of using tailwind's hover helper selectors because we need to be able
-   * to apply a darker color on hover for custom background colors, and we can't use tailwind for
-   * the dynamic custom background colors due to limitations with how it generates styles at build
-   * time
-   */
-  protected readonly isHovering = signal(false);
-
-  protected readonly showHoverColor = computed(() => this.isInteractive() && this.isHovering());
 
   protected readonly usingCustomColor = computed(() => {
     const color = this.color();
@@ -180,68 +146,40 @@ export class AvatarComponent {
   });
 
   /**
-   * Background color tailwind class
+   * Determine the background color of the avatar and its hover color
    *
-   * Returns the appropriate class if using default avatar colors
-   * Returns an empty string (a "blank" tailwind class) if using custom color
+   * If the color is custom, return that as the background color and apply an hsl calculation to
+   * achieve a hover state.
+   *
+   * If the color is not custom, return background and hover colors from the default palette.
+   *
+   * All return values must be strings that can be parsed as css variables.
    */
-  protected readonly avatarBackgroundColor = computed(() => {
-    // If using custom color instead of default avatar color, early exit
+  protected readonly avatarBgColors = computed(() => {
     if (this.usingCustomColor()) {
-      return "";
+      return {
+        avatarBgColor: this.color()!,
+        // Drop the custom color's saturation and lightness by 10% when hovering
+        avatarBgColorHover: `hsl(from ${this.color()} h calc(s - 10) calc(l - 10))`,
+      };
+    } else {
+      const color = this.color();
+      const colorIsAvatarColor = isAvatarColor(color);
+      const chosenAvatarColor = colorIsAvatarColor
+        ? color
+        : this.getDefaultColorKey(this.id(), this.text());
+
+      return {
+        avatarBgColor: defaultAvatarColors[chosenAvatarColor],
+        avatarBgColorHover: defaultAvatarHoverColors[chosenAvatarColor],
+      };
     }
-
-    /**
-     * At this point we're either using a passed-in avatar color or choosing a default based on id
-     * or text, but Typescript doesn't know that. Use the type guard to confirm that the passed-in
-     * value is an avatar color, or use a generated default.
-     */
-    const color = this.color();
-    const colorIsAvatarColor = isAvatarColor(color);
-    const chosenAvatarColor = colorIsAvatarColor ? color : this.avatarDefaultColorKey();
-
-    if (this.showHoverColor()) {
-      return defaultAvatarHoverColors[chosenAvatarColor];
-    }
-
-    return defaultAvatarColors[chosenAvatarColor];
-  });
-
-  /**
-   * Background color hex code
-   *
-   * Returns the custom color if using a custom background color
-   * Returns `undefined` if using a default avatar color
-   *
-   * Custom hexes need to be applied as a style property, because dynamic values can't be used in
-   * tailwind arbitrary values due to limitations with how it generates tailwind styles at build
-   * time
-   */
-  protected readonly customBackgroundColor = computed(() => {
-    /**
-     * If using a default avatar color instead of custom color, early exit.
-     * If button is disabled, we want to use a tailwind class instead, so also early exit
-     */
-    if (!this.usingCustomColor() || this.showDisabledStyles()) {
-      return undefined;
-    }
-
-    if (this.showHoverColor()) {
-      // Drop the color's saturation and lightness by 10% when hovering
-      return `hsl(from ${this.color()} h calc(s - 10) calc(l - 10))`;
-    }
-
-    return this.color();
   });
 
   /**
    * Text color class that satisfies accessible contrast requirements
    */
   protected readonly textColor = computed(() => {
-    if (this.showDisabledStyles()) {
-      return "tw-fill-fg-disabled";
-    }
-
     let textColor = "white";
     const color = this.color();
 
@@ -287,19 +225,18 @@ export class AvatarComponent {
   }
 
   /**
-   * Deterministically chosen default avatar color
+   * Deterministically choose a default avatar color based on the given strings
    *
    * Based on the id first and the text second, choose a color from AvatarColors. This ensures that
    * the user sees the same color for the same avatar input every time.
    */
-  readonly avatarDefaultColorKey = computed(() => {
+  protected getDefaultColorKey(id?: string, text?: string) {
     let magicString = "";
-    const id = this.id();
 
     if (!Utils.isNullOrWhitespace(id)) {
       magicString = id!.toString();
     } else {
-      magicString = this.text()?.toUpperCase() ?? "";
+      magicString = text?.toUpperCase() ?? "";
     }
 
     let hash = 0;
@@ -309,5 +246,5 @@ export class AvatarComponent {
 
     const index = Math.abs(hash) % AvatarDefaultColors.length;
     return AvatarDefaultColors[index];
-  });
+  }
 }
