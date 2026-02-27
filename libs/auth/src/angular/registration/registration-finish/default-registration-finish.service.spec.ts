@@ -60,7 +60,6 @@ describe("DefaultRegistrationFinishService", () => {
       passwordInputResult = {
         newMasterKey: masterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",

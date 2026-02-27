@@ -160,7 +160,6 @@ describe("AuthRequestLoginStrategy", () => {
 
     // setMasterKey and setMasterKeyHash should not be called
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
 
     // setMasterKeyEncryptedUserKey, setUserKey, and setPrivateKey should still be called
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
