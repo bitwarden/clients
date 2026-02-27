@@ -65,7 +65,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verificationType === "client") {
       const [userHasMasterPassword, isPinDecryptionAvailable, biometricsStatus] = await Promise.all(
         [
-          this.hasMasterPasswordAndMasterKeyHash(userId),
+          this.hasMasterPassword(userId),
           this.pinService.isPinDecryptionAvailable(userId),
           this.biometricsService.getBiometricsStatus(),
         ],
@@ -203,7 +203,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
-    if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
+    if (await this.hasMasterPassword(userId)) {
       const passwordValid = await this.masterPasswordUnlockService.proofOfDecryption(
         verification.secret,
         userId,
@@ -272,14 +272,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     return await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId as UserId),
-    );
-  }
-
-  async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    return (
-      (await this.hasMasterPassword(userId)) &&
-      (await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId as UserId))) != null
     );
   }
 

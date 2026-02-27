@@ -524,9 +524,6 @@ describe("UserVerificationService", () => {
   // Helpers
   function setMasterPasswordAvailability(hasMasterPassword: boolean) {
     userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
-    masterPasswordService.masterKeyHash$.mockReturnValue(
-      of(hasMasterPassword ? "masterKeyHash" : null),
-    );
   }
 
   function setPinAvailability(type: PinLockType) {

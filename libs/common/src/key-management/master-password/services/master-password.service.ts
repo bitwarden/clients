@@ -141,13 +141,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return this.stateProvider.getUser(userId, MASTER_KEY).state$;
   }
 
-  masterKeyHash$(userId: UserId): Observable<string> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    return this.stateProvider.getUser(userId, MASTER_KEY_HASH).state$;
-  }
-
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
     if (userId == null) {
       throw new Error("User ID is required.");

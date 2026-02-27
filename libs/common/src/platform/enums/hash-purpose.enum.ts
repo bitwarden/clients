@@ -2,5 +2,4 @@
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum HashPurpose {
   ServerAuthorization = 1,
-  LocalAuthorization = 2,
 }
