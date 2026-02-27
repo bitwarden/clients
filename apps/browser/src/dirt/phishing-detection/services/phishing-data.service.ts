@@ -304,12 +304,12 @@ export class PhishingDataService {
   private _updateFullDataSet() {
     const resource = getPhishingResources(this.resourceType);
 
-    if (!resource?.remoteUrl) {
+    if (!resource?.primaryUrl) {
       return throwError(() => new Error("Invalid resource URL"));
     }
 
-    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.remoteUrl}`);
-    return from(this.apiService.nativeFetch(new Request(resource.remoteUrl))).pipe(
+    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`);
+    return from(this.apiService.nativeFetch(new Request(resource.primaryUrl))).pipe(
       switchMap((response) => {
         if (!response.ok || !response.body) {
           return throwError(
@@ -321,33 +321,6 @@ export class PhishingDataService {
         }
 
         return from(this.indexedDbService.saveUrlsFromStream(response.body));
-      }),
-      catchError((err: unknown) => {
-        this.logService.error(
-          `[PhishingDataService] Full dataset update failed using primary source ${err}`,
-        );
-        this.logService.warning(
-          `[PhishingDataService] Falling back to: ${resource.fallbackUrl} (Note: Fallback data may be less up-to-date)`,
-        );
-        // Try fallback URL
-        return from(this.apiService.nativeFetch(new Request(resource.fallbackUrl))).pipe(
-          switchMap((fallbackResponse) => {
-            if (!fallbackResponse.ok || !fallbackResponse.body) {
-              return throwError(
-                () =>
-                  new Error(
-                    `[PhishingDataService] Fallback fetch failed: ${fallbackResponse.status}, ${fallbackResponse.statusText}`,
-                  ),
-              );
-            }
-
-            return from(this.indexedDbService.saveUrlsFromStream(fallbackResponse.body));
-          }),
-          catchError((fallbackError: unknown) => {
-            this.logService.error(`[PhishingDataService] Fallback source failed`);
-            return throwError(() => fallbackError);
-          }),
-        );
       }),
     );
   }

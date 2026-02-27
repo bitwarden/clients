@@ -11,6 +11,7 @@ import { Observable, map, firstValueFrom, switchMap, filter, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -29,7 +30,6 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { VNextPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -81,17 +81,13 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return this.data.policy;
   }
 
-  get isPolicyEnabled(): boolean {
-    return this.policyComponent?.policyResponse?.enabled ?? false;
-  }
-
   /**
    * Type guard to check if the policy component has the buildVNextRequest method.
    */
   private hasVNextRequest(
     component: BasePolicyEditComponent,
   ): component is BasePolicyEditComponent & {
-    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
+    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextSavePolicyRequest>;
   } {
     return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
@@ -145,11 +141,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (this.hasVNextRequest(this.policyComponent)) {
-        await this.handleVNextSubmission(this.policyComponent);
-      } else {
-        await this.handleStandardSubmission();
-      }
+      await this.handleVNextSubmission(this.policyComponent);
 
       this.toastService.showToast({
         variant: "success",
@@ -164,20 +156,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async handleStandardSubmission(): Promise<void> {
-    if (!this.policyComponent) {
-      throw new Error("PolicyComponent not initialized.");
-    }
-
-    const request = await this.policyComponent.buildRequest();
-    await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
-  }
-
-  private async handleVNextSubmission(
-    policyComponent: BasePolicyEditComponent & {
-      buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
-    },
-  ): Promise<void> {
+  private async handleVNextSubmission(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -200,9 +179,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     );
   }
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
-      PolicyEditDialogComponent,
-      config,
-    );
+    return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

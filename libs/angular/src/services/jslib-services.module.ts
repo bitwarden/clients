@@ -56,6 +56,10 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -385,6 +389,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -916,6 +921,22 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: UnlockService,
+    useClass: DefaultUnlockService,
+    deps: [
+      RegisterSdkService,
+      AccountCryptographicStateService,
+      PinStateServiceAbstraction,
+      KdfConfigService,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      StateProvider,
+      LogService,
+      BiometricsService,
+    ],
+  }),
+  safeProvider({
     provide: BroadcasterService,
     useClass: DefaultBroadcasterService,
     deps: [MessageListener],
@@ -1061,6 +1082,19 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiServiceAbstraction,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+      InternalPolicyService,
+    ],
+  }),
+  safeProvider({
     provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? NoopServerNotificationsService
@@ -1079,6 +1113,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      AutomaticUserConfirmationService,
     ],
   }),
   safeProvider({
@@ -1181,6 +1216,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       KdfConfigService,
       BiometricsService,
+      MasterPasswordUnlockService,
     ],
   }),
   safeProvider({
@@ -1510,12 +1546,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationMetadataServiceAbstraction,
     useClass: DefaultOrganizationMetadataService,
-    deps: [BillingApiServiceAbstraction, ConfigService, PlatformUtilsServiceAbstraction],
+    deps: [BillingApiServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
-    deps: [StateProvider, PlatformUtilsServiceAbstraction, ApiServiceAbstraction],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
@@ -1667,7 +1703,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyService,
-      SecurityStateService,
+      AccountCryptographicStateService,
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,

@@ -42,7 +42,7 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
-import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm";
+import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -356,7 +356,7 @@ const routes: Routes = [
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard, filePickerPopoutGuard()],
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
