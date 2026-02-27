@@ -25,7 +25,6 @@ import {
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
-import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
@@ -92,7 +91,6 @@ import { IconComponent } from "./vault/components/icon.component";
     IconComponent,
     InputStripSpacesDirective,
     InputVerbatimDirective,
-    NotPremiumDirective,
     SearchPipe,
     StopClickDirective,
     StopPropDirective,
@@ -114,7 +112,6 @@ import { IconComponent } from "./vault/components/icon.component";
     IconComponent,
     InputStripSpacesDirective,
     InputVerbatimDirective,
-    NotPremiumDirective,
     SearchPipe,
     StopClickDirective,
     StopPropDirective,
