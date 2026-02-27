@@ -28,7 +28,7 @@ Options are passed to the select via an `options` input.
   selector: "your-component",
   template: `
     <bit-chip-filter
-      options="[options]"
+      [options]="options"
       placeholderText="Folder"
       placeholderIcon="bwi-folder"
     ></bit-chip-filter>
@@ -44,7 +44,8 @@ class MyComponent {
     {
       label: "Bar",
       value: "bar",
-      icon: "bwi-exclamation-triangle tw-text-danger",
+      icon: "bwi-exclamation-triangle",
+      iconClass: "tw-text-danger",
     },
     {
       label: "Baz",
