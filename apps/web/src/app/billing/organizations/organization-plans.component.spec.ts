@@ -131,27 +131,6 @@ class MockOrganizationSelfHostingLicenseUploaderComponent {
   @Output() onLicenseFileUploaded = new EventEmitter<string>();
 }
 
-// Test Helper Functions
-
-/**
- * Sets up mock encryption keys and org key services
- */
-const setupMockEncryptionKeys = (
-  mockKeyService: jest.Mocked<KeyService>,
-  mockEncryptService: jest.Mocked<EncryptService>,
-) => {
-  mockKeyService.makeOrgKey.mockResolvedValue([{ encryptedString: "mock-key" }, {} as any] as any);
-
-  mockEncryptService.encryptString.mockResolvedValue({
-    encryptedString: "mock-collection",
-  } as any);
-
-  mockKeyService.makeKeyPair.mockResolvedValue([
-    "public-key",
-    { encryptedString: "private-key" },
-  ] as any);
-};
-
 /**
  * Sets up a mock payment method component that returns a successful tokenization
  */
@@ -783,7 +762,6 @@ describe("OrganizationPlansComponent", () => {
         plan: PlanType.Free,
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -924,7 +902,6 @@ describe("OrganizationPlansComponent", () => {
         billingEmail: "test@example.com",
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -948,7 +925,6 @@ describe("OrganizationPlansComponent", () => {
         billingEmail: "test@example.com",
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -970,7 +946,6 @@ describe("OrganizationPlansComponent", () => {
       });
 
       patchBillingAddress(component);
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
 
       setupMockPaymentMethodComponent(component); // Simulate tokenization failure
       await component.submit();
@@ -2305,7 +2280,6 @@ describe("OrganizationPlansComponent", () => {
           additionalSeats: 3,
         });
         patchBillingAddress(component);
-        setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       });
 
       it("should call premiumOrgUpgradeService.upgradeToOrganization() instead of create()", async () => {
