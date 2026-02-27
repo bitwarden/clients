@@ -92,7 +92,6 @@ const commonStyles = [
  */
 @Directive({
   selector: "[bitBaseChip]",
-  standalone: true,
   host: {
     "[class]": "classList()",
   },

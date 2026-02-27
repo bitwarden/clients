@@ -9,7 +9,6 @@ import { ariaDisableElement } from "../../utils/aria-disable-element";
  */
 @Component({
   selector: "button[bit-chip-dismiss-button]",
-  standalone: true,
   imports: [IconComponent],
   host: {
     class:
