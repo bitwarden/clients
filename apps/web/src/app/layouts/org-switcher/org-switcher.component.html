@@ -8,10 +8,9 @@
   [(open)]="open"
 >
   <bit-icon
-    slot="end"
+    slot="start"
     *ngIf="!activeOrganization.enabled"
     name="bwi-exclamation-triangle"
-    class="tw-my-auto"
     [ariaLabel]="'organizationIsDisabled' | i18n"
     appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
   ></bit-icon>
@@ -25,7 +24,7 @@
       [routerLinkActiveOptions]="{ exact: true }"
     >
       <bit-icon
-        slot="end"
+        slot="start"
         *ngIf="org.enabled == false"
         name="bwi-exclamation-triangle"
         [ariaLabel]="'organizationIsDisabled' | i18n"

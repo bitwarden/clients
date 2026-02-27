@@ -34,6 +34,10 @@
       <ng-container slot="start">
         <ng-container *ngTemplateOutlet="button"></ng-container>
       </ng-container>
+    } @else {
+      <ng-container slot="start">
+        <ng-content select="[slot=start]"></ng-content>
+      </ng-container>
     }
     <ng-container slot="end">
       <ng-content select="[slot=end]"></ng-content>
