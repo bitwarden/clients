@@ -51,11 +51,10 @@ export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
-    private syncService: SyncService,
     private keyService: KeyService,
-    private organizationService: OrganizationService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
+    private syncService: SyncService,
   ) {}
 
   async previewProratedInvoice(
