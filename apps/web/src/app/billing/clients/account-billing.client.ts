@@ -94,7 +94,7 @@ export class AccountBillingClient {
         billingAddress: request.billingAddress,
       },
       true,
-      false,
+      true,
     );
   };
 }
