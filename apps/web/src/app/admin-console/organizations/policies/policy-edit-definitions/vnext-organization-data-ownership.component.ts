@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  signal,
-  Signal,
-  TemplateRef,
-  viewChild,
-  WritableSignal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { Observable, startWith } from "rxjs";
@@ -84,12 +75,6 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     { initialValue: false },
   );
 
-  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private readonly warningContent: Signal<TemplateRef<any> | undefined> = viewChild("step1");
-  protected readonly step: WritableSignal<number> = signal(0);
-
-  protected steps = [this.policyForm, this.warningContent];
-
   override ngOnInit(): void {
     super.ngOnInit();
 
@@ -144,9 +129,5 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     }
 
     return encrypted.encryptedString;
-  }
-
-  setStep(step: number) {
-    this.step.set(step);
   }
 }
