@@ -6,14 +6,9 @@
   [route]="['../', activeOrganization.id]"
   [routerLinkActiveOptions]="{ exact: true }"
   [(open)]="open"
+  [warningIcon]="!activeOrganization.enabled ? 'bwi-exclamation-triangle' : undefined"
+  [warningIconLabel]="!activeOrganization.enabled ? ('organizationIsDisabled' | i18n) : undefined"
 >
-  <bit-icon
-    slot="start"
-    *ngIf="!activeOrganization.enabled"
-    name="bwi-exclamation-triangle"
-    [ariaLabel]="'organizationIsDisabled' | i18n"
-    appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
-  ></bit-icon>
   <ng-container *ngIf="organizations$ | async as organizations">
     <bit-nav-item
       *ngFor="let org of organizations"
@@ -22,14 +17,9 @@
       [route]="['../', org.id]"
       (mainContentClicked)="toggle()"
       [routerLinkActiveOptions]="{ exact: true }"
+      [warningIcon]="org.enabled == false ? 'bwi-exclamation-triangle' : undefined"
+      [warningIconLabel]="org.enabled == false ? ('organizationIsDisabled' | i18n) : undefined"
     >
-      <bit-icon
-        slot="start"
-        *ngIf="org.enabled == false"
-        name="bwi-exclamation-triangle"
-        [ariaLabel]="'organizationIsDisabled' | i18n"
-        appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
-      ></bit-icon>
     </bit-nav-item>
   </ng-container>
   <bit-nav-item

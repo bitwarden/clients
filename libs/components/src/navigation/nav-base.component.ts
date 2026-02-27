@@ -75,6 +75,16 @@ export abstract class NavBaseComponent {
   readonly hideActiveStyles = input(false);
 
   /**
+   * Optional warning icon rendered to the left of the text, e.g. `'bwi-exclamation-triangle'`
+   */
+  readonly warningIcon = input<string>();
+
+  /**
+   * Accessible label and native tooltip for the warning icon
+   */
+  readonly warningIconLabel = input<string>();
+
+  /**
    * Fires when main content is clicked
    */
   readonly mainContentClicked = output<void>();
