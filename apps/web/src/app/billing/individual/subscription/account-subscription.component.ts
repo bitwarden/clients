@@ -89,18 +89,34 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly hasPremiumFromAnyOrganization = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id);
+      }),
+    ),
+    { initialValue: false },
+  );
+
   readonly subscription = resource({
-    loader: async () => {
-      const redirectToPremiumPage = async (): Promise<null> => {
+    params: () => ({
+      account: this.account(),
+    }),
+    loader: async ({ params: { account } }) => {
+      if (!account) {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
-      };
-      if (!this.account()) {
-        return await redirectToPremiumPage();
       }
       const subscription = await this.accountBillingClient.getSubscription();
       if (!subscription) {
-        return await redirectToPremiumPage();
+        const hasPremiumFromAnyOrganization = this.hasPremiumFromAnyOrganization();
+        await this.router.navigate([
+          hasPremiumFromAnyOrganization ? "/vault" : "/settings/subscription/premium",
+        ]);
+        return null;
       }
       return subscription;
     },
