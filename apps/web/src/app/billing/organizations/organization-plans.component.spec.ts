@@ -735,6 +735,51 @@ describe("OrganizationPlansComponent", () => {
         expect(familyPlan).toBe(PlanType.FamiliesAnnually2025);
       });
     });
+
+    describe("initialPlan and initialProductTier inputs", () => {
+      it("should set form values from initialPlan and initialProductTier inputs during ngOnInit", async () => {
+        fixture.componentRef.setInput("initialPlan", PlanType.TeamsAnnually);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
+      });
+
+      it("should not override Free values when initialPlan and initialProductTier are Free", async () => {
+        fixture.componentRef.setInput("initialPlan", PlanType.Free);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Free);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Free plan is default, shouldn't be explicitly set
+        expect(component["formGroup"].controls.plan.value).toBe(PlanType.Free);
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Free);
+      });
+
+      it("should allow preSelectedProductTier to override initialProductTier if higher", async () => {
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Enterprise);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
+      });
+
+      it("should use initialProductTier when preSelectedProductTier is lower", async () => {
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Enterprise);
+        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Teams);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
+      });
+    });
   });
 
   describe("organization creation validation flow", () => {
