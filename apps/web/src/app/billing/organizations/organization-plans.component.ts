@@ -96,7 +96,12 @@ const Allowed2020PlansForLegacyProviders = [
     IconComponent,
     CartSummaryComponent,
   ],
-  providers: [AccountBillingClient, SubscriberBillingClient, PreviewInvoiceClient],
+  providers: [
+    AccountBillingClient,
+    SubscriberBillingClient,
+    PreviewInvoiceClient,
+    PremiumOrgUpgradeService,
+  ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // ViewChildren
@@ -469,7 +474,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private providerApiService: ProviderApiServiceAbstraction,
     private toastService: ToastService,
     private accountService: AccountService,
-    private accountBillingClient: AccountBillingClient,
     private subscriberBillingClient: SubscriberBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
@@ -523,7 +527,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const preSelectedProductTier = this.preSelectedProductTier();
     if (
       preSelectedProductTier != null &&
-      (this.formValues()?.productTier ?? 0) < preSelectedProductTier
+      (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
     ) {
       this.formGroup.controls.productTier.setValue(preSelectedProductTier);
     }
