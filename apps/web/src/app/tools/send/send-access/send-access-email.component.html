@@ -25,6 +25,8 @@
     bitFormButton
     type="submit"
     buttonType="primary"
+    inputmode="numeric"
+    pattern="[0-9]*"
     [loading]="loading()"
     [block]="true"
     [disabled]="!otp?.value"
