@@ -128,6 +128,10 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   const requiredPlugins = [
+    new webpack.SourceMapDevToolPlugin({
+      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
+      filename: "[file].map",
+    }),
     new webpack.DefinePlugin({
       "process.env": {
         ENV: JSON.stringify(ENV),
@@ -138,16 +142,6 @@ module.exports.buildConfig = function buildConfig(params) {
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
     }),
   ];
-
-  // reduce distributable size of production builds
-  if (ENV === "development") {
-    requiredPlugins.push(
-      new webpack.SourceMapDevToolPlugin({
-        exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
-        filename: "[file].map",
-      }),
-    );
-  }
 
   const plugins = [
     new HtmlWebpackPlugin({
