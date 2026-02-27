@@ -42,8 +42,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -271,7 +269,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
     protected importMetadataService: ImportMetadataServiceAbstraction,
-    protected configService: ConfigService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -373,18 +370,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
-    combineLatest([
-      this.formGroup.controls.vaultSelector.valueChanges,
-      this.organizations$,
-      this.configService.getFeatureFlag$(FeatureFlag.DefaultImportMyItems),
-    ])
+    combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([value, organizations, flagEnabled]) => {
+      .subscribe(([value, organizations]) => {
         this.organizationId = value !== "myVault" ? value : undefined;
 
-        if (!this._importBlockedByPolicy || flagEnabled) {
-          this.formGroup.controls.targetSelector.enable();
-        }
+        // Enable target selector (folders for personal vault, collections for orgs)
+        this.formGroup.controls.targetSelector.enable();
 
         if (value) {
           this.collections$ = this.collectionService
@@ -429,15 +421,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     // When policy applies, auto-select the "My Items" collection as the default import target
-    combineLatest([
-      policyAndOrgs$,
-      this.configService.getFeatureFlag$(FeatureFlag.DefaultImportMyItems),
-    ])
+    policyAndOrgs$
       .pipe(
-        filter(
-          ([[policyApplies, orgs], flagEnabled]) => flagEnabled && policyApplies && orgs.length > 0,
-        ),
-        switchMap(([[, orgs]]) =>
+        filter(([policyApplies, orgs]) => policyApplies && orgs.length > 0),
+        switchMap(([, orgs]) =>
           this.collectionService.defaultUserCollection$(userId, orgs[0].id as OrganizationId),
         ),
         filter(Boolean),
