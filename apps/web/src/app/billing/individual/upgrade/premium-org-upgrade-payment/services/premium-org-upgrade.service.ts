@@ -122,16 +122,33 @@ export class PremiumOrgUpgradeService {
         throw new Error("Invalid plan tier for organization upgrade");
     }
   }
+
+  SubscriptionTierIdFromProductTier(
+    productTier: ProductTierType,
+  ): BusinessSubscriptionPricingTierId | PersonalSubscriptionPricingTierId {
+    switch (productTier) {
+      case ProductTierType.Families:
+        return PersonalSubscriptionPricingTierIds.Families;
+      case ProductTierType.Teams:
+        return BusinessSubscriptionPricingTierIds.Teams;
+      case ProductTierType.Enterprise:
+        return BusinessSubscriptionPricingTierIds.Enterprise;
+      default:
+        throw new Error(`Unsupported product tier: ${productTier}`);
+    }
+  }
+
   /**
    * Generates encryption data needed for creating a new organization.
    * Uses the active user account signal to get the user ID.
    * @returns Organization encryption data including keys and encrypted collection name
    */
-  private async generateOrganizationEncryptionData(activeUserId: UserId): Promise<{
+  async generateOrganizationEncryptionData(activeUserId: UserId): Promise<{
     key: string;
     collectionCt: string;
     orgKeys: [string, EncString];
     orgKey: SymmetricCryptoKey;
+    activeUserId: UserId;
   }> {
     const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString as string;
