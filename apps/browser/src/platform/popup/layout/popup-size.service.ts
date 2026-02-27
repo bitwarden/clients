@@ -64,7 +64,11 @@ export class PopupSizeService {
     const availHeight =
       screenAvailHeight < MAX_EXT_HEIGHT ? screenAvailHeight : extensionInnerHeight;
 
-    if (!BrowserPopupUtils.inPopup(window) || isInChromeTab) {
+    if (
+      !BrowserPopupUtils.inPopup(window) ||
+      isInChromeTab ||
+      PopupSizeService.isFullWidthPopup()
+    ) {
       window.document.documentElement.classList.add("body-full");
     } else if (availHeight < 300) {
       window.document.documentElement.classList.add("body-3xs");
@@ -79,7 +83,7 @@ export class PopupSizeService {
 
   private static async setStyle(width: PopupWidthOption) {
     const isInTab = await BrowserPopupUtils.isInTab();
-    if (!BrowserPopupUtils.inPopup(window) || isInTab) {
+    if (!BrowserPopupUtils.inPopup(window) || isInTab || PopupSizeService.isFullWidthPopup()) {
       return;
     }
     const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
@@ -93,5 +97,12 @@ export class PopupSizeService {
   static initBodyWidthFromLocalStorage() {
     const storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
     void this.setStyle(storedValue as any);
+  }
+
+  /**
+   * on firefox android, the popup is rendered in a full screen tab
+   */
+  static isFullWidthPopup() {
+    return window.screen.availWidth - window.innerWidth < 100;
   }
 }
