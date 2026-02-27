@@ -300,7 +300,7 @@
     "message": "接下來造訪網頁 App 嗎？"
   },
   "continueToWebAppDesc": {
-    "message": "在 Web 應用程式上探索 Bitwarden 帳號的更多功能。"
+    "message": "在 Web 應用程式上探索 Bitwarden 帳戶的更多功能。"
   },
   "continueToHelpCenter": {
     "message": "接下來前往說明中心嗎？"
@@ -897,7 +897,7 @@
     "message": "驗證碼無效"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "電子郵件或驗證碼無效"
   },
   "valueCopied": {
     "message": "$VALUE$ 已複製",
@@ -2861,7 +2861,7 @@
     "message": "有風險登入清單的示意圖。"
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden 密碼庫頁面版面配置示意圖。"
   },
   "generatePasswordSlideDesc": {
     "message": "在有風險的網站上，透過 Bitwarden 自動填入選單快速產生強且唯一的密碼。",
@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "搜尋結果"
   },
+  "simplifiedAutofill": {
+    "message": "簡化自動填入"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "當您點擊建議的自動填入項目時，將直接填入，而不會進入詳細資料頁面。您仍可從「更多」選單檢視這些項目。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "開啟簡化自動填入彈出視窗"
+  },
   "resizeSideNavigation": {
     "message": "調整側邊欄大小"
   },
@@ -6167,7 +6176,7 @@
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -6183,6 +6192,6 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "使用者驗證失敗。"
   }
 }
