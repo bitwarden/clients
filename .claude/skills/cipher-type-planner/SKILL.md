@@ -81,18 +81,12 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 
 - **Cipher type name:** (e.g., `BankAccount`)
 - **Integer value:** (e.g., `6`)
-  <<<<<<< HEAD
-- # **Feature flag:** (e.g., `vault-bank-account`)
 - **Feature flag:** (e.g., `pm-32009-new-item-types`)
-  > > > > > > > vault/PM-32687-cipher-type-skill
 - **Minimum client version:** (e.g., `2026.3.0`)
 - **Fields:** Table of all fields with name, type, encrypted (yes/no), required (yes/no)
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
-  <<<<<<< HEAD
-- # **Supports CSV export:** Yes/No
 - **Supports import/export:** Yes/No
-  > > > > > > > vault/PM-32687-cipher-type-skill
 
 ### 2. Cross-Repository Prerequisites
 
@@ -187,18 +181,6 @@ change needed.
 - `apps/web/src/locales/en/messages.json`
 - `apps/desktop/src/locales/en/messages.json`
 - `apps/browser/src/_locales/en/messages.json`
-  <<<<<<< HEAD
-- `apps/cli/src/locales/en/messages.json`
-
-**CLI:**
-
-- `apps/cli/src/vault/models/cipher.response.ts`
-- `apps/cli/src/commands/get.command.ts`
-
-**Import/Export:**
-
-- # `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`
-  > > > > > > > vault/PM-32687-cipher-type-skill
 
 **Linked fields (if applicable):**
 
@@ -250,19 +232,12 @@ Follow the order from `docs/cipher-types.md` Section 14, customized for this spe
 7. Localization keys
 8. Shared UI (icon, filters)
 9. Per-app UI (form section, view section)
-   <<<<<<< HEAD
-10. Import/Export and importer migration
-11. CLI
-12. Autofill (if applicable)
-13. Tests
-14. # Feature flag gating
-15. Context menu / copy actions (see Section 10)
-16. Import/Export and importer migration
-17. CLI
-18. Autofill (if applicable)
-19. Tests
-20. Feature flag gating
-    > > > > > > > vault/PM-32687-cipher-type-skill
+10. Context menu / copy actions (see Section 10)
+11. Import/Export and importer migration
+12. CLI
+13. Autofill (if applicable)
+14. Tests
+15. Feature flag gating
 
 ### 8. Importer Migration
 
@@ -289,8 +264,6 @@ Key importer files to check:
 - **i18n key reuse** - Before adding new locale keys, check whether existing keys already have the
   desired display value. If an existing key has the same message text, reuse it instead of creating
   a duplicate. Only create new keys when no existing key matches.
-
-# <<<<<<< HEAD
 
 ### 10. Context Menu / Copy Actions
 
@@ -329,8 +302,6 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 - **CLI has no copy menu UI** — do not add copy-related i18n keys to the CLI locale.
 - **Only expose fields that should be copiable** — not every cipher field needs a copy action. Check
   with product requirements for which fields get copy buttons.
-
-> > > > > > > vault/PM-32687-cipher-type-skill
 
 ---
 
