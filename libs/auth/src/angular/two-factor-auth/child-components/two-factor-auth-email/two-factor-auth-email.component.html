@@ -4,6 +4,8 @@
     bitInput
     type="text"
     appAutofocus
+    inputmode="numeric"
+    pattern="[0-9]*"
     appInputVerbatim
     [formControl]="tokenFormControl"
     (keyup)="onTokenChange($event)"
