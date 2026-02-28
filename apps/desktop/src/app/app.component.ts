@@ -491,9 +491,10 @@ export class AppComponent implements OnInit, OnDestroy {
               this.messagingService.send("unlocked");
               this.loading = true;
               await this.syncService.fullSync(false);
-              this.loading = false;
               // Force reload to ensure route guards are activated
               await this.router.navigate(["vault"], { onSameUrlNavigation: "reload" });
+              // Clear loading after navigating to avoid flickering the previous route
+              this.loading = false;
             }
             this.messagingService.send("finishSwitchAccount");
             break;

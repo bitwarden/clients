@@ -1,4 +1,7 @@
 <div class="header">
   <app-search></app-search>
-  <app-account-switcher></app-account-switcher>
+
+  @if (!useNewAccountSwitcher()) {
+    <app-account-switcher></app-account-switcher>
+  }
 </div>
