@@ -64,19 +64,32 @@ export class PqpAuthService {
         const response = await messaging.sendWithResponse("CHECK_STATUS");
         loggedIn = response?.loggedIn ?? false;
       } catch {
-        // Messaging not available (e.g. background context or desktop) — use direct API
-        loggedIn = await isPqpLoggedIn();
+        // Messaging not available (e.g. background context or desktop) — use IPC or direct API
+        const electronIpc = (window as any)?.electron?.ipcRenderer;
+        if (electronIpc) {
+          const ipcResult = await electronIpc.invoke("PQP_CHECK_STATUS");
+          loggedIn = ipcResult?.loggedIn ?? false;
+          // Use data from main process (renderer can't access main process storage)
+          if (loggedIn) {
+            this._userEmail = ipcResult?.email || null;
+            this._derivedPassword = ipcResult?.derivedPassword || null;
+          }
+        } else {
+          loggedIn = await isPqpLoggedIn();
+        }
       }
       this._networkLoggedIn = loggedIn;
 
       // Fetch or clear user info based on network login state
-      if (this._networkLoggedIn) {
+      // (skip for Electron IPC path — already populated above)
+      const electronIpc = (window as any)?.electron?.ipcRenderer;
+      if (this._networkLoggedIn && !electronIpc) {
         const userInfo = await getUserInfo();
         if (userInfo) {
           this._userEmail = userInfo.email || null;
         }
         await this.derivePassword();
-      } else {
+      } else if (!this._networkLoggedIn) {
         // Clear stale data when logged out
         this._userEmail = null;
         this._derivedPassword = null;
@@ -113,9 +126,27 @@ export class PqpAuthService {
       }
       return false;
     } catch {
-      // Fallback for non-extension contexts (desktop)
+      // Fallback for non-extension contexts (desktop Electron)
       try {
-        await pqpLogin(provider);
+        // In Electron, delegate login to the main process via IPC
+        // because the identity adapter (OAuth) is configured there, not in the renderer.
+        const electronIpc = (window as any)?.electron?.ipcRenderer;
+        if (electronIpc) {
+          const ipcChannel = provider === "microsoft" ? "PQP_LOGIN_MICROSOFT" : "PQP_LOGIN";
+          const ipcResult = await electronIpc.invoke(ipcChannel);
+          if (!ipcResult?.success) {
+            return false;
+          }
+          // Match browser extension pattern: return true on login success.
+          // Credentials (email, derivedPassword) will be fetched later via checkStatus()
+          // when the user clicks "Continue" — by then BOOTSTRAPPING is complete.
+          this._networkLoggedIn = true;
+          return true;
+        } else {
+          // Non-Electron fallback: call pqpLogin directly
+          await pqpLogin(provider);
+        }
+
         const userInfo = await getUserInfo();
         if (userInfo?.email) {
           this._userEmail = userInfo.email;

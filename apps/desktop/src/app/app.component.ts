@@ -733,6 +733,16 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.biometricStateService.logout(userBeingLoggedOut);
       await this.pinService.logout(userBeingLoggedOut);
 
+      // Logout from PQP Network (matching browser extension pattern)
+      try {
+        const electronIpc = (window as any)?.electron?.ipcRenderer;
+        if (electronIpc) {
+          await electronIpc.invoke("PQP_LOGOUT");
+        }
+      } catch {
+        /* ignore */
+      }
+
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });

@@ -4,7 +4,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { init as initPqp, initLogging, sendMessage } from "@ovrlab/pqp-network";
+import { init as initPqp, initLogging, sendMessage, login, logout as pqpLogout, isLoggedIn, getUserInfo, localStateRepository, sha256 } from "@ovrlab/pqp-network";
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
@@ -336,7 +336,19 @@ export class Main {
 
         // Initialize PQP Network (OVR Lab)
         void initLogging("electron");
-        await initPqp("electron", { context: "background" });
+        await initPqp("electron", {
+          context: "background",
+          identityConfig: {
+            clientId: "277645520335-5ul3dkbpbtupbsvoh0f2ov6nj2k8a3pt.apps.googleusercontent.com",
+            redirectUri: "http://localhost:8123/callback",
+            scopes: "openid email https://www.googleapis.com/auth/drive.appdata",
+          },
+          microsoftIdentityConfig: {
+            clientId: "861c0051-0588-46e5-b901-9e4080ee52e4",
+            redirectUri: "http://localhost:8123/callback",
+            scopes: "openid email User.Read Files.ReadWrite.AppFolder",
+          },
+        });
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -498,6 +510,49 @@ export class Main {
     ipcMain.handle("OPEN_INTERNAL_LOGIN", async () => {
       try {
         return await this.openLoginWindow();
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    // PQP Auth IPC handlers (matching browser's chrome.runtime.onMessage pattern)
+    ipcMain.handle("PQP_LOGIN", async () => {
+      try {
+        await login("google");
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle("PQP_LOGIN_MICROSOFT", async () => {
+      try {
+        await login("microsoft");
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle("PQP_LOGOUT", async () => {
+      try {
+        await pqpLogout();
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    ipcMain.handle("PQP_CHECK_STATUS", async () => {
+      try {
+        const loggedIn = await isLoggedIn();
+        if (loggedIn) {
+          const userInfo = await getUserInfo();
+          const privateKey = await localStateRepository.getPrivateKey();
+          const derivedPassword = privateKey ? await sha256(privateKey) : null;
+          return { success: true, loggedIn, email: userInfo?.email || null, derivedPassword };
+        }
+        return { success: true, loggedIn };
       } catch (error) {
         return { success: false, error: String(error) };
       }

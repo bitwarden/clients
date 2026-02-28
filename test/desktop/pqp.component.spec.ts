@@ -9,16 +9,11 @@ jest.mock("@ovrlab/pqp-network", () => ({
   getMessages: jest.fn().mockResolvedValue([]),
   setMessages: jest.fn(),
   clearBadge: jest.fn(),
-  isGoogleDriveLoggedIn: jest.fn().mockResolvedValue(false),
-  googleDriveLogin: jest.fn(),
-  manualRestoreFromDrive: jest.fn(),
   loadPeerIndex: jest.fn().mockResolvedValue({ peers: {}, self: null }),
   getOrchestrationState: jest.fn().mockResolvedValue(null),
   ServiceLocator: { getSyncStorage: jest.fn(), getVault: jest.fn() },
   isLoggedIn: jest.fn().mockResolvedValue(false),
   logout: jest.fn(),
-  getWebRtcManager: jest.fn(),
-  onWebRtcStatus: jest.fn(),
 }));
 
 describe("PqpComponent (Desktop)", () => {
@@ -48,23 +43,25 @@ describe("PqpComponent (Desktop)", () => {
       );
     });
 
-    it("should return 'Joining tier-0...' for JOINING_TIER0", () => {
-      const state: OrchestrationState = { status: "JOINING_TIER0" } as any;
-      expect(component.getOrchestrationStatusText(state, basePeerIndex)).toBe("Joining tier-0...");
+    it("should return 'Joining network...' for JOINING", () => {
+      const state: OrchestrationState = { status: "JOINING" } as any;
+      expect(component.getOrchestrationStatusText(state, basePeerIndex)).toBe(
+        "Joining network...",
+      );
     });
 
-    it("should return position text for JOINED_TIER0 with self", () => {
-      const state: OrchestrationState = { status: "JOINED_TIER0" } as any;
+    it("should return path text for JOINED with self", () => {
+      const state: OrchestrationState = { status: "JOINED" } as any;
       const peerIndex: PeerIndex = {
         peers: {},
-        self: { tier: { position: 2 } },
+        self: { tier: { tier: 0, path: [2, 1] } },
       } as any;
-      expect(component.getOrchestrationStatusText(state, peerIndex)).toBe("Joined as p2");
+      expect(component.getOrchestrationStatusText(state, peerIndex)).toBe("Joined: 1.2");
     });
 
-    it("should return 'Joined' for JOINED_TIER0 without self position", () => {
-      const state: OrchestrationState = { status: "JOINED_TIER0" } as any;
-      expect(component.getOrchestrationStatusText(state, basePeerIndex)).toBe("Joined");
+    it("should return 'Joined: Unknown' for JOINED without self path", () => {
+      const state: OrchestrationState = { status: "JOINED" } as any;
+      expect(component.getOrchestrationStatusText(state, basePeerIndex)).toBe("Joined: Unknown");
     });
 
     it("should return error message for ERROR state", () => {
@@ -84,8 +81,8 @@ describe("PqpComponent (Desktop)", () => {
   });
 
   describe("getOrchestrationStatusClass", () => {
-    it("should return 'status-success' for JOINED_TIER0", () => {
-      expect(component.getOrchestrationStatusClass("JOINED_TIER0")).toBe("status-success");
+    it("should return 'status-success' for JOINED", () => {
+      expect(component.getOrchestrationStatusClass("JOINED")).toBe("status-success");
     });
 
     it("should return 'status-error' for ERROR", () => {
@@ -98,7 +95,7 @@ describe("PqpComponent (Desktop)", () => {
 
     it("should return 'status-info' for other states", () => {
       expect(component.getOrchestrationStatusClass("BOOTSTRAPPING")).toBe("status-info");
-      expect(component.getOrchestrationStatusClass("JOINING_TIER0")).toBe("status-info");
+      expect(component.getOrchestrationStatusClass("JOINING")).toBe("status-info");
       expect(component.getOrchestrationStatusClass("LOGGED_IN")).toBe("status-info");
     });
   });
