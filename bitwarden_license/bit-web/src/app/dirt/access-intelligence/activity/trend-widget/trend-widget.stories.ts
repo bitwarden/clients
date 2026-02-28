@@ -17,6 +17,7 @@ import { IconButtonModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 import { WebFileDownloadService } from "@bitwarden/web-vault/app/core/web-file-download.service";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
 import { TrendWidgetComponent } from "./trend-widget.component";
@@ -61,6 +62,7 @@ export default {
           provide: FileDownloadService,
           useClass: WebFileDownloadService,
         },
+        ChartExportService,
       ],
     }),
     applicationConfig({

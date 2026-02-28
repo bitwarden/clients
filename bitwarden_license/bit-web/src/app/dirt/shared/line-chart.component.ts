@@ -61,7 +61,7 @@ export type ChartConfig = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LineChartComponent implements OnDestroy {
-  private chart: Chart | null = null;
+  chart: Chart | null = null;
   readonly chartCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>("chartCanvas");
 
   // Input signals for chart data

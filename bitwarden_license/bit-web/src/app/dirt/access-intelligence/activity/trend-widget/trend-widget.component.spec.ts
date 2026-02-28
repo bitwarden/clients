@@ -11,6 +11,7 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { LineChartComponent } from "../../../shared/line-chart.component";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
@@ -27,6 +28,7 @@ describe("TrendWidgetComponent", () => {
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockSystemTheme$: BehaviorSubject<ThemeType>;
   let mockFileDownloadService: MockProxy<FileDownloadService>;
+  let mockChartExportService: MockProxy<ChartExportService>;
 
   const mockData: TrendWidgetData = {
     timeframe: TimePeriod.PastMonth,
@@ -43,6 +45,7 @@ describe("TrendWidgetComponent", () => {
     mockThemeStateService = mock<ThemeStateService>();
     mockSystemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
     mockFileDownloadService = mock<FileDownloadService>();
+    mockChartExportService = mock<ChartExportService>();
 
     mockI18nService.t.mockImplementation((key: string) => key);
     mockThemeStateService.selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -89,6 +92,7 @@ describe("TrendWidgetComponent", () => {
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: mockSystemTheme$ },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: ChartExportService, useValue: mockChartExportService },
       ],
     }).compileComponents();
 
@@ -285,18 +289,6 @@ describe("TrendWidgetComponent", () => {
     it("should download chart as PNG when PNG button is clicked", () => {
       jest.spyOn(ExportHelper, "getFileName").mockReturnValue("test-chart.png");
 
-      const mockBlob = new Blob(["fake-image-data"], { type: "image/png" });
-      const mockCanvas = {
-        toBlob: jest.fn((callback) => callback(mockBlob)),
-      };
-
-      // Mock the lineChart viewChild
-      jest.spyOn(component as any, "lineChart").mockReturnValue({
-        chartCanvas: () => ({
-          nativeElement: mockCanvas,
-        }),
-      });
-
       // Open the download menu
       const menuTrigger = fixture.debugElement.query(
         By.css('button[bitIconButton="bwi-download"]'),
@@ -313,13 +305,17 @@ describe("TrendWidgetComponent", () => {
       pngMenuItem!.nativeElement.click();
       fixture.detectChanges();
 
-      expect(mockCanvas.toBlob).toHaveBeenCalledTimes(1);
-      expect(mockFileDownloadService.download).toHaveBeenCalledTimes(1);
-      expect(mockFileDownloadService.download).toHaveBeenCalledWith({
-        fileName: "test-chart.png",
-        blobData: mockBlob,
-        blobOptions: { type: "image/png" },
-      });
+      expect(mockChartExportService.downloadAsPNG).toHaveBeenCalledTimes(1);
+      expect(mockChartExportService.downloadAsPNG).toHaveBeenCalledWith(
+        "line",
+        expect.any(Object),
+        "test-chart.png",
+        {
+          title: "riskOverTime",
+          xAxisLabel: "date",
+          yAxisLabel: "applications",
+        },
+      );
     });
   });
 });

@@ -27,6 +27,7 @@ import {
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
 import { PeriodSelectorComponent } from "../period-selector/period-selector.component";
 import { DEFAULT_TIME_PERIOD, TimePeriod } from "../period-selector/period-selector.types";
@@ -93,6 +94,7 @@ export class TrendWidgetComponent {
     @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
     private i18nService: I18nService,
     private fileDownloadService: FileDownloadService,
+    private chartExportService: ChartExportService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -184,24 +186,21 @@ export class TrendWidgetComponent {
   };
 
   protected downloadAsPNG(): void {
-    const chart = this.lineChart();
+    const chart = this.lineChart()?.chart;
     if (!chart) {
       return;
     }
 
-    const canvas = chart.chartCanvas().nativeElement;
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        return;
-      }
-
-      const fileName = ExportHelper.getFileName(this.getFileDownloadName(), "png");
-      this.fileDownloadService.download({
-        fileName,
-        blobData: blob,
-        blobOptions: { type: "image/png" },
-      });
-    });
+    this.chartExportService.downloadAsPNG(
+      "line",
+      chart,
+      ExportHelper.getFileName(this.getFileDownloadName(), "png"),
+      {
+        title: this.i18nService.t("riskOverTime"),
+        xAxisLabel: this.i18nService.t("date"),
+        yAxisLabel: this.viewLabel(),
+      },
+    );
   }
 
   protected downloadAsCSV(): void {
