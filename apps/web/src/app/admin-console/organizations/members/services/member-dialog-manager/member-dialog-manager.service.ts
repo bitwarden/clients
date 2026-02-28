@@ -11,8 +11,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 
+import { openEntityEventsDialog } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { openEntityEventsDialog } from "../../../manage/entity-events.component";
 import {
   AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,

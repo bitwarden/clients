@@ -8,8 +8,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DeviceType, EventType } from "@bitwarden/common/enums";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
+import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()

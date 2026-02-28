@@ -18,9 +18,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { EventSystemUser } from "@bitwarden/common/enums";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
-import { EventView } from "@bitwarden/common/models/view/event.view";
+import { EventSystemUser, EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -31,14 +29,13 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
-} from "../../../billing/organizations/change-plan-dialog.component";
-import { EventService } from "../../../core";
-import { HeaderModule } from "../../../layouts/header/header.module";
-import { SharedModule } from "../../../shared";
-import { EventExportService } from "../../../tools/event-export";
-import { BaseEventsComponent } from "../../common/base.events.component";
-
-import { placeholderEvents } from "./placeholder-events";
+} from "../../../../billing/organizations/change-plan-dialog.component";
+import { HeaderModule } from "../../../../layouts/header/header.module";
+import { SharedModule } from "../../../../shared";
+import { EventExportService } from "../../../../tools/event-export";
+import { EventService } from "../../services/event.service";
+import { BaseEventsComponent } from "../base-events/base-events.component";
+import { placeholderEvents } from "../placeholder-events";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM

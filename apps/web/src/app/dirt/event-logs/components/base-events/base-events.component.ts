@@ -8,17 +8,16 @@ import { combineLatest, filter, map, Observable, Subject, switchMap, takeUntil }
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EventView } from "@bitwarden/common/models/view/event.view";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
-import { EventOptions, EventService } from "../../core";
-import { EventExportService } from "../../tools/event-export";
+import { EventExportService } from "../../../../tools/event-export";
+import { EventOptions, EventService } from "../../services/event.service";
 
 @Directive()
 export abstract class BaseEventsComponent implements OnDestroy {
