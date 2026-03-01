@@ -6,12 +6,14 @@ import {
   Output,
   EventEmitter,
   Component,
-  OnDestroy,
+  DestroyRef,
+  inject,
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject, tap } from "rxjs";
+import { skip, Subject, map, withLatestFrom, ReplaySubject, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -65,12 +67,14 @@ const Controls = Object.freeze({
     I18nPipe,
   ],
 })
-export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy {
+export class PassphraseSettingsComponent implements OnInit, OnChanges {
   /** Instantiates the component
    *  @param generatorService settings and policy logic
    *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
    */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
@@ -149,7 +153,7 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
     settings.withConstraints$
       .pipe(
         tap((content) => this.log.debug(content, "passphrase settings loaded with constraints")),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ state, constraints }) => {
         this.settings.patchValue(state, { emitEvent: false });
@@ -173,14 +177,14 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
       .pipe(
         skip(1),
         tap((settings) => this.log.debug(settings, "passphrase settings onUpdate event")),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(this.onUpdated);
 
     // explain policy & disable policy-overridden fields
     this.generatorService
       .policy$(BuiltIn.passphrase, { account$: this.account$ })
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ constraints }) => {
         this.wordSeparatorMaxLength = constraints.wordSeparator?.maxLength ?? 0;
         this.policyInEffect = constraints.policyInEffect ?? false;
@@ -197,7 +201,7 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
           this.log.debug({ source, form }, "save passphrase settings request"),
         ),
         map(([, settings]) => settings as PassphraseGenerationOptions),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(settings);
   }
@@ -224,11 +228,5 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
     } else {
       this.settings.get(setting)?.disable({ emitEvent: false });
     }
-  }
-
-  private readonly destroyed$ = new Subject<void>();
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 }

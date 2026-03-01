@@ -1,18 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { DestroyRef, Directive, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import {
-  Subject,
-  firstValueFrom,
-  takeUntil,
-  map,
-  BehaviorSubject,
-  concatMap,
-  switchMap,
-  tap,
-} from "rxjs";
+import { firstValueFrom, map, BehaviorSubject, concatMap, switchMap, tap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -57,7 +49,9 @@ interface DatePresetSelectOption {
 }
 
 @Directive()
-export class AddEditComponent implements OnInit, OnDestroy {
+export class AddEditComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() sendId: string;
@@ -107,8 +101,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   protected componentName = "";
   private sendLinkBaseUrl: string;
-  private destroy$ = new Subject<void>();
-
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
     text: [],
@@ -168,7 +160,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
@@ -182,7 +174,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         getUserId,
         switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToActiveUser) => {
         if (
@@ -201,12 +193,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
           this.type = val;
         }),
         switchMap(() => this.typeChanged()),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((datePreset) => {
         datePreset === DatePreset.Custom
           ? this.formGroup.controls.defaultDeletionDateTime.enable()
@@ -214,7 +206,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
     this.formGroup.controls.hideEmail.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((val) => {
         if (!val && this.disableHideEmail && this.formGroup.controls.hideEmail.enabled) {
           this.formGroup.controls.hideEmail.disable();
@@ -229,18 +221,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
         switchMap((account) =>
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });
 
     await this.load();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   get editMode(): boolean {
@@ -292,7 +279,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
                   ),
                 ),
             ),
-            takeUntil(this.destroy$),
+            takeUntilDestroyed(this.destroyRef),
           )
           .subscribe(send);
       } else {

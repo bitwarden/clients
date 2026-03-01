@@ -6,12 +6,14 @@ import {
   Output,
   EventEmitter,
   Component,
-  OnDestroy,
+  DestroyRef,
+  inject,
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { takeUntil, Subject, map, filter, tap, skip, ReplaySubject, withLatestFrom } from "rxjs";
+import { Subject, map, filter, tap, skip, ReplaySubject, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -65,12 +67,14 @@ const Controls = Object.freeze({
     I18nPipe,
   ],
 })
-export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
+export class PasswordSettingsComponent implements OnInit, OnChanges {
   /** Instantiates the component
    *  @param generatorService settings and policy logic
    *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
    */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
@@ -163,7 +167,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
           delete s.ambiguous;
           return [s, constraints] as const;
         }),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([state, constraints]) => {
         let boundariesHint = this.i18nService.t(
@@ -186,7 +190,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
     // explain policy & disable policy-overridden fields
     this.generatorService
       .policy$(BuiltIn.password, { account$: this.account$ })
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ constraints }) => {
         this.policyInEffect = constraints.policyInEffect ?? false;
 
@@ -218,7 +222,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         filter((checked) => !(checked && (this.minNumber.value ?? 0) > 0)),
         map((checked) => (checked ? lastMinNumber : 0)),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => this.minNumber.setValue(value, { emitEvent: false }));
 
@@ -229,7 +233,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
           ([value, checkNumbers]) =>
             (lastMinNumber = checkNumbers && value ? value : lastMinNumber),
         ),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([, checkNumbers]) => this.numbers.setValue(checkNumbers, { emitEvent: false }));
 
@@ -238,7 +242,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         filter((checked) => !(checked && (this.minSpecial.value ?? 0) > 0)),
         map((checked) => (checked ? lastMinSpecial : 0)),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((value) => this.minSpecial.setValue(value, { emitEvent: false }));
 
@@ -249,14 +253,14 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
           ([value, checkSpecial]) =>
             (lastMinSpecial = checkSpecial && value ? value : lastMinSpecial),
         ),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([, checkSpecial]) => this.special.setValue(checkSpecial, { emitEvent: false }));
 
     // `onUpdated` depends on `settings` because the UserStateSubject is asynchronous;
     // subscribing directly to `this.settings.valueChanges` introduces a race condition.
     // skip the first emission because it's the initial value, not an update.
-    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
+    settings.pipe(skip(1), takeUntilDestroyed(this.destroyRef)).subscribe(this.onUpdated);
 
     // now that outputs are set up, connect inputs
     this.saveSettings
@@ -269,7 +273,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
           delete s.avoidAmbiguous;
           return s;
         }),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(settings);
   }
@@ -293,11 +297,5 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.settings.get(setting)?.disable({ emitEvent: false });
     }
-  }
-
-  private readonly destroyed$ = new Subject<void>();
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 }

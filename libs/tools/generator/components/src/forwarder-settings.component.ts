@@ -1,15 +1,17 @@
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
-  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
+import { map, ReplaySubject, skip, Subject, switchAll, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -49,11 +51,13 @@ const Controls = Object.freeze({
     I18nPipe,
   ],
 })
-export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
+export class ForwarderSettingsComponent implements OnInit, OnChanges {
   /** Instantiates the component
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
@@ -99,7 +103,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     this.vendor
       .pipe(
         map((vendor) => this.generatorService.forwarder(vendor)),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((forwarder) => {
         this.displayDomain = forwarder.capabilities.fields.includes("domain");
@@ -114,13 +118,13 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     );
 
     // bind settings to the reactive form
-    settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
+    settings$.pipe(switchAll(), takeUntilDestroyed(this.destroyRef)).subscribe((settings) => {
       // skips reactive event emissions to break a subscription cycle
       this.settings.patchValue(settings as any, { emitEvent: false });
     });
 
     // enable requested forwarder inputs
-    forwarder$.pipe(takeUntil(this.destroyed$)).subscribe((forwarder) => {
+    forwarder$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((forwarder) => {
       for (const name in Controls) {
         const control = this.settings.get(name);
         if (forwarder.capabilities.fields.includes(name)) {
@@ -136,13 +140,16 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
       .pipe(
         map((settings$) => settings$.pipe(skip(1))),
         switchAll(),
-        takeUntil(this.destroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(this.onUpdated);
 
     // now that outputs are set up, connect inputs
     this.saveSettings
-      .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
+      .pipe(
+        withLatestFrom(this.settings.valueChanges, settings$),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe(([, value, settings]) => {
         settings.next(value as ForwarderOptions);
       });
@@ -169,10 +176,4 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   protected displayBaseUrl: boolean = false;
 
   private readonly refresh$ = new Subject<void>();
-
-  private readonly destroyed$ = new Subject<void>();
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
 }

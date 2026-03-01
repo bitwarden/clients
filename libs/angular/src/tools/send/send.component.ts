@@ -1,16 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
-import {
-  BehaviorSubject,
-  Subject,
-  firstValueFrom,
-  mergeMap,
-  from,
-  switchMap,
-  takeUntil,
-  combineLatest,
-} from "rxjs";
+import { DestroyRef, Directive, inject, NgZone, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, firstValueFrom, mergeMap, from, switchMap, combineLatest } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -28,7 +20,9 @@ import { SearchService } from "@bitwarden/common/vault/abstractions/search.servi
 import { DialogService, ToastService } from "@bitwarden/components";
 
 @Directive()
-export class SendComponent implements OnInit, OnDestroy {
+export class SendComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   disableSend = false;
   sendType = SendType;
   loaded = false;
@@ -49,7 +43,6 @@ export class SendComponent implements OnInit, OnDestroy {
   onSuccessfulLoad: () => Promise<any>;
 
   private searchTimeout: any;
-  private destroy$ = new Subject<void>();
   private _filteredSends: SendView[];
   private _searchText$ = new BehaviorSubject<string>("");
   protected isSearchable: boolean = false;
@@ -92,7 +85,7 @@ export class SendComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToUser) => {
         this.disableSend = policyAppliesToUser;
@@ -103,16 +96,11 @@ export class SendComponent implements OnInit, OnDestroy {
         switchMap(([searchText, userId]) =>
           from(this.searchService.isSearchable(userId, searchText)),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((isSearchable) => {
         this.isSearchable = isSearchable;
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load(filter: (send: SendView) => boolean = null) {
@@ -123,7 +111,7 @@ export class SendComponent implements OnInit, OnDestroy {
           this.sends = sends;
           await this.search(null);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
     if (this.onSuccessfulLoad != null) {

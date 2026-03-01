@@ -3,7 +3,9 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass, AsyncPipe } from "@angular/common";
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Input,
   NgZone,
   OnChanges,
@@ -12,6 +14,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -24,7 +27,6 @@ import {
   map,
   ReplaySubject,
   Subject,
-  takeUntil,
   tap,
   withLatestFrom,
 } from "rxjs";
@@ -116,6 +118,8 @@ const NONE_SELECTED = "none";
   ],
 })
 export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   /** Instantiates the username generator
    *  @param generatorService generates credentials; stores preferences
    *  @param i18nService localizes generator algorithm descriptions
@@ -256,7 +260,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
         tap((algorithms) =>
           this.log.debug({ algorithms: algorithms as object }, "algorithms loaded"),
         ),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([usernames, forwarders]) => {
         // update subjects within the angular zone so that the
@@ -276,7 +280,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
             return "";
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((hint) => {
         // update subjects within the angular zone so that the
@@ -308,7 +312,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
           return generator;
         }),
         withLatestFrom(this.account$, this.maybeAlgorithm$),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([generated, account, algorithm]) => {
         this.log.debug(
@@ -353,7 +357,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
             return { nav: JSON.stringify(algorithm), algorithm };
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(activeIdentifier$);
 
@@ -368,7 +372,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
             return { nav: NONE_SELECTED };
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(activeForwarder$);
 
@@ -384,7 +388,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
           return [showForwarder, forwarderId] as const;
         }),
         distinctUntilChanged((prev, next) => prev[0] === next[0] && prev[1] === next[1]),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([showForwarder, forwarderId]) => {
         this.log.debug({ forwarderId, showForwarder }, "forwarder visibility updated");
@@ -415,7 +419,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
             return isSameAlgorithm(prev.id, next.id);
           }
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((algorithm) => {
         this.log.debug({ algorithm: algorithm?.id ?? null }, "algorithm selected");
@@ -435,7 +439,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     // assume the last-visible generator algorithm is the user's preferred one
     const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.algorithm$
-      .pipe(withLatestFrom(preferences), takeUntil(this.destroyed))
+      .pipe(withLatestFrom(preferences), takeUntilDestroyed(this.destroyRef))
       .subscribe(([algorithm, preference]) => {
         if (isEmailAlgorithm(algorithm.id)) {
           preference.email.algorithm = algorithm.id;
@@ -488,7 +492,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
 
           return cascade;
         }),
-        takeUntil(this.destroyed),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ username, forwarder }) => {
         this.log.debug(
@@ -510,7 +514,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
 
     // automatically regenerate when the algorithm switches if the algorithm
     // allows it; otherwise set a placeholder
-    this.maybeAlgorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
+    this.maybeAlgorithm$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((a) => {
       this.zone.run(() => {
         if (a?.capabilities?.autogenerate) {
           this.log.debug("autogeneration enabled");
@@ -619,11 +623,7 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     return options;
   }
 
-  private readonly destroyed = new Subject<void>();
   ngOnDestroy() {
-    this.destroyed.next();
-    this.destroyed.complete();
-
     // finalize subjects
     this.generate$.complete();
     this.generatedCredential$.complete();
