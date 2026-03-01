@@ -18,7 +18,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
-  ) {}
+  ) { }
 
   getOrgNameFromOrgInvite(): Promise<string | null> {
     return null;

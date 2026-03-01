@@ -65,7 +65,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
-  ) {}
+  ) { }
 
   /**
    * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
@@ -77,8 +77,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ): Promise<void> {
     const {
-      newMasterKey,
-      newServerMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -87,7 +85,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newPassword,
       salt,
     } = credentials;
-
     for (const [key, value] of Object.entries(credentials)) {
       if (value == null) {
         throw new Error(`${key} not found. Could not set password.`);
@@ -98,14 +95,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
     if (userType == null) {
       throw new Error("userType not found. Could not set password.");
-    }
-
-    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
-      newMasterKey,
-      userId,
-    );
-    if (masterKeyEncryptedUserKey == null || !masterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
 
     let keyPair: [string, EncString] | null = null;
@@ -158,7 +147,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
+      legacyNewServerMasterKeyHash,
       masterKeyEncryptedUserKey[1].encryptedString,
       newPasswordHint,
       orgSsoIdentifier,
@@ -173,7 +162,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // User now has a password so update account decryption options in state
     await this.updateAccountDecryptionProperties(
-      newMasterKey,
+      legacyNewMasterKey,
       kdfConfig,
       masterKeyEncryptedUserKey,
       userId,
@@ -212,7 +201,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnrollOld(legacyNewServerMasterKeyHash, orgId, userId);
     }
   }
 
@@ -272,7 +261,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
     userId: UserId,
   ) {
-    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
+    const legacyCredentials = credentials as SetInitialPasswordTdeOffboardingCredentialsOld & {
+      newMasterKey: MasterKey;
+      newServerMasterKeyHash: string;
+    };
+    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = legacyCredentials;
     for (const [key, value] of Object.entries(credentials)) {
       if (value == null) {
         throw new Error(`${key} not found. Could not set password.`);
@@ -288,7 +281,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userKey not found. Could not set password.");
     }
 
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+    const newMasterKeyEncryptedUserKey = await (this.keyService as any).encryptUserKeyWithMasterKey(
       newMasterKey,
       userKey,
     );
@@ -480,15 +473,15 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
-      masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
+      masterKeyEncryptedUserKey = await (this.keyService as any).makeUserKey(masterKey);
     } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      masterKeyEncryptedUserKey = await (this.keyService as any).encryptUserKeyWithMasterKey(
         masterKey,
         userKey,
       );
     }
 
-    return masterKeyEncryptedUserKey;
+    return masterKeyEncryptedUserKey as [UserKey, EncString];
   }
 
   private async updateAccountDecryptionProperties(
@@ -507,9 +500,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
+    await (this.masterPasswordService as any).setMasterKey(masterKey, userId);
     // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+    await (this.masterPasswordService as any).setMasterKeyEncryptedUserKey(
       masterKeyEncryptedUserKey[1],
       userId,
     );
@@ -537,10 +530,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
+    await (this.masterPasswordService as any).setMasterKeyEncryptedUserKey(
+      masterKeyWrappedUserKey,
+      userId,
+    );
 
     // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
-    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
+    await (this.masterPasswordService as any).setLegacyMasterKeyFromUnlockData(
       newPassword,
       masterPasswordUnlockData,
       userId,

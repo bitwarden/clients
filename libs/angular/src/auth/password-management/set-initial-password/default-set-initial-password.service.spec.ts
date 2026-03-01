@@ -914,7 +914,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
     function setupTdeOffboardingMocks() {
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
     }
 
     it("should successfully set an initial password for the TDE offboarding user", async () => {

@@ -76,9 +76,9 @@ export class DefaultSyncService extends CoreSyncService {
     refreshToken: Promise<void> | null;
     sync: Promise<SyncResponse> | null;
   } = {
-    refreshToken: null,
-    sync: null,
-  };
+      refreshToken: null,
+      sync: null,
+    };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -241,27 +241,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // Users with no master password will not have a key.
-    if (response?.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    }
-
-    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
-    if (response.accountKeys != null) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeys.toWrappedAccountCryptographicState(),
-        response.id,
-      );
-    } else {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        {
-          V1: {
-            private_key: response.privateKey as SdkEncString,
-          },
-        },
-        response.id,
-      );
-    }
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      response.accountKeys.toWrappedAccountCryptographicState(),
+      response.id,
+    );
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,

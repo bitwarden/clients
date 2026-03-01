@@ -348,7 +348,13 @@ export class InputPasswordComponent implements OnInit {
         this.flow === InputPasswordFlow.ChangePassword ||
         this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
       ) {
-        const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(currentPassword, this.userId);
+        if (this.userId == null) {
+          throw new Error("User ID not found.");
+        }
+        const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+          currentPassword,
+          this.userId,
+        );
         if (!currentPasswordVerified) {
           return;
         }

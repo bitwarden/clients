@@ -50,12 +50,6 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
   newPassword: string;
   salt: MasterPasswordSalt;
-  /** @deprecated Transitional legacy field during master-key migration. */
-  newMasterKey?: MasterKey;
-  /** @deprecated Transitional legacy field during master-key migration. */
-  newServerMasterKeyHash?: string;
-  /** @deprecated Transitional legacy field during master-key migration. */
-  newLocalMasterKeyHash?: string;
 }
 
 export interface SetInitialPasswordTdeUserWithPermissionCredentials {
@@ -66,10 +60,6 @@ export interface SetInitialPasswordTdeUserWithPermissionCredentials {
   orgSsoIdentifier: string;
   orgId: OrganizationId;
   resetPasswordAutoEnroll: boolean;
-  /** @deprecated Transitional legacy field during master-key migration. */
-  newMasterKey?: MasterKey;
-  /** @deprecated Transitional legacy field during master-key migration. */
-  newServerMasterKeyHash?: string;
 }
 
 /**

@@ -18,7 +18,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-  ) {}
+  ) { }
 
   async rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,

@@ -66,7 +66,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private logService: LogService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   /**
    * Gets an emergency access by id.
@@ -200,7 +200,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
+        (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
@@ -349,10 +349,13 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       return; // EARLY RETURN for flagged logic
     }
 
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
+    const masterKey = await (this.keyService as any).makeMasterKey(masterPassword, email, config);
+    const masterKeyHash = await (this.keyService as any).hashMasterKey(masterPassword, masterKey);
 
-    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
+    const encKey = await (this.keyService as any).encryptUserKeyWithMasterKey(
+      masterKey,
+      grantorUserKey,
+    );
 
     if (encKey == null || !encKey[1].encryptedString) {
       throw new Error("masterKeyEncryptedUserKey not found");
