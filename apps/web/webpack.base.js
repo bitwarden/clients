@@ -296,6 +296,13 @@ module.exports.buildConfig = function buildConfig(params) {
               secure: false,
               changeOrigin: true,
             },
+            {
+              context: ["/seed"],
+              target: envConfig.dev?.proxySeederApi,
+              pathRewrite: { "^/seed": "" },
+              secure: false,
+              changeOrigin: true,
+            },
           ],
           headers: (req) => {
             if (!req.originalUrl.includes("connector.html")) {

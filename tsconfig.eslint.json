@@ -5,7 +5,8 @@
     ".storybook/manager.js",
     ".storybook/test-runner.ts",
     ".storybook/format-args-for-code-snippet.ts",
-    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
+    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts",
+    "playwright.config.ts"
   ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
   "exclude": ["**/build", "**/dist"]
