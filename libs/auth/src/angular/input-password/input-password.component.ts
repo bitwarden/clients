@@ -49,6 +49,7 @@ import { PasswordCalloutComponent } from "../password-callout/password-callout.c
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
 import { PasswordInputResult } from "./password-input-result";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 
 /**
  * Determines which form elements will be displayed in the UI
@@ -219,12 +220,13 @@ export class InputPasswordComponent implements OnInit {
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private toastService: ToastService,
     private validationService: ValidationService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.addFormFieldsIfNecessary();
@@ -346,10 +348,7 @@ export class InputPasswordComponent implements OnInit {
         this.flow === InputPasswordFlow.ChangePassword ||
         this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
       ) {
-        const currentPasswordVerified = await this.verifyCurrentPassword(
-          currentPassword,
-          this.kdfConfig,
-        );
+        const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(currentPassword, this.userId);
         if (!currentPasswordVerified) {
           return;
         }
@@ -401,19 +400,9 @@ export class InputPasswordComponent implements OnInit {
        *******************************************************************/
 
       // 4. Create cryptographic keys and build a PasswordInputResult object
-      const newMasterKey = await this.keyService.makeMasterKey(
-        newPassword,
-        this.email,
-        this.kdfConfig,
-      );
-
-      const newServerMasterKeyHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
-
       const passwordInputResult: PasswordInputResult = {
         newPassword,
         salt,
-        newMasterKey,
-        newServerMasterKeyHash,
         newPasswordHint,
         kdfConfig: this.kdfConfig,
       };
@@ -422,20 +411,7 @@ export class InputPasswordComponent implements OnInit {
         this.flow === InputPasswordFlow.ChangePassword ||
         this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
       ) {
-        const currentMasterKey = await this.keyService.makeMasterKey(
-          currentPassword,
-          this.email,
-          this.kdfConfig,
-        );
-
-        const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-        );
-
         passwordInputResult.currentPassword = currentPassword;
-        passwordInputResult.currentMasterKey = currentMasterKey;
-        passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
       }
 
       if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
@@ -516,45 +492,6 @@ export class InputPasswordComponent implements OnInit {
 
     this.onPasswordFormSubmit.emit(passwordInputResult);
     return passwordInputResult;
-  }
-
-  /**
-   * Returns `true` if the current password is correct (it can be used to successfully decrypt
-   * the masterKeyEncryptedUserKey), `false` otherwise
-   */
-  private async verifyCurrentPassword(
-    currentPassword: string,
-    kdfConfig: KdfConfig,
-  ): Promise<boolean> {
-    if (!this.email) {
-      throw new Error("Email is required to verify current password.");
-    }
-    if (!this.userId) {
-      throw new Error("userId is required to verify current password.");
-    }
-
-    const currentMasterKey = await this.keyService.makeMasterKey(
-      currentPassword,
-      this.email,
-      kdfConfig,
-    );
-
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      currentMasterKey,
-      this.userId,
-    );
-
-    if (decryptedUserKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-
-      return false;
-    }
-
-    return true;
   }
 
   /**

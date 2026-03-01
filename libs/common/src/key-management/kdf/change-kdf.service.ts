@@ -23,7 +23,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     private sdkService: SdkService,
     private keyService: KeyService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-  ) {}
+  ) { }
 
   async updateUserKdfParams(masterPassword: string, kdf: KdfConfig, userId: UserId): Promise<void> {
     assertNonNullish(masterPassword, "masterPassword");
@@ -59,13 +59,5 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     const request = new KdfRequest(authenticationData, unlockData);
     request.authenticateWith(oldAuthenticationData);
     await this.changeKdfApiService.updateUserKdfParams(request);
-
-    // Update the locally stored master key and hash, so that UV, etc. still works
-    const masterKey = await this.keyService.makeMasterKey(
-      masterPassword,
-      unlockData.salt,
-      unlockData.kdf,
-    );
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }

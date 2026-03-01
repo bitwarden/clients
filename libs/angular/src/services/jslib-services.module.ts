@@ -233,6 +233,7 @@ import {
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { LogService as LoggingLogService } from "@bitwarden/logging";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
@@ -479,11 +480,11 @@ const safeProviders: SafeProvider[] = [
     provide: LOGOUT_CALLBACK,
     useFactory:
       (messagingService: MessagingServiceAbstraction) =>
-      async (logoutReason: LogoutReason, userId?: string) => {
-        return Promise.resolve(
-          messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
-        );
-      },
+        async (logoutReason: LogoutReason, userId?: string) => {
+          return Promise.resolve(
+            messagingService.send("logout", { logoutReason: logoutReason, userId: userId }),
+          );
+        },
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
@@ -570,6 +571,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       PasswordStrengthServiceAbstraction,
       PolicyServiceAbstraction,
+      MasterPasswordUnlockService,
       DeviceTrustServiceAbstraction,
       AuthRequestServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
@@ -930,8 +932,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      StateProvider,
-      LogService,
+      LoggingLogService,
       BiometricsService,
     ],
   }),
@@ -1168,7 +1169,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       StateProvider,
       KeyGenerationService,
-      LogService,
       CryptoFunctionServiceAbstraction,
       AccountServiceAbstraction,
     ],
@@ -1180,14 +1180,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
-    deps: [InternalMasterPasswordServiceAbstraction, KeyService, LogService],
+    deps: [InternalMasterPasswordServiceAbstraction, KeyService, LoggingLogService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
     useClass: KeyConnectorService,
     deps: [
       AccountServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -1198,7 +1197,6 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       RegisterSdkService,
-      SecurityStateService,
       AccountCryptographicStateService,
     ],
   }),
@@ -1840,7 +1838,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => {},
+    useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => { },
     deps: [EncryptedMigrationsSchedulerService],
     multi: true,
   }),
@@ -1907,4 +1905,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class JslibServicesModule {}
+export class JslibServicesModule { }

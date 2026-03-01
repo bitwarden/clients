@@ -116,37 +116,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     return ssoAuthResult;
   }
 
-  protected override async setMasterKey(tokenResponse: IdentityTokenResponse, userId: UserId) {
-    // The only way we can be setting a master key at this point is if we are using Key Connector.
-    // First, check to make sure that we should do so based on the token response.
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse)) {
-      // If we're here, we know that the user should use Key Connector (they have a KeyConnectorUrl) and does not have a master password.
-      // We can now check the key on the token response to see whether they are a brand new user or an existing user.
-      // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
-      const newSsoUser = tokenResponse.key == null;
-      if (newSsoUser) {
-        // Store Key Connector domain confirmation data in state instead of AuthResult
-        await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
-          {
-            kdfConfig: tokenResponse.kdfConfig,
-            keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
-            organizationId: this.cache.value.orgId,
-          },
-          userId,
-        );
-      } else {
-        const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-      }
-    }
-  }
-
-  /**
-   * Determines if it is possible set the `masterKey` from Key Connector.
-   * @param tokenResponse
-   * @returns `true` if the master key can be set from Key Connector, `false` otherwise
-   */
-  private shouldSetMasterKeyFromKeyConnector(tokenResponse: IdentityTokenResponse): boolean {
+  private shouldUnlockWithKeyConnector(tokenResponse: IdentityTokenResponse): boolean {
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions != null) {
@@ -167,23 +137,13 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
   // so might be worth moving this logic to a common place (base login strategy or a separate service?)
-  protected override async setUserKey(
+  protected override async unlockUser(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const masterKeyEncryptedUserKey = tokenResponse.key;
-
     // Note: masterKeyEncryptedUserKey is undefined for SSO JIT provisioned users
     // on account creation and subsequent logins (confirmed or unconfirmed)
     // but that is fine for TDE so we cannot return if it is undefined
-
-    if (masterKeyEncryptedUserKey) {
-      // set the master key encrypted user key if it exists
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-        masterKeyEncryptedUserKey,
-        userId,
-      );
-    }
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
@@ -204,11 +164,13 @@ export class SsoLoginStrategy extends LoginStrategy {
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
     } else if (
-      masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null
+      this.shouldUnlockWithKeyConnector(tokenResponse)
     ) {
-      // Key connector enabled for user
-      await this.trySetUserKeyWithMasterKey(userId);
+      await this.keyConnectorService.setUserKeyFromUrl(
+        this.getKeyConnectorUrl(tokenResponse),
+        tokenResponse.key.encryptedString,
+        userId,
+      );
     }
 
     // Note: In the traditional SSO flow with MP without key connector, the lock component
@@ -306,35 +268,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
   }
 
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-
-    // There are two scenarios in which the master key is not set here:
-    // 1. If the user has a master password and is using Key Connector. In that case, we cannot set the master key
-    // because the user hasn't entered their master password yet.
-    // 2. For new users with Key Connector, we will not have a master key yet, since Key Connector domain
-    // has to be confirmed first.
-    // In both cases, we'll return here and let the migration to Key Connector handle setting the master key.
-    if (!masterKey) {
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    tokenResponse: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    if (tokenResponse.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
-  }
-
   exportCache(): CacheData {
     return {
       sso: this.cache.value,
@@ -388,18 +321,18 @@ export class SsoLoginStrategy extends LoginStrategy {
     // - UserKey is not set after successful login -- because automatic decryption is not available
     // - userKeyEncryptedPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
     //     Why is that the case?  Because we set the userKeyEncryptedPrivateKey when we create the userKey, and this is serving as a proxy to tell us that the userKey has been created already (when enrolling in TDE).
-    const hasUserKeyEncryptedPrivateKey = await firstValueFrom(
-      this.keyService.userEncryptedPrivateKey$(userId),
+    const hasEncryptionKeys = await firstValueFrom(
+      this.accountCryptographicStateService.accountCryptographicState$(userId),
     );
-    const hasUserKey = await this.keyService.hasUserKey(userId);
+    const isUserUnlocked = await this.keyService.hasUserKey(userId);
 
     // TODO: PM-23491 we should explore consolidating this logic into a flag on the server. It could be set when an org is switched from TDE to MP encryption for each org user.
     if (
       !userDecryptionOptions.trustedDeviceOption &&
       !userDecryptionOptions.hasMasterPassword &&
       !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
-      hasUserKeyEncryptedPrivateKey &&
-      !hasUserKey
+      hasEncryptionKeys &&
+      !isUserUnlocked
     ) {
       await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeOffboardingUntrustedDevice,

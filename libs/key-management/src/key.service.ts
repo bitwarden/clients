@@ -53,7 +53,6 @@ import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid
 import {
   OrgKey,
   UserKey,
-  MasterKey,
   ProviderKey,
   CipherKey,
   UserPrivateKey,
@@ -184,15 +183,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
-  async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
-    if (!masterKey) {
-      throw new Error("MasterKey is required");
-    }
-
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
-  }
-
   /**
    * Clears the user key. Clears all stored versions of the user keys as well, such as the biometrics key
    * @param userId The desired user
@@ -213,95 +203,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-  }
-
-  /**
-   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
-   */
-  async getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey != null) {
-      return masterKey;
-    }
-
-    const email = await firstValueFrom(
-      this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
-    );
-    if (email == null) {
-      throw new Error("No email found for user " + userId);
-    }
-
-    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
-    if (kdf == null) {
-      throw new Error("No kdf found for user " + userId);
-    }
-
-    return await this.makeMasterKey(password, email, kdf);
-  }
-
-  /**
-   * Derive a master key from a password and email.
-   *
-   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
-   *
-   * @remarks
-   * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
-   */
-  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
-    const start = new Date().getTime();
-    email = email.trim().toLowerCase();
-    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
-      password,
-      email,
-      kdfConfig,
-    )) as MasterKey;
-    const end = new Date().getTime();
-    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
-
-    return masterKey;
-  }
-
-  /**
-   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
-   */
-  async encryptUserKeyWithMasterKey(
-    masterKey: MasterKey,
-    userKey: UserKey,
-  ): Promise<[UserKey, EncString]> {
-    if (masterKey == null) {
-      throw new Error("masterKey is required.");
-    }
-    if (userKey == null) {
-      throw new Error("userKey is required.");
-    }
-
-    return await this.buildProtectedSymmetricKey(masterKey, userKey);
-  }
-
-  /**
-   * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
-   */
-  async hashMasterKey(password: string, key: MasterKey): Promise<string> {
-    if (password == null) {
-      throw new Error("password is required.");
-    }
-    if (key == null) {
-      throw new Error("key is required.");
-    }
-
-    // Server authorization always uses one iteration
-    const iterations = 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(
-      key.inner().encryptionKey,
-      password,
-      "sha256",
-      iterations,
-    );
-    return Utils.fromBufferToB64(hash);
   }
 
   async setOrgKeys(
@@ -455,7 +356,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   // ---HELPERS---
-  async validateUserKey(key: UserKey | MasterKey | null, userId: UserId): Promise<boolean> {
+  async validateUserKey(key: UserKey | null, userId: UserId): Promise<boolean> {
     if (key == null) {
       return false;
     }
@@ -614,29 +515,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       phrase.push(EFFLongWordList[remainder as any]);
     }
     return phrase;
-  }
-
-  /**
-   * @deprecated
-   * This should only be used for wrapping the user key with a master key or stretched master key.
-   */
-  private async buildProtectedSymmetricKey<T extends SymmetricCryptoKey>(
-    encryptionKey: SymmetricCryptoKey,
-    newSymKey: SymmetricCryptoKey,
-  ): Promise<[T, EncString]> {
-    let protectedSymKey: EncString;
-    if (encryptionKey.inner().type === EncryptionType.AesCbc256_B64) {
-      const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
-      protectedSymKey = await this.encryptService.wrapSymmetricKey(
-        newSymKey,
-        stretchedEncryptionKey,
-      );
-    } else if (encryptionKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      protectedSymKey = await this.encryptService.wrapSymmetricKey(newSymKey, encryptionKey);
-    } else {
-      throw new Error("Invalid key size.");
-    }
-    return [newSymKey as T, protectedSymKey];
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {

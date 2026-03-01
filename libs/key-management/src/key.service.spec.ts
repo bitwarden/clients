@@ -42,7 +42,6 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
-  MasterKey,
   UserPublicKey,
   OrgKey,
   ProviderKey,
@@ -181,32 +180,6 @@ describe("keyService", () => {
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
-    });
-  });
-
-  describe("makeUserKey", () => {
-    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
-      "throws when the provided masterKey is %s",
-      async (masterKey) => {
-        await expect(keyService.makeUserKey(masterKey)).rejects.toThrow("MasterKey is required");
-      },
-    );
-
-    it("encrypts the user key with the master key", async () => {
-      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
-      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
-
-      keyGenerationService.createKey.mockResolvedValue(mockUserKey);
-      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
-      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
-      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
-
-      const result = await keyService.makeUserKey(makeSymmetricCryptoKey<MasterKey>(32));
-
-      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
-      expect(result[0]).toBe(mockUserKey);
-      expect(result[1]).toBe(mockEncryptedUserKey);
     });
   });
 
@@ -697,136 +670,6 @@ describe("keyService", () => {
     });
   });
 
-  describe("getOrDeriveMasterKey", () => {
-    beforeEach(() => {
-      masterPasswordService.masterKeySubject.next(null);
-    });
-
-    test.each([null as unknown as UserId, undefined as unknown as UserId])(
-      "throws when the provided userId is %s",
-      async (userId) => {
-        await expect(keyService.getOrDeriveMasterKey("password", userId)).rejects.toThrow(
-          "User ID is required.",
-        );
-      },
-    );
-
-    it("returns the master key if it is already available", async () => {
-      const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
-
-      expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalledWith(mockUserId);
-      expect(result).toEqual(masterKey);
-    });
-
-    it("throws an error if user's email is not available", async () => {
-      accountService.accounts$ = of({});
-
-      await expect(keyService.getOrDeriveMasterKey("password", mockUserId)).rejects.toThrow(
-        "No email found for user " + mockUserId,
-      );
-      expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if no kdf config is found", async () => {
-      kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
-
-      await expect(keyService.getOrDeriveMasterKey("password", mockUserId)).rejects.toThrow(
-        "No kdf found for user",
-      );
-    });
-
-    it("derives the master key if it is not available", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockReturnValue("mockMasterKey" as any);
-      kdfConfigService.getKdfConfig$.mockReturnValue(of("mockKdfConfig" as any));
-
-      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
-
-      expect(kdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
-      expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
-        "password",
-        "email",
-        "mockKdfConfig",
-      );
-      expect(result).toEqual("mockMasterKey");
-    });
-  });
-
-  describe("makeMasterKey", () => {
-    const password = "testPassword";
-    let email = "test@example.com";
-    const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
-    const kdfConfig = mock<KdfConfig>();
-
-    it("derives a master key from password and email", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
-
-      const result = await keyService.makeMasterKey(password, email, kdfConfig);
-
-      expect(result).toEqual(masterKey);
-    });
-
-    it("trims and lowercases the email for key generation call", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
-      email = "TEST@EXAMPLE.COM";
-
-      await keyService.makeMasterKey(password, email, kdfConfig);
-
-      expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
-        password,
-        email.trim().toLowerCase(),
-        kdfConfig,
-      );
-    });
-
-    it("should log the time taken to derive the master key", async () => {
-      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
-      jest.spyOn(Date.prototype, "getTime").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
-
-      await keyService.makeMasterKey(password, email, kdfConfig);
-
-      expect(logService.info).toHaveBeenCalledWith("[KeyService] Deriving master key took 500ms");
-    });
-  });
-
-  describe("hashMasterKey", () => {
-    const password = "testPassword";
-    const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
-
-    test.each([null as unknown as string, undefined as unknown as string])(
-      "throws when the provided password is %s",
-      async (password) => {
-        await expect(keyService.hashMasterKey(password, masterKey)).rejects.toThrow(
-          "password is required.",
-        );
-      },
-    );
-
-    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
-      "throws when the provided key is %s",
-      async (key) => {
-        await expect(keyService.hashMasterKey("password", key)).rejects.toThrow("key is required.");
-      },
-    );
-
-    it("hashes master key with default iterations when no hashPurpose is provided", async () => {
-      const mockReturnedHashB64 = "bXlfaGFzaA==";
-      cryptoFunctionService.pbkdf2.mockResolvedValue(Utils.fromB64ToArray(mockReturnedHashB64));
-
-      const result = await keyService.hashMasterKey(password, masterKey);
-
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        masterKey.inner().encryptionKey,
-        password,
-        "sha256",
-        1,
-      );
-      expect(result).toBe(mockReturnedHashB64);
-    });
-  });
-
   describe("makeOrgKey", () => {
     const mockUserPublicKey = new Uint8Array(64) as UserPublicKey;
     const shareKey = new SymmetricCryptoKey(new Uint8Array(64));
@@ -889,24 +732,21 @@ describe("keyService", () => {
 
   describe("userEncryptionKeyPair$", () => {
     type SetupKeysParams = {
-      makeMasterKey: boolean;
       makeUserKey: boolean;
     };
 
-    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+    function setupKeys({ makeUserKey }: SetupKeysParams): [UserKey] {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
-      masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
       userKeyState.nextState(
         fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
       );
-      return [fakeUserKey, fakeMasterKey];
+      return [fakeUserKey];
     }
 
     it("returns null when private key is null", async () => {
-      setupKeys({ makeMasterKey: false, makeUserKey: false });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -914,7 +754,7 @@ describe("keyService", () => {
     });
 
     it("returns null when private key is undefined", async () => {
-      setupKeys({ makeUserKey: true, makeMasterKey: false });
+      setupKeys({ makeUserKey: true });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
       const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
@@ -922,7 +762,7 @@ describe("keyService", () => {
     });
 
     it("returns keys when private key is defined", async () => {
-      setupKeys({ makeUserKey: false, makeMasterKey: true });
+      setupKeys({ makeUserKey: false });
 
       keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
@@ -1182,51 +1022,6 @@ describe("keyService", () => {
       const result = await firstValueFrom(keyService.providerKeys$(mockUserId));
 
       expect(result).toBeNull();
-    });
-  });
-
-  describe("encryptUserKeyWithMasterKey", () => {
-    const mockMasterKey = makeSymmetricCryptoKey<MasterKey>(32);
-    const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
-
-    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
-      "throws when the provided master key is %s",
-      async (key) => {
-        await expect(keyService.encryptUserKeyWithMasterKey(key, mockUserKey)).rejects.toThrow(
-          "masterKey is required.",
-        );
-      },
-    );
-
-    test.each([null as unknown as UserKey, undefined as unknown as UserKey])(
-      "throws when the provided userKey key is %s",
-      async (key) => {
-        await expect(keyService.encryptUserKeyWithMasterKey(mockMasterKey, key)).rejects.toThrow(
-          "userKey is required.",
-        );
-      },
-    );
-
-    it("throws with invalid master key size", async () => {
-      const invalidMasterKey = new SymmetricCryptoKey(new Uint8Array(78)) as MasterKey;
-
-      await expect(
-        keyService.encryptUserKeyWithMasterKey(invalidMasterKey, mockUserKey),
-      ).rejects.toThrow("Invalid key size.");
-    });
-
-    it("encrypts the user key with the master key", async () => {
-      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
-
-      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
-      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
-      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
-
-      const result = await keyService.encryptUserKeyWithMasterKey(mockMasterKey, mockUserKey);
-
-      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
-      expect(result[0]).toBe(mockUserKey);
-      expect(result[1]).toBe(mockEncryptedUserKey);
     });
   });
 

@@ -5,9 +5,10 @@ import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-manageme
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { UserId } from "../../../types/guid";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export abstract class KeyConnectorService {
-  abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;
+  abstract setUserKeyFromUrl(keyConnectorUrl: string, keyConnectorkeyEncryptedUserKey: EncString, userId: UserId): Promise<void>;
 
   abstract getManagingOrganization(userId: UserId): Promise<Organization>;
 

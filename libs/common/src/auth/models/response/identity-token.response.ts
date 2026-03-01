@@ -100,4 +100,8 @@ export class IdentityTokenResponse extends BaseResponse {
   hasMasterKeyEncryptedUserKey(): boolean {
     return Boolean(this.key);
   }
+
+  canUnlockWithKeyConnector(): boolean {
+    return this.apiUseKeyConnector;
+  }
 }

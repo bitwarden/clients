@@ -16,7 +16,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly keyService: KeyService,
     private readonly logService: LogService,
-  ) {}
+  ) { }
 
   async unlockWithMasterPassword(masterPassword: string, userId: UserId): Promise<UserKey> {
     this.validateInput(masterPassword, userId);
@@ -33,8 +33,6 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       masterPassword,
       masterPasswordUnlockData,
     );
-
-    await this.setLegacyState(masterPassword, masterPasswordUnlockData, userId);
 
     return userKey;
   }
@@ -83,25 +81,5 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     if (userId == null) {
       throw new Error("User ID is required");
     }
-  }
-
-  // Previously unlocking had the side effect of setting the masterKey and masterPasswordHash in state.
-  // This is to preserve that behavior, once masterKey and masterPasswordHash state is removed this should be removed as well.
-  private async setLegacyState(
-    masterPassword: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void> {
-    const masterKey = await this.keyService.makeMasterKey(
-      masterPassword,
-      masterPasswordUnlockData.salt,
-      masterPasswordUnlockData.kdf,
-    );
-
-    if (!masterKey) {
-      throw new Error("Master key could not be created to set legacy master password state.");
-    }
-
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }

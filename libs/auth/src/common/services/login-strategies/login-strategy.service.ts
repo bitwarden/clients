@@ -24,6 +24,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -38,7 +39,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { MasterKey } from "@bitwarden/common/types/key";
 import {
   KdfType,
   KeyService,
@@ -114,11 +114,11 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
      */
     version: number;
   } = {
-    email: null,
-    kdfConfig: null,
-    promise: null,
-    version: 0,
-  };
+      email: null,
+      kdfConfig: null,
+      promise: null,
+      version: 0,
+    };
 
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
@@ -152,6 +152,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected encryptService: EncryptService,
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected policyService: PolicyService,
+    protected masterPasswordUnlockService: MasterPasswordUnlockService,
     protected deviceTrustService: DeviceTrustServiceAbstraction,
     protected authRequestService: AuthRequestServiceAbstraction,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -337,63 +338,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
-    email = email.trim().toLowerCase();
-
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
-      let kdfConfig: KdfConfig | null = null;
-      if (this.passwordPrelogin.email === email) {
-        if (this.passwordPrelogin.kdfConfig) {
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        } else if (this.passwordPrelogin.promise != null) {
-          try {
-            await this.passwordPrelogin.promise;
-          } catch (error) {
-            this.logService.error(
-              "Failed to prefetch prelogin data, falling back to fetching now.",
-              error,
-            );
-          }
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        }
-      }
-
-      if (!kdfConfig) {
-        try {
-          const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-          kdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse);
-        } catch (e: any) {
-          if (e == null || e.statusCode !== 404) {
-            throw e;
-          }
-        }
-      }
-
-      if (!kdfConfig) {
-        throw new Error("KDF config is required");
-      }
-      kdfConfig.validateKdfConfigForPrelogin();
-      return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-    }
-
-    // Legacy behavior when flag is disabled
-    let legacyKdfConfig: KdfConfig | undefined;
-    try {
-      const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-      legacyKdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse) ?? undefined;
-    } catch (e: any) {
-      if (e == null || e.statusCode !== 404) {
-        throw e;
-      }
-    }
-
-    if (!legacyKdfConfig) {
-      throw new Error("KDF config is required");
-    }
-    legacyKdfConfig.validateKdfConfigForPrelogin();
-    return await this.keyService.makeMasterKey(masterPassword, email, legacyKdfConfig);
-  }
-
   async getPasswordPrelogin(email: string): Promise<void> {
     const normalizedEmail = email.trim().toLowerCase();
     const version = ++this.passwordPrelogin.version;
@@ -525,7 +469,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               data?.password ?? new PasswordLoginStrategyData(),
               this.passwordStrengthService,
               this.policyService,
-              this,
+              this.masterPasswordUnlockService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
@@ -573,9 +517,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return preloginResponse.kdf === KdfType.PBKDF2_SHA256
       ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
       : new Argon2KdfConfig(
-          preloginResponse.kdfIterations,
-          preloginResponse.kdfMemory,
-          preloginResponse.kdfParallelism,
-        );
+        preloginResponse.kdfIterations,
+        preloginResponse.kdfMemory,
+        preloginResponse.kdfParallelism,
+      );
   }
 }

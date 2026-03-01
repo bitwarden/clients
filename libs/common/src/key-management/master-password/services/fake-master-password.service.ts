@@ -9,8 +9,7 @@ import { KdfConfig } from "@bitwarden/key-management";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { UserId } from "../../../types/guid";
-import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
+import { UserKey } from "../../../types/key";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -22,15 +21,9 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
   mock = mock<InternalMasterPasswordServiceAbstraction>();
 
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
-  masterKeySubject = new ReplaySubject<MasterKey | null>(1);
-  // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
-  masterKeyHashSubject = new ReplaySubject<string | null>(1);
-  // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
   forceSetPasswordReasonSubject = new ReplaySubject<ForceSetPasswordReason>(1);
 
-  constructor(initialMasterKey?: MasterKey, initialMasterKeyHash?: string) {
-    this.masterKeySubject.next(initialMasterKey);
-    this.masterKeyHashSubject.next(initialMasterKeyHash);
+  constructor() {
   }
 
   userHasMasterPassword(userId: UserId): Promise<boolean> {
@@ -45,40 +38,12 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.mock.saltForUser$(userId);
   }
 
-  masterKey$(userId: UserId): Observable<MasterKey> {
-    return this.masterKeySubject.asObservable();
-  }
-
-  setMasterKey(masterKey: MasterKey, userId: UserId): Promise<void> {
-    return this.mock.setMasterKey(masterKey, userId);
-  }
-
-  clearMasterKey(userId: UserId): Promise<void> {
-    return this.mock.clearMasterKey(userId);
-  }
-
-  getMasterKeyEncryptedUserKey(userId: UserId): Promise<EncString> {
-    return this.mock.getMasterKeyEncryptedUserKey(userId);
-  }
-
-  setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
-    return this.mock.setMasterKeyEncryptedUserKey(encryptedKey, userId);
-  }
-
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
     return this.forceSetPasswordReasonSubject.asObservable();
   }
 
   setForceSetPasswordReason(reason: ForceSetPasswordReason, userId: UserId): Promise<void> {
     return this.mock.setForceSetPasswordReason(reason, userId);
-  }
-
-  decryptUserKeyWithMasterKey(
-    masterKey: MasterKey,
-    userId: string,
-    userKey?: EncString,
-  ): Promise<UserKey> {
-    return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
   }
 
   makeMasterPasswordAuthenticationData(
@@ -114,13 +79,5 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
 
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     return this.mock.masterPasswordUnlockData$(userId);
-  }
-
-  setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void> {
-    return this.mock.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
   }
 }

@@ -51,42 +51,15 @@ export class UserApiLoginStrategy extends LoginStrategy {
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (response.apiUseKeyConnector) {
+  protected override async unlockUser(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
+    if (response.canUnlockWithKeyConnector()) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
-      await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
+      this.keyConnectorService.setUserKeyFromUrl(keyConnectorUrl, response.key.encryptedString, userId);
     }
-  }
-
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    if (response.apiUseKeyConnector) {
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-          masterKey,
-          userId,
-        );
-        await this.keyService.setUserKey(userKey, userId);
-      }
-    }
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   // Overridden to save client ID and secret to token service

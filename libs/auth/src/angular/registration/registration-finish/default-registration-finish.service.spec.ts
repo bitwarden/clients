@@ -4,7 +4,7 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
@@ -47,7 +47,7 @@ describe("DefaultRegistrationFinishService", () => {
   describe("finishRegistration()", () => {
     let email: string;
     let emailVerificationToken: string;
-    let masterKey: MasterKey;
+    let masterKey: SymmetricCryptoKey;
     let passwordInputResult: PasswordInputResult;
     let userKey: UserKey;
     let userKeyEncString: EncString;
@@ -56,23 +56,23 @@ describe("DefaultRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      masterKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
       passwordInputResult = {
-        newMasterKey: masterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",
       };
+      (passwordInputResult as any).newMasterKey = masterKey;
+      (passwordInputResult as any).newServerMasterKeyHash = "newServerMasterKeyHash";
 
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
     });
 
     it("throws an error if the user key cannot be created", async () => {
-      keyService.makeUserKey.mockResolvedValue([null, null]);
+      (keyService as any).makeUserKey.mockResolvedValue([null, null]);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -80,19 +80,19 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("registers the user when given valid email verification input", async () => {
-      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      (keyService as any).makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect((keyService as any).makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHash: (passwordInputResult as any).newServerMasterKeyHash,
           masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {

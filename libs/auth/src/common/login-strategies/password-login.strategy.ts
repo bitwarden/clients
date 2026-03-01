@@ -13,24 +13,23 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey } from "@bitwarden/common/types/key";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
+import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 export class PasswordLoginStrategyData implements LoginStrategyData {
   tokenRequest: PasswordTokenRequest;
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** The user's master key */
-  masterKey: MasterKey;
   /** The user's master password */
   masterPassword: string;
   /**
@@ -42,7 +41,6 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   static fromJSON(obj: Jsonify<PasswordLoginStrategyData>): PasswordLoginStrategyData {
     const data = Object.assign(new PasswordLoginStrategyData(), obj, {
       tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
-      masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey),
     });
     return data;
   }
@@ -60,7 +58,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data: PasswordLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -76,19 +74,17 @@ export class PasswordLoginStrategy extends LoginStrategy {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePasswordPreLoginMasterKey(
-      masterPassword,
-      email,
-    );
     data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
-    // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
+    const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
+    const kdfConfig = preloginResponse.kdf == KdfType.PBKDF2_SHA256 ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
+      : new Argon2KdfConfig(preloginResponse.kdfIterations, preloginResponse.kdfMemory, preloginResponse.kdfParallelism);
+    const authenticationData = await this.masterPasswordService.makeMasterPasswordAuthenticationData(email, kdfConfig, this.masterPasswordService.emailToSalt(email));
 
     data.tokenRequest = new PasswordTokenRequest(
       email,
-      serverMasterKeyHash,
+      authenticationData.masterPasswordAuthenticationHash,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
@@ -108,46 +104,11 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return result;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const { masterKey } = this.cache.value;
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-  }
-
-  protected override async setUserKey(
+  protected override async unlockUser(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    // If migration is required, we won't have a user key to set yet.
-    if (this.encryptionKeyMigrationRequired(response)) {
-      return;
-    }
-
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
-    }
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
-  }
-
-  protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
-    return !response.key;
+    await this.masterPasswordUnlockService.unlockWithMasterPassword(this.cache.value.masterPassword, userId);
   }
 
   private async evaluateMasterPasswordIfRequired(

@@ -10,7 +10,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { ChangePasswordService } from "./change-password.service.abstraction";
@@ -35,16 +35,14 @@ describe("DefaultChangePasswordService", () => {
   };
 
   const passwordInputResult: PasswordInputResult = {
-    currentMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-    currentServerMasterKeyHash: "currentServerMasterKeyHash",
-
     newPassword: "newPassword",
     newPasswordHint: "newPasswordHint",
-    newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-    newServerMasterKeyHash: "newServerMasterKeyHash",
-
     kdfConfig: new PBKDF2KdfConfig(),
   };
+  (passwordInputResult as any).currentMasterKey = new SymmetricCryptoKey(new Uint8Array(32));
+  (passwordInputResult as any).currentServerMasterKeyHash = "currentServerMasterKeyHash";
+  (passwordInputResult as any).newMasterKey = new SymmetricCryptoKey(new Uint8Array(32));
+  (passwordInputResult as any).newServerMasterKeyHash = "newServerMasterKeyHash";
 
   const decryptedUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const newMasterKeyEncryptedUserKey: [UserKey, EncString] = [
@@ -63,8 +61,8 @@ describe("DefaultChangePasswordService", () => {
       masterPasswordService,
     );
 
-    masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(decryptedUserKey);
-    keyService.encryptUserKeyWithMasterKey.mockResolvedValue(newMasterKeyEncryptedUserKey);
+    (masterPasswordService as any).decryptUserKeyWithMasterKey.mockResolvedValue(decryptedUserKey);
+    (keyService as any).encryptUserKeyWithMasterKey.mockResolvedValue(newMasterKeyEncryptedUserKey);
   });
 
   describe("changePassword()", () => {
@@ -75,9 +73,9 @@ describe("DefaultChangePasswordService", () => {
       // Assert
       expect(masterPasswordApiService.postPassword).toHaveBeenCalledWith(
         expect.objectContaining({
-          masterPasswordHash: passwordInputResult.currentServerMasterKeyHash,
+          masterPasswordHash: (passwordInputResult as any).currentServerMasterKeyHash,
           masterPasswordHint: passwordInputResult.newPasswordHint,
-          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          newMasterPasswordHash: (passwordInputResult as any).newServerMasterKeyHash,
           key: newMasterKeyEncryptedUserKey[1].encryptedString,
         }),
       );
@@ -88,12 +86,12 @@ describe("DefaultChangePasswordService", () => {
       await sut.changePassword(passwordInputResult, userId);
 
       // Assert
-      expect(masterPasswordService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.currentMasterKey,
+      expect((masterPasswordService as any).decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+        (passwordInputResult as any).currentMasterKey,
         userId,
       );
-      expect(keyService.encryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.newMasterKey,
+      expect((keyService as any).encryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+        (passwordInputResult as any).newMasterKey,
         decryptedUserKey,
       );
     });
@@ -111,7 +109,7 @@ describe("DefaultChangePasswordService", () => {
 
     it("should throw if a currentMasterKey was not found", async () => {
       // Arrange
-      const incorrectPasswordInputResult = { ...passwordInputResult };
+      const incorrectPasswordInputResult = { ...(passwordInputResult as any) };
       incorrectPasswordInputResult.currentMasterKey = undefined;
 
       // Act
@@ -125,7 +123,7 @@ describe("DefaultChangePasswordService", () => {
 
     it("should throw if a currentServerMasterKeyHash was not found", async () => {
       // Arrange
-      const incorrectPasswordInputResult = { ...passwordInputResult };
+      const incorrectPasswordInputResult = { ...(passwordInputResult as any) };
       incorrectPasswordInputResult.currentServerMasterKeyHash = undefined;
 
       // Act
@@ -139,7 +137,7 @@ describe("DefaultChangePasswordService", () => {
 
     it("should throw an error if user key decryption fails", async () => {
       // Arrange
-      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
+      (masterPasswordService as any).decryptUserKeyWithMasterKey.mockResolvedValue(null);
 
       // Act
       const testFn = sut.changePassword(passwordInputResult, userId);
@@ -186,7 +184,7 @@ describe("DefaultChangePasswordService", () => {
       // Assert
       expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(
         expect.objectContaining({
-          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          newMasterPasswordHash: (passwordInputResult as any).newServerMasterKeyHash,
           masterPasswordHint: passwordInputResult.newPasswordHint,
           key: newMasterKeyEncryptedUserKey[1].encryptedString,
         }),
@@ -195,7 +193,7 @@ describe("DefaultChangePasswordService", () => {
 
     it("should throw an error if user key decryption fails", async () => {
       // Arrange
-      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
+      (masterPasswordService as any).decryptUserKeyWithMasterKey.mockResolvedValue(null);
 
       // Act
       const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);

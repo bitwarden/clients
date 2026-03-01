@@ -32,16 +32,16 @@ import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { MasterKey, UserKey } from "../../../types/key";
+import { UserKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "../../crypto";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
@@ -62,13 +62,13 @@ export const NEW_SSO_USER_KEY_CONNECTOR_CONVERSION =
         conversion == null
           ? null
           : {
-              kdfConfig:
-                conversion.kdfConfig.kdfType === KdfType.PBKDF2_SHA256
-                  ? PBKDF2KdfConfig.fromJSON(conversion.kdfConfig)
-                  : Argon2KdfConfig.fromJSON(conversion.kdfConfig),
-              keyConnectorUrl: conversion.keyConnectorUrl,
-              organizationId: conversion.organizationId,
-            },
+            kdfConfig:
+              conversion.kdfConfig.kdfType === KdfType.PBKDF2_SHA256
+                ? PBKDF2KdfConfig.fromJSON(conversion.kdfConfig)
+                : Argon2KdfConfig.fromJSON(conversion.kdfConfig),
+            keyConnectorUrl: conversion.keyConnectorUrl,
+            organizationId: conversion.organizationId,
+          },
       clearOn: ["logout"],
       cleanupDelayMs: 0,
     },
@@ -79,7 +79,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
   constructor(
     accountService: AccountService,
-    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
@@ -90,7 +89,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private registerSdkService: RegisterSdkService,
-    private securityStateService: SecurityStateService,
     private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
@@ -117,6 +115,10 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
   }
 
+  setUserKeyFromUrl(keyConnectorUrl: string, keyConnectorkeyEncryptedUserKey: EncString, userId: UserId): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   async setUsesKeyConnector(usesKeyConnector: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).update(() => usesKeyConnector);
   }
@@ -128,13 +130,12 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-      Utils.fromBufferToB64(masterKey.inner().encryptionKey),
-    );
+    // TODO
+    //const masterKey = null;
 
     try {
-      await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
+      // 
+      // await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
       this.handleKeyConnectorError(e);
     }
@@ -142,18 +143,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.apiService.postConvertToKeyConnector();
 
     await this.setUsesKeyConnector(true, userId);
-  }
-
-  // TODO: UserKey should be renamed to MasterKey and typed accordingly
-  async setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId) {
-    try {
-      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(keyConnectorUrl);
-      const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
-      const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
-      await this.masterPasswordService.setMasterKey(masterKey, userId);
-    } catch (e) {
-      this.handleKeyConnectorError(e);
-    }
   }
 
   async getManagingOrganization(userId: UserId): Promise<Organization> {
@@ -228,16 +217,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       throw new Error(`Unexpected account cryptographic state version ${version}`);
     }
 
-    await this.masterPasswordService.setMasterKey(
-      SymmetricCryptoKey.fromString(result.key_connector_key) as MasterKey,
-      userId,
-    );
     await this.keyService.setUserKey(
       SymmetricCryptoKey.fromString(result.user_key) as UserKey,
-      userId,
-    );
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      new EncString(result.key_connector_key_wrapped_user_key),
       userId,
     );
 
@@ -263,11 +244,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
       Utils.fromBufferToB64(masterKey.inner().encryptionKey),
     );
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
 
     const userKey = await this.keyService.makeUserKey(masterKey);
     await this.keyService.setUserKey(userKey[0], userId);
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
     const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
 
@@ -301,9 +280,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       map((data) =>
         data != null
           ? {
-              keyConnectorUrl: data.keyConnectorUrl,
-              organizationSsoIdentifier: data.organizationId,
-            }
+            keyConnectorUrl: data.keyConnectorUrl,
+            organizationSsoIdentifier: data.organizationId,
+          }
           : null,
       ),
     );

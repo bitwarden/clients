@@ -50,7 +50,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
-  ) {}
+  ) { }
 
   async lockAll() {
     const accounts = await firstValueFrom(
@@ -124,7 +124,6 @@ export class DefaultLockService implements LockService {
     await this.searchService.clearIndex(userId);
     //! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(userId);
-    await this.masterPasswordService.clearMasterKey(userId);
     await this.cipherService.clearCache(userId);
     // Clear CLI unlock state
     await this.keyService.clearStoredUserKey(userId);

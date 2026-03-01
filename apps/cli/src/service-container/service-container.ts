@@ -777,6 +777,7 @@ export class ServiceContainer {
       this.encryptService,
       this.passwordStrengthService,
       this.policyService,
+      this.masterPasswordUnlockService,
       this.deviceTrustService,
       this.authRequestService,
       this.userDecryptionOptionsService,

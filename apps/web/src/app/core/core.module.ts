@@ -499,13 +499,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeEmailService,
     useClass: DefaultChangeEmailService,
-    deps: [
-      ConfigService,
-      InternalMasterPasswordServiceAbstraction,
-      KdfConfigService,
-      ApiService,
-      KeyServiceAbstraction,
-    ],
+    deps: [InternalMasterPasswordServiceAbstraction, KdfConfigService, ApiService, KeyServiceAbstraction],
   }),
 ];
 

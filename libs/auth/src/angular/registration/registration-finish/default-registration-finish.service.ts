@@ -38,8 +38,13 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerInviteToken?: string,
     providerUserId?: string,
   ): Promise<void> {
-    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
-      passwordInputResult.newMasterKey,
+    const legacyPasswordInputResult = passwordInputResult as PasswordInputResult & {
+      newMasterKey: unknown;
+      newServerMasterKeyHash: string;
+    };
+
+    const [newUserKey, newEncUserKey] = await (this.keyService as any).makeUserKey(
+      legacyPasswordInputResult.newMasterKey,
     );
 
     if (!newUserKey || !newEncUserKey) {
@@ -75,6 +80,10 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
   ): Promise<RegisterFinishRequest> {
+    const legacyPasswordInputResult = passwordInputResult as PasswordInputResult & {
+      newServerMasterKeyHash: string;
+    };
+
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],
       userAsymmetricKeys[1].encryptedString,
@@ -82,7 +91,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
     const registerFinishRequest = new RegisterFinishRequest(
       email,
-      passwordInputResult.newServerMasterKeyHash,
+      legacyPasswordInputResult.newServerMasterKeyHash,
       passwordInputResult.newPasswordHint,
       encryptedUserKey,
       userAsymmetricKeysRequest,

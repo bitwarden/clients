@@ -34,21 +34,28 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     userId: UserId | null,
     request: PasswordRequest | UpdateTempPasswordRequest,
   ): Promise<[UserKey, EncString]> {
+    const legacyPasswordInputResult = passwordInputResult as PasswordInputResult & {
+      currentMasterKey: unknown;
+      currentServerMasterKeyHash: string;
+      newMasterKey: unknown;
+      newServerMasterKeyHash: string;
+    };
+
     if (!userId) {
       throw new Error("userId not found");
     }
     if (
-      !passwordInputResult.currentMasterKey ||
-      !passwordInputResult.currentServerMasterKeyHash ||
-      !passwordInputResult.newMasterKey ||
-      !passwordInputResult.newServerMasterKeyHash ||
+      !legacyPasswordInputResult.currentMasterKey ||
+      !legacyPasswordInputResult.currentServerMasterKeyHash ||
+      !legacyPasswordInputResult.newMasterKey ||
+      !legacyPasswordInputResult.newServerMasterKeyHash ||
       passwordInputResult.newPasswordHint == null
     ) {
       throw new Error("invalid PasswordInputResult credentials, could not change password");
     }
 
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      passwordInputResult.currentMasterKey,
+    const decryptedUserKey = await (this.masterPasswordService as any).decryptUserKeyWithMasterKey(
+      legacyPasswordInputResult.currentMasterKey,
       userId,
     );
 
@@ -56,17 +63,17 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       throw new Error("Could not decrypt user key");
     }
 
-    const newKeyValue = await this.keyService.encryptUserKeyWithMasterKey(
-      passwordInputResult.newMasterKey,
+    const newKeyValue = await (this.keyService as any).encryptUserKeyWithMasterKey(
+      legacyPasswordInputResult.newMasterKey,
       decryptedUserKey,
     );
 
     if (request instanceof PasswordRequest) {
-      request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
-      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+      request.masterPasswordHash = legacyPasswordInputResult.currentServerMasterKeyHash;
+      request.newMasterPasswordHash = legacyPasswordInputResult.newServerMasterKeyHash;
       request.masterPasswordHint = passwordInputResult.newPasswordHint;
     } else if (request instanceof UpdateTempPasswordRequest) {
-      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+      request.newMasterPasswordHash = legacyPasswordInputResult.newServerMasterKeyHash;
       request.masterPasswordHint = passwordInputResult.newPasswordHint;
     }
 

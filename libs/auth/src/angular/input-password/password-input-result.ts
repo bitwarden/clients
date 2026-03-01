@@ -10,6 +10,17 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
+  /** @deprecated Transitional legacy field during master-key migration. */
+  currentMasterKey?: MasterKey;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  currentServerMasterKeyHash?: string;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newMasterKey?: MasterKey;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newServerMasterKeyHash?: string;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newLocalMasterKeyHash?: string;
+
   /**
    * Temporary property that persists the flag state through the entire set/change password process.
    * This allows flows to consume this value instead of re-checking the flag state via ConfigService themselves.
@@ -21,16 +32,4 @@ export interface PasswordInputResult {
    * To be removed in PM-28143
    */
   newApisWithInputPasswordFlagEnabled?: boolean;
-
-  // The deprecated properties below will be removed in PM-28143: https://bitwarden.atlassian.net/browse/PM-28143
-
-  /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */
-  currentMasterKey?: MasterKey;
-  /** @deprecated */
-  currentServerMasterKeyHash?: string;
-
-  /** @deprecated */
-  newMasterKey?: MasterKey;
-  /** @deprecated */
-  newServerMasterKeyHash?: string;
 }

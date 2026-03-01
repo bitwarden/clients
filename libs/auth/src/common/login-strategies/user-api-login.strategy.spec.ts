@@ -28,7 +28,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -184,7 +184,7 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+    expect((masterPasswordService.mock as any).setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       userId,
     );
@@ -206,13 +206,14 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
+    expect(keyConnectorService.setUserKeyFromUrl).toHaveBeenCalledWith(
+      keyConnectorUrl,
+      tokenResponse.key.encryptedString,
+      userId,
+    );
   });
 
-  it("decrypts and sets the user key if Key Connector is enabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
-
+  it("sets user key from key connector URL if Key Connector is enabled", async () => {
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.apiUseKeyConnector = true;
 
@@ -221,17 +222,15 @@ describe("UserApiLoginStrategy", () => {
     environmentService.environment$ = new BehaviorSubject(env);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-      masterKey,
+    expect(keyConnectorService.setUserKeyFromUrl).toHaveBeenCalledWith(
+      keyConnectorUrl,
+      tokenResponse.key.encryptedString,
       userId,
-      undefined,
     );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+    expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

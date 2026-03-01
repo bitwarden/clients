@@ -1,6 +1,6 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KdfConfig } from "@bitwarden/key-management";
 
 export const _SetInitialPasswordUserType = {
@@ -43,8 +43,6 @@ export const SetInitialPasswordUserType: Readonly<{
 }> = Object.freeze(_SetInitialPasswordUserType);
 
 export interface SetInitialPasswordCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;
@@ -52,6 +50,12 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
   newPassword: string;
   salt: MasterPasswordSalt;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newMasterKey?: MasterKey;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newServerMasterKeyHash?: string;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newLocalMasterKeyHash?: string;
 }
 
 export interface SetInitialPasswordTdeUserWithPermissionCredentials {
@@ -62,14 +66,16 @@ export interface SetInitialPasswordTdeUserWithPermissionCredentials {
   orgSsoIdentifier: string;
   orgId: OrganizationId;
   resetPasswordAutoEnroll: boolean;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newMasterKey?: MasterKey;
+  /** @deprecated Transitional legacy field during master-key migration. */
+  newServerMasterKeyHash?: string;
 }
 
 /**
  * @deprecated To be removed in PM-28143
  */
 export interface SetInitialPasswordTdeOffboardingCredentialsOld {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
   newPasswordHint: string;
 }
 

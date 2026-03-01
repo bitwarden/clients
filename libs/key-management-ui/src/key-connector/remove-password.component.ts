@@ -49,7 +49,7 @@ export class RemovePasswordComponent implements OnInit {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
     private toastService: ToastService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);

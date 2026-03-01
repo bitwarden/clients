@@ -13,7 +13,6 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
-  MasterKey,
   OrgKey,
   ProviderKey,
   CipherKey,
@@ -113,62 +112,11 @@ export abstract class KeyService {
   abstract hasUserKey(userId: UserId): Promise<boolean>;
 
   /**
-   * Generates a new user key
-   * @deprecated Interacting with the master key directly is prohibited.
-   * For new features please use the KM provided SDK methods for user cryptography initialization or reach out to the KM team.
-   * @throws Error when master key is null or undefined.
-   * @param masterKey The user's master key.
-   * @returns A new user key and the master key protected version of it
-   */
-  abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
-  /**
    * Clears the user's stored version of the user key
    * @param userId The desired user
    * @throws Error when userId is null or undefined.
    */
   abstract clearStoredUserKey(userId: string): Promise<void>;
-  /**
-   * Retrieves the user's master key if it is in state, or derives it from the provided password
-   * @param password The user's master password that will be used to derive a master key if one isn't found
-   * @param userId The desired user
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
-   * @throws Error when userId is null/undefined.
-   * @throws Error when email or Kdf configuration cannot be found for the user.
-   * @returns The user's master key if it exists, or a newly derived master key.
-   */
-  abstract getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey>;
-  /**
-   * Generates a master key from the provided password
-   * @deprecated Interacting with the master key directly is prohibited.
-   * @param password The user's master password
-   * @param email The user's email
-   * @param KdfConfig The user's key derivation function configuration
-   * @returns A master key derived from the provided password
-   */
-  abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
-  /**
-   * Encrypts the provided user key with the provided master key.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
-   * @param masterKey The user's master key
-   * @param userKey The user key
-   * @throws Error when userKey or masterKey is null/undefined.
-   * @returns The user key and the master key protected version of it
-   */
-  abstract encryptUserKeyWithMasterKey(
-    masterKey: MasterKey,
-    userKey: UserKey,
-  ): Promise<[UserKey, EncString]>;
-  /**
-   * Creates a master password hash from the user's master password. Can
-   * be used for local authentication or for server authentication depending
-   * on the hashPurpose provided.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
-   * @param password The user's master password
-   * @param key The user's master key or active's user master key.
-   * @throws Error when password is null/undefined or key is null/undefined.
-   * @returns The user's master password hash
-   */
-  abstract hashMasterKey(password: string, key: MasterKey): Promise<string>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

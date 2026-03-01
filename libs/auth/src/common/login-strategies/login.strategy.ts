@@ -89,7 +89,7 @@ export abstract class LoginStrategy {
     protected environmentService: EnvironmentService,
     protected configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-  ) {}
+  ) { }
 
   abstract exportCache(): CacheData;
 
@@ -244,13 +244,8 @@ export abstract class LoginStrategy {
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
     const result = new AuthResult();
 
-    // Encryption key migration of legacy users (with no userkey) is not supported anymore
-    if (this.encryptionKeyMigrationRequired(response)) {
-      result.requiresEncryptionKeyMigration = true;
-      return result;
-    }
-
     // Must come before setting keys, user key needs email to update additional keys.
+    // Sets unlock options (i.e the encrypted copies of the key)
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
 
@@ -260,37 +255,32 @@ export abstract class LoginStrategy {
 
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
-
-    await this.setMasterKey(response, userId);
-    await this.setUserKey(response, userId);
-    await this.setAccountCryptographicState(response, userId);
+    // Sets the copies of the key encrypted by the user-key
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
-    this.messagingService.send("loggedIn");
     // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
     // TODO: https://bitwarden.atlassian.net/browse/PM-27573
     result.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
 
+    // Unlock the user by by setting the decrypted user-key depending on the login strategy.
+    await this.unlockUser(response, userId);
+    this.messagingService.send("loggedIn");
+
     return result;
   }
 
-  // The keys comes from different sources depending on the login strategy
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
-
-  protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
-
-  protected abstract setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void>;
-
-  // Old accounts used master key for encryption. We are forcing migrations but only need to
-  // check on password logins
-  protected encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
-    return false;
-  }
+  /**
+   * Sets the decrypted user-key to state, depending on the login strategy.
+   */
+  protected abstract unlockUser(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   /**
    * Checks if adminForcePasswordReset is true and sets the ForceSetPasswordReason.AdminForcePasswordReset flag in the master password service.
