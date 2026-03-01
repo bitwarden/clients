@@ -1,6 +1,7 @@
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, startWith } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -160,7 +161,9 @@ type Scenario =
   standalone: true,
   imports: [SharedModule],
 })
-export class EnterBillingAddressComponent implements OnInit, OnDestroy {
+export class EnterBillingAddressComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) scenario!: Scenario;
@@ -170,8 +173,6 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
 
   protected selectableCountries = selectableCountries;
   protected supportsTaxId$!: Observable<boolean>;
-
-  private destroy$ = new Subject<void>();
 
   constructor(private i18nService: I18nService) {}
 
@@ -202,18 +203,13 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
       }),
     );
 
-    this.supportsTaxId$.pipe(takeUntil(this.destroy$)).subscribe((supportsTaxId) => {
+    this.supportsTaxId$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((supportsTaxId) => {
       if (supportsTaxId) {
         this.group.controls.taxId.enable();
       } else {
         this.group.controls.taxId.disable();
       }
     });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   disableAddressControls = () => {

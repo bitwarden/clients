@@ -1,8 +1,9 @@
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -47,7 +48,8 @@ export type InitiationPath =
   templateUrl: "complete-trial-initiation.component.html",
   standalone: false,
 })
-export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
+export class CompleteTrialInitiationComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("stepper", { static: false }) verticalStepper!: VerticalStepperComponent;
@@ -95,7 +97,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     billingEmail: [""],
   });
 
-  private destroy$ = new Subject<void>();
   protected readonly ProductType = ProductType;
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
@@ -121,7 +122,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((qParams) => {
       // Retrieve email from query params
       if (qParams.email != null && qParams.email.indexOf("@") > -1) {
         this.email = qParams.email;
@@ -197,7 +198,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         .pipe(
           getUserId,
           switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
-          takeUntil(this.destroy$),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((enforcedPasswordPolicyOptions) => {
           this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
@@ -205,17 +206,12 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
 
     this.orgInfoFormGroup.controls.name.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
 
     this.initializing = false;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /** Handle manual stepper change */

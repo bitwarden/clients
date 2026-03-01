@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, Subject, takeUntil } from "rxjs";
+import { concatMap } from "rxjs";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import {
@@ -18,13 +19,13 @@ import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/ser
   templateUrl: "./provider-subscription.component.html",
   standalone: false,
 })
-export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
+export class ProviderSubscriptionComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private providerId: string;
   protected subscription: ProviderSubscriptionResponse;
 
   protected firstLoaded = false;
   protected loading: boolean;
-  private destroy$ = new Subject<void>();
   protected totalCost: number;
 
   constructor(
@@ -41,7 +42,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
           await this.load();
           this.firstLoaded = true;
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -89,11 +90,6 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
 
   private sumCost(plans: ProviderPlanResponse[]): number {
     return plans.reduce((acc, plan) => acc + plan.cost, 0);
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected get activePlans(): ProviderPlanResponse[] {

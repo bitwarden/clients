@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -25,7 +26,7 @@ import { ToastService } from "@bitwarden/components";
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class AdjustSubscription implements OnInit, OnDestroy {
+export class AdjustSubscription implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
@@ -45,7 +46,7 @@ export class AdjustSubscription implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAdjusted = new EventEmitter();
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   adjustSubscriptionForm = this.formBuilder.group({
     newSeatCount: [0, [Validators.min(0)]],
@@ -63,16 +64,18 @@ export class AdjustSubscription implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.adjustSubscriptionForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      const maxAutoscaleSeatsControl = this.adjustSubscriptionForm.controls.newMaxSeats;
+    this.adjustSubscriptionForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const maxAutoscaleSeatsControl = this.adjustSubscriptionForm.controls.newMaxSeats;
 
-      if (value.limitSubscription) {
-        maxAutoscaleSeatsControl.setValidators([Validators.min(value.newSeatCount)]);
-        maxAutoscaleSeatsControl.enable({ emitEvent: false });
-      } else {
-        maxAutoscaleSeatsControl.disable({ emitEvent: false });
-      }
-    });
+        if (value.limitSubscription) {
+          maxAutoscaleSeatsControl.setValidators([Validators.min(value.newSeatCount)]);
+          maxAutoscaleSeatsControl.enable({ emitEvent: false });
+        } else {
+          maxAutoscaleSeatsControl.disable({ emitEvent: false });
+        }
+      });
 
     this.adjustSubscriptionForm.patchValue({
       newSeatCount: this.currentSeatCount,
@@ -141,10 +144,5 @@ export class AdjustSubscription implements OnInit, OnDestroy {
 
   get limitSubscription(): boolean {
     return this.adjustSubscriptionForm.value.limitSubscription;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

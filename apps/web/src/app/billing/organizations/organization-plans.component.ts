@@ -4,14 +4,16 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
+  inject,
+  DestroyRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, merge } from "rxjs";
 import { debounceTime, map, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -89,7 +91,9 @@ const Allowed2020PlansForLegacyProviders = [
   ],
   providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
-export class OrganizationPlansComponent implements OnInit, OnDestroy {
+export class OrganizationPlansComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -198,8 +202,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   protected estimatedTax: number = 0;
   protected total: number = 0;
 
-  private destroy$: Subject<void> = new Subject<void>();
-
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -300,7 +302,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
@@ -323,7 +325,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(1000),
         switchMap(async () => await this.refreshSalesTax()),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -334,11 +336,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         additionalServiceAccounts: 0,
       });
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   get singleOrgPolicyBlock() {

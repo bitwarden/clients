@@ -1,5 +1,13 @@
-import { Directive, OnDestroy, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
-import { of, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  DestroyRef,
+  Directive,
+  inject,
+  OnInit,
+  TemplateRef,
+  ViewContainerRef,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -10,8 +18,8 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 @Directive({
   selector: "[appPremium]",
 })
-export class PremiumDirective implements OnInit, OnDestroy {
-  private directiveIsDestroyed$ = new Subject<boolean>();
+export class PremiumDirective implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private templateRef: TemplateRef<any>,
@@ -28,7 +36,7 @@ export class PremiumDirective implements OnInit, OnDestroy {
             ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
             : of(false),
         ),
-        takeUntil(this.directiveIsDestroyed$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((premium: boolean) => {
         if (premium) {
@@ -37,10 +45,5 @@ export class PremiumDirective implements OnInit, OnDestroy {
           this.viewContainer.clear();
         }
       });
-  }
-
-  ngOnDestroy() {
-    this.directiveIsDestroyed$.next(true);
-    this.directiveIsDestroyed$.complete();
   }
 }

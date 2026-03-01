@@ -2,17 +2,19 @@
 // @ts-strict-ignore
 import {
   Component,
+  DestroyRef,
   EventEmitter,
+  inject,
   Inject,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -119,7 +121,7 @@ interface OnSuccessArgs {
   ],
   providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
-export class ChangePlanDialogComponent implements OnInit, OnDestroy {
+export class ChangePlanDialogComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent: EnterPaymentMethodComponent;
@@ -229,7 +231,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
@@ -324,7 +326,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
@@ -361,7 +363,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(1000),
         switchMap(async () => await this.refreshSalesTax()),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -527,11 +529,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     } catch {
       this.estimatedTax = 0;
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   get upgradeRequiresPaymentMethod() {

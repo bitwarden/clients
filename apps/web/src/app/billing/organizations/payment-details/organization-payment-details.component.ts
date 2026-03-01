@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
@@ -10,10 +11,8 @@ import {
   Observable,
   of,
   shareReplay,
-  Subject,
   switchMap,
   take,
-  takeUntil,
   tap,
   withLatestFrom,
 } from "rxjs";
@@ -72,7 +71,7 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{ organizationId: st
     SharedModule,
   ],
 })
-export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
+export class OrganizationPaymentDetailsComponent implements OnInit {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
   protected organization$ = this.accountService.activeAccount$.pipe(
@@ -114,7 +113,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     this.viewState$.pipe(filter((view): view is View => view !== null)),
   ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private accountService: AccountService,
@@ -148,7 +147,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
             ),
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([taxIdWarning, billingAddress]) => {
         if (this.viewState$.value) {
@@ -180,14 +179,9 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
             this.setBillingAddress(billingAddress);
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   changePaymentMethod = async () => {

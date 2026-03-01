@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -11,7 +12,7 @@ import {
   ValidationErrors,
 } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -40,7 +41,8 @@ interface RequestSponsorshipForm {
   templateUrl: "sponsored-families.component.html",
   standalone: false,
 })
-export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
+export class SponsoredFamiliesComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   loading = false;
 
   availableSponsorshipOrgs$: Observable<Organization[]>;
@@ -52,8 +54,6 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   formPromise: Promise<void>;
 
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
-
-  private _destroy = new Subject<void>();
 
   constructor(
     private apiService: ApiService,
@@ -108,7 +108,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
       ),
     );
 
-    this.availableSponsorshipOrgs$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
+    this.availableSponsorshipOrgs$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((orgs) => {
       if (orgs.length === 1) {
         this.sponsorshipForm.patchValue({
           selectedSponsorshipOrgId: orgs[0].id,
@@ -130,17 +130,12 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
     this.sponsorshipForm
       .get("sponsorshipEmail")
-      .valueChanges.pipe(takeUntil(this._destroy))
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((val) => {
         if (this.sponsorshipEmailControl.hasError("email")) {
           this.sponsorshipEmailControl.setErrors([{ message: this.i18nService.t("invalidEmail") }]);
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this._destroy.next();
-    this._destroy.complete();
   }
 
   private async preventAccessToFreeFamiliesPage() {
