@@ -7,12 +7,11 @@ import {
   first,
   forkJoin,
   from,
-  iif,
   map,
   Observable,
   of,
   retry,
-  share,
+  shareReplay,
   takeUntil,
   startWith,
   Subject,
@@ -102,7 +101,7 @@ export class PhishingDataService {
     startWith(undefined), // Always emit once
     switchMap(() =>
       this._phishingMetaState.state$.pipe(
-        first(), // Only take the first value to avoid an infinite loop when updating the cache below
+        first((meta) => meta !== undefined),
         tap((metaState) => {
           // Perform any updates in the background
           this._backgroundUpdateTrigger$.next(metaState);
@@ -114,7 +113,7 @@ export class PhishingDataService {
       ),
     ),
     takeUntil(this._destroy$),
-    share(),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
   constructor(
@@ -211,7 +210,7 @@ export class PhishingDataService {
   }
 
   // [FIXME] Pull fetches into api service
-  private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
+  private async fetchPhishingChecksum(type: PhishingResourceType = this.resourceType) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
     this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
 
@@ -223,7 +222,8 @@ export class PhishingDataService {
         );
       }
 
-      return await response.text();
+      const text = await response.text();
+      return text.trim();
     } catch (error) {
       this.logService.error(
         `[PhishingDataService] Checksum fetch failed from ${checksumUrl}`,
@@ -344,60 +344,58 @@ export class PhishingDataService {
     // Use defer to restart timer if retry is activated
     return defer(() => {
       const startTime = Date.now();
+
+      if (previous?.timestamp && Date.now() - previous.timestamp < this.UPDATE_INTERVAL_DURATION) {
+        this.logService.debug(
+          `[PhishingDataService] Skipping update — last check was ${Math.round((Date.now() - previous.timestamp) / 1000 / 60)}m ago (interval: ${this.UPDATE_INTERVAL_DURATION / 1000 / 60}m)`,
+        );
+        return of(previous);
+      }
+
       this.logService.info(`[PhishingDataService] Update triggered...`);
 
-      // Get updated meta info
       return this._getUpdatedMeta().pipe(
-        // Update full data set if application version or checksum changed
-        concatMap((newMeta) =>
-          iif(
-            () => {
-              const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
-              const checksumChanged = newMeta.checksum !== previous?.checksum;
+        concatMap((newMeta) => {
+          const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
+          const checksumChanged = newMeta.checksum !== previous?.checksum;
+          const isFirstRun = !previous?.timestamp;
 
-              this.logService.info(
-                `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
-              );
-              return appVersionChanged || checksumChanged;
-            },
-            this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true }))),
-            of({ meta: newMeta, updated: false }),
-          ),
-        ),
-        // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
-        concatMap((result) =>
-          iif(
-            () => {
-              const isCacheExpired =
-                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
-              return isCacheExpired;
-            },
-            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
-            of(result),
-          ),
-        ),
-        concatMap((result) => {
-          if (!result.updated) {
-            this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
-            return of(previous);
+          // Download when: first run, app version change, or checksum changed
+          // Skip download when: checksum unchanged (blocklist hasn't been updated)
+          const needsDownload = isFirstRun || appVersionChanged || checksumChanged;
+
+          if (!needsDownload) {
+            this.logService.info(
+              `[PhishingDataService] Checksum unchanged — skipping CDN download`,
+            );
+            return of(newMeta);
           }
 
-          this.logService.debug(`[PhishingDataService] Updated phishing meta data:`, result.meta);
-          return from(this._phishingMetaState.update(() => result.meta)).pipe(
+          this.logService.info(
+            `[PhishingDataService] Downloading: isFirstRun=${isFirstRun}, ` +
+              `appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
+          );
+          return this._updateFullDataSet().pipe(map(() => newMeta));
+        }),
+        // Always save metadata — refreshes timestamp even when download was skipped.
+        // This is critical for the rate-limit guard: a fresh timestamp ensures
+        // subsequent SW restarts within 24h are no-ops.
+        concatMap((meta) => {
+          return from(this._phishingMetaState.update(() => meta)).pipe(
             tap(() => {
               const elapsed = Date.now() - startTime;
-              this.logService.info(`[PhishingDataService] Updated data set in ${elapsed}ms`);
+              this.logService.info(`[PhishingDataService] Update completed in ${elapsed}ms`);
             }),
           );
         }),
         retry({
-          count: 2, // Total 3 attempts (initial + 2 retries)
+          count: 2,
           delay: (error, retryCount) => {
             this.logService.error(
               `[PhishingDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
               error,
             );
-            return timer(5 * 60 * 1000); // Wait 5 mins before next attempt
+            return timer(5 * 60 * 1000);
           },
         }),
         catchError((err: unknown) => {
