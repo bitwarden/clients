@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, combineLatest, from, switchMap, takeUntil } from "rxjs";
+import { combineLatest, from, switchMap } from "rxjs";
 
 import {
   Environment,
@@ -31,7 +32,8 @@ class ServiceAccountConfig {
   templateUrl: "./config.component.html",
   standalone: false,
 })
-export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
+export class ServiceAccountConfigComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   identityUrl: string;
   apiUrl: string;
   organizationId: string;
@@ -39,7 +41,6 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   projects: ProjectListView[];
   hasProjects = false;
 
-  private destroy$ = new Subject<void>();
   loading = true;
 
   constructor(
@@ -58,7 +59,7 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
         switchMap(([params, env]) =>
           from(this.load(env, params.organizationId, params.serviceAccountId)),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((smConfig) => {
         this.identityUrl = smConfig.identityUrl;
@@ -129,9 +130,4 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("valueCopied", this.i18nService.t("organizationId")),
     });
   };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

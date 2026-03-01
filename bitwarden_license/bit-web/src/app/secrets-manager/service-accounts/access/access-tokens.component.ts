@@ -1,16 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatestWith,
-  firstValueFrom,
-  Observable,
-  startWith,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -31,10 +24,10 @@ import { AccessTokenCreateDialogComponent } from "./dialogs/access-token-create-
   templateUrl: "./access-tokens.component.html",
   standalone: false,
 })
-export class AccessTokenComponent implements OnInit, OnDestroy {
+export class AccessTokenComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   accessTokens$: Observable<AccessTokenView[]>;
 
-  private destroy$ = new Subject<void>();
   private serviceAccountView: ServiceAccountView;
 
   constructor(
@@ -66,16 +59,11 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
             params.organizationId,
           ),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((serviceAccountView) => {
         this.serviceAccountView = serviceAccountView;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected async revoke(tokens: AccessTokenView[]) {

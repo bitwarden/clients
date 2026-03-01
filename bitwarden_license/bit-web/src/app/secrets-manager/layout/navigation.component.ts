@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -10,9 +11,7 @@ import {
   map,
   Observable,
   startWith,
-  Subject,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
 import { SecretsManagerLogo } from "@bitwarden/assets/svg";
@@ -38,13 +37,13 @@ import { CountService } from "../shared/counts/count.service";
   templateUrl: "./navigation.component.html",
   standalone: false,
 })
-export class NavigationComponent implements OnInit, OnDestroy {
+export class NavigationComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly logo = SecretsManagerLogo;
   protected orgFilter = (org: Organization) => org.canAccessSecretsManager;
   protected isAdmin$: Observable<boolean>;
   protected isOrgEnabled$: Observable<boolean>;
   protected organizationCounts: OrganizationCounts;
-  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     protected route: ActivatedRoute,
@@ -69,17 +68,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
         ),
       ),
       distinctUntilChanged(),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
 
     this.isAdmin$ = org$.pipe(
       map((org) => org?.isAdmin),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
 
     this.isOrgEnabled$ = org$.pipe(
       map((org) => org?.enabled),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
 
     combineLatest([
@@ -92,7 +91,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
       .pipe(
         filter(([org]) => org?.enabled),
         switchMap(([org]) => this.countService.getOrganizationCounts(org.id)),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((organizationCounts) => {
         this.organizationCounts = {
@@ -101,10 +100,5 @@ export class NavigationComponent implements OnInit, OnDestroy {
           serviceAccounts: organizationCounts.serviceAccounts,
         };
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

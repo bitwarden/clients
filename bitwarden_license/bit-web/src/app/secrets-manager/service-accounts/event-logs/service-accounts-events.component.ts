@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { takeUntil } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,10 +23,9 @@ import { ServiceAccountEventLogApiService } from "./service-account-event-log-ap
   templateUrl: "./service-accounts-events.component.html",
   standalone: false,
 })
-export class ServiceAccountEventsComponent
-  extends BaseEventsComponent
-  implements OnInit, OnDestroy
-{
+export class ServiceAccountEventsComponent extends BaseEventsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   exportFileName = "machine-account-events";
   private serviceAccountId: string;
 
@@ -60,7 +59,7 @@ export class ServiceAccountEventsComponent
   async ngOnInit() {
     this.initBase();
     // eslint-disable-next-line rxjs/no-async-subscribe
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async (params) => {
       this.serviceAccountId = params.serviceAccountId;
       await this.load();
     });

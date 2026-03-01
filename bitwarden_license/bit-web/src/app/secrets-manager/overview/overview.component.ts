@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   map,
   Observable,
   switchMap,
-  Subject,
-  takeUntil,
   combineLatest,
   startWith,
   distinctUntilChanged,
@@ -82,8 +81,8 @@ type OrganizationTasks = {
   templateUrl: "./overview.component.html",
   standalone: false,
 })
-export class OverviewComponent implements OnInit, OnDestroy {
-  private destroy$: Subject<void> = new Subject<void>();
+export class OverviewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private tableSize = 10;
   private organizationId: string;
   protected organizationName: string;
@@ -137,7 +136,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       ),
     );
 
-    org$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
+    org$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((org) => {
       this.organizationId = org.id;
       this.organization = org;
       this.organizationName = org.name;
@@ -208,7 +207,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     orgId$
       .pipe(
         switchMap(() => this.view$.pipe(take(1))),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((view) => {
         this.showOnboarding = Object.values(view.tasks).includes(false);
@@ -223,11 +222,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
         state: { launchPaymentModalAutomatically: true },
       },
     );
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private getRecentItems<T extends { revisionDate: string }[]>(items: T, length: number): T {
