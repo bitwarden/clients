@@ -85,7 +85,7 @@ export default {
             }).asObservable(),
           },
         },
-        mockActivatedRoute({ phishingUrl: "http://malicious-example.com" }),
+        mockActivatedRoute({ phishingUrl: "http://malicious-example.com", tabId: "123" }),
       ],
     }),
   ],
@@ -111,7 +111,9 @@ type Story = StoryObj<StoryArgs & { pageIcon: any }>;
 export const Default: Story = {
   decorators: [
     moduleMetadata({
-      providers: [mockActivatedRoute({ phishingUrl: "http://malicious-example.com" })],
+      providers: [
+        mockActivatedRoute({ phishingUrl: "http://malicious-example.com", tabId: "123" }),
+      ],
     }),
   ],
 };
@@ -123,6 +125,7 @@ export const LongHostname: Story = {
         mockActivatedRoute({
           phishingUrl:
             "http://verylongsuspiciousphishingdomainnamethatmightwrapmaliciousexample.com",
+          tabId: "123",
         }),
       ],
     }),
