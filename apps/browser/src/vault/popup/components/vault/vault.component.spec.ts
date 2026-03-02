@@ -19,6 +19,7 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-cache/popup-router-cache.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -296,6 +297,10 @@ describe("VaultComponent", () => {
           useValue: autoConfirmSvc,
         },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
+        {
+          provide: InternalOrganizationServiceAbstraction,
+          useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
