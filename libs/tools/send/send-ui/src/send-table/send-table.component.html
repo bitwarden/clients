@@ -23,14 +23,30 @@
             </span>
             <button type="button" bitLink>
               {{ s.name }}
+              @if (s.disabled) {
+                <span class="tw-sr-only">, {{ "disabled" | i18n }}</span>
+              }
+              @if (s.authType !== authType.None) {
+                @let titleKey =
+                  s.authType === authType.Email ? "emailProtected" : "passwordProtected";
+                <span class="tw-sr-only">, {{ titleKey | i18n }}</span>
+              }
+              @if (s.maxAccessCountReached) {
+                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
+              }
+              @if (s.expired) {
+                <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+              }
+              @if (s.pendingDelete) {
+                <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
+              }
             </button>
             @if (s.disabled) {
               <i
                 class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'disabled' | i18n }}"
-                aria-label="{{ 'disabled' | i18n }}"
-                tabindex="0"
+                aria-hidden="true"
               ></i>
             }
             @if (s.authType !== authType.None) {
@@ -40,8 +56,7 @@
                 class="bwi bwi-lock"
                 appStopProp
                 title="{{ titleKey | i18n }}"
-                aria-label="{{ titleKey | i18n }}"
-                tabindex="0"
+                aria-hidden="true"
               ></i>
             }
             @if (s.maxAccessCountReached) {
@@ -49,8 +64,7 @@
                 class="bwi bwi-exclamation-triangle"
                 appStopProp
                 title="{{ 'maxAccessCountReached' | i18n }}"
-                aria-label="{{ 'maxAccessCountReached' | i18n }}"
-                tabindex="0"
+                aria-hidden="true"
               ></i>
             }
             @if (s.expired) {
@@ -58,8 +72,7 @@
                 class="bwi bwi-clock"
                 appStopProp
                 title="{{ 'expired' | i18n }}"
-                aria-label="{{ 'expired' | i18n }}"
-                tabindex="0"
+                aria-hidden="true"
               ></i>
             }
             @if (s.pendingDelete) {
@@ -67,8 +80,7 @@
                 class="bwi bwi-trash"
                 appStopProp
                 title="{{ 'pendingDeletion' | i18n }}"
-                aria-label="{{ 'pendingDeletion' | i18n }}"
-                tabindex="0"
+                aria-hidden="true"
               ></i>
             }
           </div>
