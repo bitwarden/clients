@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
@@ -30,6 +31,7 @@ describe("SendOptionsComponent", () => {
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(SendOptionsComponent);

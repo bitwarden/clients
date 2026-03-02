@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -121,6 +122,7 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: PolicyService, useValue: policyService },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }).compileComponents();
 
