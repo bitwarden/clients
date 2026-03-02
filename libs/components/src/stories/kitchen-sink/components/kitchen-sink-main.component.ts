@@ -98,7 +98,7 @@ class KitchenSinkDialogComponent {
     KitchenSinkFormComponent,
   ],
   template: `
-    <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
+    <bit-banner variant="primary"> Kitchen Sink test zone </bit-banner>
 
     <p class="tw-mt-4">
       <bit-breadcrumbs>
