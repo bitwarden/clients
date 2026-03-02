@@ -73,7 +73,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
 })
 export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private readonly cdr = inject(ChangeDetectorRef);
-  protected readonly baseChip = inject(BaseChipDirective, { host: true });
+  readonly baseChip = inject(BaseChipDirective, { host: true });
 
   readonly menu = viewChild(MenuComponent);
   readonly menuItems = viewChildren(MenuItemComponent);
