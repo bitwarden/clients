@@ -2,8 +2,7 @@
   <svg
     xmlns="http://www.w3.org/2000/svg"
     pointer-events="none"
-    class="tw-rounded-full tw-bg-[--avatar-bg] group-aria-disabled/avatar:tw-bg-bg-disabled [&:is(button:not([aria-disabled='true'])_*)]:group-hover/avatar:tw-bg-[--avatar-bg-hover]"
-    [class]="svgClass()"
+    class="tw-rounded-full tw-size-full tw-min-w-full tw-bg-[--avatar-bg] group-aria-disabled/avatar:tw-bg-bg-disabled [&:is(button:not([aria-disabled='true'])_*)]:group-hover/avatar:tw-bg-[--avatar-bg-hover]"
     attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
   >
     <text
@@ -13,7 +12,7 @@
       dy="0.35em"
       pointer-events="auto"
       class="[&:is(button:is([aria-disabled='true'])_*)]:tw-fill-fg-disabled"
-      [class]="textColor()"
+      [class]="avatarColors().text.includes('white') ? 'tw-fill-fg-white' : 'tw-fill-black'"
       [style.fontWeight]="svgFontWeight"
       [style.fontSize.px]="svgFontSize"
       [style.lineHeight.px]="16"

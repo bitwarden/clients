@@ -26,7 +26,7 @@ export const Default: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></bit-avatar>
       `,
     };
@@ -40,7 +40,7 @@ export const Interactive: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <button bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></button>
       `,
     };
@@ -54,7 +54,7 @@ export const Sizes: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <span class="tw-font-bold">Static</span>
         <div class="tw-flex tw-gap-4 tw-mb-10">
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
@@ -111,7 +111,7 @@ export const DefaultColors: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <span class="tw-font-bold">Static</span>
         <div class="tw-flex tw-gap-2 tw-mb-10">
           <bit-avatar [color]="'brand'" [text]="'Walt Walterson'"></bit-avatar>
@@ -138,7 +138,7 @@ export const ColorByID: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <div class="tw-flex tw-gap-4">
           <div class="tw-flex tw-flex-col tw-gap-2 tw-items-center">
             <span class="tw-font-bold"> Static </span>
@@ -172,11 +172,40 @@ export const CustomColor: Story = {
   },
 };
 
+export const InteractionStates: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <div class="tw-grid tw-grid-cols-[auto_repeat(4,minmax(0,1fr))] tw-gap-x-4 tw-gap-y-4 tw-items-center tw-max-w-[700px]">
+          <span></span>
+          <span class="tw-text-center">Avatar</span>
+          <span class="tw-text-center">Hover</span>
+          <span class="tw-text-center">Focus-visible</span>
+          <span class="tw-text-center">Focus-visible and hover</span>
+
+          <span class="tw-font-bold">Default Color</span>
+          <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-justify-self-center"></button>
+          <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-hover tw-justify-self-center"></button>
+          <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-focus-visible tw-justify-self-center"></button>
+          <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-hover tw-test-focus-visible tw-justify-self-center"></button>
+
+          <span class="tw-font-bold">Custom Color</span>
+          <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-justify-self-center"></button>
+          <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-hover tw-justify-self-center"></button>
+          <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-focus-visible tw-justify-self-center"></button>
+          <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-hover tw-test-focus-visible tw-justify-self-center"></button>
+        </div>
+      `,
+    };
+  },
+};
+
 export const Inactive: Story = {
   render: (args) => {
     return {
       props: args,
-      template: `
+      template: /*html*/ `
         <button bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></button>
       `,
     };

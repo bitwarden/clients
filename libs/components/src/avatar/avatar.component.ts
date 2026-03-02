@@ -18,11 +18,11 @@ export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"]
 export type AvatarColor = (typeof AvatarDefaultColors)[number];
 
 const sizeClasses: Record<AvatarSize, string[]> = {
-  "2xl": ["tw-h-16", "tw-w-16", "tw-min-w-16"],
-  xl: ["tw-h-14", "tw-w-14", "tw-min-w-14"],
-  lg: ["tw-h-11", "tw-w-11", "tw-min-w-11"],
-  base: ["tw-h-8", "tw-w-8", "tw-min-w-8"],
-  sm: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
+  "2xl": ["tw-size-16", "tw-min-w-16"],
+  xl: ["tw-size-14", "tw-min-w-14"],
+  lg: ["tw-size-11", "tw-min-w-11"],
+  base: ["tw-size-8", "tw-min-w-8"],
+  sm: ["tw-size-6", "tw-min-w-6"],
 };
 
 /**
@@ -77,9 +77,10 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed",
-    "[style.--avatar-bg]": "avatarBgColors().avatarBgColor",
-    "[style.--avatar-bg-hover]": "avatarBgColors().avatarBgColorHover",
+      "tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover]",
+    "[class]": "sizeClass()",
+    "[style.--avatar-bg]": "avatarColors().bg",
+    "[style.--avatar-bg-hover]": "avatarColors().bgHover",
   },
   hostDirectives: [AriaDisableDirective],
 })
@@ -129,63 +130,45 @@ export class AvatarComponent {
   protected readonly svgFontWeight = 400;
   protected readonly svgSize = 32;
 
-  protected readonly svgClass = computed(() => {
-    return sizeClasses[this.size()] ?? [];
-  });
-
-  protected readonly usingCustomColor = computed(() => {
-    const color = this.color();
-
-    if (Utils.isNullOrWhitespace(color)) {
-      return false;
-    }
-
-    return !isAvatarColor(color);
-  });
+  protected readonly sizeClass = computed(() => sizeClasses[this.size()]);
 
   /**
-   * Determine the background color of the avatar and its hover color
-   *
-   * If the color is custom, return that as the background color and apply an hsl calculation to
-   * achieve a hover state.
-   *
-   * If the color is not custom, return background and hover colors from the default palette.
-   *
-   * All return values must be strings that can be parsed as css variables.
+   * Determine the background color of the avatar, its hover color, and its text color based on
+   * whether or not the `color` input is a custom color or a default avatar color
    */
-  protected readonly avatarBgColors = computed(() => {
-    if (this.usingCustomColor()) {
+  protected readonly avatarColors = computed<{
+    // hex or css variable
+    bg: string;
+    // hsl or css variable
+    bgHover: string;
+    // 'white' or 'black'
+    text: string;
+  }>(() => {
+    const color = this.color();
+
+    const colorIsAvatarColor = isAvatarColor(color);
+    const colorIsDefined = color !== null && color !== undefined && color.trim() !== "";
+
+    const colorIsCustom = !colorIsAvatarColor && colorIsDefined;
+
+    if (colorIsCustom) {
       return {
-        avatarBgColor: this.color()!,
+        bg: color,
         // Drop the custom color's saturation and lightness by 10% when hovering
-        avatarBgColorHover: `hsl(from ${this.color()} h calc(s - 10) calc(l - 10))`,
+        bgHover: `hsl(from ${color} h calc(s - 10) calc(l - 10))`,
+        text: Utils.pickTextColorBasedOnBgColor(color, 135, true),
       };
     } else {
-      const color = this.color();
-      const colorIsAvatarColor = isAvatarColor(color);
       const chosenAvatarColor = colorIsAvatarColor
         ? color
         : this.getDefaultColorKey(this.id(), this.text());
 
       return {
-        avatarBgColor: defaultAvatarColors[chosenAvatarColor],
-        avatarBgColorHover: defaultAvatarHoverColors[chosenAvatarColor],
+        bg: defaultAvatarColors[chosenAvatarColor],
+        bgHover: defaultAvatarHoverColors[chosenAvatarColor],
+        text: "white",
       };
     }
-  });
-
-  /**
-   * Text color class that satisfies accessible contrast requirements
-   */
-  protected readonly textColor = computed(() => {
-    let textColor = "white";
-    const color = this.color();
-
-    if (this.usingCustomColor() && color) {
-      textColor = Utils.pickTextColorBasedOnBgColor(color, 135, true);
-    }
-
-    return textColor === "white" ? "tw-fill-fg-white" : "tw-fill-fg-black";
   });
 
   protected readonly displayChars = computed(() => {
