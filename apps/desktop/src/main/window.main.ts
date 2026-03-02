@@ -400,6 +400,14 @@ export class WindowMain {
       });
     });
 
+    this.win.webContents.setWindowOpenHandler(({ url }) => {
+      // For security reasons, we block all attempts to open new windows from the renderer process.
+      // If there is a legitimate need to open a new window, use shell.openExternal from the main process.
+      this.logService.warning(`Blocked attempt to open new window with url: ${url}`);
+
+      return { action: "deny" };
+    });
+
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)
       .then((preventScreenshots) => {
         this.win.setContentProtection(preventScreenshots);
