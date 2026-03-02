@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
-import { first, map, takeUntil } from "rxjs/operators";
+import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
+import { first, map } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -35,7 +36,7 @@ import {
   templateUrl: "families-for-enterprise-setup.component.html",
   imports: [SharedModule, OrganizationPlansComponent],
 })
-export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
+export class FamiliesForEnterpriseSetupComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(OrganizationPlansComponent, { static: false })
@@ -63,7 +64,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
-  private _destroy = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private _familyPlan: PlanType;
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
@@ -145,19 +146,16 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         ),
       );
 
-    this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
-      if (orgs.length === 0) {
-        this.selectedFamilyOrganizationId = "createNew";
-      }
-    });
-    this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
+    this.existingFamilyOrganizations$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orgs) => {
+        if (orgs.length === 0) {
+          this.selectedFamilyOrganizationId = "createNew";
+        }
+      });
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
       this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId;
     });
-  }
-
-  ngOnDestroy(): void {
-    this._destroy.next();
-    this._destroy.complete();
   }
 
   submit = async () => {

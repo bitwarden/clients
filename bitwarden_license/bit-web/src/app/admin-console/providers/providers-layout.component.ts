@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
@@ -35,10 +35,10 @@ import { ProviderWarningsService } from "../../billing/providers/warnings/servic
     TaxIdWarningComponent,
   ],
 })
-export class ProvidersLayoutComponent implements OnInit, OnDestroy {
+export class ProvidersLayoutComponent implements OnInit {
   protected readonly logo = ProviderPortalLogo;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   protected provider$: Observable<Provider>;
 
   protected logo$: Observable<BitSvg>;
@@ -69,7 +69,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(getUserId),
     ]).pipe(
       switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
 
     this.logo$ = this.provider$.pipe(
@@ -93,7 +93,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
         switchMap((provider) =>
           this.providerWarningsService.showProviderSuspendedDialog$(provider),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -108,11 +108,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       this.provider$.pipe(
         switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
       );
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   showManageTab(provider: Provider) {

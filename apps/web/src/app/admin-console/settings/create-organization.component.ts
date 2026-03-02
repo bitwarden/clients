@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
@@ -19,7 +19,8 @@ import { SharedModule } from "../../shared";
   templateUrl: "create-organization.component.html",
   imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
 })
-export class CreateOrganizationComponent implements OnInit, OnDestroy {
+export class CreateOrganizationComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected secretsManager = false;
   protected plan: PlanType = PlanType.Free;
   protected productTier: ProductTierType = ProductTierType.Free;
@@ -29,8 +30,6 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {}
 
-  private destroy$ = new Subject<void>();
-
   async ngOnInit(): Promise<void> {
     const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM26462_Milestone_3,
@@ -39,33 +38,30 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
       ? PlanType.FamiliesAnnually
       : PlanType.FamiliesAnnually2025;
 
-    this.route.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
-      if (qParams.plan === "families" || qParams.productTier == ProductTierType.Families) {
-        this.plan = familyPlan;
-        this.productTier = ProductTierType.Families;
-      } else if (qParams.plan === "teams" || qParams.productTier == ProductTierType.Teams) {
-        this.plan = PlanType.TeamsAnnually;
-        this.productTier = ProductTierType.Teams;
-      } else if (
-        qParams.plan === "teamsStarter" ||
-        qParams.productTier == ProductTierType.TeamsStarter
-      ) {
-        this.plan = PlanType.TeamsStarter;
-        this.productTier = ProductTierType.TeamsStarter;
-      } else if (
-        qParams.plan === "enterprise" ||
-        qParams.productTier == ProductTierType.Enterprise
-      ) {
-        this.plan = PlanType.EnterpriseAnnually;
-        this.productTier = ProductTierType.Enterprise;
-      }
+    this.route.queryParams
+      .pipe(first(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((qParams) => {
+        if (qParams.plan === "families" || qParams.productTier == ProductTierType.Families) {
+          this.plan = familyPlan;
+          this.productTier = ProductTierType.Families;
+        } else if (qParams.plan === "teams" || qParams.productTier == ProductTierType.Teams) {
+          this.plan = PlanType.TeamsAnnually;
+          this.productTier = ProductTierType.Teams;
+        } else if (
+          qParams.plan === "teamsStarter" ||
+          qParams.productTier == ProductTierType.TeamsStarter
+        ) {
+          this.plan = PlanType.TeamsStarter;
+          this.productTier = ProductTierType.TeamsStarter;
+        } else if (
+          qParams.plan === "enterprise" ||
+          qParams.productTier == ProductTierType.Enterprise
+        ) {
+          this.plan = PlanType.EnterpriseAnnually;
+          this.productTier = ProductTierType.Enterprise;
+        }
 
-      this.secretsManager = qParams.product == ProductType.SecretsManager;
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+        this.secretsManager = qParams.product == ProductType.SecretsManager;
+      });
   }
 }

@@ -1,19 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  combineLatest,
-  firstValueFrom,
-  from,
-  lastValueFrom,
-  map,
-  of,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, firstValueFrom, from, lastValueFrom, map, of, switchMap } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -45,7 +36,7 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
   templateUrl: "account.component.html",
   standalone: false,
 })
-export class AccountComponent implements OnInit, OnDestroy {
+export class AccountComponent implements OnInit {
   selfHosted = false;
   canEditSubscription = true;
   loading = true;
@@ -81,7 +72,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   protected organizationId: string;
   protected publicKeyBuffer: Uint8Array;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private i18nService: I18nService,
@@ -117,7 +108,7 @@ export class AccountComponent implements OnInit, OnDestroy {
             from(this.organizationApiService.getKeys(organization.id)),
           ]);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([organization, orgResponse, orgKeys]) => {
         // Set domain level organization variables
@@ -154,12 +145,6 @@ export class AccountComponent implements OnInit, OnDestroy {
 
         this.loading = false;
       });
-  }
-
-  ngOnDestroy(): void {
-    // You must first call .next() in order for the notifier to properly close subscriptions using takeUntil
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

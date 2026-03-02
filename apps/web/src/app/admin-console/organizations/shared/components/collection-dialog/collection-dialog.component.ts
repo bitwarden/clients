@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -9,7 +10,6 @@ import {
   Observable,
   of,
   shareReplay,
-  Subject,
   switchMap,
   takeUntil,
   tap,
@@ -124,8 +124,8 @@ export enum CollectionDialogAction {
   templateUrl: "collection-dialog.component.html",
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
-export class CollectionDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class CollectionDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected organizations$: Observable<Organization[]>;
 
   protected tabIndex: CollectionDialogTabType;
@@ -176,7 +176,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     if (this.params.showOrgSelector) {
       this.showOrgSelector = true;
       this.formGroup.controls.selectedOrg.valueChanges
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((id) => this.loadOrg(id));
       this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
@@ -216,7 +216,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
         switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((org) => {
         this.orgExceedingCollectionLimit = org;
@@ -252,7 +252,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       groups: groups$,
       users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
     })
-      .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        takeUntil(this.formGroup.controls.selectedOrg.valueChanges),
+      )
       .subscribe(({ organization, collections: allCollections, groups, users }) => {
         this.organization = organization;
 
@@ -479,11 +482,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.close(CollectionDialogAction.Deleted, this.collection);
   };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   private changePlan(org: Organization) {
     openChangePlanDialog(this.dialogService, {

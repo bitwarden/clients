@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, switchMap, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -47,7 +48,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
   ] satisfies SafeProvider[],
   imports: [SharedModule, NoItemsModule, HeaderModule],
 })
-export class DeviceApprovalsComponent implements OnInit, OnDestroy {
+export class DeviceApprovalsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();
   organizationId: string;
   loading = true;
@@ -55,7 +57,6 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
 
   protected readonly DevicesIcon = DevicesIcon;
 
-  private destroy$ = new Subject<void>();
   private refresh$ = new BehaviorSubject<void>(null);
 
   constructor(
@@ -83,7 +84,7 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
             ),
           ),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((r) => {
         this.tableDataSource.data = r;
@@ -177,10 +178,5 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
     } finally {
       this.actionInProgress = false;
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, OnDestroy, signal } from "@angular/core";
+import { DestroyRef, Directive, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -21,7 +22,7 @@ import { EventOptions, EventService } from "../../core";
 import { EventExportService } from "../../tools/event-export";
 
 @Directive()
-export abstract class BaseEventsComponent implements OnDestroy {
+export abstract class BaseEventsComponent {
   readonly loading = signal(true);
   readonly loaded = signal(false);
   readonly events = signal<EventView[]>([]);
@@ -36,14 +37,11 @@ export abstract class BaseEventsComponent implements OnDestroy {
     end: new FormControl(null),
   });
 
+  protected readonly destroyRef = inject(DestroyRef);
+
   protected canUseSM$: Observable<boolean>;
   protected activeOrganization$: Observable<Organization | undefined>;
   protected organizations$: Observable<Organization[]>;
-  private destroySubject$ = new Subject<void>();
-
-  protected get destroy$(): Observable<void> {
-    return this.destroySubject$.asObservable();
-  }
 
   constructor(
     protected eventService: EventService,
@@ -76,14 +74,9 @@ export abstract class BaseEventsComponent implements OnDestroy {
       map((org) => org?.canAccessSecretsManager ?? false),
     );
 
-    this.canUseSM$.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+    this.canUseSM$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.canUseSM = value;
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroySubject$.next();
-    this.destroySubject$.complete();
   }
 
   get start(): string {

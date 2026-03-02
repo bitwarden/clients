@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   catchError,
@@ -11,9 +12,7 @@ import {
   Observable,
   of,
   shareReplay,
-  Subject,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
 import {
@@ -114,7 +113,7 @@ export const openGroupAddEditDialog = (
   templateUrl: "group-add-edit.component.html",
   standalone: false,
 })
-export class GroupAddEditComponent implements OnInit, OnDestroy {
+export class GroupAddEditComponent implements OnInit {
   private organization$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.organizationService
@@ -157,7 +156,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     return this.groupId != null;
   }
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   private orgCollections$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -270,7 +269,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$,
       this.organization$,
     ])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
         ([collections, members, group, restrictGroupAccess, activeAccount, organization]) => {
           this.members = members;
@@ -309,11 +308,6 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
       );
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

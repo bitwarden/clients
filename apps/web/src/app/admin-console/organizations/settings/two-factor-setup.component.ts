@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
+import { concatMap, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
 import {
@@ -79,7 +80,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
           this.organization = mapResponse.organization;
         }),
         concatMap(async () => await super.ngOnInit()),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -109,7 +110,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
           },
         );
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
-          .pipe(first(), takeUntil(this.destroy$))
+          .pipe(first(), takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.OrganizationDuo);

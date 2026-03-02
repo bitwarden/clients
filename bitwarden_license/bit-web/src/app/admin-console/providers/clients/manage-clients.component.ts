@@ -1,16 +1,8 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import {
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  combineLatest,
-  switchMap,
-  Observable,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { firstValueFrom, lastValueFrom, map, combineLatest, switchMap, Observable } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
@@ -68,7 +60,7 @@ import { ReplacePipe } from "./replace.pipe";
     ReplacePipe,
   ],
 })
-export class ManageClientsComponent implements OnInit, OnDestroy {
+export class ManageClientsComponent implements OnInit {
   loading = true;
   dataSource: TableDataSource<ProviderOrganizationOrganizationDetailsResponse> =
     new TableDataSource();
@@ -105,7 +97,7 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     map(([isAdminOrServiceUser, providerEnabled]) => isAdminOrServiceUser && !providerEnabled),
   );
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
@@ -123,7 +115,7 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.activatedRoute.queryParams
-      .pipe(first(), takeUntil(this.destroy$))
+      .pipe(first(), takeUntilDestroyed(this.destroyRef))
       .subscribe((queryParams) => {
         this.searchControl.setValue(queryParams.search);
       });
@@ -131,16 +123,11 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     await this.load();
 
     this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntil(this.destroy$))
+      .pipe(debounceTime(200), takeUntilDestroyed(this.destroyRef))
       .subscribe((searchText) => {
         this.dataSource.filter = (data) =>
           data.organizationName.toLowerCase().indexOf(searchText.toLowerCase()) > -1;
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load() {
