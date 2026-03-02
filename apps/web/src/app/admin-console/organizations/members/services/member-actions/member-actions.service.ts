@@ -1,5 +1,5 @@
 import { inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, switchMap, take } from "rxjs";
+import { lastValueFrom, firstValueFrom, take } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -130,20 +130,7 @@ export class MemberActionsService {
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore).pipe(
-          switchMap((enabled) => {
-            if (enabled) {
-              return this.organizationUserService.restoreUser(organization, userId);
-            } else {
-              return this.organizationUserApiService.restoreOrganizationUser(
-                organization.id,
-                userId,
-              );
-            }
-          }),
-        ),
-      );
+      await firstValueFrom(this.organizationUserService.restoreUser(organization, userId));
 
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };

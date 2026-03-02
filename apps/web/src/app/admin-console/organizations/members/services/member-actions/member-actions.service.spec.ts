@@ -184,64 +184,27 @@ describe("MemberActionsService", () => {
   });
 
   describe("restoreUser", () => {
-    describe("when feature flag is enabled", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
-      });
+    it("should call organizationUserService.restoreUser", async () => {
+      organizationUserService.restoreUser.mockReturnValue(of(undefined));
 
-      it("should call organizationUserService.restoreUser", async () => {
-        organizationUserService.restoreUser.mockReturnValue(of(undefined));
+      const result = await service.restoreUser(mockOrganization, userIdToManage);
 
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: true });
-        expect(organizationUserService.restoreUser).toHaveBeenCalledWith(
-          mockOrganization,
-          userIdToManage,
-        );
-        expect(organizationUserApiService.restoreOrganizationUser).not.toHaveBeenCalled();
-      });
-
-      it("should handle errors from organizationUserService.restoreUser", async () => {
-        const errorMessage = "Restore failed";
-        organizationUserService.restoreUser.mockReturnValue(
-          throwError(() => new Error(errorMessage)),
-        );
-
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: false, error: errorMessage });
-      });
+      expect(result).toEqual({ success: true });
+      expect(organizationUserService.restoreUser).toHaveBeenCalledWith(
+        mockOrganization,
+        userIdToManage,
+      );
     });
 
-    describe("when feature flag is disabled", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(false));
-      });
+    it("should handle errors from organizationUserService.restoreUser", async () => {
+      const errorMessage = "Restore failed";
+      organizationUserService.restoreUser.mockReturnValue(
+        throwError(() => new Error(errorMessage)),
+      );
 
-      it("should call organizationUserApiService.restoreOrganizationUser", async () => {
-        organizationUserApiService.restoreOrganizationUser.mockResolvedValue(undefined);
+      const result = await service.restoreUser(mockOrganization, userIdToManage);
 
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: true });
-        expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
-          organizationId,
-          userIdToManage,
-        );
-        expect(organizationUserService.restoreUser).not.toHaveBeenCalled();
-      });
-
-      it("should handle errors", async () => {
-        const errorMessage = "Restore failed";
-        organizationUserApiService.restoreOrganizationUser.mockRejectedValue(
-          new Error(errorMessage),
-        );
-
-        const result = await service.restoreUser(mockOrganization, userIdToManage);
-
-        expect(result).toEqual({ success: false, error: errorMessage });
-      });
+      expect(result).toEqual({ success: false, error: errorMessage });
     });
   });
 

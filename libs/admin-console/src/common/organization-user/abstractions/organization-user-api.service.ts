@@ -277,16 +277,9 @@ export abstract class OrganizationUserApiService {
    * Restore an organization user's access to the organization
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier
-   */
-  abstract restoreOrganizationUser(organizationId: string, id: string): Promise<void>;
-
-  /**
-   * Restore an organization user's access to the organization
-   * @param organizationId - Identifier for the organization the user belongs to
-   * @param id - Organization user identifier
    * @param request - Restore request containing default user collection name
    */
-  abstract restoreOrganizationUser_vNext(
+  abstract restoreOrganizationUser(
     organizationId: string,
     id: string,
     request: OrganizationUserRestoreRequest,
@@ -295,21 +288,10 @@ export abstract class OrganizationUserApiService {
   /**
    * Restore many organization users' access to the organization
    * @param organizationId - Identifier for the organization the users belongs to
-   * @param ids - List of organization user identifiers to restore
-   * @return List of user ids, including both those that were successfully restored and those that had an error
-   */
-  abstract restoreManyOrganizationUsers(
-    organizationId: string,
-    ids: string[],
-  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
-
-  /**
-   * Restore many organization users' access to the organization
-   * @param organizationId - Identifier for the organization the users belongs to
    * @param request - Restore request containing default user collection name
    * @return List of user ids, including both those that were successfully restored and those that had an error
    */
-  abstract restoreManyOrganizationUsers_vNext(
+  abstract restoreManyOrganizationUsers(
     organizationId: string,
     request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
