@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { Component, computed, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -16,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -73,10 +67,11 @@ export const VaultItemDrawerResult = Object.freeze({
 export type VaultItemDrawerResult =
   (typeof VaultItemDrawerResult)[keyof typeof VaultItemDrawerResult];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-item-drawer",
   templateUrl: "vault-item-drawer.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonModule,
     DialogModule,
@@ -107,6 +102,7 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
+  private logService = inject(LogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
@@ -121,27 +117,27 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   protected readonly title = computed(() => {
     const action = this.action();
     const type = this.cipher()?.type ?? this.params.cipherType;
-    const typeKey: Record<CipherType, string> = {
-      [CipherType.Login]: "login",
-      [CipherType.Card]: "card",
-      [CipherType.Identity]: "identity",
-      [CipherType.SecureNote]: "secureNote",
-      [CipherType.SshKey]: "sshKey",
+    const typeSuffix: Record<CipherType, string> = {
+      [CipherType.Login]: "Login",
+      [CipherType.Card]: "Card",
+      [CipherType.Identity]: "Identity",
+      [CipherType.SecureNote]: "Note",
+      [CipherType.SshKey]: "SshKey",
     };
-    const typeLabel = type != null ? this.i18nService.t(typeKey[type] ?? "") : "";
+    const suffix = type != null ? typeSuffix[type] : null;
     if (action === "add" || action === "clone") {
-      return this.i18nService.t("newItem", typeLabel);
+      return this.i18nService.t(suffix ? `newItemHeader${suffix}` : "newItem");
     }
     if (action === "edit") {
-      return this.i18nService.t("editItem", typeLabel);
+      return this.i18nService.t(suffix ? `editItemHeader${suffix}` : "editItem");
     }
-    return this.i18nService.t("viewItem", typeLabel);
+    return this.i18nService.t(suffix ? `viewItemHeader${suffix}` : "viewItem");
   });
 
   async ngOnInit() {
     const config = await this.formConfigService.buildConfig(
       this.params.mode === "view" ? "edit" : this.params.mode,
-      this.params.cipherId ?? null,
+      this.params.cipherId ?? undefined,
       this.params.cipherType,
     );
     this.config.set(config);
@@ -194,6 +190,12 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   }
 
   protected async switchToEdit() {
+    const config = await this.formConfigService.buildConfig(
+      "edit",
+      this.params.cipherId ?? undefined,
+      this.params.cipherType,
+    );
+    this.config.set(config);
     this.action.set("edit");
     await this.syncUrl("edit", this.cipher()?.id ?? null);
   }
@@ -207,8 +209,41 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
     await this.syncUrl("view", cipher.id);
   }
 
-  protected async deletedCipher() {
-    this.dialogRef.close(VaultItemDrawerResult.Deleted);
+  protected async deleteCipher() {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: {
+        key: cipher.isDeleted ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      if (cipher.isDeleted) {
+        await this.cipherService.deleteWithServer(cipher.id, userId);
+      } else {
+        await this.cipherService.softDeleteWithServer(cipher.id, userId);
+      }
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t(cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
+      });
+      this.messagingService.send(cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher");
+      this.dialogRef.close(VaultItemDrawerResult.Deleted);
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   protected async cancelCipher() {

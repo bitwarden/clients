@@ -5,7 +5,7 @@
     @if (action() === "view" && cipher()) {
       <app-cipher-view [cipher]="cipher()" [collections]="collections()" />
     }
-    @if (action() === "add" || action() === "edit" || action() === "clone") {
+    @if ((action() === "add" || action() === "edit" || action() === "clone") && config()) {
       <vault-cipher-form
         formId="cipherForm"
         [config]="config()"
@@ -62,7 +62,7 @@
           type="button"
           buttonType="danger"
           [label]="'delete' | i18n"
-          (click)="deletedCipher()"
+          (click)="deleteCipher()"
         ></button>
       }
     </div>
