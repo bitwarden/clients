@@ -1,3 +1,5 @@
+import { CipherId } from "@bitwarden/common/types/guid";
+
 import {
   ApplicationHealthReportDetail,
   MemberDetails,
@@ -10,7 +12,6 @@ import {
   createValidator,
   isBoolean,
   isBoundedString,
-  isBoundedStringArray,
   isBoundedStringOrNull,
   isBoundedPositiveNumber,
   BOUNDED_ARRAY_MAX_LENGTH,
@@ -33,6 +34,10 @@ export const isMemberDetails = createValidator<MemberDetails>({
 });
 export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
 
+export function isCipherId(value: unknown): value is CipherId {
+  return value == null || isBoundedString(value);
+}
+export const isCipherIdArray = createBoundedArrayGuard(isCipherId);
 /**
  * Type guard to validate ApplicationHealthReportDetail structure
  * Exported for testability
@@ -40,11 +45,11 @@ export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
  */
 export const isApplicationHealthReportDetail = createValidator<ApplicationHealthReportDetail>({
   applicationName: isBoundedString,
-  atRiskCipherIds: isBoundedStringArray,
+  atRiskCipherIds: isCipherIdArray,
   atRiskMemberCount: isBoundedPositiveNumber,
   atRiskMemberDetails: isMemberDetailsArray,
   atRiskPasswordCount: isBoundedPositiveNumber,
-  cipherIds: isBoundedStringArray,
+  cipherIds: isCipherIdArray,
   memberCount: isBoundedPositiveNumber,
   memberDetails: isMemberDetailsArray,
   passwordCount: isBoundedPositiveNumber,

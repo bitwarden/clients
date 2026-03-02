@@ -17,7 +17,7 @@ let nextId = 0;
     "[id]": "id()",
   },
 })
-export class BitLabel {
+export class BitLabelComponent {
   constructor(
     private elementRef: ElementRef<HTMLInputElement>,
     @Optional() private parentFormControl: FormControlComponent,

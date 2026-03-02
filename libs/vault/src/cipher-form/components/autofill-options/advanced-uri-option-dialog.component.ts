@@ -3,12 +3,13 @@ import { Component, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
-  ButtonLinkDirective,
   ButtonModule,
+  CenterPositionStrategy,
   DialogModule,
+  DialogRef,
   DialogService,
   DIALOG_DATA,
-  DialogRef,
+  LinkComponent,
 } from "@bitwarden/components";
 
 export type AdvancedUriOptionDialogParams = {
@@ -21,7 +22,7 @@ export type AdvancedUriOptionDialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "advanced-uri-option-dialog.component.html",
-  imports: [ButtonLinkDirective, ButtonModule, DialogModule, JslibModule],
+  imports: [LinkComponent, ButtonModule, DialogModule, JslibModule],
 })
 export class AdvancedUriOptionDialogComponent {
   constructor(private dialogRef: DialogRef<boolean>) {}
@@ -55,6 +56,7 @@ export class AdvancedUriOptionDialogComponent {
     return dialogService.open<boolean>(AdvancedUriOptionDialogComponent, {
       data: params,
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

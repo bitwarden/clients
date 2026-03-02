@@ -1,7 +1,7 @@
 <ng-container>
   <div class="tw-mt-4">
     <p class="tw-text-lg tw-mb-1">
-      <span class="tw-font-semibold"
+      <span class="tw-font-medium"
         >{{ "total" | i18n }}:
         {{ summaryData.total - summaryData.totalAppliedDiscount | currency: "USD" : "$" }} USD</span
       >
@@ -37,7 +37,7 @@
           <ng-container
             *ngIf="!summaryData.isSecretsManagerTrial || summaryData.organization.useSecretsManager"
           >
-            <p class="tw-font-semibold tw-mt-3 tw-mb-1">{{ "passwordManager" | i18n }}</p>
+            <p class="tw-font-medium tw-mt-3 tw-mb-1">{{ "passwordManager" | i18n }}</p>
 
             <!-- Base Price -->
             <ng-container *ngIf="summaryData.selectedPlan.PasswordManager.basePrice">
@@ -137,7 +137,7 @@
         <!-- Secrets Manager section -->
         <ng-template #secretsManagerSection>
           <ng-container *ngIf="summaryData.organization.useSecretsManager">
-            <p class="tw-font-semibold tw-mt-3 tw-mb-1">{{ "secretsManager" | i18n }}</p>
+            <p class="tw-font-medium tw-mt-3 tw-mb-1">{{ "secretsManager" | i18n }}</p>
 
             <!-- Base Price -->
             <ng-container *ngIf="summaryData.selectedPlan?.SecretsManager?.basePrice">
@@ -236,7 +236,7 @@
         <p
           class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-300 tw-pt-2 tw-mb-0"
         >
-          <span class="tw-font-semibold">{{ "estimatedTax" | i18n }}</span>
+          <span class="tw-font-medium">{{ "estimatedTax" | i18n }}</span>
           <span>{{ summaryData.estimatedTax | currency: "USD" : "$" }}</span>
         </p>
       </bit-hint>
@@ -247,10 +247,10 @@
         <p
           class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-300 tw-pt-2 tw-mb-0"
         >
-          <span class="tw-font-semibold">{{ "total" | i18n }}</span>
+          <span class="tw-font-medium">{{ "total" | i18n }}</span>
           <span>
             {{ summaryData.total - summaryData.totalAppliedDiscount | currency: "USD" : "$" }}
-            <span class="tw-text-xs tw-font-semibold"
+            <span class="tw-text-xs tw-font-medium"
               >/ {{ summaryData.selectedPlanInterval | i18n }}</span
             >
           </span>

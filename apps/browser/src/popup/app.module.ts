@@ -28,13 +28,11 @@ import { CurrentAccountComponent } from "../auth/popup/account-switching/current
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
-import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -68,7 +66,6 @@ import "../platform/popup/locales";
     ScrollingModule,
     ServicesModule,
     DialogModule,
-    FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
     ButtonModule,
@@ -85,14 +82,8 @@ import "../platform/popup/locales";
     CalloutModule,
     LinkModule,
   ],
-  declarations: [
-    AppComponent,
-    ColorPasswordPipe,
-    ColorPasswordCountPipe,
-    TabsV2Component,
-    RemovePasswordComponent,
-  ],
-  exports: [],
+  declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
+  exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

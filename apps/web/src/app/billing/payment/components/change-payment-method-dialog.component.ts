@@ -24,7 +24,7 @@ type DialogParams = {
   template: `
     <form [formGroup]="formGroup" [bitSubmit]="submit">
       <bit-dialog>
-        <span bitDialogTitle class="tw-font-semibold">
+        <span bitDialogTitle class="tw-font-medium">
           {{ "changePaymentMethod" | i18n }}
         </span>
         <div bitDialogContent>

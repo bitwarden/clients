@@ -23,6 +23,8 @@ import { ToastService } from "@bitwarden/components";
   templateUrl: "adjust-subscription.component.html",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AdjustSubscription implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

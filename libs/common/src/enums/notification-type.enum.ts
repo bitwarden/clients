@@ -33,4 +33,7 @@ export enum NotificationType {
 
   OrganizationBankAccountVerified = 23,
   ProviderBankAccountVerified = 24,
+
+  SyncPolicy = 25,
+  AutoConfirmMember = 26,
 }

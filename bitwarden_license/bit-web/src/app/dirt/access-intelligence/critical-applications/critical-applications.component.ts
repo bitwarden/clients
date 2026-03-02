@@ -1,56 +1,61 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, map, switchMap } from "rxjs";
+import { catchError, debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
-  ApplicationHealthReportDetailEnriched,
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/dirt-card";
+import {
+  LinkModule,
+  NoItemsModule,
+  SearchModule,
+  TableDataSource,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
 import { RiskInsightsTabType } from "../models/risk-insights.models";
-import { AppTableRowScrollableComponent } from "../shared/app-table-row-scrollable.component";
+import {
+  ApplicationTableDataSource,
+  AppTableRowScrollableComponent,
+} from "../shared/app-table-row-scrollable.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
-    CardComponent,
     HeaderModule,
+    LinkModule,
     SearchModule,
     NoItemsModule,
     PipesModule,
     SharedModule,
     AppTableRowScrollableComponent,
+    TypographyModule,
   ],
-  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected enableRequestPasswordChange = false;
-  protected organizationId: OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
   noItemsIcon = Security;
 
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+  protected dataSource = new TableDataSource<ApplicationTableDataSource>();
   protected applicationSummary = {} as OrganizationReportSummary;
 
   protected selectedIds: Set<number> = new Set<number>();
@@ -58,13 +63,13 @@ export class CriticalApplicationsComponent implements OnInit {
 
   constructor(
     protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
     protected criticalAppsService: CriticalAppsService,
-    protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
-    private accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
+    protected reportService: RiskInsightsReportService,
+    protected router: Router,
+    private securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected toastService: ToastService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -74,9 +79,24 @@ export class CriticalApplicationsComponent implements OnInit {
   async ngOnInit() {
     this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (criticalReport) => {
-        this.dataSource.data = criticalReport?.reportData ?? [];
-        this.applicationSummary = criticalReport?.summaryData ?? createNewSummaryData();
-        this.enableRequestPasswordChange = criticalReport?.summaryData?.totalAtRiskMemberCount > 0;
+        if (criticalReport != null) {
+          // Map the report data to include the iconCipher for each application
+          const tableDataWithIcon = criticalReport.reportData.map((app) => ({
+            ...app,
+            iconCipher:
+              app.cipherIds.length > 0
+                ? this.dataService.getCipherIcon(app.cipherIds[0])
+                : undefined,
+          }));
+          this.dataSource.data = tableDataWithIcon;
+
+          this.applicationSummary = criticalReport.summaryData;
+          this.enableRequestPasswordChange = criticalReport.summaryData.totalAtRiskMemberCount > 0;
+        } else {
+          this.dataSource.data = [];
+          this.applicationSummary = createNewSummaryData();
+          this.enableRequestPasswordChange = false;
+        }
       },
       error: () => {
         this.dataSource.data = [];
@@ -111,7 +131,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
   removeCriticalApplication = async (hostname: string) => {
     this.dataService
-      .removeCriticalApplication(hostname)
+      .removeCriticalApplications(new Set<string>([hostname]))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -130,11 +150,44 @@ export class CriticalApplicationsComponent implements OnInit {
       });
   };
 
-  async requestPasswordChange() {
-    await this.accessIntelligenceSecurityTasksService.assignTasks(
-      this.organizationId,
-      this.dataSource.data,
-    );
+  requestPasswordChange(): void {
+    this.dataService.criticalApplicationAtRiskCipherIds$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
+        take(1), // Handle unsubscribe for one off operation
+        switchMap((cipherIds) =>
+          from(
+            this.securityTasksService.requestPasswordChangeForCriticalApplications(
+              this.organizationId,
+              cipherIds,
+            ),
+          ),
+        ),
+        catchError((error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+            return EMPTY;
+          }
+
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          message: this.i18nService.t("notifiedMembers"),
+          variant: "success",
+          title: this.i18nService.t("success"),
+        });
+      });
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {

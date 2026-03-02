@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   BehaviorSubject,
-  combineLatest,
   from,
   lastValueFrom,
   map,
@@ -16,8 +15,6 @@ import {
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderId } from "@bitwarden/common/types/guid";
@@ -39,7 +36,6 @@ export class ProviderWarningsService {
   constructor(
     private activatedRoute: ActivatedRoute,
     private apiService: ApiService,
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private router: Router,
@@ -61,12 +57,9 @@ export class ProviderWarningsService {
   refreshTaxIdWarning = () => this.refreshTaxIdWarningTrigger.next();
 
   showProviderSuspendedDialog$ = (provider: Provider): Observable<void> =>
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM21821_ProviderPortalTakeover),
-      this.getWarning$(provider, (response) => response.suspension),
-    ]).pipe(
-      switchMap(async ([providerPortalTakeover, warning]) => {
-        if (!providerPortalTakeover || !warning) {
+    this.getWarning$(provider, (response) => response.suspension).pipe(
+      switchMap(async (warning) => {
+        if (!warning) {
           return;
         }
 

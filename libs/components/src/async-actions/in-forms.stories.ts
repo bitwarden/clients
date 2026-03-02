@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
-import { action } from "@storybook/addon-actions";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";

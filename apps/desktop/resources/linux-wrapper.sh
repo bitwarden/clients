@@ -12,17 +12,13 @@ if [ -e "/usr/lib/x86_64-linux-gnu/libdbus-1.so.3" ]; then
   export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libdbus-1.so.3"
 fi
 
-# If running in non-snap, add libprocess_isolation.so from app path to LD_PRELOAD
-# This prevents debugger / memory dumping on all desktop processes
-if [ -z "$SNAP" ] && [ -f "$APP_PATH/libprocess_isolation.so" ]; then
-  LIBPROCESS_ISOLATION_SO="$APP_PATH/libprocess_isolation.so"
-  LD_PRELOAD="$LIBPROCESS_ISOLATION_SO${LD_PRELOAD:+:$LD_PRELOAD}"
-  export LD_PRELOAD
-fi
-
+# A bug in Electron 39 (which now enables Wayland by default) causes a crash on
+# systems using Wayland with hardware acceleration. Platform decided to
+# configure Electron to use X11 (with an opt-out) until the upstream bug is
+# fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
 PARAMS="--enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
-if [ "$USE_X11" = "true" ]; then
-  PARAMS=""
+if [ "$USE_X11" != "false" ]; then
+  PARAMS="--ozone-platform=x11"
 fi
 
 $APP_PATH/bitwarden-app $PARAMS "$@"

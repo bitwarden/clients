@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import {
@@ -9,9 +8,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective } from "@bitwarden/vault";
-
-import { DefaultAdminTaskService } from "../../../../vault/services/default-admin-task.service";
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
 
 /**
  * Embedded component for displaying task assignment UI.
@@ -28,7 +24,6 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
   imports: [
-    CommonModule,
     ButtonModule,
     TypographyModule,
     I18nPipe,
@@ -36,7 +31,6 @@ import { AccessIntelligenceSecurityTasksService } from "../../shared/security-ta
     DarkImageSourceDirective,
     CalloutComponent,
   ],
-  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class AssignTasksViewComponent {
   readonly criticalApplicationsCount = input.required<number>();

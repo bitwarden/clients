@@ -58,12 +58,15 @@ describe("ORGANIZATIONS state", () => {
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
-        useRiskInsights: false,
+        useAccessIntelligence: false,
         useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
         isAdminInitiated: false,
         ssoEnabled: false,
         ssoMemberDecryptionType: undefined,
+        useDisableSMAdsForUsers: false,
+        usePhishingBlocker: false,
+        useMyItems: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

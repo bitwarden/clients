@@ -6,7 +6,6 @@ import { AuditService as AuditServiceAbstraction } from "../abstractions/audit.s
 import { BreachAccountResponse } from "../dirt/models/response/breach-account.response";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
-import { ErrorResponse } from "../models/response/error.response";
 import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
@@ -56,7 +55,7 @@ export class AuditService implements AuditServiceAbstraction {
    */
   protected async fetchLeakedPasswordCount(password: string): Promise<number> {
     const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
-    const hash = Utils.fromBufferToHex(hashBytes).toUpperCase();
+    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
@@ -70,14 +69,6 @@ export class AuditService implements AuditServiceAbstraction {
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
-    try {
-      return await this.hibpApiService.getHibpBreach(username);
-    } catch (e) {
-      const error = e as ErrorResponse;
-      if (error.statusCode === 404) {
-        return [];
-      }
-      throw new Error();
-    }
+    return this.hibpApiService.getHibpBreach(username);
   }
 }

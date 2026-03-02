@@ -2,27 +2,23 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import {
-  userEvent,
-  getAllByRole,
-  getByRole,
-  fireEvent,
-  getByText,
-  getAllByLabelText,
-} from "@storybook/test";
+import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
-import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
+import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
-import { KitchenSinkTable } from "./components/kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
@@ -33,10 +29,10 @@ export default {
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
-        KitchenSinkForm,
+        KitchenSinkFormComponent,
         KitchenSinkMainComponent,
-        KitchenSinkTable,
-        KitchenSinkToggleList,
+        KitchenSinkTableComponent,
+        KitchenSinkToggleListComponent,
       ],
     }),
     applicationConfig({
@@ -65,8 +61,20 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
+          },
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -74,6 +82,22 @@ export default {
 } as Meta;
 
 type Story = StoryObj<LayoutComponent>;
+
+type KitchenSinkRoute = "/bitwarden" | "/virtual-scroll";
+
+async function navigateTo(path: KitchenSinkRoute) {
+  window.location.hash = path;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+}
+
+/** Waits for the ResizeObserver + Angular CD to settle, then opens the side nav if it's closed. */
+async function openSideNav(canvas: HTMLElement) {
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const toggleButton = getByRole(canvas, "button", { name: "Toggle side navigation" });
+  if (toggleButton.getAttribute("aria-expanded") === "false") {
+    await userEvent.click(toggleButton);
+  }
+}
 
 export const Default: Story = {
   render: (args) => {
@@ -115,6 +139,7 @@ export const MenuOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
 
     const menuButton = getAllByRole(table, "button")[0];
@@ -129,6 +154,7 @@ export const DialogOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const dialogButton = getByRole(canvas, "button", {
       name: "Open Dialog",
     });
@@ -142,6 +168,7 @@ export const DrawerOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const drawerButton = getByRole(canvas, "button", {
       name: "Open Drawer",
     });
@@ -155,6 +182,7 @@ export const PopoverOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const popoverLink = getByRole(canvas, "button", {
       name: "Popover trigger link",
     });
@@ -167,6 +195,7 @@ export const SimpleDialogOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const submitButton = getByRole(canvas, "button", {
       name: "Submit",
     });
@@ -180,6 +209,7 @@ export const EmptyTab: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
     const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
     await userEvent.click(emptyTab);
   },
@@ -189,8 +219,7 @@ export const VirtualScrollBlockingDialog: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const navItem = getByText(canvas, "Virtual Scroll");
-    await userEvent.click(navItem);
+    await navigateTo("/virtual-scroll");
 
     const htmlEl = canvas.ownerDocument.documentElement;
     htmlEl.scrollTop = 2000;
@@ -201,11 +230,38 @@ export const VirtualScrollBlockingDialog: Story = {
   },
 };
 
+export const SideNavOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+    await openSideNav(canvas);
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280] },
+  },
+};
+
+export const DrawerOpenBeforeSideNavOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
+
+    await navigateTo("/bitwarden");
+    await openSideNav(canvas);
+  },
+  parameters: {
+    chromatic: { viewports: [640, 1024, 1280, 1440] },
+  },
+};
+
 export const ResponsiveSidebar: Story = {
   render: Default.render,
   parameters: {
     chromatic: {
-      viewports: [640, 1280],
+      viewports: [640, 1024, 1280, 1440],
     },
   },
 };

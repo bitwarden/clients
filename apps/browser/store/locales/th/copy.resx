@@ -118,58 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - จัดการรหัสผ่าน</value>
+    <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ไม่ว่าจะที่บ้าน ที่ทำงาน หรือระหว่างเดินทาง Bitwarden ช่วยปกป้องรหัสผ่าน พาสคีย์ และข้อมูลสำคัญของคุณได้อย่างง่ายดาย</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>ได้รับการยอมรับว่าเป็นตัวจัดการรหัสผ่านที่ดีที่สุดโดย PCMag, WIRED, The Verge, CNET, G2 และอีกมากมาย!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ปกป้องชีวิตดิจิทัลของคุณ
+ปกป้องชีวิตดิจิทัลและป้องกันข้อมูลรั่วไหลโดยการสร้างและบันทึกรหัสผ่านที่รัดกุมและไม่ซ้ำกันสำหรับทุกบัญชี ดูแลจัดการทุกอย่างในตู้นิรภัยรหัสผ่านที่เข้ารหัสแบบต้นทางถึงปลายทาง ซึ่งมีเพียงคุณเท่านั้นที่เข้าถึงได้
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+เข้าถึงข้อมูลของคุณได้ทุกที่ ทุกเวลา บนทุกอุปกรณ์
+จัดการ จัดเก็บ ปกป้อง และแชร์รหัสผ่านได้ไม่จำกัดบนอุปกรณ์ไม่จำกัดจำนวนได้อย่างง่ายดายโดยไม่มีข้อจำกัด
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ทุกคนควรมีเครื่องมือเพื่อความปลอดภัยบนโลกออนไลน์
+ใช้งาน Bitwarden ได้ฟรีโดยไม่มีโฆษณาหรือการขายข้อมูล Bitwarden เชื่อว่าทุกคนควรมีความสามารถในการอยู่อย่างปลอดภัยบนโลกออนไลน์ แผนพรีเมียมจะมอบการเข้าถึงฟีเจอร์ขั้นสูง
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+เสริมศักยภาพทีมของคุณด้วย BITWARDEN
+แผนสำหรับ Teams และ Enterprise มาพร้อมกับฟีเจอร์ทางธุรกิจระดับมืออาชีพ ตัวอย่างเช่น การรวม SSO, การโฮสต์เอง (Self-hosting), การรวมไดเรกทอรีและการจัดเตรียม SCIM, นโยบายระดับองค์กร, การเข้าถึง API, บันทึกเหตุการณ์ และอื่น ๆ
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+ใช้ Bitwarden เพื่อปกป้องบุคลากรของคุณและแชร์ข้อมูลสำคัญกับเพื่อนร่วมงาน
 
+เหตุผลเพิ่มเติมที่ควรเลือก Bitwarden:
 
-More reasons to choose Bitwarden:
+การเข้ารหัสระดับโลก
+รหัสผ่านได้รับการปกป้องด้วยการเข้ารหัสแบบต้นทางถึงปลายทาง ขั้นสูง (AES-256 bit, salted hashing และ PBKDF2 SHA-256) ข้อมูลของคุณจึงปลอดภัยและเป็นส่วนตัว
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+การตรวจสอบโดยบุคคลที่สาม
+Bitwarden ดำเนินการตรวจสอบความปลอดภัยโดยบุคคลที่สามอย่างครอบคลุมกับบริษัทความปลอดภัยที่มีชื่อเสียงอย่างสม่ำเสมอ การตรวจสอบประจำปีเหล่านี้รวมถึงการประเมินซอร์สโค้ดและการทดสอบเจาะระบบครอบคลุมทั้ง IP, เซิร์ฟเวอร์ และเว็บแอปพลิเคชันของ Bitwarden
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA ขั้นสูง
+ปกป้องการเข้าสู่ระบบของคุณด้วยแอปยืนยันตัวตนของบุคคลที่สาม, รหัสทางอีเมล หรือข้อมูลประจำตัว FIDO2 WebAuthn เช่น คีย์ความปลอดภัยฮาร์ดแวร์หรือพาสคีย์
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+ส่งข้อมูลโดยตรงถึงผู้อื่นในขณะที่ยังคงรักษาความปลอดภัยด้วยการเข้ารหัสแบบต้นทางถึงปลายทาง และจำกัดการเปิดเผยข้อมูล
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+ตัวสร้างในตัว
+สร้างรหัสผ่านที่ยาว ซับซ้อน และแตกต่างกัน รวมถึงชื่อผู้ใช้ที่ไม่ซ้ำกันสำหรับทุกเว็บไซต์ที่คุณเยี่ยมชม ผสานรวมกับผู้ให้บริการนามแฝงอีเมลเพื่อความเป็นส่วนตัวเพิ่มเติม
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+การแปลภาษาทั่วโลก
+Bitwarden มีการแปลภาษามากกว่า 60 ภาษา โดยชุมชนทั่วโลกผ่าน Crowdin
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+แอปพลิเคชันข้ามแพลตฟอร์ม
+ปกป้องและแชร์ข้อมูลสำคัญภายในตู้นิรภัย Bitwarden ของคุณจากเบราว์เซอร์ อุปกรณ์มือถือ หรือระบบปฏิบัติการเดสก์ท็อปใดก็ได้ และอื่น ๆ
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden ปกป้องมากกว่าแค่รหัสผ่าน
+โซลูชันการจัดการข้อมูลประจำตัวที่เข้ารหัสแบบ End-to-end จาก Bitwarden ช่วยให้องค์กรปกป้องทุกสิ่ง รวมถึงความลับของนักพัฒนาและประสบการณ์พาสคีย์ เยี่ยมชม Bitwarden.com เพื่อเรียนรู้เพิ่มเติมเกี่ยวกับ Bitwarden Secrets Manager และ Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>ไม่ว่าจะที่บ้าน ที่ทำงาน หรือระหว่างเดินทาง Bitwarden ช่วยปกป้องรหัสผ่าน พาสคีย์ และข้อมูลสำคัญของคุณได้อย่างง่ายดาย</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>ซิงค์และเข้าถึงตู้นิรภัยของคุณจากหลายอุปกรณ์</value>
@@ -178,15 +177,15 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
     <value>จัดการล็อกอินและรหัสผ่านทั้งหมดของคุณจากตู้นิรภัยที่ปลอดภัย</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>กรอกข้อมูลล็อกอินโดยอัตโนมัติบนทุกเว็บไซต์ที่คุณใช้งานได้อย่างรวดเร็ว</value>
+    <value>ป้อนข้อมูลเข้าสู่ระบบของคุณลงในเว็บไซต์ที่คุณเยี่ยมชมอย่างรวดเร็วโดยอัตโนมัติ</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>ตู้เซฟของคุณยังสามารถเข้าถึงได้โดยสะดวกผ่านเมนูคลิกขวา</value>
+    <value>เข้าถึงตู้นิรภัยของคุณได้อย่างสะดวกจากเมนูคลิกขวา</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>ส่มสร้างรหัสผ่านที่แข็งแกร่งและปลอดภัยโดยอัตโนมัติ</value>
+    <value>สร้างรหัสผ่านที่รัดกุม แบบสุ่ม และปลอดภัยโดยอัตโนมัติ</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>ข้อมูลของคุณได้รับการจัดการอย่างปลอดภัยโดยใช้การเข้ารหัส AES 256 บิต</value>
+    <value>ข้อมูลของคุณได้รับการจัดการอย่างปลอดภัยโดยใช้การเข้ารหัส AES-256 bit</value>
   </data>
 </root>

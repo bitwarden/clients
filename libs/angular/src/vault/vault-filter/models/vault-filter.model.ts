@@ -51,15 +51,31 @@ export class VaultFilter {
         cipherPassesFilter = CipherViewLikeUtils.isDeleted(cipher);
       }
       if (this.status === "archive" && cipherPassesFilter) {
-        cipherPassesFilter = CipherViewLikeUtils.isArchived(cipher);
+        cipherPassesFilter =
+          CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher);
       }
+
+      if (this.status !== "archive" && this.status !== "trash" && cipherPassesFilter) {
+        cipherPassesFilter =
+          !CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher);
+      }
+
       if (this.cipherType != null && cipherPassesFilter) {
         cipherPassesFilter = CipherViewLikeUtils.getType(cipher) === this.cipherType;
       }
-      if (this.selectedFolder && this.selectedFolderId == null && cipherPassesFilter) {
-        cipherPassesFilter = cipher.folderId == null;
+      if (
+        this.selectedFolder &&
+        (this.selectedFolderId == null || this.selectedFolderId === "") &&
+        cipherPassesFilter
+      ) {
+        cipherPassesFilter = cipher.folderId == null || cipher.folderId === "";
       }
-      if (this.selectedFolder && this.selectedFolderId != null && cipherPassesFilter) {
+      if (
+        this.selectedFolder &&
+        this.selectedFolderId != null &&
+        this.selectedFolderId !== "" &&
+        cipherPassesFilter
+      ) {
         cipherPassesFilter = cipher.folderId === this.selectedFolderId;
       }
       if (this.selectedCollection && this.selectedCollectionId == null && cipherPassesFilter) {

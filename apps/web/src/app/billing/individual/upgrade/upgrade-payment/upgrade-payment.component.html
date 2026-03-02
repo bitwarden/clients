@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading()">
-    <span bitDialogTitle class="tw-font-semibold">{{ upgradeToMessage }}</span>
+    <span bitDialogTitle class="tw-font-medium">{{ upgradeToMessage() }}</span>
     <ng-container bitDialogContent>
       <section>
         @if (isFamiliesPlan) {
@@ -24,10 +24,10 @@
             <bit-form-field class="!tw-mb-0">
               <bit-label>{{ "organizationName" | i18n }}</bit-label>
               <input bitInput type="text" formControlName="organizationName" required />
+              <bit-hint bitTypography="helper" class="tw-text-muted">
+                {{ "organizationNameDescription" | i18n }}
+              </bit-hint>
             </bit-form-field>
-            <p bitTypography="helper" class="tw-text-muted tw-pt-1 tw-pl-1">
-              {{ "organizationNameDescription" | i18n }}
-            </p>
           </div>
         }
         <div class="tw-pb-8 !tw-mx-0">
@@ -50,17 +50,11 @@
       </section>
 
       <section>
-        @if (passwordManager) {
-          <billing-cart-summary
-            #cartSummaryComponent
-            [passwordManager]="passwordManager"
-            [estimatedTax]="estimatedTax$ | async"
-          ></billing-cart-summary>
-          @if (isFamiliesPlan) {
-            <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
-              {{ "paymentChargedWithTrial" | i18n }}
-            </p>
-          }
+        <billing-cart-summary #cartSummaryComponent [cart]="cart()"></billing-cart-summary>
+        @if (isFamiliesPlan) {
+          <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
+            {{ "paymentChargedWithTrial" | i18n }}
+          </p>
         }
       </section>
     </ng-container>

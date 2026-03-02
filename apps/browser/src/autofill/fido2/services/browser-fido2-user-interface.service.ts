@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -79,7 +77,7 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
   | {
       type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
-      cipherId?: string;
+      cipherId: string;
       userVerified: boolean;
     }
   | {
@@ -120,9 +118,7 @@ export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
  * Browser implementation of the {@link Fido2UserInterfaceService}.
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
-export class BrowserFido2UserInterfaceService
-  implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>
-{
+export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference> {
   constructor(private authService: AuthService) {}
 
   async newSession(
@@ -155,9 +151,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   static sendMessage(msg: BrowserFido2Message) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.sendMessage(BrowserFido2MessageName, msg);
+    void BrowserApi.sendMessage(BrowserFido2MessageName, msg);
   }
 
   static abortPopout(sessionId: string, fallbackRequested = false) {
@@ -206,9 +200,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     fromEvent(abortController.signal, "abort")
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.close();
+        void this.close();
         BrowserFido2UserInterfaceSession.sendMessage({
           type: BrowserFido2MessageTypes.AbortRequest,
           sessionId: this.sessionId,
@@ -224,12 +216,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       )
       .subscribe((msg) => {
         if (msg.type === BrowserFido2MessageTypes.AbortResponse) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.close();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.abort(msg.fallbackRequested);
+          void this.close();
+          void this.abort(msg.fallbackRequested);
         }
       });
 
@@ -375,6 +363,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       ),
     );
 
+    // Defensive measure in case an existing notification appeared before the passkey popout
+    await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
+
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,
@@ -388,12 +379,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         takeUntil(this.destroy$),
       )
       .subscribe(() => {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.close();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.abort(true);
+        void this.close();
+        void this.abort(true);
       });
 
     await connectPromise;

@@ -53,12 +53,34 @@ describe("AutofillInlineMenuContentService", () => {
     });
   });
 
+  describe("messageHandlers", () => {
+    it("returns the extension message handlers", () => {
+      const handlers = autofillInlineMenuContentService.messageHandlers;
+
+      expect(handlers).toHaveProperty("closeAutofillInlineMenu");
+      expect(handlers).toHaveProperty("appendAutofillInlineMenuToDom");
+    });
+  });
+
   describe("isElementInlineMenu", () => {
-    it("returns true if the passed element is the inline menu", () => {
+    it("returns true if the passed element is the inline menu list", () => {
       const element = document.createElement("div");
       autofillInlineMenuContentService["listElement"] = element;
 
       expect(autofillInlineMenuContentService.isElementInlineMenu(element)).toBe(true);
+    });
+
+    it("returns true if the passed element is the inline menu button", () => {
+      const element = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = element;
+
+      expect(autofillInlineMenuContentService.isElementInlineMenu(element)).toBe(true);
+    });
+
+    it("returns false if the passed element is not the inline menu", () => {
+      const element = document.createElement("div");
+
+      expect(autofillInlineMenuContentService.isElementInlineMenu(element)).toBe(false);
     });
   });
 
@@ -388,7 +410,7 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     it("closes the inline menu if the page body is not sufficiently opaque", async () => {
-      document.querySelector("html").style.opacity = "0.9";
+      document.documentElement.style.opacity = "0.9";
       document.body.style.opacity = "0";
       await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
 
@@ -397,7 +419,7 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     it("closes the inline menu if the page html is not sufficiently opaque", async () => {
-      document.querySelector("html").style.opacity = "0.3";
+      document.documentElement.style.opacity = "0.3";
       document.body.style.opacity = "0.7";
       await autofillInlineMenuContentService["handlePageMutations"]([mockHTMLMutationRecord]);
 
@@ -406,7 +428,7 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     it("does not close the inline menu if the page html and body is sufficiently opaque", async () => {
-      document.querySelector("html").style.opacity = "0.9";
+      document.documentElement.style.opacity = "0.9";
       document.body.style.opacity = "1";
       await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
       await waitForIdleCallback();
@@ -598,6 +620,771 @@ describe("AutofillInlineMenuContentService", () => {
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.List,
       });
+    });
+
+    it("clears the persistent last child override timeout", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = setTimeout(
+        jest.fn(),
+        500,
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it("unobserves page attributes", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["htmlMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("unobserves custom elements", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("unobserves the container element", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("clears the mutation observer iterations reset timeout", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["mutationObserverIterationsResetTimeout"] = setTimeout(
+        jest.fn(),
+        1000,
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["mutationObserverIterationsResetTimeout"]).toBeNull();
+    });
+
+    it("destroys the button iframe", () => {
+      const mockButtonIframe = { destroy: jest.fn() };
+      autofillInlineMenuContentService["buttonIframe"] = mockButtonIframe as any;
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(mockButtonIframe.destroy).toHaveBeenCalled();
+    });
+
+    it("destroys the list iframe", () => {
+      const mockListIframe = { destroy: jest.fn() };
+      autofillInlineMenuContentService["listIframe"] = mockListIframe as any;
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(mockListIframe.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe("observeCustomElements", () => {
+    it("observes the button element for attribute mutations", () => {
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(buttonElement, { attributes: true });
+    });
+
+    it("observes the list element for attribute mutations", () => {
+      const listElement = document.createElement("div");
+      autofillInlineMenuContentService["listElement"] = listElement;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(listElement, { attributes: true });
+    });
+
+    it("does not observe when no elements exist", () => {
+      autofillInlineMenuContentService["buttonElement"] = undefined;
+      autofillInlineMenuContentService["listElement"] = undefined;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("observeContainerElement", () => {
+    it("observes the container element for child list mutations", () => {
+      const containerElement = document.createElement("div");
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeContainerElement"](containerElement);
+
+      expect(observeSpy).toHaveBeenCalledWith(containerElement, { childList: true });
+    });
+  });
+
+  describe("unobserveContainerElement", () => {
+    it("disconnects the container element mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobserveContainerElement"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("handles the case when the mutation observer is undefined", () => {
+      autofillInlineMenuContentService["containerElementMutationObserver"] = undefined as any;
+
+      expect(() => autofillInlineMenuContentService["unobserveContainerElement"]()).not.toThrow();
+    });
+  });
+
+  describe("observePageAttributes", () => {
+    it("observes the document element for attribute mutations", () => {
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["htmlMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observePageAttributes"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, { attributes: true });
+    });
+
+    it("observes the body element for attribute mutations", () => {
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["bodyMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observePageAttributes"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(document.body, { attributes: true });
+    });
+  });
+
+  describe("unobservePageAttributes", () => {
+    it("disconnects the html mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["htmlMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobservePageAttributes"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("disconnects the body mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["bodyMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobservePageAttributes"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("checkPageRisks", () => {
+    it("returns true and closes inline menu when page is not opaque", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(false);
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(true);
+      expect(closeInlineMenuSpy).toHaveBeenCalled();
+    });
+
+    it("returns true and closes inline menu when inline menu is disabled", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(true);
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(true);
+      expect(closeInlineMenuSpy).toHaveBeenCalled();
+    });
+
+    it("returns false when page is opaque and inline menu is enabled", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(true);
+      autofillInlineMenuContentService["inlineMenuEnabled"] = true;
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(false);
+      expect(closeInlineMenuSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("handlePageMutations", () => {
+    it("checks page risks when mutations include attribute changes", async () => {
+      const checkPageRisksSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkPageRisks",
+      );
+      const mutations = [{ type: "attributes" } as MutationRecord];
+
+      await autofillInlineMenuContentService["handlePageMutations"](mutations);
+
+      expect(checkPageRisksSpy).toHaveBeenCalled();
+    });
+
+    it("does not check page risks when mutations do not include attribute changes", async () => {
+      const checkPageRisksSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkPageRisks",
+      );
+      const mutations = [{ type: "childList" } as MutationRecord];
+
+      await autofillInlineMenuContentService["handlePageMutations"](mutations);
+
+      expect(checkPageRisksSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("clearPersistentLastChildOverrideTimeout", () => {
+    it("clears the timeout when it exists", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = setTimeout(
+        jest.fn(),
+        1000,
+      );
+
+      autofillInlineMenuContentService["clearPersistentLastChildOverrideTimeout"]();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it("does nothing when the timeout is null", () => {
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = null;
+
+      autofillInlineMenuContentService["clearPersistentLastChildOverrideTimeout"]();
+
+      expect(clearTimeoutSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("elementAtCenterOfInlineMenuPosition", () => {
+    it("returns the element at the center of the given position", () => {
+      const mockElement = document.createElement("div");
+      jest.spyOn(globalThis.document, "elementFromPoint").mockReturnValue(mockElement);
+
+      const result = autofillInlineMenuContentService["elementAtCenterOfInlineMenuPosition"]({
+        top: 100,
+        left: 200,
+        width: 50,
+        height: 30,
+      });
+
+      expect(globalThis.document.elementFromPoint).toHaveBeenCalledWith(225, 115);
+      expect(result).toBe(mockElement);
+    });
+  });
+
+  describe("getOwnedTagNames", () => {
+    it("returns an empty array when no elements are created", () => {
+      expect(autofillInlineMenuContentService.getOwnedTagNames()).toEqual([]);
+    });
+
+    it("returns the button element tag name", () => {
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
+
+      expect(tagNames).toContain("DIV");
+    });
+
+    it("returns both button and list element tag names", () => {
+      const buttonElement = document.createElement("div");
+      const listElement = document.createElement("span");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      autofillInlineMenuContentService["listElement"] = listElement;
+
+      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
+
+      expect(tagNames).toEqual(["DIV", "SPAN"]);
+    });
+  });
+
+  describe("getUnownedTopLayerItems", () => {
+    beforeEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns the tag names from button and list elements", () => {
+      const buttonElement = document.createElement("div");
+      buttonElement.setAttribute("popover", "manual");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      const listElement = document.createElement("span");
+      listElement.setAttribute("popover", "manual");
+      autofillInlineMenuContentService["listElement"] = listElement;
+
+      /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
+      const querySelectorAllSpy = jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([] as any);
+
+      const items = autofillInlineMenuContentService.getUnownedTopLayerItems();
+
+      expect(querySelectorAllSpy).toHaveBeenCalled();
+      expect(items.length).toBe(0);
+    });
+
+    it("calls querySelectorAll with correct selector when includeCandidates is false", () => {
+      /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
+      const querySelectorAllSpy = jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([] as any);
+
+      autofillInlineMenuContentService.getUnownedTopLayerItems(false);
+
+      const calledSelector = querySelectorAllSpy.mock.calls[0][0];
+      expect(calledSelector).toContain(":modal");
+      expect(calledSelector).toContain(":popover-open");
+    });
+
+    it("includes candidates selector when requested", () => {
+      /** Mock querySelectorAll to avoid :modal selector issues in jsdom */
+      const querySelectorAllSpy = jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([] as any);
+
+      autofillInlineMenuContentService.getUnownedTopLayerItems(true);
+
+      const calledSelector = querySelectorAllSpy.mock.calls[0][0];
+      expect(calledSelector).toContain("[popover], dialog");
+    });
+  });
+
+  describe("refreshTopLayerPosition", () => {
+    it("does nothing when inline menu is disabled", () => {
+      const getUnownedTopLayerItemsSpy = jest.spyOn(
+        autofillInlineMenuContentService,
+        "getUnownedTopLayerItems",
+      );
+
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      autofillInlineMenuContentService.refreshTopLayerPosition();
+
+      // Should exit early and not call `getUnownedTopLayerItems`
+      expect(getUnownedTopLayerItemsSpy).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when no other top layer items exist", () => {
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([] as any);
+
+      const getElementsByTagSpy = jest.spyOn(globalThis.document, "getElementsByTagName");
+
+      autofillInlineMenuContentService.refreshTopLayerPosition();
+
+      // Should exit early and not get inline elements to refresh
+      expect(getElementsByTagSpy).not.toHaveBeenCalled();
+    });
+
+    it("refreshes button popover when button is in document", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("div")] as any);
+
+      const buttonElement = document.createElement("div");
+      buttonElement.setAttribute("popover", "manual");
+      buttonElement.showPopover = jest.fn();
+      buttonElement.hidePopover = jest.fn();
+      document.body.appendChild(buttonElement);
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      autofillInlineMenuContentService.refreshTopLayerPosition();
+
+      expect(buttonElement.hidePopover).toHaveBeenCalled();
+      expect(buttonElement.showPopover).toHaveBeenCalled();
+    });
+
+    it("refreshes list popover when list is in document", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("div")] as any);
+
+      const listElement = document.createElement("div");
+      listElement.setAttribute("popover", "manual");
+      listElement.showPopover = jest.fn();
+      listElement.hidePopover = jest.fn();
+      document.body.appendChild(listElement);
+      autofillInlineMenuContentService["listElement"] = listElement;
+
+      autofillInlineMenuContentService.refreshTopLayerPosition();
+
+      expect(listElement.hidePopover).toHaveBeenCalled();
+      expect(listElement.showPopover).toHaveBeenCalled();
+    });
+  });
+
+  describe("checkAndUpdateRefreshCount", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("2023-01-01T00:00:00.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("does nothing when inline menu is disabled", () => {
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+
+      autofillInlineMenuContentService["checkAndUpdateRefreshCount"]("topLayer");
+
+      expect(autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer).toBe(0);
+    });
+
+    it("increments refresh count when within time threshold", () => {
+      autofillInlineMenuContentService["lastTrackedTimestamp"].topLayer = Date.now() - 1000;
+
+      autofillInlineMenuContentService["checkAndUpdateRefreshCount"]("topLayer");
+
+      expect(autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer).toBe(1);
+    });
+
+    it("resets count when outside time threshold", () => {
+      autofillInlineMenuContentService["lastTrackedTimestamp"].topLayer = Date.now() - 6000;
+      autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer = 5;
+
+      autofillInlineMenuContentService["checkAndUpdateRefreshCount"]("topLayer");
+
+      expect(autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer).toBe(0);
+    });
+
+    it("disables inline menu and shows alert when count exceeds threshold", () => {
+      const alertSpy = jest.spyOn(globalThis.window, "alert").mockImplementation();
+      const checkPageRisksSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkPageRisks",
+      );
+      autofillInlineMenuContentService["lastTrackedTimestamp"].topLayer = Date.now() - 1000;
+      autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer = 6;
+
+      autofillInlineMenuContentService["checkAndUpdateRefreshCount"]("topLayer");
+
+      expect(autofillInlineMenuContentService["inlineMenuEnabled"]).toBe(false);
+      expect(alertSpy).toHaveBeenCalled();
+      expect(checkPageRisksSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("refreshPopoverAttribute", () => {
+    it("calls checkAndUpdateRefreshCount with popoverAttribute type", () => {
+      const checkSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkAndUpdateRefreshCount",
+      );
+      const element = document.createElement("div");
+      element.setAttribute("popover", "auto");
+      element.showPopover = jest.fn();
+
+      autofillInlineMenuContentService["refreshPopoverAttribute"](element);
+
+      expect(checkSpy).toHaveBeenCalledWith("popoverAttribute");
+      expect(element.getAttribute("popover")).toBe("manual");
+      expect(element.showPopover).toHaveBeenCalled();
+    });
+  });
+
+  describe("handleInlineMenuElementMutationObserverUpdate - popover attribute", () => {
+    it("refreshes popover attribute when changed from manual", () => {
+      const element = document.createElement("div");
+      element.setAttribute("popover", "auto");
+      element.showPopover = jest.fn();
+      const refreshSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "refreshPopoverAttribute",
+      );
+      autofillInlineMenuContentService["buttonElement"] = element;
+
+      const mockMutation = createMutationRecordMock({
+        target: element,
+        type: "attributes",
+        attributeName: "popover",
+      });
+
+      autofillInlineMenuContentService["handleInlineMenuElementMutationObserverUpdate"]([
+        mockMutation,
+      ]);
+
+      expect(refreshSpy).toHaveBeenCalledWith(element);
+    });
+
+    it("does not refresh popover attribute when already manual", () => {
+      const element = document.createElement("div");
+      element.setAttribute("popover", "manual");
+      const refreshSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "refreshPopoverAttribute",
+      );
+      autofillInlineMenuContentService["buttonElement"] = element;
+
+      const mockMutation = createMutationRecordMock({
+        target: element,
+        type: "attributes",
+        attributeName: "popover",
+      });
+
+      autofillInlineMenuContentService["handleInlineMenuElementMutationObserverUpdate"]([
+        mockMutation,
+      ]);
+
+      expect(refreshSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("appendInlineMenuElements when disabled", () => {
+    beforeEach(() => {
+      observeContainerMutationsSpy.mockImplementation();
+    });
+
+    it("does not append button when inline menu is disabled", async () => {
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+      jest.spyOn(globalThis.document.body, "appendChild");
+
+      sendMockExtensionMessage({
+        command: "appendAutofillInlineMenuToDom",
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      await flushPromises();
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("does not append list when inline menu is disabled", async () => {
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+      jest.spyOn(globalThis.document.body, "appendChild");
+
+      sendMockExtensionMessage({
+        command: "appendAutofillInlineMenuToDom",
+        overlayElement: AutofillOverlayElement.List,
+      });
+      await flushPromises();
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("custom element creation for non-Firefox browsers", () => {
+    beforeEach(() => {
+      autofillInlineMenuContentService["isFirefoxBrowser"] = false;
+      observeContainerMutationsSpy.mockImplementation();
+    });
+
+    it("creates a custom element for button in non-Firefox browsers", () => {
+      const definespy = jest.spyOn(globalThis.customElements, "define");
+
+      sendMockExtensionMessage({
+        command: "appendAutofillInlineMenuToDom",
+        overlayElement: AutofillOverlayElement.Button,
+      });
+
+      expect(definespy).toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["buttonElement"]).toBeDefined();
+      expect(autofillInlineMenuContentService["buttonElement"]?.tagName).not.toBe("DIV");
+    });
+
+    it("creates a custom element for list in non-Firefox browsers", () => {
+      const defineSpy = jest.spyOn(globalThis.customElements, "define");
+
+      sendMockExtensionMessage({
+        command: "appendAutofillInlineMenuToDom",
+        overlayElement: AutofillOverlayElement.List,
+      });
+
+      expect(defineSpy).toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["listElement"]).toBeDefined();
+      expect(autofillInlineMenuContentService["listElement"]?.tagName).not.toBe("DIV");
+    });
+  });
+
+  describe("unobserveCustomElements", () => {
+    it("disconnects the inline menu elements mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobserveCustomElements"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("handles the case when the mutation observer is undefined", () => {
+      autofillInlineMenuContentService["inlineMenuElementsMutationObserver"] = undefined as any;
+
+      expect(() => autofillInlineMenuContentService["unobserveCustomElements"]()).not.toThrow();
+    });
+  });
+
+  describe("getPageIsOpaque", () => {
+    it("returns false when no page elements exist", () => {
+      jest.spyOn(globalThis.document, "querySelectorAll").mockReturnValue([] as any);
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when all html and body nodes have sufficient opacity", () => {
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body] as any);
+      jest
+        .spyOn(globalThis.window, "getComputedStyle")
+        .mockImplementation(() => ({ opacity: "1" }) as CSSStyleDeclaration);
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when html opacity is below threshold", () => {
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body] as any);
+      let callCount = 0;
+      jest.spyOn(globalThis.window, "getComputedStyle").mockImplementation(() => {
+        callCount++;
+        return { opacity: callCount === 1 ? "0.5" : "1" } as CSSStyleDeclaration;
+      });
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when body opacity is below threshold", () => {
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body] as any);
+      let callCount = 0;
+      jest.spyOn(globalThis.window, "getComputedStyle").mockImplementation(() => {
+        callCount++;
+        return { opacity: callCount === 1 ? "1" : "0.5" } as CSSStyleDeclaration;
+      });
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when opacity of at least one duplicate body is below threshold", () => {
+      const duplicateBody = document.createElement("body");
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body, duplicateBody] as any);
+      let callCount = 0;
+      jest.spyOn(globalThis.window, "getComputedStyle").mockImplementation(() => {
+        callCount++;
+
+        let opacityValue = "0.5";
+        switch (callCount) {
+          case 1:
+            opacityValue = "1";
+            break;
+          case 2:
+            opacityValue = "0.7";
+            break;
+          default:
+            break;
+        }
+
+        return { opacity: opacityValue } as CSSStyleDeclaration;
+      });
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when opacity is above threshold", () => {
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body] as any);
+      jest
+        .spyOn(globalThis.window, "getComputedStyle")
+        .mockImplementation(() => ({ opacity: "0.7" }) as CSSStyleDeclaration);
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when opacity is at threshold", () => {
+      jest
+        .spyOn(globalThis.document, "querySelectorAll")
+        .mockReturnValue([document.documentElement, document.body] as any);
+      jest
+        .spyOn(globalThis.window, "getComputedStyle")
+        .mockImplementation(() => ({ opacity: "0.6" }) as CSSStyleDeclaration);
+
+      const result = autofillInlineMenuContentService["getPageIsOpaque"]();
+
+      expect(result).toBe(false);
     });
   });
 });

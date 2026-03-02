@@ -11,7 +11,6 @@ export class AllActivitiesService {
   /// and critical applications.
   /// Going forward, this class can be simplified by using the RiskInsightsDataService
   /// as it contains the application summary data.
-
   private reportSummarySubject$ = new BehaviorSubject<OrganizationReportSummary>({
     totalMemberCount: 0,
     totalCriticalMemberCount: 0,
@@ -31,12 +30,8 @@ export class AllActivitiesService {
   private atRiskPasswordsCountSubject$ = new BehaviorSubject<number>(0);
   atRiskPasswordsCount$ = this.atRiskPasswordsCountSubject$.asObservable();
 
-  private passwordChangeProgressMetricHasProgressBarSubject$ = new BehaviorSubject<boolean>(false);
-  passwordChangeProgressMetricHasProgressBar$ =
-    this.passwordChangeProgressMetricHasProgressBarSubject$.asObservable();
-
-  private taskCreatedCountSubject$ = new BehaviorSubject<number>(0);
-  taskCreatedCount$ = this.taskCreatedCountSubject$.asObservable();
+  private extendPasswordChangeWidgetSubject$ = new BehaviorSubject<boolean>(false);
+  extendPasswordChangeWidget$ = this.extendPasswordChangeWidgetSubject$.asObservable();
 
   constructor(private dataService: RiskInsightsDataService) {
     // All application summary changes
@@ -91,11 +86,7 @@ export class AllActivitiesService {
     this.allApplicationsDetailsSubject$.next(applications);
   }
 
-  setPasswordChangeProgressMetricHasProgressBar(hasProgressBar: boolean) {
-    this.passwordChangeProgressMetricHasProgressBarSubject$.next(hasProgressBar);
-  }
-
-  setTaskCreatedCount(count: number) {
-    this.taskCreatedCountSubject$.next(count);
+  setExtendPasswordWidget(hasProgressBar: boolean) {
+    this.extendPasswordChangeWidgetSubject$.next(hasProgressBar);
   }
 }

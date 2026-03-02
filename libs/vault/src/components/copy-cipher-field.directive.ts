@@ -10,7 +10,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
+import { MenuItemComponent, BitIconButtonComponent } from "@bitwarden/components";
 import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
 
 /**
@@ -36,7 +36,7 @@ export class CopyCipherFieldDirective implements OnChanges {
     alias: "appCopyField",
     required: true,
   })
-  action!: Exclude<CopyAction, "hiddenField">;
+  action!: CopyAction;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -47,7 +47,7 @@ export class CopyCipherFieldDirective implements OnChanges {
     private copyCipherFieldService: CopyCipherFieldService,
     private accountService: AccountService,
     private cipherService: CipherService,
-    @Optional() private menuItemDirective?: MenuItemDirective,
+    @Optional() private menuItemComponent?: MenuItemComponent,
     @Optional() private iconButtonComponent?: BitIconButtonComponent,
   ) {}
 
@@ -60,7 +60,7 @@ export class CopyCipherFieldDirective implements OnChanges {
    */
   @HostBinding("class.tw-hidden")
   private get hidden() {
-    return this.disabled && this.menuItemDirective;
+    return this.disabled && this.menuItemComponent;
   }
 
   @HostListener("click")
@@ -87,8 +87,8 @@ export class CopyCipherFieldDirective implements OnChanges {
     }
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
-    if (this.menuItemDirective) {
-      this.menuItemDirective.disabled = this.disabled ?? false;
+    if (this.menuItemComponent) {
+      this.menuItemComponent.disabled = this.disabled ?? false;
     }
   }
 

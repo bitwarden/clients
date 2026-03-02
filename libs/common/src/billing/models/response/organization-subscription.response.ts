@@ -40,6 +40,7 @@ export class BillingCustomerDiscount extends BaseResponse {
   id: string;
   active: boolean;
   percentOff?: number;
+  amountOff?: number;
   appliesTo: string[];
 
   constructor(response: any) {
@@ -47,6 +48,7 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.id = this.getResponseProperty("Id");
     this.active = this.getResponseProperty("Active");
     this.percentOff = this.getResponseProperty("PercentOff");
-    this.appliesTo = this.getResponseProperty("AppliesTo");
+    this.amountOff = this.getResponseProperty("AmountOff");
+    this.appliesTo = this.getResponseProperty("AppliesTo") || [];
   }
 }

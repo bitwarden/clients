@@ -18,6 +18,9 @@
 
 - **NEVER** commit secrets, credentials, or sensitive information.
 
+- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`).
+  - Missing prefix breaks styling completely.
+
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
 

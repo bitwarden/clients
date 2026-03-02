@@ -51,10 +51,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -70,10 +70,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -91,17 +91,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -111,7 +111,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should fetch tasks from the API when the state is null", async () => {
@@ -163,17 +162,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -183,7 +182,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should filter tasks to only pending tasks", async () => {

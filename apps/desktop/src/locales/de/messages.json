@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "welcomeBack": {
     "message": "Willkommen zurück"
   },
@@ -96,6 +99,70 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Zu teilende Datei"
+  },
+  "hideTextByDefault": {
+    "message": "Text standardmäßig ausblenden"
+  },
+  "hideYourEmail": {
+    "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
+  },
+  "limitSendViews": {
+    "message": "Ansichten begrenzen"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ Ansichten übrig",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Nach Erreichen des Limits kann niemand mehr dieses Send sehen.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private Notiz"
+  },
+  "sendDetails": {
+    "message": "Send-Details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Zu teilender Text"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Neues Text-Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Neues Datei-Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Text-Send bearbeiten",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Datei-Send bearbeiten",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Bist du sicher, dass du dieses Send dauerhaft löschen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "new": {
+    "message": "Neu",
+    "description": "for adding new items"
   },
   "newUri": {
     "message": "Neue URL"
@@ -705,6 +772,18 @@
   "addAttachment": {
     "message": "Anhang hinzufügen"
   },
+  "itemsTransferred": {
+    "message": "Einträge wurden übertragen"
+  },
+  "fixEncryption": {
+    "message": "Verschlüsselung reparieren"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Diese Datei verwendet eine veraltete Verschlüsselungsmethode."
+  },
+  "attachmentUpdated": {
+    "message": "Anhang aktualisiert"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Die maximale Dateigröße beträgt 500 MB"
   },
@@ -769,10 +848,10 @@
     "message": "Anmelden mit einem anderen Gerät"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "submit": {
     "message": "Absenden"
@@ -905,6 +984,12 @@
   "unexpectedError": {
     "message": "Ein unerwarteter Fehler ist aufgetreten."
   },
+  "unexpectedErrorShort": {
+    "message": "Unerwarteter Fehler"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Schließe dieses Bitwarden-Fenster und versuche es erneut."
+  },
   "itemInformation": {
     "message": "Eintragsinformationen"
   },
@@ -937,6 +1022,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-Mail oder Verifizierungscode ungültig"
   },
   "continue": {
     "message": "Weiter"
@@ -1035,6 +1123,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
+  },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
   },
@@ -1086,6 +1177,24 @@
   },
   "learnMore": {
     "message": "Mehr erfahren"
+  },
+  "migrationsFailed": {
+    "message": "Beim Aktualisieren der Verschlüsselungseinstellungen ist ein Fehler aufgetreten."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualisiere deine Verschlüsselungseinstellungen"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bestätige deine Identität, um fortzufahren"
+  },
+  "enterYourMasterPassword": {
+    "message": "Gib dein Master-Passwort ein"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
   },
   "featureUnavailable": {
     "message": "Funktion nicht verfügbar"
@@ -1156,8 +1265,8 @@
   "followUs": {
     "message": "Folge uns"
   },
-  "syncVault": {
-    "message": "Tresor synchronisieren"
+  "syncNow": {
+    "message": "Jetzt synchronisieren"
   },
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
@@ -1484,6 +1593,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
@@ -1724,8 +1842,21 @@
   "exportFrom": {
     "message": "Export aus"
   },
-  "exportVault": {
-    "message": "Tresor exportieren"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportieren",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importieren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dateiformat"
@@ -1960,6 +2091,9 @@
   "permanentlyDeletedItem": {
     "message": "Eintrag dauerhaft gelöscht"
   },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
+  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -1973,7 +2107,7 @@
     "message": "Timeout-Aktion bestätigen"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -2144,9 +2278,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nur in der Mac App Store Version unterstützt."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
   },
@@ -2224,6 +2355,10 @@
   },
   "contactInfo": {
     "message": "Kontaktinformationen"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2344,6 +2479,10 @@
   },
   "deleteSendConfirmation": {
     "message": "Bist du sicher, dass du dieses Send löschen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Send-Link kopieren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2559,7 +2698,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Das minimal benutzerdefinierte Timeout beträgt 1 Minute."
+    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -2584,9 +2723,6 @@
   },
   "removedMasterPassword": {
     "message": "Master-Passwort entfernt"
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Für Mitglieder der folgenden Organisation ist kein Master-Passwort mehr erforderlich. Bitte bestätige die folgende Domain bei deinem Organisations-Administrator."
   },
   "organizationName": {
     "message": "Name der Organisation"
@@ -2988,7 +3124,8 @@
     "message": "Bist du sicher, dass du die Option \"Nie\" verwenden möchtest? Durch das Setzen der Sperroptionen zu \"Nie\" wird der Verschlüsselungscode deines Tresors auf deinem Gerät gespeichert. Wenn du diese Option verwendest, solltest du sicherstellen, dass dein Gerät ausreichend geschützt ist."
   },
   "vault": {
-    "message": "Tresor"
+    "message": "Tresor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
@@ -3442,10 +3579,6 @@
   "aliasDomain": {
     "message": "Alias-Domain"
   },
-  "importData": {
-    "message": "Daten importieren",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Importfehler"
   },
@@ -3851,6 +3984,75 @@
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
   },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+  },
+  "changeAcctEmail": {
+    "message": "E-Mail-Adresse des Kontos ändern"
+  },
+  "passkeyLogin": {
+    "message": "Mit Passkey anmelden?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Passkey speichern?"
+  },
+  "saveNewPasskey": {
+    "message": "Als neue Zugangsdaten speichern"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Passkey als neue Zugangsdaten speichern"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Keine passenden Zugangsdaten für diese Seite"
+  },
+  "overwritePasskey": {
+    "message": "Passkey überschreiben?"
+  },
+  "unableToSavePasskey": {
+    "message": "Passkey konnte nicht gespeichert werden"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Dieser Eintrag enthält bereits einen Passkey. Bist du sicher, dass du den aktuellen Passkey überschreiben möchtest?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Für diese Anwendung existiert bereits ein Passkey."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Diese Anwendung unterstützt keine mehrfachen Instanzen."
+  },
+  "closeThisWindow": {
+    "message": "Dieses Fenster schließen"
+  },
   "allowScreenshots": {
     "message": "Bildschirmaufnahme erlauben"
   },
@@ -3874,6 +4076,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
+  },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
   },
   "missingWebsite": {
     "message": "Fehlende Website"
@@ -3903,9 +4111,15 @@
     "message": "Sensible Informationen sicher versenden",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
   "sendsBodyNoItems": {
     "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "generatorNudgeTitle": {
     "message": "Passwörter schnell erstellen"
@@ -4125,8 +4339,8 @@
   "typeShortcut": {
     "message": "Autotype-Tastaturkürzel"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalttaste, sowie einen Buchstaben."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win und einen Buchstaben."
   },
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
@@ -4162,7 +4376,10 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Nicht mehr archivieren"
+    "message": "Wiederherstellen"
+  },
+  "archived": {
+    "message": "Archiviert"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -4173,22 +4390,241 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde ins Archiv verschoben"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "unArchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "itemRestored": {
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "zipPostalCodeLabel": {
     "message": "PLZ / Postleitzahl"
   },
   "cardNumberLabel": {
     "message": "Kartennummer"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Integrierter Authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Sichere Dateispeicherung"
+  },
+  "emergencyAccess": {
+    "message": "Notfallzugriff"
+  },
+  "breachMonitoring": {
+    "message": "Datenleck-Überwachung"
+  },
+  "andMoreFeatures": {
+    "message": "Und vieles mehr!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Erweiterte Online-Sicherheit"
+  },
+  "upgradeToPremium": {
+    "message": "Auf Premium upgraden"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
+  },
+  "continueWithLogIn": {
+    "message": "Mit der Anmeldung fortfahren"
+  },
+  "doNotContinue": {
+    "message": "Nicht fortfahren"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Diese Domain speichert die Verschlüsselungsschlüssel deines Kontos. Stelle daher sicher, dass du ihr vertraust. Wenn du dir nicht sicher bist, wende dich an deinen Administrator."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifiziere deine Organisation, um dich anzumelden"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifiziert"
+  },
+  "domainVerified": {
+    "message": "Domain verifiziert"
+  },
+  "leaveOrganizationContent": {
+    "message": "Wenn du deine Organisation nicht verifizierst, wird dein Zugriff auf die Organisation widerrufen."
+  },
+  "leaveNow": {
+    "message": "Jetzt verlassen"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifiziere deine Domain, um dich anzumelden"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Verifiziere diese Domain, um mit der Anmeldung fortzufahren."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Um mit der Anmeldung fortzufahren, verifiziere die Organisation und Domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fehler: Entschlüsselung nicht möglich"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Größe der Seitennavigation ändern"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Diese Einstellung wird von deiner Organisation verwaltet."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Deine Organisation hat das maximale Sitzungs-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Deine Organisation hat das Standard-Sitzungs-Timeout auf \"Wenn System gesperrt\" gesetzt."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Deine Organisation hat das Standard-Sitzungs-Timeout auf \"Beim Neustart der App\" gesetzt."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Das maximale Timeout darf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) nicht überschreiten",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Beim Neustart der App"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Bist du sicher, dass du gehen willst?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ verlassen",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Wie kann ich meinen Tresor verwalten?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Einträge zu $ORGANIZATION$ übertragen",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Übertragung annehmen"
+  },
+  "declineAndLeave": {
+    "message": "Ablehnen und verlassen"
+  },
+  "whyAmISeeingThis": {
+    "message": "Warum wird mir das angezeigt?"
+  },
+  "sendPasswordHelperText": {
+    "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-Mail-Adresse geschützt"
+  },
+  "emails": {
+    "message": "E-Mails"
+  },
+  "noAuth": {
+    "message": "Alle mit dem Link"
+  },
+  "anyOneWithPassword": {
+    "message": "Alle mit einem von dir festgelegtem Passwort"
+  },
+  "whoCanView": {
+    "message": "Wer kann das sehen"
+  },
+  "specificPeople": {
+    "message": "Bestimmte Personen"
+  },
+  "emailVerificationDesc": {
+    "message": "Nach dem Teilen dieses Send-Links müssen Personen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+  },
+  "emailPlaceholder": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }

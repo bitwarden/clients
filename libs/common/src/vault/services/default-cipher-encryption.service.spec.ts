@@ -95,6 +95,7 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         encrypt: jest.fn(),
+        encrypt_list: jest.fn(),
         encrypt_cipher_for_rotation: jest.fn(),
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
@@ -250,6 +251,82 @@ describe("DefaultCipherEncryptionService", () => {
           login: { fido2Credentials: [{ credentialId: "encrypted-credentialId" }] },
         }),
       );
+    });
+  });
+
+  describe("encryptMany", () => {
+    it("should encrypt multiple ciphers", async () => {
+      const cipherView2 = new CipherView(cipherObj);
+      cipherView2.name = "test-name-2";
+      const cipherView3 = new CipherView(cipherObj);
+      cipherView3.name = "test-name-3";
+
+      const ciphers = [cipherViewObj, cipherView2, cipherView3];
+
+      const expectedCipher1: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name-1",
+      } as unknown as Cipher;
+
+      const expectedCipher2: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name-2",
+      } as unknown as Cipher;
+
+      const expectedCipher3: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name-3",
+      } as unknown as Cipher;
+
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .encrypt_list.mockReturnValue([
+          {
+            cipher: sdkCipher,
+            encryptedFor: userId,
+          },
+          {
+            cipher: sdkCipher,
+            encryptedFor: userId,
+          },
+          {
+            cipher: sdkCipher,
+            encryptedFor: userId,
+          },
+        ]);
+
+      jest
+        .spyOn(Cipher, "fromSdkCipher")
+        .mockReturnValueOnce(expectedCipher1)
+        .mockReturnValueOnce(expectedCipher2)
+        .mockReturnValueOnce(expectedCipher3);
+
+      const results = await cipherEncryptionService.encryptMany(ciphers, userId);
+
+      expect(results).toBeDefined();
+      expect(results.length).toBe(3);
+      expect(results[0].cipher).toEqual(expectedCipher1);
+      expect(results[1].cipher).toEqual(expectedCipher2);
+      expect(results[2].cipher).toEqual(expectedCipher3);
+
+      expect(mockSdkClient.vault().ciphers().encrypt_list).toHaveBeenCalledTimes(1);
+      expect(mockSdkClient.vault().ciphers().encrypt).not.toHaveBeenCalled();
+
+      expect(results[0].encryptedFor).toBe(userId);
+      expect(results[1].encryptedFor).toBe(userId);
+      expect(results[2].encryptedFor).toBe(userId);
+    });
+
+    it("should handle empty array", async () => {
+      const results = await cipherEncryptionService.encryptMany([], userId);
+
+      expect(results).toBeDefined();
+      expect(results.length).toBe(0);
+      expect(mockSdkClient.vault().ciphers().encrypt_list).not.toHaveBeenCalled();
     });
   });
 
@@ -496,9 +573,11 @@ describe("DefaultCipherEncryptionService", () => {
         .mockReturnValueOnce(expectedViews[0])
         .mockReturnValueOnce(expectedViews[1]);
 
-      const result = await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const [successfulDecryptions, failedDecryptions] =
+        await cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
-      expect(result).toEqual(expectedViews);
+      expect(successfulDecryptions).toEqual(expectedViews);
+      expect(failedDecryptions).toEqual([]);
       expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
     });

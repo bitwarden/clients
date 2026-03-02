@@ -70,8 +70,7 @@ export function isWindowsPortable() {
 }
 
 /**
- * We block the browser integration on some unsupported platforms, which also
- * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * We block the browser integration on some unsupported platforms prevents
  * experimenting with the feature for QA. So this env var allows overriding
  * the block.
  */

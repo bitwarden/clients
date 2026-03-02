@@ -16,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -25,13 +26,16 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum Action {
-  None = "",
-  Add = "add",
-  Edit = "edit",
-}
+const Action = Object.freeze({
+  /** No action is currently active. */
+  None: "",
+  /** The user is adding a new Send. */
+  Add: "add",
+  /** The user is editing an existing Send. */
+  Edit: "edit",
+} as const);
+
+type Action = (typeof Action)[keyof typeof Action];
 
 const BroadcasterSubscriptionId = "SendComponent";
 
@@ -49,6 +53,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   sendId: string;
   action: Action = Action.None;
+
+  authType = AuthType;
 
   constructor(
     sendService: SendService,

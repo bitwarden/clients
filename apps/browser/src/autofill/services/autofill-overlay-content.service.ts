@@ -45,6 +45,7 @@ import {
   sendExtensionMessage,
   throttle,
 } from "../utils";
+import { EventSecurity } from "../utils/event-security";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -618,6 +619,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleSubmitButtonInteraction = (event: PointerEvent) => {
     if (
+      /**
+       * Reject synthetic events (not originating from the user agent)
+       */
+      !EventSecurity.isEventTrusted(event) ||
       !this.submitElements.has(event.target as HTMLElement) ||
       (event.type === "keyup" &&
         !["Enter", "Space"].includes((event as unknown as KeyboardEvent).code))
@@ -703,6 +708,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param event - The keyup event.
    */
   private handleFormFieldKeyupEvent = async (event: globalThis.KeyboardEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     */
+    if (!EventSecurity.isEventTrusted(event)) {
+      return;
+    }
+
     const eventCode = event.code;
     if (eventCode === "Escape") {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
@@ -975,6 +987,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
       focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
 
     const allFields = this.formFieldElements;
@@ -1109,6 +1122,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
+    // Check if this is a current password field in a password change form
+    if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
+      return;
+    }
+
     autofillFieldData.inlineMenuFillType = CipherType.Login;
     autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
 
@@ -1644,17 +1663,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     };
     const scrollHandler = this.useEventHandlersMemo(
-      throttle(async (event) => {
+      throttle(async (event: Event) => {
+        const scrollY = globalThis.scrollY;
+        const scrollX = globalThis.scrollX;
         if (
-          currentScrollY !== globalThis.scrollY ||
-          currentScrollX !== globalThis.scrollX ||
-          eventTargetContainsFocusedField(event.target)
+          currentScrollY !== scrollY ||
+          currentScrollX !== scrollX ||
+          (event.target instanceof Element && eventTargetContainsFocusedField(event.target))
         ) {
           repositionHandler(event);
         }
 
-        currentScrollY = globalThis.scrollY;
-        currentScrollX = globalThis.scrollX;
+        currentScrollY = scrollY;
+        currentScrollX = scrollX;
       }, 50),
       AUTOFILL_OVERLAY_HANDLE_SCROLL,
     );

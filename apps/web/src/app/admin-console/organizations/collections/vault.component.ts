@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -27,19 +27,22 @@ import {
   takeUntil,
 } from "rxjs/operators";
 
-import {
-  CollectionAdminService,
-  CollectionAdminView,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
+import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionView,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getFlatCollectionTree,
+  getNestedCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -81,6 +84,13 @@ import {
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  createFilterFunction,
+  All,
+  RoutedVaultFilterModel,
+  VaultFilter,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -102,15 +112,6 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
-import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
-import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
@@ -126,7 +127,6 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -472,7 +472,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               collections,
               filter.collectionId,
             );
-            searchableCollectionNodes = selectedCollection.children ?? [];
+            searchableCollectionNodes = selectedCollection?.children ?? [];
           }
 
           let collectionsToReturn: CollectionAdminView[] = [];
@@ -587,6 +587,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusAfterNav: false,
+          },
         }),
       );
 
@@ -809,7 +812,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherAttachments(cipher: CipherView) {
     if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -866,7 +869,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -890,7 +893,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
-      await this.go({ cipherId: null, itemId: null, action: null });
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
       return;
     }
 
@@ -917,14 +923,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const organization = await firstValueFrom(this.organization$);
-    const disableForm = cipher ? !cipher.edit && !organization.canEditAllCiphers : false;
-    // If the form is disabled, force the mode into `view`
-    const dialogMode = disableForm ? "view" : mode;
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode: dialogMode,
+      mode,
       formConfig,
-      disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
@@ -945,7 +946,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     // Clear the query params when the dialog closes
-    await this.go({ cipherId: null, itemId: null, action: null });
+    await this.go(
+      { cipherId: null, itemId: null, action: null },
+      this.configureRouterFocusToCipher(formConfig.originalCipher?.id),
+    );
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -964,10 +968,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike): Promise<boolean> => {
+  restore = async (c: CipherViewLike): Promise<void> => {
     const organization = await firstValueFrom(this.organization$);
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (
@@ -976,11 +980,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       !organization.allowAdminAccessToAllCollectionItems
     ) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     // Allow restore of an Unassigned Item
@@ -998,10 +1002,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("restoredItem"),
       });
       this.refresh();
-      return true;
+      return;
     } catch (e) {
       this.logService.error(e);
-      return false;
+      return;
     }
   };
 
@@ -1315,7 +1319,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -1424,7 +1428,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  private go(queryParams: any = null) {
+  /**
+   * Helper function to set up the `state.focusAfterNav` property for dialog router navigation if
+   * the cipherId exists. If it doesn't exist, returns undefined.
+   *
+   * This ensures that when the routed dialog is closed, the focus returns to the cipher button in
+   * the vault table, which allows keyboard users to continue navigating uninterrupted.
+   *
+   * @param cipherId id of cipher
+   * @returns Partial<NavigationExtras>, specifically the state.focusAfterNav property, or undefined
+   */
+  private configureRouterFocusToCipher(cipherId?: string): Partial<NavigationExtras> | undefined {
+    if (cipherId) {
+      return {
+        state: { focusAfterNav: `#cipher-btn-${cipherId}` },
+      };
+    }
+  }
+
+  private go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
       queryParams = {
         type: this.activeFilter.cipherType,
@@ -1438,6 +1460,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       queryParams: queryParams,
       queryParamsHandling: "merge",
       replaceUrl: true,
+      ...navigateOptions,
     });
   }
 

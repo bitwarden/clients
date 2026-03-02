@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@bitwarden/components";
@@ -47,6 +49,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
     private dialogRef: DialogRef,
     private webauthnService: WebauthnLoginAdminService,
     private webauthnLoginService: WebAuthnLoginServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +63,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
     if (this.credential === undefined) {
       return;
     }
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     this.dialogRef.disableClose = true;
     try {
@@ -68,6 +72,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
       );
       await this.webauthnService.enableCredentialEncryption(
         await this.webauthnLoginService.assertCredential(this.credentialOptions),
+        userId,
       );
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 400) {

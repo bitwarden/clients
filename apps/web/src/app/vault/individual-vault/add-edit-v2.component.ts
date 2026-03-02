@@ -78,6 +78,8 @@ export interface AddEditCipherDialogCloseResult {
   ],
   providers: [{ provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService }],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AddEditComponentV2 implements OnInit {
   config: CipherFormConfig;
   headerText: string;

@@ -6,6 +6,10 @@ import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
@@ -23,9 +27,10 @@ describe("DefaultSubscriptionPricingService", () => {
   let configService: MockProxy<ConfigService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
+  let environmentService: MockProxy<EnvironmentService>;
 
   const mockFamiliesPlan = {
-    type: PlanType.FamiliesAnnually,
+    type: PlanType.FamiliesAnnually2025,
     productTier: ProductTierType.Families,
     name: "Families (Annually)",
     isAnnual: true,
@@ -35,6 +40,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: false,
     hasPolicies: false,
+    hasMyItems: false,
     hasGroups: false,
     hasDirectory: false,
     hasEvents: false,
@@ -55,6 +61,7 @@ describe("DefaultSubscriptionPricingService", () => {
       basePrice: 36,
       seatPrice: 0,
       additionalStoragePricePerGb: 4,
+      providedStorageGB: 1,
       allowSeatAutoscale: false,
       maxSeats: 6,
       maxCollections: null,
@@ -74,6 +81,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: true,
     hasPolicies: true,
+    hasMyItems: false,
     hasGroups: true,
     hasDirectory: true,
     hasEvents: true,
@@ -94,6 +102,7 @@ describe("DefaultSubscriptionPricingService", () => {
       basePrice: 0,
       seatPrice: 36,
       additionalStoragePricePerGb: 4,
+      providedStorageGB: 1,
       allowSeatAutoscale: true,
       maxSeats: null,
       maxCollections: null,
@@ -124,6 +133,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: 7,
     hasSelfHost: true,
     hasPolicies: true,
+    hasMyItems: true,
     hasGroups: true,
     hasDirectory: true,
     hasEvents: true,
@@ -174,6 +184,7 @@ describe("DefaultSubscriptionPricingService", () => {
     trialPeriodDays: null,
     hasSelfHost: false,
     hasPolicies: false,
+    hasMyItems: false,
     hasGroups: false,
     hasDirectory: false,
     hasEvents: false,
@@ -224,6 +235,7 @@ describe("DefaultSubscriptionPricingService", () => {
     },
     storage: {
       price: 4,
+      provided: 1,
     },
   } as PremiumPlanResponse;
 
@@ -248,7 +260,7 @@ describe("DefaultSubscriptionPricingService", () => {
           return "Custom";
 
         // Plan descriptions
-        case "planDescPremium":
+        case "advancedOnlineSecurity":
           return "Premium plan description";
         case "planDescFamiliesV2":
           return "Families plan description";
@@ -326,19 +338,32 @@ describe("DefaultSubscriptionPricingService", () => {
     });
   });
 
+  const setupEnvironmentService = (
+    envService: MockProxy<EnvironmentService>,
+    region: Region = Region.US,
+  ) => {
+    envService.environment$ = of({
+      getRegion: () => region,
+      isCloud: () => region !== Region.SelfHosted,
+    } as any);
+  };
+
   beforeEach(() => {
     billingApiService = mock<BillingApiServiceAbstraction>();
     configService = mock<ConfigService>();
+    environmentService = mock<EnvironmentService>();
 
     billingApiService.getPlans.mockResolvedValue(mockPlansResponse);
     billingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-    configService.getFeatureFlag$.mockReturnValue(of(false)); // Default to false (use hardcoded value)
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    setupEnvironmentService(environmentService);
 
     service = new DefaultSubscriptionPricingService(
       billingApiService,
       configService,
       i18nService,
       logService,
+      environmentService,
     );
   });
 
@@ -359,6 +384,7 @@ describe("DefaultSubscriptionPricingService", () => {
             type: "standalone",
             annualPrice: 10,
             annualPricePerAdditionalStorageGB: 4,
+            providedStorageGB: 1,
             features: [
               { key: "builtInAuthenticator", value: "Built-in authenticator" },
               { key: "secureFileStorage", value: "Secure file storage" },
@@ -383,6 +409,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPrice: mockFamiliesPlan.PasswordManager.basePrice,
             annualPricePerAdditionalStorageGB:
               mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockFamiliesPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "premiumAccounts", value: "6 premium accounts" },
               { key: "familiesUnlimitedSharing", value: "Unlimited sharing for families" },
@@ -393,7 +420,7 @@ describe("DefaultSubscriptionPricingService", () => {
         });
 
         expect(i18nService.t).toHaveBeenCalledWith("premium");
-        expect(i18nService.t).toHaveBeenCalledWith("planDescPremium");
+        expect(i18nService.t).toHaveBeenCalledWith("advancedOnlineSecurity");
         expect(i18nService.t).toHaveBeenCalledWith("planNameFamilies");
         expect(i18nService.t).toHaveBeenCalledWith("planDescFamiliesV2");
         expect(i18nService.t).toHaveBeenCalledWith("builtInAuthenticator");
@@ -415,11 +442,13 @@ describe("DefaultSubscriptionPricingService", () => {
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
@@ -428,6 +457,7 @@ describe("DefaultSubscriptionPricingService", () => {
         errorConfigService,
         errorI18nService,
         errorLogService,
+        errorEnvironmentService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
@@ -456,12 +486,16 @@ describe("DefaultSubscriptionPricingService", () => {
 
         expect(premiumTier.passwordManager.annualPrice).toEqual(10);
         expect(premiumTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(4);
+        expect(premiumTier.passwordManager.providedStorageGB).toEqual(1);
 
         expect(familiesTier.passwordManager.annualPrice).toEqual(
           mockFamiliesPlan.PasswordManager.basePrice,
         );
         expect(familiesTier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(
           mockFamiliesPlan.PasswordManager.additionalStoragePricePerGb,
+        );
+        expect(familiesTier.passwordManager.providedStorageGB).toEqual(
+          mockFamiliesPlan.PasswordManager.baseStorageGb,
         );
 
         done();
@@ -487,6 +521,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockTeamsPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -522,6 +557,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockEnterprisePlan.PasswordManager.baseStorageGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
@@ -595,11 +631,13 @@ describe("DefaultSubscriptionPricingService", () => {
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
@@ -608,6 +646,7 @@ describe("DefaultSubscriptionPricingService", () => {
         errorConfigService,
         errorI18nService,
         errorLogService,
+        errorEnvironmentService,
       );
 
       errorService.getBusinessSubscriptionPricingTiers$().subscribe({
@@ -648,6 +687,9 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(teamsSecretsManager.annualPricePerAdditionalServiceAccount).toEqual(
           mockTeamsPlan.SecretsManager.additionalPricePerServiceAccount,
         );
+        expect(teamsPasswordManager.providedStorageGB).toEqual(
+          mockTeamsPlan.PasswordManager.baseStorageGb,
+        );
 
         const enterprisePasswordManager = enterpriseTier.passwordManager as any;
         const enterpriseSecretsManager = enterpriseTier.secretsManager as any;
@@ -656,6 +698,9 @@ describe("DefaultSubscriptionPricingService", () => {
         );
         expect(enterprisePasswordManager.annualPricePerAdditionalStorageGB).toEqual(
           mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+        );
+        expect(enterprisePasswordManager.providedStorageGB).toEqual(
+          mockEnterprisePlan.PasswordManager.baseStorageGb,
         );
         expect(enterpriseSecretsManager.annualPricePerUser).toEqual(
           mockEnterprisePlan.SecretsManager.seatPrice,
@@ -729,6 +774,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockTeamsPlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockTeamsPlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockTeamsPlan.PasswordManager.baseStorageGb,
             features: [
               { key: "secureItemSharing", value: "Secure item sharing" },
               { key: "eventLogMonitoring", value: "Event log monitoring" },
@@ -764,6 +810,7 @@ describe("DefaultSubscriptionPricingService", () => {
             annualPricePerUser: mockEnterprisePlan.PasswordManager.seatPrice,
             annualPricePerAdditionalStorageGB:
               mockEnterprisePlan.PasswordManager.additionalStoragePricePerGb,
+            providedStorageGB: mockEnterprisePlan.PasswordManager.baseStorageGb,
             features: [
               { key: "enterpriseSecurityPolicies", value: "Enterprise security policies" },
               { key: "passwordLessSso", value: "Passwordless SSO" },
@@ -830,11 +877,13 @@ describe("DefaultSubscriptionPricingService", () => {
       const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
 
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
       errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
@@ -843,6 +892,7 @@ describe("DefaultSubscriptionPricingService", () => {
         errorConfigService,
         errorI18nService,
         errorLogService,
+        errorEnvironmentService,
       );
 
       errorService.getDeveloperSubscriptionPricingTiers$().subscribe({
@@ -865,17 +915,20 @@ describe("DefaultSubscriptionPricingService", () => {
     it("should handle getPremiumPlan() error when getPlans() succeeds", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
 
       const testError = new Error("Premium plan API error");
       errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
       errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag to use premium plan API
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
 
       const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
         errorConfigService,
         i18nService,
         logService,
+        errorEnvironmentService,
       );
 
       errorService.getPersonalSubscriptionPricingTiers$().subscribe({
@@ -896,88 +949,6 @@ describe("DefaultSubscriptionPricingService", () => {
         },
       });
     });
-
-    it("should handle malformed premium plan API response", (done) => {
-      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
-      const testError = new TypeError("Cannot read properties of undefined (reading 'price')");
-
-      // Malformed response missing the Seat property
-      const malformedResponse = {
-        Storage: {
-          StripePriceId: "price_storage",
-          Price: 4,
-        },
-      };
-
-      errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
-
-      const errorService = new DefaultSubscriptionPricingService(
-        errorBillingApiService,
-        errorConfigService,
-        i18nService,
-        logService,
-      );
-
-      errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: () => {
-          fail("Observable should error, not return a value");
-        },
-        error: (error: unknown) => {
-          expect(logService.error).toHaveBeenCalledWith(
-            "Failed to load personal subscription pricing tiers",
-            testError,
-          );
-          expect(error).toEqual(testError);
-          done();
-        },
-      });
-    });
-
-    it("should handle malformed premium plan with invalid price types", (done) => {
-      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
-      const testError = new TypeError("Cannot read properties of undefined (reading 'price')");
-
-      // Malformed response with price as string instead of number
-      const malformedResponse = {
-        Seat: {
-          StripePriceId: "price_seat",
-          Price: "10", // Should be a number
-        },
-        Storage: {
-          StripePriceId: "price_storage",
-          Price: 4,
-        },
-      };
-
-      errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      errorBillingApiService.getPremiumPlan.mockResolvedValue(malformedResponse as any);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(true)); // Enable feature flag
-
-      const errorService = new DefaultSubscriptionPricingService(
-        errorBillingApiService,
-        errorConfigService,
-        i18nService,
-        logService,
-      );
-
-      errorService.getPersonalSubscriptionPricingTiers$().subscribe({
-        next: () => {
-          fail("Observable should error, not return a value");
-        },
-        error: (error: unknown) => {
-          expect(logService.error).toHaveBeenCalledWith(
-            "Failed to load personal subscription pricing tiers",
-            testError,
-          );
-          expect(error).toEqual(testError);
-          done();
-        },
-      });
-    });
   });
 
   describe("Observable behavior and caching", () => {
@@ -993,62 +964,75 @@ describe("DefaultSubscriptionPricingService", () => {
       expect(getPlansResponse).toHaveBeenCalledTimes(1);
     });
 
-    it("should share premium plan API response between multiple subscriptions when feature flag is enabled", () => {
-      // Create a new mock to avoid conflicts with beforeEach setup
-      const newBillingApiService = mock<BillingApiServiceAbstraction>();
-      const newConfigService = mock<ConfigService>();
-
-      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      newBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-      newConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      const getPremiumPlanSpy = jest.spyOn(newBillingApiService, "getPremiumPlan");
-
-      // Create a new service instance with the feature flag enabled
-      const newService = new DefaultSubscriptionPricingService(
-        newBillingApiService,
-        newConfigService,
-        i18nService,
-        logService,
-      );
+    it("should share premium plan API response between multiple subscriptions", () => {
+      const getPremiumPlanSpy = jest.spyOn(billingApiService, "getPremiumPlan");
 
       // Subscribe to the premium pricing tier multiple times
-      newService.getPersonalSubscriptionPricingTiers$().subscribe();
-      newService.getPersonalSubscriptionPricingTiers$().subscribe();
+      service.getPersonalSubscriptionPricingTiers$().subscribe();
+      service.getPersonalSubscriptionPricingTiers$().subscribe();
 
       // API should only be called once due to shareReplay on premiumPlanResponse$
       expect(getPremiumPlanSpy).toHaveBeenCalledTimes(1);
     });
+  });
 
-    it("should use hardcoded premium price when feature flag is disabled", (done) => {
-      // Create a new mock to test from scratch
-      const newBillingApiService = mock<BillingApiServiceAbstraction>();
-      const newConfigService = mock<ConfigService>();
+  describe("Self-hosted environment behavior", () => {
+    it("should not call API for self-hosted environment", () => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
 
-      newBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
-      newBillingApiService.getPremiumPlan.mockResolvedValue({
-        seat: { price: 999 }, // Different price to verify hardcoded value is used
-        storage: { price: 999 },
-      } as PremiumPlanResponse);
-      newConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      const getPlansSpy = jest.spyOn(selfHostedBillingApiService, "getPlans");
+      const getPremiumPlanSpy = jest.spyOn(selfHostedBillingApiService, "getPremiumPlan");
 
-      // Create a new service instance with the feature flag disabled
-      const newService = new DefaultSubscriptionPricingService(
-        newBillingApiService,
-        newConfigService,
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
         i18nService,
         logService,
+        selfHostedEnvironmentService,
       );
 
-      // Subscribe with feature flag disabled
-      newService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
-        const premiumTier = tiers.find(
-          (tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium,
-        );
+      // Trigger subscriptions by calling the methods
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe();
+      selfHostedService.getBusinessSubscriptionPricingTiers$().subscribe();
+      selfHostedService.getDeveloperSubscriptionPricingTiers$().subscribe();
 
-        // Should use hardcoded value of 10, not the API response value of 999
-        expect(premiumTier!.passwordManager.annualPrice).toBe(10);
-        expect(premiumTier!.passwordManager.annualPricePerAdditionalStorageGB).toBe(4);
+      // API should not be called for self-hosted environments
+      expect(getPlansSpy).not.toHaveBeenCalled();
+      expect(getPremiumPlanSpy).not.toHaveBeenCalled();
+    });
+
+    it("should return valid tier structure with undefined prices for self-hosted", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        expect(tiers).toHaveLength(2); // Premium and Families
+
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+        expect(premiumTier).toBeDefined();
+        expect(premiumTier?.passwordManager.annualPrice).toBeUndefined();
+        expect(premiumTier?.passwordManager.annualPricePerAdditionalStorageGB).toBeUndefined();
+        expect(premiumTier?.passwordManager.providedStorageGB).toBeUndefined();
+        expect(premiumTier?.passwordManager.features).toBeDefined();
+        expect(premiumTier?.passwordManager.features.length).toBeGreaterThan(0);
+
         done();
       });
     });

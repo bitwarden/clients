@@ -342,7 +342,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       &.ng-option-selected.ng-option-marked {
         color: $ng-select-dropdown-optgroup-marked;
         background-color: $ng-select-selected;
-        font-weight: 600;
+        font-weight: 500;
       }
     }
     .ng-option {
@@ -356,7 +356,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       &.ng-option-selected.ng-option-marked {
         color: $ng-select-selected-text;
         .ng-option-label {
-          font-weight: 600;
+          font-weight: 500;
         }
       }
       &.ng-option-marked {

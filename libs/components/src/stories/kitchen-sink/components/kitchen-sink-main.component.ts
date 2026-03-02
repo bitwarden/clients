@@ -4,9 +4,9 @@ import { Component, signal } from "@angular/core";
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-import { KitchenSinkForm } from "./kitchen-sink-form.component";
-import { KitchenSinkTable } from "./kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
+import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
+import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -83,7 +83,7 @@ import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
     </bit-dialog>
   `,
 })
-class KitchenSinkDialog {
+class KitchenSinkDialogComponent {
   constructor(public dialogRef: DialogRef) {}
 }
 
@@ -91,7 +91,12 @@ class KitchenSinkDialog {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-main",
-  imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
+  imports: [
+    KitchenSinkSharedModule,
+    KitchenSinkTableComponent,
+    KitchenSinkToggleListComponent,
+    KitchenSinkFormComponent,
+  ],
   template: `
     <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
 
@@ -107,13 +112,12 @@ class KitchenSinkDialog {
 
     <div class="tw-my-6">
       <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink linkType="primary" href="#">This is a link</a>
+      <a bitLink href="#">This is a link</a>
       <p bitTypography="body1" class="tw-inline">
         &nbsp;and this is a link button popover trigger:&nbsp;
       </p>
       <button
         bitLink
-        linkType="primary"
         [bitPopoverTriggerFor]="myPopover"
         #triggerRef="popoverTrigger"
         type="button"
@@ -167,7 +171,7 @@ class KitchenSinkDialog {
       </bit-tab>
     </bit-tab-group>
 
-    <bit-popover [title]="'Educational Popover'" #myPopover>
+    <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
       <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
         <li>Help center</li>
@@ -182,11 +186,11 @@ export class KitchenSinkMainComponent {
   protected readonly drawerOpen = signal(false);
 
   openDialog() {
-    this.dialogService.open(KitchenSinkDialog);
+    this.dialogService.open(KitchenSinkDialogComponent);
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialog);
+    this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   navItems = [

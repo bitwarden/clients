@@ -1,3 +1,5 @@
+# Bitwarden Web App
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/bitwarden/brand/main/screenshots/web-vault.png" alt="" width="600" height="358" />
 </p>

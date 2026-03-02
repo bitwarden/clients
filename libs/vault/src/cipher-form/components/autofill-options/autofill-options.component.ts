@@ -140,9 +140,9 @@ export class AutofillOptionsComponent implements OnInit {
     this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
       // Disable adding new URIs when the cipher form is disabled
       if (status === "disabled") {
-        this.autofillOptionsForm.disable();
+        this.autofillOptionsForm.disable({ emitEvent: false });
       } else if (!this.isPartialEdit) {
-        this.autofillOptionsForm.enable();
+        this.autofillOptionsForm.enable({ emitEvent: false });
       }
     });
   }

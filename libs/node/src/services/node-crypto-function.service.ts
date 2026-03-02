@@ -4,6 +4,7 @@ import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 export class NodeCryptoFunctionService implements CryptoFunctionService {
   pbkdf2(
@@ -205,72 +207,34 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(this.toUint8Buffer(decBuf));
   }
 
-  rsaEncrypt(
+  async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    if (algorithm === "sha256") {
-      throw new Error("Node crypto does not support RSA-OAEP SHA-256");
-    }
-
-    const pem = this.toPemPublicKey(publicKey);
-    const decipher = crypto.publicEncrypt(pem, this.toNodeBuffer(data));
-    return Promise.resolve(this.toUint8Buffer(decipher));
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_encrypt_data(data, publicKey);
   }
 
-  rsaDecrypt(
+  async rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    if (algorithm === "sha256") {
-      throw new Error("Node crypto does not support RSA-OAEP SHA-256");
-    }
-
-    const pem = this.toPemPrivateKey(privateKey);
-    const decipher = crypto.privateDecrypt(pem, this.toNodeBuffer(data));
-    return Promise.resolve(this.toUint8Buffer(decipher));
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_decrypt_data(data, privateKey);
   }
 
   async rsaExtractPublicKey(privateKey: Uint8Array): Promise<UnsignedPublicKey> {
-    const privateKeyByteString = Utils.fromBufferToByteString(privateKey);
-    const privateKeyAsn1 = forge.asn1.fromDer(privateKeyByteString);
-    const forgePrivateKey: any = forge.pki.privateKeyFromAsn1(privateKeyAsn1);
-    const forgePublicKey = (forge.pki as any).setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e);
-    const publicKeyAsn1 = forge.pki.publicKeyToAsn1(forgePublicKey);
-    const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).data;
-    const publicKeyArray = Utils.fromByteStringToArray(publicKeyByteString);
-    return publicKeyArray as UnsignedPublicKey;
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_extract_public_key(privateKey) as UnsignedPublicKey;
   }
 
-  async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[UnsignedPublicKey, Uint8Array]> {
-    return new Promise<[UnsignedPublicKey, Uint8Array]>((resolve, reject) => {
-      forge.pki.rsa.generateKeyPair(
-        {
-          bits: length,
-          workers: -1,
-          e: 0x10001, // 65537
-        },
-        (error, keyPair) => {
-          if (error != null) {
-            reject(error);
-            return;
-          }
-
-          const publicKeyAsn1 = forge.pki.publicKeyToAsn1(keyPair.publicKey);
-          const publicKeyByteString = forge.asn1.toDer(publicKeyAsn1).getBytes();
-          const publicKey = Utils.fromByteStringToArray(publicKeyByteString);
-
-          const privateKeyAsn1 = forge.pki.privateKeyToAsn1(keyPair.privateKey);
-          const privateKeyPkcs8 = forge.pki.wrapRsaPrivateKey(privateKeyAsn1);
-          const privateKeyByteString = forge.asn1.toDer(privateKeyPkcs8).getBytes();
-          const privateKey = Utils.fromByteStringToArray(privateKeyByteString);
-
-          resolve([publicKey as UnsignedPublicKey, privateKey]);
-        },
-      );
-    });
+  async rsaGenerateKeyPair(_length: 2048): Promise<[UnsignedPublicKey, Uint8Array]> {
+    await SdkLoadService.Ready;
+    const privateKey = PureCrypto.rsa_generate_keypair();
+    const publicKey = await this.rsaExtractPublicKey(privateKey);
+    return [publicKey, privateKey];
   }
 
   aesGenerateKey(bitLength: 128 | 192 | 256 | 512): Promise<CsprngArray> {

@@ -1,6 +1,8 @@
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
+import { EventSecurity } from "../utils/event-security";
+
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
@@ -86,17 +88,33 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
 }
 
 /**
- * Handles the window message event.
+ * Handles window message events, validating source and extracting referrer for security.
  *
  * @param event - The window message event
  */
 function handleWindowMessageEvent(event: MessageEvent) {
-  const { source, data } = event;
-  if (source !== window || !data?.command) {
+  const { source, data, origin } = event;
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   */
+  if (!EventSecurity.isEventTrusted(event) || source !== window || !data?.command) {
     return;
   }
 
-  const referrer = source.location.hostname;
+  // Extract hostname from event.origin for secure referrer validation in background script
+  let referrer: string;
+  // Sandboxed iframe or opaque origin support
+  if (origin === "null") {
+    referrer = "null";
+  } else {
+    try {
+      const originUrl = new URL(origin);
+      referrer = originUrl.hostname;
+    } catch {
+      return;
+    }
+  }
+
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });

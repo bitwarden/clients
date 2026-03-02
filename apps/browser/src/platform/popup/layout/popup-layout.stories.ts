@@ -29,11 +29,9 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
-  SkeletonComponent,
-  SkeletonTextComponent,
-  SkeletonGroupComponent,
 } from "@bitwarden/components";
 
+import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 import { PopupFooterComponent } from "./popup-footer.component";
@@ -46,7 +44,7 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 @Component({
   selector: "extension-container",
   template: `
-    <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+    <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
     </div>
   `,
@@ -366,9 +364,7 @@ export default {
         SectionComponent,
         IconButtonModule,
         BadgeModule,
-        SkeletonComponent,
-        SkeletonTextComponent,
-        SkeletonGroupComponent,
+        VaultLoadingSkeletonComponent,
       ],
       providers: [
         {
@@ -634,21 +630,9 @@ export const SkeletonLoading: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-tab-navigation>
-          <popup-page>
+          <popup-page hideOverflow>
             <popup-header slot="header" pageTitle="Page Header"></popup-header>
-            <div>
-              <div class="tw-sr-only" role="status">Loading...</div>
-              <div class="tw-flex tw-flex-col tw-gap-4">
-                <bit-skeleton-text class="tw-w-1/3"></bit-skeleton-text>
-                @for (num of data; track $index) {
-                <bit-skeleton-group>
-                  <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
-                  <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
-                </bit-skeleton-group>
-                <bit-skeleton class="tw-w-full tw-h-[1px]"></bit-skeleton>
-                }
-              </div>
-            </div>
+            <vault-loading-skeleton></vault-loading-skeleton>
           </popup-page>
         </popup-tab-navigation>
       </extension-container>
@@ -694,7 +678,7 @@ export const WidthOptions: Story = {
     template: /* HTML */ `
       <div class="tw-flex tw-flex-col tw-gap-4 tw-text-main">
         <div>Default:</div>
-        <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
           <mock-vault-page></mock-vault-page>
         </div>
         <div>Wide:</div>

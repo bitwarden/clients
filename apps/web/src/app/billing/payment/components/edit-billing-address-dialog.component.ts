@@ -41,7 +41,7 @@ type DialogResult =
   template: `
     <form [formGroup]="formGroup" [bitSubmit]="submit">
       <bit-dialog>
-        <span bitDialogTitle class="tw-font-semibold">
+        <span bitDialogTitle class="tw-font-medium">
           {{ "editBillingAddress" | i18n }}
         </span>
         <div bitDialogContent>

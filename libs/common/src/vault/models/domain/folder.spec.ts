@@ -1,8 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeEncString,
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -15,6 +21,7 @@ describe("Folder", () => {
       name: "encName",
       revisionDate: "2022-01-31T12:00:00.000Z",
     };
+    mockContainerService();
   });
 
   it("Convert", () => {
@@ -33,12 +40,36 @@ describe("Folder", () => {
     folder.name = mockEnc("encName");
     folder.revisionDate = new Date("2022-01-31T12:00:00.000Z");
 
-    const view = await folder.decrypt();
+    const view = await folder.decrypt(null);
 
     expect(view).toEqual({
       id: "id",
       name: "encName",
       revisionDate: new Date("2022-01-31T12:00:00.000Z"),
+    });
+  });
+
+  describe("constructor", () => {
+    it("initializes properties from FolderData", () => {
+      const revisionDate = new Date("2022-08-04T01:06:40.441Z");
+      const folder = new Folder({
+        id: "id",
+        name: "name",
+        revisionDate: revisionDate.toISOString(),
+      });
+
+      expect(folder.id).toBe("id");
+      expect(folder.revisionDate).toEqual(revisionDate);
+      expect(folder.name).toBeInstanceOf(EncString);
+      expect((folder.name as EncString).encryptedString).toBe("name");
+    });
+
+    it("initializes empty properties when no FolderData is provided", () => {
+      const folder = new Folder();
+
+      expect(folder.id).toBe("");
+      expect(folder.name).toBeInstanceOf(EncString);
+      expect(folder.revisionDate).toBeInstanceOf(Date);
     });
   });
 
@@ -50,17 +81,13 @@ describe("Folder", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
         revisionDate: revisionDate.toISOString(),
-        name: "name" as EncryptedString,
+        name: "name",
         id: "id",
       });
 
-      const expected = {
-        revisionDate: revisionDate,
-        name: "name_fromJSON",
-        id: "id",
-      };
-
-      expect(actual).toMatchObject(expected);
+      expect(actual?.id).toBe("id");
+      expect(actual?.revisionDate).toEqual(revisionDate);
+      expect(actual?.name).toBe("name_fromJSON");
     });
   });
 
@@ -82,9 +109,7 @@ describe("Folder", () => {
 
       const view = await folder.decryptWithKey(key, encryptService);
 
-      expect(view).toEqual({
-        name: "encName",
-      });
+      expect(view.name).toBe("encName");
     });
 
     it("assigns the folder id and revision date", async () => {

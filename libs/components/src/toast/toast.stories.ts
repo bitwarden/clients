@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 

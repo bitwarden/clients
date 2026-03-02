@@ -5,7 +5,8 @@ import { Observable } from "rxjs";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
-import { isBrowserSafariApi } from "@bitwarden/platform";
+import { LogService } from "@bitwarden/logging";
+import { isBrowserSafariApi, urlOriginsMatch } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
@@ -30,6 +31,55 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Returns `true` if the message sender appears to originate from within this extension.
+   *
+   * Returns `false` when:
+   * - `sender` is absent or has no `origin` property
+   * - The extension's own URL cannot be determined at runtime
+   * - The sender's origin does not match the extension's origin (compared by scheme, host, and port;
+   *   senders without a host such as `file:` or `data:` URLs are always rejected)
+   * - The message comes from a sub-frame rather than the top-level frame
+   *
+   * Note: this is a best-effort check that relies on the browser correctly populating `sender.origin`.
+   *
+   * @param sender - The message sender to validate. `undefined` or a sender without `origin` returns `false`.
+   * @param logger - Optional logger; rejections are reported at `warning` level, acceptance at `info`.
+   * @returns `true` if the sender appears to be internal to the extension; `false` otherwise.
+   */
+  static senderIsInternal(
+    sender: chrome.runtime.MessageSender | undefined,
+    logger?: LogService,
+  ): boolean {
+    if (!sender?.origin) {
+      logger?.warning("[BrowserApi] Message sender has no origin");
+      return false;
+    }
+    // Empty path yields the extension's base URL; coalesce to empty string so the guard below fires on a missing runtime.
+    const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
+
+    if (!extensionUrl) {
+      logger?.warning("[BrowserApi] Unable to determine extension URL");
+      return false;
+    }
+
+    if (!urlOriginsMatch(extensionUrl, sender.origin)) {
+      logger?.warning(
+        `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
+      );
+      return false;
+    }
+
+    // frameId is absent for popups, so use an 'in' check rather than direct comparison.
+    if ("frameId" in sender && sender.frameId !== 0) {
+      logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
+      return false;
+    }
+
+    logger?.info("[BrowserApi] Message sender appears to be internal");
+    return true;
   }
 
   /**
@@ -220,11 +270,11 @@ export class BrowserApi {
   static async closeTab(tabId: number): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.remove(tabId).catch((error) => {
+        await browser.tabs.remove(tabId).catch((error) => {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
-        chrome.tabs.remove(tabId).catch((error) => {
+        await chrome.tabs.remove(tabId).catch((error) => {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       }
@@ -240,7 +290,7 @@ export class BrowserApi {
   static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+        await browser.tabs.update(tabId, { url: url.href }).catch((error) => {
           throw new Error("Failed to navigate tab to URL: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
@@ -512,7 +562,8 @@ export class BrowserApi {
    * @param event - The event in which to remove the listener from.
    * @param callback - The callback you want removed from the event.
    */
-  static removeListener<T extends (...args: readonly unknown[]) => unknown>(
+  // Chrome's Event.removeListener expects callback args as `any[]` to align with its internal event typings.
+  static removeListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {

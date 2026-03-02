@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,7 +12,7 @@ import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { SemanticLogger, ifEnabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { awaitAsync } from "../../../../../common/spec";
+import { awaitAsync, mockAccountInfoWith } from "../../../../../common/spec";
 import {
   Algorithm,
   CredentialAlgorithm,
@@ -56,9 +60,10 @@ describe("DefaultCredentialGeneratorService", () => {
     // Use a hard-coded value for mockAccount
     account = {
       id: "test-account-id" as UserId,
-      emailVerified: true,
-      email: "test@example.com",
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
     };
 
     system = {
