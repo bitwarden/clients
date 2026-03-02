@@ -58,7 +58,7 @@ export const Base: Story = {
             <bit-svg [content]="illustration" aria-hidden="true" class="tw-w-[120px]" />
           </ng-container>
           <bit-progress-bar
-            barWidth=50
+            [value]="50"
             label="File name"
             startText="50% complete"
             endText="50MB"

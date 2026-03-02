@@ -284,12 +284,12 @@ describe("StorageCardComponent", () => {
       expect(progressBar).toBeTruthy();
     });
 
-    it("should pass correct barWidth to bit-progress-bar when half storage is used", () => {
+    it("should pass correct value to bit-progress-bar when half storage is used", () => {
       setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
       expect(component.percentageUsed()).toBe(50);
     });
 
-    it("should pass correct barWidth to bit-progress-bar when storage is full", () => {
+    it("should pass correct value to bit-progress-bar when storage is full", () => {
       setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
       expect(component.percentageUsed()).toBe(100);
     });

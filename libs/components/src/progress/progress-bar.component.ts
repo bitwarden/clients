@@ -34,8 +34,8 @@ export class ProgressBarComponent {
   /* The label displayed above the progress bar */
   readonly label = input<string>();
   /* The progress amount, represented as a percentage of the progress bar that is filled */
-  readonly barWidth = input<number>(0);
-  /* The starting helper text displayed below the progress bar. Defaults to the localized "<barWidth>% complete" text */
+  readonly value = input<number>(0);
+  /* The starting helper text displayed below the progress bar. Defaults to the localized "<value>% complete" text */
   readonly startText = input<string | null>();
   /* The ending helper text displayed below the progress bar. If nothing is passed, no text is displayed in the end slot */
   readonly endText = input<string>();
@@ -47,9 +47,7 @@ export class ProgressBarComponent {
       return undefined;
     }
 
-    return (
-      this.startText() || this.i18nService.t("percentageCompleted", this.barWidth().toString())
-    );
+    return this.startText() || this.i18nService.t("percentageCompleted", this.value().toString());
   });
 
   get outerBarStyles() {

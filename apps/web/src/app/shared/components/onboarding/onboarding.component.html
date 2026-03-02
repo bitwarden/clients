@@ -2,11 +2,7 @@
   <summary class="tw-list-none tw-p-2 tw-px-4">
     <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
       <div class="tw-text-lg">{{ title }}</div>
-      <bit-progress-bar
-        class="tw-flex-1"
-        [showStartText]="false"
-        [barWidth]="barWidth"
-      ></bit-progress-bar>
+      <bit-progress-bar class="tw-flex-1" [startText]="null" [value]="value"></bit-progress-bar>
       <span *ngIf="tasks.length > 0; else spinner">
         {{ "complete" | i18n: amountCompleted : tasks.length }}
       </span>

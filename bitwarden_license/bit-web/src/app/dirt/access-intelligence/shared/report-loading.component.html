@@ -3,8 +3,8 @@
     <!-- Progress bar -->
     <div class="tw-w-64" role="progressbar" attr.aria-label="{{ 'loadingProgress' | i18n }}">
       <bit-progress-bar
-        [barWidth]="stepConfig[progressStep()].progress"
-        [showStartText]="false"
+        [value]="stepConfig[progressStep()].progress"
+        [startText]="null"
         variant="primary"
       ></bit-progress-bar>
     </div>

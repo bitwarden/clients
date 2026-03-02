@@ -8,9 +8,9 @@
   <!-- Progress Bar -->
   <div class="tw-mb-4">
     <bit-progress-bar
-      [barWidth]="percentageUsed()"
+      [value]="percentageUsed()"
       [variant]="progressBarColor()"
-      [showStartText]="false"
+      [startText]="null"
     ></bit-progress-bar>
   </div>
 
