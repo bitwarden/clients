@@ -374,7 +374,7 @@ export class LoginCommand {
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)
       await this.syncService.fullSync(true, { skipTokenRefresh: true });
 
-      // If the user's password is out of compliance, log them out and direct them to the web vault
+      // If the user's password is out of compliance, log them out and direct them to the web app.
       if (clientId == null && clientSecret == null) {
         const forceSetPasswordReason = await firstValueFrom(
           this.masterPasswordService.forceSetPasswordReason$(response.userId),
@@ -386,7 +386,7 @@ export class LoginCommand {
             /* Do nothing */
           });
           return Response.error(
-            "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web vault. You have been logged out.",
+            "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
         } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
           await this.logoutCallback();
@@ -394,7 +394,7 @@ export class LoginCommand {
             /* Do nothing */
           });
           return Response.error(
-            "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web vault. You have been logged out.",
+            "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
         }
       }
