@@ -1,12 +1,29 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { ProgressBarComponent } from "./progress-bar.component";
 
 export default {
   title: "Component Library/Progress/Progress Bar",
   component: ProgressBarComponent,
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              percentageCompleted: "__$1__% complete",
+            });
+          },
+        },
+      ],
+    }),
+  ],
   parameters: {
     design: {
       type: "figma",
