@@ -22,7 +22,7 @@
         class="tw-ms-auto tw-text-fg-sidenav-text"
         [class]="variantValue === 'tree' && !open() ? 'tw-transform tw-rotate-[90deg]' : ''"
         [bitIconButton]="toggleButtonIcon()"
-        buttonType="nav-contrast"
+        buttonType="side-nav"
         (click)="toggle($event)"
         size="small"
         [attr.aria-expanded]="open().toString()"

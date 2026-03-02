@@ -68,7 +68,7 @@ export const Default: Story = {
   }),
   args: {
     text: "Hello World",
-    icon: "bwi-filter",
+    icon: "bwi-grid",
   },
 };
 
@@ -105,7 +105,7 @@ export const WithChildButtons: Story = {
           slot="end"
           class="tw-ms-auto"
           bitIconButton="bwi-pencil-square"
-          buttonType="nav-contrast"
+          buttonType="side-nav"
           size="small"
           label="Edit"
         ></button>
@@ -114,7 +114,7 @@ export const WithChildButtons: Story = {
           slot="end"
           class="tw-ms-auto"
           bitIconButton="bwi-check"
-          buttonType="nav-contrast"
+          buttonType="side-nav"
           size="small"
           label="Confirm"
         ></button>
@@ -145,29 +145,4 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
-};
-
-export const CollapsedNavItems: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
-      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
-    `,
-  }),
-  play: async () => {
-    const toggleButton = document.querySelector(
-      "[aria-label='Toggle side navigation']",
-    ) as HTMLButtonElement;
-
-    if (toggleButton) {
-      toggleButton.click();
-    }
-  },
-  parameters: {
-    chromatic: {
-      delay: 1000,
-    },
-  },
 };
