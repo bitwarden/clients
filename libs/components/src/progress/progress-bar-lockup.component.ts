@@ -1,5 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, ChangeDetectionStrategy, contentChild, AfterViewInit } from "@angular/core";
+import {
+  Component,
+  input,
+  ChangeDetectionStrategy,
+  contentChild,
+  AfterViewInit,
+} from "@angular/core";
 
 import { TypographyModule } from "../typography";
 
