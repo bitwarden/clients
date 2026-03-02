@@ -33,10 +33,11 @@ const routes: Routes = [
       /**
        * Three-Route Matching Strategy for /user-subscription:
        *
-       * Routes are evaluated in order using canMatch guards.
+       * Routes are evaluated in order using canMatch guards. The first matching route is selected.
        *
        * 1. Feature flag ON + Self-Hosted → SelfHostedAccountSubscriptionComponent
-       * 2. Feature flag ON + Cloud-Hosted → CloudHostedAccountSubscriptionComponent
+       *    (Redirects to /premium if the user lacks a personal premium subscription)
+       * 2. Feature flag ON (fallthrough for cloud-hosted) → CloudHostedAccountSubscriptionComponent
        * 3. Default (flag OFF) → UserSubscriptionComponent
        */
       {
@@ -44,7 +45,7 @@ const routes: Routes = [
         component: SelfHostedAccountSubscriptionComponent,
         data: { titleId: "premiumMembership" },
         canMatch: [isSubscriptionPageEnabled, isSelfHosted],
-        canActivate: [hasPremiumPersonallyGuard()],
+        canActivate: [hasPremiumPersonallyGuard],
       },
       {
         path: "user-subscription",
@@ -73,12 +74,7 @@ const routes: Routes = [
         path: "premium",
         component: SelfHostedPremiumComponent,
         data: { titleId: "goPremium" },
-        canMatch: [
-          () => {
-            const platformUtilsService = inject(PlatformUtilsService);
-            return platformUtilsService.isSelfHost();
-          },
-        ],
+        canMatch: [isSelfHosted],
       },
       // Route 2: Cloud Hosted (default) -> CloudHostedPremiumComponent
       {

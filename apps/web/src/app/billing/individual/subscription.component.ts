@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { combineLatest, from, map, Observable, of, switchMap } from "rxjs";
+import { catchError, combineLatest, from, map, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { AccountBillingClient } from "../clients/account-billing.client";
@@ -28,6 +29,7 @@ export class SubscriptionComponent implements OnInit {
     accountService: AccountService,
     configService: ConfigService,
     accountBillingClient: AccountBillingClient,
+    logService: LogService,
   ) {
     this.showSubscriptionPageLink$ = combineLatest([
       configService.getFeatureFlag$(FeatureFlag.PM29594_UpdateIndividualSubscriptionPage),
@@ -40,6 +42,10 @@ export class SubscriptionComponent implements OnInit {
         if (isFeatureFlagEnabled && !this.platformUtilsService.isSelfHost()) {
           return from(accountBillingClient.getSubscription()).pipe(
             map((subscription) => !!subscription),
+            catchError((error: unknown) => {
+              logService.error("Failed to fetch subscription for tab link", error);
+              return of(false);
+            }),
           );
         }
         return billingAccountProfileStateService.hasPremiumPersonally$(account.id);

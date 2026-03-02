@@ -47,14 +47,11 @@ export class SelfHostedAccountSubscriptionComponent {
 
   readonly isActive = computed<boolean>(() => {
     const expiration = this.expiration();
-    if (!expiration || expiration.trim() === "") {
-      return true;
+    if (!expiration) {
+      return false;
     }
     const expirationDate = new Date(expiration);
-    if (isNaN(expirationDate.getTime())) {
-      return true;
-    }
-    return expirationDate > new Date();
+    return !isNaN(expirationDate.getTime()) && expirationDate > new Date();
   });
 
   readonly cloudSubscriptionUrl = toSignal(
