@@ -29,7 +29,7 @@ import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/plat
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
-import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
+import { getPhishingResources, PhishingResourceType, stripProtocol } from "../phishing-resources";
 
 import { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
@@ -171,9 +171,9 @@ export class PhishingDataService {
     const resource = getPhishingResources(this.resourceType);
 
     try {
-      // Quick lookup: check direct presence of href in IndexedDB
+      // Quick lookup: check direct presence of href in IndexedDB (protocol-stripped)
       // Also check without trailing slash since browsers add it but DB entries may not have it
-      const urlHref = url.href;
+      const urlHref = stripProtocol(url.href);
       const urlWithoutTrailingSlash = urlHref.endsWith("/") ? urlHref.slice(0, -1) : null;
 
       let hasUrl = await this.indexedDbService.hasUrl(urlHref);
