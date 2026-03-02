@@ -24,7 +24,7 @@ import { Option } from "../../select/option";
 import { SharedModule } from "../../shared";
 import { BitwardenIcon } from "../../shared/icon";
 import { TypographyModule } from "../../typography";
-import { BaseChipDirective, ChipSize } from "../shared/base-chip.directive";
+import { BaseChipDirective } from "../shared/base-chip.directive";
 import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
@@ -64,15 +64,21 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   host: {
     "[class]": "classList()",
   },
+  hostDirectives: [
+    {
+      directive: BaseChipDirective,
+      inputs: ["size", "maxWidthClass", "fullWidth"],
+    },
+  ],
 })
 export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
   readonly menu = viewChild(MenuComponent);
   readonly menuItems = viewChildren(MenuItemComponent);
   readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
   readonly menuTrigger = viewChild(MenuTriggerForDirective);
-  readonly size = input<ChipSize>("large");
 
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
@@ -99,9 +105,11 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   readonly fullWidth = input(undefined, { transform: booleanAttribute });
 
   /** Computed class list for host element based on fullWidth state */
-  protected readonly classList = computed(() =>
-    this.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block",
-  );
+  protected readonly classList = computed(() => {
+    const baseClasses = "!tw-ps-0 !tw-pb-0";
+    const widthClasses = this.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block";
+    return `${baseClasses} ${widthClasses}`;
+  });
 
   /** Tree constructed from `this.options` */
   private rootTree?: ChipFilterOption<T> | null;
@@ -110,6 +118,13 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private pendingValue?: T;
 
   constructor() {
+    this.baseChip.variantState.set("subtle");
+
+    // Sync component's disabled state to BaseChipDirective
+    effect(() => {
+      this.baseChip.disabledState.set(this.disabled());
+    });
+
     // Initialize the root tree whenever options change
     effect(() => {
       const currentSelection = this.selectedOption;
@@ -132,6 +147,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
         this.pendingValue = undefined;
         this.cdr.markForCheck();
       }
+
+      // Update selected state based on whether an option is selected
+      this.baseChip.selectedState.set(!!this.selectedOption);
     });
 
     // Focus the first menu item when menuItems change (e.g., navigating submenus)
@@ -191,6 +209,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   protected selectOption(option: ChipFilterOption<T>, _event: MouseEvent) {
     this.selectedOption = option;
+    this.baseChip.selectedState.set(true);
     this.onChange(option);
   }
 
@@ -206,6 +225,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   protected clear() {
     this.renderedOptions = this.rootTree;
     this.selectedOption = null;
+    this.baseChip.selectedState.set(false);
     this.onChange(null);
   }
 
@@ -291,6 +311,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
     }
 
     this.selectedOption = this.findOption(this.rootTree, obj);
+    this.baseChip.selectedState.set(!!this.selectedOption);
     this.setOrResetRenderedOptions();
     // OnPush components require manual change detection when writeValue() is called
     // externally by Angular forms, as the framework doesn't automatically trigger CD
