@@ -89,6 +89,14 @@ export class PremiumOrgUpgradeService {
       throw new Error("Billing address information is incomplete");
     }
 
+    if (
+      billingAddress?.country != "US" &&
+      (billingAddress?.taxId == null || billingAddress?.taxId?.value == "") &&
+      tier !== PersonalSubscriptionPricingTierIds.Families
+    ) {
+      throw new Error("Tax ID is required for non-US billing addresses");
+    }
+
     const productTier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(tier);
     const encryptionData = await this.generateOrganizationEncryptionData(account.id);
 
