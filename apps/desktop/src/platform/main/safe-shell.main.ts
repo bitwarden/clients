@@ -10,22 +10,25 @@ export class SafeShell {
   constructor(private readonly logService: LogService) {}
 
   /**
-   * Opens the given URL with the default system handler (e.g. browser) if it is considered safe, otherwise logs a warning.
-   * This is the static version of the method, which can be used in contexts where an instance of SafeShell is not available.
-   * In those cases, a LogService instance must be passed in to allow logging warnings for unsafe URLs.
+   * Open the given external protocol URL in the desktop's default manner if it is considered safe. (For example, mailto: URLs in the user's default mail agent).
    */
-  static openExternal(url: string, logService: LogService): void {
+  static openExternal(
+    url: string,
+    logService: LogService,
+    options?: Electron.OpenExternalOptions,
+  ): void {
     if (SafeUrls.canLaunch(url)) {
-      void shell.openExternal(url);
+      // eslint-disable-next-line no-restricted-syntax
+      void shell.openExternal(url, options);
     } else {
       logService.warning(`Blocked attempt to open unsafe external url: ${url}`);
     }
   }
 
   /**
-   * Opens the given URL with the default system handler (e.g. browser) if it is considered safe, otherwise logs a warning.
+   * Open the given external protocol URL in the desktop's default manner if it is considered safe. (For example, mailto: URLs in the user's default mail agent).
    */
-  openExternal(url: string): void {
-    SafeShell.openExternal(url, this.logService);
+  openExternal(url: string, options?: Electron.OpenExternalOptions): void {
+    SafeShell.openExternal(url, this.logService, options);
   }
 }
