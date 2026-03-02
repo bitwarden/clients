@@ -50,7 +50,8 @@ describe("ChipFilterComponent", () => {
   const getBitMenuPanel = () => document.querySelector(".bit-menu-panel");
 
   const getChipButton = () =>
-    fixture.debugElement.query(By.css("[data-fvw-target]"))?.nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      ?.nativeElement as HTMLButtonElement;
 
   const getClearButton = () =>
     fixture.debugElement.query(By.css('button[aria-label^="Remove"]'))
@@ -490,7 +491,8 @@ describe("ChipFilterComponentWithDynamicOptions", () => {
   let fixture: ComponentFixture<TestAppWithDynamicOptionsComponent>;
 
   const getChipButton = () =>
-    fixture.debugElement.query(By.css("[data-fvw-target]"))?.nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      ?.nativeElement as HTMLButtonElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
