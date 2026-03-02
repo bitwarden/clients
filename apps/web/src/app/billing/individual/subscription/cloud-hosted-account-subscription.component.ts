@@ -50,7 +50,7 @@ import {
 } from "../upgrade/premium-org-upgrade-dialog/premium-org-upgrade-dialog.component";
 
 @Component({
-  templateUrl: "./account-subscription.component.html",
+  templateUrl: "./cloud-hosted-account-subscription.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdditionalOptionsCardComponent,
@@ -62,7 +62,7 @@ import {
   ],
   providers: [AccountBillingClient],
 })
-export class AccountSubscriptionComponent {
+export class CloudHostedAccountSubscriptionComponent {
   private accountService = inject(AccountService);
   private activatedRoute = inject(ActivatedRoute);
   private accountBillingClient = inject(AccountBillingClient);
