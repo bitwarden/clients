@@ -96,7 +96,7 @@ describe("ChipFilterComponent", () => {
       testApp.fullWidth.set(true);
       fixture.detectChanges();
 
-      expect(component.fullWidth()).toBe(true);
+      expect(component.baseChip.fullWidth()).toBe(true);
     });
 
     it("should update available options when they change", () => {
@@ -482,6 +482,7 @@ class TestAppComponent {
       ],
     },
   ]);
+
   readonly disabled = signal(false);
   readonly fullWidth = signal(false);
 }

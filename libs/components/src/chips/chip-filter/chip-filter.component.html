@@ -63,7 +63,7 @@
           {{ "viewItemsIn" | i18n: renderedOptions.label }}
         </button>
       }
-      @for (option of renderedOptions.children; track option) {
+      @for (option of renderedOptions.children; track option.value) {
         <button
           type="button"
           bitMenuItem
