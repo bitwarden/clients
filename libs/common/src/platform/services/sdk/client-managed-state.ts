@@ -37,7 +37,7 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   async get(id: string): Promise<SdkType | null> {
-    const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+    const prov = this.getUserState();
     const data = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
     const element = data[id];
     if (!element) {
@@ -47,13 +47,13 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   async list(): Promise<SdkType[]> {
-    const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+    const prov = this.getUserState();
     const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
     return Object.values(elements).map((element) => this.mapper.toSdk(element));
   }
 
   async set(id: string, value: SdkType): Promise<void> {
-    const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+    const prov = this.getUserState();
     const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
     elements[id] = this.mapper.fromSdk(value);
     await prov.update(() => elements);
@@ -70,7 +70,7 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   async remove(id: string): Promise<void> {
-    const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+    const prov = this.getUserState();
     const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
     if (!elements[id]) {
       return;
