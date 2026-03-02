@@ -218,9 +218,11 @@ export class AutoConfirmMemberNotification extends BaseResponse {
   userId: string;
   targetUserId: string;
   organizationId: string;
+  targetOrganizationUserId: string;
 
   constructor(response: any) {
     super(response);
+    this.targetOrganizationUserId = this.getResponseProperty("TargetOrganizationUserId");
     this.targetUserId = this.getResponseProperty("TargetUserId");
     this.userId = this.getResponseProperty("UserId");
     this.organizationId = this.getResponseProperty("OrganizationId");

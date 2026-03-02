@@ -521,6 +521,7 @@ describe("NotificationsService", () => {
           payload: {
             UserId: mockUser1,
             TargetUserId: "target-user-id",
+            TargetOrganizationUserId: "target-org-user-id",
             OrganizationId: "org-id",
           },
           contextId: "different-app-id",
@@ -531,6 +532,7 @@ describe("NotificationsService", () => {
         expect(autoConfirmService.autoConfirmUser).toHaveBeenCalledWith(
           mockUser1,
           "target-user-id",
+          "target-org-user-id",
           "org-id",
         );
       });
