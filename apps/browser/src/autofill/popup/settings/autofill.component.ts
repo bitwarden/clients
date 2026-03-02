@@ -134,6 +134,7 @@ export class AutofillComponent implements OnInit {
     );
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
+  protected showClipboardNotificationThisSession = false;
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -361,15 +362,16 @@ export class AutofillComponent implements OnInit {
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
 
-    // Auto-dismiss clipboard notification when user views the autofill page
-    this.showClipboardNotification$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter((shouldShow) => shouldShow === true),
-      )
-      .subscribe(() => {
-        void this.dismissClipboardNotification();
-      });
+    // Show clipboard notification on first visit, mark as dismissed for future visits
+    const shouldShowNotification = await firstValueFrom(this.showClipboardNotification$);
+
+    if (shouldShowNotification) {
+      // Show it for THIS page session
+      this.showClipboardNotificationThisSession = true;
+
+      // Mark as dismissed in storage (so it won't show on future visits)
+      await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
+    }
   }
 
   get spotlightButtonIcon() {
@@ -635,6 +637,13 @@ export class AutofillComponent implements OnInit {
   }
 
   async dismissClipboardNotification() {
+    this.showClipboardNotificationThisSession = false;
     await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
+
+    // Scroll to the clear clipboard field
+    setTimeout(() => {
+      const element = document.getElementById("clearClipboardField");
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   }
 }

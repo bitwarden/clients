@@ -18,19 +18,19 @@
         ></bit-spotlight>
       </div>
     }
-    @if (showClipboardNotification$ | async) {
+    @if (showClipboardNotificationThisSession) {
       <div class="tw-mb-4">
         <bit-callout type="info" [title]="'clipboardSettingUpdated' | i18n">
           <p>{{ "clipboardSettingUpdatedMessage" | i18n }}</p>
-          <a
+          <button
             bitLink
-            href="#clearClipboardField"
+            type="button"
+            startIcon="bwi-angle-down"
             (click)="dismissClipboardNotification()"
-            class="tw-inline-flex tw-items-center tw-mt-2"
+            class="tw-mt-2"
           >
-            <i class="bwi bwi-angle-down tw-mr-1" aria-hidden="true"></i>
             {{ "jumpToSetting" | i18n }}
-          </a>
+          </button>
         </bit-callout>
       </div>
     }
