@@ -77,7 +77,7 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover]",
+      "tw-inline-block tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover]",
     "[class]": "sizeClass()",
     "[style.--avatar-bg]": "avatarColors().bg",
     "[style.--avatar-bg-hover]": "avatarColors().bgHover",
