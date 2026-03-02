@@ -15,7 +15,6 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -51,7 +50,6 @@ export class LoginCommand {
 
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
-    protected authService: AuthService,
     protected twoFactorApiService: TwoFactorApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,

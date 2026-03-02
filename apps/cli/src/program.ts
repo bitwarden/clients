@@ -174,7 +174,6 @@ export class Program extends BaseProgram {
           await this.exitIfAuthed();
           const command = new LoginCommand(
             this.serviceContainer.loginStrategyService,
-            this.serviceContainer.authService,
             this.serviceContainer.twoFactorApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,

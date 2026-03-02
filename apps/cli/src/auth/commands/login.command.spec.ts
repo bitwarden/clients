@@ -8,7 +8,6 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -83,7 +82,6 @@ describe("LoginCommand", () => {
   let command: LoginCommand;
 
   let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
-  let authService: MockProxy<AuthService>;
   let twoFactorApiService: MockProxy<TwoFactorApiService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -117,7 +115,6 @@ describe("LoginCommand", () => {
 
     // Create mocks
     loginStrategyService = mock<LoginStrategyServiceAbstraction>();
-    authService = mock<AuthService>();
     twoFactorApiService = mock<TwoFactorApiService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
     environmentService = mock<EnvironmentService>();
@@ -148,7 +145,6 @@ describe("LoginCommand", () => {
 
     command = new LoginCommand(
       loginStrategyService,
-      authService,
       twoFactorApiService,
       cryptoFunctionService,
       environmentService,
