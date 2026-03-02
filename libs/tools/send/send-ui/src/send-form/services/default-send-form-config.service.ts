@@ -1,18 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 
+import { SendPolicyService } from "../../services/send-policy.service";
 import {
   SendFormConfig,
   SendFormConfigService,
@@ -24,10 +19,8 @@ import {
  */
 @Injectable()
 export class DefaultSendFormConfigService implements SendFormConfigService {
-  private policyService: PolicyService = inject(PolicyService);
   private sendService: SendService = inject(SendService);
-  private accountService: AccountService = inject(AccountService);
-  private configService: ConfigService = inject(ConfigService);
+  private sendPolicyService: SendPolicyService = inject(SendPolicyService);
 
   async buildConfig(
     mode: SendFormMode,
@@ -46,19 +39,8 @@ export class DefaultSendFormConfigService implements SendFormConfigService {
     };
   }
 
-  private areSendsEnabled$ = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-    this.accountService.activeAccount$.pipe(getUserId),
-  ]).pipe(
-    switchMap(([sendControlsEnabled, userId]) =>
-      sendControlsEnabled
-        ? this.policyService
-            .policiesByType$(PolicyType.SendControls, userId)
-            .pipe(map((policies) => !policies?.some((p) => p.data?.disableSend === true)))
-        : this.policyService
-            .policyAppliesToUser$(PolicyType.DisableSend, userId)
-            .pipe(map((p) => !p)),
-    ),
+  private areSendsEnabled$ = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
   );
 
   private getSend(id?: SendId) {

@@ -2,13 +2,9 @@
 // @ts-strict-ignore
 import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
+import { combineLatest, lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -29,6 +25,7 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -75,8 +72,7 @@ export class SendV2Component {
 
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
+  private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -104,21 +100,9 @@ export class SendV2Component {
     initialValue: "",
   });
 
-  protected readonly disableSend = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-      this.accountService.activeAccount$.pipe(getUserId),
-    ]).pipe(
-      switchMap(([sendControlsEnabled, userId]) =>
-        sendControlsEnabled
-          ? this.policyService
-              .policiesByType$(PolicyType.SendControls, userId)
-              .pipe(map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false))
-          : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-    ),
-    { initialValue: false },
-  );
+  protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$, {
+    initialValue: false,
+  });
 
   protected readonly listState = toSignal(
     combineLatest([

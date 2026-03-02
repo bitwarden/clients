@@ -1,18 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, inject, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, switchMap, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   TypographyModule,
@@ -26,8 +19,8 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
+import { SendPolicyService, SendFormConfig } from "@bitwarden/send-ui";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -70,6 +63,8 @@ export class SendOptionsComponent implements OnInit {
     hideEmail: [false as boolean],
   });
 
+  private sendPolicyService = inject(SendPolicyService);
+
   get shouldShowCount(): boolean {
     return this.config.mode === "edit" && this.sendOptionsForm.value.maxAccessCount !== null;
   }
@@ -85,32 +80,11 @@ export class SendOptionsComponent implements OnInit {
   constructor(
     private sendFormContainer: SendFormContainer,
     private formBuilder: FormBuilder,
-    private policyService: PolicyService,
-    private accountService: AccountService,
-    private configService: ConfigService,
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-      this.accountService.activeAccount$.pipe(getUserId),
-    ])
-      .pipe(
-        switchMap(([sendControlsEnabled, userId]) =>
-          sendControlsEnabled
-            ? this.policyService
-                .policiesByType$(PolicyType.SendControls, userId)
-                .pipe(
-                  map(
-                    (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
-                  ),
-                )
-            : this.policyService
-                .policiesByType$(PolicyType.SendOptions, userId)
-                .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
-        ),
-        takeUntilDestroyed(),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntilDestroyed())
       .subscribe((disableHideEmail) => {
         this.disableHideEmail = disableHideEmail;
       });
