@@ -236,7 +236,9 @@ class MockMessagePort<T> {
     this.remotePort.onmessage?.(event as unknown as MessageEvent<T>);
   }
 
-  close() {}
+  close() {
+    // Do nothing
+  }
 }
 
 class MockEventTarget {
