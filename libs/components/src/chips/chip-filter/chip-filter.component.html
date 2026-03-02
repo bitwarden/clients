@@ -1,50 +1,39 @@
-<!-- removing padding here and adding it to the button for proper menu alignment -->
-<div
-  class="!tw-ps-0 !tw-pb-0"
-  bitBaseChip
-  [fullWidth]="fullWidth()"
-  [variant]="'subtle'"
-  [selected]="!!selectedOption"
-  [disabled]="disabled()"
-  [size]="size()"
->
-  <bit-chip-content [size]="size()">
+<bit-chip-content [size]="baseChip.size()">
+  <button
+    bit-chip-content
+    [startIcon]="icon"
+    [endIcon]="
+      !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
+    "
+    type="button"
+    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit]"
+    [class.tw-ps-1.5]="baseChip.size() === 'small'"
+    [class.tw-ps-2]="baseChip.size() === 'large'"
+    [class.tw-pb-0.5]="baseChip.size() === 'small'"
+    [class.tw-pb-1]="baseChip.size() === 'large'"
+    [class.tw-cursor-not-allowed]="disabled()"
+    [bitMenuTriggerFor]="menu"
+    [disabled]="disabled()"
+    [title]="label"
+    #menuTrigger="menuTrigger"
+    (click)="setMenuWidth()"
+    #chipSelectButton
+  >
+    <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
+  </button>
+  @if (selectedOption) {
+    <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
     <button
-      bit-chip-content
-      [startIcon]="icon"
-      [endIcon]="
-        !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
-      "
+      bit-chip-dismiss-button
+      slot="chipEnd"
+      class="tw-relative tw-bottom-0.5"
       type="button"
-      class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit]"
-      [class.tw-ps-1.5]="size() === 'small'"
-      [class.tw-ps-2]="size() === 'large'"
-      [class.tw-pb-0.5]="size() === 'small'"
-      [class.tw-pb-1]="size() === 'large'"
-      [class.tw-cursor-not-allowed]="disabled()"
-      [bitMenuTriggerFor]="menu"
+      [attr.aria-label]="'removeItem' | i18n: label"
       [disabled]="disabled()"
-      [title]="label"
-      #menuTrigger="menuTrigger"
-      (click)="setMenuWidth()"
-      #chipSelectButton
-    >
-      <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
-    </button>
-    @if (selectedOption) {
-      <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
-      <button
-        bit-chip-dismiss-button
-        slot="chipEnd"
-        class="tw-relative tw-bottom-0.5"
-        type="button"
-        [attr.aria-label]="'removeItem' | i18n: label"
-        [disabled]="disabled()"
-        (click)="clear()"
-      ></button>
-    }
-  </bit-chip-content>
-</div>
+      (click)="clear()"
+    ></button>
+  }
+</bit-chip-content>
 
 <bit-menu #menu (closed)="handleMenuClosed()">
   @if (renderedOptions) {

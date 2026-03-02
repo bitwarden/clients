@@ -1,4 +1,12 @@
-import { Directive, ElementRef, booleanAttribute, computed, inject, input } from "@angular/core";
+import {
+  Directive,
+  ElementRef,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
 
 import { AriaDisableDirective } from "../../a11y/aria-disable.directive";
 import { ariaDisableElement } from "../../utils/aria-disable-element";
@@ -103,6 +111,12 @@ export class BaseChipDirective {
    */
   readonly variant = input<ChipVariant>("primary");
 
+  /** Internal variant state (programmatic control) - writable signal */
+  readonly variantState = signal<ChipVariant>("primary");
+
+  /** Combined variant state from both input and programmatic control */
+  readonly resolvedVariant = computed(() => this.variantState() || this.variant());
+
   /**
    * Size of the chip
    */
@@ -113,6 +127,12 @@ export class BaseChipDirective {
    */
   readonly selected = input<boolean>(false);
 
+  /** Internal selected state (programmatic control) - writable signal */
+  readonly selectedState = signal(false);
+
+  /** Combined selected state from both input and programmatic control */
+  readonly isSelected = computed(() => this.selected() || this.selectedState());
+
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input(false, { transform: booleanAttribute });
 
@@ -122,8 +142,17 @@ export class BaseChipDirective {
    */
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-52");
 
-  /** Disabled state of the chip */
-  readonly disabled = input(false, { transform: booleanAttribute });
+  /** Disabled state from input (template binding) */
+  protected readonly disabledInput = input(false, {
+    alias: "disabled",
+    transform: booleanAttribute,
+  });
+
+  /** Internal disabled state (programmatic control) - writable signal */
+  readonly disabledState = signal(false);
+
+  /** Combined disabled state from both input and programmatic control */
+  readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
   /**
    * Computed class list based on variant, size, and state
@@ -135,10 +164,12 @@ export class BaseChipDirective {
       this.fullWidth() ? "tw-w-full" : this.maxWidthClass(),
     ];
 
-    if (this.selected()) {
+    const currentVariant = this.resolvedVariant() || "primary";
+
+    if (this.isSelected()) {
       classes.push(...variantStyles["primary"]);
     } else {
-      classes.push(...variantStyles[this.variant() || "primary"]);
+      classes.push(...variantStyles[currentVariant]);
     }
 
     return classes.join(" ");
