@@ -37,7 +37,7 @@ export class ProgressBarComponent {
   readonly showStartText = input<boolean>(true);
   /* The starting helper text displayed below the progress bar. Defaults to "<barWidth>% complete" */
   readonly startText = input<string>();
-  /* The ending helper text displayed below the progress bar */
+  /* The ending helper text displayed below the progress bar. If nothing is passed, no text is displayed in the end slot */
   readonly endText = input<string>();
 
   protected readonly startTextContent = computed(() => {
