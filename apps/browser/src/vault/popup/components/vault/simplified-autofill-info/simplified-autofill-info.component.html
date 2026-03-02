@@ -1,0 +1,40 @@
+@if (shouldShowIcon$ | async) {
+  <button
+    type="button"
+    class="tw-block tw-border-none tw-p-0 tw-ms-0.5"
+    [bitPopoverTriggerFor]="popover"
+    [position]="'below-center'"
+    #triggerRef="popoverTrigger"
+    [appA11yTitle]="'openSimplifiedAutofillPopover' | i18n"
+    bitLink
+  >
+    <div class="tw-size-[0.825rem] tw-items-center tw-relative">
+      @if (shouldShowPingAnimation$ | async) {
+        <span
+          #pingElement
+          class="tw-content-[''] tw-absolute tw-inset-0 tw-rounded-full tw-bg-primary-600 motion-safe:tw-animate-[ping_1s_ease-in-out_4]"
+        ></span>
+      }
+      <!-- :before element is to create a background that matches the page background, otherwise the ping would be visible behind the icon -->
+      <bit-svg
+        class="tw-items-center tw-relative tw-z-0 before:tw-content-[''] before:tw-absolute before:tw-inset-[15%] before:tw-size-[70%] before:tw-rounded-full before:tw-bg-background-alt before:tw-z-[-1]"
+        [content]="InfoFilledIcon"
+        aria-hidden="true"
+      ></bit-svg>
+    </div>
+  </button>
+
+  <bit-popover [title]="'simplifiedAutofill' | i18n" #popover (closed)="onPopoverClose()">
+    <p>
+      {{ "simplifiedAutofillDescription" | i18n }}
+    </p>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="triggerRef?.closePopover(); onPopoverClose()"
+    >
+      {{ "gotIt" | i18n }}
+    </button>
+  </bit-popover>
+}

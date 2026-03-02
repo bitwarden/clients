@@ -17,6 +17,21 @@ describe("urlOriginsMatch", () => {
       "chrome-extension://abc123/popup.html",
       "chrome-extension://abc123/bg.js",
     ],
+    [
+      "safari extension GUID uppercase in suspect",
+      "safari-web-extension://d8726ae3-f81f-4d3a-85a0-64c2cb453e39/",
+      "safari-web-extension://D8726AE3-F81F-4D3A-85A0-64C2CB453E39/",
+    ],
+    [
+      "safari extension GUID uppercase in canonical",
+      "safari-web-extension://D8726AE3-F81F-4D3A-85A0-64C2CB453E39/",
+      "safari-web-extension://d8726ae3-f81f-4d3a-85a0-64c2cb453e39/",
+    ],
+    [
+      "safari extension GUID uppercase on both sides",
+      "safari-web-extension://D8726AE3-F81F-4D3A-85A0-64C2CB453E39/popup.html",
+      "safari-web-extension://D8726AE3-F81F-4D3A-85A0-64C2CB453E39/bg.js",
+    ],
   ])("returns true when %s", (_, canonical, suspect) => {
     expect(urlOriginsMatch(canonical as string | URL, suspect as string | URL)).toBe(true);
   });
@@ -31,6 +46,11 @@ describe("urlOriginsMatch", () => {
       "https://sub.example.com",
     ],
     ["non-special scheme hosts differ", "chrome-extension://abc123/", "chrome-extension://xyz789/"],
+    [
+      "safari extension GUIDs differ (mixed case)",
+      "safari-web-extension://D8726AE3-F81F-4D3A-85A0-64C2CB453E39/",
+      "safari-web-extension://AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE/",
+    ],
   ])("returns false when %s", (_, canonical, suspect) => {
     expect(urlOriginsMatch(canonical, suspect)).toBe(false);
   });

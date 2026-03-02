@@ -45,9 +45,14 @@ export function urlOriginsMatch(canonical: string | URL, suspect: string | URL):
   const canonicalOrigin = effectiveOrigin(canonicalUrl);
   const suspectOrigin = effectiveOrigin(suspectUrl);
 
-  if (!canonicalOrigin || !suspectOrigin) {
+  // Safari sends the extension GUID in uppercase while the canonical URL is lowercase,
+  // Normalize both to lowercase and trim trailing slashes to avoid browser specific issues.
+  const normalizedCanonicalOrigin = canonicalOrigin?.replace(/\/$/, "").toLowerCase();
+  const normalizedSuspectOrigin = suspectOrigin?.replace(/\/$/, "").toLowerCase();
+
+  if (!normalizedCanonicalOrigin || !normalizedSuspectOrigin) {
     return false;
   }
 
-  return canonicalOrigin === suspectOrigin;
+  return normalizedCanonicalOrigin === normalizedSuspectOrigin;
 }
