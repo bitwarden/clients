@@ -112,10 +112,10 @@ export class BaseChipDirective {
   readonly variant = input<ChipVariant>("primary");
 
   /** Internal variant state (programmatic control) - writable signal */
-  readonly variantState = signal<ChipVariant>("primary");
+  readonly variantState = signal<ChipVariant>(null);
 
   /** Combined variant state from both input and programmatic control */
-  readonly resolvedVariant = computed(() => this.variantState() || this.variant());
+  readonly resolvedVariant = computed(() => this.variantState() ?? this.variant());
 
   /**
    * Size of the chip
