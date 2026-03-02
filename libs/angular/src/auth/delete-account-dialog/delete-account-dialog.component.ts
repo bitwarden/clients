@@ -4,12 +4,13 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   CalloutModule,
   ButtonModule,
@@ -20,8 +21,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { UserVerificationFormInputComponent } from "../user-verification/user-verification-form-input.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

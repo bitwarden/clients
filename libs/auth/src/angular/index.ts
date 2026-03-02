@@ -2,9 +2,6 @@
  * This barrel file should only contain Angular exports
  */
 
-// delete account dialog
-export * from "./delete-account-dialog/delete-account-dialog.component";
-
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 

@@ -24,12 +24,13 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent, DeleteAccountDialogComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,

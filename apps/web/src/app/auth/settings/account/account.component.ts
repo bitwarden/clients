@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { DeleteAccountDialogComponent } from "@bitwarden/auth/angular";
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
