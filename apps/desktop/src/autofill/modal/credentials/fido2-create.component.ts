@@ -165,9 +165,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userHandle = Fido2Utils.bufferToString(
-      new Uint8Array(lastRegistrationRequest.userHandle),
-    );
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
 
     this.ciphers$ = combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),

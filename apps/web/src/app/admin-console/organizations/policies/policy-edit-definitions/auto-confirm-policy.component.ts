@@ -20,7 +20,7 @@ import { PolicyCategory } from "../pipes/policy-category.pipe";
 import { AutoConfirmPolicyDialogComponent } from "../policy-edit-dialogs/auto-confirm-edit-policy-dialog.component";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
-  name = "autoConfirm";
+  name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
   type = PolicyType.AutoConfirm;
   category = PolicyCategory.VaultManagement;

@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { catchError, combineLatest, from, map, Observable, of, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -13,13 +13,12 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
-import { UserId } from "@bitwarden/user-core";
 import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
@@ -38,29 +37,25 @@ import { WebLayoutModule } from "./web-layout.module";
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
-  providers: [AccountBillingClient],
+  providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected showSubscription$: Observable<boolean>;
   protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
     map((isDisabled) => !isDisabled),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  protected hasPremiumPersonally$: Observable<boolean>;
-  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
-  protected hasSubscription$: Observable<boolean>;
+  protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
     private syncService: SyncService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
-    private accountBillingClient: AccountBillingClient,
+    private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
@@ -75,43 +70,11 @@ export class UserLayoutComponent implements OnInit {
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
-    this.hasPremiumPersonally$ = this.ifAccountExistsCheck((userId) =>
-      this.billingAccountProfileStateService.hasPremiumPersonally$(userId),
-    );
-
-    this.hasPremiumFromAnyOrganization$ = this.ifAccountExistsCheck((userId) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(userId),
-    );
-
-    this.hasSubscription$ = this.ifAccountExistsCheck(() =>
-      from(this.accountBillingClient.getSubscription()).pipe(
-        map((subscription) => !!subscription),
-        catchError(() => of(false)),
-      ),
-    );
-
-    this.showSubscription$ = combineLatest([
-      this.hasPremiumPersonally$,
-      this.hasPremiumFromAnyOrganization$,
-      this.hasSubscription$,
-    ]).pipe(
-      map(([hasPremiumPersonally, hasPremiumFromAnyOrganization, hasSubscription]) => {
-        if (hasPremiumFromAnyOrganization && !hasPremiumPersonally) {
-          return false;
-        }
-        return hasSubscription;
-      }),
-    );
+    this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
   }
 
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
     await this.syncService.fullSync(false);
-  }
-
-  private ifAccountExistsCheck(predicate$: (userId: UserId) => Observable<boolean>) {
-    return this.accountService.activeAccount$.pipe(
-      switchMap((account) => (account ? predicate$(account.id) : of(false))),
-    );
   }
 }
