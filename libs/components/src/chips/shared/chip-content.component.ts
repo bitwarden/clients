@@ -35,9 +35,10 @@ export class ChipContentComponent {
 
   readonly dismissible = input(false, { transform: booleanAttribute });
 
-  protected readonly gapClass = computed(() =>
-    this.size() === "large" ? "tw-gap-1.5" : "tw-gap-1",
-  );
+  protected readonly gapClass = computed(() => {
+    const size = this.size() || "large";
+    return size === "large" ? "tw-gap-1.5" : "tw-gap-1";
+  });
 
   protected readonly classList = computed(() => {
     return [
