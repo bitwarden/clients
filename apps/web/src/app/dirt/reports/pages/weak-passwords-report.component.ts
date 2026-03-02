@@ -103,8 +103,15 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   protected determineWeakPasswordScore(ciph: CipherView): ReportResult | null {
-    const { type, login, isDeleted } = ciph;
-    if (type !== CipherType.Login || login.password == null || login.password === "" || isDeleted) {
+    const { type, login, isDeleted, edit, viewPassword } = ciph;
+    if (
+      type !== CipherType.Login ||
+      login.password == null ||
+      login.password === "" ||
+      isDeleted ||
+      (!this.organization && !edit) ||
+      !viewPassword
+    ) {
       return;
     }
 

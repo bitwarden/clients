@@ -72,7 +72,7 @@ describe("RouterFocusManagerService", () => {
           return featureFlagSubject.asObservable();
         }
         return new BehaviorSubject(false).asObservable();
-      }),
+      }) as ConfigService["getFeatureFlag$"],
     };
 
     // Spy on document.querySelector and console.warn
