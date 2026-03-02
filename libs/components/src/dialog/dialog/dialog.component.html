@@ -1,9 +1,5 @@
 @let isDrawer = dialogRef?.isDrawer;
-<bit-dialog-container
-  class="tw-flex tw-flex-1 tw-flex-col"
-  [dialogSize]="dialogSize()"
-  [disableAnimations]="disableAnimations()"
->
+<bit-dialog-container [dialogSize]="dialogSize()" [disableAnimations]="disableAnimations()">
   @let showHeaderBorder = bodyHasScrolledFrom().top;
   <header
     class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
