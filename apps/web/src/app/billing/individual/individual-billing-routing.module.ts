@@ -5,6 +5,7 @@ import { map } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { hasPremiumPersonallyGuard } from "@bitwarden/web-vault/app/billing/guards/has-premium-personally.guard";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
 import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
 import { CloudHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/cloud-hosted-account-subscription.component";
@@ -43,6 +44,7 @@ const routes: Routes = [
         component: SelfHostedAccountSubscriptionComponent,
         data: { titleId: "premiumMembership" },
         canMatch: [isSubscriptionPageEnabled, isSelfHosted],
+        canActivate: [hasPremiumPersonallyGuard()],
       },
       {
         path: "user-subscription",

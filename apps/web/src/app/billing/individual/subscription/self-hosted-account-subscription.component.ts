@@ -1,12 +1,10 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
-import { lastValueFrom, map, of, switchMap } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   BadgeModule,
@@ -28,33 +26,15 @@ import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
 export class SelfHostedAccountSubscriptionComponent {
   private accountService = inject(AccountService);
   private apiService = inject(ApiService);
-  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private dialogService = inject(DialogService);
   private environmentService = inject(EnvironmentService);
-  private router = inject(Router);
 
   private readonly account = toSignal(this.accountService.activeAccount$);
 
-  private readonly hasPremiumPersonally = toSignal(
-    this.accountService.activeAccount$.pipe(
-      switchMap((account) => {
-        if (!account) {
-          return of(false);
-        }
-        return this.billingAccountProfileStateService.hasPremiumPersonally$(account.id);
-      }),
-    ),
-    { initialValue: false },
-  );
-
   private readonly subscription = resource({
-    params: () => ({
-      account: this.account(),
-      hasPremiumPersonally: this.hasPremiumPersonally(),
-    }),
-    loader: async ({ params: { account, hasPremiumPersonally } }) => {
-      if (!account || !hasPremiumPersonally) {
-        await this.router.navigate(["/settings/subscription/premium"]);
+    params: () => ({ account: this.account() }),
+    loader: async ({ params: { account } }) => {
+      if (!account) {
         return null;
       }
       return await this.apiService.getUserSubscription();
