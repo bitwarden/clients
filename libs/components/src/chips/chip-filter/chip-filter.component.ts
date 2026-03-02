@@ -101,13 +101,10 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   /** Combined disabled state from both input and programmatic control */
   readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
-  /** Chip will stretch to full width of its container */
-  readonly fullWidth = input(undefined, { transform: booleanAttribute });
-
   /** Computed class list for host element based on fullWidth state */
   protected readonly classList = computed(() => {
     const baseClasses = "!tw-ps-0 !tw-pb-0";
-    const widthClasses = this.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block";
+    const widthClasses = this.baseChip.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block";
     return `${baseClasses} ${widthClasses}`;
   });
 
