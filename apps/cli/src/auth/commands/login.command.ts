@@ -382,17 +382,11 @@ export class LoginCommand {
 
         if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
           await this.logoutCallback();
-          this.authService.logOut(() => {
-            /* Do nothing */
-          });
           return Response.error(
             "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
         } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
           await this.logoutCallback();
-          this.authService.logOut(() => {
-            /* Do nothing */
-          });
           return Response.error(
             "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
