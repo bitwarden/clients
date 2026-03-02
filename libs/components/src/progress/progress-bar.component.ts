@@ -63,6 +63,7 @@ export class ProgressBarComponent {
       "tw-text-contrast",
       "tw-transition-all",
       "tw-h-2",
+      "tw-rounded",
     ].concat(BackgroundClasses[this.variant()]);
   }
 }
