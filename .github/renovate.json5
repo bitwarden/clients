@@ -102,6 +102,12 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
+      matchPackageNames: ["mockall"],
+      description: "Autofill-Desktop owned dependencies",
+      commitMessagePrefix: "[deps] Autofill-Desktop:",
+      reviewers: ["team:team-autofill-desktop-dev"],
+    },
+    {
       matchPackageNames: ["braintree-web-drop-in"],
       description: "Billing owned dependencies",
       commitMessagePrefix: "[deps] Billing:",
