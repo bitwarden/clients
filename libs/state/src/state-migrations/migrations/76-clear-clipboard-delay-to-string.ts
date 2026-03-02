@@ -57,13 +57,16 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
       CLEAR_CLIPBOARD_DELAY_KEY,
     );
 
-    // Set flag for ALL users going through migration
-    // This marks them as "existed before the default change"
-    await helper.setToUser(userId, HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY, true);
-
     // Skip if no value exists (will use default "fiveMinutes")
     if (oldValue === undefined) {
       return;
+    }
+
+    // Only set flag for users who had null (old "Never") before migration.
+    // These users will be migrated to "never" but the new default is "fiveMinutes",
+    // so they should see a notification that the default has changed.
+    if (oldValue === null) {
+      await helper.setToUser(userId, HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY, true);
     }
 
     let newValue: NewClearClipboardDelaySetting;

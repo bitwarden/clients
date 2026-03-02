@@ -110,15 +110,15 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should not migrate undefined values but should set flag", async () => {
+    it("should not migrate undefined values and should NOT set flag", async () => {
       helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
 
       helper.getFromUser.mockResolvedValue(undefined);
 
       await sut.migrate(helper);
 
-      // Should set the flag even though value is undefined
-      expect(helper.setToUser).toHaveBeenCalledWith(
+      // Should NOT set the flag for users with no prior value
+      expect(helper.setToUser).not.toHaveBeenCalledWith(
         "user-1",
         expect.objectContaining({
           key: "hadPreMigrationClipboardValue",
@@ -154,13 +154,13 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should set hadPreMigrationClipboardValue flag for users with integer value", async () => {
+    it("should NOT set hadPreMigrationClipboardValue flag for users with integer value", async () => {
       helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
       helper.getFromUser.mockResolvedValue(300);
 
       await sut.migrate(helper);
 
-      expect(helper.setToUser).toHaveBeenCalledWith(
+      expect(helper.setToUser).not.toHaveBeenCalledWith(
         "user-1",
         expect.objectContaining({
           key: "hadPreMigrationClipboardValue",
@@ -169,14 +169,13 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should set flag even when user had undefined value", async () => {
+    it("should NOT set flag when user had undefined value", async () => {
       helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
       helper.getFromUser.mockResolvedValue(undefined);
 
       await sut.migrate(helper);
 
-      // Flag should be set even though we don't migrate the actual value
-      expect(helper.setToUser).toHaveBeenCalledWith(
+      expect(helper.setToUser).not.toHaveBeenCalledWith(
         "user-1",
         expect.objectContaining({
           key: "hadPreMigrationClipboardValue",
@@ -185,7 +184,7 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should set flag for multiple users", async () => {
+    it("should only set flag for users who had null, not for users with integer values", async () => {
       helper.getAccounts.mockResolvedValue([
         { userId: "user-1", account: {} },
         { userId: "user-2", account: {} },
@@ -194,12 +193,14 @@ describe("ClearClipboardDelayToStringMigrator", () => {
 
       await sut.migrate(helper);
 
+      // user-1 had null (old "Never") — flag should be set
       expect(helper.setToUser).toHaveBeenCalledWith(
         "user-1",
         expect.objectContaining({ key: "hadPreMigrationClipboardValue" }),
         true,
       );
-      expect(helper.setToUser).toHaveBeenCalledWith(
+      // user-2 had 300 (explicit fiveMinutes) — flag should NOT be set
+      expect(helper.setToUser).not.toHaveBeenCalledWith(
         "user-2",
         expect.objectContaining({ key: "hadPreMigrationClipboardValue" }),
         true,
