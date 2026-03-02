@@ -25,12 +25,16 @@ export interface SdkRecordMapper<ClientType, SdkType> {
   fromSdk(value: SdkType): ClientType;
 }
 
-class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
+export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
   constructor(
     private userId: UserId,
     private stateProvider: StateProvider,
     private mapper: SdkRecordMapper<ClientType, SdkType>,
   ) {}
+
+  private getUserState() {
+    return this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+  }
 
   async get(id: string): Promise<SdkType | null> {
     const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
@@ -55,6 +59,16 @@ class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
     await prov.update(() => elements);
   }
 
+  async setBulk(values: [string, SdkType][]): Promise<void> {
+    const mapped = Object.fromEntries(
+      values.map(([id, value]) => [id, this.mapper.fromSdk(value)]),
+    );
+    await this.getUserState().update((state) => ({
+      ...(state ?? {}),
+      ...mapped,
+    }));
+  }
+
   async remove(id: string): Promise<void> {
     const prov = this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
     const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
@@ -63,5 +77,22 @@ class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
     }
     delete elements[id];
     await prov.update(() => elements);
+  }
+
+  async removeBulk(keys: string[]): Promise<void> {
+    await this.getUserState().update((state) => {
+      if (!state || !keys.some((key) => key in state)) {
+        return state;
+      }
+      const updated = { ...state };
+      for (const key of keys) {
+        delete updated[key];
+      }
+      return updated;
+    });
+  }
+
+  async removeAll(): Promise<void> {
+    await this.getUserState().update(() => ({}));
   }
 }
