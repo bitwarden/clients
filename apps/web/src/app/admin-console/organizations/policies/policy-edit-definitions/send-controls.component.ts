@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
-import { map, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,25 +10,26 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class SendOptionsPolicy extends BasePolicyEditDefinition {
-  name = "sendOptions";
-  description = "sendOptionsPolicyDesc";
-  type = PolicyType.SendOptions;
-  component = SendOptionsPolicyComponent;
+export class SendControlsPolicy extends BasePolicyEditDefinition {
+  name = "sendControls";
+  description = "sendControlsPolicyDesc";
+  type = PolicyType.SendControls;
+  component = SendControlsPolicyComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.SendControls).pipe(map((enabled) => !enabled));
+    return configService.getFeatureFlag$(FeatureFlag.SendControls);
   }
 }
 
 @Component({
-  selector: "send-options-policy-edit",
-  templateUrl: "send-options.component.html",
+  selector: "send-controls-policy-edit",
+  templateUrl: "send-controls.component.html",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendOptionsPolicyComponent extends BasePolicyEditComponent {
+export class SendControlsPolicyComponent extends BasePolicyEditComponent {
   data = this.formBuilder.group({
+    disableSend: false,
     disableHideEmail: false,
   });
 

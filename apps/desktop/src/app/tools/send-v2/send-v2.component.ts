@@ -105,10 +105,16 @@ export class SendV2Component {
   });
 
   protected readonly disableSend = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([sendControlsEnabled, userId]) =>
+        sendControlsEnabled
+          ? this.policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false))
+          : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
       ),
     ),
     { initialValue: false },

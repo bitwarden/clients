@@ -43,10 +43,19 @@ import { WebLayoutModule } from "./web-layout.module";
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((isDisabled) => !isDisabled),
+  protected readonly sendEnabled$: Observable<boolean> = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService
+            .policiesByType$(PolicyType.SendControls, userId)
+            .pipe(map((policies) => !policies?.some((p) => p.data?.disableSend === true)))
+        : this.policyService
+            .policyAppliesToUser$(PolicyType.DisableSend, userId)
+            .pipe(map((isDisabled) => !isDisabled)),
+    ),
   );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;

@@ -4,13 +4,15 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { switchMap, map } from "rxjs";
+import { combineLatest, switchMap, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   TypographyModule,
@@ -85,14 +87,28 @@ export class SendOptionsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
-    this.accountService.activeAccount$
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ])
       .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
+        switchMap(([sendControlsEnabled, userId]) =>
+          sendControlsEnabled
+            ? this.policyService
+                .policiesByType$(PolicyType.SendControls, userId)
+                .pipe(
+                  map(
+                    (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
+                  ),
+                )
+            : this.policyService
+                .policiesByType$(PolicyType.SendOptions, userId)
+                .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((disableHideEmail) => {

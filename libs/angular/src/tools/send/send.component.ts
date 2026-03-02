@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Directive, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import {
   BehaviorSubject,
   Subject,
@@ -10,12 +10,15 @@ import {
   switchMap,
   takeUntil,
   combineLatest,
+  map,
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -70,6 +73,8 @@ export class SendComponent implements OnInit, OnDestroy {
     this._searchText$.next(value);
   }
 
+  protected configService: ConfigService = inject(ConfigService);
+
   constructor(
     protected sendService: SendService,
     protected i18nService: I18nService,
@@ -86,11 +91,19 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ])
       .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        switchMap(([sendControlsEnabled, userId]) =>
+          sendControlsEnabled
+            ? this.policyService
+                .policiesByType$(PolicyType.SendControls, userId)
+                .pipe(
+                  map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
+                )
+            : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
         ),
         takeUntil(this.destroy$),
       )

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   Subject,
@@ -9,6 +9,7 @@ import {
   takeUntil,
   map,
   BehaviorSubject,
+  combineLatest,
   concatMap,
   switchMap,
   tap,
@@ -19,6 +20,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -108,6 +111,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
+  private configService: ConfigService = inject(ConfigService);
 
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
@@ -162,11 +166,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.accountService.activeAccount$
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ])
       .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        switchMap(([sendControlsEnabled, userId]) =>
+          sendControlsEnabled
+            ? this.policyService
+                .policiesByType$(PolicyType.SendControls, userId)
+                .pipe(
+                  map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
+                )
+            : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
         ),
         takeUntil(this.destroy$),
       )
@@ -177,11 +189,24 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.accountService.activeAccount$
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ])
       .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
+        switchMap(([sendControlsEnabled, userId]) =>
+          sendControlsEnabled
+            ? this.policyService
+                .policiesByType$(PolicyType.SendControls, userId)
+                .pipe(
+                  map(
+                    (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
+                  ),
+                )
+            : this.policyService
+                .policiesByType$(PolicyType.SendOptions, userId)
+                .pipe(map((policies) => policies?.some((p) => p.data.disableHideEmail) ?? false)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {

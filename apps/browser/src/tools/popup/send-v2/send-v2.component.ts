@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
+import { Component, inject, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, distinctUntilChanged, map, shareReplay, switchMap } from "rxjs";
 
@@ -11,6 +11,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -102,6 +104,7 @@ export class SendV2Component implements OnDestroy {
   protected noResultsIcon = NoResults;
 
   protected sendsDisabled = false;
+  private configService = inject(ConfigService);
 
   private readonly sendTypeTitles: Record<SendType, string> = {
     [SendType.File]: "fileSends",
@@ -141,11 +144,19 @@ export class SendV2Component implements OnDestroy {
         this.listState = null;
       });
 
-    this.accountService.activeAccount$
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ])
       .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        switchMap(([sendControlsEnabled, userId]) =>
+          sendControlsEnabled
+            ? this.policyService
+                .policiesByType$(PolicyType.SendControls, userId)
+                .pipe(
+                  map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
+                )
+            : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
         ),
         takeUntilDestroyed(),
       )
