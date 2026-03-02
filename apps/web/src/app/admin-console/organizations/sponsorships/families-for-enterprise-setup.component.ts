@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
@@ -36,23 +36,6 @@ import {
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(OrganizationPlansComponent, { static: false })
-  set organizationPlansComponent(value: OrganizationPlansComponent) {
-    if (!value) {
-      return;
-    }
-
-    value.plan = this._familyPlan;
-    value.productTier = ProductTierType.Families;
-    value.acceptingSponsorship = true;
-    value.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    value.onSuccess.subscribe(this.onOrganizationCreateSuccess.bind(this));
-  }
-
   loading = true;
   badToken = false;
 
@@ -64,7 +47,10 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
-  private _familyPlan: PlanType;
+  protected familyPlan: PlanType;
+  protected readonly familyProductTier = ProductTierType.Families;
+  protected readonly planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
+
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
@@ -125,7 +111,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM26462_Milestone_3,
       );
-      this._familyPlan = milestone3FeatureEnabled
+      this.familyPlan = milestone3FeatureEnabled
         ? PlanType.FamiliesAnnually
         : PlanType.FamiliesAnnually2025;
 
@@ -213,7 +199,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async onOrganizationCreateSuccess(value: any) {
+  protected async onOrganizationCreateSuccess(value: any) {
     // Use newly created organization id
     await this.doSubmit(value.organizationId);
   }

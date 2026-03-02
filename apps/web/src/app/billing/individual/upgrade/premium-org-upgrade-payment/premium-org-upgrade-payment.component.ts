@@ -316,9 +316,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
 
     const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
-      this.account(),
+      this.account()!,
       organizationName,
-      this.selectedPlan()!,
+      this.selectedPlan()!.tier,
       billingAddress,
     );
 
