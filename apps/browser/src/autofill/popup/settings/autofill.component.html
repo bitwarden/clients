@@ -23,9 +23,10 @@
         <bit-callout type="info" [title]="'clipboardSettingUpdated' | i18n">
           <p>{{ "clipboardSettingUpdatedMessage" | i18n }}</p>
           <button
-            bitLink
+            bitButton
+            buttonType="primary"
             type="button"
-            startIcon="bwi-angle-down"
+            startIcon="bwi-down-solid"
             (click)="dismissClipboardNotification()"
             class="tw-mt-2"
           >

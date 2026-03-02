@@ -57,6 +57,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  ButtonModule,
   CalloutModule,
   CardComponent,
   CheckboxModule,
@@ -83,6 +84,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
+    ButtonModule,
     CalloutModule,
     CardComponent,
     CheckboxModule,
