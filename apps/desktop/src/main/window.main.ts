@@ -4,12 +4,13 @@ import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, shell } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
@@ -402,8 +403,14 @@ export class WindowMain {
 
     this.win.webContents.setWindowOpenHandler(({ url }) => {
       // For security reasons, we block all attempts to open new windows from the renderer process.
-      // If there is a legitimate need to open a new window, use shell.openExternal from the main process.
-      this.logService.warning(`Blocked attempt to open new window with url: ${url}`);
+      if (SafeUrls.canLaunch(url)) {
+        // If the url is considered safe, we open it with the default system handler (e.g. browser) instead of a new Electron window.
+        this.logService.debug(`Redirecting link to external browser: ${url}`);
+        void shell.openExternal(url);
+      } else {
+        // Otherwise, we block the attempt and log a warning.
+        this.logService.warning(`Blocked attempt to open new window with unsafe url: ${url}`);
+      }
 
       return { action: "deny" };
     });
