@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
+import { drawerSizeToWidthRem } from "../dialog/dialog-sizes";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
