@@ -35,17 +35,15 @@ export class ProgressBarComponent {
   readonly label = input<string>();
   /* The progress amount, represented as a percentage of the progress bar that is filled */
   readonly barWidth = input<number>(0);
-  /* Whether to show the starting helper text below the progress bar. Defaults to true */
-  readonly showStartText = input<boolean>(true);
   /* The starting helper text displayed below the progress bar. Defaults to the localized "<barWidth>% complete" text */
-  readonly startText = input<string>();
+  readonly startText = input<string | null>();
   /* The ending helper text displayed below the progress bar. If nothing is passed, no text is displayed in the end slot */
   readonly endText = input<string>();
 
   private readonly i18nService = inject(I18nService);
 
   protected readonly startTextContent = computed(() => {
-    if (!this.showStartText()) {
+    if (this.startText() === null) {
       return undefined;
     }
 

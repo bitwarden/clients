@@ -81,6 +81,9 @@ export const StartText: Story = {
       <div class="tw-w-[552px] tw-mb-8">
         <bit-progress-bar label="Default" [barWidth]=10 aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-valuetext="10% complete" />
       </div>
+      <div class="tw-w-[552px] tw-mb-8">
+        <bit-progress-bar label="Without Start Text" [barWidth]=10 [startText]=null aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-valuetext="10% complete" />
+      </div>
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
         <bit-progress-bar variant="danger" label="danger" [barWidth]=25 startText="Weak" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="25% strong" />
         <bit-progress-bar variant="warning" label="warning" [barWidth]=50 startText="Weak2" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% strong" />
