@@ -7,14 +7,6 @@
       <span bitTypography="h2">{{ title() }}</span>
       <span class="tw-text-fg-body" bitTypography="body1">{{ subtitle() }}</span>
     </div>
-    <div>
-      <bit-progress-bar
-        [variant]="variant()"
-        [label]="label()"
-        [barWidth]="barWidth()"
-        [startText]="startText()"
-        [endText]="endText()"
-      />
-    </div>
+    <ng-content select="bit-progress-bar"></ng-content>
   </div>
 </div>

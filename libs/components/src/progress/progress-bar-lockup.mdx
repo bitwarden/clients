@@ -24,13 +24,4 @@ import { ProgressBarLockupComponent } from "./progress-bar-lockup.component";
   - If using descriptive subtitle, should be as succinct as possible, telling the user what is
     happening, how long it will take, why it is happening, or any actions they should consider in
     the meantime.
-
-## Accessibility
-
-Be sure to include the proper `aria-valuemin`, `aria-valuemax`, and `aria-valuenow` attributes. An
-`aria-valuetext` should also be configurable to include the text a screen reader should read to the
-user.
-
-In the case of a password strength indicator; `aria-describedby` is used on the password field and
-points to the `id` of the progress bar. This results in the screen reader reading the password
-strength to the user after they finish typing.
+- A `bit-progress-bar` component must be provided.
