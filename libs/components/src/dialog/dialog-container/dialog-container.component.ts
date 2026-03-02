@@ -49,7 +49,7 @@ import { DrawerService } from "../drawer.service";
  */
 @Component({
   selector: "bit-dialog-container",
-  template: "<ng-content></ng-content>",
+  template: `<section [class]="innerClasses()"><ng-content></ng-content></section>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [CdkTrapFocus],
   host: {
@@ -100,14 +100,13 @@ export class DialogContainerComponent {
     return dialogSizeToWidth[size];
   });
 
-  protected readonly chromeClasses = computed(() => {
+  protected readonly innerClasses = computed(() => {
     if (this.disableChrome()) {
-      return [];
+      return ["tw-contents"];
     }
 
     const isDrawer = this.dialogRef?.isDrawer;
     const chrome = [
-      "tw-flex",
       "tw-self-center",
       "tw-w-full",
       "tw-overflow-hidden",
@@ -126,8 +125,8 @@ export class DialogContainerComponent {
 
   protected readonly classes = computed(() => {
     const isDrawer = this.dialogRef?.isDrawer;
-    const widthClass = isDrawer ? "tw-w-full" : "tw-w-screen";
-    const baseClasses = [widthClass];
+    const widthClass = isDrawer ? ["tw-w-full"] : ["md:tw-p-4", "tw-w-screen"];
+    const baseClasses = ["tw-flex", ...widthClass];
     const sizeClasses = isDrawer ? ["tw-h-full"] : ["tw-max-h-[90vh]"];
 
     const size = this.dialogSize();
@@ -138,13 +137,7 @@ export class DialogContainerComponent {
           ? ["tw-animate-slide-down"]
           : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
-    return [
-      ...baseClasses,
-      this.width(),
-      ...sizeClasses,
-      ...this.chromeClasses(),
-      ...animationClasses,
-    ];
+    return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
   handleEsc(event: Event) {
