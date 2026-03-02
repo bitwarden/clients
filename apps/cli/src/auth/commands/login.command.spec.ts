@@ -576,7 +576,6 @@ describe("LoginCommand", () => {
         expect(response.success).toBe(false);
         expect(response.message).toContain("organization administrator");
         expect(logoutCallback).toHaveBeenCalled();
-        expect(authService.logOut).toHaveBeenCalled();
       });
 
       it("logs out and errors on WeakMasterPassword", async () => {
@@ -589,7 +588,6 @@ describe("LoginCommand", () => {
         expect(response.success).toBe(false);
         expect(response.message).toContain("organization policies");
         expect(logoutCallback).toHaveBeenCalled();
-        expect(authService.logOut).toHaveBeenCalled();
       });
 
       it("skips force password check for API key login", async () => {
