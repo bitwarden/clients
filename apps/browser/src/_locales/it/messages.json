@@ -574,10 +574,10 @@
     "message": "Gli elementi archiviati compariranno qui e saranno esclusi dai risultati di ricerca e suggerimenti di autoriempimento."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Elemento archiviato"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
@@ -897,7 +897,7 @@
     "message": "Codice di verifica non valido"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Codice di verifica non valido"
   },
   "valueCopied": {
     "message": "$VALUE$ copiata",
@@ -2861,7 +2861,7 @@
     "message": "Illustrazione di una lista di login a rischio."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Illustrazione del layout di pagina della cassaforte Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Genera rapidamente una parola d'accesso forte e unica con il menu' di riempimento automatico Bitwarden nel sito a rischio.",
@@ -3087,7 +3087,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ ore",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3096,7 +3096,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "Copia e condividi questo link di Send. Sarà disponibile a chiunque abbia il link per $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3106,7 +3106,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "Copia e condividi questo link di Send. Sarà disponibile a chiunque abbia link e password per $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3116,7 +3116,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "Copia e condividi questo link Send: potrà essere visualizzato dalle persone che hai specificato per $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6006,7 +6006,7 @@
     "message": "Numero di carta"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Errore: impossibile decrittare"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
@@ -6146,10 +6146,10 @@
     "message": "Perché vedo questo avviso?"
   },
   "items": {
-    "message": "Items"
+    "message": "Elementi"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Risultati di ricerca"
   },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"
@@ -6167,22 +6167,22 @@
     "message": "Inserisci più indirizzi email separandoli con virgole."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Scarica l'app Bitwarden"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Email protetta"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Verifica dell'utente non riuscita."
   }
 }
