@@ -57,6 +57,8 @@ export const Base: Story = {
           <ng-container slot="illustration">
             <bit-svg [content]="illustration" aria-hidden="true" class="tw-w-[120px]" />
           </ng-container>
+          <span slot="title">Uploading file</span>
+          <span slot="subtitle">This might take a few minutes.</span>
           <bit-progress-bar
             [value]="50"
             label="File name"
@@ -71,8 +73,4 @@ export const Base: Story = {
       </div>
     `,
   }),
-  args: {
-    title: "Uploading file",
-    subtitle: "This might take a few minutes.",
-  },
 };

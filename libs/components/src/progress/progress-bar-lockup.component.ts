@@ -1,11 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  input,
-  ChangeDetectionStrategy,
-  contentChild,
-  AfterViewInit,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, contentChild, AfterViewInit } from "@angular/core";
 
 import { TypographyModule } from "../typography";
 
@@ -21,8 +15,6 @@ import { ProgressBarComponent } from "./progress-bar.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarLockupComponent implements AfterViewInit {
-  readonly title = input<string>();
-  readonly subtitle = input<string>();
   private readonly progressBar = contentChild.required(ProgressBarComponent);
 
   ngAfterViewInit() {
