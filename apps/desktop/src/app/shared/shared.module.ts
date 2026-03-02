@@ -12,6 +12,12 @@ import { IconModule } from "@bitwarden/components";
 import { AvatarComponent } from "../components/avatar.component";
 import { ServicesModule } from "../services/services.module";
 
+/**
+ * @deprecated Please directly import the relevant directive/pipe/component.
+ *
+ * This module is overly large and adds many unrelated modules to your dependency tree.
+ * https://angular.dev/guide/ngmodules/overview recommends not using `NgModule`s for new code.
+ */
 @NgModule({
   imports: [
     CommonModule,

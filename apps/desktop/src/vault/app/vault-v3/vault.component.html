@@ -1,38 +1,53 @@
-<div id="vault" class="vault vault-v2" attr.aria-hidden="{{ showingModal }}">
-  <app-vault-items-v2
-    id="items"
-    class="items"
-    [activeCipherId]="cipherId"
-    (onCipherClicked)="viewCipher($event)"
-    (onCipherRightClicked)="viewCipherMenu($event)"
-    (onAddCipher)="addCipher($event)"
-    (onAddFolder)="addFolder()"
-    [showPremiumCallout]="showPremiumCallout$ | async"
-  >
-  </app-vault-items-v2>
-  @if (!!action) {
+<div class="vault tw-flex tw-h-full">
+  <div class="tw-flex tw-flex-col tw-w-6/12">
+    <div class="tw-pt-6 tw-px-6">
+      <app-header>
+        <vault-new-cipher-menu
+          [canCreateCipher]="true"
+          [canCreateFolder]="true"
+          [canCreateSshKey]="true"
+          (cipherAdded)="addCipher($event)"
+          (folderAdded)="addFolder()"
+        />
+      </app-header>
+    </div>
+    <bit-search
+      class="tw-mb-4 tw-px-6"
+      [ngModel]="currentSearchText$ | async"
+      (ngModelChange)="filterSearchText($event)"
+      [placeholder]="searchPlaceholderText"
+      appAutofocus
+    />
+    <app-vault-list
+      class="tw-h-full"
+      [ciphers]="ciphers"
+      [collections]="collectionsToDisplay"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [showPremiumFeatures]="userHasPremium()"
+      [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+      [placeholderText]="searchPlaceholderText"
+      [isEmpty]="isEmpty && !performingInitialLoad"
+      [showAddCipherBtn]="showAddCipherBtn$ | async"
+      [emptyStateItem]="emptyState$ | async"
+      [showPremiumCallout]="showPremiumCallout$ | async"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+    />
+  </div>
+  @if (!!action()) {
     <div class="details">
-      <app-vault-item-footer
-        id="footer"
-        #footer
-        [cipher]="cipher()"
-        [action]="action"
-        (onEdit)="editCipher($event)"
-        (onRestore)="restoreCipher()"
-        (onClone)="cloneCipher($event)"
-        (onDelete)="deleteCipher()"
-        (onCancel)="cancelCipher($event)"
-        (onArchiveToggle)="refreshCurrentCipher()"
-        [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
-        [submitButtonText]="submitButtonText()"
-      ></app-vault-item-footer>
       <div class="content">
         <div class="inner-content">
           <div class="box">
-            @if (action === "view") {
-              <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
+            @if (action() === "view") {
+              <app-cipher-view [cipher]="cipher()" [collections]="collections" />
             }
-            @if (action === "add" || action === "edit" || action === "clone") {
+            @if (action() === "add" || action() === "edit" || action() === "clone") {
               <vault-cipher-form
                 #vaultForm
                 formId="cipherForm"
@@ -50,7 +65,7 @@
                   >
                     <div class="tw-flex tw-items-center tw-gap-2">
                       {{ "attachments" | i18n }}
-                      <app-premium-badge></app-premium-badge>
+                      <app-premium-badge />
                     </div>
                     <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
                   </button>
@@ -60,9 +75,23 @@
           </div>
         </div>
       </div>
+      <app-vault-item-footer
+        id="footer"
+        #footer
+        [cipher]="cipher()"
+        [action]="action()"
+        (onEdit)="editCipher($event)"
+        (onRestore)="restoreCipher()"
+        (onClone)="cloneCipher($event)"
+        (onDelete)="deleteCipher()"
+        (onCancel)="cancelCipher($event)"
+        (onArchiveToggle)="refreshCurrentCipher()"
+        [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+        [submitButtonText]="submitButtonText()"
+      />
     </div>
   }
-  @if (!["add", "edit", "view", "clone"].includes(action)) {
+  @if (!["add", "edit", "view", "clone"].includes(action())) {
     <div id="logo" class="logo">
       <div class="content">
         <div class="inner-content">
@@ -83,4 +112,3 @@
     </div>
   }
 </div>
-<ng-template #folderAddEdit></ng-template>
