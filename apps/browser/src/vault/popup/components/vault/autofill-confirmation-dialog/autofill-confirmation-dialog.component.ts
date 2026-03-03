@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
@@ -49,10 +48,8 @@ export class AutofillConfirmationDialogComponent {
   private readonly params = inject<AutofillConfirmationDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<AutofillConfirmationDialogResultType>);
 
-  readonly currentUrl = signal<string>(Utils.getHostname(this.params.currentUrl));
-  readonly savedUrls = signal<string[]>(
-    (this.params.savedUrls ?? []).map((u) => Utils.getHostname(u) ?? "").filter(Boolean),
-  );
+  readonly currentUrl = signal<string>(this.params.currentUrl);
+  readonly savedUrls = signal<string[]>(this.params.savedUrls ?? []);
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
