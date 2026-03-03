@@ -3,6 +3,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -14,6 +15,7 @@ describe("ExtensionChangePasswordService", () => {
   let keyService: MockProxy<KeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
   let window: MockProxy<Window>;
 
   let changePasswordService: ChangePasswordService;
@@ -22,12 +24,14 @@ describe("ExtensionChangePasswordService", () => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
     window = mock<Window>();
 
     changePasswordService = new ExtensionChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
+      masterPasswordUnlockService,
       window,
     );
   });
