@@ -103,7 +103,7 @@ export const Truncated: Story = {
           <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Short</span>
         </div>
         <div>
-          <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with tooltip on hover):</span>
+          <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with title on hover):</span>
           <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</span>
         </div>
       </div>
