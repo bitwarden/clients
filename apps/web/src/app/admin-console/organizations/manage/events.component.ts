@@ -1,2 +1,2 @@
 // Re-export from new location for backward compatibility
-export * from "../../../dirt/event-logs/components/events/events.component";
+export * from "../../../dirt/event-logs/components/organization-events/events.component";
