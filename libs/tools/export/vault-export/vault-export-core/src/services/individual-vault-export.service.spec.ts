@@ -138,7 +138,7 @@ function expectEqualCiphers(ciphers: CipherView[] | Cipher[], jsonResult: string
 }
 
 function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
+  const actual = JSON.parse(jsonResult).folders;
   const folders: FolderResponse[] = [];
   folderViews.forEach((c) => {
     const folder = new FolderResponse();
@@ -148,21 +148,19 @@ function expectEqualFolderViews(folderViews: FolderView[] | Folder[], jsonResult
   });
 
   expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(folders));
+  expect(actual).toEqual(folders);
 }
 
 function expectEqualFolders(folders: Folder[], jsonResult: string) {
-  const actual = JSON.stringify(JSON.parse(jsonResult).folders);
-  const items: Folder[] = [];
-  folders.forEach((c) => {
-    const item = new Folder();
-    item.id = c.id;
-    item.name = c.name;
-    items.push(item);
-  });
+  const actual = JSON.parse(jsonResult).folders;
+
+  const expected = folders.map((c) => ({
+    id: c.id,
+    name: c.name?.encryptedString,
+  }));
 
   expect(actual.length).toBeGreaterThan(0);
-  expect(actual).toEqual(JSON.stringify(items));
+  expect(actual).toEqual(expected);
 }
 
 describe("VaultExportService", () => {
@@ -524,6 +522,20 @@ describe("VaultExportService", () => {
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualFolders(UserFolders, exportedData.data);
+  });
+
+  it("does not export the key property in unencrypted exports", async () => {
+    // Create a cipher with a key property
+    const cipherWithKey = generateCipherView(false);
+    (cipherWithKey as any).key = "shouldBeDeleted";
+    cipherService.getAllDecrypted.mockResolvedValue([cipherWithKey]);
+
+    const actual = await exportService.getExport(userId, "json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+    const parsed = JSON.parse(exportedData.data);
+    expect(parsed.items.length).toBe(1);
+    expect(parsed.items[0].key).toBeUndefined();
   });
 });
 

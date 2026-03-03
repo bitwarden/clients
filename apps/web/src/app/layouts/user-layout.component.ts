@@ -4,19 +4,21 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { IconModule } from "@bitwarden/components";
+import { SvgModule } from "@bitwarden/components";
+import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
@@ -32,53 +34,43 @@ import { WebLayoutModule } from "./web-layout.module";
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
+  providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected hasFamilySponsorshipAvailable$: Observable<boolean>;
-  protected showSponsoredFamilies$: Observable<boolean>;
-  protected showSubscription$: Observable<boolean>;
+  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
+    map((isDisabled) => !isDisabled),
+  );
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
     private syncService: SyncService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
+    private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
-    this.showSubscription$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        this.billingAccountProfileStateService.canViewSubscription$(account.id),
-      ),
-    );
-
     this.showEmergencyAccess = toSignal(
-      combineLatest([
-        this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) =>
-            this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
-          ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          canAccessEmergencyAccess(userId, this.configService, this.policyService),
         ),
-      ]).pipe(
-        map(([enabled, policyAppliesToUser]) => {
-          if (!enabled || !policyAppliesToUser) {
-            return true;
-          }
-          return false;
-        }),
       ),
     );
 
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
+
+    this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
   }
 
   async ngOnInit() {

@@ -14,23 +14,21 @@ import {
   take,
 } from "rxjs";
 
-import {
-  CollectionService,
-  CollectionTypes,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -191,7 +189,6 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -390,7 +387,7 @@ export class VaultPopupListFiltersService {
             FolderView[],
             PopupCipherViewLike[],
           ] => {
-            if (folders.length === 1 && folders[0].id === null) {
+            if (folders.length === 1 && !folders[0].id) {
               // Do not display folder selections when only the "no folder" option is available.
               return [filters as PopupListFilter, [], cipherViews];
             }
@@ -399,7 +396,7 @@ export class VaultPopupListFiltersService {
             folders.sort(Utils.getSortFunction(this.i18nService, "name"));
             let arrangedFolders = folders;
 
-            const noFolder = folders.find((f) => f.id === null);
+            const noFolder = folders.find((f) => !f.id);
 
             if (noFolder) {
               // Update `name` of the "no folder" option to "Items with no folder"
@@ -409,7 +406,7 @@ export class VaultPopupListFiltersService {
               };
 
               // Move the "no folder" option to the end of the list
-              arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
+              arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
             }
             return [filters as PopupListFilter, arrangedFolders, cipherViews];
           },
@@ -455,19 +452,15 @@ export class VaultPopupListFiltersService {
           ),
           this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
-          this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),
       ),
-      map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
+      map(([filters, allCollections, orgs]) => {
         const orgFilterId = filters.organization?.id ?? null;
         // When the organization filter is selected, filter out collections that do not belong to the selected organization
         const filtered = orgFilterId
           ? allCollections.filter((c) => c.organizationId === orgFilterId)
           : allCollections;
 
-        if (!defaultVaultEnabled) {
-          return filtered;
-        }
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
       }),
       map((fullList) => {
@@ -552,11 +545,7 @@ export class VaultPopupListFiltersService {
 
     // When the organization filter changes and a folder is already selected,
     // reset the folder filter if the folder does not belong to the new organization filter
-    if (
-      currentFilters.folder &&
-      currentFilters.folder.id !== null &&
-      organization.id !== MY_VAULT_ID
-    ) {
+    if (currentFilters.folder && currentFilters.folder.id && organization.id !== MY_VAULT_ID) {
       // Get all ciphers that belong to the new organization
       const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
 

@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Никакие критичные приложения не подвергаются риску"
   },
+  "critical": {
+    "message": "Критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Не критичные ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Критично"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Нет приложений, соответствующих этим фильтрам"
   },
   "passwordRisk": {
     "message": "Риск пароля"
@@ -23,8 +47,8 @@
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Проанализируйте пароли, подверженные риску (слабые, скомпрометированные или повторно используемые), во всех приложениях. Выберите наиболее критичные приложения, чтобы определить приоритетные меры безопасности для пользователей, направленные на устранение подверженных риску паролей."
+  "reviewAccessIntelligence": {
+    "message": "Просматривайте отчеты по безопасности, чтобы выявлять и устранять риски, связанные с учетными данными, до того, как они приведут к серьезным последствиям."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Обзор логинов, подверженных риску"
@@ -244,11 +268,50 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "Помечены как критичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "Помечены как некритичные приложений: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Пометить как критичное: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Пометить как некритичное: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Не удалось пометить приложения как критичные"
   },
   "application": {
     "message": "Приложение"
+  },
+  "applications": {
+    "message": "Приложения"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
@@ -404,7 +467,7 @@
     "message": "Обзор приложения сохранен"
   },
   "newApplicationsReviewed": {
-    "message": "Рассмотрены новые заявки"
+    "message": "Рассмотрены новые приложения"
   },
   "errorSavingReviewStatus": {
     "message": "Ошибка сохранения статуса обзора"
@@ -585,6 +648,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Телефон"
@@ -1217,6 +1283,9 @@
   "selectAll": {
     "message": "Выбрать все"
   },
+  "deselectAll": {
+    "message": "Отменить выбор"
+  },
   "unselectAll": {
     "message": "Отменить выбор"
   },
@@ -1364,6 +1433,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -1748,6 +1823,9 @@
   },
   "noMembersInList": {
     "message": "Нет участников для отображения."
+  },
+  "noMembersToExport": {
+    "message": "Нет участников для экспорта."
   },
   "noEventsInList": {
     "message": "Нет событий для отображения."
@@ -2537,6 +2615,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Восстановить доступ"
   },
@@ -2633,6 +2714,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Безымянный ключ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код подтверждения"
@@ -3143,6 +3227,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
   },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
+  },
   "restartPremium": {
     "message": "Переподключить Премиум"
   },
@@ -3251,6 +3338,15 @@
   "reinstated": {
     "message": "Подписка восстановлена."
   },
+  "resubscribe": {
+    "message": "Возобновить подписку"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Срок действия вашей подписки истек"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Ваша подписка отменена"
+  },
   "cancelConfirmation": {
     "message": "Вы действительно хотите отменить? Вы потеряете доступ ко всем возможностям этой подписки в конце этого платежного периода."
   },
@@ -3268,6 +3364,9 @@
   },
   "nextChargeHeader": {
     "message": "Следующий платеж"
+  },
+  "nextChargeDate": {
+    "message": "Дата следующего платежа"
   },
   "plan": {
     "message": "План"
@@ -3757,6 +3856,9 @@
   "editCollection": {
     "message": "Редактировать коллекцию"
   },
+  "viewCollection": {
+    "message": "Посмотреть коллекцию"
+  },
   "collectionInfo": {
     "message": "Информация о коллекции"
   },
@@ -4235,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Автоматически подтвержденный пользователь $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Изменен пользователь $ID$.",
     "placeholders": {
@@ -4494,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Ваша информация о доступе генерируется..."
   },
-  "fetchingMemberData": {
-    "message": "Получение данных о пользователях..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Анализ здоровья пароля..."
-  },
-  "calculatingRiskScores": {
-    "message": "Расчет показателей риска..."
-  },
-  "generatingReportData": {
-    "message": "Генерация данных отчета..."
-  },
-  "savingReport": {
-    "message": "Сохранение отчета..."
-  },
-  "compilingInsights": {
-    "message": "Компиляция информации..."
-  },
   "loadingProgress": {
     "message": "Прогресс загрузки"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Это может занять несколько минут."
+  "reviewingMemberData": {
+    "message": "Проверка данных пользователя..."
+  },
+  "analyzingPasswords": {
+    "message": "Анализ паролей..."
+  },
+  "calculatingRisks": {
+    "message": "Расчет рисков..."
+  },
+  "generatingReports": {
+    "message": "Формирование отчетов..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Компиляция информации..."
+  },
+  "reportGenerationDone": {
+    "message": "Готово!"
   },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
@@ -5337,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "overridePasswordTypePolicy": {
+  "passwordTypePolicyOverride": {
     "message": "Тип пароля",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -5405,6 +5513,12 @@
   },
   "restoreSelected": {
     "message": "Восстановить выбранные"
+  },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
+  "archivedItemsRestored": {
+    "message": "Архивированные элементы восстановлены"
   },
   "restoredItem": {
     "message": "Элемент восстановлен"
@@ -5588,10 +5702,6 @@
   "sendTypeText": {
     "message": "Текст"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5602,6 +5712,57 @@
   },
   "createdSend": {
     "message": "Send сохранена",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedSuccessfully": {
+    "message": "Send успешно создана!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка и пароль в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в течение $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ час.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Новая файловая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5642,6 +5803,9 @@
   },
   "revoked": {
     "message": "Отозвано"
+  },
+  "accepted": {
+    "message": "Принято"
   },
   "sendLink": {
     "message": "Ссылка на Send",
@@ -5689,10 +5853,6 @@
   },
   "sendProtectedPasswordDontKnow": {
     "message": "Не знаете пароль? Для доступа к этой Send, запросите его у отправителя.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendHiddenByDefault": {
-    "message": "Эта Send по умолчанию скрыта. Вы можете переключить ее видимость с помощью кнопки ниже.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
@@ -5863,6 +6023,37 @@
       }
     }
   },
+  "centralizeDataOwnership": {
+    "message": "Централизация ответственности за организацию"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Все элементы пользователя будут принадлежать и управляться организацией. Администраторы и владельцы не участвуют в этом процессе. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Узнайте больше о централизованном владении",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Преимущества"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Получите полную информацию о состоянии учетных данных, включая общие и частные элементы."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Легко перемещайте элементы во время увольнения участников и их наследования, гарантируя отсутствие пробелов в доступе."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Предоставьте всем пользователям выделенное пространство \"Мои элементы\" для управления их собственными логинами."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Предложите пользователям перенести их элементы"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Если у участников есть какие-либо элементы в их личном хранилище, им будет предложено либо передать их организации, либо покинуть ее. После выхода из организации их доступ будет аннулирован, но может быть восстановлен в любое время."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Узнайте больше о передаче"
+  },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
   },
@@ -5955,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Я принимаю эти риски и политики обновления"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Включена настройка автоматического подтверждения пользователей"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Отключена настройка автоматического подтверждения пользователей"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Добавлена политика автоматического подтверждения пользователей"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Удалена политика автоматического подтверждения пользователей"
+  },
+  "system": {
+    "message": "Система"
   },
   "personalOwnership": {
     "message": "Удалить личное хранилище"
@@ -6249,6 +6455,10 @@
     "message": "Просмотр Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Подтвердите свой адрес email, чтобы просмотреть эту Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Пользователь Bitwarden, создавший эту Send, решил скрыть свой адрес email. Вы должны убедиться, что доверяете источнику этой ссылки, прежде чем использовать или скачивать ее содержимое.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6300,6 +6510,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Зарегистрирован на восстановление аккаунта"
+  },
+  "enrolled": {
+    "message": "Зарегистрировано"
+  },
+  "notEnrolled": {
+    "message": "Не зарегистрировано"
   },
   "withdrawAccountRecovery": {
     "message": "Сняться с восстановления аккаунта"
@@ -6487,6 +6703,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 invitation sent"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ invitations sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ из $SELECTEDCOUNT$ пользователей повторно приглашены. $EXCLUDEDCOUNT$ не был приглашен из-за лимита приглашений $LIMIT$.",
     "placeholders": {
@@ -6503,6 +6731,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Keep this page open until all are sent."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ invitations didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 invitation didn't send"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Try sending again"
   },
   "bulkRemovedMessage": {
     "message": "Удален(-о) успешно"
@@ -6836,16 +7108,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Одна или несколько политик организации запрещают вам экспортировать личное хранилище."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Активировать автозаполнение"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Включить автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых участников."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Взломанные или недоверенные сайты могут внедрить вредоносный код во время автозаполнения при загрузке страницы."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Узнать больше об автозаполнении"
   },
   "selectType": {
@@ -7144,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
   },
   "keyConnectorDomain": {
     "message": "Домен соединителя ключей"
@@ -9942,6 +10217,9 @@
   "assignTasks": {
     "message": "Назначить задачи"
   },
+  "allTasksAssigned": {
+    "message": "Все задачи были назначены"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Отправляйте уведомления о смене паролей"
   },
@@ -10343,8 +10621,14 @@
   "datadogEventIntegrationDesc": {
     "message": "Отправляйте данные о событиях хранилища в ваш экземпляр Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Отправлять данные о событиях в ваш инстанс Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Для выполнения этого действия вы должны быть владельцем организации или администратором."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Для выполнения этого действия вы должны быть владельцем организации."
@@ -10453,6 +10737,12 @@
   },
   "index": {
     "message": "Индекс"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL коллектора событий HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Токен коллектора событий HTTP"
   },
   "selectAPlan": {
     "message": "Выберите план"
@@ -11268,6 +11558,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden попытается зарегистрировать домен 3 раза в течение первых 72 часов. Если домен не удастся зарегистрировать, проверьте запись DNS на вашем хосте и зарегистрируйте вручную. Домен будет удален из вашей организации через 7 дней, если он не будет зарегистрирован."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden попытается заявить права на домен в течение 72 часов. Если домен не может быть заявлен, проверьте свою запись в DNS и подайте заявку вручную. Невостребованные домены удаляются через 7 дней."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "После подачи заявки существующим участникам с заявленными доменами будет отправлено электронное письмо с информацией об "
+  },
+  "accountOwnershipChange": {
+    "message": "изменении владельца аккаунта"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ не зарегистрирован. Проверьте записи DNS.",
     "placeholders": {
@@ -11280,8 +11582,8 @@
   "domainStatusClaimed": {
     "message": "Зарегистрирован"
   },
-  "domainStatusUnderVerification": {
-    "message": "Проверяется"
+  "domainStatusPending": {
+    "message": "Ожидание"
   },
   "claimedDomainsDescription": {
     "message": "Заявите права на домен, чтобы владеть аккаунтами членов. Страница идентификатора SSO будет пропущена при пользователей с заявленными доменами, а администраторы смогут удалять заявленные аккаунты."
@@ -11568,6 +11870,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -11606,6 +11914,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
   },
@@ -11618,14 +11929,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemsWereSentToArchive": {
-    "message": "Элементы были отправлены в архив"
-  },
-  "itemUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "bulkArchiveItems": {
     "message": "Элементы архивированы"
@@ -11637,8 +11945,8 @@
     "message": "Архивировать элемент",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
   },
   "archiveBulkItems": {
     "message": "Архивировать элементы",
@@ -11991,6 +12299,15 @@
   "verifyNow": {
     "message": "Подтвердить сейчас."
   },
+  "unlockWithPasskey": {
+    "message": "Разблокировать при помощи passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF."
+  },
   "additionalStorageGB": {
     "message": "Дополнительные ГБ хранилища"
   },
@@ -12295,8 +12612,14 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Вы действительно хотите продолжить?"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Удалить невосстановимые элементы хранилища"
@@ -12479,5 +12802,219 @@
   },
   "planDescPremium": {
     "message": "Полная онлайн-защищенность"
+  },
+  "updatePayment": {
+    "message": "Обновить платежную информацию"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Нам не удалось обработать ваш платеж. Пожалуйста, обновите свой способ оплаты или обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Срок действия вашей подписки истек. Пожалуйста, обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Ваша подписка будет отменена $DATE$. Вы сможете восстановить ее в любое время до этого момента.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями."
+  },
+  "youHaveAGracePeriod": {
+    "message": "У вас есть льготный период $DAYS$ дней с даты истечения срока действия вашей подписки. Пожалуйста, оплатите просроченные счета к $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление счетами"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Ваша следующая оплата будет за"
+  },
+  "dueOn": {
+    "message": "срок"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Ваша подписка будет приостановлена в"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Ваша подписка была приостановлена"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Ваша подписка будет отменена в"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Ваша подписка была отменена"
+  },
+  "storageFull": {
+    "message": "Хранилище заполнено"
+  },
+  "storageUsedDescription": {
+    "message": "Вы использовали $USED$ из $AVAILABLE$ ГБ вашего зашифрованного файлового хранилища.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
+  },
+  "extensionPromptHeading": {
+    "message": "Установите расширение для удобного доступа к хранилищу"
+  },
+  "extensionPromptBody": {
+    "message": "Установив расширение для браузера, вы сможете использовать Bitwarden везде, где есть интернет. Оно будет вводить пароли, так что вы сможете входить в свои аккаунты одним щелчком мыши."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Браузер, отображающий расширение Bitwarden с элементами автозаполнения для текущей веб-страницы."
+  },
+  "skip": {
+    "message": "Пропустить"
+  },
+  "downloadExtension": {
+    "message": "Скачать расширение"
+  },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Владелец, $OWNER$, показать все элементы, принадлежащие $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "youHavePremium": {
+    "message": "У вас Премиум"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
+  },
+  "invalidSendPassword": {
+    "message": "Неверный пароль Send"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Вы с нами! Добро пожаловать в Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Сохраняйте все свои пароли и личную информацию в хранилище Bitwarden. Мы покажем как это работает."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Начать знакомство"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Пропустить"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "на пользователя"
+  },
+  "upgradeToTeams": {
+    "message": "Перейти на Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Перейти на Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Цены указаны без учета налогов и оплачиваются ежегодно."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Обнаружена ошибка при создании предварительного просмотра счета."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Кредит на Премиум"
+  },
+  "enterpriseMembership": {
+    "message": "Членство в организации"
+  },
+  "teamsMembership": {
+    "message": "Членство в команде"
+  },
+  "plansUpdated": {
+    "message": "Вы обновились до $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Произошла ошибка при обновлении способа оплаты."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Неверный пароль. Для доступа к этой Send, запросите его у отправителя.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "This Send expires at $TIME$ on $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

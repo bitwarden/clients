@@ -14,12 +14,14 @@ import {
   switchMap,
 } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -42,11 +44,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import {
-  USER_ENCRYPTED_PRIVATE_KEY,
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
-  USER_KEY_ENCRYPTED_SIGNING_KEY,
-  USER_SIGNED_PUBLIC_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -60,14 +59,16 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
-  UserPrivateKeyDecryptionFailedError,
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
+
+const USER_KEY_STATE_KEY: string = "";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
@@ -90,6 +91,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected accountService: AccountService,
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
+    protected accountCryptographyStateService: AccountCryptographicStateService,
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
@@ -108,7 +110,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, key, userId);
+    await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
@@ -119,30 +121,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     if (userKey == null) {
       throw new Error("Failed to set user key");
     }
-  }
-
-  async setUserKeys(
-    userKey: UserKey,
-    encPrivateKey: EncryptedString,
-    userId: UserId,
-  ): Promise<void> {
-    if (userKey == null) {
-      throw new Error("No userKey provided. Lock the user to clear the key");
-    }
-    if (encPrivateKey == null) {
-      throw new Error("No encPrivateKey provided.");
-    }
-    if (userId == null) {
-      throw new Error("No userId provided.");
-    }
-
-    const decryptedPrivateKey = await this.decryptPrivateKey(encPrivateKey, userKey);
-    if (decryptedPrivateKey == null) {
-      throw new UserPrivateKeyDecryptionFailedError();
-    }
-
-    await this.setUserKey(userKey, userId);
-    await this.setPrivateKey(encPrivateKey, userId);
   }
 
   async refreshAdditionalKeys(userId: UserId): Promise<void> {
@@ -164,16 +142,18 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .state$.pipe(map((x) => x ?? false));
   }
 
-  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
-    return this.stateProvider.getUserState$(USER_KEY, userId);
+  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
+    return this.stateProvider
+      .getUserState$(USER_KEY, userId)
+      .pipe(map((userKey) => this.stateObjectToUserKey(userKey)));
   }
 
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
-  async getUserKey(userId?: UserId): Promise<UserKey> {
+  async getUserKey(userId?: UserId): Promise<UserKey | null> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
-    return userKey;
+    return this.stateObjectToUserKey(userKey);
   }
 
   async getUserKeyFromStorage(
@@ -204,26 +184,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
-  async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
-    if (masterKey == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user id found.");
-      }
-
-      masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    }
-    if (masterKey == null) {
-      throw new Error("No Master Key found.");
+  async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
+    if (!masterKey) {
+      throw new Error("MasterKey is required");
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
-  }
-
-  async makeUserKeyV1(): Promise<UserKey> {
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return newUserKey as UserKey;
   }
 
   /**
@@ -340,45 +307,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return Utils.fromBufferToB64(hash);
   }
 
-  async compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean> {
-    if (masterKey == null) {
-      throw new Error("'masterKey' is required to be non-null.");
-    }
-
-    if (masterPassword == null) {
-      // If they don't give us a master password, we can't hash it, and therefore
-      // it will never match what we have stored.
-      return false;
-    }
-
-    // Retrieve the current password hash
-    const storedPasswordHash = await firstValueFrom(
-      this.masterPasswordService.masterKeyHash$(userId),
-    );
-
-    if (storedPasswordHash == null) {
-      return false;
-    }
-
-    // Hash the key for local use
-    const localKeyHash = await this.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    // Check if the stored hash is already equal to the hash we create locally
-    if (localKeyHash == null || storedPasswordHash !== localKeyHash) {
-      return false;
-    }
-
-    return true;
-  }
-
   async setOrgKeys(
     orgs: ProfileOrganizationResponse[],
     providerOrgs: ProfileProviderOrganizationResponse[],
@@ -479,16 +407,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return [encShareKey, shareKey as T];
   }
 
-  async setPrivateKey(encPrivateKey: EncryptedString, userId: UserId): Promise<void> {
-    if (encPrivateKey == null) {
-      return;
-    }
-
-    await this.stateProvider
-      .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
-      .update(() => encPrivateKey);
-  }
-
   async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
     if (publicKey == null) {
       throw new Error("Public key is required to generate a fingerprint.");
@@ -515,18 +433,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return [publicB64, privateEnc];
   }
 
-  /**
-   * Clears the user's key pair
-   * @param userId The desired user
-   */
-  private async clearKeyPair(userId: UserId): Promise<void> {
-    await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
-  }
-
-  private async clearSigningKey(userId: UserId): Promise<void> {
-    await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_SIGNING_KEY, null, userId);
-  }
-
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
     return await this.keyGenerationService.deriveKeyFromMaterial(
       keyMaterial,
@@ -548,44 +454,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearUserKey(userId);
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
-    await this.clearKeyPair(userId);
-    await this.clearSigningKey(userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
-  }
-
-  // EFForg/OpenWireless
-  // ref https://github.com/EFForg/OpenWireless/blob/master/app/js/diceware.js
-  async randomNumber(min: number, max: number): Promise<number> {
-    let rval = 0;
-    const range = max - min + 1;
-    const bitsNeeded = Math.ceil(Math.log2(range));
-    if (bitsNeeded > 53) {
-      throw new Error("We cannot generate numbers larger than 53 bits.");
-    }
-
-    const bytesNeeded = Math.ceil(bitsNeeded / 8);
-    const mask = Math.pow(2, bitsNeeded) - 1;
-    // 7776 -> (2^13 = 8192) -1 == 8191 or 0x00001111 11111111
-
-    // Fill a byte array with N random numbers
-    const byteArray = new Uint8Array(await this.cryptoFunctionService.randomBytes(bytesNeeded));
-
-    let p = (bytesNeeded - 1) * 8;
-    for (let i = 0; i < bytesNeeded; i++) {
-      rval += byteArray[i] * Math.pow(2, p);
-      p -= 8;
-    }
-
-    // Use & to apply the mask and reduce the number of recursive lookups
-    rval = rval & mask;
-
-    if (rval >= range) {
-      // Integer out of acceptable range
-      return this.randomNumber(min, max);
-    }
-
-    // Return an integer that falls within the range
-    return min + rval;
+    await this.accountCryptographyStateService.clearAccountCryptographicState(userId);
   }
 
   // ---HELPERS---
@@ -595,9 +465,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     try {
-      const encPrivateKey = await firstValueFrom(
-        this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$,
-      );
+      const encPrivateKey = await firstValueFrom(this.userEncryptedPrivateKey$(userId));
 
       if (encPrivateKey == null) {
         return false;
@@ -655,9 +523,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     await this.setUserKey(userKey, userId);
-    await this.stateProvider
-      .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
-      .update(() => privateKey.encryptedString!);
+    await this.accountCryptographyStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: privateKey.encryptedString,
+        },
+      },
+      userId,
+    );
 
     return {
       userKey,
@@ -684,9 +557,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
-    let shouldStoreKey = false;
     switch (keySuffix) {
       case KeySuffixOptions.Auto: {
+        // Cli has fixed Never vault timeout, and it should not be affected by a policy.
+        if (this.platformUtilService.getClientType() == ClientType.Cli) {
+          return true;
+        }
+
         // TODO: Sharing the UserKeyDefinition is temporary to get around a circ dep issue between
         // the VaultTimeoutSettingsSvc and this service.
         // This should be fixed as part of the PM-7082 - Auto Key Service work.
@@ -696,11 +573,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             .pipe(filter((timeout) => timeout != null)),
         );
 
-        shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
-        break;
+        this.logService.debug(
+          `[KeyService] Should store auto key for vault timeout ${vaultTimeout}`,
+        );
+
+        return vaultTimeout == VaultTimeoutStringType.Never;
       }
     }
-    return shouldStoreKey;
+    return false;
   }
 
   protected async getKeyFromStorage(
@@ -764,7 +644,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUser(userId, USER_KEY).state$;
+    return this.stateProvider
+      .getUser(userId, USER_KEY)
+      .state$.pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
   }
 
   userPublicKey$(userId: UserId) {
@@ -801,10 +683,26 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString | null> {
-    return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
+    return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
+      map((state: WrappedAccountCryptographicState | null) => {
+        if (state == null) {
+          return null;
+        }
+        if ("V2" in state) {
+          return state.V2.private_key;
+        } else if ("V1" in state) {
+          return state.V1.private_key;
+        } else {
+          return null;
+        }
+      }),
+    );
   }
 
-  private userPrivateKeyHelper$(userId: UserId) {
+  private userPrivateKeyHelper$(userId: UserId): Observable<{
+    userKey: UserKey;
+    userPrivateKey: UserPrivateKey | null;
+  } | null> {
     const userKey$ = this.userKey$(userId);
     return userKey$.pipe(
       switchMap((userKey) => {
@@ -812,20 +710,22 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           return of(null);
         }
 
-        return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
+        return this.userEncryptedPrivateKey$(userId).pipe(
           switchMap(async (encryptedPrivateKey) => {
-            try {
-              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
-            } catch (e) {
-              this.logService.error("Failed to decrypt private key for user ", userId, e);
-              throw e;
-            }
+            return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
           }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
             userPrivateKey,
           })),
+          catchError((err: unknown) => {
+            this.logService.error(`Failed to decrypt private key for user ${userId}`);
+            return of({
+              userKey,
+              userPrivateKey: null,
+            });
+          }),
         );
       }),
     );
@@ -879,23 +779,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
-  async setUserSigningKey(userSigningKey: WrappedSigningKey, userId: UserId): Promise<void> {
-    if (userSigningKey == null) {
-      throw new Error("No user signing key provided.");
-    }
-    if (userId == null) {
-      throw new Error("No userId provided.");
-    }
-    await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_SIGNING_KEY, userSigningKey, userId);
-  }
-
   userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null> {
-    return this.stateProvider.getUser(userId, USER_KEY_ENCRYPTED_SIGNING_KEY).state$.pipe(
-      map((encryptedSigningKey) => {
-        if (encryptedSigningKey == null) {
+    return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
+      map((state: WrappedAccountCryptographicState | null) => {
+        if (state == null) {
           return null;
         }
-        return encryptedSigningKey as WrappedSigningKey;
+        if ("V2" in state) {
+          return state.V2.signing_key as WrappedSigningKey;
+        } else {
+          return null;
+        }
       }),
     );
   }
@@ -1017,11 +911,32 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
-  async setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void> {
-    await this.stateProvider.setUserState(USER_SIGNED_PUBLIC_KEY, signedPublicKey, userId);
+  userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null> {
+    return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
+      map((state: WrappedAccountCryptographicState | null) => {
+        if (state == null) {
+          return null;
+        }
+        if ("V2" in state) {
+          return state.V2.signed_public_key as SignedPublicKey;
+        } else {
+          return null;
+        }
+      }),
+    );
   }
 
-  userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null> {
-    return this.stateProvider.getUserState$(USER_SIGNED_PUBLIC_KEY, userId);
+  private userKeyToStateObject(userKey: UserKey | null): Record<string, UserKey> | null {
+    if (userKey == null) {
+      return null;
+    }
+    return { [USER_KEY_STATE_KEY]: userKey };
+  }
+
+  private stateObjectToUserKey(stateObject: Record<string, UserKey> | null): UserKey | null {
+    if (stateObject == null) {
+      return null;
+    }
+    return stateObject[USER_KEY_STATE_KEY] ?? null;
   }
 }

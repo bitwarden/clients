@@ -1,6 +1,5 @@
-import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { firstValueFrom, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -8,16 +7,22 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
-import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
+import {
+  DefaultSendFormConfigService,
+  SendAddEditDialogComponent,
+  SendItemDialogResult,
+} from "@bitwarden/send-ui";
+
+import { SendSuccessDrawerDialogComponent } from "../shared";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, PremiumBadgeComponent],
+  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
@@ -60,12 +65,19 @@ export class NewSendDropdownComponent {
     if (!(await firstValueFrom(this.canAccessPremium$)) && type === SendType.File) {
       return;
     }
-
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
-
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+
     if (useRefresh) {
-      SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
+      if (dialogRef) {
+        const result = await lastValueFrom(dialogRef.closed);
+        if (result?.result === SendItemDialogResult.Saved && result?.send) {
+          this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+            data: result.send,
+          });
+        }
+      }
     } else {
       SendAddEditDialogComponent.open(this.dialogService, { formConfig });
     }

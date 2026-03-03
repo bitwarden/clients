@@ -11,6 +11,9 @@
   "favorites": {
     "message": "我的最愛"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "類型"
   },
@@ -99,6 +102,70 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "此 Send 將在指定的日期後被永久刪除。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "要分享的文件"
+  },
+  "hideTextByDefault": {
+    "message": "默認隱藏文字"
+  },
+  "hideYourEmail": {
+    "message": "對查看者隱藏您的電子郵件地址。"
+  },
+  "limitSendViews": {
+    "message": "限制查看"
+  },
+  "limitSendViewsCount": {
+    "message": "剩餘 $ACCESSCOUNT$ 次查看次數",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "在達到限額後，沒有人能查看此 Send。",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "私人備註"
+  },
+  "sendDetails": {
+    "message": "Send 詳細資訊",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "要分享的文字"
+  },
+  "newItemHeaderTextSend": {
+    "message": "新增文字 Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "新增檔案 Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "編輯文字 Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "編輯檔案 Send",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "您確定要永久刪除此 Send 嗎？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "new": {
+    "message": "新增",
+    "description": "for adding new items"
   },
   "newUri": {
     "message": "新增 URI"
@@ -241,10 +308,10 @@
     "message": "啟用 SSH 代理程式"
   },
   "enableSshAgentDesc": {
-    "message": "啟用SSBitwardenH代理以從 Bitwarden 密碼庫簽發SSH請求"
+    "message": "啟用 SSH 代理以從 Bitwarden 密碼庫直接簽署 SSH 請求。"
   },
   "enableSshAgentHelp": {
-    "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
+    "message": "SSH 代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽署 SSH 請求。"
   },
   "sshAgentPromptBehavior": {
     "message": "使用 SSH 代理程式時要求授權"
@@ -521,6 +588,12 @@
   },
   "editedItem": {
     "message": "項目已儲存"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
   },
   "deleteItem": {
     "message": "刪除項目"
@@ -958,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "電子郵件或驗證碼無效"
   },
   "continue": {
     "message": "繼續"
@@ -1488,6 +1564,18 @@
   "unknown": {
     "message": "不詳"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "複製使用者名稱"
   },
@@ -2015,6 +2103,24 @@
   "searchTrash": {
     "message": "搜尋垃圾桶"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "永久刪除項目"
   },
@@ -2023,6 +2129,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
+  },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
   },
   "restoredItem": {
     "message": "項目已還原"
@@ -2308,6 +2417,9 @@
     "message": "編輯 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "me": {
+    "message": "Me"
+  },
   "myVault": {
     "message": "我的密碼庫"
   },
@@ -2409,6 +2521,10 @@
   },
   "deleteSendConfirmation": {
     "message": "您確定要刪除此 Send 嗎？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "複製 Send 連結",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4003,8 +4119,17 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
+  "vulnerablePassword": {
+    "message": "有安全疑慮的密碼。"
+  },
+  "changeNow": {
+    "message": "立即變更"
+  },
   "missingWebsite": {
     "message": "缺少網站"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
@@ -4031,9 +4156,15 @@
     "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "沒有搜尋結果"
+  },
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "generatorNudgeTitle": {
     "message": "快速建立密碼"
@@ -4253,7 +4384,7 @@
   "typeShortcut": {
     "message": "輸入快捷鍵"
   },
-  "editAutotypeShortcutDescription": {
+  "editAutotypeKeyboardModifiersDescription": {
     "message": "請包含以下修飾鍵之一或兩個：Ctrl、Alt、Win 或 Shift，再加上一個字母。"
   },
   "invalidShortcut": {
@@ -4292,6 +4423,9 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "archived": {
+    "message": "已封存"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -4301,17 +4435,32 @@
   "noItemsInArchiveDesc": {
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
-  "itemWasSentToArchive": {
-    "message": "項目已移至封存"
+  "itemArchiveToast": {
+    "message": "項目已封存"
   },
-  "itemWasUnarchived": {
-    "message": "項目取消封存"
+  "itemUnarchivedToast": {
+    "message": "項目已取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
+  },
+  "unArchiveAndSave": {
+    "message": "取消封存並儲存"
+  },
+  "restartPremium": {
+    "message": "重新啟用進階版"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "您的進階版訂閱已到期"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
+  },
+  "itemRestored": {
+    "message": "已還原項目"
   },
   "zipPostalCodeLabel": {
     "message": "郵編 / 郵政代碼"
@@ -4385,8 +4534,14 @@
   "sessionTimeoutSettingsAction": {
     "message": "逾時後動作"
   },
+  "errorCannotDecrypt": {
+    "message": "錯誤：無法解密"
+  },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
+  },
+  "resizeSideNavigation": {
+    "message": "調整側邊欄大小"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "此設定由您的組織管理。"
@@ -4479,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "為什麼我會看到此訊息？"
+  },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
+  "sendPasswordHelperText": {
+    "message": "對方必須輸入密碼才能檢視此 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "電子郵件已受保護"
+  },
+  "emails": {
+    "message": "電子郵件"
+  },
+  "noAuth": {
+    "message": "任何持有連結的人"
+  },
+  "anyOneWithPassword": {
+    "message": "任何持有您設定之密碼的人"
+  },
+  "whoCanView": {
+    "message": "誰可以檢視"
+  },
+  "specificPeople": {
+    "message": "特定人員"
+  },
+  "emailVerificationDesc": {
+    "message": "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。"
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "請以逗號分隔輸入多個電子郵件地址。"
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "使用者驗證失敗。"
   }
 }

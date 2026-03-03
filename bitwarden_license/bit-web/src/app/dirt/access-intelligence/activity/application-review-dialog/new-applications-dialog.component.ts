@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,14 +9,15 @@ import {
   Signal,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { from, switchMap, take } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { getUniqueMembers } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -79,7 +79,6 @@ export type NewApplicationsDialogResultType =
   selector: "dirt-new-applications-dialog",
   templateUrl: "./new-applications-dialog.component.html",
   imports: [
-    CommonModule,
     ButtonModule,
     DialogModule,
     TypographyModule,
@@ -239,6 +238,12 @@ export class NewApplicationsDialogComponent {
 
   // Checks if there are selected applications and proceeds to assign tasks
   async handleMarkAsCritical() {
+    if (this.markingAsCritical()) {
+      return; // Prevent double-click
+    }
+
+    this.markingAsCritical.set(true);
+
     if (this.selectedApplications().size === 0) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "confirmNoSelectedCriticalApplicationsTitle" },
@@ -247,24 +252,10 @@ export class NewApplicationsDialogComponent {
       });
 
       if (!confirmed) {
+        this.markingAsCritical.set(false);
         return;
       }
     }
-
-    // Skip the assign tasks view if there are no new unassigned at-risk cipher IDs
-    if (this.newUnassignedAtRiskCipherIds().length === 0) {
-      this.handleAssignTasks();
-    } else {
-      this.currentView.set(DialogView.AssignTasks);
-    }
-  }
-
-  // Saves the application review and assigns tasks for unassigned at-risk ciphers
-  protected handleAssignTasks() {
-    if (this.saving()) {
-      return; // Prevent double-click
-    }
-    this.saving.set(true);
 
     const reviewedDate = new Date();
     const updatedApplications = this.dialogParams.newApplications.map((app) => {
@@ -277,44 +268,79 @@ export class NewApplicationsDialogComponent {
     });
 
     // Save the application review dates and critical markings
-    this.dataService
-      .saveApplicationReviewStatus(updatedApplications)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
-        take(1),
-        switchMap(() => {
-          // Assign password change tasks for unassigned at-risk ciphers for critical applications
-          return from(
-            this.securityTasksService.requestPasswordChangeForCriticalApplications(
-              this.dialogParams.organizationId,
-              this.newUnassignedAtRiskCipherIds(),
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            variant: "success",
-            title: this.i18nService.t("applicationReviewSaved"),
-            message: this.i18nService.t("newApplicationsReviewed"),
-          });
-          this.saving.set(false);
-          this.handleAssigningCompleted();
-        },
-        error: (error: unknown) => {
-          this.logService.error(
-            "[NewApplicationsDialog] Failed to save application review or assign tasks",
-            error,
-          );
-          this.saving.set(false);
-          this.toastService.showToast({
-            variant: "error",
-            title: this.i18nService.t("errorSavingReviewStatus"),
-            message: this.i18nService.t("pleaseTryAgain"),
-          });
-        },
+    try {
+      await firstValueFrom(this.dataService.saveApplicationReviewStatus(updatedApplications));
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("applicationReviewSaved"),
+        message: this.i18nService.t("newApplicationsReviewed"),
       });
+
+      // If there are no unassigned at-risk ciphers, we can complete immediately. Otherwise, navigate to the assign tasks view.
+      if (this.newUnassignedAtRiskCipherIds().length === 0) {
+        this.handleAssigningCompleted();
+      } else {
+        this.currentView.set(DialogView.AssignTasks);
+      }
+    } catch (error: unknown) {
+      this.logService.error(
+        "[NewApplicationsDialog] Failed to save application review status",
+        error,
+      );
+
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorSavingReviewStatus"),
+        message: this.i18nService.t("pleaseTryAgain"),
+      });
+    } finally {
+      this.markingAsCritical.set(false);
+    }
+  }
+
+  // Saves the application review and assigns tasks for unassigned at-risk ciphers
+  protected async handleAssignTasks() {
+    if (this.saving()) {
+      return; // Prevent double-click
+    }
+    this.saving.set(true);
+
+    try {
+      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+        this.dialogParams.organizationId,
+        this.newUnassignedAtRiskCipherIds(),
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("success"),
+        message: this.i18nService.t("notifiedMembers"),
+      });
+
+      // close the dialog
+      this.handleAssigningCompleted();
+    } catch (error: unknown) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        this.toastService.showToast({
+          message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+          variant: "error",
+          title: this.i18nService.t("error"),
+        });
+
+        return;
+      }
+
+      this.logService.error("[NewApplicationsDialog] Failed to assign tasks", error);
+
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
-import * as koaRouter from "@koa/router";
+import { Router } from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
 
@@ -147,7 +147,6 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.accountService,
-      this.serviceContainer.configService,
       this.serviceContainer.i18nService,
     );
     this.restoreCommand = new RestoreCommand(
@@ -167,9 +166,7 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.masterPasswordService,
       this.serviceContainer.keyService,
-      this.serviceContainer.userVerificationService,
       this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
@@ -179,7 +176,6 @@ export class OssServeConfigurator {
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.masterPasswordUnlockService,
-      this.serviceContainer.configService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -222,7 +218,7 @@ export class OssServeConfigurator {
     );
   }
 
-  async configureRouter(router: koaRouter) {
+  async configureRouter(router: Router) {
     router.get("/generate", async (ctx, next) => {
       const response = await this.generateCommand.run(ctx.request.query);
       this.processResponse(ctx.response, response);

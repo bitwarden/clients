@@ -1,18 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, iif, map, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
@@ -42,10 +45,14 @@ export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMOR
 });
 
 /** Disk since master key hash is used for unlock */
-const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "masterKeyHash", {
-  deserializer: (masterKeyHash) => masterKeyHash,
-  clearOn: ["logout"],
-});
+export const MASTER_KEY_HASH = new UserKeyDefinition<string>(
+  MASTER_PASSWORD_DISK,
+  "masterKeyHash",
+  {
+    deserializer: (masterKeyHash) => masterKeyHash,
+    clearOn: ["logout"],
+  },
+);
 
 /** Disk to persist through lock */
 export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
@@ -101,9 +108,29 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     assertNonNullish(userId, "userId");
-    return this.accountService.accounts$.pipe(
-      map((accounts) => accounts[userId].email),
-      map((email) => this.emailToSalt(email)),
+
+    // Note: We can't use the config service as an abstraction here because it creates a circular dependency: ConfigService -> ConfigApiService -> ApiService -> VaultTimeoutSettingsService -> KeyService -> MP service.
+    return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$.pipe(
+      map((serverConfig) =>
+        getFeatureFlagValue(serverConfig, FeatureFlag.PM31088_MasterPasswordServiceEmitSalt),
+      ),
+      switchMap((enabled) =>
+        iif(
+          () => enabled,
+          this.masterPasswordUnlockData$(userId).pipe(
+            map((unlockData) => {
+              if (unlockData == null) {
+                throw new Error("Master password unlock data not found for user.");
+              }
+              return unlockData.salt;
+            }),
+          ),
+          this.accountService.accounts$.pipe(
+            map((accounts) => accounts[userId].email),
+            map((email) => this.emailToSalt(email)),
+          ),
+        ),
+      ),
     );
   }
 
@@ -341,5 +368,52 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+  }
+
+  async setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
+    )) as MasterKey;
+    const localKeyHash = await this.hashMasterKey(
+      password,
+      masterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    await this.setMasterKey(masterKey, userId);
+    await this.setMasterKeyHash(localKeyHash, userId);
+  }
+
+  // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
+  private async hashMasterKey(
+    password: string,
+    key: MasterKey,
+    hashPurpose: HashPurpose,
+  ): Promise<string> {
+    if (password == null) {
+      throw new Error("password is required.");
+    }
+    if (key == null) {
+      throw new Error("key is required.");
+    }
+
+    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
+    return Utils.fromBufferToB64(hash);
   }
 }

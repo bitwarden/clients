@@ -6,13 +6,11 @@ import { Router } from "@angular/router";
 
 import {
   CollectionAdminService,
-  DefaultCollectionAdminService,
-  OrganizationUserApiService,
   CollectionService,
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
-  OrganizationUserService,
+  DefaultCollectionAdminService,
   DefaultOrganizationUserService,
+  OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -29,17 +27,17 @@ import {
   OBSERVABLE_DISK_LOCAL_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_LANGUAGE,
-  SafeInjectionToken,
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SsoComponentService,
   LoginDecryptionOptionsService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
@@ -48,10 +46,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -59,9 +54,14 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
+import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -86,6 +86,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -116,32 +117,35 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  BiometricsService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
-  BiometricsService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
+  WebAuthnPrfUnlockService,
+  DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
-  POLICY_EDIT_REGISTER,
   ossPolicyEditRegister,
+  POLICY_EDIT_REGISTER,
 } from "../admin-console/organizations/policies";
 import {
+  LinkSsoService,
   WebChangePasswordService,
-  WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
-  WebTwoFactorAuthDuoComponentService,
-  LinkSsoService,
+  WebRegistrationFinishService,
   WebSetInitialPasswordService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
@@ -316,6 +320,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteService,
       RouterService,
       AccountCryptographicStateService,
+      RegisterSdkService,
     ],
   }),
   safeProvider({
@@ -362,18 +367,6 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       AccountService,
       I18nServiceAbstraction,
-    ],
-  }),
-  safeProvider({
-    provide: AutomaticUserConfirmationService,
-    useClass: DefaultAutomaticUserConfirmationService,
-    deps: [
-      ConfigService,
-      ApiService,
-      OrganizationUserService,
-      StateProvider,
-      InternalOrganizationServiceAbstraction,
-      OrganizationUserApiService,
     ],
   }),
   safeProvider({
@@ -483,11 +476,42 @@ const safeProviders: SafeProvider[] = [
     useClass: SessionTimeoutSettingsComponentService,
     deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyService],
   }),
+  safeProvider({
+    provide: AuthRequestAnsweringService,
+    useClass: NoopAuthRequestAnsweringService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: WebAuthnPrfUnlockService,
+    useClass: DefaultWebAuthnPrfUnlockService,
+    deps: [
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      KeyServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      EncryptService,
+      EnvironmentService,
+      PlatformUtilsService,
+      WINDOW,
+      LogService,
+      ConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: ChangeEmailService,
+    useClass: DefaultChangeEmailService,
+    deps: [
+      ConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+      ApiService,
+      KeyServiceAbstraction,
+    ],
+  }),
 ];
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

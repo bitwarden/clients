@@ -56,6 +56,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   ItemModule,
   LinkModule,
   SectionComponent,
@@ -98,6 +99,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     FormsModule,
     ReactiveFormsModule,
     IconButtonModule,
+    IconModule,
     ItemModule,
     JslibModule,
     LinkModule,
@@ -149,6 +151,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
+  private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
     private accountService: AccountService,
@@ -256,7 +259,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
         (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
-      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
@@ -264,10 +267,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    timer(0, 1000)
+    timer(0, this.BIOMETRICS_POLLING_INTERVAL)
       .pipe(
         switchMap(async () => {
-          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
@@ -275,6 +277,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
+          // Biometrics status shouldn't be checked if permissions are needed.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
+          }
+
+          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextDesktopDisconnected",

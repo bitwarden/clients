@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -16,8 +17,11 @@ import {
   mockAccountServiceWith,
 } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
@@ -91,14 +95,52 @@ describe("MasterPasswordService", () => {
         sut.saltForUser$(null as unknown as UserId);
       }).toThrow("userId is null or undefined.");
     });
+    // Removable with unwinding of PM31088_MasterPasswordServiceEmitSalt
     it("throws when userid present but not in account service", async () => {
       await expect(
         firstValueFrom(sut.saltForUser$("00000000-0000-0000-0000-000000000001" as UserId)),
       ).rejects.toThrow("Cannot read properties of undefined (reading 'email')");
     });
-    it("returns salt", async () => {
-      const salt = await firstValueFrom(sut.saltForUser$(userId));
-      expect(salt).toBeDefined();
+    // Removable with unwinding of PM31088_MasterPasswordServiceEmitSalt
+    it("returns email-derived salt for legacy path", async () => {
+      const result = await firstValueFrom(sut.saltForUser$(userId));
+      // mockAccountServiceWith defaults email to "email"
+      expect(result).toBe("email" as MasterPasswordSalt);
+    });
+
+    describe("saltForUser$ master password unlock data migration path", () => {
+      // Flagged with  PM31088_MasterPasswordServiceEmitSalt PM-31088
+      beforeEach(() => {
+        stateProvider.singleUser.getFake(userId, USER_SERVER_CONFIG).nextState({
+          featureStates: {
+            [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: true,
+          },
+        } as unknown as ServerConfig);
+      });
+
+      // Unwinding should promote these tests as part of saltForUser suite.
+      it("returns salt from master password unlock data", async () => {
+        const expectedSalt = "custom-salt" as MasterPasswordSalt;
+        const unlockData = new MasterPasswordUnlockData(
+          expectedSalt,
+          new PBKDF2KdfConfig(600_000),
+          makeEncString().toSdk() as MasterKeyWrappedUserKey,
+        );
+        stateProvider.singleUser
+          .getFake(userId, MASTER_PASSWORD_UNLOCK_KEY)
+          .nextState(unlockData.toJSON());
+
+        const result = await firstValueFrom(sut.saltForUser$(userId));
+        expect(result).toBe(expectedSalt);
+      });
+
+      it("throws when master password unlock data is null", async () => {
+        stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+
+        await expect(firstValueFrom(sut.saltForUser$(userId))).rejects.toThrow(
+          "Master password unlock data not found for user.",
+        );
+      });
     });
   });
 
@@ -413,6 +455,125 @@ describe("MasterPasswordService", () => {
         expect(result).toEqual(masterPasswordUnlockData.toJSON());
       },
     );
+  });
+
+  describe("setLegacyMasterKeyFromUnlockData", () => {
+    const password = "test-password";
+
+    it("derives master key from password and sets it in state", async () => {
+      const masterKey = makeSymmetricCryptoKey(32, 5) as MasterKey;
+      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
+
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
+
+      expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
+        password,
+        masterPasswordUnlockData.salt,
+        masterPasswordUnlockData.kdf,
+      );
+
+      const state = await firstValueFrom(stateProvider.getUser(userId, MASTER_KEY).state$);
+      expect(state).toEqual(masterKey);
+    });
+
+    it("works with argon2 kdf config", async () => {
+      const masterKey = makeSymmetricCryptoKey(32, 6) as MasterKey;
+      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
+
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfArgon2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
+
+      expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
+        password,
+        masterPasswordUnlockData.salt,
+        masterPasswordUnlockData.kdf,
+      );
+
+      const state = await firstValueFrom(stateProvider.getUser(userId, MASTER_KEY).state$);
+      expect(state).toEqual(masterKey);
+    });
+
+    it("computes and sets master key hash in state", async () => {
+      const masterKey = makeSymmetricCryptoKey(32, 7) as MasterKey;
+      const expectedHashBytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const expectedHashB64 = "AQIDBAUGBwg=";
+      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(expectedHashBytes);
+      jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(expectedHashB64);
+
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
+
+      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
+        masterKey.inner().encryptionKey,
+        password,
+        "sha256",
+        HashPurpose.LocalAuthorization,
+      );
+
+      const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
+      expect(hashState).toEqual(expectedHashB64);
+    });
+
+    it("throws if password is null", async () => {
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await expect(
+        sut.setLegacyMasterKeyFromUnlockData(
+          null as unknown as string,
+          masterPasswordUnlockData,
+          userId,
+        ),
+      ).rejects.toThrow("password is null or undefined.");
+    });
+
+    it("throws if masterPasswordUnlockData is null", async () => {
+      await expect(
+        sut.setLegacyMasterKeyFromUnlockData(
+          password,
+          null as unknown as MasterPasswordUnlockData,
+          userId,
+        ),
+      ).rejects.toThrow("masterPasswordUnlockData is null or undefined.");
+    });
+
+    it("throws if userId is null", async () => {
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await expect(
+        sut.setLegacyMasterKeyFromUnlockData(
+          password,
+          masterPasswordUnlockData,
+          null as unknown as UserId,
+        ),
+      ).rejects.toThrow("userId is null or undefined.");
+    });
   });
 
   describe("MASTER_PASSWORD_UNLOCK_KEY", () => {

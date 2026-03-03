@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Kirjaudu pääsyavaimella"
   },
+  "unlockWithPasskey": {
+    "message": "Poista lukitus todentamisavaimella"
+  },
   "useSingleSignOn": {
     "message": "Käytä kertakirjautumista"
   },
@@ -437,7 +440,7 @@
     "message": "Synkronointi"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synkronoi nyt"
   },
   "lastSync": {
     "message": "Viimeisin synkronointi:"
@@ -570,20 +573,29 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Arkistoi kohde"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "Muokkaa"
@@ -595,10 +607,10 @@
     "message": "Näytä kaikki"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Näytä kaikki"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Näytä vähemmän"
   },
   "viewLogin": {
     "message": "View login"
@@ -884,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Virheellinen todennuskoodi"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ kopioitu",
     "description": "Value has been copied to the clipboard.",
@@ -974,6 +989,12 @@
   },
   "no": {
     "message": "En"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Sijainti"
@@ -1474,7 +1495,7 @@
     "message": "This file is using an outdated encryption method."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Liite päivitetty"
   },
   "file": {
     "message": "Tiedosto"
@@ -1532,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Kaksivaiheisen kirjautumisen erikoisvaihtoehdot, kuten YubiKey ja Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Salasanahygienian, tilin terveyden ja tietovuotojen raportointitoiminnot pitävät holvisi turvassa."
@@ -1634,7 +1664,7 @@
     "message": "Passkey authentication failed"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Käytä vaihtoehtoista kirjautumistapaa"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Odotetaan suojausavaimen aktivointia..."
@@ -1926,7 +1956,7 @@
     "message": "Erääntymisvuosi"
   },
   "monthly": {
-    "message": "month"
+    "message": "kuukausi"
   },
   "expiration": {
     "message": "Voimassaolo päättyy"
@@ -2023,6 +2053,9 @@
   },
   "email": {
     "message": "Sähköposti"
+  },
+  "emails": {
+    "message": "Sähköpostit"
   },
   "phone": {
     "message": "Puhelinnumero"
@@ -2452,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Kohde poistettiin pysyvästi"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Palauta kohde"
   },
@@ -2711,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näille verkkotunnuksille. Päivitä sivu ottaaksesi muutokset käyttöön."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
-  },
   "blockedDomainsDesc": {
     "message": "Näille sivustoille ei tarjota automaattista täyttöä eikä muita siihen liittyviä ominaisuuksia. Sinun on päivitettävä sivu, jotta muutokset tulevat voimaan."
   },
@@ -2826,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Kuvitus vaarantuneiden kirjautumistietojen luettelosta."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Luo vahva ja ainutlaatuinen salasana nopeasti Bitwardenin automaattitäytön valikosta vaarantuneella sivustolla.",
@@ -2999,10 +3035,6 @@
   "custom": {
     "message": "Mukautettu"
   },
-  "sendPasswordDescV3": {
-    "message": "Lisää valinnainen salasana vastaanottajille tähän Sendiin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Uusi Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3054,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send-linkki kopioitiin",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3062,28 +3133,8 @@
     "message": "Send tallennettiin",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Irrota laajennus?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Irrota laajennus uuteen ikkunaan luodaksesi tiedosto-Sendin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Jotta voit valita tiedoston, avaa laajennus sivupalkkiin (jos mahdollista) tai erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Jotta voit valita tiedoston käyttäen Firefoxia, avaa laajennus sivupalkkiin tai erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
-  "sendSafariFileWarning": {
-    "message": "Jotta voit valita tiedoston käyttäen Safaria, avaa laajennus erilliseen ikkunaan klikkaamalla tätä banneria."
-  },
   "popOut": {
     "message": "Irrota"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Ennen kuin aloitat"
   },
   "expirationDateIsInvalid": {
     "message": "Määritetty erääntymismisajankohta on virheellinen."
@@ -3342,6 +3393,12 @@
   },
   "error": {
     "message": "Virhe"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Salauksen purkuvirhe"
@@ -4718,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Lisää valintoja - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4808,14 +4868,47 @@
   "adminConsole": {
     "message": "Hallintapaneelista"
   },
+  "admin": {
+    "message": "Ylläpitäjä"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Saatavilla nyt"
+  },
   "accountSecurity": {
     "message": "Tilin suojaus"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Tietojenkalasteluhyökkäysten estäminen"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Tietojenkalasteluhyökkäysten tunnistaminen"
   },
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
@@ -4931,6 +5024,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Lataa liite"
   },
   "downloadBitwarden": {
     "message": "Lataa Bitwarden"
@@ -5071,14 +5167,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Piilota vastaavuuden tunnistus $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Automaattitäytetäänkö sivun avautuessa?"
@@ -5616,6 +5709,9 @@
   "extraWide": {
     "message": "Erittäin leveä"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Syöttämäsi salasana on virheellinen."
   },
@@ -5663,6 +5759,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "vulnerablePassword": {
+    "message": "Heikko salasana"
+  },
+  "changeNow": {
+    "message": "Vaihda nyt"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -5716,13 +5818,13 @@
     "message": "Tervetuloa holviisi!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Havaittu tietojenkalasteluhyökkäyksen yritys"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Sivusto jota olet avaamassa on tunnetusti haitallinen ja sen avaaminen on turvallisuusriski"
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Sulje tämä välilehti"
   },
   "phishingPageContinueV2": {
     "message": "Jatka tälle sivustolle (ei suositeltavaa)"
@@ -5836,10 +5938,10 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Näytä enemmän"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Näytä vähemmän"
   },
   "next": {
     "message": "Seuraava"
@@ -5902,6 +6004,9 @@
   },
   "cardNumberLabel": {
     "message": "Kortin numero"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -6039,5 +6144,54 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

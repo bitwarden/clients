@@ -250,6 +250,38 @@ describe("DefaultCipherRiskService", () => {
         expect.any(Object),
       );
     });
+
+    it("should filter out deleted Login ciphers", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+      mockCipherRiskClient.compute_risk.mockResolvedValue([]);
+
+      const activeCipher = new CipherView();
+      activeCipher.id = mockCipherId1;
+      activeCipher.type = CipherType.Login;
+      activeCipher.login = new LoginView();
+      activeCipher.login.password = "password1";
+      activeCipher.deletedDate = undefined;
+
+      const deletedCipher = new CipherView();
+      deletedCipher.id = mockCipherId2;
+      deletedCipher.type = CipherType.Login;
+      deletedCipher.login = new LoginView();
+      deletedCipher.login.password = "password2";
+      deletedCipher.deletedDate = new Date();
+
+      await cipherRiskService.computeRiskForCiphers([activeCipher, deletedCipher], mockUserId);
+
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
+            id: expect.anything(),
+            password: "password1",
+          }),
+        ],
+        expect.any(Object),
+      );
+    });
   });
 
   describe("buildPasswordReuseMap", () => {
@@ -281,6 +313,41 @@ describe("DefaultCipherRiskService", () => {
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
         expect.objectContaining({ password: "password2" }),
+      ]);
+      expect(result).toEqual(mockReuseMap);
+    });
+
+    it("should exclude deleted ciphers when building password reuse map", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      const mockReuseMap = {
+        password1: 1,
+      };
+
+      mockCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
+
+      const activeCipher = new CipherView();
+      activeCipher.id = mockCipherId1;
+      activeCipher.type = CipherType.Login;
+      activeCipher.login = new LoginView();
+      activeCipher.login.password = "password1";
+      activeCipher.deletedDate = undefined;
+
+      const deletedCipherWithSamePassword = new CipherView();
+      deletedCipherWithSamePassword.id = mockCipherId2;
+      deletedCipherWithSamePassword.type = CipherType.Login;
+      deletedCipherWithSamePassword.login = new LoginView();
+      deletedCipherWithSamePassword.login.password = "password1";
+      deletedCipherWithSamePassword.deletedDate = new Date();
+
+      const result = await cipherRiskService.buildPasswordReuseMap(
+        [activeCipher, deletedCipherWithSamePassword],
+        mockUserId,
+      );
+
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+        expect.objectContaining({ password: "password1" }),
       ]);
       expect(result).toEqual(mockReuseMap);
     });

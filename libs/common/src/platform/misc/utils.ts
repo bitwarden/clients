@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+import "core-js/proposals/array-buffer-base64";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -42,6 +44,7 @@ export class Utils {
   static readonly validHosts: string[] = ["localhost"];
   static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
+  static readonly maximumPasswordLength = 128;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
   ]);
@@ -71,7 +74,7 @@ export class Utils {
     }
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -88,11 +91,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -104,7 +107,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -117,7 +120,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -126,6 +129,88 @@ export class Utils {
       arr[i] = str.charCodeAt(i);
     }
     return arr;
+  }
+
+  static fromArrayToHex(arr: Uint8Array): string;
+  static fromArrayToHex(arr: null): null;
+  /**
+   * Converts a Uint8Array to a hexadecimal string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The hexadecimal string representation, or null if the input is null.
+   */
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toHex();
+  }
+
+  static fromArrayToB64(arr: Uint8Array): string;
+  static fromArrayToB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64" });
+  }
+
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a URL-safe Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The URL-safe Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64url" });
+  }
+
+  static fromArrayToByteString(arr: null): null;
+  static fromArrayToByteString(arr: Uint8Array): string;
+  /**
+   * Converts a Uint8Array to a byte string (each byte as a character).
+   * @param arr - The Uint8Array to convert.
+   * @returns The byte string representation, or null if the input is null.
+   */
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    let byteString = "";
+    for (let i = 0; i < arr.length; i++) {
+      byteString += String.fromCharCode(arr[i]);
+    }
+    return byteString;
+  }
+
+  static fromArrayToUtf8(arr: Uint8Array): string;
+  static fromArrayToUtf8(arr: null): null;
+  /**
+   * Converts a Uint8Array to a UTF-8 decoded string.
+   * @param arr - The Uint8Array containing UTF-8 encoded bytes.
+   * @returns The decoded UTF-8 string, or null if the input is null.
+   */
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return BufferLib.from(arr).toString("utf8");
   }
 
   /**
@@ -301,7 +386,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {

@@ -15,9 +15,10 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
 
@@ -49,6 +50,7 @@ export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
+  NotificationType.AutoConfirmMember,
 ]);
 
 export class DefaultServerNotificationsService implements ServerNotificationsService {
@@ -67,9 +69,10 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
-    private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
     private readonly policyService: InternalPolicyService,
+    private autoConfirmService: AutomaticUserConfirmationService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -250,26 +253,28 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncSendDelete:
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
-      case NotificationType.AuthRequest:
-        await this.authRequestAnsweringService.receivedPendingAuthRequest(
-          notification.payload.userId,
-          notification.payload.id,
-        );
-
-        /**
-         * This call is necessary for Desktop, which for the time being uses a noop for the
-         * authRequestAnsweringService.receivedPendingAuthRequest() call just above. Desktop
-         * will eventually use the new AuthRequestAnsweringService, at which point we can remove
-         * this second call.
-         *
-         * The Extension AppComponent has logic (see processingPendingAuth) that only allows one
-         * pending auth request to process at a time, so this second call will not cause any
-         * duplicate processing conflicts on Extension.
-         */
-        this.messagingService.send("openLoginApproval", {
-          notificationId: notification.payload.id,
-        });
+      case NotificationType.AuthRequest: {
+        // Only Extension and Desktop implement the AuthRequestAnsweringService
+        if (this.authRequestAnsweringService.receivedPendingAuthRequest) {
+          try {
+            await this.authRequestAnsweringService.receivedPendingAuthRequest(
+              notification.payload.userId,
+              notification.payload.id,
+            );
+          } catch (error) {
+            this.logService.error(`Failed to process auth request notification: ${error}`);
+          }
+        } else {
+          // This call is necessary for Web, which uses a NoopAuthRequestAnsweringService
+          // that does not have a receivedPendingAuthRequest() method
+          this.messagingService.send("openLoginApproval", {
+            // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
+            // This will only matter if the user is on the /device-management screen when the auth request is received.
+            notificationId: notification.payload.id,
+          });
+        }
         break;
+      }
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
         break;
@@ -289,6 +294,14 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         break;
       case NotificationType.SyncPolicy:
         await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+        break;
+      case NotificationType.AutoConfirmMember:
+        await this.autoConfirmService.autoConfirmUser(
+          notification.payload.userId,
+          notification.payload.targetUserId,
+          notification.payload.targetOrganizationUserId,
+          notification.payload.organizationId,
+        );
         break;
       default:
         break;
