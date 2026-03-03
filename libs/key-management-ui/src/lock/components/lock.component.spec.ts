@@ -116,7 +116,7 @@ describe("LockComponent", () => {
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
     mockConfigService.getFeatureFlag.mockResolvedValue(false);
-    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => { });
+    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       imports: [
