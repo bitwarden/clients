@@ -95,7 +95,10 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   }
 
   protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
-    return this.data.getRawValue();
+    const raw = this.data.getRawValue();
+    return {
+      enableIndividualItemsTransfer: raw.enableIndividualItemsTransfer ?? false,
+    };
   }
 
   async buildVNextRequest(
