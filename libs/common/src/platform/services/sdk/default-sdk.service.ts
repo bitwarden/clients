@@ -65,7 +65,7 @@ class JsTokenProvider implements TokenProvider {
   constructor(
     private apiService: ApiService,
     private userId?: UserId,
-  ) { }
+  ) {}
 
   async get_access_token(): Promise<string | undefined> {
     if (this.userId == null) {
@@ -113,7 +113,7 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
-  ) { }
+  ) {}
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
