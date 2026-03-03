@@ -14,7 +14,10 @@ on:
         type: choice
         options:
           - rc
-          - hotfix-rc
+          - hotfix-rc-web
+          - hotfix-rc-desktop
+          - hotfix-rc-browser
+          - hotfix-rc-cli
 
 permissions: {}
 
