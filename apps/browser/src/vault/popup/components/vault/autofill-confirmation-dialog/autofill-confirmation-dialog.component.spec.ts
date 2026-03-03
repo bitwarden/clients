@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -55,21 +54,6 @@ describe("AutofillConfirmationDialogComponent", () => {
   }
 
   beforeEach(async () => {
-    jest.spyOn(Utils, "getHostname").mockImplementation((value: string | null | undefined) => {
-      if (typeof value !== "string" || !value) {
-        return "";
-      }
-      try {
-        // handle non-URL host strings gracefully
-        if (!value.includes("://")) {
-          return value;
-        }
-        return new URL(value).hostname;
-      } catch {
-        return "";
-      }
-    });
-
     await TestBed.configureTestingModule({
       imports: [AutofillConfirmationDialogComponent],
       providers: [
@@ -103,16 +87,6 @@ describe("AutofillConfirmationDialogComponent", () => {
       }) || null
     );
   };
-
-  it("normalizes currentUrl and savedUrls via Utils.getHostname", () => {
-    expect(Utils.getHostname).toHaveBeenCalledTimes(1 + (params.savedUrls?.length ?? 0));
-    expect(component.currentUrl()).toBe("example.com");
-    expect(component.savedUrls()).toEqual([
-      "one.example.com",
-      "two.example.com",
-      "not-a-url.example",
-    ]);
-  });
 
   it("renders normalized values into the template (shallow check)", () => {
     const text = fixture.nativeElement.textContent as string;
@@ -159,35 +133,17 @@ describe("AutofillConfirmationDialogComponent", () => {
 
     const { component: fresh } = await createFreshFixture({ params: newParams });
     expect(fresh.savedUrls()).toEqual([]);
-    expect(fresh.currentUrl()).toBe("bitwarden.com");
+    expect(fresh.currentUrl()).toBe("https://bitwarden.com/help");
   });
 
-  it("handles undefined savedUrls by defaulting to [] and empty strings from Utils.getHostname", async () => {
+  it("handles undefined savedUrls by defaulting to []", async () => {
     const localParams: AutofillConfirmationDialogParams = {
       currentUrl: "https://sub.domain.tld/x",
     };
 
     const { component: local } = await createFreshFixture({ params: localParams });
     expect(local.savedUrls()).toEqual([]);
-    expect(local.currentUrl()).toBe("sub.domain.tld");
-  });
-
-  it("filters out falsy/invalid values from Utils.getHostname in savedUrls", async () => {
-    const hostSpy = jest.spyOn(Utils, "getHostname");
-    hostSpy.mockImplementationOnce(() => "example.com");
-    hostSpy.mockImplementationOnce(() => "ok.example");
-    hostSpy.mockImplementationOnce(() => "");
-    hostSpy.mockImplementationOnce(() => undefined as unknown as string);
-
-    const edgeParams: AutofillConfirmationDialogParams = {
-      currentUrl: "https://example.com",
-      savedUrls: ["https://ok.example", "://bad", "%%%"],
-    };
-
-    const { component: edge } = await createFreshFixture({ params: edgeParams });
-
-    expect(edge.currentUrl()).toBe("example.com");
-    expect(edge.savedUrls()).toEqual(["ok.example"]);
+    expect(local.currentUrl()).toBe("https://sub.domain.tld/x");
   });
 
   it("renders one current-url callout and N saved-url callouts", () => {
