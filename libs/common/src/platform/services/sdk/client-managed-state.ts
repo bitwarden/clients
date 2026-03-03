@@ -36,27 +36,26 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
     return this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
   }
 
+  private async getRecord(): Promise<Record<string, ClientType>> {
+    return await firstValueFrom(this.getUserState().state$.pipe(map((state) => state ?? {})));
+  }
+
   async get(id: string): Promise<SdkType | null> {
-    const prov = this.getUserState();
-    const data = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
-    const element = data[id];
-    if (!element) {
-      return null;
-    }
-    return this.mapper.toSdk(element);
+    const record = await this.getRecord();
+    const element = record[id];
+    return element ? this.mapper.toSdk(element) : null;
   }
 
   async list(): Promise<SdkType[]> {
-    const prov = this.getUserState();
-    const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
-    return Object.values(elements).map((element) => this.mapper.toSdk(element));
+    const record = await this.getRecord();
+    return Object.values(record).map((element) => this.mapper.toSdk(element));
   }
 
   async set(id: string, value: SdkType): Promise<void> {
-    const prov = this.getUserState();
-    const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
-    elements[id] = this.mapper.fromSdk(value);
-    await prov.update(() => elements);
+    await this.getUserState().update((state) => ({
+      ...(state ?? {}),
+      [id]: this.mapper.fromSdk(value),
+    }));
   }
 
   async setBulk(values: [string, SdkType][]): Promise<void> {
@@ -70,13 +69,15 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   async remove(id: string): Promise<void> {
-    const prov = this.getUserState();
-    const elements = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
-    if (!elements[id]) {
-      return;
-    }
-    delete elements[id];
-    await prov.update(() => elements);
+    await this.getUserState().update((state) => {
+      if (!state || !(id in state)) {
+        return state;
+      }
+      // Rest sibling
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [id]: _unused, ...rest } = state;
+      return rest;
+    });
   }
 
   async removeBulk(keys: string[]): Promise<void> {
@@ -84,11 +85,8 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       if (!state || !keys.some((key) => key in state)) {
         return state;
       }
-      const updated = { ...state };
-      for (const key of keys) {
-        delete updated[key];
-      }
-      return updated;
+      const keysToRemove = new Set(keys);
+      return Object.fromEntries(Object.entries(state).filter(([key]) => !keysToRemove.has(key)));
     });
   }
 
