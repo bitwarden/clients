@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "Resultados da pesquisa"
   },
+  "simplifiedAutofill": {
+    "message": "Preenchimento automático simplificado"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Ao clicar num item de preenchimento automático sugerido, este é preenchido em vez de abrir os detalhes. Pode continuar a visualizar estes itens através do menu Mais."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Abrir popover de preenchimento automático simplificado"
+  },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
   },

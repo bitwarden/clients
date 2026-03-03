@@ -574,10 +574,10 @@
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Objekt arkiverat"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Objekt avarkiverat"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -897,7 +897,7 @@
     "message": "Ogiltig verifieringskod"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Ogiltig e-postadress eller verifieringskod"
   },
   "valueCopied": {
     "message": "$VALUE$ har kopierats",
@@ -6006,7 +6006,7 @@
     "message": "Kortnummer"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fel: Kan inte dekryptera"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "Sökresultat"
   },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Ändra storlek på sidnavigering"
   },
@@ -6173,7 +6182,7 @@
     "message": "användare@bitwarden.com , användare@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Ladda ner Bitwardens appar"
   },
   "emailProtected": {
     "message": "Email protected"
@@ -6183,6 +6192,6 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Verifiering av användare misslyckades."
   }
 }

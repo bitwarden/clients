@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "搜索结果"
   },
+  "simplifiedAutofill": {
+    "message": "简化自动填充"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "当您点击一个建议的自动填充项目时，它会直接填充内容，而不是带您进入详情页面。您仍然可以从更多菜单中查看这些项目。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "打开简化自动填充弹窗"
+  },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"
   },
