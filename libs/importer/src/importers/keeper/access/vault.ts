@@ -1,4 +1,4 @@
-import * as sd from "./generated/SyncDown";
+import * as sd from "./generated/sync-down";
 import { ClientOptions, Decryptor, RecordV3, VaultItem } from "./models";
 import { Client, base64UrlEncode, decryptAesV1, decryptAesV2, decryptKeeperKey } from "./services";
 

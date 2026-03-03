@@ -1,4 +1,4 @@
-import { ApiRequest, ApiRequestPayload } from "../generated/APIRequest";
+import { ApiRequest, ApiRequestPayload } from "../generated/api-request";
 import { WssClientResponse, WssConnectionRequest } from "../generated/push";
 import { PendingMessage, PushMessage, SocketListener } from "../models";
 

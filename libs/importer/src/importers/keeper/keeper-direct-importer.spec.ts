@@ -10,7 +10,7 @@ import { ImportResult } from "../../models";
 import * as fixture from "../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { Vault } from "./access";
-import { SyncDownResponse } from "./access/generated/SyncDown";
+import { SyncDownResponse } from "./access/generated/sync-down";
 import { KeeperDirectImporter } from "./keeper-direct-importer";
 
 describe("Keeper Direct Importer", () => {
