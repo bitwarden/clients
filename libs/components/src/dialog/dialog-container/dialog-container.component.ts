@@ -107,6 +107,8 @@ export class DialogContainerComponent {
 
     const isDrawer = this.dialogRef?.isDrawer;
     const chrome = [
+      "tw-flex",
+      "tw-flex-col",
       "tw-self-center",
       "tw-w-full",
       "tw-overflow-hidden",
@@ -126,7 +128,7 @@ export class DialogContainerComponent {
   protected readonly classes = computed(() => {
     const isDrawer = this.dialogRef?.isDrawer;
     const widthClass = isDrawer ? ["tw-w-full"] : ["md:tw-p-4", "tw-w-screen"];
-    const baseClasses = ["tw-flex", ...widthClass];
+    const baseClasses = ["tw-flex", "tw-flex-col", ...widthClass];
     const sizeClasses = isDrawer ? ["tw-h-full"] : ["tw-max-h-[90vh]"];
 
     const size = this.dialogSize();
