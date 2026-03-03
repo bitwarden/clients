@@ -12,7 +12,4 @@ export * from "./models/view/event.view";
 export * from "./abstractions/event-collection.service";
 export * from "./abstractions/event-upload.service";
 
-// Service implementations - must be imported explicitly for DI registration
-// export * from "./services/event-collection.service";
-// export * from "./services/event-upload.service";
 export * from "./services/key-definitions";
