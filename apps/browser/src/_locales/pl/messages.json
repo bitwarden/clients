@@ -1540,7 +1540,7 @@
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ miejsca na zaszyfrowane załączniki.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -6150,6 +6150,15 @@
   },
   "searchResults": {
     "message": "Wyniki wyszukiwania"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
