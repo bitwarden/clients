@@ -147,7 +147,7 @@ mod tests {
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
-    fn create_test_public_key() -> crate::crypto::PublicKey {
+    fn create_stub_public_key() -> crate::crypto::PublicKey {
         crate::crypto::PublicKey {
             alg: "ssh-ed25519".to_string(),
             blob: vec![1, 2, 3],
@@ -294,7 +294,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore
             .expect_get()
@@ -318,7 +318,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore
             .expect_get()
@@ -342,7 +342,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -368,7 +368,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -393,7 +393,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -418,7 +418,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -446,7 +446,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore.expect_get().times(1).returning(|_| {
             let mut mock_key_data = MockQueryableKeyData::new();
