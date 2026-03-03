@@ -1,17 +1,18 @@
-<app-vault-list-items-container
-  *ngIf="autofillCiphers$ | async as ciphers"
-  [ciphers]="ciphers"
-  [title]="((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n"
-  [showRefresh]="showRefresh"
-  (onRefresh)="refreshCurrentTab()"
-  [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
-  isAutofillList
-  showAutofillButton
-  [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
-  [groupByType]="groupByType()"
-  [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
->
-  @if (ciphers.length) {
-    <app-simplified-autofill-info slot="title-end"></app-simplified-autofill-info>
-  }
-</app-vault-list-items-container>
+@if (autofillCiphers$ | async; as ciphers) {
+  <app-vault-list-items-container
+    [ciphers]="ciphers"
+    [title]="((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n"
+    [showRefresh]="showRefresh"
+    (onRefresh)="refreshCurrentTab()"
+    [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
+    isAutofillList
+    showAutofillButton
+    [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
+    [groupByType]="groupByType()"
+    [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
+  >
+    @if (ciphers.length) {
+      <app-simplified-autofill-info slot="title-end"></app-simplified-autofill-info>
+    }
+  </app-vault-list-items-container>
+}
