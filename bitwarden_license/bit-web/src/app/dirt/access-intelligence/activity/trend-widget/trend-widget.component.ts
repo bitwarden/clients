@@ -209,7 +209,7 @@ export class TrendWidgetComponent {
 
     // Prepare CSV data with translated headers
     const csvData = dataPoints.map((point) => ({
-      [this.i18nService.t("date")]: new Date(point.timestamp).toLocaleDateString(),
+      [this.i18nService.t("date")]: new Date(point.timestamp).toISOString().split("T")[0],
       [this.getAtRiskLabel(view)]: point.atRisk,
       [this.getAllLabel(view)]: point.total,
     }));
