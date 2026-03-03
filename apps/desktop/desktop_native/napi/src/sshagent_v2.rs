@@ -11,14 +11,14 @@ pub mod sshagent_v2 {
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, BitwardenSshAgent, InMemoryEncryptedKeyStore,
-        SignRequest as SshSignRequest,
+        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        SignRequest as SSHSignRequest,
     };
     use tracing::{debug, error};
 
     /// SSH key data, sent from Electron.
     #[napi(object)]
-    pub struct SshKeyData {
+    pub struct SSHKeyData {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
@@ -43,8 +43,8 @@ pub mod sshagent_v2 {
         pub namespace: Option<String>,
     }
 
-    impl From<(SshSignRequest, Option<String>)> for SignRequestData {
-        fn from((sign_request, cipher_id): (SshSignRequest, Option<String>)) -> Self {
+    impl From<(SSHSignRequest, Option<String>)> for SignRequestData {
+        fn from((sign_request, cipher_id): (SSHSignRequest, Option<String>)) -> Self {
             Self {
                 public_key: PublicKey {
                     alg: sign_request.public_key.alg,
@@ -60,8 +60,8 @@ pub mod sshagent_v2 {
 
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
-    pub struct SshAgentState {
-        agent: BitwardenSshAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
+    pub struct SSHAgentState {
+        agent: BitwardenSSHAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
     }
 
     /// Interface for the agent to request approval for ssh operations from Electron.
@@ -88,7 +88,7 @@ pub mod sshagent_v2 {
 
         async fn request_sign_approval(
             &self,
-            sign_request: SshSignRequest,
+            sign_request: SSHSignRequest,
             cipher_id: Option<String>,
         ) -> anyhow::Result<bool> {
             let request = SignRequestData::from((sign_request, cipher_id));
@@ -106,8 +106,8 @@ pub mod sshagent_v2 {
     }
 
     #[napi]
-    impl SshAgentState {
-        /// Creates a new [`BitwardenSshAgent`] and starts the server.
+    impl SSHAgentState {
+        /// Creates a new [`BitwardenSSHAgent`] and starts the server.
         ///
         /// # Arguments
         ///
@@ -126,7 +126,7 @@ pub mod sshagent_v2 {
 
             let keystore = InMemoryEncryptedKeyStore::default();
 
-            let mut agent = ssh_agent::BitwardenSshAgent::new(keystore, approval_handler);
+            let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
 
             debug!("Signaling the agent to start the server.");
 
@@ -152,7 +152,7 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn set_keys(&mut self, _new_keys: Vec<SshKeyData>) -> napi::Result<()> {
+        pub fn set_keys(&mut self, _new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
             todo!()
         }
 

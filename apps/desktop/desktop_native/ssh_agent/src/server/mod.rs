@@ -21,7 +21,7 @@ use crate::storage::keystore::KeyStore;
 ///
 /// The server internally manages its lifecycle - it can be created, started, stopped,
 /// and restarted without being re-created.
-pub struct SshAgentServer<K, A> {
+pub struct SSHAgentServer<K, A> {
     /// The storeage of SSH key data
     keystore: Arc<K>,
     /// The authenticator policy to invoke for operations that require authorization
@@ -30,12 +30,12 @@ pub struct SshAgentServer<K, A> {
     cancellation_token: Option<CancellationToken>,
 }
 
-impl<K, A> SshAgentServer<K, A>
+impl<K, A> SSHAgentServer<K, A>
 where
     K: KeyStore,
     A: AuthPolicy,
 {
-    /// Creates a new [`SshAgentServer`]
+    /// Creates a new [`SSHAgentServer`]
     pub fn new(keystore: Arc<K>, auth_policy: Arc<A>) -> Self {
         Self {
             keystore,
