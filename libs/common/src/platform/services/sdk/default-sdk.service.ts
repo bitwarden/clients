@@ -64,7 +64,7 @@ class JsTokenProvider implements TokenProvider {
   constructor(
     private apiService: ApiService,
     private userId?: UserId,
-  ) {}
+  ) { }
 
   async get_access_token(): Promise<string | undefined> {
     if (this.userId == null) {
@@ -112,7 +112,7 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
-  ) {}
+  ) { }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
@@ -253,6 +253,7 @@ export class DefaultSdkService implements SdkService {
   ) {
     // Initialize the SDK managed database and the client managed repositories.
     await initializeState(userId, client.platform().state(), this.stateProvider);
+    await this.loadFeatureFlags(client);
 
     if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
       await client.crypto().initialize_user_crypto({
@@ -263,12 +264,12 @@ export class DefaultSdkService implements SdkService {
           kdfParams.kdfType === KdfType.PBKDF2_SHA256
             ? { pBKDF2: { iterations: kdfParams.iterations } }
             : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
+              argon2id: {
+                iterations: kdfParams.iterations,
+                memory: kdfParams.memory,
+                parallelism: kdfParams.parallelism,
               },
+            },
         accountCryptographicState: accountCryptographicState,
       });
     } else {
@@ -284,12 +285,12 @@ export class DefaultSdkService implements SdkService {
           kdfParams.kdfType === KdfType.PBKDF2_SHA256
             ? { pBKDF2: { iterations: kdfParams.iterations } }
             : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
+              argon2id: {
+                iterations: kdfParams.iterations,
+                memory: kdfParams.memory,
+                parallelism: kdfParams.parallelism,
               },
+            },
         accountCryptographicState: accountCryptographicState,
       });
     }
@@ -301,8 +302,6 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-
-    await this.loadFeatureFlags(client);
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
