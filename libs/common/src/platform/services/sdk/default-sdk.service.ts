@@ -23,7 +23,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   PasswordManagerClient,
   ClientSettings,
@@ -65,7 +65,7 @@ class JsTokenProvider implements TokenProvider {
   constructor(
     private apiService: ApiService,
     private userId?: UserId,
-  ) {}
+  ) { }
 
   async get_access_token(): Promise<string | undefined> {
     if (this.userId == null) {
@@ -113,7 +113,7 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
-  ) {}
+  ) { }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
