@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,6 +16,7 @@ describe("WebChangePasswordService", () => {
   let keyService: MockProxy<KeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
   let userKeyRotationService: MockProxy<UserKeyRotationService>;
   let routerService: MockProxy<RouterService>;
 
@@ -38,6 +40,7 @@ describe("WebChangePasswordService", () => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
     userKeyRotationService = mock<UserKeyRotationService>();
     routerService = mock<RouterService>();
 
@@ -45,6 +48,7 @@ describe("WebChangePasswordService", () => {
       keyService,
       masterPasswordApiService,
       masterPasswordService,
+      masterPasswordUnlockService,
       userKeyRotationService,
       routerService,
     );
