@@ -152,7 +152,7 @@ export class TrendWidgetComponent {
   });
 
   private getFileDownloadName() {
-    return `risk-over-time-${this.selectedView()}-${this.selectedTimespan()}-${new Date().toDateString()}`;
+    return `risk_over_time_${this.selectedView()}_${this.selectedTimespan()}`;
   }
 
   private getAtRiskLabel(view: TrendWidgetViewType): string {
