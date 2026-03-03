@@ -23,9 +23,12 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { makeSymmetricCryptoKey, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { ChangePasswordService } from "./change-password.service.abstraction";
+import {
+  ChangePasswordService,
+  InvalidCurrentPasswordError,
+} from "./change-password.service.abstraction";
 import { DefaultChangePasswordService } from "./default-change-password.service";
 
 describe("DefaultChangePasswordService", () => {
@@ -196,8 +199,8 @@ describe("DefaultChangePasswordService", () => {
       passwordInputResult = {
         currentPassword: "current-password",
         newPassword: "new-password",
-        newPasswordHint: "newPasswordHint",
-        kdfConfig: new PBKDF2KdfConfig(),
+        newPasswordHint: "new-password-hint",
+        kdfConfig: DEFAULT_KDF_CONFIG,
         salt: "salt" as MasterPasswordSalt,
         newApisWithInputPasswordFlagEnabled: true,
       };
@@ -219,6 +222,7 @@ describe("DefaultChangePasswordService", () => {
       } as MasterPasswordUnlockData;
 
       // Mock returned/resolved values
+      masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(true);
       keyService.userKey$.mockReturnValue(of(userKey));
       masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(newUnlockData);
     });
@@ -248,7 +252,7 @@ describe("DefaultChangePasswordService", () => {
       });
 
       describe("general error handling", () => {
-        ["currentPassword", "salt"].forEach((key) => {
+        ["currentPassword", "newPassword", "salt"].forEach((key) => {
           it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
             // Arrange
             const invalidPasswordInputResult: PasswordInputResult = {
@@ -280,6 +284,17 @@ describe("DefaultChangePasswordService", () => {
               `${key} is null or undefined. Could not change password.`,
             );
           });
+        });
+
+        it("should throw if the current password is invalid (proofOfDecryption failed)", async () => {
+          // Arrange
+          masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(false);
+
+          // Act
+          const promise = sut.changePassword(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(InvalidCurrentPasswordError);
         });
 
         it("should throw if a userKey is not found", async () => {
@@ -352,7 +367,7 @@ describe("DefaultChangePasswordService", () => {
       });
 
       describe("general error handling", () => {
-        ["newPassword", "salt"].forEach((key) => {
+        ["currentPassword", "newPassword", "salt"].forEach((key) => {
           it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
             // Arrange
             const invalidPasswordInputResult: PasswordInputResult = {
@@ -371,7 +386,7 @@ describe("DefaultChangePasswordService", () => {
           });
         });
 
-        ["newPasswordHint", "kdfConfig"].forEach((key) => {
+        ["kdfConfig", "newPasswordHint"].forEach((key) => {
           it(`should throw if ${key} is null on the PasswordInputResult object`, async () => {
             // Arrange
             const invalidPasswordInputResult: PasswordInputResult = {
@@ -390,6 +405,17 @@ describe("DefaultChangePasswordService", () => {
               `${key} is null or undefined. Could not change password.`,
             );
           });
+        });
+
+        it("should throw if the current password is invalid (proofOfDecryption failed)", async () => {
+          // Arrange
+          masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(false);
+
+          // Act
+          const promise = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(InvalidCurrentPasswordError);
         });
 
         it("should throw if a userKey is not found", async () => {
