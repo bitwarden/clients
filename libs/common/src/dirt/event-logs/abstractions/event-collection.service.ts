@@ -1,5 +1,5 @@
-import { EventType } from "../../enums";
-import { CipherView } from "../../vault/models/view/cipher.view";
+import { CipherView } from "../../../vault/models/view/cipher.view";
+import { EventType } from "../enums/event-type.enum";
 
 export abstract class EventCollectionService {
   abstract collectMany(

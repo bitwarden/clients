@@ -10,9 +10,8 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EventView } from "@bitwarden/common/models/view/event.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -24,8 +23,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { EventService } from "../../../core";
-import { SharedModule } from "../../../shared";
+import { SharedModule } from "../../../../shared";
+import { EventService } from "../../services/event.service";
 
 export interface EntityEventsDialogParams {
   entity: "user" | "cipher" | "secret" | "project" | "service-account";

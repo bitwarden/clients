@@ -1,5 +1,5 @@
-import { EventData } from "../../models/data/event.data";
-import { EVENT_COLLECTION_DISK, UserKeyDefinition } from "../../platform/state";
+import { EVENT_COLLECTION_DISK, UserKeyDefinition } from "../../../platform/state";
+import { EventData } from "../models/data/event.data";
 
 export const EVENT_COLLECTION = UserKeyDefinition.array<EventData>(
   EVENT_COLLECTION_DISK,

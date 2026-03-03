@@ -8,15 +8,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { EventCollectionService as EventCollectionServiceAbstraction } from "../../abstractions/event/event-collection.service";
-import { EventUploadService } from "../../abstractions/event/event-upload.service";
-import { AuthService } from "../../auth/abstractions/auth.service";
-import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { EventType } from "../../enums";
-import { EventData } from "../../models/data/event.data";
-import { StateProvider } from "../../platform/state";
-import { CipherService } from "../../vault/abstractions/cipher.service";
-import { CipherView } from "../../vault/models/view/cipher.view";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { StateProvider } from "../../../platform/state";
+import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { CipherView } from "../../../vault/models/view/cipher.view";
+import { EventCollectionService as EventCollectionServiceAbstraction } from "../abstractions/event-collection.service";
+import { EventUploadService } from "../abstractions/event-upload.service";
+import { EventType } from "../enums/event-type.enum";
+import { EventData } from "../models/data/event.data";
 
 import { EVENT_COLLECTION } from "./key-definitions";
 

@@ -1,4 +1,5 @@
-import { EventSystemUser, EventType } from "../../enums";
+import { EventSystemUser } from "../../enums/event-system-user.enum";
+import { EventType } from "../../enums/event-type.enum";
 
 export class EventView {
   message: string;

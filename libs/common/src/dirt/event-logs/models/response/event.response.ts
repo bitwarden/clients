@@ -1,6 +1,7 @@
-import { DeviceType, EventSystemUser, EventType } from "../../enums";
-
-import { BaseResponse } from "./base.response";
+import { DeviceType } from "../../../../enums";
+import { BaseResponse } from "../../../../models/response/base.response";
+import { EventSystemUser } from "../../enums/event-system-user.enum";
+import { EventType } from "../../enums/event-type.enum";
 
 export class EventResponse extends BaseResponse {
   type: EventType;

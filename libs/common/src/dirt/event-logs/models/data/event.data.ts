@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EventType } from "../../enums";
+import { EventType } from "../../enums/event-type.enum";
 
 export class EventData {
   type: EventType;

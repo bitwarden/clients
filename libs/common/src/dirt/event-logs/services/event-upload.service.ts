@@ -2,17 +2,17 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "../../abstractions/api.service";
-import { EventUploadService as EventUploadServiceAbstraction } from "../../abstractions/event/event-upload.service";
-import { AuthService } from "../../auth/abstractions/auth.service";
-import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { EventData } from "../../models/data/event.data";
-import { EventRequest } from "../../models/request/event.request";
-import { LogService } from "../../platform/abstractions/log.service";
-import { ScheduledTaskNames } from "../../platform/scheduling/scheduled-task-name.enum";
-import { TaskSchedulerService } from "../../platform/scheduling/task-scheduler.service";
-import { StateProvider } from "../../platform/state";
-import { UserId } from "../../types/guid";
+import { ApiService } from "../../../abstractions/api.service";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { ScheduledTaskNames } from "../../../platform/scheduling/scheduled-task-name.enum";
+import { TaskSchedulerService } from "../../../platform/scheduling/task-scheduler.service";
+import { StateProvider } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
+import { EventUploadService as EventUploadServiceAbstraction } from "../abstractions/event-upload.service";
+import { EventData } from "../models/data/event.data";
+import { EventRequest } from "../models/request/event.request";
 
 import { EVENT_COLLECTION } from "./key-definitions";
 
