@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Минимален брой думи"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Тип парола",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Изпращане на данни за събитията до Вашата инстанция на Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "Свързването с $INTEGRATION$ е успешно.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Изключено"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Докладът за достъпа на членовете не може да бъде зареден. Това може да се случи, ако организацията е с голям размер или ако има проблем с мрежата. Моля, опитайте отново. Ако това продължи да се случва, свържете се с поддръжката."
   },
   "kdfIterationRecommends": {
     "message": "Препоръчваме 600 000 или повече"

@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Minimum aantal woorden"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Type wachtwoord",
+  "overridePasswordTypePolicy": {
+    "message": "Wachtwoordtype",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Huntress SIEM-instantie"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ succesvol verbonden.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Het laden van het toegangsrapport van leden is mislukt. Dit kan worden veroorzaakt door de grootte van de organisatie of een netwerkprobleem. Probeer het opnieuw of neem contact op met ondersteuning als het probleem zich blijft voordoen."
   },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"

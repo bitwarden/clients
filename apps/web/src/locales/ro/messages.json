@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Număr minim de cuvinte"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Password type",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"

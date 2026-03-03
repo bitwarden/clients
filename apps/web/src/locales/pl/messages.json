@@ -6,7 +6,7 @@
     "message": "Activity"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo Bitwardena"
   },
   "criticalApplications": {
     "message": "Krytyczne aplikacje"
@@ -42,7 +42,7 @@
     "message": "No applications match these filters"
   },
   "passwordRisk": {
-    "message": "Ryzyko związne z hasłem"
+    "message": "Hasło zagrożone"
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
@@ -1471,10 +1471,10 @@
     "message": "Użyj innej metody logowania"
   },
   "logInWithPasskey": {
-    "message": "Logowanie się za pomocą Passkey"
+    "message": "Zaloguj się kluczem dostępu (Passkey)"
   },
   "useSingleSignOn": {
-    "message": "Użyj jednokrotnego logowania"
+    "message": "Logowanie jednokrotne (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Your organization requires single sign-on."
@@ -1564,7 +1564,7 @@
     "message": "Utwórz konto"
   },
   "newToBitwarden": {
-    "message": "Nowy na Bitwarden?"
+    "message": "Nie korzystasz jeszcze z Bitwardena?"
   },
   "setAStrongPassword": {
     "message": "Ustaw silne hasło"
@@ -1582,7 +1582,7 @@
     "message": "Zaloguj się"
   },
   "logInToBitwarden": {
-    "message": "Zaloguj do Bitwarden"
+    "message": "Zaloguj się do Bitwardena"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Wpisz kod wysłany na Twój adres e-mail"
@@ -2300,7 +2300,7 @@
     "message": "Martwisz się, że jesteś zalogowany na innym urządzeniu? Przejdź poniżej, aby wylogować się ze wszystkich komputerów, których wcześniej używałeś. Ta czynność jest zalecana, jeśli korzystałeś z publicznego komputera lub przypadkowo zapisałeś swoje hasło na cudzym urządzeniu. Ta czynność wyczyści również wszystkie sesje z zapamiętanym logowaniem dwustopniowym."
   },
   "deauthorizeSessionsWarning": {
-    "message": "Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Zostaniesz również poproszony o ponowne logowanie dwustopniowe, jeśli masz włączoną tę opcję. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę."
+    "message": "Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Zostaniesz również poproszony o ponowne logowanie dwustopniowe, o ile jest włączone. Aktywne sesje na innych urządzeniach pozostaną aktywne przez maksymalnie godzinę."
   },
   "newDeviceLoginProtection": {
     "message": "Logowanie nowego urządzenia"
@@ -2582,7 +2582,7 @@
     "message": "Aby wymagać logowania dwustopniowego poprzez Duo, użyj poniższych opcji."
   },
   "twoStepLoginOrganizationSsoDesc": {
-    "message": "Jeśli masz skonfigurowane SSO lub je planujesz, logowanie dwustopniowe może być wymagane poprzez dostawcę tożsamości."
+    "message": "Jeśli masz skonfigurowane logowanie jednokrotne (SSO) lub je planujesz, dostawca tożsamości SSO może wymagać logowania dwustopniowego."
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Włączenie logowania dwustopniowego można trwale zablokować konto Bitwarden. Kod odzyskiwania pozwala na dostęp do konta w przypadku, gdy nie będziesz mógł skorzystać ze standardowego dostawcy logowania dwustopniowego (np. w przypadku utraty urządzenia). Pomoc techniczna Bitwarden nie będzie w stanie Ci pomóc, jeśli stracisz dostęp do swojego konta. Zalecamy zapisanie lub wydrukowanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Minimalna liczba słów"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Password type",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5566,7 +5566,7 @@
     "message": "Identyfikator organizacji"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Zaloguj się za pomocą logowania jednokrotnego SSO swojej organizacji. Aby rozpocząć, wpisz swój identyfikator organizacji."
+    "message": "Zaloguj się za pomocą logowania jednokrotnego (SSO) swojej organizacji. Aby rozpocząć, wpisz swój identyfikator organizacji."
   },
   "singleSignOnEnterOrgIdentifier": {
     "message": "Wprowadź identyfikator SSO swojej organizacji, aby rozpocząć"
@@ -5655,7 +5655,7 @@
     "message": "Niezgodni członkowie zostaną objęci cofniętym statusem do czasu opuszczenia przez nich wszystkich innych organizacji. Administratorzy są zwolnieni i mogą przywrócić członków po osiągnięciu zgodności."
   },
   "requireSso": {
-    "message": "Uwierzytelnianie logowaniem jednokrotnym"
+    "message": "Wymagaj logowania jednokrotnego (SSO)"
   },
   "requireSsoPolicyDesc": {
     "message": "Wymagaj używania przez użytkowników logowania jednokrotnego."
@@ -7443,7 +7443,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "zasadę uwierzytelniania wymagającą logowania jednokrotnego",
+    "message": "zasadę uwierzytelniania wymagającą logowania jednokrotnego (SSO)",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -7472,7 +7472,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
-    "message": "Logowanie jednokrotne SSO z odszyfrowaniem za pomocą serwera Key Connector jest włączone. Ta zasada dotyczy tylko właścicieli i administratorów."
+    "message": "Logowanie jednokrotne (SSO) z odszyfrowaniem za pomocą serwera Key Connector jest włączone. Ta zasada dotyczy tylko właścicieli i administratorów."
   },
   "enabledSso": {
     "message": "Logowanie jednokrotne SSO zostało włączone"
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Wył."
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "Zalecamy 600 000 lub więcej"

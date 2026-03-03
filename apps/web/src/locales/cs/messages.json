@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minimální počet slov"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Odešle data události do Vaší instanci SIEM Huntress"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ - úspěšně připojeno.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Nepodařilo se načíst zprávu o přístupu člena. Může to být způsobeno velikostí organizace nebo problémy se sítí. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává."
   },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
