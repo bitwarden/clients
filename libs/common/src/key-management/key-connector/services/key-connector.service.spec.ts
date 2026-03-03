@@ -495,7 +495,11 @@ describe("KeyConnectorService", () => {
         const mockRegistration = mockSdkRef.value
           .auth()
           .registration().post_keys_for_key_connector_registration;
-        expect(mockRegistration).toHaveBeenCalledWith(keyConnectorUrl, mockSsoOrgIdentifier);
+        expect(mockRegistration).toHaveBeenCalledWith(
+          keyConnectorUrl,
+          mockSsoOrgIdentifier,
+          mockUserId,
+        );
 
         expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
           expect.any(SymmetricCryptoKey),

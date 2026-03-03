@@ -14,8 +14,6 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -199,21 +197,9 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: OrganizationService, useValue: mockOrganizationService },
         {
           provide: KeyService,
-          useValue: {
-            makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]),
-            makeKeyPair: jest.fn().mockResolvedValue(["public-key", new EncString("private-key")]),
-          },
+          useValue: { makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]) },
         },
-        {
-          provide: EncryptService,
-          useValue: {
-            encryptString: jest.fn().mockResolvedValue(new EncString("encrypted-collection")),
-          },
-        },
-        {
-          provide: SyncService,
-          useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
-        },
+        { provide: SyncService, useValue: { fullSync: jest.fn().mockResolvedValue(undefined) } },
       ],
     })
       .overrideComponent(PremiumOrgUpgradePaymentComponent, {
@@ -326,7 +312,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
         mockAccount,
         "My New Org",
-        "teams",
+        component["selectedPlan"](),
         expect.objectContaining({
           country: "US",
           postalCode: "90210",
@@ -569,7 +555,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
         mockAccount,
         "Test Organization",
-        "teams",
+        expect.objectContaining({ tier: "teams" }),
         expect.objectContaining({
           country: "US",
           postalCode: "12345",

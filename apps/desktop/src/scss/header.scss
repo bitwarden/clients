@@ -145,16 +145,6 @@
   }
 }
 
-.account-switcher-v2 {
-  display: flex;
-  align-items: center;
-
-  span {
-    display: flex;
-    align-items: center;
-  }
-}
-
 .account-switcher-dropdown {
   @include themify($themes) {
     background-color: themed("accountSwitcherBackgroundColor");
@@ -215,11 +205,6 @@
           font-style: italic;
         }
       }
-    }
-
-    .account-v3 {
-      display: flex;
-      justify-content: space-between;
     }
   }
 

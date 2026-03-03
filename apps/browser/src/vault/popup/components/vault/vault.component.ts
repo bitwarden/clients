@@ -29,12 +29,9 @@ import {
   AutoConfirmState,
   AutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm/angular";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -269,8 +266,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private searchService: SearchService,
     private vaultItemsTransferService: VaultItemsTransferService,
-    private eventCollectionService: EventCollectionService,
-    private organizationService: InternalOrganizationServiceAbstraction,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -341,12 +336,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         filter(([canManage, state]) => canManage && state.showBrowserNotification === undefined),
         take(1),
         switchMap(() => AutoConfirmExtensionSetupDialogComponent.open(this.dialogService).closed),
-        withLatestFrom(
-          autoConfirmState$,
-          this.accountService.activeAccount$.pipe(getUserId),
-          this.organizationService.organizations$(this.activeUserId),
-        ),
-        switchMap(async ([result, state, userId, organizations]) => {
+        withLatestFrom(autoConfirmState$, this.accountService.activeAccount$.pipe(getUserId)),
+        switchMap(([result, state, userId]) => {
           const newState: AutoConfirmState = {
             ...state,
             enabled: result ?? false,
@@ -358,17 +349,6 @@ export class VaultComponent implements OnInit, OnDestroy {
               message: this.i18nService.t("autoConfirmEnabled"),
               variant: "success",
             });
-
-            // Auto-confirm users can only belong to one organization
-            const organization = organizations[0];
-            if (organization?.id) {
-              await this.eventCollectionService.collect(
-                EventType.Organization_AutoConfirmEnabled_Admin,
-                undefined,
-                true,
-                organization.id,
-              );
-            }
           }
 
           return this.autoConfirmService.upsert(userId, newState);

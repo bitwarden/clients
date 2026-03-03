@@ -1,12 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BusinessSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -25,8 +23,7 @@ describe("PremiumOrgUpgradeService", () => {
   let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let syncService: jest.Mocked<SyncService>;
   let keyService: jest.Mocked<KeyService>;
-  let encryptService: jest.Mocked<EncryptService>;
-  let i18nService: jest.Mocked<I18nService>;
+  let organizationService: jest.Mocked<OrganizationService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -52,7 +49,7 @@ describe("PremiumOrgUpgradeService", () => {
 
   beforeEach(() => {
     accountBillingClient = {
-      upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-org-id"),
+      upgradePremiumToOrganization: jest.fn().mockResolvedValue(undefined),
     } as any;
     previewInvoiceClient = {
       previewProrationForPremiumUpgrade: jest
@@ -65,16 +62,18 @@ describe("PremiumOrgUpgradeService", () => {
     keyService = {
       makeOrgKey: jest
         .fn()
-        .mockResolvedValue([{ encryptedString: "org-key-encrypted" }, "org-key-decrypted"]),
-      makeKeyPair: jest
-        .fn()
-        .mockResolvedValue(["public-key", new EncString("private-key-encrypted")]),
+        .mockResolvedValue([{ encryptedString: "encrypted-string" }, "decrypted-key"]),
     } as any;
-    encryptService = {
-      encryptString: jest.fn().mockResolvedValue(new EncString("collection-encrypted")),
-    } as any;
-    i18nService = {
-      t: jest.fn().mockReturnValue("Default Collection"),
+    organizationService = {
+      organizations$: jest.fn().mockReturnValue(
+        of([
+          {
+            id: "new-org-id",
+            name: "Test Organization",
+            isOwner: true,
+          } as Organization,
+        ]),
+      ),
     } as any;
 
     TestBed.configureTestingModule({
@@ -85,8 +84,7 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
         { provide: KeyService, useValue: keyService },
-        { provide: EncryptService, useValue: encryptService },
-        { provide: I18nService, useValue: i18nService },
+        { provide: OrganizationService, useValue: organizationService },
       ],
     });
 
@@ -98,33 +96,26 @@ describe("PremiumOrgUpgradeService", () => {
       const result = await service.upgradeToOrganization(
         mockAccount,
         "Test Organization",
-        mockPlanDetails.tier,
+        mockPlanDetails,
         mockBillingAddress,
       );
 
-      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
-        organizationName: "Test Organization",
-        organizationKey: "org-key-encrypted",
-        collectionName: "collection-encrypted",
-        publicKey: "public-key",
-        encryptedPrivateKey: "private-key-encrypted",
-        planTier: ProductTierType.Teams,
-        cadence: "annually",
-        billingAddress: mockBillingAddress,
-      });
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith("org-key-decrypted");
-      expect(encryptService.encryptString).toHaveBeenCalledWith(
-        "Default Collection",
-        "org-key-decrypted",
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
+        "Test Organization",
+        "encrypted-string",
+        2, // ProductTierType.Teams
+        "annually",
+        mockBillingAddress,
       );
+      expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(organizationService.organizations$).toHaveBeenCalledWith("user-id");
       expect(result).toBe("new-org-id");
     });
 
     it("should throw an error if organization name is missing", async () => {
       await expect(
-        service.upgradeToOrganization(mockAccount, "", mockPlanDetails.tier, mockBillingAddress),
+        service.upgradeToOrganization(mockAccount, "", mockPlanDetails, mockBillingAddress),
       ).rejects.toThrow("Organization name is required for organization upgrade");
     });
 
@@ -142,7 +133,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails.tier,
+          mockPlanDetails,
           incompleteBillingAddress,
         ),
       ).rejects.toThrow("Billing address information is incomplete");
@@ -158,7 +149,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          invalidPlanDetails.tier,
+          invalidPlanDetails,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Invalid plan tier for organization upgrade");
@@ -170,10 +161,25 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails.tier,
+          mockPlanDetails,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Key generation failed");
+    });
+
+    it("should throw an error if encrypted string is undefined", async () => {
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: null } as any,
+        "decrypted-key" as any,
+      ]);
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to generate encrypted organization key");
     });
 
     it("should propagate error if upgrade API call fails", async () => {
@@ -184,7 +190,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails.tier,
+          mockPlanDetails,
           mockBillingAddress,
         ),
       ).rejects.toThrow("API call failed");
@@ -196,10 +202,44 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails.tier,
+          mockPlanDetails,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
+    });
+
+    it("should throw an error if organization is not found after sync", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([
+          {
+            id: "different-org-id",
+            name: "Different Organization",
+            isOwner: true,
+          } as Organization,
+        ]),
+      );
+
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to find newly created organization");
+    });
+
+    it("should throw an error if no organizations are returned", async () => {
+      organizationService.organizations$.mockReturnValue(of([]));
+
+      await expect(
+        service.upgradeToOrganization(
+          mockAccount,
+          "Test Organization",
+          mockPlanDetails,
+          mockBillingAddress,
+        ),
+      ).rejects.toThrow("Failed to find newly created organization");
     });
   });
 

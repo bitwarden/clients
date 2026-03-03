@@ -1,4 +1,4 @@
-import { EventType } from "@bitwarden/common/dirt/event-logs";
+import { EventType } from "@bitwarden/common/enums";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import {
   OrganizationIntegrationConfigurationId,

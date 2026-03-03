@@ -299,7 +299,6 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         await this.autoConfirmService.autoConfirmUser(
           notification.payload.userId,
           notification.payload.targetUserId,
-          notification.payload.targetOrganizationUserId,
           notification.payload.organizationId,
         );
         break;

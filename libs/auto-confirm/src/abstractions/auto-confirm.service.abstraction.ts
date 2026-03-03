@@ -27,14 +27,12 @@ export abstract class AutomaticUserConfirmationService {
   /**
    * Calls the API endpoint to initiate automatic user confirmation.
    * @param userId The userId of the logged in admin performing auto confirmation. This is neccesary to perform the key exchange and for permissions checks.
-   * @param confirmedUserId The userId of the member being confirmed (for key exchange).
-   * @param confirmedOrganizationUserId The Organization userId of the member being confirmed (for confirm action).
+   * @param confirmedUserId The userId of the member being confirmed.
    * @param organization the organization the member is being auto confirmed to.
    **/
   abstract autoConfirmUser(
     userId: UserId,
     confirmedUserId: UserId,
-    confirmedOrganizationUserId: UserId,
     organization: OrganizationId,
   ): Promise<void>;
 }

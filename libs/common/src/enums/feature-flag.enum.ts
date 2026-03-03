@@ -12,6 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
@@ -87,7 +88,6 @@ export enum FeatureFlag {
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
   DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
-  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -109,6 +109,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
@@ -184,7 +185,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
