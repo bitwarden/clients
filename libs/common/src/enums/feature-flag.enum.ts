@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
@@ -110,7 +109,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
