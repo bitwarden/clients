@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import { combineLatest, defer, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -75,6 +75,10 @@ export class PoliciesComponent {
       orgPolicies.forEach((op) => map.set(op.type, op.enabled));
       return map;
     }),
+  );
+
+  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = defer(() =>
+    of(this.policyListService.getPolicies()),
   );
 
   protected policySections$: Observable<PolicySection[]> = this.organization$.pipe(
