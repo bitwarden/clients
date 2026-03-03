@@ -63,12 +63,10 @@ describe("AutofillVaultListItemsComponent", () => {
           useValue: {
             getUserState$: jest.fn().mockReturnValue(of(null)),
             getUser: jest.fn().mockReturnValue({ update: jest.fn().mockResolvedValue(undefined) }),
-            getGlobal: jest
-              .fn()
-              .mockReturnValue({
-                update: jest.fn().mockResolvedValue(undefined),
-                state$: new BehaviorSubject(undefined),
-              }),
+            getGlobal: jest.fn().mockReturnValue({
+              update: jest.fn().mockResolvedValue(undefined),
+              state$: new BehaviorSubject(undefined),
+            }),
           },
         },
         {
