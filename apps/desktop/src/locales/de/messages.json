@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriten"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Typen"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Eintrag gespeichert"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Eintrag löschen"
   },
@@ -1024,7 +1033,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "E-Mail oder Verifizierungscode ungültig"
   },
   "continue": {
     "message": "Weiter"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Unbekannt"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Benutzername kopieren"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Papierkorb durchsuchen"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "Eintrag dauerhaft löschen"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Send bearbeiten",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Mein Tresor"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Fehlende Website"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
@@ -4590,6 +4635,36 @@
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4619,12 +4694,12 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }

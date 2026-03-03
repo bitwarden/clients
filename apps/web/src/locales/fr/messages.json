@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Nombre minimum de mots"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Type de mot de passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement à votre instance de Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connecté avec succès.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Désactivé"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Échec du chargement du rapport d'accès des membres. Cela peut être dû à un problème de grande taille de l'organisation ou de problèmes du réseau. Veuillez réessayer ou contacter le support si le problème persiste."
   },
   "kdfIterationRecommends": {
     "message": "Nous vous recommandons 600 000 ou plus"
@@ -12876,6 +12888,21 @@
   },
   "storageFullDescription": {
     "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
+  },
+  "extensionPromptHeading": {
+    "message": "Obtenir l'extension pour un accès facile au coffre"
+  },
+  "extensionPromptBody": {
+    "message": "Avec l'extension de navigateur installée, vous emmènerez Bitwarden partout en ligne. Il remplira les mots de passe, faisant en sorte que vous puissiez vous connecter à vos comptes en un seul clic."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Un navigateur web montrant l'extension Bitwarden avec des éléments de saisie automatique pour la page web actuelle."
+  },
+  "skip": {
+    "message": "Ignorer"
+  },
+  "downloadExtension": {
+    "message": "Télécharger l'extension"
   },
   "whoCanView": {
     "message": "Qui peut afficher"

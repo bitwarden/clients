@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Parola türü",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ başarıyla bağlandı.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Kapalı"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "600.000 veya üstünü öneriyoruz"
@@ -12876,6 +12888,21 @@
   },
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
   },
   "whoCanView": {
     "message": "Kim görebilir"

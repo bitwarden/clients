@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Szavak minimális száma"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Jelszótípus",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Eseményadatok küldése a Huntress SIEM éldánynak"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ sikeresen kapcsolódásra került.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Ki"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Nem sikerült betölteni a tag hozzáférési jelentését. Ennek oka lehet egy nagy szervezet méret vagy hálózati probléma. Próbáljuk újra vagy lépjünk kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll."
   },
   "kdfIterationRecommends": {
     "message": "Célszerű 600 000 vagy nagyobb lépésben"
@@ -12876,6 +12888,21 @@
   },
   "storageFullDescription": {
     "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
+  },
+  "extensionPromptHeading": {
+    "message": "Szerezzük be a kiterjesztést a széf könnyű eléréséhez."
+  },
+  "extensionPromptBody": {
+    "message": "A böngésző kiterjesztés telepítésével a Bitwardent mindenhová magunkkal vihetjük. Kitölti a jelszavakat, így egyetlen kattintással bejelentkezhetünk a fiókjainkba."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Egy webböngésző, amely a Bitwarden kiterjesztést jeleníti meg az aktuális weboldal automatikus kitöltési elemeivel."
+  },
+  "skip": {
+    "message": "Kihagyás"
+  },
+  "downloadExtension": {
+    "message": "Kiterjesztés letöltése"
   },
   "whoCanView": {
     "message": "Ki láthatja"

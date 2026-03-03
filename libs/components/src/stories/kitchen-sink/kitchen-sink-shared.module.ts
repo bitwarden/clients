@@ -28,7 +28,6 @@ import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
 import { SelectModule } from "../../select";
-import { SharedModule } from "../../shared";
 import { SvgModule } from "../../svg";
 import { TableModule } from "../../table";
 import { TabsModule } from "../../tabs";
@@ -67,7 +66,6 @@ import { TypographyModule } from "../../typography";
     SearchModule,
     SectionComponent,
     SelectModule,
-    SharedModule,
     TableModule,
     TabsModule,
     ToggleGroupModule,
@@ -104,7 +102,6 @@ import { TypographyModule } from "../../typography";
     SearchModule,
     SectionComponent,
     SelectModule,
-    SharedModule,
     TableModule,
     TabsModule,
     ToggleGroupModule,
