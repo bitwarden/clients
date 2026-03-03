@@ -17,6 +17,7 @@ pub mod sshagent_v2 {
     use tracing::{debug, error};
 
     /// SSH key data, sent from Electron.
+    // NOTE: the public key is derived from the private key.
     #[napi(object)]
     pub struct SSHKeyData {
         pub private_key: String,
