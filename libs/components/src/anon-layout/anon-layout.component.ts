@@ -15,10 +15,10 @@ import { BitwardenLogo, BitSvg } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { LandingContentMaxWidthType } from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
-import { SharedModule } from "../shared";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
@@ -27,14 +27,7 @@ import { TypographyModule } from "../typography";
 @Component({
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
-  imports: [
-    SvgModule,
-    CommonModule,
-    TypographyModule,
-    SharedModule,
-    RouterModule,
-    LandingLayoutModule,
-  ],
+  imports: [CommonModule, I18nPipe, SvgModule, TypographyModule, RouterModule, LandingLayoutModule],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
   @HostBinding("class")
