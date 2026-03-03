@@ -5,7 +5,7 @@
 import { Vault } from "../../keeper/access";
 import * as fixture from "../../spec-data/keeper-direct/sync-down-fixture.json";
 
-import { SyncDownResponse } from "./generated/SyncDown";
+import { SyncDownResponse } from "./generated/sync-down";
 import { VaultItem } from "./models";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.

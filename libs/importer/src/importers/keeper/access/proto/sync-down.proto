@@ -4,9 +4,9 @@ package Vault;
 
 import "record.proto";
 import "breachwatch.proto";
-import "APIRequest.proto";
+import "api-request.proto";
 import "enterprise.proto";
-import "NotificationCenter.proto";
+import "notification-center.proto";
 
 enum CacheStatus {
   KEEP = 0;

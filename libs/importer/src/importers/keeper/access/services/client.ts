@@ -20,8 +20,8 @@ import {
   TwoFactorValueType,
   ValidateAuthHashRequest,
   ValidateDeviceVerificationCodeRequest,
-} from "../generated/APIRequest";
-import { SyncDownRequest, SyncDownResponse } from "../generated/SyncDown";
+} from "../generated/api-request";
+import { SyncDownRequest, SyncDownResponse } from "../generated/sync-down";
 import {
   ClientOptions,
   DeviceCredentials,

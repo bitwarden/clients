@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package NotificationCenter;
 
-import "GraphSync.proto";
+import "graph-sync.proto";
 
 enum NotificationCategory {
   NC_UNSPECIFIED = 0;
