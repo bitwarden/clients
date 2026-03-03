@@ -6,7 +6,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 export class CryptoUtils {
-  constructor(private cryptoFunctionService: CryptoFunctionService) { }
+  constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
   async deriveKey(username: string, password: string, iterationCount: number) {
     if (iterationCount < 0) {
