@@ -204,7 +204,7 @@ import {
 
 ```typescript
 import { Observable, BehaviorSubject, Subject, firstValueFrom, throwError } from "rxjs";
-import { map, switchMap, tap, catchError, shareReplay } from "rxjs/operators";
+import { map, switchMap, tap, catchError, shareReplay } from "rxjs";
 ```
 
 **Note:** Operators are imported from `"rxjs"` directly in modern RxJS, not `"rxjs/operators"`.
@@ -242,6 +242,6 @@ import { map, switchMap, tap, catchError, shareReplay } from "rxjs/operators";
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-03-03
 **Maintainer:** DIRT Team
