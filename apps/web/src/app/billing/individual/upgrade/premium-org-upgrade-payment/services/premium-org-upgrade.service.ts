@@ -90,7 +90,7 @@ export class PremiumOrgUpgradeService {
     }
 
     if (
-      billingAddress?.country != "US" &&
+      billingAddress.country !== "US" &&
       (billingAddress?.taxId == null || billingAddress?.taxId?.value == "") &&
       tier !== PersonalSubscriptionPricingTierIds.Families
     ) {
