@@ -12,6 +12,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -400,7 +401,8 @@ describe("SendReceiveCommand", () => {
           },
         };
 
-        sendApiService.postSendAccessV2.mockResolvedValue(mockSendResponse as any);
+        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
         sendApiService.getSendFileDownloadDataV2.mockResolvedValue({
           url: "https://example.com/download",
         } as any);
@@ -408,8 +410,9 @@ describe("SendReceiveCommand", () => {
         encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
         jest.spyOn(command as any, "saveAttachmentToFile").mockResolvedValue(Response.success());
 
-        await command.run(testUrl, { output: "./test.pdf" });
+        const response = await command.run(testUrl, { output: "./test.pdf" });
 
+        expect(response.success).toBe(true);
         expect(sendApiService.getSendFileDownloadDataV2).toHaveBeenCalledWith(
           expect.any(Object),
           mockToken,
