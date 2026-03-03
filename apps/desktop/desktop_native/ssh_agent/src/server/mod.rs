@@ -1,7 +1,7 @@
 //! SSH Agent Server implementation
 //!
 //! Adheres to the protocol defined in:
-//! <https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html>
+//! <https://datatracker.ietf.org/doc/draft-ietf-sshm-ssh-agent/>
 
 mod auth_policy;
 
