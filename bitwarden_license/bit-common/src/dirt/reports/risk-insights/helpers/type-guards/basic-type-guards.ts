@@ -51,6 +51,22 @@ export function isBoundedArray<T>(arr: unknown): arr is BoundedArray<T> {
 }
 
 /**
+ * A type guard to check if a value is a plain object with string keys and boolean values
+ * @param value The value to check
+ * @returns True if the value is a Record<string, boolean>, false otherwise
+ */
+export function isBooleanRecord(value: unknown): value is Record<string, boolean> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const entries = Object.entries(value as object);
+  if (entries.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    return false;
+  }
+  return entries.every(([k, v]) => isBoundedString(k) && isBoolean(v));
+}
+
+/**
  * A type guard to check if a value is a valid Date object
  * @param value The value to check
  * @returns True if the value is a valid Date object, false otherwise
