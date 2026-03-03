@@ -30,6 +30,7 @@ import {
   TokenProvider,
   UnsignedSharedKey,
   WrappedAccountCryptographicState,
+  Kdf,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -64,7 +65,7 @@ class JsTokenProvider implements TokenProvider {
   constructor(
     private apiService: ApiService,
     private userId?: UserId,
-  ) {}
+  ) { }
 
   async get_access_token(): Promise<string | undefined> {
     if (this.userId == null) {
@@ -112,7 +113,7 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private userAgent: string | null = null,
-  ) {}
+  ) { }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.sdkClientOverrides.pipe(
@@ -208,7 +209,7 @@ export class DefaultSdkService implements SdkService {
               userId,
               client,
               account,
-              kdfParams,
+              kdfParams.toSdkConfig(),
               userKey,
               accountCryptographicState,
               orgKeys,
@@ -246,7 +247,7 @@ export class DefaultSdkService implements SdkService {
     userId: UserId,
     client: PasswordManagerClient,
     account: AccountInfo,
-    kdfParams: KdfConfig,
+    kdf: Kdf,
     userKey: UserKey,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
@@ -260,16 +261,7 @@ export class DefaultSdkService implements SdkService {
         userId: asUuid(userId),
         email: account.email,
         method: { clientManagedState: {} },
-        kdfParams:
-          kdfParams.kdfType === KdfType.PBKDF2_SHA256
-            ? { pBKDF2: { iterations: kdfParams.iterations } }
-            : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
-              },
+        kdfParams: kdf,
         accountCryptographicState: accountCryptographicState,
       });
     } else {
@@ -281,16 +273,7 @@ export class DefaultSdkService implements SdkService {
             decrypted_user_key: userKey.toBase64(),
           },
         },
-        kdfParams:
-          kdfParams.kdfType === KdfType.PBKDF2_SHA256
-            ? { pBKDF2: { iterations: kdfParams.iterations } }
-            : {
-                argon2id: {
-                  iterations: kdfParams.iterations,
-                  memory: kdfParams.memory,
-                  parallelism: kdfParams.parallelism,
-                },
-              },
+        kdfParams: kdf,
         accountCryptographicState: accountCryptographicState,
       });
     }
