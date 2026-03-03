@@ -27,7 +27,6 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -214,11 +213,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
           return ref.value
             .auth()
             .registration()
-            .post_keys_for_key_connector_registration(
-              keyConnectorUrl,
-              ssoOrganizationIdentifier,
-              asUuid(userId),
-            );
+            .post_keys_for_key_connector_registration(keyConnectorUrl, ssoOrganizationIdentifier);
         }),
       ),
     );
