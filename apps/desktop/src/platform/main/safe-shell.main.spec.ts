@@ -39,7 +39,7 @@ describe("SafeShell", () => {
 
       safeShell.openExternal("https://bitwarden.com", UrlType.WebUrl);
 
-      expect(shell.openExternal).toHaveBeenCalledWith("https://bitwarden.com");
+      expect(shell.openExternal).toHaveBeenCalledWith("https://bitwarden.com", undefined);
       expect(mockLogService.warning).not.toHaveBeenCalled();
     });
 
