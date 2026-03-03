@@ -6,7 +6,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 export class CryptoUtils {
-  constructor(private cryptoFunctionService: CryptoFunctionService) {}
+  constructor(private cryptoFunctionService: CryptoFunctionService) { }
 
   async deriveKey(username: string, password: string, iterationCount: number) {
     if (iterationCount < 0) {
@@ -108,7 +108,7 @@ export class CryptoUtils {
   }
 
   private async decryptAes256EcbBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromArrayToB64(data));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data)!)!;
     return this.decryptAes256(d, encryptionKey, "ecb");
   }
 
@@ -119,8 +119,8 @@ export class CryptoUtils {
   }
 
   private async decryptAes256CbcBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromArrayToB64(data.subarray(26)));
-    const iv = Utils.fromB64ToArray(Utils.fromArrayToB64(data.subarray(1, 25)));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(26))!)!;
+    const iv = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(1, 25))!)!;
     return this.decryptAes256(d, encryptionKey, "cbc", iv);
   }
 }
