@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "zxcvbn": "4.4.2",
-    "@ovrlab/pqp-network": "0.1.91"
+    "@ovrlab/pqp-network": "0.1.94"
   },
   "license": "GPL-3.0",
   "scripts": {
