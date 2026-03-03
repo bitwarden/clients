@@ -57,7 +57,7 @@ export abstract class KeyService {
    * @note this observable represents only user keys stored in memory. A null value does not indicate that we cannot load a user key from storage.
    * @param userId The desired user
    */
-  abstract getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey>;
+  abstract getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null>;
   /**
    * Sets the provided user key and stores
    * any other necessary versions (such as auto, biometrics,
@@ -91,7 +91,7 @@ export abstract class KeyService {
    *
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
-  abstract getUserKey(userId?: string): Promise<UserKey>;
+  abstract getUserKey(userId?: string): Promise<UserKey | null>;
 
   /**
    * Retrieves the user key from storage
@@ -174,21 +174,6 @@ export abstract class KeyService {
     key: MasterKey,
     hashPurpose?: HashPurpose,
   ): Promise<string>;
-  /**
-   * Compares the provided master password to the stored password hash.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
-   * @param masterPassword The user's master password
-   * @param masterKey The user's master key
-   * @param userId The id of the user to do the operation for.
-   * @throws Error when master key is null/undefined.
-   * @returns True if the derived master password hash matches the stored
-   * key hash, false otherwise.
-   */
-  abstract compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

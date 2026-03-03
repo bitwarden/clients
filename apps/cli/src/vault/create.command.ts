@@ -170,7 +170,7 @@ export class CreateCommand {
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
-        new Uint8Array(fileBuf).buffer,
+        new Uint8Array(fileBuf),
         activeUserId,
       );
       const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
