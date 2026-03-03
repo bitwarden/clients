@@ -5,7 +5,9 @@ import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
+
 
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
@@ -138,7 +140,10 @@ export class UpdaterMain {
 
     if (!this.canUpdate) {
       if (withFeedback) {
-        void this.shell.openExternal("https://github.com/bitwarden/clients/releases");
+        void this.shell.openExternal(
+          "https://github.com/bitwarden/clients/releases",
+          UrlType.WebUrl,
+        );
       }
 
       return;

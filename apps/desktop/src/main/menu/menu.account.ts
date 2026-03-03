@@ -2,6 +2,7 @@ import { BrowserWindow, dialog, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { isMacAppStore, isWindowsStore } from "../../utils";
@@ -76,7 +77,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          void this.shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,
@@ -98,7 +99,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          void this.shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,

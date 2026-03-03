@@ -1,6 +1,7 @@
 import { MenuItemConstructorOptions, app } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -51,7 +52,7 @@ export class HelpMenu implements IMenubarMenu {
     return {
       id: "helpAndFeedback",
       label: this.localize("helpAndFeedback"),
-      click: () => this.shell.openExternal("https://bitwarden.com/help"),
+      click: () => this.shell.openExternal("https://bitwarden.com/help", UrlType.WebUrl),
     };
   }
 
@@ -59,7 +60,8 @@ export class HelpMenu implements IMenubarMenu {
     return {
       id: "fileBugReport",
       label: this.localize("fileBugReport"),
-      click: () => this.shell.openExternal("https://github.com/bitwarden/clients/issues"),
+      click: () =>
+        this.shell.openExternal("https://github.com/bitwarden/clients/issues", UrlType.WebUrl),
     };
   }
 
@@ -77,12 +79,12 @@ export class HelpMenu implements IMenubarMenu {
       {
         id: "termsOfService",
         label: this.localize("termsOfService"),
-        click: () => this.shell.openExternal("https://bitwarden.com/terms/"),
+        click: () => this.shell.openExternal("https://bitwarden.com/terms/", UrlType.WebUrl),
       },
       {
         id: "privacyPolicy",
         label: this.localize("privacyPolicy"),
-        click: () => this.shell.openExternal("https://bitwarden.com/privacy/"),
+        click: () => this.shell.openExternal("https://bitwarden.com/privacy/", UrlType.WebUrl),
       },
     ];
   }
@@ -104,27 +106,27 @@ export class HelpMenu implements IMenubarMenu {
       {
         id: "blog",
         label: this.localize("blog"),
-        click: () => this.shell.openExternal("https://blog.bitwarden.com"),
+        click: () => this.shell.openExternal("https://blog.bitwarden.com", UrlType.WebUrl),
       },
       {
         id: "twitter",
         label: "Twitter",
-        click: () => this.shell.openExternal("https://twitter.com/bitwarden"),
+        click: () => this.shell.openExternal("https://twitter.com/bitwarden", UrlType.WebUrl),
       },
       {
         id: "facebook",
         label: "Facebook",
-        click: () => this.shell.openExternal("https://www.facebook.com/bitwarden/"),
+        click: () => this.shell.openExternal("https://www.facebook.com/bitwarden/", UrlType.WebUrl),
       },
       {
         id: "github",
         label: "GitHub",
-        click: () => this.shell.openExternal("https://github.com/bitwarden"),
+        click: () => this.shell.openExternal("https://github.com/bitwarden", UrlType.WebUrl),
       },
       {
         id: "mastodon",
         label: "Mastodon",
-        click: () => this.shell.openExternal("https://fosstodon.org/@bitwarden"),
+        click: () => this.shell.openExternal("https://fosstodon.org/@bitwarden", UrlType.WebUrl),
       },
     ];
   }
@@ -133,7 +135,7 @@ export class HelpMenu implements IMenubarMenu {
     return {
       id: "goToWebVault",
       label: this.localize("goToWebVault"),
-      click: () => this.shell.openExternal(this.webVaultUrl),
+      click: () => this.shell.openExternal(this.webVaultUrl, UrlType.WebUrl),
     };
   }
 
@@ -154,6 +156,7 @@ export class HelpMenu implements IMenubarMenu {
         click: () =>
           this.shell.openExternal(
             "https://itunes.apple.com/app/" + "bitwarden-free-password-manager/id1137397744?mt=8",
+            UrlType.WebUrl,
           ),
       },
       {
@@ -163,6 +166,7 @@ export class HelpMenu implements IMenubarMenu {
         click: () =>
           this.shell.openExternal(
             "https://play.google.com/store/apps/" + "details?id=com.x8bit.bitwarden",
+            UrlType.WebUrl,
           ),
       },
     ];
@@ -186,6 +190,7 @@ export class HelpMenu implements IMenubarMenu {
           this.shell.openExternal(
             "https://chromewebstore.google.com/detail/" +
               "bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb",
+            UrlType.WebUrl,
           ),
       },
       {
@@ -194,6 +199,7 @@ export class HelpMenu implements IMenubarMenu {
         click: () =>
           this.shell.openExternal(
             "https://addons.mozilla.org/firefox/addon/" + "bitwarden-password-manager/",
+            UrlType.WebUrl,
           ),
       },
       {
@@ -202,6 +208,7 @@ export class HelpMenu implements IMenubarMenu {
         click: () =>
           this.shell.openExternal(
             "https://addons.opera.com/extensions/details/" + "bitwarden-free-password-manager/",
+            UrlType.WebUrl,
           ),
       },
       {
@@ -211,12 +218,13 @@ export class HelpMenu implements IMenubarMenu {
           this.shell.openExternal(
             "https://microsoftedge.microsoft.com/addons/" +
               "detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
+            UrlType.WebUrl,
           ),
       },
       {
         id: "safari",
         label: "Safari",
-        click: () => this.shell.openExternal("https://bitwarden.com/download/"),
+        click: () => this.shell.openExternal("https://bitwarden.com/download/", UrlType.WebUrl),
       },
     ];
   }

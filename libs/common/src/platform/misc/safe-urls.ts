@@ -1,7 +1,7 @@
 import { Utils } from "./utils";
 
 export const UrlType = Object.freeze({
-  /** Launch Cipher application */
+  /** URI schemes stored in vault cipher items */
   CipherUri: [
     "https://",
     "http://",
@@ -17,7 +17,7 @@ export const UrlType = Object.freeze({
     "iosapp://",
     "androidapp://",
   ],
-  /** Open website in external browser */
+  /** URI schemes for web pages opened in an external browser */
   WebUrl: ["https://", "http://"],
 } as const);
 export type UrlType = (typeof UrlType)[keyof typeof UrlType];
@@ -28,8 +28,8 @@ export class SafeUrls {
       return false;
     }
 
-    for (let i = 0; i < UrlType.CipherUri.length; i++) {
-      if (uri!.indexOf(UrlType.CipherUri[i]) === 0) {
+    for (let i = 0; i < type.length; i++) {
+      if (uri!.indexOf(type[i]) === 0) {
         return true;
       }
     }

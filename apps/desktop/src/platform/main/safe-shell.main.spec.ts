@@ -1,6 +1,6 @@
 import { shell } from "electron";
 
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
+import { SafeUrls, UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
 import { SafeShell } from "./safe-shell.main";
@@ -31,7 +31,7 @@ describe("SafeShell", () => {
     it("opens the url when canLaunch returns true", () => {
       jest.mocked(SafeUrls.canLaunch).mockReturnValue(true);
 
-      SafeShell.openExternal("https://bitwarden.com", mockLogService);
+      SafeShell.openExternal("https://bitwarden.com", UrlType.WebUrl, mockLogService);
 
       expect(shell.openExternal).toHaveBeenCalledWith("https://bitwarden.com");
       expect(mockLogService.warning).not.toHaveBeenCalled();
@@ -40,7 +40,7 @@ describe("SafeShell", () => {
     it("blocks the url and logs a warning when canLaunch returns false", () => {
       jest.mocked(SafeUrls.canLaunch).mockReturnValue(false);
 
-      SafeShell.openExternal("javascript:alert(1)", mockLogService);
+      SafeShell.openExternal("javascript:alert(1)", UrlType.WebUrl, mockLogService);
 
       expect(shell.openExternal).not.toHaveBeenCalled();
       expect(mockLogService.warning).toHaveBeenCalledWith(
@@ -59,7 +59,7 @@ describe("SafeShell", () => {
     it("opens the url when canLaunch returns true", () => {
       jest.mocked(SafeUrls.canLaunch).mockReturnValue(true);
 
-      safeShell.openExternal("https://bitwarden.com");
+      safeShell.openExternal("https://bitwarden.com", UrlType.WebUrl);
 
       expect(shell.openExternal).toHaveBeenCalledWith("https://bitwarden.com");
       expect(mockLogService.warning).not.toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe("SafeShell", () => {
     it("blocks the url and logs a warning when canLaunch returns false", () => {
       jest.mocked(SafeUrls.canLaunch).mockReturnValue(false);
 
-      safeShell.openExternal("javascript:alert(1)");
+      safeShell.openExternal("javascript:alert(1)", UrlType.WebUrl);
 
       expect(shell.openExternal).not.toHaveBeenCalled();
       expect(mockLogService.warning).toHaveBeenCalledWith(
