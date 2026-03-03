@@ -23,22 +23,14 @@
     <bit-spinner></bit-spinner>
   </ng-template>
   <ng-template ng-label-tmp let-item="item" let-clear="clear">
-    <button
-      type="button"
-      bitBadge
-      variant="primary"
-      class="tw-me-1 disabled:tw-border-0 tw-flex tw-gap-1.5 tw-items-center"
+    <bit-chip
+      size="small"
+      class="tw-me-1"
+      [label]="item.labelName"
+      [startIcon]="item.icon"
       [disabled]="disabled"
-      (click)="clear(item)"
-    >
-      @if (item.icon != null) {
-        <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
-      }
-      <span class="tw-truncate">
-        {{ item.labelName }}
-      </span>
-      <i class="bwi bwi-fw bwi-close bwi-sm" aria-hidden="true"></i>
-    </button>
+      (dismissed)="clear(item)"
+    ></bit-chip>
   </ng-template>
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex">
