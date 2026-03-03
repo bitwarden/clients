@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -44,9 +45,6 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
@@ -109,6 +107,7 @@ interface InputPasswordForm {
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
   imports: [
+    CommonModule,
     AsyncActionsModule,
     ButtonModule,
     CheckboxModule,
@@ -121,7 +120,6 @@ interface InputPasswordForm {
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
-    SharedModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
