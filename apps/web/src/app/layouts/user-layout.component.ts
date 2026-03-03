@@ -17,7 +17,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
-import { UserId } from "@bitwarden/user-core";
 import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
