@@ -80,6 +80,7 @@ describe("Messenger", () => {
     const send = (
       overrides: Partial<Omit<MessageEvent<MessageWithMetadata>, "data">> & { data?: any } = {},
     ) => {
+      const { data: dataOverrides, ...eventOverrides } = overrides;
       const port = new MessageChannel().port2;
       listener({
         isTrusted: true,
@@ -88,10 +89,10 @@ describe("Messenger", () => {
           ...createRequest(),
           SENDER: "bitwarden-webauthn",
           senderId: "other",
-          ...(overrides.data ?? {}),
+          ...(dataOverrides ?? {}),
         },
         ports: [port],
-        ...overrides,
+        ...eventOverrides,
       } as unknown as MessageEvent<MessageWithMetadata>);
     };
 
