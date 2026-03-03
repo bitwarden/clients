@@ -178,29 +178,6 @@ export class ChangePasswordComponent implements OnInit {
             passwordInputResult,
             this.userId,
           );
-
-          /**
-           * Note when unwinding this flag in PM-28143:
-           * Remove the early return and then move the logic at the end of this `try`
-           * (showToast, send, closeBrowserExtensionPopout) up into the else-block so
-           * that those run only in the `changePassword()` case and we don't have duplicate calls.
-           */
-          if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-            this.toastService.showToast({
-              variant: "success",
-              message: this.i18nService.t("masterPasswordChanged"),
-            });
-
-            // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-            await this.logoutService.logout(this.userId);
-            // navigate to root so redirect guard can properly route next active user or null user to correct page
-            await this.router.navigate(["/"]);
-
-            // Close the popout if we are in a browser extension popout.
-            this.changePasswordService.closeBrowserExtensionPopout?.();
-
-            return; // EARLY RETURN for flagged logic
-          }
         } else {
           await this.changePasswordService.changePassword(passwordInputResult, this.userId);
         }
@@ -210,8 +187,15 @@ export class ChangePasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordChanged"),
         });
 
-        // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
-        this.messagingService.send("logout");
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+          // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
+          await this.logoutService.logout(this.userId);
+          // navigate to root so redirect guard can properly route next active user or null user to correct page
+          await this.router.navigate(["/"]);
+        } else {
+          // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
+          this.messagingService.send("logout");
+        }
 
         // Close the popout if we are in a browser extension popout.
         this.changePasswordService.closeBrowserExtensionPopout?.();
