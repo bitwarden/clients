@@ -1,6 +1,7 @@
 // Enums
 export * from "./enums/event-type.enum";
 export * from "./enums/event-system-user.enum";
+export * from "./enums/event-category.enum";
 
 // Models
 export * from "./models/data/event.data";
