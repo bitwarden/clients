@@ -112,7 +112,7 @@ import {
   VaultItemDrawerComponent,
   VaultItemDrawerParams,
   VaultItemDrawerResult,
-} from "./vault-item-drawer.component";
+} from "./vault-items/vault-item-drawer.component";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { VaultListComponent } from "./vault-list.component";
 

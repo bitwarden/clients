@@ -45,8 +45,8 @@ import {
   VaultItemsTransferService,
 } from "@bitwarden/vault";
 
-import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopCredentialGenerationService } from "../../../../services/desktop-cipher-form-generator.service";
+import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
 
 export interface VaultItemDrawerParams {
   mode: "view" | "add" | "edit" | "clone";
