@@ -70,7 +70,7 @@ where
     pub fn set_keys(&self, _keys: Vec<K::KeyData>) -> Result<()> {
         debug!("Received new key data.");
 
-        // TODO: set keys
+        // TODO: set keys as part of PM-30755
 
         self.auth_policy.set_lock_state(LockState::Unlocked);
 
