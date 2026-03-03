@@ -12,24 +12,12 @@ export class SafeShell {
   /**
    * Open the given external protocol URL in the desktop's default manner if it is considered safe. (For example, mailto: URLs in the user's default mail agent).
    */
-  static openExternal(
-    url: string,
-    type: UrlType,
-    logService: LogService,
-    options?: Electron.OpenExternalOptions,
-  ): void {
+  openExternal(url: string, type: UrlType, options?: Electron.OpenExternalOptions): void {
     if (SafeUrls.canLaunch(url, type)) {
       // eslint-disable-next-line no-restricted-syntax
       void shell.openExternal(url, options);
     } else {
-      logService.warning(`Blocked attempt to open unsafe external url: ${url}`);
+      this.logService.warning(`Blocked attempt to open unsafe external url: ${url}`);
     }
-  }
-
-  /**
-   * Open the given external protocol URL in the desktop's default manner if it is considered safe. (For example, mailto: URLs in the user's default mail agent).
-   */
-  openExternal(url: string, type: UrlType, options?: Electron.OpenExternalOptions): void {
-    SafeShell.openExternal(url, type, this.logService, options);
   }
 }
