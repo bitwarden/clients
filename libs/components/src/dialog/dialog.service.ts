@@ -10,7 +10,17 @@ import { ComponentPortal, Portal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, Subject, switchMap, take } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -61,7 +71,14 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
-  "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width" | "restoreFocus"
+  | "data"
+  | "disableClose"
+  | "ariaModal"
+  | "positionStrategy"
+  | "height"
+  | "width"
+  | "restoreFocus"
+  | "closeOnNavigation"
 >;
 
 /**
@@ -136,7 +153,11 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   /** The portal containing the drawer */
   portal?: Portal<unknown>;
 
-  constructor(private drawerService: DrawerService) {}
+  constructor(
+    private drawerService: DrawerService,
+    /** Whether to close this drawer when navigating to a different route */
+    readonly closeOnNavigation = false,
+  ) {}
 
   close(result?: R, _options?: DialogCloseOptions): void {
     if (this.disableClose) {
@@ -187,7 +208,7 @@ export class DialogService {
   private dialog = inject(CdkDialog);
   private drawerService = inject(DrawerService);
   private injector = inject(Injector);
-  private router = inject(Router, { optional: true });
+  private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
@@ -209,6 +230,24 @@ export class DialogService {
           takeUntilDestroyed(),
         )
         .subscribe(() => this.closeAll());
+    }
+
+    /**
+     * Close the active drawer on route navigation if configured.
+     * Note: CDK dialogs have their own `closeOnNavigation` config option,
+     * but drawers use a custom implementation that requires manual cleanup.
+     */
+    if (this.router) {
+      this.router.events
+        .pipe(
+          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+          map((event) => event.urlAfterRedirects.split("?")[0]),
+          startWith(this.router.url.split("?")[0]),
+          distinctUntilChanged(),
+          filter(() => this.activeDrawer?.closeOnNavigation === true),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => this.closeDrawer());
     }
   }
 
@@ -235,6 +274,7 @@ export class DialogService {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
+      closeOnNavigation: config?.closeOnNavigation,
       injector,
       ...config,
     };
@@ -258,7 +298,7 @@ export class DialogService {
      * This is also circular. When creating the DrawerDialogRef, we do not yet have a portal instance to provide to the injector.
      * Similar to `this.open`, we get around this with mutability.
      */
-    this.activeDrawer = new DrawerDialogRef(this.drawerService);
+    this.activeDrawer = new DrawerDialogRef(this.drawerService, config?.closeOnNavigation ?? false);
     const portal = new ComponentPortal(
       component,
       null,
