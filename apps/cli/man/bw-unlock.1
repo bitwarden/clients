@@ -1,0 +1,93 @@
+.TH BW-UNLOCK 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-unlock \- unlock the vault and return a new session key
+
+.SH SYNOPSIS
+.B bw unlock
+[\fIpassword\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Unlock the vault and return a new session key. The session key is required for
+accessing vault data with other commands.
+
+You must be logged in before unlocking. Use \fBbw login\fP first if needed.
+
+.SH ARGUMENTS
+.TP
+.I password
+Master password. If not provided, you will be prompted interactively.
+
+.SH OPTIONS
+.TP
+.BR \-\-check
+Check lock status without attempting to unlock.
+.TP
+.BI \-\-passwordenv\  env
+Environment variable name storing the master password.
+.TP
+.BI \-\-passwordfile\  file
+Path to a file containing the master password.
+
+.SH EXAMPLES
+.TP
+Interactive unlock:
+.nf
+$ bw unlock
+? Master password: [hidden]
+Your vault is now unlocked!
+
+To unlock your vault, set your session key to the BW_SESSION
+environment variable. ex:
+$ export BW_SESSION="..."
+.fi
+.TP
+Unlock and export session (recommended for scripts):
+.nf
+$ export BW_SESSION=$(bw unlock --raw)
+.fi
+.TP
+Unlock with password from environment variable:
+.nf
+$ export MY_BW_PASSWORD="mypassword"
+$ export BW_SESSION=$(bw unlock --passwordenv MY_BW_PASSWORD --raw)
+.fi
+.TP
+Unlock with password from file:
+.nf
+$ export BW_SESSION=$(bw unlock --passwordfile ~/.bw_password --raw)
+.fi
+.TP
+Check lock status:
+.nf
+$ bw unlock --check
+Your vault is unlocked!
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Use \fB--raw\fP to output only the session key (useful for scripts).
+.TP
+\(bu
+The session key should be exported as \fBBW_SESSION\fP for other commands.
+.TP
+\(bu
+Session keys are sensitive; do not log or expose them.
+.TP
+\(bu
+For automation, consider storing the password securely with \fB--passwordfile\fP.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Vault successfully unlocked or check passed.
+.TP
+.B 1
+Unlock failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-lock (1),
+.BR bw-login (1),
+.BR bw-status (1)

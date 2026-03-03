@@ -1,0 +1,70 @@
+.TH BW-SYNC 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-sync \- pull the latest vault data from the server
+
+.SH SYNOPSIS
+.B bw sync
+[\fIoptions\fP]
+
+.SH DESCRIPTION
+Pull the latest vault data from the Bitwarden server to the local cache.
+This synchronizes any changes made on other devices or through the web vault.
+
+The CLI automatically syncs when needed, but you can manually sync to ensure
+you have the latest data.
+
+.SH OPTIONS
+.TP
+.BR \-f ", " \-\-force
+Perform a full sync, replacing all local data.
+.TP
+.BR \-\-last
+Get the date and time of the last successful sync.
+
+.SH EXAMPLES
+.TP
+Sync vault data:
+.nf
+$ bw sync
+Syncing...
+Syncing complete.
+.fi
+.TP
+Force a full sync:
+.nf
+$ bw sync --force
+Syncing...
+Syncing complete.
+.fi
+.TP
+Get last sync time:
+.nf
+$ bw sync --last
+2026-01-15T10:30:00.000Z
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+The CLI syncs automatically on most operations.
+.TP
+\(bu
+Use \fB--force\fP if you suspect local data is corrupted or out of sync.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Sync completed successfully.
+.TP
+.B 1
+Sync failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-list (1),
+.BR bw-get (1),
+.BR bw-status (1)
