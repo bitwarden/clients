@@ -4,6 +4,12 @@ import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+export class InvalidCurrentPasswordError extends Error {
+  constructor() {
+    super("The current password is invalid.");
+  }
+}
+
 export abstract class ChangePasswordService {
   /**
    * Creates a new user key and re-encrypts all required data with it.
@@ -28,8 +34,8 @@ export abstract class ChangePasswordService {
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the active user's `userId`
-   * @throws if the `currentPassword`, `kdfConfig`, `salt`, or `newPasswordHint` is not found
-   *         on the `PasswordInputResult`, or if there is an error during the API call
+   * @throws if required values are not found on the `PasswordInputResult`
+   * @throws if there is an error during the API call
    *
    * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
    *
@@ -51,8 +57,8 @@ export abstract class ChangePasswordService {
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the active user's `userId`
-   * @throws if the `newPasswordHint` is not found on the `PasswordInputResult`, or if there is an
-   *         error during the API call
+   * @throws if required values are not found on the `PasswordInputResult`
+   * @throws if there is an error during the API call
    *
    * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
    *

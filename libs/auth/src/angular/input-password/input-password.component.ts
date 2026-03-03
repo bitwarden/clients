@@ -12,7 +12,6 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -219,7 +218,6 @@ export class InputPasswordComponent implements OnInit {
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-    private masterPasswordUnlockService: MasterPasswordUnlockService,
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
@@ -347,28 +345,14 @@ export class InputPasswordComponent implements OnInit {
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
       );
 
-      // 2. Verify current password is correct (if necessary)
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        if (newApisWithInputPasswordFlagEnabled) {
-          if (!this.userId) {
-            throw new Error("userId is required to verify current password.");
-          }
-
-          const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
-            currentPassword,
-            this.userId,
-          );
-          if (!currentPasswordVerified) {
-            this.toastService.showToast({
-              variant: "error",
-              message: this.i18nService.t("invalidMasterPassword"),
-            });
-            return;
-          }
-        } else {
+      // Remove this current password verification block in PM-28143. Current password verification
+      // is performed by consumers when flag is on.
+      if (!newApisWithInputPasswordFlagEnabled) {
+        // 2. Verify current password is correct (if necessary)
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
           const currentPasswordVerified = await this.verifyCurrentPassword(
             currentPassword,
             this.kdfConfig,

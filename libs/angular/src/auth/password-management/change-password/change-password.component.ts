@@ -34,7 +34,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ChangePasswordService } from "./change-password.service.abstraction";
+import {
+  ChangePasswordService,
+  InvalidCurrentPasswordError,
+} from "./change-password.service.abstraction";
 
 /**
  * Change Password Component
@@ -202,11 +205,18 @@ export class ChangePasswordComponent implements OnInit {
       }
     } catch (error) {
       this.logService.error(error);
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("errorOccurred"),
-      });
+
+      if (error instanceof InvalidCurrentPasswordError) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("invalidMasterPassword"),
+        });
+      } else {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+      }
     } finally {
       this.submitting = false;
     }

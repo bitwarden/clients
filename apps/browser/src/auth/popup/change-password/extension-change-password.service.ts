@@ -4,6 +4,7 @@ import {
 } from "@bitwarden/angular/auth/password-management/change-password";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -17,9 +18,10 @@ export class ExtensionChangePasswordService
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected masterPasswordUnlockService: MasterPasswordUnlockService,
     private win: Window,
   ) {
-    super(keyService, masterPasswordApiService, masterPasswordService);
+    super(keyService, masterPasswordApiService, masterPasswordService, masterPasswordUnlockService);
   }
   closeBrowserExtensionPopout(): void {
     if (BrowserPopupUtils.inPopout(this.win)) {

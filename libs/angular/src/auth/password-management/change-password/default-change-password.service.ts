@@ -10,22 +10,28 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfig, KeyService } from "@bitwarden/key-management";
 
-import { ChangePasswordService } from "./change-password.service.abstraction";
+import {
+  ChangePasswordService,
+  InvalidCurrentPasswordError,
+} from "./change-password.service.abstraction";
 
 export class DefaultChangePasswordService implements ChangePasswordService {
   constructor(
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected masterPasswordUnlockService: MasterPasswordUnlockService,
   ) {}
 
   async rotateUserKeyMasterPasswordAndEncryptedData(
@@ -88,14 +94,15 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
       const ctx = "Could not change password.";
       assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
+      assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
       assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
       assertTruthy(passwordInputResult.salt, "salt", ctx);
-
-      // We always update the hint along with a password change. This is because a new password
-      // implies that the old hint is now outdated. So, if the user entered a new hint, we set that
-      // as the new hint. If the user left the hint field blank, the field defaults to an empty string
-      // which gets set as the new hint.
       assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+
+      const userKey = await this.verifyCurrentPasswordAndGetUserKey(
+        passwordInputResult.currentPassword,
+        userId,
+      );
 
       const currentAuthenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
@@ -105,8 +112,10 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         );
 
       const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
-        passwordInputResult,
-        userId,
+        passwordInputResult.newPassword,
+        passwordInputResult.kdfConfig,
+        passwordInputResult.salt,
+        userKey,
       );
 
       const request = PasswordRequest.newConstructor(
@@ -145,12 +154,24 @@ export class DefaultChangePasswordService implements ChangePasswordService {
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
       const ctx = "Could not change password.";
+      assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
+      assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+      assertTruthy(passwordInputResult.salt, "salt", ctx);
       assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
 
-      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
-        passwordInputResult,
+      const userKey = await this.verifyCurrentPasswordAndGetUserKey(
+        passwordInputResult.currentPassword,
         userId,
       );
+
+      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
+        passwordInputResult.newPassword,
+        passwordInputResult.kdfConfig,
+        passwordInputResult.salt,
+        userKey,
+      );
+
       const request = UpdateTempPasswordRequest.newConstructorWithHint(
         newAuthenticationData,
         newUnlockData,
@@ -193,48 +214,52 @@ export class DefaultChangePasswordService implements ChangePasswordService {
   }
 
   /**
-   * Makes new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData` from the
-   * provided `passwordInputResult`.
+   * Verifies that the current password is correct via `proofOfDecryption` and then
+   * returns the user key from state.
    *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param currentPassword the entered current password
    * @param userId the active user's `userId`
-   * @throws if the `newPassword`, `salt`, or `kdfConfig` is not found on the `PasswordInputResult`,
-   *         or if the user key cannot be found in state
-   * @returns an object containing the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
+   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
+   * @throws if the user key could not be retreived from state
+   * @returns the user key from state
    */
-  private async makeNewAuthAndUnlockData(
-    passwordInputResult: PasswordInputResult,
-    userId: UserId,
-  ): Promise<{
-    newAuthenticationData: MasterPasswordAuthenticationData;
-    newUnlockData: MasterPasswordUnlockData;
-  }> {
-    const ctx = "Could not change password.";
-    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-    assertTruthy(passwordInputResult.salt, "salt", ctx);
-    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+  private async verifyCurrentPasswordAndGetUserKey(currentPassword: string, userId: UserId) {
+    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+      currentPassword,
+      userId,
+    );
+    if (!currentPasswordVerified) {
+      throw new InvalidCurrentPasswordError();
+    }
 
-    // We don't need to verify the currentPassword here because by this point it has already
-    // been verified via proofOfDecryption before being emitted from the InputPasswordComponent.
-    // We can simply get the user key from state and use it.
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (!userKey) {
       throw new Error("userKey not found. Could not change password.");
     }
 
-    // Create new authentication data with the new password (includes a new masterPasswordAuthenticationHash)
+    return userKey;
+  }
+
+  private async makeNewAuthAndUnlockData(
+    newPassword: string,
+    kdfConfig: KdfConfig,
+    salt: MasterPasswordSalt,
+    userKey: UserKey,
+  ): Promise<{
+    newAuthenticationData: MasterPasswordAuthenticationData;
+    newUnlockData: MasterPasswordUnlockData;
+  }> {
     const newAuthenticationData =
       await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-        passwordInputResult.newPassword,
-        passwordInputResult.kdfConfig,
-        passwordInputResult.salt,
+        newPassword,
+        kdfConfig,
+        salt,
       );
 
-    // Create new unlock data with the new password (includes a new masterKeyWrappedUserKey)
     const newUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-      passwordInputResult.newPassword,
-      passwordInputResult.kdfConfig,
-      passwordInputResult.salt,
+      newPassword,
+      kdfConfig,
+      salt,
       userKey,
     );
 
