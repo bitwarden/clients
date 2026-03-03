@@ -1659,6 +1659,18 @@
       }
     }
   },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "month"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
   "refreshComplete": {
     "message": "Refresh complete"
   },
