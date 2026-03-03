@@ -25,6 +25,7 @@
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "lint:sdk-internal-versions": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/sdk-internal-versions.js",
+    "lint:disable-report": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/lint-disable-report.js",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d . --disableRoutesGraph",
     "storybook": "ng run components:storybook",
     "build-storybook": "ng run components:build-storybook",
