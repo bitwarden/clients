@@ -230,11 +230,11 @@ describe("NewApplicationsDialogV2Component", () => {
       expect(testAccess(component).selectedApplications().has("github.com")).toBe(false);
 
       // Select
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
       expect(testAccess(component).selectedApplications().has("github.com")).toBe(true);
 
       // Deselect
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
       expect(testAccess(component).selectedApplications().has("github.com")).toBe(false);
     });
 
@@ -242,36 +242,36 @@ describe("NewApplicationsDialogV2Component", () => {
       expect(testAccess(component).selectedApplications().size).toBe(0);
 
       // Select all
-      component.toggleAll();
+      testAccess(component).toggleAll();
       expect(testAccess(component).selectedApplications().size).toBe(3);
       expect(testAccess(component).selectedApplications().has("github.com")).toBe(true);
       expect(testAccess(component).selectedApplications().has("gitlab.com")).toBe(true);
       expect(testAccess(component).selectedApplications().has("bitbucket.org")).toBe(true);
 
       // Deselect all
-      component.toggleAll();
+      testAccess(component).toggleAll();
       expect(testAccess(component).selectedApplications().size).toBe(0);
     });
 
     it("should return correct isAllSelected state", () => {
-      expect(component.isAllSelected()).toBe(false);
+      expect(testAccess(component).isAllSelected()).toBe(false);
 
       // Select all manually
-      component.toggleSelection("github.com");
-      component.toggleSelection("gitlab.com");
-      component.toggleSelection("bitbucket.org");
+      testAccess(component).toggleSelection("github.com");
+      testAccess(component).toggleSelection("gitlab.com");
+      testAccess(component).toggleSelection("bitbucket.org");
 
-      expect(component.isAllSelected()).toBe(true);
+      expect(testAccess(component).isAllSelected()).toBe(true);
     });
 
     it("should update selectedApplications signal when toggling", () => {
       const initialSize = testAccess(component).selectedApplications().size;
       expect(initialSize).toBe(0);
 
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
       expect(testAccess(component).selectedApplications().size).toBe(1);
 
-      component.toggleSelection("gitlab.com");
+      testAccess(component).toggleSelection("gitlab.com");
       expect(testAccess(component).selectedApplications().size).toBe(2);
     });
   });
@@ -280,8 +280,8 @@ describe("NewApplicationsDialogV2Component", () => {
 
   describe("Computed Signals", () => {
     it("should compute newCriticalApplications - filters selected apps", () => {
-      component.toggleSelection("github.com");
-      component.toggleSelection("gitlab.com");
+      testAccess(component).toggleSelection("github.com");
+      testAccess(component).toggleSelection("gitlab.com");
 
       expect(testAccess(component).newCriticalApplications().length).toBe(2);
       expect(
@@ -292,9 +292,9 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should compute newAtRiskCriticalApplications - filters by isAtRisk()", () => {
-      component.toggleSelection("github.com"); // Has at-risk (u1: true, c1: true)
-      component.toggleSelection("gitlab.com"); // Has at-risk (u3: true, c3: true)
-      component.toggleSelection("bitbucket.org"); // No at-risk (u4: false, c4: false)
+      testAccess(component).toggleSelection("github.com"); // Has at-risk (u1: true, c1: true)
+      testAccess(component).toggleSelection("gitlab.com"); // Has at-risk (u3: true, c3: true)
+      testAccess(component).toggleSelection("bitbucket.org"); // No at-risk (u4: false, c4: false)
 
       const atRiskApps = testAccess(component).newAtRiskCriticalApplications();
 
@@ -307,8 +307,8 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should compute atRiskCriticalMembersCount - counts unique members", () => {
-      component.toggleSelection("github.com"); // u1: true, u2: false
-      component.toggleSelection("gitlab.com"); // u3: true
+      testAccess(component).toggleSelection("github.com"); // u1: true, u2: false
+      testAccess(component).toggleSelection("gitlab.com"); // u3: true
 
       const memberCount = testAccess(component).atRiskCriticalMembersCount();
 
@@ -317,8 +317,8 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should compute newUnassignedAtRiskCipherIds - collects cipher IDs", () => {
-      component.toggleSelection("github.com"); // c1: true, c2: false
-      component.toggleSelection("gitlab.com"); // c3: true
+      testAccess(component).toggleSelection("github.com"); // c1: true, c2: false
+      testAccess(component).toggleSelection("gitlab.com"); // c3: true
 
       const cipherIds = testAccess(component).newUnassignedAtRiskCipherIds();
 
@@ -334,9 +334,9 @@ describe("NewApplicationsDialogV2Component", () => {
 
   describe("Dialog Actions", () => {
     it("should handle handleMarkAsCritical with selections", async () => {
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
 
-      await component.handleMarkAsCritical();
+      await testAccess(component).handleMarkAsCritical();
 
       // Should navigate to AssignTasks view (since there are at-risk cipher IDs)
       expect(testAccess(component).currentView()).toBe(DialogView.AssignTasks);
@@ -349,7 +349,7 @@ describe("NewApplicationsDialogV2Component", () => {
       // User declines confirmation in dialog (returns early, doesn't proceed with save)
       mockDialogService.openSimpleDialog.mockResolvedValueOnce(false);
 
-      await component.handleMarkAsCritical();
+      await testAccess(component).handleMarkAsCritical();
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "confirmNoSelectedCriticalApplicationsTitle" },
@@ -363,11 +363,11 @@ describe("NewApplicationsDialogV2Component", () => {
 
     it("should handle handleMarkAsCritical - skips assign view if no unassigned ciphers", async () => {
       // Select app with no at-risk ciphers
-      component.toggleSelection("bitbucket.org"); // u4: false, c4: false
+      testAccess(component).toggleSelection("bitbucket.org"); // u4: false, c4: false
 
       const handleAssignTasksSpy = jest.spyOn(testAccess(component), "handleAssignTasks");
 
-      await component.handleMarkAsCritical();
+      await testAccess(component).handleMarkAsCritical();
 
       // Should call handleAssignTasks directly (skip assign view)
       expect(handleAssignTasksSpy).toHaveBeenCalled();
@@ -376,8 +376,8 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should handle handleAssignTasks - marks apps and assigns tasks", (done) => {
-      component.toggleSelection("github.com");
-      component.toggleSelection("gitlab.com");
+      testAccess(component).toggleSelection("github.com");
+      testAccess(component).toggleSelection("gitlab.com");
 
       testAccess(component).handleAssignTasks();
 
@@ -423,7 +423,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
   describe("Service Integration", () => {
     it("should call markApplicationAsCritical$ for selected apps", (done) => {
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
 
       testAccess(component).handleAssignTasks();
 
@@ -436,7 +436,7 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should call markApplicationAsReviewed$ for all apps", (done) => {
-      component.toggleSelection("github.com"); // Select only one
+      testAccess(component).toggleSelection("github.com"); // Select only one
 
       testAccess(component).handleAssignTasks();
 
@@ -448,7 +448,7 @@ describe("NewApplicationsDialogV2Component", () => {
     });
 
     it("should call requestPasswordChangeForCriticalApplications with cipher IDs", (done) => {
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
 
       testAccess(component).handleAssignTasks();
 
@@ -471,7 +471,7 @@ describe("NewApplicationsDialogV2Component", () => {
         throwError(() => errorResponse),
       );
 
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
 
       testAccess(component).handleAssignTasks();
 
@@ -495,7 +495,7 @@ describe("NewApplicationsDialogV2Component", () => {
         throwError(() => genericError),
       );
 
-      component.toggleSelection("github.com");
+      testAccess(component).toggleSelection("github.com");
 
       testAccess(component).handleAssignTasks();
 
@@ -550,7 +550,7 @@ describe("NewApplicationsDialogV2Component", () => {
       const emptyFixture = TestBed.createComponent(NewApplicationsDialogV2Component);
       const emptyComponent = emptyFixture.componentInstance;
 
-      expect(emptyComponent.isAllSelected()).toBe(false);
+      expect(testAccess(emptyComponent).isAllSelected()).toBe(false);
       expect(testAccess(emptyComponent).newCriticalApplications().length).toBe(0);
     });
 
