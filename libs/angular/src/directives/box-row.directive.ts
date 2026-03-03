@@ -2,6 +2,9 @@
 // @ts-strict-ignore
 import { Directive, ElementRef, HostListener, OnInit } from "@angular/core";
 
+/**
+ * @deprecated Only used in desktop, will soon be removed.
+ */
 @Directive({
   selector: "[appBoxRow]",
   standalone: false,

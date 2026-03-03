@@ -23,6 +23,7 @@ import {
   A11yTitleDirective,
   NoItemsModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
@@ -40,7 +41,6 @@ import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
-import { I18nPipe } from "./platform/pipes/i18n.pipe";
 import { IconComponent } from "./vault/components/icon.component";
 
 /**
@@ -81,23 +81,24 @@ import { IconComponent } from "./vault/components/icon.component";
     CopyClickDirective,
     A11yTitleDirective,
     AutofocusDirective,
+
+    EllipsisPipe,
+    I18nPipe,
+    IconComponent,
+    IfFeatureDirective,
+    InputStripSpacesDirective,
+    InputVerbatimDirective,
+    LaunchClickDirective,
+    StopClickDirective,
+    StopPropDirective,
+    UserNamePipe,
+    UserTypePipe,
   ],
   declarations: [
     ApiActionDirective,
     BoxRowDirective,
-    EllipsisPipe,
-    I18nPipe,
-    IconComponent,
-    InputStripSpacesDirective,
-    InputVerbatimDirective,
     NotPremiumDirective,
     SearchPipe,
-    StopClickDirective,
-    StopPropDirective,
-    LaunchClickDirective,
-    UserNamePipe,
-    UserTypePipe,
-    IfFeatureDirective,
     TwoFactorIconComponent,
   ],
   exports: [
