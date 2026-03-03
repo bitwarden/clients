@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "myItems": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
