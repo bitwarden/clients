@@ -10,7 +10,7 @@ import { concatMap, firstValueFrom, pairwise } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
@@ -404,15 +404,11 @@ export class WindowMain {
     });
 
     this.win.webContents.setWindowOpenHandler(({ url }) => {
-      // For security reasons, we block all attempts to open new windows from the renderer process.
-      if (SafeUrls.canLaunch(url)) {
-        // If the url is considered safe, we open it with the default system handler (e.g. browser) instead of a new Electron window.
-        this.logService.debug(`Redirecting link to external browser: ${url}`);
-        void this.shell.openExternal(url);
-      } else {
-        // Otherwise, we block the attempt and log a warning.
-        this.logService.warning(`Blocked attempt to open new window with unsafe url: ${url}`);
-      }
+      // For security reasons, we redirect all requests to open new windows from the renderer process to the system browser.
+      // SafeShell will check the URL against our allowlist and log if an attempt is made to open a URL that isn't considered safe.
+
+      this.logService.debug(`Redirecting link to external browser: ${url}`);
+      void this.shell.openExternal(url, UrlType.WebUrl);
 
       return { action: "deny" };
     });

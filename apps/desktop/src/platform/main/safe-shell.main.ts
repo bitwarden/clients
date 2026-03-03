@@ -1,6 +1,6 @@
 import { shell } from "electron";
 
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
+import { SafeUrls, UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
 /**
@@ -14,10 +14,11 @@ export class SafeShell {
    */
   static openExternal(
     url: string,
+    type: UrlType,
     logService: LogService,
     options?: Electron.OpenExternalOptions,
   ): void {
-    if (SafeUrls.canLaunch(url)) {
+    if (SafeUrls.canLaunch(url, type)) {
       // eslint-disable-next-line no-restricted-syntax
       void shell.openExternal(url, options);
     } else {
@@ -28,7 +29,7 @@ export class SafeShell {
   /**
    * Open the given external protocol URL in the desktop's default manner if it is considered safe. (For example, mailto: URLs in the user's default mail agent).
    */
-  openExternal(url: string, options?: Electron.OpenExternalOptions): void {
-    SafeShell.openExternal(url, this.logService, options);
+  openExternal(url: string, type: UrlType, options?: Electron.OpenExternalOptions): void {
+    SafeShell.openExternal(url, type, this.logService, options);
   }
 }
