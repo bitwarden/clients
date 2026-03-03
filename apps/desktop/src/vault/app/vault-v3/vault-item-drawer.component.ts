@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, OnInit, signal, viewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -33,6 +33,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentsV2Component,
   ChangeLoginPasswordService,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -113,18 +114,20 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   protected readonly config = signal<CipherFormConfig | null>(null);
   protected readonly collections = signal<CollectionView[]>([]);
   protected readonly formDisabled = signal(false);
+  private readonly cipherFormRef = viewChild(CipherFormComponent);
+
+  private readonly typeSuffix: Record<CipherType, string> = {
+    [CipherType.Login]: "Login",
+    [CipherType.Card]: "Card",
+    [CipherType.Identity]: "Identity",
+    [CipherType.SecureNote]: "Note",
+    [CipherType.SshKey]: "SshKey",
+  };
 
   protected readonly title = computed(() => {
     const action = this.action();
     const type = this.cipher()?.type ?? this.params.cipherType;
-    const typeSuffix: Record<CipherType, string> = {
-      [CipherType.Login]: "Login",
-      [CipherType.Card]: "Card",
-      [CipherType.Identity]: "Identity",
-      [CipherType.SecureNote]: "Note",
-      [CipherType.SshKey]: "SshKey",
-    };
-    const suffix = type != null ? typeSuffix[type] : null;
+    const suffix = type != null ? this.typeSuffix[type] : null;
     if (action === "add" || action === "clone") {
       return this.i18nService.t(suffix ? `newItemHeader${suffix}` : "newItem");
     }
@@ -247,7 +250,7 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   }
 
   protected async cancelCipher() {
-    if (this.dirtyInput() && (await this.wantsToSaveChanges())) {
+    if ((this.cipherFormRef()?.isDirty ?? false) && (await this.wantsToSaveChanges())) {
       return;
     }
     const cipher = this.cipher();
@@ -260,18 +263,10 @@ export class VaultItemDrawerComponent implements CopyClickListener, OnInit {
   }
 
   protected async closeDrawer() {
-    if (this.dirtyInput() && (await this.wantsToSaveChanges())) {
+    if ((this.cipherFormRef()?.isDirty ?? false) && (await this.wantsToSaveChanges())) {
       return;
     }
     this.dialogRef.close(this.cipher() ? VaultItemDrawerResult.Saved : undefined);
-  }
-
-  private dirtyInput(): boolean {
-    const action = this.action();
-    return (
-      (action === "add" || action === "edit" || action === "clone") &&
-      document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0
-    );
   }
 
   private async wantsToSaveChanges(): Promise<boolean> {
