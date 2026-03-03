@@ -26,13 +26,13 @@ import {
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
 import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
-import { UnlockService } from "@bitwarden/unlock";
 
 describe("MasterPasswordLockComponent", () => {
   let component: MasterPasswordLockComponent;
