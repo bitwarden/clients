@@ -82,14 +82,6 @@
       ></i>
     }
     @if (open) {
-      @if (warningIcon()) {
-        <i
-          class="bwi bwi-fw !tw-m-0 tw-shrink-0 tw-text-fg-sidenav-text"
-          [class]="warningIcon()"
-          [attr.title]="warningIconLabel()"
-          aria-hidden="true"
-        ></i>
-      }
       <span class="tw-truncate">{{ text() }}</span>
     }
   </div>

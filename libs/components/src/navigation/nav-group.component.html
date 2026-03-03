@@ -15,8 +15,6 @@
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
     [forceActiveStyles]="forceActiveStyles()"
-    [warningIcon]="warningIcon()"
-    [warningIconLabel]="warningIconLabel()"
   >
     <ng-template #button>
       <button
@@ -35,6 +33,10 @@
     @if (variantValue === "tree") {
       <ng-container slot="start">
         <ng-container *ngTemplateOutlet="button"></ng-container>
+      </ng-container>
+    } @else {
+      <ng-container slot="start">
+        <ng-content select="[slot=start]"></ng-content>
       </ng-container>
     }
     <ng-container slot="end">
