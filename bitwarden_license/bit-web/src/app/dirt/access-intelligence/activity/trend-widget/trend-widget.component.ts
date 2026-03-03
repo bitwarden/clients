@@ -6,11 +6,14 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import * as papa from "papaparse";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -20,9 +23,12 @@ import {
   MenuModule,
   ToggleGroupModule,
   IconModule,
+  ToastService,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { ChartConfig, LineChartComponent, LineData } from "../../../shared/line-chart.component";
 import { PeriodSelectorComponent } from "../period-selector/period-selector.component";
 import { DEFAULT_TIME_PERIOD, TimePeriod } from "../period-selector/period-selector.types";
@@ -82,10 +88,15 @@ export class TrendWidgetComponent {
     { initialValue: false },
   );
 
+  private readonly lineChart = viewChild<LineChartComponent>(LineChartComponent);
+
   constructor(
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
     private i18nService: I18nService,
+    private fileDownloadService: FileDownloadService,
+    private chartExportService: ChartExportService,
+    private toastService: ToastService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -142,6 +153,10 @@ export class TrendWidgetComponent {
     ];
   });
 
+  private getFileDownloadName() {
+    return `risk_over_time_${this.selectedView()}_${this.selectedTimespan()}`;
+  }
+
   private getAtRiskLabel(view: TrendWidgetViewType): string {
     switch (view) {
       case TrendWidgetViewType.Applications:
@@ -171,4 +186,59 @@ export class TrendWidgetComponent {
   protected readonly lineChartConfiguration: ChartConfig = {
     xAxisType: "datetime",
   };
+
+  protected downloadAsPNG(): void {
+    const chart = this.lineChart()?.chart;
+    if (!chart) {
+      return;
+    }
+
+    try {
+      this.chartExportService.downloadAsPNG(
+        "line",
+        chart,
+        ExportHelper.getFileName(this.getFileDownloadName(), "png"),
+        {
+          title: this.i18nService.t("riskOverTime"),
+          xAxisLabel: this.i18nService.t("date"),
+          yAxisLabel: this.viewLabel(),
+        },
+      );
+    } catch {
+      this.handleDownloadError();
+    }
+  }
+
+  protected downloadAsCSV(): void {
+    const dataPoints = this.data().dataPoints;
+    const view = this.selectedView();
+
+    // Prepare CSV data with translated headers
+    const csvData = dataPoints.map((point) => ({
+      [this.i18nService.t("date")]: new Date(point.timestamp).toISOString().split("T")[0],
+      [this.getAtRiskLabel(view)]: point.atRisk,
+      [this.getAllLabel(view)]: point.total,
+    }));
+
+    const csv = papa.unparse(csvData);
+    const fileName = ExportHelper.getFileName(this.getFileDownloadName(), "csv");
+
+    try {
+      this.fileDownloadService.download({
+        fileName,
+        blobData: csv,
+        blobOptions: { type: "text/csv" },
+      });
+    } catch {
+      this.handleDownloadError();
+    }
+  }
+
+  private handleDownloadError() {
+    this.toastService.showToast({
+      message: this.i18nService.t("downloadFailed"),
+      variant: "error",
+      title: this.i18nService.t("error"),
+    });
+  }
 }

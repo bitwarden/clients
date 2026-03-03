@@ -3,7 +3,18 @@
 >
   <div class="tw-flex tw-justify-between tw-items-center">
     <h2>{{ "riskOverTime" | i18n }}</h2>
-    <div>Download button here</div>
+    <div>
+      <button
+        type="button"
+        bitIconButton="bwi-download"
+        [label]="'downloadChart' | i18n"
+        [bitMenuTriggerFor]="downloadMenu"
+      ></button>
+      <bit-menu #downloadMenu>
+        <button type="button" bitMenuItem (click)="downloadAsPNG()">PNG</button>
+        <button type="button" bitMenuItem (click)="downloadAsCSV()">CSV</button>
+      </bit-menu>
+    </div>
   </div>
   <div class="tw-flex tw-justify-between tw-items-center">
     <div>

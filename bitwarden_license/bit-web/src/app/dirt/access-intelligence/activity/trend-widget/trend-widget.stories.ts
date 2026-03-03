@@ -9,11 +9,15 @@ import {
 import { BehaviorSubject } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { IconButtonModule } from "@bitwarden/components";
+import { IconButtonModule, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
+import { WebFileDownloadService } from "@bitwarden/web-vault/app/core/web-file-download.service";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
 import { TrendWidgetComponent } from "./trend-widget.component";
@@ -47,6 +51,23 @@ export default {
         {
           provide: SYSTEM_THEME_OBSERVABLE,
           useValue: systemTheme$,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            supportsFileDownloads: () => true,
+          },
+        },
+        {
+          provide: FileDownloadService,
+          useClass: WebFileDownloadService,
+        },
+        ChartExportService,
+        {
+          provide: ToastService,
+          useValue: {
+            showToast: () => {},
+          },
         },
       ],
     }),

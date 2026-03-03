@@ -5,10 +5,13 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { ExportHelper } from "@bitwarden/vault-export-core";
 
+import { ChartExportService } from "../../../shared/chart-export.service";
 import { LineChartComponent } from "../../../shared/line-chart.component";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
@@ -24,6 +27,8 @@ describe("TrendWidgetComponent", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockSystemTheme$: BehaviorSubject<ThemeType>;
+  let mockFileDownloadService: MockProxy<FileDownloadService>;
+  let mockChartExportService: MockProxy<ChartExportService>;
 
   const mockData: TrendWidgetData = {
     timeframe: TimePeriod.PastMonth,
@@ -39,6 +44,8 @@ describe("TrendWidgetComponent", () => {
     mockI18nService = mock<I18nService>();
     mockThemeStateService = mock<ThemeStateService>();
     mockSystemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
+    mockFileDownloadService = mock<FileDownloadService>();
+    mockChartExportService = mock<ChartExportService>();
 
     mockI18nService.t.mockImplementation((key: string) => key);
     mockThemeStateService.selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -84,6 +91,8 @@ describe("TrendWidgetComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: mockSystemTheme$ },
+        { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: ChartExportService, useValue: mockChartExportService },
       ],
     }).compileComponents();
 
@@ -224,6 +233,89 @@ describe("TrendWidgetComponent", () => {
 
       expect(component.selectedView()).toBe(TrendWidgetViewType.Passwords);
       expect(viewChangedSpy).toHaveBeenCalledWith(TrendWidgetViewType.Passwords);
+    });
+  });
+
+  describe("download button", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("data", mockData);
+      fixture.componentRef.setInput("loading", false);
+      fixture.componentRef.setInput("error", null);
+      fixture.detectChanges();
+    });
+
+    it("should download file as CSV when CSV button is clicked", () => {
+      jest.spyOn(ExportHelper, "getFileName").mockReturnValue("test-file.csv");
+
+      // Open the download menu
+      const menuTrigger = fixture.debugElement.query(
+        By.css('button[bitIconButton="bwi-download"]'),
+      );
+      menuTrigger.nativeElement.click();
+      fixture.detectChanges();
+
+      // Click the CSV button in the menu
+      const buttons = fixture.debugElement.queryAll(By.css("button[bitMenuItem]"));
+      const csvMenuItem = buttons.find((btn) => btn.nativeElement.textContent.trim() === "CSV");
+
+      expect(csvMenuItem).toBeDefined();
+
+      csvMenuItem!.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(mockFileDownloadService.download).toHaveBeenCalledTimes(1);
+      expect(mockFileDownloadService.download).toHaveBeenCalledWith({
+        fileName: "test-file.csv",
+        blobData: expect.any(String),
+        blobOptions: { type: "text/csv" },
+      });
+
+      // Verify CSV content structure
+      const callArgs = mockFileDownloadService.download.mock.calls[0][0];
+      const csvContent = callArgs.blobData as string;
+
+      // Check CSV headers are present
+      expect(csvContent).toContain("date");
+      expect(csvContent).toContain("applicationsAtRisk");
+      expect(csvContent).toContain("allApplications");
+
+      // Check data points are included
+      expect(csvContent).toContain("5");
+      expect(csvContent).toContain("10");
+      expect(csvContent).toContain("7");
+      expect(csvContent).toContain("12");
+    });
+
+    it("should download chart as PNG when PNG button is clicked", () => {
+      jest.spyOn(ExportHelper, "getFileName").mockReturnValue("test-chart.png");
+
+      // Open the download menu
+      const menuTrigger = fixture.debugElement.query(
+        By.css('button[bitIconButton="bwi-download"]'),
+      );
+      menuTrigger.nativeElement.click();
+      fixture.detectChanges();
+
+      // Click the PNG button in the menu
+      const buttons = fixture.debugElement.queryAll(By.css("button[bitMenuItem]"));
+      const pngMenuItem = buttons.find((btn) => btn.nativeElement.textContent.trim() === "PNG");
+
+      expect(pngMenuItem).toBeDefined();
+
+      pngMenuItem!.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(mockChartExportService.downloadAsPNG).toHaveBeenCalledTimes(1);
+      expect(mockChartExportService.downloadAsPNG).toHaveBeenCalledWith(
+        "line",
+        expect.any(Object),
+        "test-chart.png",
+        {
+          title: "riskOverTime",
+          xAxisLabel: "date",
+          yAxisLabel: "applications",
+        },
+      );
     });
   });
 });

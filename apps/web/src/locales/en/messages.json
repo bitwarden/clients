@@ -11061,6 +11061,9 @@
   "clientDetails": {
     "message": "Client details"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Download CSV"
   },
