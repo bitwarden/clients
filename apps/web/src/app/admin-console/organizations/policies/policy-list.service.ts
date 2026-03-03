@@ -1,5 +1,5 @@
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
-import { PolicyCategory } from "./pipes/policy-category.pipe";
+import { PolicyCategory } from "./pipes/policy-category";
 
 export interface PolicySection {
   category: PolicyCategory;

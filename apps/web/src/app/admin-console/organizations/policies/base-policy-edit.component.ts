@@ -12,7 +12,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
-import { PolicyCategory } from "./pipes/policy-category.pipe";
+import { PolicyCategory } from "./pipes/policy-category";
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 
 /**

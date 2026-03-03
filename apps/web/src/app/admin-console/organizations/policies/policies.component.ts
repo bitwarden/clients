@@ -100,7 +100,7 @@ export class PoliciesComponent {
             })),
           );
         }),
-      ),
+      ).pipe(map((sections) => sections.filter((s) => s.policies.length > 0))),
     ),
   );
 

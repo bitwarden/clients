@@ -49,7 +49,7 @@ import { Component } from "@angular/core";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category.pipe";
+import { PolicyCategory } from "../pipes/policy-category";
 
 // Policy Definition Class
 export class YourNewPolicy extends BasePolicyEditDefinition {

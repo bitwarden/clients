@@ -6,4 +6,4 @@ export { AutoConfirmPolicy } from "./policy-edit-definitions";
 export { PolicyEditDialogResult } from "./policy-edit-dialog.component";
 export * from "./policy-edit-dialogs";
 export { PolicyOrderPipe } from "./pipes/policy-order.pipe";
-export { PolicyCategory } from "./pipes/policy-category.pipe";
+export { PolicyCategory } from "./pipes/policy-category";

@@ -16,7 +16,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category.pipe";
+import { PolicyCategory } from "../pipes/policy-category";
 import { AutoConfirmPolicyDialogComponent } from "../policy-edit-dialogs/auto-confirm-edit-policy-dialog.component";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
