@@ -110,8 +110,8 @@ export class KeeperDirectImporter extends BaseImporter {
           cardExpirationDate?: string;
           cardSecurityCode?: string;
         };
-        cipher.card.number = card.cardNumber || null;
-        cipher.card.code = card.cardSecurityCode || null;
+        cipher.card.number = card.cardNumber || undefined;
+        cipher.card.code = card.cardSecurityCode || undefined;
         cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
 
         if (card.cardExpirationDate) {
@@ -334,7 +334,7 @@ export class KeeperDirectImporter extends BaseImporter {
 
             if (cipher.type === CipherType.Login) {
               const uriView = new LoginUriView();
-              uriView.uri = this.fixUri(uri);
+              uriView.uri = this.fixUri(uri) ?? undefined;
               if (!this.isNullOrWhitespace(uriView.uri)) {
                 if (!cipher.login.uris) {
                   cipher.login.uris = [];

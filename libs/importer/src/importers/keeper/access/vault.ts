@@ -252,7 +252,7 @@ export class Vault {
         if (record.version < 3) {
           throw new Error("V1 records are not supported yet");
         } else {
-          const r = await Vault.decryptJsonV2<Partial<RecordV3>>(record.data, keys.get(uid));
+          const r = await Vault.decryptJsonV2<Partial<RecordV3>>(record.data, key);
           result.set(uid, {
             type: r.type ?? "",
             title: r.title ?? "",

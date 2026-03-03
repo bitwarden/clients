@@ -22,7 +22,7 @@ import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor
   providedIn: "root",
 })
 export class KeeperDirectImportUIService implements Ui {
-  private dialogRef: DialogRef;
+  private dialogRef!: DialogRef;
 
   constructor(private dialogService: DialogService) {}
 
