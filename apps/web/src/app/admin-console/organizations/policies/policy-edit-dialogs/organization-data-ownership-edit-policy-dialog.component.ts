@@ -81,9 +81,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   protected readonly multiStepSubmit: WritableSignal<MultiStepSubmit[]> = signal([]);
 
   private readonly policyForm = viewChild.required<TemplateRef<unknown>>("step0");
-  private readonly warningContent = viewChild.required<TemplateRef<unknown>>("step1");
   private readonly policyFormTitle = viewChild.required<TemplateRef<unknown>>("step0Title");
-  private readonly warningTitle = viewChild.required<TemplateRef<unknown>>("step1Title");
 
   override policyComponent: vNextOrganizationDataOwnershipPolicyComponent | undefined;
 
@@ -127,25 +125,11 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   }
 
   private buildMultiStepSubmit(): MultiStepSubmit[] {
-    if (this.policyComponent?.policyResponse?.enabled) {
-      return [
-        {
-          sideEffect: () => this.handleSubmit(),
-          footerContent: this.policyForm,
-          titleContent: this.policyFormTitle,
-        },
-      ];
-    }
-
     return [
       {
+        sideEffect: () => this.handleSubmit(),
         footerContent: this.policyForm,
         titleContent: this.policyFormTitle,
-      },
-      {
-        sideEffect: () => this.handleSubmit(),
-        footerContent: this.warningContent,
-        titleContent: this.warningTitle,
       },
     ];
   }
@@ -206,7 +190,6 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       }
 
       this.currentStep.update((value) => value + 1);
-      this.policyComponent.setStep(this.currentStep());
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
