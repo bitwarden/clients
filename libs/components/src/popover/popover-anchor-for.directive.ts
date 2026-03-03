@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
-import { defaultPositions } from "./default-positions";
+import { PositionIdentifier, defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
@@ -57,7 +57,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchorFor" });
 
   /** Preferred popover position (e.g., "right-start", "below-center") */
-  readonly position = input<string>();
+  readonly position = input<PositionIdentifier>();
 
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
