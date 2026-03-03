@@ -366,6 +366,7 @@ components/
 - Explain WHY certain approaches were chosen
 - Document performance characteristics or trade-offs
 - Add TODO comments
+- Start documentation with "This function", "This service", "This method", "This class", or similar phrases (company-wide standard — say what it does, not what it is)
 
 **Good Example:**
 
@@ -413,6 +414,44 @@ abstract generateReport(...): Observable<RiskInsightsView>;
 view.markApplicationAsCritical(appName);
 this._report.next(view); // Emit triggers subscribers even with same reference
 ```
+
+### JSDoc Cross-References (`{@link}`)
+
+**Rule:** Imports used solely for JSDoc `{@link}` cross-references are acceptable with a
+lint suppression, provided the link adds genuine IDE navigation value.
+
+**Pattern:**
+
+```typescript
+// ✅ ACCEPTABLE - Import exists only to make {@link} navigable in IDEs
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { RiskInsightsApi } from "../api/risk-insights.api";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { RiskInsightsData } from "../data/risk-insights.data";
+
+/**
+ * View model for Risk Insights containing decrypted properties
+ *
+ * - See {@link RiskInsights} for domain model
+ * - See {@link RiskInsightsData} for data model
+ * - See {@link RiskInsightsApi} for API model
+ */
+export class RiskInsightsView implements View { ... }
+```
+
+**When to use:**
+
+- Cross-layer references in the 4-layer model architecture (Api → Data → Domain → View)
+- When the linked type provides meaningful navigational context for maintainers
+
+**When NOT to use:**
+
+- If the linked type no longer exists or the mapping is no longer accurate
+- If the reference is speculative or architectural documentation belongs elsewhere
+
+**Maintenance note:** `{@link}` references should be reviewed alongside architecture changes.
+If the 4-layer mapping shifts (e.g., a model is merged, renamed, or goes away), update
+or remove the corresponding `{@link}` reference and its suppression import.
 
 ### TODO Comments
 
@@ -466,6 +505,6 @@ this._report.next(view); // Emit triggers subscribers even with same reference
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.2
+**Last Updated:** 2026-03-03
 **Maintainer:** DIRT Team
