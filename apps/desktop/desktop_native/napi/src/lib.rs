@@ -1199,16 +1199,22 @@ pub mod chromium_importer {
 
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
-    pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
-        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
-            .into_iter()
-            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
-            .collect()
+    pub fn get_metadata(mas_build: bool) -> HashMap<String, NativeImporterMetadata> {
+        chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>(
+            mas_build,
+        )
+        .into_iter()
+        .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
+        .collect()
     }
 
     #[napi]
-    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        chromium_importer::chromium::get_available_profiles(&browser)
+    pub async fn get_available_profiles(
+        browser: String,
+        mas_build: bool,
+    ) -> napi::Result<Vec<ProfileInfo>> {
+        chromium_importer::chromium::get_available_profiles(&browser, mas_build)
+            .await
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -1217,11 +1223,24 @@ pub mod chromium_importer {
     pub async fn import_logins(
         browser: String,
         profile_id: String,
+        mas_build: bool,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        chromium_importer::chromium::import_logins(&browser, &profile_id)
+        chromium_importer::chromium::import_logins(&browser, &profile_id, mas_build)
             .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    #[allow(clippy::unused_async)]
+    pub async fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
+        #[cfg(target_os = "macos")]
+        return chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()));
+
+        #[cfg(not(target_os = "macos"))]
+        Ok(())
     }
 }
 
