@@ -23,6 +23,7 @@ import {
   MenuModule,
   ToggleGroupModule,
   IconModule,
+  ToastService,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -95,6 +96,7 @@ export class TrendWidgetComponent {
     private i18nService: I18nService,
     private fileDownloadService: FileDownloadService,
     private chartExportService: ChartExportService,
+    private toastService: ToastService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -191,16 +193,20 @@ export class TrendWidgetComponent {
       return;
     }
 
-    this.chartExportService.downloadAsPNG(
-      "line",
-      chart,
-      ExportHelper.getFileName(this.getFileDownloadName(), "png"),
-      {
-        title: this.i18nService.t("riskOverTime"),
-        xAxisLabel: this.i18nService.t("date"),
-        yAxisLabel: this.viewLabel(),
-      },
-    );
+    try {
+      this.chartExportService.downloadAsPNG(
+        "line",
+        chart,
+        ExportHelper.getFileName(this.getFileDownloadName(), "png"),
+        {
+          title: this.i18nService.t("riskOverTime"),
+          xAxisLabel: this.i18nService.t("date"),
+          yAxisLabel: this.viewLabel(),
+        },
+      );
+    } catch {
+      this.handleDownloadError();
+    }
   }
 
   protected downloadAsCSV(): void {
@@ -217,10 +223,22 @@ export class TrendWidgetComponent {
     const csv = papa.unparse(csvData);
     const fileName = ExportHelper.getFileName(this.getFileDownloadName(), "csv");
 
-    this.fileDownloadService.download({
-      fileName,
-      blobData: csv,
-      blobOptions: { type: "text/csv" },
+    try {
+      this.fileDownloadService.download({
+        fileName,
+        blobData: csv,
+        blobOptions: { type: "text/csv" },
+      });
+    } catch {
+      this.handleDownloadError();
+    }
+  }
+
+  private handleDownloadError() {
+    this.toastService.showToast({
+      message: this.i18nService.t("downloadFailed"),
+      variant: "error",
+      title: this.i18nService.t("error"),
     });
   }
 }

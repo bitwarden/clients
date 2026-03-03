@@ -13,7 +13,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { IconButtonModule } from "@bitwarden/components";
+import { IconButtonModule, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 import { WebFileDownloadService } from "@bitwarden/web-vault/app/core/web-file-download.service";
 
@@ -63,6 +63,12 @@ export default {
           useClass: WebFileDownloadService,
         },
         ChartExportService,
+        {
+          provide: ToastService,
+          useValue: {
+            showToast: () => {},
+          },
+        },
       ],
     }),
     applicationConfig({
