@@ -27,6 +27,10 @@ import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.compon
 export class ChipComponent {
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
+  constructor() {
+    this.baseChip.hasTrailingIcon.set(true);
+  }
+
   /**
    * The label text for the chip.
    */

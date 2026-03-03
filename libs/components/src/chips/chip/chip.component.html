@@ -8,5 +8,6 @@
     [attr.aria-label]="'removeItem' | i18n: label()"
     [disabled]="baseChip.disabled()"
     (click)="handleDismiss($event)"
+    [size]="baseChip.size()"
   ></button>
 </bit-chip-content>

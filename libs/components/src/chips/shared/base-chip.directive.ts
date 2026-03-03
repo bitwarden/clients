@@ -75,9 +75,27 @@ const variantStyles: Record<ChipVariant, string[]> = {
 };
 
 // Size mappings
-const sizeStyles: Record<ChipSize, string[]> = {
-  small: ["tw-text-xs", "tw-px-1.5", "tw-py-0.5"],
-  large: ["tw-text-sm", "tw-px-2", "tw-py-1"],
+const getSizeStyles = (size: ChipSize, hasTrailingIcon: boolean) => {
+  const sizeStyles: Record<ChipSize, string[]> = {
+    small: ["tw-text-xs/4", "tw-ps-1.5", "tw-py-0.5"],
+    large: ["tw-text-sm/5", "tw-ps-2", "tw-py-1"],
+  };
+
+  const paddingEndClass = {
+    hasTrailingIcon: {
+      small: "tw-pe-0.5",
+      large: "tw-pe-1",
+    },
+    noTrailingIcon: {
+      small: "tw-pe-1.5",
+      large: "tw-pe-2",
+    },
+  };
+
+  const paddingKey = hasTrailingIcon ? "hasTrailingIcon" : "noTrailingIcon";
+  const paddingClass = paddingEndClass[paddingKey][size];
+
+  return [...sizeStyles[size], paddingClass];
 };
 
 const commonStyles = [
@@ -154,13 +172,17 @@ export class BaseChipDirective {
   /** Combined disabled state from both input and programmatic control */
   readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
+  /** Set to true by consuming components that render a trailing icon or dismiss button */
+  readonly hasTrailingIcon = signal(false);
+
   /**
    * Computed class list based on variant, size, and state
    */
   protected readonly classList = computed(() => {
+    const size = this.size() || "large";
     const classes = [
       ...commonStyles,
-      ...sizeStyles[this.size() || "large"],
+      ...getSizeStyles(size, this.hasTrailingIcon()),
       this.fullWidth() ? "tw-w-full" : this.maxWidthClass(),
     ];
 
