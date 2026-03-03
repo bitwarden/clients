@@ -13,6 +13,7 @@ import {
   TypographyModule,
   CalloutComponent,
   LinkModule,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 export interface AutofillConfirmationDialogParams {
@@ -42,6 +43,7 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
     LinkModule,
     TypographyModule,
     JslibModule,
+    TooltipDirective,
   ],
 })
 export class AutofillConfirmationDialogComponent {
