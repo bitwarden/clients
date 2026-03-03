@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "Arama sonuçları"
   },
+  "simplifiedAutofill": {
+    "message": "Basit otomatik doldurma"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Önerilen otomatik doldurma öğelerinden birine tıkladığınızda ayrıntıları açmak yerine doğrudan bilgileri doldurur. Bu bilgilere istediğiniz zaman \"Diğer eylemler\" menüsünden ulaşabilirsiniz."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Basit otomatik doldurma kutusunu aç"
+  },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
   },
