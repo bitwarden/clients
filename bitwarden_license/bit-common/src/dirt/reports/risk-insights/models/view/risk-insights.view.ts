@@ -5,6 +5,7 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsApi } from "../api/risk-insights.api";
+import { MemberRegistryEntryData } from "../data/risk-insights-report.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsData } from "../data/risk-insights.data";
 import { RiskInsights } from "../domain/risk-insights";
@@ -14,33 +15,10 @@ import { RiskInsightsApplicationView } from "./risk-insights-application.view";
 import { RiskInsightsReportView } from "./risk-insights-report.view";
 import { RiskInsightsSummaryView } from "./risk-insights-summary.view";
 
-/**
- * Member registry entry
- *
- * Represents a single organization member in the deduplicated member registry.
- * Members are stored once in the registry and referenced by ID from applications.
- */
-export interface MemberRegistryEntry {
-  /** Organization user ID (userGuid from OrganizationUserView) */
-  id: string;
-  /** Display name of the member */
-  userName: string;
-  /** Email address of the member */
-  email: string;
-}
+/** Member entry in the deduplicated member registry */
+export type MemberRegistryEntry = MemberRegistryEntryData;
 
-/**
- * Member Registry - Deduplicated member lookup table
- *
- * A simple Record mapping organization user ID to member entry.
- * Applications store only member IDs (as Record<string, boolean>) which are
- * resolved to full entries via this registry.
- *
- * **Performance Impact:**
- * - Without registry: 5,000 members × 50 apps × 180 bytes = ~45MB (duplicated)
- * - With registry: 5,000 members × 140 bytes = ~700KB (deduplicated)
- * - **Savings: ~98% reduction in member data storage**
- */
+/** Deduplicated member lookup table keyed by organization user ID */
 export type MemberRegistry = Record<string, MemberRegistryEntry>;
 
 /**
@@ -75,7 +53,7 @@ export class RiskInsightsView implements View {
     this.contentEncryptionKey = report.contentEncryptionKey;
   }
 
-  // ==================== Query Methods ====================
+  // === Query Methods ===
 
   /**
    * Get all at-risk members across all applications
@@ -173,7 +151,7 @@ export class RiskInsightsView implements View {
     return count;
   }
 
-  // ==================== Update Methods ====================
+  // === Update Methods ===
 
   /**
    * Mark an application as critical
@@ -237,13 +215,13 @@ export class RiskInsightsView implements View {
     }
   }
 
-  // ==================== Computation Methods ====================
+  // === Computation Methods ===
 
   /**
    * Recomputes the summary from current reports and applications
    *
-   * This method is called automatically when critical application flags change.
-   * It can also be called manually if summary needs to be refreshed.
+   * Called automatically when critical application flags change. Can also be called
+   * manually to force a summary refresh.
    *
    * Computes:
    * - Total and at-risk application counts
@@ -341,7 +319,7 @@ export class RiskInsightsView implements View {
     return metrics;
   }
 
-  // ==================== Serialization ====================
+  // === Serialization ===
 
   toJSON() {
     return this;
