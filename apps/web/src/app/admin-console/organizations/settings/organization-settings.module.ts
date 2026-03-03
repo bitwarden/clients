@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { ItemModule } from "@bitwarden/components";
 
@@ -21,6 +22,7 @@ import { TwoFactorSetupComponent } from "./two-factor-setup.component";
     HeaderModule,
     PremiumBadgeComponent,
     ItemModule,
+    TwoFactorIconComponent,
   ],
   declarations: [AccountComponent, TwoFactorSetupComponent],
 })
