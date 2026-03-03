@@ -10,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -31,6 +32,7 @@ describe("DefaultChangePasswordService", () => {
   let keyService: MockProxy<KeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
 
   let sut: ChangePasswordService;
 
@@ -69,11 +71,13 @@ describe("DefaultChangePasswordService", () => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
 
     sut = new DefaultChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
+      masterPasswordUnlockService,
     );
 
     masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(decryptedUserKey);
