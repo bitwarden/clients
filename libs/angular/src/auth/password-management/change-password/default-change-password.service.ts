@@ -34,12 +34,34 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
   ) {}
 
+  async changePasswordAndRotateUserKey(
+    currentPassword: string,
+    newPassword: string,
+    user: Account,
+    newPasswordHint: string,
+  ): Promise<void> {
+    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+      currentPassword,
+      user.id,
+    );
+    if (!currentPasswordVerified) {
+      throw new InvalidCurrentPasswordError();
+    }
+
+    await this.rotateUserKeyMasterPasswordAndEncryptedData(
+      currentPassword,
+      newPassword,
+      user,
+      newPasswordHint,
+    );
+  }
+
   async rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
     newPassword: string,
     user: Account,
-    hint: string,
-  ): Promise<void> {
+    newPasswordHint: string,
+  ) {
     throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
   }
 

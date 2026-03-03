@@ -12,15 +12,23 @@ export class InvalidCurrentPasswordError extends Error {
 
 export abstract class ChangePasswordService {
   /**
-   * Creates a new user key and re-encrypts all required data with it.
-   * - does so by calling the underlying method on the `UserKeyRotationService`
-   * - implemented in Web only
+   * Verifies that the current password is correct via `proofOfDecryption` before
+   * calling change password & user key rotation logic.
    *
-   * @param currentPassword the current password
-   * @param newPassword the new password
-   * @param user the user account
-   * @param newPasswordHint the new password hint
-   * @throws if called from a non-Web client
+   * @throws `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. the current
+   *          password is incorrect)
+   */
+  abstract changePasswordAndRotateUserKey(
+    currentPassword: string,
+    newPassword: string,
+    user: Account,
+    newPasswordHint: string,
+  ): Promise<void>;
+
+  /**
+   * Creates a new user key and re-encrypts all required data with it.
+   *
+   * @throws if called from a client that does not implement the method
    */
   abstract rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
