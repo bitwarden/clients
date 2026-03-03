@@ -10,8 +10,9 @@ use tracing::{debug, error};
 
 use crate::{
     approval::ApprovalRequester,
-    crypto::{keystore::KeyStore, QueryableKeyData},
+    crypto::QueryableKeyData,
     server::{AuthPolicy, AuthRequest},
+    storage::keystore::KeyStore,
 };
 
 /// Errors that can occur during authorization of SSH agent operations.
@@ -143,7 +144,7 @@ mod tests {
     use super::*;
     use crate::{
         approval::MockApprovalRequester,
-        crypto::{keystore::MockKeyStore, MockQueryableKeyData},
+        storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
     fn create_test_public_key() -> crate::crypto::PublicKey {

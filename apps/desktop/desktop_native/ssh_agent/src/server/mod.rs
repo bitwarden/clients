@@ -12,7 +12,7 @@ pub(crate) use auth_policy::AuthPolicy;
 pub use auth_policy::{AuthRequest, SignRequest};
 use tokio_util::sync::CancellationToken;
 
-use crate::crypto::keystore::KeyStore;
+use crate::storage::keystore::KeyStore;
 
 /// SSH Agent protocol server.
 ///

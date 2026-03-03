@@ -11,9 +11,10 @@ mod approval;
 mod authorization;
 mod crypto;
 mod server;
+mod storage;
 
 // external exports for napi
 pub use agent::BitwardenSshAgent;
 pub use approval::ApprovalRequester;
-pub use crypto::keystore::InMemoryEncryptedKeyStore;
 pub use server::{AuthRequest, SignRequest};
+pub use storage::keystore::InMemoryEncryptedKeyStore;

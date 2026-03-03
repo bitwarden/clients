@@ -9,8 +9,8 @@ use tracing::{debug, info};
 use crate::{
     approval::ApprovalRequester,
     authorization::{BitwardenAuthPolicy, LockState},
-    crypto::keystore::KeyStore,
     server::SshAgentServer,
+    storage::keystore::KeyStore,
 };
 
 /// - contains the [`KeyStore`] of ssh keys

@@ -7,9 +7,9 @@ use std::sync::{Arc, Mutex};
 use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
+use crate::crypto::{PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]
-use super::MockQueryableKeyData;
-use super::{PublicKey, QueryableKeyData, SSHKeyData};
+use crate::storage::keydata::MockQueryableKeyData;
 
 /// Securely store and retrieve SSH key data.
 ///
