@@ -108,9 +108,13 @@
             }
             <td bitCell class="tw-text-right">
               @if (cipherDocs.has(row.id)) {
-                <a bitBadge href="{{ cipherDocs.get(row.id) }}" target="_blank" rel="noreferrer">
-                  {{ "instructions" | i18n }}</a
-                >
+                <a
+                  bit-chip-action
+                  [href]="cipherDocs.get(row.id)"
+                  [label]="'instructions' | i18n"
+                  target="_blank"
+                  rel="noreferrer"
+                ></a>
               }
             </td>
           </ng-template>
