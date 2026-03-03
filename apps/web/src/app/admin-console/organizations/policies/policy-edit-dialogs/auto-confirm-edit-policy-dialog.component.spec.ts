@@ -45,7 +45,7 @@ describe("AutoConfirmPolicyDialogComponent", () => {
   const mockDialogData: AutoConfirmPolicyDialogData = {
     organizationId: mockOrgId,
     policy: {
-      name: "autoConfirm",
+      name: "automaticUserConfirmation",
       description: "Auto Confirm Policy",
       type: PolicyType.AutoConfirm,
       component: {} as any,
