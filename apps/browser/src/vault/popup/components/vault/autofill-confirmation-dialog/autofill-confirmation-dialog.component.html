@@ -3,41 +3,42 @@
     <p bitTypography="body2">
       {{ "confirmAutofillDesc" | i18n }}
     </p>
-    @if (savedUrls().length === 1) {
+    @if (formattedSavedUrls().length === 1) {
       <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-medium">
         {{ "savedWebsite" | i18n }}
       </p>
       <bit-callout [title]="null" type="success" icon="bwi-globe">
         <div
           class="tw-font-mono tw-line-clamp-1 tw-break-all"
-          [bitTooltip]="savedUrls()[0]"
+          [bitTooltip]="savedUrls()[0].uri"
           [addTooltipToDescribedby]="true"
         >
-          {{ savedUrls()[0] }}
+          {{ formattedSavedUrls()[0] }}
         </div>
       </bit-callout>
     }
-    @if (savedUrls().length > 1) {
+    @if (formattedSavedUrls().length > 1) {
       <div class="tw-flex tw-justify-between tw-items-center tw-mt-4 tw-mb-1 tw-pt-2">
         <p class="tw-text-muted tw-text-xs tw-uppercase tw-font-medium tw-mb-0">
-          {{ "savedWebsites" | i18n: savedUrls().length.toString() }}
+          {{ "savedWebsites" | i18n: formattedSavedUrls().length.toString() }}
         </p>
         <button
           type="button"
           bitLink
           class="tw-text-sm tw-font-medium tw-cursor-pointer"
           (click)="toggleSavedUrlExpandedState()"
+          data-test-id="toggle-show-saved-urls-button"
         >
           {{ (savedUrlsExpanded() ? "showLess" : "showAll") | i18n }}
         </button>
       </div>
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
-        @for (url of savedUrls(); track url) {
+        @for (url of formattedSavedUrls(); track url; let i = $index) {
           <div class="-tw-mt-2">
             <bit-callout [title]="null" type="success" icon="bwi-globe">
               <div
                 class="tw-font-mono tw-line-clamp-1 tw-break-all"
-                [bitTooltip]="url"
+                [bitTooltip]="savedUrls()[i].uri"
                 [addTooltipToDescribedby]="true"
               >
                 {{ url }}
@@ -56,7 +57,7 @@
         [addTooltipToDescribedby]="true"
         class="tw-font-mono tw-line-clamp-1 tw-break-all"
       >
-        {{ currentUrl() }}
+        {{ formattedCurrentUrl() }}
       </div>
     </bit-callout>
     <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3 tw-mt-6">
