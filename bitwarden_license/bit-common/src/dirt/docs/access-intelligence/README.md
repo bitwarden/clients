@@ -5,6 +5,22 @@
 
 ---
 
+## 🔍 What is Access Intelligence?
+
+Access Intelligence gives organization admins visibility into credential health across their vault. Admins generate an **AccessReport** — a point-in-time snapshot that maps member credentials to applications (grouped by domain) and runs health checks to identify at-risk passwords and members.
+
+The feature surfaces this data across three areas:
+
+- **Report** — the generated snapshot; shows per-application health metrics, at-risk member and cipher counts
+- **Activity** — at-risk statistics from the current report; guides admins through a review flow to track newly detected applications and send security tasks to members with at-risk credentials
+- **Applications** — lists all tracked applications with health numbers; admins can mark applications as critical to prioritize monitoring
+
+Security tasks — prompting members to update at-risk passwords — can be sent from multiple points in the feature.
+
+This package (`bit-common`) provides the platform-agnostic services, models, and encryption layer that power these capabilities across clients.
+
+---
+
 ## 📚 Documentation Structure
 
 ### Core Documentation
@@ -12,15 +28,17 @@
 | Document                                                                    | Purpose                      | When to Use            |
 | --------------------------------------------------------------------------- | ---------------------------- | ---------------------- |
 | [playbook.md](./playbook.md)                                                | Service implementation guide | Implementing services  |
+| [glossary.md](./glossary.md)                                                | Canonical term definitions   | Understanding naming   |
 | [standards.md](../standards/standards.md)                                   | Coding standards (shared)    | Reference for patterns |
 | [testing-standards-services.md](../standards/testing-standards-services.md) | Testing guidelines           | Writing tests          |
 
 ### Architecture
 
-| Document                                                                               | Purpose               |
-| -------------------------------------------------------------------------------------- | --------------------- |
-| [architecture/service-dependency-graph.md](./architecture/service-dependency-graph.md) | Service relationships |
-| [architecture/architecture-review.md](./architecture/architecture-review.md)           | Architecture analysis |
+| Document                                                                                               | Purpose                             |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| [architecture/service-dependency-graph.md](./architecture/service-dependency-graph.md)                 | Service relationships               |
+| [architecture/architecture-review.md](./architecture/architecture-review.md)                           | Architecture analysis               |
+| [architecture/large-scale-performance-research.md](./architecture/large-scale-performance-research.md) | Performance solutions for 10K+ orgs |
 
 ### Decisions
 
@@ -116,6 +134,6 @@ For the complete team documentation structure, see [Documentation Structure](../
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-02-17
+**Document Version:** 1.3
+**Last Updated:** 2026-03-03
 **Maintainer:** DIRT Team (Access Intelligence)
