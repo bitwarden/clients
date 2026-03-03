@@ -1,13 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Input, OnChanges } from "@angular/core";
+import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { BadgeModule } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -15,7 +18,7 @@ import { OrganizationId } from "@bitwarden/sdk-internal";
 @Component({
   selector: "app-org-badge",
   templateUrl: "organization-name-badge.component.html",
-  standalone: false,
+  imports: [RouterModule, JslibModule, BadgeModule],
 })
 export class OrganizationNameBadgeComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
