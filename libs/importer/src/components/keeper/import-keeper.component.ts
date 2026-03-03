@@ -43,7 +43,7 @@ import { KeeperDirectImportService } from "./keeper-direct-import.service";
   ],
 })
 export class ImportKeeperComponent implements OnInit, OnDestroy {
-  private _parentFormGroup: FormGroup;
+  private _parentFormGroup!: FormGroup;
 
   protected readonly regions = [
     { value: KeeperRegion.Us, label: "US" },
@@ -103,7 +103,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     return async () => {
       try {
         const importResult = await this.keeperDirectImportService.handleImport(
-          this.formGroup.controls.email.value,
+          this.formGroup.controls.email.value!,
           this.formGroup.controls.region.value as KeeperRegion,
         );
         this.importCompleted.emit(importResult);
