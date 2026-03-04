@@ -24,7 +24,7 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   description = "autoConfirmDescription";
   type = PolicyType.AutoConfirm;
   category = PolicyCategory.VaultManagement;
-  priority = 5;
+  priority = 9;
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
   editDialogComponent = AutoConfirmPolicyDialogComponent;

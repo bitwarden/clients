@@ -16,7 +16,7 @@ export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   description = "automaticAppLoginWithSSODesc";
   type = PolicyType.AutomaticAppLogIn;
   category = PolicyCategory.VaultManagement;
-  priority = 6;
+  priority = 3;
   component = AutomaticAppLoginPolicyComponent;
 }
 

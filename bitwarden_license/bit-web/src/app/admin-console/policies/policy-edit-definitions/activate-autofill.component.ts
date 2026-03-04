@@ -16,7 +16,7 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   description = "activateAutofillPolicyDescription";
   type = PolicyType.ActivateAutofill;
   category = PolicyCategory.VaultManagement;
-  priority = 7;
+  priority = 4;
   component = ActivateAutofillPolicyComponent;
 
   display(organization: Organization, configService: ConfigService) {

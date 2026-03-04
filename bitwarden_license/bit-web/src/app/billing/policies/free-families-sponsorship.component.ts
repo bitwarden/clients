@@ -13,7 +13,7 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   description = "freeFamiliesSponsorshipPolicyDesc";
   type = PolicyType.FreeFamiliesSponsorshipPolicy;
   category = PolicyCategory.VaultManagement;
-  priority = 8;
+  priority = 6;
   component = FreeFamiliesSponsorshipPolicyComponent;
 }
 
