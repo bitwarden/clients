@@ -1,5 +1,5 @@
 name: SDK Update
-run-name: "SDK ${{inputs.run-mode == 'Update' && format('Update - {0}', inputs.sdk-version) || format('Test - {0}', inputs.sdk-version)}}"
+run-name: "SDK ${{ inputs.run-mode }} - ${{ inputs.base-branch }} @ ${{ inputs.sdk-version }}"
 
 on:
   workflow_dispatch:
@@ -129,7 +129,7 @@ jobs:
           # Simple version comparison (works for semantic versions)
           if [ "$CURRENT_VERSION" != "unknown" ]; then
             if [ "$(printf '%s\n' "$SDK_VERSION" "$CURRENT_VERSION" | sort -V | head -n1)" = "$SDK_VERSION" ] && [ "$SDK_VERSION" != "$CURRENT_VERSION" ]; then
-              echo "::warning::⚠️ Downgrading SDK from $CURRENT_VERSION to $SDK_VERSION"
+              echo "::warning::Downgrading SDK from $CURRENT_VERSION to $SDK_VERSION"
               echo "downgrading=true" >> "$GITHUB_OUTPUT"
             else
               echo "✅ Upgrading SDK from $CURRENT_VERSION to $SDK_VERSION"
@@ -185,6 +185,42 @@ jobs:
 
           echo "✅ Branch tip commit was made by the bot. Safe to proceed."
 
+      - name: Check for stop-updates label
+        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
+        run: |
+          EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number,labels --jq '.[0] // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            HAS_STOP_LABEL=$(echo "$EXISTING_PR" | jq -r '.labels | map(select(.name == "stop-updates")) | length > 0')
+
+            if [ "$HAS_STOP_LABEL" = "true" ]; then
+              PR_NUMBER=$(echo "$EXISTING_PR" | jq -r '.number')
+              PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+              echo "::error::PR #$PR_NUMBER has the 'stop-updates' label. Remove the label to resume automated updates."
+              echo "## ⛔ Blocked by stop-updates label: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+          fi
+
+          echo "✅ No stop-updates label found. Proceeding."
+
+      - name: Rebase the existing branch onto base branch to clean up diff
+        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        env:
+          BASE_BRANCH: ${{ inputs.base-branch }}
+        run: |
+          echo "🔄 Rebasing onto origin/$BASE_BRANCH..."
+          if ! git rebase "origin/$BASE_BRANCH"; then
+            git rebase --abort
+            echo "::error::Rebase onto $BASE_BRANCH failed due to conflicts. Resolve conflicts manually and re-run."
+            exit 1
+          fi
+          echo "✅ Rebase complete."
+
       - name: Update SDK versions
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
@@ -200,7 +236,6 @@ jobs:
       - name: Run linter
         id: lint
         run: npm run lint
-        continue-on-error: false
 
       - name: Lint SDK internal versions
         run: npm run lint:sdk-internal-versions
@@ -233,10 +268,10 @@ jobs:
               echo "__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
             else
-              echo "⚠️ Could not generate changelog"
+              echo "::warning::Could not generate changelog"
             fi
           else
-            echo "⚠️ Could not extract git refs from versions for changelog"
+            echo "::warning::Could not extract git refs from versions for changelog"
           fi
 
       - name: Generate validation summary
@@ -286,7 +321,7 @@ jobs:
           git add package.json package-lock.json
 
           if git diff --cached --quiet; then
-            echo "⚠️ No changes to commit — branch already contains SDK $SDK_VERSION"
+            echo "::warning::No changes to commit — branch already contains SDK $SDK_VERSION"
           else
             git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
             git push origin "$BRANCH_NAME"
@@ -483,7 +518,6 @@ jobs:
       - name: Run linter
         id: lint
         run: npm run lint
-        continue-on-error: false
 
       - name: Lint SDK internal versions
         run: npm run lint:sdk-internal-versions
