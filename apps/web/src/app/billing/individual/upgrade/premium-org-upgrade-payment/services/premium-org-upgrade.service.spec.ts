@@ -205,7 +205,7 @@ describe("PremiumOrgUpgradeService", () => {
       ).rejects.toThrow("Sync failed");
     });
 
-    it("should throw an error for non-US billing address without tax ID for non-Families tier", async () => {
+    it("should successfully upgrade with non-US billing address without tax ID", async () => {
       const nonUSBillingAddress: BillingAddress = {
         country: "CA",
         postalCode: "12345",
@@ -216,14 +216,24 @@ describe("PremiumOrgUpgradeService", () => {
         taxId: null,
       };
 
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          BusinessSubscriptionPricingTierIds.Teams,
-          nonUSBillingAddress,
-        ),
-      ).rejects.toThrow("Tax ID is required for non-US billing addresses");
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        nonUSBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddress,
+      });
     });
 
     it("should successfully upgrade with non-US billing address when tax ID is provided", async () => {
@@ -260,7 +270,7 @@ describe("PremiumOrgUpgradeService", () => {
       });
     });
 
-    it("should allow non-US billing address without tax ID for Families tier", async () => {
+    it("should successfully upgrade Families tier with non-US billing address", async () => {
       const nonUSBillingAddress: BillingAddress = {
         country: "CA",
         postalCode: "12345",
