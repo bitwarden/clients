@@ -90,7 +90,7 @@ describe("BrowserExtensionInstallComponent", () => {
       const link = fixture.debugElement.query(By.css("a")).nativeElement;
 
       expect(link.getAttribute("href")).toBe(
-        "https://chrome.google.com/webstore/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb",
+        "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb",
       );
     });
 
