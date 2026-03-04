@@ -109,10 +109,8 @@ export const WithFooterButtons: Story = {
     template: `
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
         ${calloutContent}
-        <div slot="end">
-          <button type="button" bitButton buttonType="primary">Button text</button>
-          <button type="button" bitButton>Button text</button>
-        </div>
+        <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
+        <button slot="end" type="button" bitButton>Button text</button>
       </bit-callout>
     `,
   }),
@@ -131,10 +129,8 @@ export const WithCloseButton: Story = {
       </bit-callout>
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)} persistent="false">
         ${calloutContent}
-        <div slot="end">
-          <button type="button" bitButton buttonType="primary">Button text</button>
-          <button type="button" bitButton>Button text</button>
-        </div>
+        <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
+        <button slot="end" type="button" bitButton>Button text</button>
       </bit-callout>
     </div>
     `,
