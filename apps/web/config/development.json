@@ -4,8 +4,8 @@
     "scim": "http://localhost:44559"
   },
   "dev": {
-    "proxyApi": "http://localhost:4000",
-    "proxyIdentity": "http://localhost:33656",
+    "proxyApi": "https://api.usdev.bitwarden.pw",
+    "proxyIdentity": "https://identity.usdev.bitwarden.pw",
     "proxyEvents": "http://localhost:46273",
     "proxyNotifications": "http://localhost:61840",
     "proxyIcons": "http://localhost:50024",

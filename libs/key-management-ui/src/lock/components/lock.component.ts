@@ -612,11 +612,13 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
-    const startSync = new Date().getTime();
-    // TODO: This should probably not be blocking
-    await this.syncService.fullSync(false);
-    this.logService.info(`[LockComponent] Sync took ${new Date().getTime() - startSync}ms`);
+    if (this.platformUtilsService.getClientType() == ClientType.Web) {
+      // Web does not cache vault data and would be in a unusable state when unlocked.
+      await this.syncService.fullSync(true);
+    } else {
+      // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
+      void this.syncService.fullSync(false);
+    }
 
     const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking
