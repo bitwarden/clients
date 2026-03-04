@@ -10,6 +10,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";
+import { KeyConnectorUnlockData } from "../../../../../unlock/src/default-unlock.service";
 
 export class IdentityTokenResponse extends BaseResponse {
   // Authentication Information
@@ -100,4 +101,19 @@ export class IdentityTokenResponse extends BaseResponse {
   hasMasterKeyEncryptedUserKey(): boolean {
     return Boolean(this.key);
   }
+
+  canUnlockWithKeyConnector(): boolean {
+    return this.apiUseKeyConnector && this.accountKeysResponseModel != null;
+  }
+
+  intoKeyConnectorUnlockData(): KeyConnectorUnlockData {
+    if (!this.canUnlockWithKeyConnector()) {
+      throw new Error("Identity token response cannot be used for key connector unlock");
+    }
+
+    return {
+      url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
+      keyConnectorKeyWrappedUserKey: this.key.encryptedString!,
+    };
+  } 
 }

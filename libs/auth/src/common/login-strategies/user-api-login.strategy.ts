@@ -5,9 +5,11 @@ import { Jsonify } from "type-fest";
 
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -30,6 +32,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
   constructor(
     data: UserApiLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
+    private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -52,7 +55,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (response.apiUseKeyConnector) {
+    if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
@@ -63,11 +66,14 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (response.key) {
+    if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    if (response.apiUseKeyConnector) {
+      await this.unlockService.unlockWithKeyConnector(
+          response.intoKeyConnectorUnlockData(),
+          userId,
+        );
+    } else if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {
         const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
@@ -76,6 +82,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
         );
         await this.keyService.setUserKey(userKey, userId);
       }
+    } else {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     }
   }
 
