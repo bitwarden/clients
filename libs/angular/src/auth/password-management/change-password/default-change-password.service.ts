@@ -17,6 +17,7 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig, KeyService } from "@bitwarden/key-management";
@@ -32,27 +33,33 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
+    protected syncService: SyncService,
   ) {}
 
   async changePasswordAndRotateUserKey(
-    currentPassword: string,
-    newPassword: string,
+    passwordInputResult: PasswordInputResult,
     user: Account,
-    newPasswordHint: string,
   ): Promise<void> {
+    const ctx = "Could not change password and rotate user key.";
+    assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+
     const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
-      currentPassword,
+      passwordInputResult.currentPassword,
       user.id,
     );
     if (!currentPasswordVerified) {
       throw new InvalidCurrentPasswordError();
     }
 
+    await this.syncService.fullSync(true);
+
     await this.rotateUserKeyMasterPasswordAndEncryptedData(
-      currentPassword,
-      newPassword,
+      passwordInputResult.currentPassword,
+      passwordInputResult.newPassword,
       user,
-      newPasswordHint,
+      passwordInputResult.newPasswordHint,
     );
   }
 

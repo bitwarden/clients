@@ -156,6 +156,14 @@ export class ChangePasswordComponent implements OnInit {
           throw new Error("activeAccount not found");
         }
 
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+          await this.changePasswordService.changePasswordAndRotateUserKey(
+            passwordInputResult,
+            this.activeAccount,
+          );
+          return; // EARLY RETURN for flagged logic
+        }
+
         if (
           passwordInputResult.currentPassword == null ||
           passwordInputResult.newPasswordHint == null
@@ -165,7 +173,7 @@ export class ChangePasswordComponent implements OnInit {
 
         await this.syncService.fullSync(true);
 
-        await this.changePasswordService.changePasswordAndRotateUserKey(
+        await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
           passwordInputResult.currentPassword,
           passwordInputResult.newPassword,
           this.activeAccount,

@@ -15,14 +15,14 @@ export abstract class ChangePasswordService {
    * Verifies that the current password is correct via `proofOfDecryption` before
    * calling change password & user key rotation logic.
    *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the user account
    * @throws `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. the current
    *          password is incorrect)
    */
   abstract changePasswordAndRotateUserKey(
-    currentPassword: string,
-    newPassword: string,
+    passwordInputResult: PasswordInputResult,
     user: Account,
-    newPasswordHint: string,
   ): Promise<void>;
 
   /**

@@ -6,6 +6,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { KeyService } from "@bitwarden/key-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
@@ -19,10 +20,17 @@ export class WebChangePasswordService
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
+    protected syncService: SyncService,
     private userKeyRotationService: UserKeyRotationService,
     private routerService: RouterService,
   ) {
-    super(keyService, masterPasswordApiService, masterPasswordService, masterPasswordUnlockService);
+    super(
+      keyService,
+      masterPasswordApiService,
+      masterPasswordService,
+      masterPasswordUnlockService,
+      syncService,
+    );
   }
 
   override async rotateUserKeyMasterPasswordAndEncryptedData(
