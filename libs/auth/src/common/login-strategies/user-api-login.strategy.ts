@@ -66,22 +66,12 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+    if (response.canUnlockWithKeyConnector()) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
       await this.unlockService.unlockWithKeyConnector(
           response.intoKeyConnectorUnlockData(),
           userId,
         );
-    } else if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-          masterKey,
-          userId,
-        );
-        await this.keyService.setUserKey(userKey, userId);
-      }
     } else {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     }
