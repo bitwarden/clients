@@ -386,7 +386,9 @@ describe("DefaultChangePasswordService", () => {
             );
 
             // Assert
-            await expect(promise).rejects.toThrow(`${key} is falsy. Could not change password.`);
+            await expect(promise).rejects.toThrow(
+              `${key} is falsy. Could not change password for account recovery.`,
+            );
           });
         });
 
@@ -406,7 +408,7 @@ describe("DefaultChangePasswordService", () => {
 
             // Assert
             await expect(promise).rejects.toThrow(
-              `${key} is null or undefined. Could not change password.`,
+              `${key} is null or undefined. Could not change password for account recovery.`,
             );
           });
         });

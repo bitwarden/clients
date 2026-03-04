@@ -40,10 +40,10 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     passwordInputResult: PasswordInputResult,
     user: Account,
   ): Promise<void> {
-    const ctx = "Could not change password and rotate user key.";
-    assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
-    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+    const context = "Could not change password and rotate user key.";
+    assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", context);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
     const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
       passwordInputResult.currentPassword,
@@ -133,12 +133,12 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const ctx = "Could not change password.";
-      assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
-      assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-      assertTruthy(passwordInputResult.salt, "salt", ctx);
-      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+      const context = "Could not change password.";
+      assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
+      assertTruthy(passwordInputResult.newPassword, "newPassword", context);
+      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
+      assertTruthy(passwordInputResult.salt, "salt", context);
+      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
       const userKey = await this.verifyCurrentPasswordAndGetUserKey(
         passwordInputResult.currentPassword,
@@ -194,12 +194,12 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
     if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const ctx = "Could not change password.";
-      assertTruthy(passwordInputResult.currentPassword, "currentPassword", ctx);
-      assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-      assertTruthy(passwordInputResult.salt, "salt", ctx);
-      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a meaningful value, so check non-nullish
+      const context = "Could not change password for account recovery.";
+      assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
+      assertTruthy(passwordInputResult.newPassword, "newPassword", context);
+      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
+      assertTruthy(passwordInputResult.salt, "salt", context);
+      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
       const userKey = await this.verifyCurrentPasswordAndGetUserKey(
         passwordInputResult.currentPassword,
