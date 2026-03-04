@@ -77,6 +77,7 @@ import { CipherShareRequest } from "../models/request/cipher-share.request";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../models/response/delete-attachment.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
@@ -173,13 +174,14 @@ export class CipherService implements CipherServiceAbstraction {
             decryptStartTime = performance.now();
           }),
           switchMap(async (ciphers) => {
-            const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            void this.setFailedDecryptedCiphers(failures, userId);
-            // Trigger full decryption and indexing in background
-            void this.getAllDecrypted(userId);
-            return decrypted;
+            return await this.decryptCiphersWithSdk(ciphers, userId, false);
           }),
-          tap((decrypted) => {
+          tap(([decrypted, failures]) => {
+            void Promise.all([
+              this.setFailedDecryptedCiphers(failures, userId),
+              this.searchService.indexCiphers(userId, decrypted),
+            ]);
+
             this.logService.measure(
               decryptStartTime,
               "Vault",
@@ -188,10 +190,11 @@ export class CipherService implements CipherServiceAbstraction {
               [["Items", decrypted.length]],
             );
           }),
+          map(([decrypted]) => decrypted),
         );
       }),
     );
-  });
+  }, this.clearCipherViewsForUser$);
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
@@ -530,6 +533,10 @@ export class CipherService implements CipherServiceAbstraction {
     ciphers: Cipher[],
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]] | null> {
+    if (ciphers.length === 0) {
+      return [[], []];
+    }
+
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
 
@@ -1400,8 +1407,8 @@ export class CipherService implements CipherServiceAbstraction {
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1422,8 +1429,8 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
       return;
     }
 
@@ -1476,16 +1483,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
-    let cipherResponse = null;
+    let response: DeleteAttachmentResponse;
     try {
-      cipherResponse = admin
+      response = admin
         ? await this.apiService.deleteCipherAttachmentAdmin(id, attachmentId)
         : await this.apiService.deleteCipherAttachment(id, attachmentId);
     } catch (e) {
       return Promise.reject((e as ErrorResponse).getSingleMessage());
     }
 
-    const cipherData = CipherData.fromJSON(cipherResponse?.cipher);
+    const cipherData = new CipherData(response.cipher);
 
     return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);
   }
@@ -1597,8 +1604,8 @@ export class CipherService implements CipherServiceAbstraction {
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1619,8 +1626,8 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
       return;
     }
 
@@ -1670,8 +1677,8 @@ export class CipherService implements CipherServiceAbstraction {
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
       await this.clearCache(userId);
+      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
       return;
     }
 
@@ -1692,8 +1699,8 @@ export class CipherService implements CipherServiceAbstraction {
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
       await this.clearCache(userId);
+      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
       return;
     }
 
@@ -1952,7 +1959,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     const fd = new FormData();
     try {
-      const blob = new Blob([encData.buffer], { type: "application/octet-stream" });
+      const blob = new Blob([encData.buffer as BlobPart], { type: "application/octet-stream" });
       fd.append("key", dataEncKey[1].encryptedString);
       fd.append("data", blob, encFileName.encryptedString);
       fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
@@ -2401,6 +2408,12 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    // Short-circuit if there are no ciphers to decrypt
+    // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
+    if (ciphers.length === 0) {
+      return [[], []];
+    }
+
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
         ciphers,

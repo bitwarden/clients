@@ -218,6 +218,8 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    //this tab checking should be moved into the vault-popup-autofill service in case the current tab is changed
+    //ticket: https://bitwarden.atlassian.net/browse/PM-32467
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
 
     if (!currentTab?.url) {
@@ -383,7 +385,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
+      message: this.i18nService.t("itemArchiveToast"),
     });
   }
 }

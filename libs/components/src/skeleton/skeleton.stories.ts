@@ -1,18 +1,12 @@
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
-import { SharedModule } from "../shared/shared.module";
 
 import { SkeletonComponent } from "./skeleton.component";
 
 export default {
   title: "Component Library/Skeleton/Skeleton",
   component: SkeletonComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [SharedModule],
-    }),
-  ],
   args: {
     edgeShape: "box",
   },

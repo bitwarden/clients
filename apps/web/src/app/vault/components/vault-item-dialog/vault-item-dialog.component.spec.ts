@@ -86,7 +86,6 @@ describe("VaultItemDialogComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
         { provide: DialogRef, useValue: {} },
-        { provide: DialogService, useValue: {} },
         {
           provide: ToastService,
           useValue: {
@@ -173,7 +172,9 @@ describe("VaultItemDialogComponent", () => {
         { provide: SyncService, useValue: {} },
         { provide: CipherRiskService, useValue: {} },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: {} })
+      .compileComponents();
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;
@@ -371,6 +372,29 @@ describe("VaultItemDialogComponent", () => {
         expect(text).toBe("save");
         done();
       });
+    });
+  });
+
+  describe("disableEdit", () => {
+    it("returns false when formConfig mode is partial-edit even if canEdit is false", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "partial-edit" });
+
+      expect(component["disableEdit"]).toBe(false);
+    });
+
+    it("returns true when canEdit is false and formConfig mode is not partial-edit", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(true);
+    });
+
+    it("returns false when canEdit is true regardless of formConfig mode", () => {
+      component["canEdit"] = true;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(false);
     });
   });
 

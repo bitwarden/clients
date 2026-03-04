@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoritos"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Tipos"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Item guardado"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Eliminar item"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-mail ou código de verificação inválido"
   },
   "continue": {
     "message": "Continuar"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Desconhecido"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Copiar nome de utilizador"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Procurar no lixo"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "Eliminar item permanentemente"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "Editar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "O meu cofre"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Site em falta"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
     "placeholders": {
@@ -4387,11 +4435,11 @@
   "noItemsInArchiveDesc": {
     "message": "Os itens arquivados aparecerão aqui e serão excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático."
   },
-  "itemWasSentToArchive": {
-    "message": "O item foi movido para o arquivo"
+  "itemArchiveToast": {
+    "message": "Item arquivado"
   },
-  "itemWasUnarchived": {
-    "message": "O item foi desarquivado"
+  "itemUnarchivedToast": {
+    "message": "Item desarquivado"
   },
   "archiveItem": {
     "message": "Arquivar item"
@@ -4485,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Ação de tempo limite"
+  },
+  "errorCannotDecrypt": {
+    "message": "Erro: Não é possível desencriptar"
   },
   "sessionTimeoutHeader": {
     "message": "Tempo limite da sessão"
@@ -4584,35 +4635,71 @@
   "whyAmISeeingThis": {
     "message": "Porque é que estou a ver isto?"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "sendPasswordHelperText": {
     "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-mail protegido"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-mails"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Qualquer pessoa com o link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Qualquer pessoa com uma palavra-passe definida por si"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Quem pode ver"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Pessoas específicas"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Introduza vários e-mails, separados por vírgula."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Falha na verificação do utilizador."
   }
 }

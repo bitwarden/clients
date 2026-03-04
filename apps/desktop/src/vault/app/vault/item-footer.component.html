@@ -63,14 +63,21 @@
         </button>
       }
 
-      <button
-        type="button"
-        (click)="delete()"
-        class="danger"
-        appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
-      >
-        <i class="bwi bwi-trash bwi-lg bwi-fw" aria-hidden="true" style="pointer-events: none"></i>
-      </button>
+      @if (canDelete) {
+        <button
+          type="button"
+          (click)="delete()"
+          class="danger"
+          appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
+          data-test-id="footer-delete-button"
+        >
+          <i
+            class="bwi bwi-trash bwi-lg bwi-fw"
+            aria-hidden="true"
+            style="pointer-events: none"
+          ></i>
+        </button>
+      }
     </div>
   }
 </div>
