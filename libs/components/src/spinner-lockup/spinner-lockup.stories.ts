@@ -42,8 +42,8 @@ export const PrimaryVariant: Story = {
         [size]="size"
         [layout]="layout"
       >
-        <span title>Loading</span>
-        <span body>This might take a few minutes.</span>
+        <span slot="title">Loading</span>
+        <span slot="body">This might take a few minutes.</span>
       </bit-spinner-lockup>
     `,
   }),
@@ -63,8 +63,8 @@ export const VerticalWithRichContentDangerVariant: Story = {
         [size]="size"
         [layout]="layout"
       >
-        <span title><strong>Processing</strong> your request</span>
-        <span body>Please <em>do not</em> refresh the page.</span>
+        <span slot="title"><strong>Processing</strong> your request</span>
+        <span slot="body">Please <em>do not</em> refresh the page.</span>
       </bit-spinner-lockup>
     `,
   }),
@@ -85,40 +85,40 @@ export const AllVerticalVariants: Story = {
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="subtle"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="success"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="warning"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="danger"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <div class="tw-bg-bg-contrast-strong tw-gap-8 tw-p-8">
           <bit-spinner-lockup
@@ -126,8 +126,8 @@ export const AllVerticalVariants: Story = {
             [size]="size"
             [layout]="layout"
           >
-            <span title class="tw-text-fg-contrast">Loading</span>
-            <span body class="tw-text-fg-contrast">This might take a few minutes.</span>
+            <span slot="title" class="tw-text-fg-contrast">Loading</span>
+            <span slot="body" class="tw-text-fg-contrast">This might take a few minutes.</span>
           </bit-spinner-lockup>
         </div>
       </div>
@@ -149,32 +149,32 @@ export const AllVerticalSizes: Story = {
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="md"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="base"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="lg"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
       </div>
     `,
@@ -194,8 +194,8 @@ export const HorizontalWithRichContentDangerVariant: Story = {
         [size]="size"
         [layout]="layout"
       >
-        <span title><strong>Processing</strong> your request</span>
-        <span body>Please <em>do not</em> refresh the page.</span>
+        <span slot="title"><strong>Processing</strong> your request</span>
+        <span slot="body">Please <em>do not</em> refresh the page.</span>
       </bit-spinner-lockup>
     `,
   }),
@@ -216,40 +216,40 @@ export const AllHorizontalVariants: Story = {
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="subtle"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="success"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="warning"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           variant="danger"
           [size]="size"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <div class="tw-bg-bg-contrast-strong tw-gap-8 tw-p-8">
           <bit-spinner-lockup
@@ -257,8 +257,8 @@ export const AllHorizontalVariants: Story = {
             [size]="size"
             [layout]="layout"
           >
-            <span title class="tw-text-fg-contrast">Loading</span>
-            <span body class="tw-text-fg-contrast">This might take a few minutes.</span>
+            <span slot="title" class="tw-text-fg-contrast">Loading</span>
+            <span slot="body" class="tw-text-fg-contrast">This might take a few minutes.</span>
           </bit-spinner-lockup>
         </div>
       </div>
@@ -280,32 +280,32 @@ export const AllHorizontalSizes: Story = {
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="md"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="base"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
         <bit-spinner-lockup
           size="lg"
           [variant]="variant"
           [layout]="layout"
         >
-          <span title>Loading</span>
-          <span body>This might take a few minutes.</span>
+          <span slot="title">Loading</span>
+          <span slot="body">This might take a few minutes.</span>
         </bit-spinner-lockup>
       </div>
     `,
