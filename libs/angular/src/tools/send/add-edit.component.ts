@@ -9,19 +9,14 @@ import {
   takeUntil,
   map,
   BehaviorSubject,
-  combineLatest,
   concatMap,
   switchMap,
   tap,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,6 +34,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 // Value = hours
 // FIXME: update to use a const object instead of a typescript enum
@@ -111,7 +107,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
-  private configService: ConfigService = inject(ConfigService);
+  private sendPolicyService = inject(SendPolicyService);
 
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
@@ -141,7 +137,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected datePipe: DatePipe,
     protected sendService: SendService,
     protected messagingService: MessagingService,
-    protected policyService: PolicyService,
     protected logService: LogService,
     protected stateService: StateService,
     protected sendApiService: SendApiService,
@@ -166,22 +161,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-      this.accountService.activeAccount$.pipe(getUserId),
-    ])
-      .pipe(
-        switchMap(([sendControlsEnabled, userId]) =>
-          sendControlsEnabled
-            ? this.policyService
-                .policiesByType$(PolicyType.SendControls, userId)
-                .pipe(
-                  map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
-                )
-            : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -189,26 +170,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-      this.accountService.activeAccount$.pipe(getUserId),
-    ])
-      .pipe(
-        switchMap(([sendControlsEnabled, userId]) =>
-          sendControlsEnabled
-            ? this.policyService
-                .policiesByType$(PolicyType.SendControls, userId)
-                .pipe(
-                  map(
-                    (policies) => policies?.some((p) => p.data?.disableHideEmail === true) ?? false,
-                  ),
-                )
-            : this.policyService
-                .policiesByType$(PolicyType.SendOptions, userId)
-                .pipe(map((policies) => policies?.some((p) => p.data?.disableHideEmail) ?? false)),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         if (
           (this.disableHideEmail = policyAppliesToActiveUser) &&

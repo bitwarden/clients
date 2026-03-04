@@ -7,7 +7,6 @@ import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -87,7 +86,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     environmentService: EnvironmentService,
     ngZone: NgZone,
     searchService: SearchService,
-    policyService: PolicyService,
     private broadcasterService: BroadcasterService,
     logService: LogService,
     sendApiService: SendApiService,
@@ -105,7 +103,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       environmentService,
       ngZone,
       searchService,
-      policyService,
       logService,
       sendApiService,
       dialogService,

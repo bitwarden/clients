@@ -10,15 +10,10 @@ import {
   switchMap,
   takeUntil,
   combineLatest,
-  map,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +24,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 @Directive()
 export class SendComponent implements OnInit, OnDestroy {
@@ -73,7 +69,7 @@ export class SendComponent implements OnInit, OnDestroy {
     this._searchText$.next(value);
   }
 
-  protected configService: ConfigService = inject(ConfigService);
+  private sendPolicyService = inject(SendPolicyService);
 
   constructor(
     protected sendService: SendService,
@@ -82,7 +78,6 @@ export class SendComponent implements OnInit, OnDestroy {
     protected environmentService: EnvironmentService,
     protected ngZone: NgZone,
     protected searchService: SearchService,
-    protected policyService: PolicyService,
     protected logService: LogService,
     protected sendApiService: SendApiService,
     protected dialogService: DialogService,
@@ -91,22 +86,8 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SendControls),
-      this.accountService.activeAccount$.pipe(getUserId),
-    ])
-      .pipe(
-        switchMap(([sendControlsEnabled, userId]) =>
-          sendControlsEnabled
-            ? this.policyService
-                .policiesByType$(PolicyType.SendControls, userId)
-                .pipe(
-                  map((policies) => policies?.some((p) => p.data?.disableSend === true) ?? false),
-                )
-            : this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToUser) => {
         this.disableSend = policyAppliesToUser;
       });
