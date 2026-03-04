@@ -643,7 +643,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async validateImport(): Promise<boolean> {
-    if (this.organization) {
+    const selectedCollection = this.formGroup.controls.targetSelector
+      .value as CollectionView | null;
+    const isImportingToMyItems = selectedCollection?.type === CollectionTypes.DefaultUserCollection;
+
+    if (this.organization && !isImportingToMyItems) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },
         content: { key: "importWarning", placeholders: [this.organization.name] },
