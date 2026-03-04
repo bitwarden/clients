@@ -22,7 +22,7 @@ use crate::storage::keystore::KeyStore;
 /// The server internally manages its lifecycle - it can be created, started, stopped,
 /// and restarted without being re-created.
 pub struct SSHAgentServer<K, A> {
-    /// The storeage of SSH key data
+    /// The storage of SSH key data
     keystore: Arc<K>,
     /// The authenticator policy to invoke for operations that require authorization
     auth_policy: Arc<A>,
