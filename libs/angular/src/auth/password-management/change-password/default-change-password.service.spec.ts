@@ -311,6 +311,20 @@ describe("DefaultChangePasswordService", () => {
           // Assert
           await expect(promise).rejects.toThrow("userKey not found. Could not change password.");
         });
+
+        it("should throw an error if the API method fails", async () => {
+          // Arrange
+          masterPasswordApiService.postPassword.mockRejectedValueOnce(new Error("error"));
+
+          // Act
+          const promise = sut.changePassword(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(
+            "Error during change password attempt. Could not change password.",
+          );
+          expect(masterPasswordApiService.postPassword).toHaveBeenCalled();
+        });
       });
 
       it("should call makeMasterPasswordAuthenticationData twice and makeMasterPasswordUnlockData once with the correct arguments", async () => {
@@ -433,6 +447,20 @@ describe("DefaultChangePasswordService", () => {
 
           // Assert
           await expect(promise).rejects.toThrow("userKey not found. Could not change password.");
+        });
+
+        it("should throw an error if the API method fails", async () => {
+          // Arrange
+          masterPasswordApiService.putUpdateTempPassword.mockRejectedValueOnce(new Error("error"));
+
+          // Act
+          const promise = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(
+            "Error during change password attempt. Could not change password for account recovery.",
+          );
+          expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalled();
         });
       });
 

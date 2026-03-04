@@ -223,7 +223,9 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         // TODO: PM-23047 will look to consolidate this into the change password endpoint.
         await this.masterPasswordApiService.putUpdateTempPassword(request);
       } catch {
-        throw new Error("Error during change password attempt. Could not change password.");
+        throw new Error(
+          "Error during change password attempt. Could not change password for account recovery.",
+        );
       }
 
       // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
