@@ -94,10 +94,8 @@ export const WithInlineLink: Story = {
   render: () => ({
     template: `
       <bit-callout>
-      <div class="tw-flex tw-gap-2 tw-items-center">
         ${calloutContent}
-        <a bitLink endIcon="bwi-angle-right">Visit the help center</a>
-        </div>
+        <a bitLink endIcon="bwi-angle-right" class="tw-ml-2">Visit the help center</a>
       </bit-callout>
     `,
   }),

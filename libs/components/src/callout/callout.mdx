@@ -79,10 +79,10 @@ errors after form submit or failed communication request.
 
 ## Icons
 
-### Custom Icon
-
 A custom icon can be passed in. Otherwise, the icon will default to the icon corresponding to the
-callout `type`. To avoid displaying any icon, pass in `null`.
+callout type. To avoid displaying any icon, pass in `null`.
+
+### Custom Icon
 
 <Canvas of={stories.CustomIcon} />
 
@@ -91,6 +91,9 @@ callout `type`. To avoid displaying any icon, pass in `null`.
 <Canvas of={stories.NoTitleNoIcon} />
 
 ## No Title
+
+If no title is provided, a default title will be used if callout type is `warning | danger`. Pass in
+`null` to not display a title.
 
 <Canvas of={stories.NoTitle} />
 

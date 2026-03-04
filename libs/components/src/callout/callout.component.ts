@@ -42,7 +42,7 @@ export class CalloutComponent {
   readonly type = input<CalloutTypes>("info");
   // The icon to display in the callout. If not provided, a default icon based on the type will be used. Pass in `null` to not display an icon.
   readonly icon = input<string | null>();
-  // The title of the callout. If not provided, a default title based on the type will be used. Pass in `null` to not display a title.
+  // The title of the callout. If not provided, a default title will be used if callout type is `warning | danger`. Pass in `null` to not display a title.
   readonly title = input<string | null>();
   // Whether the component can be dismissed. If true, the component will not show a close button. Defaults to true.
   readonly persistent = input(true, { transform: booleanAttribute });
