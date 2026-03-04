@@ -7,11 +7,13 @@
 // Basic types
 export type BoundedString = string;
 export type BoundedStringOrNull = BoundedString | null;
+export type BoundedStringOrUndefined = BoundedString | undefined;
 export type PositiveSafeNumber = number;
 export type BoundedArray<T> = T[];
 export type DateOrNull = Date | null;
 export type DateString = string;
 export type DateStringOrNull = DateString | null;
+export type DateStringOrUndefined = DateString | undefined;
 
 // Constants
 /**
@@ -42,6 +44,10 @@ export function isBoundedString(value: unknown): value is BoundedString {
 
 export function isBoundedStringOrNull(value: unknown): value is BoundedStringOrNull {
   return value == null || isBoundedString(value);
+}
+
+export function isBoundedStringOrUndefined(value: unknown): value is BoundedStringOrUndefined {
+  return value === undefined || isBoundedString(value);
 }
 
 export const isBoundedStringArray = createBoundedArrayGuard(isBoundedString);
@@ -114,6 +120,16 @@ export function isDateStringOrNull(value: unknown): value is DateStringOrNull {
 }
 
 /**
+ * A type guard to check if a value is a valid date string or undefined (absent field).
+ * Use this for optional date fields where the key may be absent from JSON-parsed objects.
+ * @param value The value to check
+ * @returns True if the value is undefined or a valid date string, false otherwise
+ */
+export function isDateStringOrUndefined(value: unknown): value is DateStringOrUndefined {
+  return value === undefined || isDateString(value);
+}
+
+/**
  * A higher-order function that takes a type guard for T and returns a
  * new type guard for an array of T.
  */
@@ -126,9 +142,33 @@ export function createBoundedArrayGuard<T>(isType: (item: unknown) => item is T)
 type TempObject = Record<PropertyKey, unknown>;
 
 /**
+ * Factory that creates a type-safe object validator from a map of per-field guards.
  *
- * @param validators
- * @returns
+ * Pass a `{ fieldName: typeGuardFn }` map and receive a single function that validates
+ * a plain JSON-parsed object against all listed fields. The returned validator:
+ * - Rejects non-plain-objects (arrays, class instances, null)
+ * - Blocks prototype pollution via `__proto__` / `constructor` / `prototype`
+ * - For each field in the map: if the field is **absent** from the object, passes
+ *   `undefined` to the guard — required fields fail naturally (e.g. `isBoundedString(undefined)
+ *   → false`), optional fields pass if their guard accepts `undefined`
+ *   (e.g. `isDateStringOrUndefined(undefined) → true`)
+ *
+ * @example
+ * ```typescript
+ * // All required fields — key must be present and pass its guard
+ * const isMemberEntry = createValidator<MemberRegistryEntryData>({
+ *   id: isBoundedString,
+ *   userName: isBoundedStringOrNull,   // present, but may be null
+ *   email: isBoundedString,
+ * });
+ *
+ * // Mixed required and optional fields — optional fields use an *OrUndefined guard
+ * const isReportEntry = createValidator<RiskInsightsReportData>({
+ *   applicationName: isBoundedString,  // required
+ *   memberRefs: isBooleanRecord,        // required
+ *   iconUri: isBoundedStringOrUndefined, // optional — key may be absent
+ * });
+ * ```
  */
 export function createValidator<T>(validators: {
   [K in keyof T]: (value: unknown) => value is T[K];
@@ -165,14 +205,12 @@ export function createValidator<T>(validators: {
     //   return false;
     // }
 
-    // Check for each property's existence and type
+    // For each field in the validator map, pass the value (or `undefined` if absent) to
+    // its guard. Required guards (e.g. isBoundedString) reject undefined naturally;
+    // optional guards (e.g. isBoundedStringOrUndefined) accept it.
     return keys.every((key) => {
-      // Use 'in' to check for property existence before accessing it
-      if (!(key in tempObj)) {
-        return false;
-      }
-      // Pass the value to its specific validator
-      return validators[key](tempObj[key]);
+      const value = key in tempObj ? tempObj[key] : undefined;
+      return validators[key](value);
     });
   };
 }

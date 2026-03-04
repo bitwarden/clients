@@ -8,6 +8,7 @@
 
 1. [RxJS Patterns and Best Practices](#rxjs-patterns-and-best-practices)
    - [Observable Error Handling](#observable-error-handling)
+   - [catchError Parameter Typing](#catcherror-parameter-typing)
    - [getUserId Pattern](#getuserid-pattern)
    - [firstValueFrom Pattern](#firstvaluefrom-pattern)
 2. [Common Import Paths](#common-import-paths)
@@ -74,6 +75,32 @@ loadReport$(organizationId: OrganizationId): Observable<RiskInsightsView> {
   );
 }
 ```
+
+### catchError Parameter Typing
+
+**Rule:** `catchError` callback parameters MUST be typed as `unknown`. An untyped `(error)` parameter triggers the `rxjs/no-implicit-any-catch` ESLint rule and **fails the pre-commit hook**.
+
+```typescript
+// ✅ CORRECT - Explicit unknown type
+pipe(
+  catchError((error: unknown) => {
+    this.logService.error("Operation failed", error);
+    return throwError(() => error);
+  }),
+)
+
+// ❌ WRONG - Implicit any fails pre-commit
+pipe(
+  catchError((error) => {  // ← Missing ': unknown' → pre-commit failure
+    this.logService.error("Operation failed", error);
+    return throwError(() => error);
+  }),
+)
+```
+
+**Why:** TypeScript cannot know the type of a thrown error at compile time. `unknown` forces explicit narrowing before use and is the correct type annotation here. The `rxjs/no-implicit-any-catch` lint rule enforces this — it mirrors the TypeScript `useUnknownInCatchVariables` behavior for RxJS callbacks.
+
+---
 
 ### getUserId Pattern
 
@@ -242,6 +269,6 @@ import { map, switchMap, tap, catchError, shareReplay } from "rxjs";
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-03-03
+**Document Version:** 1.2
+**Last Updated:** 2026-03-04
 **Maintainer:** DIRT Team

@@ -3,11 +3,15 @@ import { MemberDetails } from "../../models";
 import {
   isApplicationHealthReportDetail,
   isMemberDetails,
+  isMemberRegistryEntryData,
   isOrganizationReportApplication,
   isOrganizationReportSummary,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
+  validateRiskInsightsApplicationDataArray,
+  validateRiskInsightsSummaryData,
+  validateAccessReportPayload,
 } from "./risk-insights-type-guards";
 
 describe("Risk Insights Type Guards", () => {
@@ -549,6 +553,206 @@ describe("Risk Insights Type Guards", () => {
         __proto__: { polluted: true },
       };
       expect(isOrganizationReportApplication(invalidData)).toBe(false);
+    });
+  });
+
+  describe("isMemberRegistryEntryData", () => {
+    it("should return true for valid MemberRegistryEntryData", () => {
+      const validData = { id: "u1", userName: "Alice", email: "alice@example.com" };
+      expect(isMemberRegistryEntryData(validData)).toBe(true);
+    });
+
+    it("should return false for empty id", () => {
+      const invalidData = { id: "", userName: "Alice", email: "alice@example.com" };
+      expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+
+    it("should return false for empty userName", () => {
+      const invalidData = { id: "u1", userName: "", email: "alice@example.com" };
+      expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+
+    it("should return false for empty email", () => {
+      const invalidData = { id: "u1", userName: "Alice", email: "" };
+      expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+
+    it("should return false for missing field", () => {
+      const invalidData = { id: "u1", userName: "Alice" };
+      expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+
+    it("should return false for non-object", () => {
+      expect(isMemberRegistryEntryData("not an object")).toBe(false);
+      expect(isMemberRegistryEntryData(null)).toBe(false);
+    });
+
+    it("should return false for prototype pollution attempts", () => {
+      const invalidData = {
+        id: "u1",
+        userName: "Alice",
+        email: "alice@example.com",
+        __proto__: { malicious: true },
+      };
+      expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+  });
+
+  describe("validateAccessReportPayload", () => {
+    const validV2Data = {
+      version: 2,
+      reports: [
+        {
+          applicationName: "github.com",
+          passwordCount: 2,
+          atRiskPasswordCount: 1,
+          memberRefs: { u1: true, u2: false },
+          cipherRefs: { c1: true, c2: false },
+          memberCount: 2,
+          atRiskMemberCount: 1,
+        },
+      ],
+      memberRegistry: {
+        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
+        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
+      },
+    };
+
+    it("should validate valid V2 report data", () => {
+      expect(() => validateAccessReportPayload(validV2Data)).not.toThrow();
+      const result = validateAccessReportPayload(validV2Data);
+      expect(result.reports).toHaveLength(1);
+      expect(Object.keys(result.memberRegistry)).toHaveLength(2);
+    });
+
+    it("should validate V2 data with empty reports and registry", () => {
+      const emptyV2Data: unknown = { version: 2, reports: [], memberRegistry: {} };
+      expect(() => validateAccessReportPayload(emptyV2Data)).not.toThrow();
+    });
+
+    it("should throw for non-object input", () => {
+      expect(() => validateAccessReportPayload("not an object")).toThrow(
+        /expected a versioned object, received non-object/,
+      );
+      expect(() => validateAccessReportPayload(null)).toThrow(
+        /expected a versioned object, received non-object/,
+      );
+      expect(() => validateAccessReportPayload([1, 2, 3])).toThrow(
+        /expected a versioned object, received non-object/,
+      );
+    });
+
+    it("should throw for wrong version", () => {
+      const wrongVersion = { ...validV2Data, version: 1 };
+      expect(() => validateAccessReportPayload(wrongVersion)).toThrow(
+        /expected version 2, received version 1/,
+      );
+    });
+
+    it("should throw for invalid reports array", () => {
+      const invalidReports = { ...validV2Data, reports: "not an array" };
+      expect(() => validateAccessReportPayload(invalidReports)).toThrow(
+        /reports array failed validation/,
+      );
+    });
+
+    it("should throw for missing memberRegistry", () => {
+      const noRegistry: unknown = { version: 2, reports: [] };
+      expect(() => validateAccessReportPayload(noRegistry)).toThrow(
+        /memberRegistry is not an object/,
+      );
+    });
+
+    it("should throw for invalid memberRegistry entry", () => {
+      const invalidEntry = {
+        ...validV2Data,
+        memberRegistry: {
+          u1: { id: "u1", userName: "Alice" }, // missing email
+        },
+      };
+      expect(() => validateAccessReportPayload(invalidEntry)).toThrow(
+        /invalid memberRegistry entry for key "u1"/,
+      );
+    });
+  });
+
+  describe("validateRiskInsightsSummaryData", () => {
+    const validSummary = {
+      totalMemberCount: 10,
+      totalApplicationCount: 5,
+      totalAtRiskMemberCount: 2,
+      totalAtRiskApplicationCount: 1,
+      totalCriticalApplicationCount: 3,
+      totalCriticalMemberCount: 4,
+      totalCriticalAtRiskMemberCount: 1,
+      totalCriticalAtRiskApplicationCount: 1,
+    };
+
+    it("should validate valid summary data", () => {
+      expect(() => validateRiskInsightsSummaryData(validSummary)).not.toThrow();
+      const result = validateRiskInsightsSummaryData(validSummary);
+      expect(result.totalMemberCount).toBe(10);
+      expect(result.totalApplicationCount).toBe(5);
+    });
+
+    it("should throw for invalid field types", () => {
+      const invalid = { ...validSummary, totalMemberCount: "10" };
+      expect(() => validateRiskInsightsSummaryData(invalid)).toThrow(/Invalid report summary/);
+    });
+
+    it("should throw for non-object input", () => {
+      expect(() => validateRiskInsightsSummaryData(null)).toThrow(/Invalid report summary/);
+      expect(() => validateRiskInsightsSummaryData("string")).toThrow(/Invalid report summary/);
+    });
+  });
+
+  describe("validateRiskInsightsApplicationDataArray", () => {
+    it("should validate valid V2 application data array", () => {
+      const validData = [
+        { applicationName: "app.com", isCritical: true, reviewedDate: "2024-01-15T10:30:00.000Z" },
+        { applicationName: "other.com", isCritical: false },
+      ];
+
+      expect(() => validateRiskInsightsApplicationDataArray(validData)).not.toThrow();
+      const result = validateRiskInsightsApplicationDataArray(validData);
+      expect(result).toHaveLength(2);
+      expect(result[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
+      expect(result[1].reviewedDate).toBeUndefined();
+    });
+
+    it("should accept missing reviewedDate (undefined)", () => {
+      const validData = [{ applicationName: "app.com", isCritical: false }];
+      const result = validateRiskInsightsApplicationDataArray(validData);
+      expect(result[0].reviewedDate).toBeUndefined();
+    });
+
+    it("should throw for non-array input", () => {
+      expect(() => validateRiskInsightsApplicationDataArray("not an array")).toThrow(
+        "Invalid application data: expected array of RiskInsightsApplicationData, received non-array",
+      );
+    });
+
+    it("should throw for array with invalid elements", () => {
+      const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
+      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
+        /Invalid application data: array contains 1 invalid RiskInsightsApplicationData element\(s\) at indices: 0/,
+      );
+    });
+
+    it("should throw for null reviewedDate", () => {
+      const invalidData: unknown = [{ applicationName: "app.com", isCritical: true, reviewedDate: null }];
+      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
+        /Invalid application data/,
+      );
+    });
+
+    it("should throw for invalid date string in reviewedDate", () => {
+      const invalidData = [
+        { applicationName: "app.com", isCritical: true, reviewedDate: "not-a-date" },
+      ];
+      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
+        /Invalid application data/,
+      );
     });
   });
 });

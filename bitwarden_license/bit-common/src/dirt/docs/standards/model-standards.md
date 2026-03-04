@@ -224,6 +224,66 @@ report.contentEncryptionKey = new EncString("test-key");
 
 ---
 
+## File Organization
+
+### One Class Per File (4-Layer Models)
+
+**Rule:** Every 4-layer model class gets its own file.
+
+**Pattern:**
+
+```
+models/
+├── data/
+│   ├── risk-insights.data.ts           ← RiskInsightsData only
+│   └── risk-insights-report.data.ts    ← RiskInsightsReportData only (+ small related interfaces)
+├── domain/
+│   ├── risk-insights.ts                ← RiskInsights only
+│   └── risk-insights-report.ts         ← RiskInsightsReport only
+└── view/
+    ├── risk-insights.view.ts            ← RiskInsightsView only
+    └── risk-insights-report.view.ts     ← RiskInsightsReportView only
+```
+
+**Why:** Matches patterns elsewhere in the codebase. Keeps files focused, makes layer boundaries clear.
+
+**Small related interfaces** (like `MemberRegistryEntryData` alongside `RiskInsightsReportData`) may
+stay in the same file when they are tightly coupled to that class and not used independently.
+
+### Service-Internal Types Belong with the Service Abstraction
+
+**Rule:** Types that exist solely as input/output contracts for a specific service are **not** Data
+layer models. They belong in the service abstraction file, not in `models/data/`.
+
+**Examples of service-internal types:**
+
+- Encryption I/O shapes (e.g., the decrypted payload passed to `encryptReport()`)
+- Internal blob format types (e.g., the versioned JSON format inside an encrypted EncString)
+- Operation result structs returned only by one service
+
+**Where they live:**
+
+```
+services/
+└── abstractions/
+    └── risk-insights-encryption.service.ts   ← RiskInsightsReportBlob, RiskInsightsDecryptedData
+```
+
+**Why:** These types describe a service contract, not a storage-serializable model. They are rarely
+exported outside the service layer. Placing them in `models/data/` incorrectly implies they are
+cacheable, API-mappable data objects.
+
+**How to tell the difference:**
+
+| Question                                      | Data model | Service-internal type |
+| --------------------------------------------- | ---------- | --------------------- |
+| Can it be constructed from an API response?   | ✅ Yes     | ❌ No                 |
+| Is it stored/cached directly?                 | ✅ Yes     | ❌ No                 |
+| Is it the I/O of one specific service method? | ❌ No      | ✅ Yes                |
+| Does it live inside an EncString blob?        | ❌ No      | ✅ Yes                |
+
+---
+
 ## Related Documentation
 
 **Standards:**
@@ -242,6 +302,6 @@ report.contentEncryptionKey = new EncString("test-key");
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-03-02
 **Maintainer:** DIRT Team
