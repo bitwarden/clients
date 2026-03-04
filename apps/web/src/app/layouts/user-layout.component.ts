@@ -17,7 +17,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -37,7 +36,7 @@ import { WebLayoutModule } from "./web-layout.module";
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
-  providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
+  providers: [PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
@@ -53,7 +52,6 @@ export class UserLayoutComponent implements OnInit {
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
-    private accountBillingClient: AccountBillingClient,
     private sendPolicyService: SendPolicyService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
