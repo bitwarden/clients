@@ -133,7 +133,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   private hmac(
     value: Uint8Array,
     key: Uint8Array,
-    algorithm: "sha1" | "sha256" | "sha512",
+    algorithm: "sha256" | "sha512",
   ): Promise<Uint8Array> {
     const hmac = crypto.createHmac(algorithm, key);
     hmac.update(value);
