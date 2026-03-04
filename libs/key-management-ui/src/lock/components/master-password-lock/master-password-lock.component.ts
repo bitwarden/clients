@@ -142,8 +142,9 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
           this.logService.error(
             "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
           );
+          throw Error("Failed to retrieve user key");
         }
-        this.successfulUnlock.emit({ userKey: userKey!, masterPassword });
+        this.successfulUnlock.emit({ userKey: userKey, masterPassword });
       } catch (error) {
         this.logService.error(
           "[MasterPasswordLockComponent] Failed to unlock via master password",
