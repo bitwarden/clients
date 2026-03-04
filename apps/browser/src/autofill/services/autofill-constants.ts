@@ -68,9 +68,11 @@ export class AutoFillConstants {
     "create",
   ];
 
+  /**
+   * Field-level keywords indicating account creation or registration context.
+   * Broader than {@link RegistrationKeywords}, which is used at the form level.
+   */
   static readonly AccountCreationFieldKeywords: string[] = [
-    // Field-level keywords indicating account creation / registration context.
-    // Broader than RegistrationKeywords (which is used at the form level).
     "register",
     "registration",
     "create password",
@@ -92,6 +94,10 @@ export class AutoFillConstants {
     "pwdcheck",
   ];
 
+  /**
+   * Field-level keywords indicating a password update or change context, as distinguished
+   * from a new account creation or initial login context.
+   */
   static readonly UpdatePasswordFieldKeywords: string[] = [
     "update password",
     "change password",

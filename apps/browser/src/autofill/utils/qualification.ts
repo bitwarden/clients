@@ -5,6 +5,11 @@ const autofillFieldKeywordsCache: WeakMap<
   { keywordsSet: Set<string>; stringValue: string }
 > = new WeakMap();
 
+/**
+ * Normalizes and tokenizes a single attribute value string into a set of keyword tokens.
+ * Produces the full lowercased value, tokens split on non-alphanumeric characters (after
+ * hyphen removal), and tokens split after additional space removal (e.g. "user id" → "userid").
+ */
 function tokenizeValue(value: string): Set<string> {
   const keywordsSet = new Set<string>();
   let keywordEl = value.toLowerCase();
@@ -26,6 +31,11 @@ function tokenizeValue(value: string): Set<string> {
   return keywordsSet;
 }
 
+/**
+ * Collects and tokenizes all qualifying attribute values from a field into a unified
+ * keyword set and a comma-joined string value. Results are cached per field reference
+ * in {@link autofillFieldKeywordsCache} to avoid redundant computation across repeated calls.
+ */
 function buildAutofillFieldKeywords(field: AutofillField) {
   if (autofillFieldKeywordsCache.has(field)) {
     return autofillFieldKeywordsCache.get(field)!;
