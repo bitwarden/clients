@@ -18,7 +18,7 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
-import { FolderRequest } from "@bitwarden/common/vault/models/request/folder.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -284,7 +284,7 @@ describe("ImportService", () => {
   });
 
   describe("handleIndividualImport", () => {
-    it("sends folder requests without an id property", async () => {
+    it("sends folder requests without an id when folder has no id", async () => {
       const importResult = new ImportResult();
       const folderView = new FolderView();
       folderView.name = "Test Folder";
@@ -303,9 +303,33 @@ describe("ImportService", () => {
 
       const request = importApiService.postImportCiphers.mock.calls[0][0];
       expect(request.folders).toHaveLength(1);
-      expect(request.folders[0]).toBeInstanceOf(FolderRequest);
+      expect(request.folders[0]).toBeInstanceOf(FolderWithOptionalIdRequest);
       expect(request.folders[0].name).toBe("2.encryptedName");
-      expect(request.folders[0]).not.toHaveProperty("id");
+      expect(request.folders[0].id).toBeUndefined();
+    });
+
+    it("sends folder requests with an id when folder has an id", async () => {
+      const importResult = new ImportResult();
+      const folderView = new FolderView();
+      folderView.name = "Test Folder";
+      importResult.folders.push(folderView);
+
+      const encryptedFolder = new Folder();
+      encryptedFolder.id = "folder-id-123";
+      encryptedFolder.name = new EncString("2.encryptedName");
+      folderService.encrypt.mockResolvedValue(encryptedFolder);
+
+      cipherService.encryptMany.mockResolvedValue([]);
+      keyService.userKey$.mockReturnValue(of(null));
+
+      const userId = "test-user-id" as UserId;
+      await importService["handleIndividualImport"](importResult, userId);
+
+      const request = importApiService.postImportCiphers.mock.calls[0][0];
+      expect(request.folders).toHaveLength(1);
+      expect(request.folders[0]).toBeInstanceOf(FolderWithOptionalIdRequest);
+      expect(request.folders[0].name).toBe("2.encryptedName");
+      expect(request.folders[0].id).toBe("folder-id-123");
     });
   });
 });
