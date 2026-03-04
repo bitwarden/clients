@@ -281,7 +281,7 @@ export declare namespace sshagent_v2 {
   /** Wrapper for Electron to be able to interface with the agent directly. */
   export class SshAgentState {
     /**
-     * Creates a new [`BitwardenSshAgent`] and starts the server.
+     * Creates a new [`BitwardenSSHAgent`] and starts the server.
      *
      * # Arguments
      *
@@ -296,6 +296,7 @@ export declare namespace sshagent_v2 {
     lock(): void
     unlock(): void
   }
+  export type SSHAgentState = SshAgentState
   /** SSH public key data */
   export interface PublicKey {
     alg: string
@@ -307,7 +308,12 @@ export declare namespace sshagent_v2 {
     cipherId?: string
     processName?: string
     isForwarding: boolean
-    namespace?: string
+    namespace?: SignRequestNamespace
+  }
+  /** Namespace of a sign request. */
+  export const enum SignRequestNamespace {
+    Git = 'Git',
+    Unsupported = 'Unsupported'
   }
   /** SSH key data, sent from Electron. */
   export interface SshKeyData {

@@ -34,8 +34,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
@@ -195,7 +193,6 @@ export class MemberDialogComponent implements OnDestroy {
     private accountService: AccountService,
     organizationService: OrganizationService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
   ) {
@@ -639,24 +636,10 @@ export class MemberDialogComponent implements OnDestroy {
     }
 
     await firstValueFrom(
-      combineLatest([
-        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore),
-        this.organization$,
-        this.editParams$,
-      ]).pipe(
-        switchMap(([enabled, organization, params]) => {
-          if (enabled) {
-            return this.organizationUserService.restoreUser(
-              organization,
-              params.organizationUserId,
-            );
-          } else {
-            return this.organizationUserApiService.restoreOrganizationUser(
-              params.organizationId,
-              params.organizationUserId,
-            );
-          }
-        }),
+      combineLatest([this.organization$, this.editParams$]).pipe(
+        switchMap(([organization, params]) =>
+          this.organizationUserService.restoreUser(organization, params.organizationUserId),
+        ),
       ),
     );
 

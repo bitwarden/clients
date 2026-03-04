@@ -11,14 +11,15 @@ pub mod sshagent_v2 {
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, BitwardenSshAgent, InMemoryEncryptedKeyStore,
-        SignRequest as SshSignRequest,
+        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        SignRequest as SSHSignRequest, SignRequestNamespace as SSHSignRequestNamespace,
     };
     use tracing::{debug, error};
 
     /// SSH key data, sent from Electron.
+    // NOTE: the public key is derived from the private key.
     #[napi(object)]
-    pub struct SshKeyData {
+    pub struct SSHKeyData {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
@@ -32,6 +33,23 @@ pub mod sshagent_v2 {
         pub blob: Vec<u8>,
     }
 
+    /// Namespace of a sign request.
+    #[napi(string_enum)]
+    #[derive(Debug)]
+    pub enum SignRequestNamespace {
+        Git,
+        Unsupported,
+    }
+
+    impl From<SSHSignRequestNamespace> for SignRequestNamespace {
+        fn from(ns: SSHSignRequestNamespace) -> Self {
+            match ns {
+                SSHSignRequestNamespace::Git => Self::Git,
+                SSHSignRequestNamespace::Unsupported => Self::Unsupported,
+            }
+        }
+    }
+
     /// Data for a sign request
     #[napi(object)]
     #[derive(Debug)]
@@ -40,11 +58,11 @@ pub mod sshagent_v2 {
         pub cipher_id: Option<String>,
         pub process_name: Option<String>,
         pub is_forwarding: bool,
-        pub namespace: Option<String>,
+        pub namespace: Option<SignRequestNamespace>,
     }
 
-    impl From<(SshSignRequest, Option<String>)> for SignRequestData {
-        fn from((sign_request, cipher_id): (SshSignRequest, Option<String>)) -> Self {
+    impl From<(SSHSignRequest, Option<String>)> for SignRequestData {
+        fn from((sign_request, cipher_id): (SSHSignRequest, Option<String>)) -> Self {
             Self {
                 public_key: PublicKey {
                     alg: sign_request.public_key.alg,
@@ -53,15 +71,15 @@ pub mod sshagent_v2 {
                 cipher_id,
                 process_name: sign_request.process_name,
                 is_forwarding: sign_request.is_forwarding,
-                namespace: sign_request.namespace,
+                namespace: sign_request.namespace.map(Into::into),
             }
         }
     }
 
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
-    pub struct SshAgentState {
-        agent: BitwardenSshAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
+    pub struct SSHAgentState {
+        agent: BitwardenSSHAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
     }
 
     /// Interface for the agent to request approval for ssh operations from Electron.
@@ -88,7 +106,7 @@ pub mod sshagent_v2 {
 
         async fn request_sign_approval(
             &self,
-            sign_request: SshSignRequest,
+            sign_request: SSHSignRequest,
             cipher_id: Option<String>,
         ) -> anyhow::Result<bool> {
             let request = SignRequestData::from((sign_request, cipher_id));
@@ -106,8 +124,8 @@ pub mod sshagent_v2 {
     }
 
     #[napi]
-    impl SshAgentState {
-        /// Creates a new [`BitwardenSshAgent`] and starts the server.
+    impl SSHAgentState {
+        /// Creates a new [`BitwardenSSHAgent`] and starts the server.
         ///
         /// # Arguments
         ///
@@ -126,7 +144,7 @@ pub mod sshagent_v2 {
 
             let keystore = InMemoryEncryptedKeyStore::default();
 
-            let mut agent = ssh_agent::BitwardenSshAgent::new(keystore, approval_handler);
+            let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
 
             debug!("Signaling the agent to start the server.");
 
@@ -147,12 +165,12 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn is_running(&mut self) -> bool {
+        pub fn is_running(&self) -> bool {
             self.agent.is_running()
         }
 
         #[napi]
-        pub fn set_keys(&mut self, _new_keys: Vec<SshKeyData>) -> napi::Result<()> {
+        pub fn set_keys(&mut self, _new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
             todo!()
         }
 

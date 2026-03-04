@@ -7,16 +7,24 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconModule } from "@bitwarden/components";
 
 import { AvatarComponent } from "../components/avatar.component";
 import { ServicesModule } from "../services/services.module";
 
+/**
+ * @deprecated Please directly import the relevant directive/pipe/component.
+ *
+ * This module is overly large and adds many unrelated modules to your dependency tree.
+ * https://angular.dev/guide/ngmodules/overview recommends not using `NgModule`s for new code.
+ */
 @NgModule({
   imports: [
     CommonModule,
     A11yModule,
     DragDropModule,
     FormsModule,
+    IconModule,
     JslibModule,
     OverlayModule,
     ReactiveFormsModule,
@@ -30,6 +38,7 @@ import { ServicesModule } from "../services/services.module";
     DatePipe,
     DragDropModule,
     FormsModule,
+    IconModule,
     JslibModule,
     OverlayModule,
     ReactiveFormsModule,

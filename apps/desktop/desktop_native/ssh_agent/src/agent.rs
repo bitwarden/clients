@@ -9,14 +9,14 @@ use tracing::{debug, info};
 use crate::{
     approval::ApprovalRequester,
     authorization::{BitwardenAuthPolicy, LockState},
-    crypto::keystore::KeyStore,
-    server::SshAgentServer,
+    server::SSHAgentServer,
+    storage::keystore::KeyStore,
 };
 
 /// - contains the [`KeyStore`] of ssh keys
-/// - manages the [`SshAgentServer`]
+/// - manages the [`SSHAgentServer`]
 /// - provides an Authentication policy for server requests
-pub struct BitwardenSshAgent<K, H>
+pub struct BitwardenSSHAgent<K, H>
 where
     K: KeyStore,
     H: ApprovalRequester,
@@ -26,19 +26,19 @@ where
     /// logic to authorize or deny underlying server requests
     auth_policy: Arc<BitwardenAuthPolicy<K, H>>,
     // the agent's server
-    server: SshAgentServer<K, BitwardenAuthPolicy<K, H>>,
+    server: SSHAgentServer<K, BitwardenAuthPolicy<K, H>>,
 }
 
-impl<K, H> BitwardenSshAgent<K, H>
+impl<K, H> BitwardenSSHAgent<K, H>
 where
     K: KeyStore + Send + Sync + 'static,
     H: ApprovalRequester + 'static,
 {
-    /// Creates a new [`BitwardenSshAgent`]
+    /// Creates a new [`BitwardenSSHAgent`]
     pub fn new(keystore: K, approval_handler: H) -> Self {
         let keystore = Arc::new(keystore);
         let auth_policy = Arc::new(BitwardenAuthPolicy::new(keystore.clone(), approval_handler));
-        let server = SshAgentServer::new(keystore.clone(), auth_policy.clone());
+        let server = SSHAgentServer::new(keystore.clone(), auth_policy.clone());
 
         Self {
             keystore,
@@ -72,7 +72,7 @@ where
     pub fn set_keys(&self, _keys: Vec<K::KeyData>) -> Result<()> {
         debug!("Received new key data.");
 
-        // TODO: set keys
+        // TODO: set keys as part of PM-30755
 
         self.auth_policy.set_lock_state(LockState::Unlocked);
 

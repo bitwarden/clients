@@ -10,8 +10,9 @@ use tracing::{debug, error};
 
 use crate::{
     approval::ApprovalRequester,
-    crypto::{keystore::KeyStore, QueryableKeyData},
+    crypto::QueryableKeyData,
     server::{AuthPolicy, AuthRequest},
+    storage::keystore::KeyStore,
 };
 
 /// Errors that can occur during authorization of SSH agent operations.
@@ -143,10 +144,11 @@ mod tests {
     use super::*;
     use crate::{
         approval::MockApprovalRequester,
-        crypto::{keystore::MockKeyStore, MockQueryableKeyData},
+        server::SignRequestNamespace,
+        storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
-    fn create_test_public_key() -> crate::crypto::PublicKey {
+    fn create_stub_public_key() -> crate::crypto::PublicKey {
         crate::crypto::PublicKey {
             alg: "ssh-ed25519".to_string(),
             blob: vec![1, 2, 3],
@@ -157,7 +159,7 @@ mod tests {
         public_key: crate::crypto::PublicKey,
         process_name: Option<&str>,
         is_forwarding: bool,
-        namespace: Option<String>,
+        namespace: Option<SignRequestNamespace>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
@@ -293,7 +295,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore
             .expect_get()
@@ -317,7 +319,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore
             .expect_get()
@@ -341,7 +343,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -367,7 +369,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -392,7 +394,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -417,7 +419,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
@@ -445,7 +447,7 @@ mod tests {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
 
-        let test_pub_key = create_test_public_key();
+        let test_pub_key = create_stub_public_key();
 
         keystore.expect_get().times(1).returning(|_| {
             let mut mock_key_data = MockQueryableKeyData::new();
@@ -460,7 +462,7 @@ mod tests {
             .withf(|sign_request, _cipher_id| {
                 sign_request.process_name == Some("test-process".to_string())
                     && sign_request.is_forwarding
-                    && sign_request.namespace == Some("test-namespace".to_string())
+                    && sign_request.namespace == Some(SignRequestNamespace::Unsupported)
             })
             .times(1)
             .returning(|_, _| Ok(true));
@@ -471,7 +473,7 @@ mod tests {
             test_pub_key,
             Some("test-process"),
             true,
-            Some("test-namespace".to_string()),
+            Some(SignRequestNamespace::Unsupported),
         );
         let result = policy.authorize(&request).await;
 

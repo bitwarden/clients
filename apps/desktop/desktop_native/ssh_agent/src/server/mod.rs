@@ -1,25 +1,26 @@
 //! SSH Agent Server implementation
 //!
 //! Adheres to the protocol defined in:
-//! <https://www.ietf.org/archive/id/draft-miller-ssh-agent-11.html>
+//! <https://datatracker.ietf.org/doc/draft-ietf-sshm-ssh-agent/>
 
 mod auth_policy;
 mod connection;
 mod listener;
 mod peer_info;
 
+// external exports for napi
 use std::sync::Arc;
 
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
-pub use auth_policy::{AuthRequest, SignRequest};
+pub use auth_policy::{AuthRequest, SignRequest, SignRequestNamespace};
 use connection::Connection;
 pub(crate) use listener::Listener;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info};
 
-use crate::crypto::keystore::KeyStore;
+use crate::KeyStore;
 
 /// SSH Agent protocol server.
 ///
@@ -28,8 +29,8 @@ use crate::crypto::keystore::KeyStore;
 ///
 /// The server internally manages its lifecycle - it can be created, started, stopped,
 /// and restarted without being re-created.
-pub struct SshAgentServer<K, A> {
-    /// The storeage of SSH key data
+pub struct SSHAgentServer<K, A> {
+    /// The storage of SSH key data
     keystore: Arc<K>,
     /// The authenticator policy to invoke for operations that require authorization
     auth_policy: Arc<A>,
@@ -39,12 +40,12 @@ pub struct SshAgentServer<K, A> {
     accept_handle: Option<JoinHandle<()>>,
 }
 
-impl<K, A> SshAgentServer<K, A>
+impl<K, A> SSHAgentServer<K, A>
 where
     K: KeyStore + 'static,
     A: AuthPolicy + 'static,
 {
-    /// Creates a new [`SshAgentServer`]
+    /// Creates a new [`SSHAgentServer`]
     pub fn new(keystore: Arc<K>, auth_policy: Arc<A>) -> Self {
         Self {
             keystore,

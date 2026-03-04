@@ -7,7 +7,7 @@ use tokio_util::sync::CancellationToken;
 use tracing::info;
 
 use super::{auth_policy::AuthPolicy, peer_info::PeerInfo};
-use crate::crypto::keystore::KeyStore;
+use crate::KeyStore;
 
 /// An accepted connection from an SSH agent client, bundling the I/O stream
 /// with information about the connecting peer.
