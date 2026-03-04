@@ -122,7 +122,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   );
 
   constructor() {
-    this.baseChip.variantState.set("subtle");
+    this.baseChip.variant.set("subtle");
     this.baseChip.hasTrailingIcon.set(true);
 
     // Sync component's disabled state to BaseChipDirective

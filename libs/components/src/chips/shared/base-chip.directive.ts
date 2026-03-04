@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   input,
+  model,
   signal,
 } from "@angular/core";
 
@@ -128,13 +129,7 @@ export class BaseChipDirective {
   /**
    * Visual variant of the chip
    */
-  readonly variant = input<ChipVariant>("primary");
-
-  /** Internal variant state (programmatic control) - writable signal */
-  readonly variantState = signal<ChipVariant | null>(null);
-
-  /** Combined variant state from both input and programmatic control */
-  readonly resolvedVariant = computed(() => this.variantState() ?? this.variant());
+  readonly variant = model<ChipVariant>("primary");
 
   /**
    * Size of the chip
@@ -187,7 +182,7 @@ export class BaseChipDirective {
       this.fullWidth() ? "tw-w-full" : this.maxWidthClass(),
     ];
 
-    const currentVariant = this.resolvedVariant() || "primary";
+    const currentVariant = this.variant() || "primary";
 
     if (this.isSelected()) {
       classes.push(...variantStyles["primary"]);
