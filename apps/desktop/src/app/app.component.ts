@@ -222,26 +222,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
-    ipc.platform.registerUpdateRestartHandler((resolve) => {
-      const hasDirtyForms = document.querySelectorAll(".ng-dirty").length > 0;
-      if (!hasDirtyForms) {
-        resolve(true);
-        return;
-      }
-
-      void this.ngZone.run(async () => {
-        const installLater = await this.dialogService.openSimpleDialog({
-          title: { key: "unsavedChangesTitle" },
-          content: { key: "unsavedChangesUpdateBody" },
-          acceptButtonText: { key: "installLater" },
-          cancelButtonText: { key: "continueWithInstall" },
-          type: "warning",
-        });
-
-        resolve(!installLater);
-      });
-    });
-
     this.ngZone.runOutsideAngular(() => {
       setTimeout(async () => {
         await this.updateAppMenu();

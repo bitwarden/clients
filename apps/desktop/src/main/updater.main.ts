@@ -1,4 +1,4 @@
-import { dialog, ipcMain, shell, Notification } from "electron";
+import { dialog, IpcMainEvent, ipcMain, shell, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
@@ -235,13 +235,20 @@ export class UpdaterMain {
       return Promise.resolve(true);
     }
 
-    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 30_000));
-    const check = new Promise<boolean>((resolve) => {
-      ipcMain.once("confirmUpdateRestart", (_, canRestart: boolean) => resolve(canRestart));
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        ipcMain.removeListener("confirmUpdateRestart", handler);
+        resolve(true);
+      }, 30_000);
+
+      const handler = (_: IpcMainEvent, canRestart: boolean) => {
+        clearTimeout(timer);
+        resolve(canRestart);
+      };
+
+      ipcMain.once("confirmUpdateRestart", handler);
       this.windowMain.win.webContents.send("confirmUpdateRestart");
     });
-
-    return Promise.race([timeout, check]);
   }
 
   private userDisabledUpdates(): boolean {
