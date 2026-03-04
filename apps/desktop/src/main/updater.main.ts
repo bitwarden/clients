@@ -8,7 +8,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
-
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
 
