@@ -1,3 +1,5 @@
+//! IPC server for handling multiple client connections.
+
 use std::{
     error::Error,
     path::{Path, PathBuf},
@@ -15,22 +17,29 @@ use tracing::{error, info};
 
 use super::MESSAGE_CHANNEL_BUFFER;
 
+/// Message received from or sent to an IPC client.
 #[derive(Debug)]
 pub struct Message {
+    /// Unique identifier for the client connection.
     pub client_id: u32,
+    /// Type of message.
     pub kind: MessageType,
-    // This value should be Some for MessageType::Message and None for the rest
+    /// Message payload (Some for MessageType::Message, None otherwise).
     pub message: Option<String>,
 }
 
+/// Type of IPC message.
 #[derive(Debug)]
+#[allow(missing_docs)]
 pub enum MessageType {
     Connected,
     Disconnected,
     Message,
 }
 
+/// IPC server that listens for client connections.
 pub struct Server {
+    /// Path to the IPC socket.
     pub path: PathBuf,
     cancel_token: CancellationToken,
     server_to_clients_send: broadcast::Sender<String>,
