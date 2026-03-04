@@ -48,9 +48,6 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Generate protobuf types
-        run: npm run --workspace @bitwarden/importer build:proto
-
       # We use isolatedModules: true which disables typechecking in tests
       # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
       # See https://bitwarden.atlassian.net/browse/EC-497
@@ -117,9 +114,6 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
-
-      - name: Generate protobuf types
-        run: npm run --workspace @bitwarden/importer build:proto
 
       - name: Run tests - ${{ matrix.test-group.name }}
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
