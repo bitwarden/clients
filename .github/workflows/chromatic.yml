@@ -1,3 +1,8 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
+# secrets. To run it successfully from a fork, manually re-run the chromatic-target.yml workflow 
+# which will have run and failed on a fork. See chromatic-target.yml for re-run instructions.
+
 name: Chromatic
 
 on:
@@ -6,24 +11,29 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - "main"
+  workflow_call:
+    inputs: {}
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  check-run:
-    name: Check PR run
-    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
-    permissions:
-      contents: read
+  check-event-source:
+    name: Check event and source
+    runs-on: ubuntu-24.04
+    # Only run this job if the event is workflow_call or the PR is from the same repository (not a fork)
+    # This avoids running it twice for forks that are already running the pull_request_target workflow
+    if: github.event_name == 'workflow_call' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Check PR event and source
+        run: echo "This PR is from the same repository (Not a fork) or called via workflow_call."
 
   chromatic:
     name: Chromatic
     runs-on: ubuntu-22.04
-    needs: check-run
+    needs: check-event-source
     permissions:
       contents: read
       pull-requests: write
