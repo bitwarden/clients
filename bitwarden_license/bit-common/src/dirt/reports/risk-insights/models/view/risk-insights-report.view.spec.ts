@@ -1,4 +1,5 @@
 import { createMemberRegistry, createReport } from "../../testing/test-helpers";
+import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 
 import { RiskInsightsReportView } from "./risk-insights-report.view";
 
@@ -194,6 +195,69 @@ describe("RiskInsightsReportView", () => {
       report.atRiskPasswordCount = 0;
 
       expect(report.isAtRisk()).toBe(false);
+    });
+  });
+
+  // ==================== Factory Methods ====================
+
+  describe("fromData", () => {
+    it("should map all standard fields from RiskInsightsReportData", () => {
+      const data = new RiskInsightsReportData();
+      data.applicationName = "github.com";
+      data.passwordCount = 10;
+      data.atRiskPasswordCount = 3;
+      data.memberRefs = { u1: true, u2: false };
+      data.cipherRefs = { c1: true, c2: false, c3: false };
+      data.memberCount = 2;
+      data.atRiskMemberCount = 1;
+
+      const view = RiskInsightsReportView.fromData(data);
+
+      expect(view).toBeInstanceOf(RiskInsightsReportView);
+      expect(view.applicationName).toBe("github.com");
+      expect(view.passwordCount).toBe(10);
+      expect(view.atRiskPasswordCount).toBe(3);
+      expect(view.memberRefs).toEqual({ u1: true, u2: false });
+      expect(view.cipherRefs).toEqual({ c1: true, c2: false, c3: false });
+      expect(view.memberCount).toBe(2);
+      expect(view.atRiskMemberCount).toBe(1);
+    });
+
+    it("should create independent copies of memberRefs and cipherRefs", () => {
+      const data = new RiskInsightsReportData();
+      data.memberRefs = { u1: true };
+      data.cipherRefs = { c1: false };
+
+      const view = RiskInsightsReportView.fromData(data);
+
+      // Mutating the view should not affect the source data
+      view.memberRefs["u2"] = false;
+      view.cipherRefs["c2"] = true;
+
+      expect(data.memberRefs).not.toHaveProperty("u2");
+      expect(data.cipherRefs).not.toHaveProperty("c2");
+    });
+
+    it("should set optional icon fields when provided", () => {
+      const data = new RiskInsightsReportData();
+      data.applicationName = "app.com";
+      data.iconUri = "https://icons.example.com/app.ico";
+      data.iconCipherId = "cipher-123";
+
+      const view = RiskInsightsReportView.fromData(data);
+
+      expect(view.iconUri).toBe("https://icons.example.com/app.ico");
+      expect(view.iconCipherId).toBe("cipher-123");
+    });
+
+    it("should leave icon fields undefined when not set on data", () => {
+      const data = new RiskInsightsReportData();
+      data.applicationName = "app.com";
+
+      const view = RiskInsightsReportView.fromData(data);
+
+      expect(view.iconUri).toBeUndefined();
+      expect(view.iconCipherId).toBeUndefined();
     });
   });
 

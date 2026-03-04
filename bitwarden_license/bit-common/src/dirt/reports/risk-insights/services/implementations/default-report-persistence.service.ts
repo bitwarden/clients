@@ -8,9 +8,9 @@ import { LogService } from "@bitwarden/logging";
 import { RiskInsightsData } from "../../models/data/risk-insights.data";
 import { RiskInsights } from "../../models/domain/risk-insights";
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
+import { AccessReportEncryptionService } from "../abstractions/access-report-encryption.service";
 import { ReportPersistenceService } from "../abstractions/report-persistence.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryption.service";
 
 /**
  * Default implementation of ReportPersistenceService using current DB backend.
@@ -21,7 +21,7 @@ import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryptio
 export class DefaultReportPersistenceService extends ReportPersistenceService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: AccessReportEncryptionService,
     private accountService: AccountService,
     private logService: LogService,
   ) {
@@ -134,6 +134,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
     );
   }
 
+  // TODO Rename to loadLastReport$
   loadReport$(organizationId: OrganizationId): Observable<RiskInsightsView | null> {
     this.logService.debug("[DefaultReportPersistenceService] Loading report", { organizationId });
 

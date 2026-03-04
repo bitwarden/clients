@@ -17,12 +17,10 @@ export class RiskInsightsData {
   reports: string = "";
   applications: string = "";
   summary: string = "";
-  memberRegistry: string = "";
   //  [TODO] Update types when individual values are encrypted instead of the entire object
   //  reports: RiskInsightsReportData[]; // Previously ApplicationHealthReportDetail Data type
   //  applications: RiskInsightsApplicationsData[]; // Previously OrganizationReportApplication Data type
   //  summary: RiskInsightsSummaryData; // Previously OrganizationReportSummary Data type
-  //  memberRegistry: MemberRegistry; // Deduplicated member lookup table
   creationDate: string = "";
   contentEncryptionKey: string = "";
 
@@ -36,7 +34,6 @@ export class RiskInsightsData {
     this.reports = response.reports;
     this.applications = response.applications;
     this.summary = response.summary;
-    this.memberRegistry = response.memberRegistry ?? "";
     this.creationDate = response.creationDate;
     this.contentEncryptionKey = response.contentEncryptionKey;
 

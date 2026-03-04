@@ -1,5 +1,6 @@
 // Abstractions
 export * from "./abstractions/access-intelligence-data.service";
+export * from "./abstractions/access-report-encryption.service";
 export * from "./abstractions/cipher-health.service";
 export * from "./abstractions/drawer-state.service";
 export * from "./abstractions/legacy-report-migration.service";
@@ -28,6 +29,7 @@ export * from "./implementations/default-legacy-report-migration.service";
 export * from "./implementations/default-member-cipher-mapping.service";
 export * from "./implementations/default-report-generation.service";
 export * from "./implementations/default-report-persistence.service";
+export * from "./implementations/default-access-report-encryption.service";
 
 // View Services
 export * from "./view/all-activities.service";

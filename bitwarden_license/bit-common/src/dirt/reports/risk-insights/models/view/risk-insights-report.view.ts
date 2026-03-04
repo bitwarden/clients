@@ -3,7 +3,6 @@ import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 import { RiskInsightsReport } from "../domain/risk-insights-report";
 
@@ -158,6 +157,20 @@ export class RiskInsightsReportView implements View {
 
   toJSON() {
     return this;
+  }
+
+  static fromData(data: RiskInsightsReportData): RiskInsightsReportView {
+    const view = new RiskInsightsReportView();
+    view.applicationName = data.applicationName;
+    view.passwordCount = data.passwordCount;
+    view.atRiskPasswordCount = data.atRiskPasswordCount;
+    view.memberRefs = { ...data.memberRefs };
+    view.cipherRefs = { ...data.cipherRefs };
+    view.memberCount = data.memberCount;
+    view.atRiskMemberCount = data.atRiskMemberCount;
+    view.iconUri = data.iconUri;
+    view.iconCipherId = data.iconCipherId;
+    return view;
   }
 
   static fromJSON(

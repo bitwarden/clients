@@ -15,6 +15,7 @@ import {
   DefaultMemberCipherMappingService,
   DefaultReportGenerationService,
   DefaultReportPersistenceService,
+  DefaultAccessReportEncryptionService,
   DrawerStateService,
   LegacyReportMigrationService,
   MemberCipherDetailsApiService,
@@ -26,8 +27,9 @@ import {
   RiskInsightsDataService,
   RiskInsightsReportService,
   SecurityTasksApiService,
+  RiskInsightsEncryptionService,
+  AccessReportEncryptionService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
-import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-orchestrator.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -126,6 +128,11 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       deps: [KeyService, EncryptService, KeyGenerationService, LogService],
     }),
     safeProvider({
+      provide: AccessReportEncryptionService,
+      useClass: DefaultAccessReportEncryptionService,
+      deps: [KeyService, EncryptService, KeyGenerationService, LogService],
+    }),
+    safeProvider({
       provide: CriticalAppsService,
       useClass: CriticalAppsService,
       deps: [KeyService, EncryptService, CriticalAppsApiService],
@@ -173,7 +180,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       useClass: DefaultReportPersistenceService,
       deps: [
         RiskInsightsApiService,
-        RiskInsightsEncryptionService,
+        AccessReportEncryptionService,
         AccountServiceAbstraction,
         LogService,
       ],

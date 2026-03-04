@@ -24,6 +24,7 @@ import { LogService } from "@bitwarden/logging";
 import { ReportProgress } from "../../models/report-models";
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
+import { UnsupportedReportFormatError } from "../abstractions/access-report-encryption.service";
 import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import {
   CollectionAccessDetails,
@@ -79,62 +80,42 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    // Try V2 load first
     return this.reportPersistenceService.loadReport$(orgId).pipe(
-      switchMap((v2Report) => {
-        if (v2Report) {
-          // V2 report exists - use it
-          this.logService.debug("[DefaultAccessIntelligenceDataService] V2 report loaded");
-          this._report.next(v2Report);
-          this._loading.next(false);
-          return of(undefined as void);
-        }
-
-        // No V2 report - try V1 migration
-        this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] No V2 report, trying V1 migration",
-        );
-
-        return this.legacyMigrationService.migrateV1Report$(orgId).pipe(
-          switchMap((v1Report) => {
-            if (v1Report) {
-              // V1 report migrated - emit without saving for testing
-              // TODO: UNCOMMENT SAVE LOGIC BEFORE PRODUCTION
-              // This is temporarily disabled to allow repeated testing with fresh V1 data
-              // without polluting the database with V2 reports
-              this.logService.info(
-                "[DefaultAccessIntelligenceDataService] V1 report migrated (NOT SAVED - testing only)",
-              );
-
-              // Emit the migrated report without persisting
-              this._report.next(v1Report);
-              this._loading.next(false);
-              return of(undefined as void);
-
-              // TODO: UNCOMMENT THIS BLOCK BEFORE PRODUCTION
-              // Production behavior: automatically save migrated V1 report as V2
-              /*
-              return this.reportPersistenceService.saveReport$(v1Report, orgId).pipe(
+      catchError((error: unknown) => {
+        if (error instanceof UnsupportedReportFormatError && error.isLegacyFormat) {
+          this.logService.info(
+            "[DefaultAccessIntelligenceDataService] Legacy report detected, attempting migration",
+          );
+          return this.legacyMigrationService.migrateV1Report$(orgId).pipe(
+            switchMap((legacyReport) => {
+              if (!legacyReport) {
+                throw new Error(
+                  "Migration returned no report despite legacy format being detected",
+                );
+              }
+              return this.reportPersistenceService.saveReport$(legacyReport, orgId).pipe(
                 tap((reportId) => {
-                  v1Report.id = reportId;
-                  this._report.next(v1Report);
-                  this._loading.next(false);
+                  legacyReport.id = reportId;
                   this.logService.info(
                     "[DefaultAccessIntelligenceDataService] V1 report saved as V2",
                   );
                 }),
-                map(() => undefined as void),
+                map(() => legacyReport),
               );
-              */
-            }
-
-            // No V1 or V2 report - null state
-            this.logService.debug("[DefaultAccessIntelligenceDataService] No reports found");
-            this._report.next(null);
-            this._loading.next(false);
-            return of(undefined as void);
-          }),
-        );
+            }),
+          );
+        }
+        throw error;
+      }),
+      switchMap((report) => {
+        if (report) {
+          this.logService.debug("[DefaultAccessIntelligenceDataService] Report loaded");
+        } else {
+          this.logService.debug("[DefaultAccessIntelligenceDataService] No reports found");
+        }
+        this._report.next(report);
+        this._loading.next(false);
+        return of(undefined as void);
       }),
       catchError((error: unknown) => {
         this.logService.error(

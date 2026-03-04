@@ -3,19 +3,9 @@ import { firstValueFrom, of, throwError } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { makeEncString } from "@bitwarden/common/spec";
-import {
-  CipherId,
-  OrganizationId,
-  OrganizationReportId,
-  UserId,
-} from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import {
-  DecryptedReportData,
-  OrganizationReportApplication,
-  OrganizationReportSummary,
-} from "../../models";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -28,15 +18,18 @@ import {
   createRiskInsightsMetrics,
   createRiskInsightsSummary,
 } from "../../testing/test-helpers";
+import {
+  AccessReportEncryptionService,
+  DecryptedAccessReportData,
+} from "../abstractions/access-report-encryption.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryption.service";
 
 import { DefaultReportPersistenceService } from "./default-report-persistence.service";
 
 describe("DefaultReportPersistenceService", () => {
   let service: DefaultReportPersistenceService;
   let mockApiService: MockProxy<RiskInsightsApiService>;
-  let mockEncryptionService: MockProxy<RiskInsightsEncryptionService>;
+  let mockEncryptionService: MockProxy<AccessReportEncryptionService>;
   let mockAccountService: MockProxy<AccountService>;
   let mockLogService: MockProxy<LogService>;
 
@@ -46,7 +39,7 @@ describe("DefaultReportPersistenceService", () => {
 
   beforeEach(() => {
     mockApiService = mock<RiskInsightsApiService>();
-    mockEncryptionService = mock<RiskInsightsEncryptionService>();
+    mockEncryptionService = mock<AccessReportEncryptionService>();
     mockAccountService = mock<AccountService>();
     mockLogService = mock<LogService>();
 
@@ -82,7 +75,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.contentEncryptionKey = makeEncString("encryption-key");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(RiskInsights, "fromView").mockResolvedValue(mockDomain);
+      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
 
       const saveResponse = new SaveRiskInsightsReportResponse({ id: reportId });
       mockApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
@@ -120,7 +113,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.organizationId = organizationId;
       mockDomain.contentEncryptionKey = undefined;
 
-      jest.spyOn(RiskInsights, "fromView").mockResolvedValue(mockDomain);
+      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
         "Report encryption key not found",
@@ -141,7 +134,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("apps");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(RiskInsights, "fromView").mockResolvedValue(mockDomain);
+      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
 
       mockApiService.saveRiskInsightsReport$.mockReturnValue(
         throwError(() => new Error("API error")),
@@ -196,7 +189,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(RiskInsights, "fromView").mockResolvedValue(mockDomain);
+      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
 
       // Using {} as any for mock response (acceptable per testing standards for mock objects)
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(of({} as any));
@@ -255,7 +248,9 @@ describe("DefaultReportPersistenceService", () => {
         organizationId,
       });
 
-      jest.spyOn(RiskInsights, "fromView").mockRejectedValue(new Error("Encryption failed"));
+      jest
+        .spyOn(RiskInsights, "fromView")
+        .mockReturnValue(throwError(() => new Error("Encryption failed")));
 
       await expect(firstValueFrom(service.saveApplicationMetadata$(view))).rejects.toThrow(
         "Encryption failed",
@@ -274,7 +269,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(RiskInsights, "fromView").mockResolvedValue(mockDomain);
+      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
 
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(
         throwError(() => new Error("Update failed")),
@@ -298,34 +293,24 @@ describe("DefaultReportPersistenceService", () => {
         contentEncryptionKey: "encryption-key",
       });
 
-      const decryptedData: DecryptedReportData = {
-        reportData: [
-          {
-            applicationName: "github.com",
-            passwordCount: 2,
-            atRiskPasswordCount: 1,
-            cipherIds: ["cipher-1" as CipherId, "cipher-2" as CipherId],
-            atRiskCipherIds: ["cipher-1" as CipherId],
-            memberCount: 1,
-            atRiskMemberCount: 1,
-            memberDetails: [
-              {
-                userGuid: "member-1",
-                userName: "John Doe",
-                email: "john@example.com",
-                cipherId: "cipher-1",
-              },
-            ],
-            atRiskMemberDetails: [
-              {
-                userGuid: "member-1",
-                userName: "John Doe",
-                email: "john@example.com",
-                cipherId: "cipher-1",
-              },
-            ],
+      const decryptedData: DecryptedAccessReportData = {
+        version: 2,
+        reportData: {
+          reports: [
+            {
+              applicationName: "github.com",
+              passwordCount: 2,
+              atRiskPasswordCount: 1,
+              memberCount: 1,
+              atRiskMemberCount: 1,
+              cipherRefs: { "cipher-1": true, "cipher-2": false },
+              memberRefs: { "member-1": true },
+            },
+          ],
+          memberRegistry: {
+            "member-1": { id: "member-1", userName: "John Doe", email: "john@example.com" },
           },
-        ],
+        },
         summaryData: {
           totalMemberCount: 10,
           totalAtRiskMemberCount: 3,
@@ -335,18 +320,18 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalApplicationCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
-        } as OrganizationReportSummary,
+        },
         applicationData: [
           {
             applicationName: "github.com",
             isCritical: true,
-            reviewedDate: new Date(),
+            reviewedDate: "2024-01-15T10:30:00.000Z",
           },
-        ] as OrganizationReportApplication[],
+        ],
       };
 
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
-      mockEncryptionService.decryptRiskInsightsReport.mockResolvedValue(decryptedData);
+      mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
@@ -369,7 +354,7 @@ describe("DefaultReportPersistenceService", () => {
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
       expect(result).toBeNull();
-      expect(mockEncryptionService.decryptRiskInsightsReport).not.toHaveBeenCalled();
+      expect(mockEncryptionService.decryptReport$).not.toHaveBeenCalled();
     });
 
     it("should throw error if encryption key missing", async () => {
@@ -410,8 +395,8 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
-      mockEncryptionService.decryptRiskInsightsReport.mockRejectedValue(
-        new Error("Decryption failed"),
+      mockEncryptionService.decryptReport$.mockReturnValue(
+        throwError(() => new Error("Decryption failed")),
       );
 
       await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
@@ -430,40 +415,25 @@ describe("DefaultReportPersistenceService", () => {
         contentEncryptionKey: "encryption-key",
       });
 
-      const decryptedData: DecryptedReportData = {
-        reportData: [
-          {
-            applicationName: "gitlab.com",
-            passwordCount: 3,
-            atRiskPasswordCount: 1,
-            cipherIds: ["c1" as CipherId, "c2" as CipherId, "c3" as CipherId],
-            atRiskCipherIds: ["c2" as CipherId],
-            memberCount: 2,
-            atRiskMemberCount: 1,
-            memberDetails: [
-              {
-                userGuid: "m1",
-                userName: "Alice",
-                email: "alice@example.com",
-                cipherId: "c1",
-              },
-              {
-                userGuid: "m2",
-                userName: "Bob",
-                email: "bob@example.com",
-                cipherId: "c2",
-              },
-            ],
-            atRiskMemberDetails: [
-              {
-                userGuid: "m1",
-                userName: "Alice",
-                email: "alice@example.com",
-                cipherId: "c2",
-              },
-            ],
+      const decryptedData: DecryptedAccessReportData = {
+        version: 2,
+        reportData: {
+          reports: [
+            {
+              applicationName: "gitlab.com",
+              passwordCount: 3,
+              atRiskPasswordCount: 1,
+              memberCount: 2,
+              atRiskMemberCount: 1,
+              cipherRefs: { c1: false, c2: true, c3: false },
+              memberRefs: { m1: true, m2: false },
+            },
+          ],
+          memberRegistry: {
+            m1: { id: "m1", userName: "Alice", email: "alice@example.com" },
+            m2: { id: "m2", userName: "Bob", email: "bob@example.com" },
           },
-        ],
+        },
         summaryData: {
           totalMemberCount: 20,
           totalAtRiskMemberCount: 5,
@@ -473,18 +443,18 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 2,
           totalCriticalApplicationCount: 2,
           totalCriticalAtRiskApplicationCount: 1,
-        } as OrganizationReportSummary,
+        },
         applicationData: [
           {
             applicationName: "gitlab.com",
             isCritical: false,
-            reviewedDate: null,
+            reviewedDate: undefined,
           },
-        ] as OrganizationReportApplication[],
+        ],
       };
 
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
-      mockEncryptionService.decryptRiskInsightsReport.mockResolvedValue(decryptedData);
+      mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
