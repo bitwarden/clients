@@ -48,7 +48,7 @@ where
     }
 
     /// Handle incoming SSH agent protocol messages from the client
-    #[allow(clippy::never_loop)] // TODO remove
+    #[allow(clippy::never_loop)] // TODO PM-30755 remove
     pub async fn handle(self) {
         info!(peer_info = ?self.connection.peer_info, "Connection handler started");
 
@@ -59,9 +59,10 @@ where
                     break;
                 }
 
-                // TODO: read SSH protocol message from self.connection.stream
-                // TODO: parse message type, use auth policy and keystore to satisfy requests
-                // TODO: build response and write back to self.connection.stream
+                // TODO: PM-30755
+                // read SSH protocol message from self.connection.stream
+                // parse message type, use auth policy and keystore to satisfy requests
+                // build response and write back to self.connection.stream
             }
         }
 
