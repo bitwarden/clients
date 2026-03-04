@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "Zoekresultaten"
   },
+  "simplifiedAutofill": {
+    "message": "Vereenvoudigd automatisch invullen"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Als je op een voorgesteld item voor automatisch invullen klikt, vult het in plaats van naar details te gaan. Je kunt deze items nog steeds bekijken in het menu Meer."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open vereenvoudigde pop-over voor automatisch invullen"
+  },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
   },
