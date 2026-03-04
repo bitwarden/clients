@@ -1,3 +1,7 @@
+import {
+  DANGEROUS_aesEcbDecryptLastpassImport,
+  DANGEROUS_aesCbcDecryptLastpassImport,
+} from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -88,8 +92,15 @@ export class CryptoUtils {
     if (data.length === 0) {
       return "";
     }
-    const plain = await this.cryptoFunctionService.aesDecrypt(data, iv, encryptionKey, mode);
-    return Utils.fromArrayToUtf8(plain)!;
+    if (mode === "ecb") {
+      return Utils.fromArrayToByteString(
+        DANGEROUS_aesEcbDecryptLastpassImport(data, encryptionKey),
+      );
+    } else {
+      return Utils.fromArrayToByteString(
+        DANGEROUS_aesCbcDecryptLastpassImport(data, encryptionKey, iv),
+      );
+    }
   }
 
   private async decryptAes256EcbPlain(data: Uint8Array, encryptionKey: Uint8Array) {
