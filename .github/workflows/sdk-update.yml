@@ -311,8 +311,9 @@ jobs:
             echo "::warning::No changes to commit — branch already contains SDK $SDK_VERSION"
           else
             git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
-            git push origin "$BRANCH_NAME"
           fi
+
+          git push --force-with-lease origin "$BRANCH_NAME"
 
       - name: Create or Update Pull Request
         env:
@@ -349,31 +350,31 @@ jobs:
 
           # Build PR body
           PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
-          cat > /tmp/pr-body.md <<EOF
-          ## 🤖 Automated SDK Update
-
-          This PR updates the SDK packages to version \`$SDK_VERSION\`.
-
-          ### Changes
-          - \`@bitwarden/sdk-internal\`: \`$OLD_SDK_VERSION\` → \`$SDK_VERSION\`
-          - \`@bitwarden/commercial-sdk-internal\`: \`$OLD_COMMERCIAL_VERSION\` → \`$SDK_VERSION\`
-          EOF
-
-          if [ -n "$CHANGELOG" ]; then
-            printf '\n### What'\''s Changed in SDK\n%s\n' "$CHANGELOG" >> /tmp/pr-body.md
-          fi
-
-          cat >> /tmp/pr-body.md <<EOF
-
-          ### Validation Results
-          - Lint: $LINT_RESULT
-          - Tests: $TEST_RESULT
-
-          ### Links
-          - [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)
-          $([ -n "$TRIGGERING_RUN_ID" ] && echo "- [Triggering SDK Publish Run](https://github.com/bitwarden/sdk-internal/actions/runs/$TRIGGERING_RUN_ID)")
-          - [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)
-          EOF
+          {
+            echo "## 🤖 Automated SDK Update"
+            echo ""
+            echo "This PR updates the SDK packages to version \`$SDK_VERSION\`."
+            echo ""
+            echo "### Changes"
+            echo "- \`@bitwarden/sdk-internal\`: \`$OLD_SDK_VERSION\` → \`$SDK_VERSION\`"
+            echo "- \`@bitwarden/commercial-sdk-internal\`: \`$OLD_COMMERCIAL_VERSION\` → \`$SDK_VERSION\`"
+            if [ -n "$CHANGELOG" ]; then
+              echo ""
+              echo "### What's Changed in SDK"
+              echo "$CHANGELOG"
+            fi
+            echo ""
+            echo "### Validation Results"
+            echo "- Lint: $LINT_RESULT"
+            echo "- Tests: $TEST_RESULT"
+            echo ""
+            echo "### Links"
+            echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
+            if [ -n "$TRIGGERING_RUN_ID" ]; then
+              echo "- [Triggering SDK Publish Run](https://github.com/bitwarden/sdk-internal/actions/runs/$TRIGGERING_RUN_ID)"
+            fi
+            echo "- [SDK Releases](https://github.com/bitwarden/sdk-internal/releases)"
+          } > /tmp/pr-body.md
 
           # Check for existing PR
           EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number // empty')
