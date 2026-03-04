@@ -261,7 +261,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
    * @param currentPassword the entered current password
    * @param userId the active user's `userId`
    * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
-   * @throws if the user key could not be retreived from state
+   * @throws if the user key could not be retrieved from state
    * @returns the user key from state
    */
   private async verifyCurrentPasswordAndGetUserKey(currentPassword: string, userId: UserId) {
