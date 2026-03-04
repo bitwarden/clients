@@ -48,7 +48,7 @@ async function run(context) {
           ? "A579B6AE496B360642D05B8AB1B650C1B143B770"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
-        id = "Developer ID Application: 8bit Solutions LLC";
+        id = "Developer ID Application: Bitwarden Inc";
       }
       // Locally, use the first valid code signing identity, unless CSC_NAME is set
     } else if (process.env.CSC_NAME) {
