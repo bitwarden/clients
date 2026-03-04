@@ -65,8 +65,9 @@ export abstract class ChangePasswordService {
    * Changes the user's password during Account Recovery by building an `UpdateTempPasswordRequest`
    * object that gets PUT to the server.
    *
-   * Note that this method pertains to the user changing their own password AFTER it was recently
-   * set for them by another org member who has the "Manage Account Recovery" permission.
+   * Note that this method pertains to the "follow-up" stage of account recovery. That is, this user
+   * is now changing their own password AFTER it was recently set/changed for them by another org member
+   * who has the "Manage Account Recovery" permission.
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the active user's `userId`
