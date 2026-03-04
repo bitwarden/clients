@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
-pub use auth_policy::{AuthRequest, SignRequest};
+pub use auth_policy::{AuthRequest, SignRequest, SignRequestNamespace};
 use tokio_util::sync::CancellationToken;
 
 use crate::storage::keystore::KeyStore;

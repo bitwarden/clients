@@ -308,7 +308,12 @@ export declare namespace sshagent_v2 {
     cipherId?: string
     processName?: string
     isForwarding: boolean
-    namespace?: string
+    namespace?: SignRequestNamespace
+  }
+  /** Namespace of a sign request. */
+  export const enum SignRequestNamespace {
+    Git = 'Git',
+    Unsupported = 'Unsupported'
   }
   /** SSH key data, sent from Electron. */
   export interface SshKeyData {

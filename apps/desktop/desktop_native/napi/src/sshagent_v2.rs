@@ -12,7 +12,7 @@ pub mod sshagent_v2 {
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
         ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SignRequest as SSHSignRequest,
+        SignRequest as SSHSignRequest, SignRequestNamespace as SSHSignRequestNamespace,
     };
     use tracing::{debug, error};
 
@@ -33,6 +33,23 @@ pub mod sshagent_v2 {
         pub blob: Vec<u8>,
     }
 
+    /// Namespace of a sign request.
+    #[napi(string_enum)]
+    #[derive(Debug)]
+    pub enum SignRequestNamespace {
+        Git,
+        Unsupported,
+    }
+
+    impl From<SSHSignRequestNamespace> for SignRequestNamespace {
+        fn from(ns: SSHSignRequestNamespace) -> Self {
+            match ns {
+                SSHSignRequestNamespace::Git => Self::Git,
+                SSHSignRequestNamespace::Unsupported => Self::Unsupported,
+            }
+        }
+    }
+
     /// Data for a sign request
     #[napi(object)]
     #[derive(Debug)]
@@ -41,7 +58,7 @@ pub mod sshagent_v2 {
         pub cipher_id: Option<String>,
         pub process_name: Option<String>,
         pub is_forwarding: bool,
-        pub namespace: Option<String>,
+        pub namespace: Option<SignRequestNamespace>,
     }
 
     impl From<(SSHSignRequest, Option<String>)> for SignRequestData {
@@ -54,7 +71,7 @@ pub mod sshagent_v2 {
                 cipher_id,
                 process_name: sign_request.process_name,
                 is_forwarding: sign_request.is_forwarding,
-                namespace: sign_request.namespace,
+                namespace: sign_request.namespace.map(Into::into),
             }
         }
     }

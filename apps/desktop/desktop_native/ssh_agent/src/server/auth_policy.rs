@@ -3,6 +3,13 @@
 
 use crate::{authorization::AuthError, crypto::PublicKey};
 
+/// Namespace of signature requests.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SignRequestNamespace {
+    Git,
+    Unsupported,
+}
+
 /// Request to sign data using an SSH key.
 #[derive(Debug, Clone)]
 pub struct SignRequest {
@@ -13,8 +20,8 @@ pub struct SignRequest {
     pub process_name: Option<String>,
     /// Whether this is an agent forwarding request
     pub is_forwarding: bool,
-    /// Optional namespace for SSH signature requests
-    pub namespace: Option<String>,
+    /// If available, the parsed representation of the sign request's namespace.
+    pub namespace: Option<SignRequestNamespace>,
 }
 
 /// Authorization request for SSH agent operations.
