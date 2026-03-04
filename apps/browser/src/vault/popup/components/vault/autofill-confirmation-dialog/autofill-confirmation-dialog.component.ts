@@ -75,7 +75,7 @@ export class AutofillConfirmationDialogComponent {
     const uriMatchSetting = this.uriMatchSetting();
 
     return (
-      (FULL_URI_MATCH_STRATEGIES as number[]).includes(uriMatchSetting) ||
+      (uriMatchSetting && (FULL_URI_MATCH_STRATEGIES as number[]).includes(uriMatchSetting)) ||
       this.savedUrls().some(
         (u) => u.match != null && (FULL_URI_MATCH_STRATEGIES as number[]).includes(u.match),
       )
@@ -87,7 +87,7 @@ export class AutofillConfirmationDialogComponent {
 
     return this.showFullUrls()
       ? savedUrls.map((u) => u.uri)
-      : savedUrls.map((u) => Utils.getHostname(u.uri) ?? "").filter(Boolean);
+      : savedUrls.map((u) => Utils.getHostname(u.uri ?? "")).filter(Boolean);
   });
 
   readonly formattedCurrentUrl = computed(() => {
