@@ -5,7 +5,7 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, Subject, of } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of, take } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
@@ -472,20 +472,19 @@ describe("VaultComponent", () => {
     expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
   }));
 
-  it("accountAgeInDays$ computes integer days since creation", (done) => {
+  it("accountAgeInDays$ computes integer days since creation", fakeAsync(() => {
     activeAccount$.next({
       id: "user-123",
       creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
     } as any);
-    getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
-      if (days !== null) {
-        expect(days).toBeGreaterThanOrEqual(7);
-        done();
-      }
-    });
 
     void component.ngOnInit();
-  });
+    tick();
+
+    getObs<number | null>(component, "accountAgeInDays$")
+      .pipe(take(1))
+      .subscribe((days) => expect(days).toBeGreaterThanOrEqual(7));
+  }));
 
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
     itemsSvc.cipherCount$.next(10);
@@ -559,6 +558,10 @@ describe("VaultComponent", () => {
   }));
 
   it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    } as any);
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
 
