@@ -148,7 +148,7 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn is_running(&mut self) -> bool {
+        pub fn is_running(&self) -> bool {
             self.agent.is_running()
         }
 
