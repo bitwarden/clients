@@ -1,11 +1,7 @@
 <ng-container>
-  @if (!!IconProviderMap[provider()]) {
+  @if (IconProviderMap[provider()]) {
     <div class="tw-size-[70px] tw-content-center">
-      <bit-svg [content]="IconProviderMap[provider()]" />
+      <bit-svg [content]="IconProviderMap[provider()]" [ariaLabel]="name()" />
     </div>
-  }
-  <!-- Other 2FA Types (Duo, Yubico, U2F as PNG) -->
-  @if (isLegacyProvider()) {
-    <img [class]="'mfaType' + provider()" [alt]="name()" />
   }
 </ng-container>

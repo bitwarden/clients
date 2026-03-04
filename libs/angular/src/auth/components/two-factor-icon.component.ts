@@ -1,20 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import {
   BitSvg,
   TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthDuoIcon,
   TwoFactorAuthEmailIcon,
   TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthYubicoIcon,
 } from "@bitwarden/assets/svg";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SvgModule } from "@bitwarden/components";
 
 /**
  * Displays an icon for a given two-factor authentication provider.
- *
- * Modern providers (Authenticator, Email, WebAuthn) render as inline SVGs via `bit-svg`.
- * Legacy providers (Duo, Yubikey, U2F, Remember, OrganizationDuo) render as CSS-classed
- * `<img>` elements that rely on provider-specific PNG assets loaded via stylesheet.
  *
  * @example
  * <auth-two-factor-icon [provider]="providerType" [name]="providerName" />
@@ -32,25 +30,13 @@ export class TwoFactorIconComponent {
   /** Accessible alt text for the icon, typically the provider's display name. */
   readonly name = input<string>();
 
-  /**
-   * Returns `true` when the provider uses a legacy PNG asset rather than an SVG.
-   * Legacy providers are rendered via a CSS class on an `<img>` element.
-   */
-  protected readonly isLegacyProvider = computed(() => {
-    const p = this.provider();
-    return (
-      p === TwoFactorProviderType.Duo ||
-      p === TwoFactorProviderType.Yubikey ||
-      p === TwoFactorProviderType.U2f ||
-      p === TwoFactorProviderType.Remember ||
-      p === TwoFactorProviderType.OrganizationDuo
-    );
-  });
-
-  /** Maps modern provider types to their corresponding SVG icon assets. */
+  /** Maps provider types to their corresponding SVG icon assets. */
   protected readonly IconProviderMap: Partial<Record<TwoFactorProviderType, BitSvg>> = {
     [TwoFactorProviderType.Authenticator]: TwoFactorAuthAuthenticatorIcon,
+    [TwoFactorProviderType.Duo]: TwoFactorAuthDuoIcon,
     [TwoFactorProviderType.Email]: TwoFactorAuthEmailIcon,
+    [TwoFactorProviderType.OrganizationDuo]: TwoFactorAuthDuoIcon,
     [TwoFactorProviderType.WebAuthn]: TwoFactorAuthWebAuthnIcon,
+    [TwoFactorProviderType.Yubikey]: TwoFactorAuthYubicoIcon,
   };
 }
