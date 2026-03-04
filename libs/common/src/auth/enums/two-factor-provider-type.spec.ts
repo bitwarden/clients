@@ -11,7 +11,7 @@ describe("isTwoFactorProviderType", () => {
   });
 
   describe("invalid numeric values", () => {
-    it.each([-1, 9, 100, NaN, Infinity, -Infinity, 1.5])("returns false for %p", (value) => {
+    it.each([-1, 4, 9, 100, NaN, Infinity, -Infinity, 1.5])("returns false for %p", (value) => {
       expect(isTwoFactorProviderType(value)).toBe(false);
     });
   });

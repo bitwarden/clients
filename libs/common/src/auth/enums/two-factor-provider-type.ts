@@ -3,7 +3,7 @@ export const TwoFactorProviderType = Object.freeze({
   Email: 1,
   Duo: 2,
   Yubikey: 3,
-  U2f: 4,
+  // U2f: 4, - deprecated in favor of WebAuthn
   Remember: 5,
   OrganizationDuo: 6,
   WebAuthn: 7,
