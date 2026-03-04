@@ -37,7 +37,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
           @if (showAutofillBadge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            <span bitBadge variant="accent-primary" [attr.aria-label]="'nudgeBadgeAria' | i18n"
               >1</span
             >
           }
@@ -67,7 +67,7 @@
             Will make this dynamic when more nudges are added
           -->
           @if (showVaultBadge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            <span bitBadge variant="accent-primary" [attr.aria-label]="'nudgeBadgeAria' | i18n"
               >1</span
             >
           }
@@ -91,7 +91,7 @@
           <div class="tw-flex tw-items-center tw-justify-center">
             <p class="tw-pr-2">{{ "admin" | i18n }}</p>
             @if (showAdminBadge$ | async) {
-              <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
+              <span bitBadge variant="accent-primary" [attr.aria-label]="'nudgeBadgeAria' | i18n"
                 >1</span
               >
             }
@@ -114,9 +114,9 @@
         <div class="tw-flex tw-items-center">
           <p class="tw-pr-2">{{ "downloadBitwardenApps" | i18n }}</p>
           @if (showDownloadBitwardenNudge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
-              >1
-            </span>
+            <span bitBadge variant="accent-primary" [attr.aria-label]="'nudgeBadgeAria' | i18n"
+              >1</span
+            >
           }
         </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>

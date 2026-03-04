@@ -173,7 +173,7 @@ function createPasswordHealthData(reusedPasswordCount: number | null): PasswordH
       score: 0,
       detailValue: {
         label: "",
-        badgeVariant: "info",
+        badgeVariant: "primary",
       },
     },
     exposedPasswordDetail: {
