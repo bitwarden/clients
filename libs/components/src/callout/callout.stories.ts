@@ -1,7 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LinkModule, SvgModule } from "@bitwarden/components";
+import { LinkModule, SvgModule, ButtonModule } from "@bitwarden/components";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -13,7 +13,7 @@ export default {
   component: CalloutComponent,
   decorators: [
     moduleMetadata({
-      imports: [LinkModule, SvgModule],
+      imports: [LinkModule, SvgModule, ButtonModule],
       providers: [
         {
           provide: I18nService,
@@ -21,6 +21,8 @@ export default {
             return new I18nMockService({
               warning: "Warning",
               error: "Error",
+              close: "Close",
+              loading: "Loading",
             });
           },
         },
@@ -36,12 +38,14 @@ export default {
 } as Meta;
 
 type Story = StoryObj<CalloutComponent>;
+const calloutContent =
+  "Great job! You've read some important information regarding your current action.";
 
-export const Info: Story = {
+export const Base: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>${calloutContent}</bit-callout>
     `,
   }),
   args: {
@@ -49,76 +53,93 @@ export const Info: Story = {
   },
 };
 
-export const Success: Story = {
-  ...Info,
-  args: {
-    ...Info.args,
-    type: "success",
-  },
-};
-
-export const Warning: Story = {
-  ...Info,
-  args: {
-    type: "warning",
-  },
-};
-
-export const Danger: Story = {
-  ...Info,
-  args: {
-    type: "danger",
-  },
-};
-
-export const Default: Story = {
-  ...Info,
-  args: {
-    ...Info.args,
-    type: "default",
-  },
+export const AllVariants: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <bit-callout type="info" title="Info">${calloutContent}</bit-callout>
+        <bit-callout type="success" title="Success">${calloutContent}</bit-callout>
+        <bit-callout type="warning" title="Warning">${calloutContent}</bit-callout>
+        <bit-callout type="danger" title="Danger">${calloutContent}</bit-callout>
+        <bit-callout type="subtle" title="Subtle">${calloutContent}</bit-callout>
+      </div>
+    `,
+  }),
 };
 
 export const CustomIcon: Story = {
-  ...Info,
+  ...Base,
   args: {
-    ...Info.args,
+    ...Base.args,
     icon: "bwi-star",
   },
 };
 
 export const NoTitle: Story = {
-  ...Info,
+  ...Base,
   args: {
     icon: "",
   },
 };
 
-export const NoTitleWithIcon: Story = {
-  render: (args) => ({
-    props: args,
+export const NoTitleNoIcon: Story = {
+  render: () => ({
     template: `
-      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
+      <bit-callout [icon]="null">${calloutContent}</bit-callout>
     `,
   }),
-  args: {
-    type: "default",
-    icon: "bwi-globe",
-  },
 };
 
-export const WithTextButton: Story = {
+export const WithInlineLink: Story = {
+  render: () => ({
+    template: `
+      <bit-callout>
+      <div class="tw-flex tw-gap-2 tw-items-center">
+        ${calloutContent}
+        <a bitLink endIcon="bwi-angle-right">Visit the help center</a>
+        </div>
+      </bit-callout>
+    `,
+  }),
+};
+
+export const WithFooterButtons: Story = {
   render: (args) => ({
     props: args,
     template: `
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
-      <p class="tw-mb-2">The content of the callout</p>
-        <a bitLink endIcon="bwi-angle-right">Visit the help center</a>
+        ${calloutContent}
+        <div slot="end">
+          <button type="button" bitButton buttonType="primary">Button text</button>
+          <button type="button" bitButton>Button text</button>
+        </div>
       </bit-callout>
     `,
   }),
   args: {
-    type: "default",
-    icon: "",
+    title: "Callout Title",
+  },
+};
+
+export const WithCloseButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <bit-callout persistent="false">
+        ${calloutContent}
+      </bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)} persistent="false">
+        ${calloutContent}
+        <div slot="end">
+          <button type="button" bitButton buttonType="primary">Button text</button>
+          <button type="button" bitButton>Button text</button>
+        </div>
+      </bit-callout>
+    </div>
+    `,
+  }),
+  args: {
+    title: "Callout Title",
   },
 };
