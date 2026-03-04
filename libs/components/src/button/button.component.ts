@@ -15,7 +15,7 @@ import { debounce, interval } from "rxjs";
 import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 import { BitwardenIcon } from "../shared/icon";
-import { SpinnerComponent } from "../spinner";
+import { SpinnerComponent, SpinnerSize } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
 const focusRing = [
@@ -155,6 +155,10 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * This pattern of converting a signal to an observable and back to a signal is not
    * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
+  protected readonly spinnerSize = computed(
+    (): SpinnerSize => (this.size() === "small" ? "sm" : "md"),
+  );
+
   protected readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );

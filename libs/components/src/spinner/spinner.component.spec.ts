@@ -53,36 +53,30 @@ describe("SpinnerComponent", () => {
       expect(component.title()).toBe("Loading");
     });
 
-    it("accept custom title input", () => {
-      fixture.componentRef.setInput("title", "Processing");
-      fixture.detectChanges();
-
-      expect(component.title()).toBe("Processing");
-    });
-
-    it("set aria-label when title is provided", () => {
-      fixture.componentRef.setInput("title", "Loading data");
-      fixture.detectChanges();
-
-      const svg = fixture.nativeElement.querySelector("svg");
-      expect(svg.getAttribute("aria-label")).toBe("Loading data");
-    });
-
-    it("set aria-hidden to true when title is provided", () => {
-      fixture.componentRef.setInput("title", "Loading");
-      fixture.detectChanges();
-
+    it("always set aria-hidden on SVG", () => {
       const svg = fixture.nativeElement.querySelector("svg");
       expect(svg.getAttribute("aria-hidden")).toBe("true");
     });
 
-    it("handle empty title", () => {
+    it("render sr-only span when title is provided", () => {
+      const srSpan = fixture.nativeElement.querySelector(".tw-sr-only");
+      expect(srSpan.textContent.trim()).toBe("Loading");
+    });
+
+    it("render sr-only span with custom title", () => {
+      fixture.componentRef.setInput("title", "Processing");
+      fixture.detectChanges();
+
+      const srSpan = fixture.nativeElement.querySelector(".tw-sr-only");
+      expect(srSpan.textContent.trim()).toBe("Processing");
+    });
+
+    it("not render sr-only span when title is empty", () => {
       fixture.componentRef.setInput("title", "");
       fixture.detectChanges();
 
-      const svg = fixture.nativeElement.querySelector("svg");
-      expect(svg.getAttribute("aria-label")).toBeFalsy();
-      expect(svg.getAttribute("aria-hidden")).toBeFalsy();
+      const srSpan = fixture.nativeElement.querySelector(".tw-sr-only");
+      expect(srSpan).toBeFalsy();
     });
   });
 });

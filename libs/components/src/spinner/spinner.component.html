@@ -3,9 +3,8 @@
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 56 56"
     fill="none"
-    class="tw-size-full tw-animate-spin tw-flex"
-    [attr.aria-hidden]="title() && true"
-    [attr.aria-label]="title() && title()"
+    class="tw-size-full tw-animate-spin"
+    aria-hidden="true"
   >
     <circle cx="28" cy="28" r="23" [class]="variantClasses().background" stroke-width="5" />
     <circle
@@ -19,4 +18,7 @@
       stroke-linecap="round"
     />
   </svg>
+  @if (title()) {
+    <span class="tw-sr-only">{{ title() }}</span>
+  }
 </div>

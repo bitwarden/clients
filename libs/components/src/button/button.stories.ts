@@ -100,6 +100,21 @@ export const Loading: Story = {
   },
 };
 
+export const LoadingSizes: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton buttonType="primary" size="default" [loading]="loading">Default</button>
+        <button type="button" bitButton buttonType="primary" size="small" [loading]="loading">Small</button>
+      </div>
+    `,
+  }),
+  args: {
+    loading: true,
+  },
+};
+
 export const Disabled: Story = {
   ...Loading,
   args: {

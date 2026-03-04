@@ -2,10 +2,10 @@
   <bit-spinner [size]="size()" [variant]="variant()"></bit-spinner>
   <div [class]="layoutClasses().textContainer">
     <span [class]="textClasses().title">
-      <ng-content select="[title]"></ng-content>
+      <ng-content select="[slot=title]"></ng-content>
     </span>
     <span [class]="textClasses().body">
-      <ng-content select="[body]"></ng-content>
+      <ng-content select="[slot=body]"></ng-content>
     </span>
   </div>
 </div>
