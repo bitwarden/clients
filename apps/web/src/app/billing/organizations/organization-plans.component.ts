@@ -494,7 +494,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       await this.loadPlanData();
     }
 
-    this._familyPlan = await this.determineFamilyPlan();
+    this._familyPlan = PlanType.FamiliesAnnually;
 
     const currentPlan = this.currentPlan();
     if (currentPlan) {
@@ -1187,10 +1187,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
-  }
-
-  private async determineFamilyPlan(): Promise<PlanType> {
-    return PlanType.FamiliesAnnually;
   }
 
   /**
