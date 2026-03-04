@@ -613,8 +613,12 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     if (this.platformUtilsService.getClientType() == ClientType.Web) {
+      const startSync = performance.now();
+      
       // Web does not cache vault data and would be in a unusable state when unlocked.
       await this.syncService.fullSync(true);
+      
+      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
     } else {
       // On non-web clients, we start a sync in the background, but to not block by it
       void this.syncService.fullSync(false);
