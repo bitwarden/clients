@@ -92,9 +92,9 @@ describe("ExtensionLoginComponentService", () => {
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-      (
-        jest.spyOn(Utils, "fromArrayToUrlB64") as jest.MockedFunction<(arr: Uint8Array) => string>
-      ).mockReturnValue(codeChallenge);
+      jest
+        .spyOn(Utils as { fromArrayToUrlB64: (arr: Uint8Array) => string }, "fromArrayToUrlB64")
+        .mockReturnValue(codeChallenge);
 
       await service.redirectToSsoLogin(email);
 
@@ -115,9 +115,9 @@ describe("ExtensionLoginComponentService", () => {
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-      (
-        jest.spyOn(Utils, "fromArrayToUrlB64") as jest.MockedFunction<(arr: Uint8Array) => string>
-      ).mockReturnValue(codeChallenge);
+      jest
+        .spyOn(Utils as { fromArrayToUrlB64: (arr: Uint8Array) => string }, "fromArrayToUrlB64")
+        .mockReturnValue(codeChallenge);
 
       await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
 
