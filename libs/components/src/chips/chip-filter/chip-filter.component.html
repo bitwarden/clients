@@ -9,8 +9,7 @@
     class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit]"
     [class.tw-ps-1.5]="baseChip.size() === 'small'"
     [class.tw-ps-2]="baseChip.size() === 'large'"
-    [class.tw-pb-0.5]="baseChip.size() === 'small'"
-    [class.tw-pb-1]="baseChip.size() === 'large'"
+    [class]="buttonPbClass()"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled()"
@@ -26,7 +25,7 @@
     <button
       bit-chip-dismiss-button
       slot="chipEnd"
-      class="tw-relative tw-bottom-0.5"
+      class="tw-relative tw-bottom-[1px]"
       type="button"
       [attr.aria-label]="'removeItem' | i18n: label"
       [disabled]="disabled()"

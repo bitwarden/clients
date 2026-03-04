@@ -75,10 +75,11 @@ const variantStyles: Record<ChipVariant, string[]> = {
 };
 
 // Size mappings
+// Specific padding adjustments are handled in the component templates to account for the presence of the dismiss button or trailing icon, which have fixed sizes that impact the overall padding needed for visual consistency with design specifications.
 const getSizeStyles = (size: ChipSize, hasTrailingIcon: boolean) => {
   const sizeStyles: Record<ChipSize, string[]> = {
-    small: ["tw-text-xs/4", "tw-ps-1.5", "tw-py-0.5"],
-    large: ["tw-text-sm/5", "tw-ps-2", "tw-py-1"],
+    small: ["tw-text-xs/4", "tw-ps-1.5", "tw-py-[calc(theme(spacing.0_5)_-_1px)]"],
+    large: ["tw-text-sm/5", "tw-ps-2", "tw-py-[calc(theme(spacing.1)_-_1px)]"],
   };
 
   const paddingEndClass = {
