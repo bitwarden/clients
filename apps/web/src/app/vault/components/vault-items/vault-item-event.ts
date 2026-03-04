@@ -1,11 +1,12 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { VaultItemEvent as BaseVaultItemEvent } from "@bitwarden/vault";
 import { CollectionPermission } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
-import { VaultItem } from "./vault-item";
-
+// Extend base events with web-specific events
 export type VaultItemEvent<C extends CipherViewLike> =
-  | { type: "viewAttachments"; item: C }
+  | BaseVaultItemEvent<C>
+  | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
   | { type: "bulkEditCollectionAccess"; items: CollectionView[] }
   | {
       type: "viewCollectionAccess";
@@ -13,15 +14,4 @@ export type VaultItemEvent<C extends CipherViewLike> =
       readonly: boolean;
       initialPermission?: CollectionPermission;
     }
-  | { type: "viewEvents"; item: C }
-  | { type: "editCollection"; item: CollectionView; readonly: boolean }
-  | { type: "clone"; item: C }
-  | { type: "restore"; items: C[] }
-  | { type: "delete"; items: VaultItem<C>[] }
-  | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
-  | { type: "moveToFolder"; items: C[] }
-  | { type: "assignToCollections"; items: C[] }
-  | { type: "archive"; items: C[] }
-  | { type: "unarchive"; items: C[] }
-  | { type: "toggleFavorite"; item: C }
-  | { type: "editCipher"; item: C };
+  | { type: "editCollection"; item: CollectionView; readonly: boolean };

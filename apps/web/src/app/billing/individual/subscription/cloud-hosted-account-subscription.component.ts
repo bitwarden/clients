@@ -50,7 +50,7 @@ import {
 } from "../upgrade/premium-org-upgrade-dialog/premium-org-upgrade-dialog.component";
 
 @Component({
-  templateUrl: "./account-subscription.component.html",
+  templateUrl: "./cloud-hosted-account-subscription.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdditionalOptionsCardComponent,
@@ -62,7 +62,7 @@ import {
   ],
   providers: [AccountBillingClient],
 })
-export class AccountSubscriptionComponent {
+export class CloudHostedAccountSubscriptionComponent {
   private accountService = inject(AccountService);
   private activatedRoute = inject(ActivatedRoute);
   private accountBillingClient = inject(AccountBillingClient);
@@ -89,18 +89,34 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly hasPremiumFromAnyOrganization = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (!account) {
+          return of(false);
+        }
+        return this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id);
+      }),
+    ),
+    { initialValue: false },
+  );
+
   readonly subscription = resource({
-    loader: async () => {
-      const redirectToPremiumPage = async (): Promise<null> => {
+    params: () => ({
+      account: this.account(),
+    }),
+    loader: async ({ params: { account } }) => {
+      if (!account) {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
-      };
-      if (!this.account()) {
-        return await redirectToPremiumPage();
       }
       const subscription = await this.accountBillingClient.getSubscription();
       if (!subscription) {
-        return await redirectToPremiumPage();
+        const hasPremiumFromAnyOrganization = this.hasPremiumFromAnyOrganization();
+        await this.router.navigate([
+          hasPremiumFromAnyOrganization ? "/vault" : "/settings/subscription/premium",
+        ]);
+        return null;
       }
       return subscription;
     },
