@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
 
       - name: Get changed files
-        id: get-changed-files-for-chromatic
+        id: get-changed-files
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         with:
           filters: |
@@ -48,10 +48,11 @@ jobs:
               - "libs/!(eslint)/**"
               - "package.json"
               - ".storybook/**"
+              - "apps/browser/src/autofill/content/components/**"
 
       - name: Get Node version
         id: retrieve-node-version
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -61,7 +62,7 @@ jobs:
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
 
       - name: Cache NPM
         id: npm-cache
@@ -69,16 +70,40 @@ jobs:
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
 
       - name: Install Node dependencies
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
         run: npm ci
 
+      - name: Get branch name
+        id: branch-names
+        env: 
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+            # Get branch name based on event type
+            if [[ "$EVENT_NAME" == *"pull_request"* ]]; then
+              BRANCH_NAME="$HEAD_REF"
+            else
+              BRANCH_NAME="$REF_NAME"
+            fi
+            # Replace slashes with hyphens
+            BRANCH_NAME_NORMALIZED="${BRANCH_NAME//\//-}"
+            echo "current_branch=$BRANCH_NAME_NORMALIZED" >> "$GITHUB_OUTPUT"
+        shell: bash
+
       # Manually build the Storybook to resolve a bug related to TurboSnap
-      - name: Build Storybook
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+      - name: Build CL Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        env:
+          STORYBOOK_BRANCH_NAME: ${{ steps.branch-names.outputs.current_branch }}
         run: npm run build-storybook:ci
+
+      - name: Build Autofill Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        run: npm run build-storybook:autofill:ci
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -92,12 +117,12 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "CHROMATIC-PROJECT-TOKEN"
+          secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
-      - name: Publish to Chromatic
+      - name: Publish to Chromatic for CL
         uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,4 +135,16 @@ jobs:
             libs/components/**/*.css
             libs/components/tailwind.config*.js
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files-for-chromatic.outputs.storyFiles == 'false' }}
+          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
+
+      - name: Publish to Chromatic for Autofill
+        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
+          storybookBaseDir: ./apps/browser/src/autofill/content/components
+          storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
+          exitOnceUploaded: true
+          onlyChanged: true
+          # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
+          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
