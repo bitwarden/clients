@@ -93,10 +93,16 @@ function isBypassPath(urlPath: string): boolean {
 // Auth page
 // ---------------------------------------------------------------------------
 
-function authPageHtml(returnTo: string, cookieName: string, cookieMaxAge: number): string {
+function authPageHtml(
+  returnTo: string,
+  cookieName: string,
+  cookieValue: string,
+  cookieMaxAge: number,
+): string {
   // Use JSON.stringify for safe embedding of values into the inline script.
   const encodedReturnTo = JSON.stringify(encodeURIComponent(returnTo));
   const safeCookieName = JSON.stringify(cookieName);
+  const safeCookieValue = JSON.stringify(cookieValue);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -145,7 +151,7 @@ function authPageHtml(returnTo: string, cookieName: string, cookieMaxAge: number
   <script>
     function authenticate() {
       var returnTo = decodeURIComponent(${encodedReturnTo});
-      document.cookie = ${safeCookieName} + "=authenticated; path=/; max-age=${cookieMaxAge}; SameSite=Lax; Secure";
+      document.cookie = ${safeCookieName} + "=" + ${safeCookieValue} + "; path=/; max-age=${cookieMaxAge}; SameSite=Lax; Secure";
       window.location.href = returnTo;
     }
   </script>
@@ -179,6 +185,8 @@ function loadTlsPem(): Buffer {
 
 const config = buildConfig();
 const pem = loadTlsPem();
+
+let cookieGeneration = 0;
 
 // Extend (not replace) the default CA bundle with our self-signed cert so that both
 // localhost dev servers and public backends (e.g. vault.bitwarden.com) are trusted.
@@ -227,7 +235,12 @@ router.get("/_elb-auth", (ctx) => {
   const rawReturnTo = ctx.query["return_to"];
   const returnTo = Array.isArray(rawReturnTo) ? rawReturnTo[0] : (rawReturnTo ?? "/");
   ctx.type = "text/html";
-  ctx.body = authPageHtml(returnTo, config.cookieName, config.cookieMaxAge);
+  ctx.body = authPageHtml(
+    returnTo,
+    config.cookieName,
+    String(cookieGeneration),
+    config.cookieMaxAge,
+  );
 });
 
 app.use(router.routes());
@@ -241,7 +254,7 @@ app.use((ctx) => {
   }
 
   const cookies = parseCookies(ctx.request.headers["cookie"]);
-  if (cookies[config.cookieName]) {
+  if (cookies[config.cookieName] === String(cookieGeneration)) {
     proxyRequest(ctx);
     return;
   }
@@ -296,4 +309,20 @@ server.listen(config.port, () => {
   console.log(`  Cookie TTL:   ${config.cookieMaxAge}s`);
   console.log(`  Insecure TLS: ${config.insecure}`);
   console.log(`  Bypass paths: ${BYPASS_PATHS.join(", ")}`);
+  console.log(`  Press R to rotate the cookie and force re-authentication.`);
 });
+
+if (process.stdin.isTTY) {
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (key: string) => {
+    if (key === "\u0003") {process.exit();} // Ctrl+C
+    if (key === "r" || key === "R") {
+      cookieGeneration++;
+      console.log(
+        `Cookie rotated to generation ${cookieGeneration} — clients will re-authenticate on next request.`,
+      );
+    }
+  });
+}
