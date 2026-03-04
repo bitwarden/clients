@@ -1578,7 +1578,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const { width, height } = this.focusedFieldData.focusedFieldRects;
     let { top, left } = this.focusedFieldData.focusedFieldRects;
-    const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
+    const { paddingRight, paddingLeft, direction } = this.focusedFieldData.focusedFieldStyles;
 
     if (this.isTotpFieldForCurrentField()) {
       const totpFields = this.getTotpFields();
@@ -1592,15 +1592,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
     }
 
-    const fieldPaddingRight = parseInt(paddingRight, 10);
-    const fieldPaddingLeft = parseInt(paddingLeft, 10);
+    const fieldDirection = direction?.toLowerCase() ?? "ltr";
+    const fieldPaddingRight = parseInt(paddingRight ?? "0", 10);
+    const fieldPaddingLeft = parseInt(paddingLeft ?? "0", 10);
     const elementHeight = height - elementOffset;
 
     const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
     const elementLeftPosition =
-      fieldPaddingRight > fieldPaddingLeft
-        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
-        : subFrameLeftOffset + left + width - height + elementOffset / 2;
+      fieldDirection === "rtl"
+        ? fieldPaddingLeft > fieldPaddingRight
+          ? subFrameLeftOffset + left + (fieldPaddingLeft - elementOffset + 2)
+          : subFrameLeftOffset + left + elementOffset / 2
+        : fieldPaddingRight > fieldPaddingLeft
+          ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
+          : subFrameLeftOffset + left + width - height + elementOffset / 2;
 
     this.inlineMenuPosition.button = {
       top: Math.round(elementTopPosition),

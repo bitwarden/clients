@@ -2950,6 +2950,37 @@ describe("OverlayBackground", () => {
           left: "1271px",
         });
       });
+      it("positions the inline menu button at the visual start for rtl inputs", () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 200,
+            height: 40,
+            top: 10,
+            left: 20,
+          },
+          focusedFieldStyles: {
+            paddingRight: "4px",
+            paddingLeft: "12px",
+            direction: "rtl",
+          },
+        });
+
+        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
+
+        expect(buttonPostion).toEqual({
+          width: "23px",
+          height: "23px",
+          top: "18px",
+          left: "17px",
+        });
+      });
       it("sets button and menu width and position when multi-input totp field is focused", async () => {
         const subframe = {
           top: 0,

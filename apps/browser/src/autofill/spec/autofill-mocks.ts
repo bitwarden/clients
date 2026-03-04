@@ -262,6 +262,7 @@ export function createFocusedFieldDataMock(
     focusedFieldStyles: {
       paddingRight: "6px",
       paddingLeft: "6px",
+      direction: "ltr",
     },
     inlineMenuFillType: CipherType.Login,
     tabId: 1,
