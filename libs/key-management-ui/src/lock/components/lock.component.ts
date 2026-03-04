@@ -616,7 +616,7 @@ export class LockComponent implements OnInit, OnDestroy {
       // Web does not cache vault data and would be in a unusable state when unlocked.
       await this.syncService.fullSync(true);
     } else {
-      // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
+      // On non-web clients, we start a sync in the background, but to not block by it
       void this.syncService.fullSync(false);
     }
 
