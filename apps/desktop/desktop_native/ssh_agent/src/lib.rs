@@ -6,7 +6,7 @@
 //! # Architecture:
 //! - `crypto` provides the raw cryptographic primitive objects and operations for supported SSH
 //!   keys.
-//! - `storage` provides data structures the bridge the primitive key types to Bitwarden's business
+//! - `storage` provides data structures that bridge the primitive key types to Bitwarden's business
 //!   logic, namely the concept of vault items. As well as  the implementations of the objects to
 //!   manage and store the keys used in the agent's runtime.
 //! - `server` provides the low-level implementation of the Server protocol. It uses an
@@ -17,9 +17,8 @@
 //! - `approval` provides an interface for the agent itself to request approval from an external
 //!   entity (currently, Electron via napi) to approve requests.
 //! - `agent` contains the store of keys, and the server, and uses the authorization and approval
-//!   impelementations to orchestrate operations between the server and the external (Electron)
+//!   impelementation to orchestrate operations between the server and the external (Electron)
 //!   entity.
-//! - ``
 
 #![allow(dead_code)] // TODO remove when all code is used in follow-up PR
 
