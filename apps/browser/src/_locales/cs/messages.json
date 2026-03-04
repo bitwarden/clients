@@ -6151,6 +6151,15 @@
   "searchResults": {
     "message": "Výsledky hledání"
   },
+  "simplifiedAutofill": {
+    "message": "Zjednodušené automatické vyplňování"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Když klepnete na navrhovanou položku automatického vyplňování, položka se rovnou vyplní. Tyto položky můžete stále zobrazit z menu Více."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Otevřít zjednodušené automatické vyplňování"
+  },
   "resizeSideNavigation": {
     "message": "Změnit velikost boční navigace"
   },
