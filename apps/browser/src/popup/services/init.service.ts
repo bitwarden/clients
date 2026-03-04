@@ -2,8 +2,6 @@ import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -30,8 +28,6 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
-    private configService: ConfigService,
-    private encryptService: EncryptService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -43,7 +39,6 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
-      this.encryptService.init(this.configService);
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);

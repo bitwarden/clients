@@ -1,6 +1,8 @@
+import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
+import { ChipSelectComponent } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,
@@ -28,12 +30,14 @@ import { ReportsSharedModule } from "./shared";
 @NgModule({
   imports: [
     CommonModule,
+    OverlayModule,
     SharedModule,
     ReportsSharedModule,
     ReportsRoutingModule,
     OrganizationBadgeModule,
     PipesModule,
     HeaderModule,
+    ChipSelectComponent,
   ],
   declarations: [
     BreachReportComponent,

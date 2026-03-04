@@ -13,11 +13,12 @@
       (onUploadSuccess)="uploadSuccessful()"
       (onUploadFailed)="uploadFailed()"
       (onRemoveSuccess)="removalSuccessful()"
+      (onCloseButtonPress)="closeButtonPressed()"
     ></app-cipher-attachments>
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton type="submit" buttonType="primary" [attr.form]="attachmentFormId" #submitBtn>
-      {{ "upload" | i18n }}
+      {{ buttonText }}
     </button>
   </ng-container>
 </bit-dialog>

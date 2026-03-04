@@ -17,8 +17,11 @@ import {
   mockAccountServiceWith,
 } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
@@ -92,14 +95,52 @@ describe("MasterPasswordService", () => {
         sut.saltForUser$(null as unknown as UserId);
       }).toThrow("userId is null or undefined.");
     });
+    // Removable with unwinding of PM31088_MasterPasswordServiceEmitSalt
     it("throws when userid present but not in account service", async () => {
       await expect(
         firstValueFrom(sut.saltForUser$("00000000-0000-0000-0000-000000000001" as UserId)),
       ).rejects.toThrow("Cannot read properties of undefined (reading 'email')");
     });
-    it("returns salt", async () => {
-      const salt = await firstValueFrom(sut.saltForUser$(userId));
-      expect(salt).toBeDefined();
+    // Removable with unwinding of PM31088_MasterPasswordServiceEmitSalt
+    it("returns email-derived salt for legacy path", async () => {
+      const result = await firstValueFrom(sut.saltForUser$(userId));
+      // mockAccountServiceWith defaults email to "email"
+      expect(result).toBe("email" as MasterPasswordSalt);
+    });
+
+    describe("saltForUser$ master password unlock data migration path", () => {
+      // Flagged with  PM31088_MasterPasswordServiceEmitSalt PM-31088
+      beforeEach(() => {
+        stateProvider.singleUser.getFake(userId, USER_SERVER_CONFIG).nextState({
+          featureStates: {
+            [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: true,
+          },
+        } as unknown as ServerConfig);
+      });
+
+      // Unwinding should promote these tests as part of saltForUser suite.
+      it("returns salt from master password unlock data", async () => {
+        const expectedSalt = "custom-salt" as MasterPasswordSalt;
+        const unlockData = new MasterPasswordUnlockData(
+          expectedSalt,
+          new PBKDF2KdfConfig(600_000),
+          makeEncString().toSdk() as MasterKeyWrappedUserKey,
+        );
+        stateProvider.singleUser
+          .getFake(userId, MASTER_PASSWORD_UNLOCK_KEY)
+          .nextState(unlockData.toJSON());
+
+        const result = await firstValueFrom(sut.saltForUser$(userId));
+        expect(result).toBe(expectedSalt);
+      });
+
+      it("throws when master password unlock data is null", async () => {
+        stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+
+        await expect(firstValueFrom(sut.saltForUser$(userId))).rejects.toThrow(
+          "Master password unlock data not found for user.",
+        );
+      });
     });
   });
 

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Pieteikties ar piekļuves atslēgu"
   },
+  "unlockWithPasskey": {
+    "message": "Atslēgt ar piekļuves atslēgu"
+  },
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
@@ -570,20 +573,17 @@
   "noItemsInArchiveDesc": {
     "message": "Šeit parādīsies arhivētie vienumi, un tie netiks iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos."
   },
-  "itemWasSentToArchive": {
-    "message": "Vienums tika ievietots arhīvā"
+  "itemArchiveToast": {
+    "message": "Vienums ievietots arhīvā"
   },
-  "itemWasUnarchived": {
-    "message": "Vienums tika izņemts no arhīva"
-  },
-  "itemUnarchived": {
-    "message": "Vienums tika izņemts no arhīva"
+  "itemUnarchivedToast": {
+    "message": "Vienums izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "archived": {
     "message": "Arhivēts"
@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Nederīgs apliecinājuma kods"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Nederīga e-pasta adrese vai apliecinājuma kods"
+  },
   "valueCopied": {
     "message": "$VALUE$ ir starpliktuvē",
     "description": "Value has been copied to the clipboard.",
@@ -986,6 +989,12 @@
   },
   "no": {
     "message": "Nē"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Atrašanās vieta"
@@ -2045,6 +2054,9 @@
   "email": {
     "message": "E-pasts"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Tālrunis"
   },
@@ -2473,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Vienums ir neatgriezeniski izdzēsts"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
   "restoreItem": {
     "message": "Atjaunot vienumu"
   },
@@ -2732,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem. Ir jāpārlādē lapa, lai izmaiņas iedarbotos."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden nevaicās saglabāt pieteikšanās datus visiem šī domēna kontiem, kuri ir pieteikušies. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
-  },
   "blockedDomainsDesc": {
     "message": "Automātiskā aizpilde un citas saistītās iespējas šajās tīmekļvietnēs netiks piedāvātas. Ir jāatsvaidzina lapa, lai izmaiņas iedarbotos."
   },
@@ -2847,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Riskam pakļauto pieteikšanās vienumu saraksta attēlojums."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Riskam pakļauto vienumu vietnē ar automātiskās aizpildes izvēlni var ātri izveidot stipru, neatkārtojamu paroli.",
@@ -3020,10 +3035,6 @@
   "custom": {
     "message": "Pielāgots"
   },
-  "sendPasswordDescV3": {
-    "message": "Pēc izvēles var pievienot paroli, lai saņēmēji varētu piekļūt šim Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Jauns Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3075,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send saite ievietota starpliktuvē",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3083,28 +3133,8 @@
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Atvērt paplašinājumu atsevišķi?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Lai izveidotu datņu Send, nepieciešams atvērt paplašinājumu atsevišķā logā.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Lai izvēlētos datni, paplašinājums ir jāatver sānjoslā (ja iespējams) vai atsevišķā logā, klikšķinot uz šī paziņojuma."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Lai izvēlētos datni, ja tiek izmantots Firefox, paplašinājums ir jāatver sānjoslā vai atsevišķā logā, klikšķinot uz šī paziņojuma."
-  },
-  "sendSafariFileWarning": {
-    "message": "Lai izvēlētos datni, ja tiek izmantots Safari, paplašinājums ir jāatver jaunā logā, klikšķinot uz šī paziņojuma."
-  },
   "popOut": {
     "message": "Atvērt atsevišķi"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Pirms sākšanas"
   },
   "expirationDateIsInvalid": {
     "message": "Norādītais derīguma beigu datums nav derīgs."
@@ -3363,6 +3393,12 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "prfUnlockFailed": {
+    "message": "Neizdevās atslēgt ar piekļuves atslēgu. Lūgums mēģināt vēlreiz vai izmantot citu atslēgšanas veidu."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Atslēgšanai nav pieejama neviena PRF iespējota piekļuves atslēga. Lūgums vispirms pieteikties ar piekļuves atslēgu."
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
@@ -4739,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Vairāk iespēju"
+  },
   "moreOptionsTitle": {
     "message": "Vairāk iespēju - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4986,6 +5025,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Lejupielādēt pielikumu"
+  },
   "downloadBitwarden": {
     "message": "Lejupielādē Bitwarden"
   },
@@ -5125,14 +5167,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Paslēpt atbilstības noteikšanu $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Rādīt atbilstības noteikšanu"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Slēpt atbilstības noteikšanu"
   },
   "autoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī?"
@@ -5670,6 +5709,9 @@
   "extraWide": {
     "message": "Ļoti plats"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Ievadītā parole ir nepareiza."
   },
@@ -5963,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Kartes numurs"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Apvienība vairs neizmanto galvenās paroles, lai pieteiktos Bitwarden. Lai turpinātu, jāapliecina apvienība un domēns."
   },
@@ -6100,7 +6145,53 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Vienumi"
+  },
+  "searchResults": {
+    "message": "Meklēšanas iznākums"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Mainīt sānu pārvietošanās joslas izmēru"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-pasta apliecināšanai ir nepieciešama vismaz viena e-pasta adrese. Lai noņemtu visas e-pasta adreses, augstāk jānomaina piekļūšanas veids."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Cilvēkiem būs jāievada parole, lai apskatītu šo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Lietotāja apliecināšana neizdevās."
   }
 }

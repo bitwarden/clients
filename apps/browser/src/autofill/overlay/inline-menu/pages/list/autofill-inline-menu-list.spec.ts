@@ -10,6 +10,7 @@ import {
   createInitAutofillInlineMenuListMessageMock,
 } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
+import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
@@ -28,6 +29,7 @@ describe("AutofillInlineMenuList", () => {
   const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
     const oldEv = globalThis.addEventListener;
     globalThis.addEventListener = (eventName: any, callback: any) => {
       events.push({ eventName, callback });
@@ -157,6 +159,8 @@ describe("AutofillInlineMenuList", () => {
       });
 
       it("creates the view for a totp field", async () => {
+        jest.spyOn(Date, "now").mockReturnValue(13000);
+
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
             inlineMenuFillType: CipherType.Login,
@@ -184,6 +188,8 @@ describe("AutofillInlineMenuList", () => {
       });
 
       it("renders correctly when there are multiple TOTP elements with username displayed", async () => {
+        jest.spyOn(Date, "now").mockReturnValue(13000);
+
         const totpCipher1 = createAutofillOverlayCipherDataMock(1, {
           type: CipherType.Login,
           login: {
