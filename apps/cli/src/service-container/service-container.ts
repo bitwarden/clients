@@ -762,6 +762,7 @@ export class ServiceContainer {
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
+      this.masterPasswordUnlockService,
       this.keyService,
       this.apiService,
       this.tokenService,
