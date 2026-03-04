@@ -180,10 +180,15 @@ function loadTlsPem(): Buffer {
 const config = buildConfig();
 const pem = loadTlsPem();
 
-// Trust the same cert for backend connections (backend uses the same self-signed cert).
+// Extend (not replace) the default CA bundle with our self-signed cert so that both
+// localhost dev servers and public backends (e.g. vault.bitwarden.com) are trusted.
 // --insecure skips verification entirely for backends with unknown certs.
 const backendAgent = config.backendUrl.startsWith("https://")
-  ? new https.Agent(config.insecure ? { rejectUnauthorized: false } : { ca: pem })
+  ? new https.Agent(
+      config.insecure
+        ? { rejectUnauthorized: false }
+        : { ca: [...tls.rootCertificates, pem.toString()] },
+    )
   : undefined;
 
 const app = new Koa();
@@ -256,7 +261,9 @@ server.on("upgrade", (req, clientSocket, head) => {
   const target = new URL(config.backendUrl);
   const isHttps = target.protocol === "https:";
   const port = parseInt(target.port) || (isHttps ? 443 : 80);
-  const tlsOptions = config.insecure ? { rejectUnauthorized: false } : { ca: pem };
+  const tlsOptions = config.insecure
+    ? { rejectUnauthorized: false }
+    : { ca: [...tls.rootCertificates, pem.toString()] };
 
   const serverSocket: net.Socket = isHttps
     ? tls.connect({ host: target.hostname, port, servername: target.hostname, ...tlsOptions })
@@ -267,7 +274,9 @@ server.on("upgrade", (req, clientSocket, head) => {
       .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
       .join("\r\n");
     serverSocket.write(`${req.method} ${req.url} HTTP/1.1\r\n${headerLines}\r\n\r\n`);
-    if (head?.length) {serverSocket.write(head);}
+    if (head?.length) {
+      serverSocket.write(head);
+    }
     serverSocket.pipe(clientSocket);
     clientSocket.pipe(serverSocket);
   });
