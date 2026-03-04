@@ -3,10 +3,11 @@
 import fs from "node:fs";
 import http from "node:http";
 import https from "node:https";
+import net from "node:net";
 import path from "node:path";
+import tls from "node:tls";
 
 import { Router } from "@koa/router";
-import httpProxy from "http-proxy";
 import Koa from "koa";
 
 // ---------------------------------------------------------------------------
@@ -187,29 +188,33 @@ const backendAgent = config.backendUrl.startsWith("https://")
 
 const app = new Koa();
 const router = new Router();
-const proxy = httpProxy.createProxyServer({});
-
-proxy.on("error", (err, _req, res) => {
-  console.error("[proxy error]", err.message);
-  // `res` can be http.ServerResponse (HTTP) or net.Socket (WebSocket upgrade).
-  // Only attempt to write an HTTP response when the writable interface is present.
-  const httpRes = res as http.ServerResponse;
-  if (typeof httpRes.writeHead === "function" && !httpRes.writableEnded) {
-    httpRes.writeHead(502);
-    httpRes.end("Bad Gateway");
-  }
-});
-
-const proxyOptions = {
-  target: config.backendUrl,
-  changeOrigin: true,
-  xfwd: true,
-  agent: backendAgent,
-};
 
 function proxyRequest(ctx: Koa.Context): void {
   ctx.respond = false;
-  proxy.web(ctx.req, ctx.res, proxyOptions);
+  const target = new URL(ctx.originalUrl, config.backendUrl);
+  const requestModule = target.protocol === "https:" ? https : http;
+  const proxyReq = requestModule.request(
+    {
+      hostname: target.hostname,
+      port: target.port || (target.protocol === "https:" ? 443 : 80),
+      path: target.pathname + target.search,
+      method: ctx.method,
+      headers: { ...ctx.req.headers, host: target.host },
+      agent: backendAgent,
+    },
+    (proxyRes) => {
+      ctx.res.writeHead(proxyRes.statusCode!, proxyRes.headers as http.OutgoingHttpHeaders);
+      proxyRes.pipe(ctx.res);
+    },
+  );
+  proxyReq.on("error", (err) => {
+    console.error("[proxy error]", err.message);
+    if (!ctx.res.writableEnded) {
+      ctx.res.writeHead(502);
+      ctx.res.end("Bad Gateway");
+    }
+  });
+  ctx.req.pipe(proxyReq);
 }
 
 // Auth page route — no cookie required.
@@ -241,18 +246,37 @@ app.use((ctx) => {
 
 const server = https.createServer({ key: pem, cert: pem }, app.callback());
 
-server.on("upgrade", (req, socket, head) => {
+server.on("upgrade", (req, clientSocket, head) => {
   const cookies = parseCookies(req.headers["cookie"]);
   if (!isBypassPath(req.url ?? "") && !cookies[config.cookieName]) {
-    socket.destroy();
+    clientSocket.destroy();
     return;
   }
 
-  proxy.ws(req, socket, head, {
-    target: config.backendUrl,
-    changeOrigin: true,
-    agent: backendAgent,
+  const target = new URL(config.backendUrl);
+  const isHttps = target.protocol === "https:";
+  const port = parseInt(target.port) || (isHttps ? 443 : 80);
+  const tlsOptions = config.insecure ? { rejectUnauthorized: false } : { ca: pem };
+
+  const serverSocket: net.Socket = isHttps
+    ? tls.connect({ host: target.hostname, port, servername: target.hostname, ...tlsOptions })
+    : net.connect({ host: target.hostname, port });
+
+  serverSocket.on("connect", () => {
+    const headerLines = Object.entries(req.headers)
+      .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+      .join("\r\n");
+    serverSocket.write(`${req.method} ${req.url} HTTP/1.1\r\n${headerLines}\r\n\r\n`);
+    if (head?.length) {serverSocket.write(head);}
+    serverSocket.pipe(clientSocket);
+    clientSocket.pipe(serverSocket);
   });
+
+  serverSocket.on("error", (err) => {
+    console.error("[ws proxy error]", err.message);
+    clientSocket.destroy();
+  });
+  clientSocket.on("error", () => serverSocket.destroy());
 });
 
 server.listen(config.port, () => {
