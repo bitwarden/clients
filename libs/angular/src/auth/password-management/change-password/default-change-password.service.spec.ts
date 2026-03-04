@@ -313,7 +313,7 @@ describe("DefaultChangePasswordService", () => {
         });
       });
 
-      it("should call makeMasterPasswordAuthenticationData twice and makeMasterPasswordUnlockData once with the correct parameters", async () => {
+      it("should call makeMasterPasswordAuthenticationData twice and makeMasterPasswordUnlockData once with the correct arguments", async () => {
         // Act
         await sut.changePassword(passwordInputResult, userId);
 
@@ -434,7 +434,7 @@ describe("DefaultChangePasswordService", () => {
         });
       });
 
-      it("should call makeMasterPasswordAuthenticationData once and makeMasterPasswordUnlockData once with the correct parameters", async () => {
+      it("should call makeMasterPasswordAuthenticationData once and makeMasterPasswordUnlockData once with the correct arguments", async () => {
         // Act
         await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
 
@@ -478,10 +478,140 @@ describe("DefaultChangePasswordService", () => {
     });
   });
 
-  describe("rotateUserKeyMasterPasswordAndEncryptedData()", () => {
+  describe("changePasswordAndRotateUserKey()", () => {
+    // Mock method params
+    let passwordInputResult: PasswordInputResult;
+
+    beforeEach(() => {
+      // Mock method params
+      passwordInputResult = {
+        currentPassword: "current-password",
+        newPassword: "new-password",
+        newPasswordHint: "new-password-hint",
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        salt: "salt" as MasterPasswordSalt,
+      };
+
+      // Mock returned/resolved values
+      masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(true);
+      syncService.fullSync.mockResolvedValue(true);
+    });
+
+    describe("general error handling", () => {
+      ["currentPassword", "newPassword"].forEach((key) => {
+        it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
+          // Arrange
+          const invalidPasswordInputResult: PasswordInputResult = {
+            ...passwordInputResult,
+            [key]: "",
+          };
+
+          // Act
+          const promise = sut.changePasswordAndRotateUserKey(invalidPasswordInputResult, user);
+
+          // Assert
+          await expect(promise).rejects.toThrow(
+            `${key} is falsy. Could not change password and rotate user key.`,
+          );
+        });
+      });
+
+      it("should throw if newPasswordHint is null on the PasswordInputResult object", async () => {
+        // Arrange
+        const invalidPasswordInputResult: PasswordInputResult = {
+          ...passwordInputResult,
+          newPasswordHint: null,
+        };
+
+        // Act
+        const promise = sut.changePasswordAndRotateUserKey(invalidPasswordInputResult, user);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "newPasswordHint is null or undefined. Could not change password and rotate user key.",
+        );
+      });
+    });
+
+    it("should throw if the current password is invalid (proofOfDecryption failed)", async () => {
+      // Arrange
+      masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(false);
+
+      // Act
+      const promise = sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      await expect(promise).rejects.toThrow(InvalidCurrentPasswordError);
+    });
+
+    it("should call proofOfDecryption with the entered current password", async () => {
+      // Arrange
+      // Use `as any` because rotate method is protected
+      // Mock resolved value to undefined to prevent throwing the "is only implemented on Web" error mid-test
+      jest
+        .spyOn(sut as any, "rotateUserKeyMasterPasswordAndEncryptedData")
+        .mockResolvedValue(undefined);
+
+      // Act
+      await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      expect(masterPasswordUnlockService.proofOfDecryption).toHaveBeenCalledWith(
+        passwordInputResult.currentPassword,
+        user.id,
+      );
+    });
+
+    it("should call a fullSync", async () => {
+      // Arrange
+      // Use `as any` because rotate method is protected
+      // Mock resolved value to undefined to prevent throwing the "is only implemented on Web" error mid-test
+      jest
+        .spyOn(sut as any, "rotateUserKeyMasterPasswordAndEncryptedData")
+        .mockResolvedValue(undefined);
+
+      // Act
+      await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("should call rotateUserKeyMasterPasswordAndEncryptedData() with the correct arguments", async () => {
+      // Arrange
+      // Use `as any` because rotate method is protected
+      // Mock resolved value to undefined to prevent throwing the "is only implemented on Web" error mid-test
+      const rotateSpy = jest
+        .spyOn(sut as any, "rotateUserKeyMasterPasswordAndEncryptedData")
+        .mockResolvedValue(undefined);
+
+      // Act
+      await sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      expect(rotateSpy).toHaveBeenCalledWith(
+        passwordInputResult.currentPassword,
+        passwordInputResult.newPassword,
+        user,
+        passwordInputResult.newPasswordHint,
+      );
+    });
+
+    it("should throw an error by default since rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web", async () => {
+      // Act
+      const promise = sut.changePasswordAndRotateUserKey(passwordInputResult, user);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        "rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web",
+      );
+    });
+  });
+
+  describe("rotateUserKeyMasterPasswordAndEncryptedDataOld()", () => {
     it("should throw an error (the method is only implemented in Web)", async () => {
       // Act
-      const testFn = sut.rotateUserKeyMasterPasswordAndEncryptedData(
+      const promise = sut.rotateUserKeyMasterPasswordAndEncryptedDataOld(
         "currentPassword",
         "newPassword",
         user,
@@ -489,8 +619,8 @@ describe("DefaultChangePasswordService", () => {
       );
 
       // Assert
-      await expect(testFn).rejects.toThrow(
-        "rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web",
+      await expect(promise).rejects.toThrow(
+        "rotateUserKeyMasterPasswordAndEncryptedDataOld() is only implemented in Web",
       );
     });
   });

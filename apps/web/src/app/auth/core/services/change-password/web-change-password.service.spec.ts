@@ -59,9 +59,27 @@ describe("WebChangePasswordService", () => {
   });
 
   describe("rotateUserKeyMasterPasswordAndEncryptedData()", () => {
+    it("should call userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData with the correct arguments", async () => {
+      // Act
+      // Use `as any` because rotate method is protected
+      await (sut as any).rotateUserKeyMasterPasswordAndEncryptedData(
+        currentPassword,
+        newPassword,
+        user,
+        newPasswordHint,
+      );
+
+      // Assert
+      expect(
+        userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData,
+      ).toHaveBeenCalledWith(currentPassword, newPassword, user, newPasswordHint);
+    });
+  });
+
+  describe("rotateUserKeyMasterPasswordAndEncryptedDataOld()", () => {
     it("should call the method with the same name on the UserKeyRotationService with the correct arguments", async () => {
       // Arrange & Act
-      await sut.rotateUserKeyMasterPasswordAndEncryptedData(
+      await sut.rotateUserKeyMasterPasswordAndEncryptedDataOld(
         currentPassword,
         newPassword,
         user,

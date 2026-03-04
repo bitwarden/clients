@@ -26,11 +26,13 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Creates a new user key and re-encrypts all required data with it.
    *
    * @throws if called from a client that does not implement the method
    */
-  abstract rotateUserKeyMasterPasswordAndEncryptedData(
+  abstract rotateUserKeyMasterPasswordAndEncryptedDataOld(
     currentPassword: string,
     newPassword: string,
     user: Account,

@@ -63,13 +63,25 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     );
   }
 
-  async rotateUserKeyMasterPasswordAndEncryptedData(
+  protected async rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
     newPassword: string,
     user: Account,
     newPasswordHint: string,
   ) {
     throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
+  }
+
+  /**
+   * @deprecated To be removed in PM-28143
+   */
+  async rotateUserKeyMasterPasswordAndEncryptedDataOld(
+    currentPassword: string,
+    newPassword: string,
+    user: Account,
+    newPasswordHint: string,
+  ) {
+    throw new Error("rotateUserKeyMasterPasswordAndEncryptedDataOld() is only implemented in Web");
   }
 
   /**

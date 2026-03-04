@@ -173,7 +173,7 @@ export class ChangePasswordComponent implements OnInit {
 
         await this.syncService.fullSync(true);
 
-        await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedData(
+        await this.changePasswordService.rotateUserKeyMasterPasswordAndEncryptedDataOld(
           passwordInputResult.currentPassword,
           passwordInputResult.newPassword,
           this.activeAccount,
