@@ -16,7 +16,7 @@ export abstract class ChangePasswordService {
    * calling change password & user key rotation logic.
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
-   * @param userId the user account
+   * @param user the user account
    * @throws `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. the current
    *          password is incorrect)
    */
