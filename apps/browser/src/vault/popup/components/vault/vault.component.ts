@@ -22,7 +22,6 @@ import {
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
   AutoConfirmExtensionSetupDialogComponent,
@@ -51,6 +50,7 @@ import {
   ScrollLayoutService,
   ToastService,
   TypographyModule,
+  CalloutModule,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -110,7 +110,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
-    SpotlightComponent,
+    CalloutModule,
     RouterModule,
     TypographyModule,
     VaultLoadingSkeletonComponent,

@@ -168,7 +168,7 @@ describe("VaultComponent", () => {
   }
 
   function queryAllSpotlights(fixture: any): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("bit-spotlight")) as HTMLElement[];
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-callout")) as HTMLElement[];
   }
 
   const itemsSvc: any = {
@@ -509,11 +509,11 @@ describe("VaultComponent", () => {
     fixture.detectChanges();
 
     const spotlights = Array.from(
-      fixture.nativeElement.querySelectorAll("bit-spotlight"),
+      fixture.nativeElement.querySelectorAll("bit-callout"),
     ) as HTMLElement[];
     expect(spotlights.length).toBe(1);
 
-    const spotDe = fixture.debugElement.query(By.css("bit-spotlight"));
+    const spotDe = fixture.debugElement.query(By.css("bit-callout"));
     expect(spotDe).toBeTruthy();
 
     spotDe.triggerEventHandler("onButtonClick", undefined);

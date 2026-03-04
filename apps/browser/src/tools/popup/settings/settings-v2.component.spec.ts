@@ -117,7 +117,7 @@ describe("SettingsV2Component", () => {
     return acct;
   }
 
-  it("shows the premium spotlight when user does NOT have premium", async () => {
+  it("shows the premium callout when user does NOT have premium", async () => {
     mockBillingState.hasPremiumFromAnySource$.mockReturnValue(of(false));
     pushActiveAccount();
 
@@ -127,10 +127,10 @@ describe("SettingsV2Component", () => {
 
     const el: HTMLElement = fixture.nativeElement;
 
-    expect(el.querySelector("bit-spotlight")).toBeTruthy();
+    expect(el.querySelector("bit-callout")).toBeTruthy();
   });
 
-  it("hides the premium spotlight when user HAS premium", async () => {
+  it("hides the premium callout when user HAS premium", async () => {
     mockBillingState.hasPremiumFromAnySource$.mockReturnValue(of(true));
     pushActiveAccount();
 
@@ -139,7 +139,7 @@ describe("SettingsV2Component", () => {
     await fixture.whenStable();
 
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector("bit-spotlight")).toBeFalsy();
+    expect(el.querySelector("bit-callout")).toBeFalsy();
   });
 
   it("openUpgradeDialog calls PremiumUpgradeDialogComponent.open with the DialogService", async () => {
