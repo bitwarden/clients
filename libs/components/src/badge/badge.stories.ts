@@ -30,12 +30,21 @@ export const Default: Story = {
       <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge text</span>
     `,
   }),
+  args: {
+    variant: "primary",
+  },
 };
 
 export const NoStartIcon: Story = {
-  ...Default,
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <p>Passing <code>[startIcon]="null"</code> to badge component will prevent the icon from rendering the default icon</p>
+      <span bitBadge [startIcon]='startIcon'>Badge text</span>
+    `,
+  }),
   args: {
-    hideStartIcon: true,
+    startIcon: null,
   },
 };
 

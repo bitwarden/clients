@@ -1,5 +1,4 @@
 import {
-  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -37,7 +36,7 @@ const variantStyles: Record<BadgeVariant, string[]> = {
   primary: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
   info: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
   subtle: ["tw-bg-bg-secondary", "tw-border-border-base", "tw-text-fg-body"],
-  secondary: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-body"],
+  secondary: ["tw-bg-bg-secondary", "tw-border-border-base", "tw-text-fg-body"],
   success: ["tw-bg-bg-success-soft", "tw-border-border-success-soft", "tw-text-fg-success-strong"],
   warning: ["tw-bg-bg-warning-soft", "tw-border-border-warning-soft", "tw-text-fg-warning-strong"],
   danger: ["tw-bg-bg-danger-soft", "tw-border-border-danger-soft", "tw-text-fg-danger-strong"],
@@ -134,12 +133,11 @@ export class BadgeComponent {
    */
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
-  readonly startIcon = input<BitwardenIcon>(undefined);
-  readonly hideStartIcon = input(false, { transform: booleanAttribute });
+  readonly startIcon = input<BitwardenIcon | null>(undefined);
 
   protected readonly computedIcon = computed(() => {
-    if (this.hideStartIcon()) {
-      return undefined;
+    if (this.startIcon() === null) {
+      return null;
     }
 
     return this.startIcon() || getDefaultIconForVariant(this.variant());
