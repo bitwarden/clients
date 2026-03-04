@@ -165,7 +165,6 @@ export abstract class KeyService {
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param password The user's master password
    * @param key The user's master key or active's user master key.
-   * @param hashPurpose The iterations to use for the hash. Defaults to {@link HashPurpose.ServerAuthorization}.
    * @throws Error when password is null/undefined or key is null/undefined.
    * @returns The user's master password hash
    */

@@ -67,4 +67,25 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
       this.otp.markAsPristine();
     }
   }
+
+  validateEmail(): boolean {
+    const value: string = this.email.value?.trim() ?? "";
+
+    if (!value || value.length > 254) {
+      return false;
+    }
+
+    // RFC 5321-compliant regex: validates local@domain.tld structure
+    const EMAIL_REGEX =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+
+    const [local, ...rest] = value.split("@");
+
+    // Ensure exactly one "@" and local part ≤ 64 chars (RFC 5321)
+    if (rest.length !== 1 || local.length > 64) {
+      return false;
+    }
+
+    return EMAIL_REGEX.test(value);
+  }
 }
