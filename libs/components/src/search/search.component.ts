@@ -49,9 +49,10 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   protected readonly isInputFocused = signal(false);
   protected readonly isFormHovered = signal(false);
+  protected readonly isResetButtonFocused = signal(false);
 
   protected readonly showResetButton = computed(
-    () => this.isInputFocused() || this.isFormHovered(),
+    () => this.isInputFocused() || this.isFormHovered() || this.isResetButtonFocused(),
   );
 
   readonly disabled = model<boolean>();
