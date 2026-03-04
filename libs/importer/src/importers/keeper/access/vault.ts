@@ -172,7 +172,7 @@ export class Vault {
         const key = await decryptKeeperKey(folder.sharedFolderKey, folder.keyType, masterKey);
         result.set(uid, key);
       } catch {
-        // TODO: Log this?
+        // TODO: Log decryption errors
       }
     }
     return result;
