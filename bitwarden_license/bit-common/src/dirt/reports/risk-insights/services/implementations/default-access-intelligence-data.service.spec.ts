@@ -4,7 +4,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
@@ -99,7 +99,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
       });
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
       legacyReportMigrationService.migrateV1Report$.mockReturnValue(of(v1Report));
-      reportPersistenceService.saveReport$.mockReturnValue(of("report-id-123" as any));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of("report-id-123" as OrganizationReportId),
+      );
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
@@ -143,7 +145,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
       } as any);
       reportGenerationService.generateReport.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null)); // No previous report
-      reportPersistenceService.saveReport$.mockReturnValue(of("report-id-123" as any));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of("report-id-123" as OrganizationReportId),
+      );
     });
 
     it("should load data, generate, save, and emit report", async () => {
@@ -151,7 +155,8 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBe(testReport);
-      expect(report?.id).toBe("report-id-123" as any);
+      expect(report?.id).toBe("report-id-123" as OrganizationReportId);
+      expect(report?.organizationId).toBe(orgId);
 
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
@@ -353,6 +358,61 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       expect(emitCount).toBeGreaterThan(1); // Initial + mutation emit
     });
+
+    it("should use correct organizationId when marking critical after report generation", async () => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of("report-id-123" as OrganizationReportId),
+      );
+      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+      await firstValueFrom(service.markApplicationAsCritical$("test-app.com"));
+
+      expect(reportPersistenceService.saveApplicationMetadata$).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: orgId }),
+      );
+    });
+
+    it("should rollback mutation on save failure (unmark critical)", async () => {
+      mockReport.applications[0].isCritical = true;
+
+      await firstValueFrom(service.initializeForOrganization$(orgId));
+
+      reportPersistenceService.saveApplicationMetadata$.mockReturnValue(
+        throwError(() => new Error("Save failed")),
+      );
+
+      await expect(
+        firstValueFrom(service.unmarkApplicationAsCritical$("github.com")),
+      ).rejects.toThrow("Save failed");
+
+      expect(mockReport.markApplicationAsCritical).toHaveBeenCalledWith("github.com");
+    });
+
+    it("should rollback mutation on save failure (mark reviewed)", async () => {
+      const originalDate = new Date("2024-01-01");
+      mockReport.applications[0].reviewedDate = originalDate;
+
+      mockReport.markApplicationAsReviewed.mockImplementation((_name: string, date?: Date) => {
+        mockReport.applications[0].reviewedDate = date;
+      });
+
+      await firstValueFrom(service.initializeForOrganization$(orgId));
+
+      reportPersistenceService.saveApplicationMetadata$.mockReturnValue(
+        throwError(() => new Error("Save failed")),
+      );
+
+      const newDate = new Date("2025-06-01");
+      await expect(
+        firstValueFrom(service.markApplicationAsReviewed$("github.com", newDate)),
+      ).rejects.toThrow("Save failed");
+
+      expect(mockReport.applications[0].reviewedDate).toBe(originalDate);
+    });
   });
 
   describe("Organization Switching", () => {
@@ -379,7 +439,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
       reportGenerationService.generateReport.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
-      reportPersistenceService.saveReport$.mockReturnValue(of("report-id" as any));
+      reportPersistenceService.saveReport$.mockReturnValue(of("report-id" as OrganizationReportId));
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
@@ -429,7 +489,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: apiUsers } as any);
       reportGenerationService.generateReport.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
-      reportPersistenceService.saveReport$.mockReturnValue(of("report-id" as any));
+      reportPersistenceService.saveReport$.mockReturnValue(of("report-id" as OrganizationReportId));
 
       await firstValueFrom(service.generateNewReport$(orgId));
 

@@ -159,6 +159,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._error.next(null);
     this._reportProgress.next(null); // Reset progress
 
+    // TODO No need to load the past report, just look at local state
     // Load previous applications for metadata carry-over
     const previousApps$ = this.reportPersistenceService.loadReport$(orgId).pipe(
       map((prevReport) => prevReport?.applications ?? []),
@@ -220,6 +221,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
               return this.reportPersistenceService.saveReport$(generatedReport, orgId).pipe(
                 map((reportId) => {
                   generatedReport.id = reportId;
+                  generatedReport.organizationId = orgId;
                   return generatedReport;
                 }),
               );
@@ -430,9 +432,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)
    */
-  private loadOrganizationData$(
-    orgId: OrganizationId,
-  ): Observable<{
+  private loadOrganizationData$(orgId: OrganizationId): Observable<{
     ciphers: CipherView[];
     apiUsers: ListResponse<OrganizationUserUserDetailsResponse>;
   }> {
