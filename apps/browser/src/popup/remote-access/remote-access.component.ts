@@ -1,10 +1,20 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnDestroy, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnDestroy,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   ButtonModule,
   CalloutModule,
+  IconModule,
   ToggleGroupModule,
   SpinnerComponent,
 } from "@bitwarden/components";
@@ -13,11 +23,17 @@ import { PopupFooterComponent } from "../../platform/popup/layout/popup-footer.c
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
+import {
+  CredentialLookupResult,
+  RemoteAccessService,
+  type ConnectionMode,
+  type RatEvent,
+} from "./remote-access.service";
+
 const RemoteAccessState = Object.freeze({
   Idle: "idle",
   Listening: "listening",
   Handshake: "handshake",
-  Fingerprint: "fingerprint",
   Connected: "connected",
   CredentialRequest: "credential-request",
   Approved: "approved",
@@ -27,12 +43,11 @@ const RemoteAccessState = Object.freeze({
 } as const);
 type RemoteAccessState = (typeof RemoteAccessState)[keyof typeof RemoteAccessState];
 
-const ConnectionMode = Object.freeze({
-  Rendezvous: "rendezvous",
-  Psk: "psk",
-  Cached: "cached",
+const ConnectionModeEnum = Object.freeze({
+  Rendezvous: "rendezvous" as ConnectionMode,
+  Psk: "psk" as ConnectionMode,
+  Cached: "cached" as ConnectionMode,
 } as const);
-type ConnectionMode = (typeof ConnectionMode)[keyof typeof ConnectionMode];
 
 interface CredentialRequest {
   domain: string;
@@ -41,20 +56,6 @@ interface CredentialRequest {
   username: string;
   uri: string;
 }
-
-const MOCK_REQUESTS = [
-  { domain: "github.com", username: "dev-user@example.com", uri: "https://github.com/login" },
-  {
-    domain: "mail.google.com",
-    username: "alice.smith@gmail.com",
-    uri: "https://accounts.google.com",
-  },
-  {
-    domain: "aws.amazon.com",
-    username: "admin@acme-corp.io",
-    uri: "https://signin.aws.amazon.com/console",
-  },
-];
 
 @Component({
   selector: "app-remote-access",
@@ -67,9 +68,11 @@ const MOCK_REQUESTS = [
     PopupFooterComponent,
     ButtonModule,
     CalloutModule,
+    IconModule,
     ToggleGroupModule,
     SpinnerComponent,
   ],
+  providers: [RemoteAccessService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
@@ -78,18 +81,16 @@ const MOCK_REQUESTS = [
       @switch (state()) {
         @case ("idle") {
           <div class="tw-p-4 tw-space-y-4">
-            <p class="tw-text-main tw-mb-0">
-              Share credentials securely with a remote device.
-            </p>
+            <p class="tw-text-main tw-mb-0">Share credentials securely with a remote device.</p>
 
             <bit-toggle-group
               fullWidth
               [selected]="connectionMode()"
               (selectedChange)="connectionMode.set($event)"
             >
-              <bit-toggle [value]="ConnectionMode.Rendezvous">Rendezvous</bit-toggle>
-              <bit-toggle [value]="ConnectionMode.Psk">PSK Token</bit-toggle>
-              <bit-toggle [value]="ConnectionMode.Cached">Cached</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Rendezvous">Rendezvous</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Psk">PSK Token</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Cached">Cached</bit-toggle>
             </bit-toggle-group>
 
             @switch (connectionMode()) {
@@ -112,7 +113,7 @@ const MOCK_REQUESTS = [
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="primary" (click)="startListening()">
+            <button type="button" bitButton buttonType="primary" (click)="startListening()">
               Start Listening
             </button>
           </popup-footer>
@@ -120,9 +121,7 @@ const MOCK_REQUESTS = [
 
         @case ("listening") {
           <div class="tw-p-4 tw-space-y-4">
-            <bit-callout type="info">
-              Waiting for a remote device to connect...
-            </bit-callout>
+            <bit-callout type="info"> Waiting for a remote device to connect... </bit-callout>
 
             @switch (connectionMode()) {
               @case ("rendezvous") {
@@ -131,28 +130,48 @@ const MOCK_REQUESTS = [
                 >
                   <p class="tw-text-xs tw-text-muted tw-mb-2">Rendezvous Code</p>
                   <p
-                    class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0"
+                    class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-2"
                   >
                     {{ rendezvousCode() }}
                   </p>
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    (click)="copyCode()"
+                    class="tw-text-xs"
+                  >
+                    {{ codeCopied() ? "Copied" : "Copy Code" }}
+                  </button>
+                  @if (codeCopied()) {
+                    <p class="tw-text-xs tw-text-success tw-mt-2 tw-mb-0">Copied to clipboard</p>
+                  }
                 </div>
               }
               @case ("psk") {
                 <div
-                  class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4"
+                  class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4 tw-text-center"
                 >
                   <p class="tw-text-xs tw-text-muted tw-mb-2">PSK Token</p>
-                  <p
-                    class="tw-text-xs tw-font-mono tw-text-main tw-break-all tw-mb-0"
-                  >
+                  <p class="tw-text-xs tw-font-mono tw-text-main tw-break-all tw-mb-2">
                     {{ pskToken() }}
                   </p>
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    (click)="copyToken()"
+                    class="tw-text-xs"
+                  >
+                    {{ tokenCopied() ? "Copied" : "Copy Token" }}
+                  </button>
+                  @if (tokenCopied()) {
+                    <p class="tw-text-xs tw-text-success tw-mt-2 tw-mb-0">Copied to clipboard</p>
+                  }
                 </div>
               }
               @case ("cached") {
-                <p class="tw-text-muted tw-text-sm tw-mb-0">
-                  Listening for cached sessions...
-                </p>
+                <p class="tw-text-muted tw-text-sm tw-mb-0">Listening for cached sessions...</p>
               }
             }
 
@@ -162,7 +181,7 @@ const MOCK_REQUESTS = [
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="secondary" (click)="reset()">
+            <button type="button" bitButton buttonType="secondary" (click)="reset()">
               {{ "cancel" | i18n }}
             </button>
           </popup-footer>
@@ -177,44 +196,27 @@ const MOCK_REQUESTS = [
           </div>
         }
 
-        @case ("fingerprint") {
-          <div class="tw-p-4 tw-space-y-4">
-            <bit-callout type="warning" title="Verify Connection">
-              Confirm this fingerprint matches what is shown on the remote device.
-            </bit-callout>
-
-            <div
-              class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4 tw-text-center"
-            >
-              <p class="tw-text-xs tw-text-muted tw-mb-2">Fingerprint</p>
-              <p
-                class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0"
-              >
-                {{ fingerprint() }}
-              </p>
-            </div>
-          </div>
-
-          <popup-footer slot="footer">
-            <button bitButton buttonType="primary" (click)="confirmFingerprint()">
-              {{ "confirm" | i18n }}
-            </button>
-            <button
-              bitButton
-              buttonType="danger"
-              slot="end"
-              (click)="rejectFingerprint()"
-            >
-              Reject
-            </button>
-          </popup-footer>
-        }
-
         @case ("connected") {
           <div class="tw-p-4 tw-space-y-4">
-            <bit-callout type="success">
-              Securely connected
-            </bit-callout>
+            <bit-callout type="success"> Securely connected </bit-callout>
+
+            @if (fingerprint()) {
+              <bit-callout type="warning" title="Verify Connection">
+                Confirm this fingerprint matches what is shown on the remote device. If they do not
+                match, disconnect immediately.
+              </bit-callout>
+
+              <div
+                class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4 tw-text-center"
+              >
+                <p class="tw-text-xs tw-text-muted tw-mb-2">Connection Fingerprint</p>
+                <p
+                  class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0"
+                >
+                  {{ fingerprint() }}
+                </p>
+              </div>
+            }
 
             <div class="tw-flex tw-items-center tw-gap-2 tw-text-muted tw-text-sm">
               <bit-spinner size="small"></bit-spinner>
@@ -223,7 +225,7 @@ const MOCK_REQUESTS = [
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="secondary" (click)="disconnect()">
+            <button type="button" bitButton buttonType="secondary" (click)="disconnect()">
               Disconnect
             </button>
           </popup-footer>
@@ -245,17 +247,17 @@ const MOCK_REQUESTS = [
                 {{ currentRequest()?.uri }}
               </p>
               <p class="tw-text-sm tw-text-main tw-mb-0">
-                <i class="bwi bwi-user tw-mr-1" aria-hidden="true"></i>
                 {{ currentRequest()?.username }}
               </p>
             </div>
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="primary" (click)="approveCredential()">
+            <button type="button" bitButton buttonType="primary" (click)="approveCredential()">
               Approve
             </button>
             <button
+              type="button"
               bitButton
               buttonType="danger"
               slot="end"
@@ -284,13 +286,11 @@ const MOCK_REQUESTS = [
 
         @case ("disconnected") {
           <div class="tw-p-4">
-            <bit-callout type="info">
-              Remote device disconnected.
-            </bit-callout>
+            <bit-callout type="info"> Remote device disconnected. </bit-callout>
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="primary" (click)="reset()">
+            <button type="button" bitButton buttonType="primary" (click)="reset()">
               Start Over
             </button>
           </popup-footer>
@@ -304,7 +304,7 @@ const MOCK_REQUESTS = [
           </div>
 
           <popup-footer slot="footer">
-            <button bitButton buttonType="primary" (click)="reset()">
+            <button type="button" bitButton buttonType="primary" (click)="reset()">
               Try Again
             </button>
           </popup-footer>
@@ -315,145 +315,193 @@ const MOCK_REQUESTS = [
 })
 export class RemoteAccessComponent implements OnDestroy {
   protected readonly RemoteAccessState = RemoteAccessState;
-  protected readonly ConnectionMode = ConnectionMode;
+  protected readonly ConnectionModeEnum = ConnectionModeEnum;
 
   protected readonly state = signal<RemoteAccessState>(RemoteAccessState.Idle);
-  protected readonly connectionMode = signal<ConnectionMode>(ConnectionMode.Rendezvous);
+  protected readonly connectionMode = signal<ConnectionMode>("rendezvous");
   protected readonly rendezvousCode = signal("");
   protected readonly pskToken = signal("");
   protected readonly fingerprint = signal("");
   protected readonly currentRequest = signal<CredentialRequest | null>(null);
   protected readonly errorMessage = signal("");
+  protected readonly codeCopied = signal(false);
+  protected readonly tokenCopied = signal(false);
 
-  private mockRequestIndex = 0;
-  private pendingTimers: ReturnType<typeof setTimeout>[] = [];
+  private service = inject(RemoteAccessService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private destroyRef = inject(DestroyRef);
+  private pendingCredential: CredentialLookupResult | null = null;
+  private eventSubscription: { unsubscribe(): void } | null = null;
 
   startListening(): void {
     const mode = this.connectionMode();
     this.state.set(RemoteAccessState.Listening);
 
-    if (mode === ConnectionMode.Rendezvous) {
-      this.rendezvousCode.set(this.generateRendezvousCode());
-    } else if (mode === ConnectionMode.Psk) {
-      this.pskToken.set(this.generatePskToken());
-    }
+    // Unsubscribe any previous subscription before creating a new one
+    this.eventSubscription?.unsubscribe();
+    this.eventSubscription = this.service.events$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        this.handleEvent(event);
+      });
 
-    this.scheduleTimeout(() => this.simulateHandshakeStart(), 2500);
+    // Start listening (runs until disconnect)
+    this.service.startListening(mode).catch((err: Error) => {
+      this.state.set(RemoteAccessState.Error);
+      this.errorMessage.set(err.message || "Failed to connect");
+    });
   }
 
-  confirmFingerprint(): void {
-    this.state.set(RemoteAccessState.Connected);
-    this.scheduleTimeout(() => this.simulateCredentialRequest(), 2000);
+  copyCode(): void {
+    this.platformUtilsService.copyToClipboard(this.rendezvousCode());
+    this.codeCopied.set(true);
+    setTimeout(() => this.codeCopied.set(false), 2000);
   }
 
-  rejectFingerprint(): void {
-    this.state.set(RemoteAccessState.Disconnected);
+  copyToken(): void {
+    this.platformUtilsService.copyToClipboard(this.pskToken());
+    this.tokenCopied.set(true);
+    setTimeout(() => this.tokenCopied.set(false), 2000);
   }
 
   approveCredential(): void {
+    const request = this.currentRequest();
+    if (!request) {
+      return;
+    }
     this.state.set(RemoteAccessState.Approved);
-    this.scheduleTimeout(() => {
-      this.state.set(RemoteAccessState.Connected);
-      this.scheduleTimeout(() => this.simulateCredentialRequest(), 3000);
-    }, 1500);
+    void this.service.respondToCredential(
+      request.requestId,
+      request.sessionId,
+      true,
+      this.pendingCredential ?? undefined,
+    );
   }
 
   denyCredential(): void {
+    const request = this.currentRequest();
+    if (!request) {
+      return;
+    }
     this.state.set(RemoteAccessState.Denied);
-    this.scheduleTimeout(() => {
-      this.state.set(RemoteAccessState.Connected);
-      this.scheduleTimeout(() => this.simulateCredentialRequest(), 3000);
-    }, 1500);
+    void this.service.respondToCredential(request.requestId, request.sessionId, false);
   }
 
   disconnect(): void {
-    this.clearTimers();
+    void this.service.disconnect();
     this.state.set(RemoteAccessState.Disconnected);
   }
 
   reset(): void {
-    this.clearTimers();
+    this.eventSubscription?.unsubscribe();
+    this.eventSubscription = null;
+    void this.service.disconnect();
     this.state.set(RemoteAccessState.Idle);
     this.rendezvousCode.set("");
     this.pskToken.set("");
     this.fingerprint.set("");
+    this.codeCopied.set(false);
+    this.tokenCopied.set(false);
     this.errorMessage.set("");
     this.currentRequest.set(null);
+    this.pendingCredential = null;
   }
 
   ngOnDestroy(): void {
-    this.clearTimers();
+    this.eventSubscription?.unsubscribe();
+    void this.service.disconnect();
   }
 
-  private simulateHandshakeStart(): void {
-    if (this.state() !== RemoteAccessState.Listening) {
-      return;
+  private handleEvent(event: RatEvent): void {
+    switch (event.type) {
+      case "listening":
+        this.state.set(RemoteAccessState.Listening);
+        break;
+
+      case "rendezvous_code_generated":
+        this.rendezvousCode.set(event["code"] as string);
+        break;
+
+      case "psk_token_generated":
+        this.pskToken.set(event["token"] as string);
+        break;
+
+      case "handshake_start":
+        this.state.set(RemoteAccessState.Handshake);
+        break;
+
+      case "handshake_complete":
+        break;
+
+      case "handshake_fingerprint":
+        this.fingerprint.set(event["fingerprint"] as string);
+        if (this.connectionMode() === "rendezvous") {
+          // Rendezvous mode requires fingerprint verification before caching
+          void this.service.verifyFingerprint(true);
+        } else {
+          // PSK/cached connections are already trusted — go straight to Connected
+          this.state.set(RemoteAccessState.Connected);
+        }
+        break;
+
+      case "fingerprint_verified":
+      case "session_refreshed":
+        this.state.set(RemoteAccessState.Connected);
+        break;
+
+      case "fingerprint_rejected":
+        this.state.set(RemoteAccessState.Disconnected);
+        break;
+
+      case "credential_request":
+        void this.handleCredentialRequest(event);
+        break;
+
+      case "credential_approved":
+        this.state.set(RemoteAccessState.Approved);
+        setTimeout(() => {
+          if (this.state() === RemoteAccessState.Approved) {
+            this.state.set(RemoteAccessState.Connected);
+          }
+        }, 1500);
+        break;
+
+      case "credential_denied":
+        this.state.set(RemoteAccessState.Denied);
+        setTimeout(() => {
+          if (this.state() === RemoteAccessState.Denied) {
+            this.state.set(RemoteAccessState.Connected);
+          }
+        }, 1500);
+        break;
+
+      case "client_disconnected":
+        this.state.set(RemoteAccessState.Disconnected);
+        break;
+
+      case "error":
+        this.errorMessage.set(event["message"] as string);
+        this.state.set(RemoteAccessState.Error);
+        break;
     }
-    this.state.set(RemoteAccessState.Handshake);
-    this.scheduleTimeout(() => this.simulateHandshakeComplete(), 1500);
   }
 
-  private simulateHandshakeComplete(): void {
-    if (this.state() !== RemoteAccessState.Handshake) {
-      return;
-    }
+  private async handleCredentialRequest(event: RatEvent): Promise<void> {
+    const domain = event["domain"] as string;
+    const requestId = event["request_id"] as string;
+    const sessionId = event["session_id"] as string;
 
-    if (this.connectionMode() === ConnectionMode.Cached) {
-      this.state.set(RemoteAccessState.Connected);
-      this.scheduleTimeout(() => this.simulateCredentialRequest(), 2000);
-    } else {
-      this.fingerprint.set(this.generateFingerprint());
-      this.state.set(RemoteAccessState.Fingerprint);
-    }
-  }
+    // Look up matching credential in vault
+    const credential = await this.service.lookupCredential(domain);
+    this.pendingCredential = credential;
 
-  private simulateCredentialRequest(): void {
-    if (this.state() !== RemoteAccessState.Connected) {
-      return;
-    }
-    const mock = MOCK_REQUESTS[this.mockRequestIndex % MOCK_REQUESTS.length];
-    this.mockRequestIndex++;
     this.currentRequest.set({
-      domain: mock.domain,
-      requestId: crypto.randomUUID(),
-      sessionId: crypto.randomUUID(),
-      username: mock.username,
-      uri: mock.uri,
+      domain,
+      requestId,
+      sessionId,
+      username: credential?.username ?? "(no match found)",
+      uri: credential?.uri ?? `https://${domain}`,
     });
     this.state.set(RemoteAccessState.CredentialRequest);
-  }
-
-  private generateRendezvousCode(): string {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join(
-      "",
-    );
-  }
-
-  private generatePskToken(): string {
-    const hex = (len: number) =>
-      Array.from({ length: len }, () => Math.floor(Math.random() * 16).toString(16)).join("");
-    return `${hex(64)}_${hex(64)}`;
-  }
-
-  private generateFingerprint(): string {
-    return Array.from({ length: 6 }, () => Math.floor(Math.random() * 16).toString(16))
-      .join("")
-      .toUpperCase();
-  }
-
-  private scheduleTimeout(fn: () => void, ms: number): void {
-    const id = setTimeout(() => {
-      this.pendingTimers = this.pendingTimers.filter((t) => t !== id);
-      fn();
-    }, ms);
-    this.pendingTimers.push(id);
-  }
-
-  private clearTimers(): void {
-    for (const id of this.pendingTimers) {
-      clearTimeout(id);
-    }
-    this.pendingTimers = [];
   }
 }
