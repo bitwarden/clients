@@ -203,7 +203,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       bytes = forge.util.encodeUtf8(value);
     } else {
       // Null assertion is safe because this function takes a non-null value and is private.
-      bytes = Utils.fromArrayToByteString(this.toBuf(value))!;
+      bytes = Utils.fromArrayToByteString(this.toBuf(value));
     }
     return bytes;
   }
