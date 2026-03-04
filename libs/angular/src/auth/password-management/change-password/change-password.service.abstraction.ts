@@ -29,8 +29,14 @@ export abstract class ChangePasswordService {
    * @deprecated To be removed in PM-28143
    *
    * Creates a new user key and re-encrypts all required data with it.
+   * - does so by calling the underlying method on the `UserKeyRotationService`
+   * - implemented in Web only
    *
-   * @throws if called from a client that does not implement the method
+   * @param currentPassword the current password
+   * @param newPassword the new password
+   * @param user the user account
+   * @param newPasswordHint the new password hint
+   * @throws if called from a non-Web client
    */
   abstract rotateUserKeyMasterPasswordAndEncryptedDataOld(
     currentPassword: string,
