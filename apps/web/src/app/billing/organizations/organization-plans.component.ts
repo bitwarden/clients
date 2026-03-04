@@ -1190,10 +1190,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private async determineFamilyPlan(): Promise<PlanType> {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    return milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025;
+    return PlanType.FamiliesAnnually;
   }
 
   /**

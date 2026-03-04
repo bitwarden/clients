@@ -1,6 +1,5 @@
 import {
   combineLatest,
-  combineLatestWith,
   from,
   map,
   Observable,
@@ -16,9 +15,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
@@ -35,7 +32,6 @@ import {
 export class DefaultSubscriptionPricingService implements SubscriptionPricingServiceAbstraction {
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
-    private configService: ConfigService,
     private i18nService: I18nService,
     private logService: LogService,
     private environmentService: EnvironmentService,
@@ -137,13 +133,8 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private families$: Observable<PersonalSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
-      combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
-      map(([plans, milestone3FeatureEnabled]) => {
-        const familiesPlan = plans.data.find(
-          (plan) =>
-            plan.type ===
-            (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
-        );
+      map((plans) => {
+        const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
 
         return {
           id: PersonalSubscriptionPricingTierIds.Families,

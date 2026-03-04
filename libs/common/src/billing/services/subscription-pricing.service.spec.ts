@@ -5,7 +5,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -24,13 +23,12 @@ import { DefaultSubscriptionPricingService } from "./subscription-pricing.servic
 describe("DefaultSubscriptionPricingService", () => {
   let service: DefaultSubscriptionPricingService;
   let billingApiService: MockProxy<BillingApiServiceAbstraction>;
-  let configService: MockProxy<ConfigService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let environmentService: MockProxy<EnvironmentService>;
 
   const mockFamiliesPlan = {
-    type: PlanType.FamiliesAnnually2025,
+    type: PlanType.FamiliesAnnually,
     productTier: ProductTierType.Families,
     name: "Families (Annually)",
     isAnnual: true,
@@ -350,17 +348,14 @@ describe("DefaultSubscriptionPricingService", () => {
 
   beforeEach(() => {
     billingApiService = mock<BillingApiServiceAbstraction>();
-    configService = mock<ConfigService>();
     environmentService = mock<EnvironmentService>();
 
     billingApiService.getPlans.mockResolvedValue(mockPlansResponse);
     billingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-    configService.getFeatureFlag$.mockReturnValue(of(false));
     setupEnvironmentService(environmentService);
 
     service = new DefaultSubscriptionPricingService(
       billingApiService,
-      configService,
       i18nService,
       logService,
       environmentService,
@@ -439,7 +434,6 @@ describe("DefaultSubscriptionPricingService", () => {
 
     it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorEnvironmentService = mock<EnvironmentService>();
@@ -447,14 +441,12 @@ describe("DefaultSubscriptionPricingService", () => {
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
       const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
-        errorConfigService,
         errorI18nService,
         errorLogService,
         errorEnvironmentService,
@@ -628,7 +620,6 @@ describe("DefaultSubscriptionPricingService", () => {
 
     it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorEnvironmentService = mock<EnvironmentService>();
@@ -636,14 +627,12 @@ describe("DefaultSubscriptionPricingService", () => {
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
       const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
-        errorConfigService,
         errorI18nService,
         errorLogService,
         errorEnvironmentService,
@@ -874,7 +863,6 @@ describe("DefaultSubscriptionPricingService", () => {
 
     it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
       const errorI18nService = mock<I18nService>();
       const errorLogService = mock<LogService>();
       const errorEnvironmentService = mock<EnvironmentService>();
@@ -882,14 +870,12 @@ describe("DefaultSubscriptionPricingService", () => {
       const testError = new Error("API error");
       errorBillingApiService.getPlans.mockRejectedValue(testError);
       errorBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(errorEnvironmentService);
 
       errorI18nService.t.mockImplementation((key: string) => key);
 
       const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
-        errorConfigService,
         errorI18nService,
         errorLogService,
         errorEnvironmentService,
@@ -914,18 +900,15 @@ describe("DefaultSubscriptionPricingService", () => {
   describe("Edge case handling", () => {
     it("should handle getPremiumPlan() error when getPlans() succeeds", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
-      const errorConfigService = mock<ConfigService>();
       const errorEnvironmentService = mock<EnvironmentService>();
 
       const testError = new Error("Premium plan API error");
       errorBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
       errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
-      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(errorEnvironmentService);
 
       const errorService = new DefaultSubscriptionPricingService(
         errorBillingApiService,
-        errorConfigService,
         i18nService,
         logService,
         errorEnvironmentService,
@@ -979,18 +962,15 @@ describe("DefaultSubscriptionPricingService", () => {
   describe("Self-hosted environment behavior", () => {
     it("should not call API for self-hosted environment", () => {
       const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
-      const selfHostedConfigService = mock<ConfigService>();
       const selfHostedEnvironmentService = mock<EnvironmentService>();
 
       const getPlansSpy = jest.spyOn(selfHostedBillingApiService, "getPlans");
       const getPremiumPlanSpy = jest.spyOn(selfHostedBillingApiService, "getPremiumPlan");
 
-      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
 
       const selfHostedService = new DefaultSubscriptionPricingService(
         selfHostedBillingApiService,
-        selfHostedConfigService,
         i18nService,
         logService,
         selfHostedEnvironmentService,
@@ -1008,15 +988,12 @@ describe("DefaultSubscriptionPricingService", () => {
 
     it("should return valid tier structure with undefined prices for self-hosted", (done) => {
       const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
-      const selfHostedConfigService = mock<ConfigService>();
       const selfHostedEnvironmentService = mock<EnvironmentService>();
 
-      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(false));
       setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
 
       const selfHostedService = new DefaultSubscriptionPricingService(
         selfHostedBillingApiService,
-        selfHostedConfigService,
         i18nService,
         logService,
         selfHostedEnvironmentService,
