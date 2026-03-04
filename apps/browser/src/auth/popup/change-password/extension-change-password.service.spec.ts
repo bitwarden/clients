@@ -5,6 +5,7 @@ import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -16,6 +17,7 @@ describe("ExtensionChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let syncService: MockProxy<SyncService>;
   let window: MockProxy<Window>;
 
   let changePasswordService: ChangePasswordService;
@@ -25,6 +27,7 @@ describe("ExtensionChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    syncService = mock<SyncService>();
     window = mock<Window>();
 
     changePasswordService = new ExtensionChangePasswordService(
@@ -32,6 +35,7 @@ describe("ExtensionChangePasswordService", () => {
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      syncService,
       window,
     );
   });

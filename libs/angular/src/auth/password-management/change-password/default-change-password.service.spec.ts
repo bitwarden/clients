@@ -20,6 +20,7 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { makeSymmetricCryptoKey, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -36,6 +37,7 @@ describe("DefaultChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let syncService: MockProxy<SyncService>;
 
   let sut: ChangePasswordService;
 
@@ -75,12 +77,14 @@ describe("DefaultChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    syncService = mock<SyncService>();
 
     sut = new DefaultChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      syncService,
     );
 
     masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(decryptedUserKey);
