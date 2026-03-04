@@ -170,6 +170,7 @@ describe("AutofillConfirmationDialogComponent", () => {
   it("handles undefined savedUris by defaulting to []", async () => {
     const localParams: AutofillConfirmationDialogParams = {
       currentUrl: "https://subdomain.example.com/x",
+      savedUris: undefined,
     };
 
     const { component: local } = await createFreshFixture({ params: localParams });
