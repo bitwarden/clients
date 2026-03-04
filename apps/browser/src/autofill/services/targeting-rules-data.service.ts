@@ -26,10 +26,8 @@ import {
   KeyDefinition,
 } from "@bitwarden/state";
 
-/**
- * For now, hardcode the rules URI
- */
-const TARGETING_RULES_SOURCE_URL =
+/** Fallback URI used when the server does not provide a targeting rules URI */
+const DEFAULT_TARGETING_RULES_SOURCE_URL =
   "https://raw.githubusercontent.com/bitwarden/map-the-web/main/field-locations.json";
 
 type TargetingRulesDataMeta = {
@@ -147,25 +145,41 @@ export class TargetingRulesDataService {
       return;
     }
 
-    this.logService.info(
-      `[TargetingRulesDataService] Fetching targeting rules from ${TARGETING_RULES_SOURCE_URL}`,
-    );
+    const sourceUrl = await this._resolveSourceUrl();
 
-    const response = await this.apiService.nativeFetch(new Request(TARGETING_RULES_SOURCE_URL));
+    this.logService.info(`[TargetingRulesDataService] Fetching targeting rules from ${sourceUrl}`);
 
-    if (!response.ok) {
-      throw new Error(
-        `[TargetingRulesDataService] Failed to fetch rules: ${response.status} ${response.statusText}`,
+    try {
+      const response = await this.apiService.nativeFetch(new Request(sourceUrl));
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
+      }
+
+      const rules: AutofillTargetingRulesByDomain = await response.json();
+
+      await this.domainSettingsService.setTargetingRules(rules);
+      await this._metaState.update(() => ({ timestamp: Date.now() }));
+
+      this.logService.info(
+        `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,
       );
+    } catch (error: unknown) {
+      this.logService.warning(
+        "[TargetingRulesDataService] Resource unavailable, storing empty rules.",
+        error,
+      );
+      await this.domainSettingsService.setTargetingRules({});
+      await this._metaState.update(() => ({ timestamp: Date.now() }));
     }
+  }
 
-    const rules: AutofillTargetingRulesByDomain = await response.json();
-
-    await this.domainSettingsService.setTargetingRules(rules);
-    await this._metaState.update(() => ({ timestamp: Date.now() }));
-
-    this.logService.info(
-      `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,
-    );
+  /**
+   * Resolves the targeting rules source URL by checking the server config first,
+   * falling back to the hardcoded default if unavailable.
+   */
+  private async _resolveSourceUrl(): Promise<string> {
+    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
+    return serverConfig?.environment?.fillAssistRules || DEFAULT_TARGETING_RULES_SOURCE_URL;
   }
 }

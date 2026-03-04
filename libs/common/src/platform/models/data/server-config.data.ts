@@ -82,6 +82,7 @@ export class EnvironmentServerConfigData {
   identity: string;
   notifications: string;
   sso: string;
+  fillAssistRules: string;
 
   constructor(response: Partial<EnvironmentServerConfigResponse>) {
     this.cloudRegion = response.cloudRegion;
@@ -90,6 +91,7 @@ export class EnvironmentServerConfigData {
     this.identity = response.identity;
     this.notifications = response.notifications;
     this.sso = response.sso;
+    this.fillAssistRules = response.fillAssistRules;
   }
 
   static fromJSON(obj: Jsonify<EnvironmentServerConfigData>): EnvironmentServerConfigData {
