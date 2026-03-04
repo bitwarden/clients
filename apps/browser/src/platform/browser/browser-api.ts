@@ -465,11 +465,61 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the vault popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    return BrowserApi.getExtensionViews({ type: "popup" }).length > 0;
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
