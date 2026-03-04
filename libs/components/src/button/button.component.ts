@@ -111,6 +111,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return disabled || this.loading();
   });
 
+  // random change
+
   /**
    * Determine whether it is appropriate to display the disabled styles. We only want to show
    * the disabled styles if the button is truly disabled, or if the loading styles are also
