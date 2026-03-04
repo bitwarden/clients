@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -21,7 +22,6 @@ import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
-import { SharedModule } from "../../shared";
 import { BitwardenIcon } from "../../shared/icon";
 import { TypographyModule } from "../../typography";
 import { BaseChipDirective } from "../shared/base-chip.directive";
@@ -43,7 +43,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   selector: "bit-chip-filter",
   templateUrl: "chip-filter.component.html",
   imports: [
-    SharedModule,
+    CommonModule,
     ButtonModule,
     IconButtonModule,
     MenuModule,
