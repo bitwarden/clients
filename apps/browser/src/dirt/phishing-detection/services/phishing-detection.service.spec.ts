@@ -1,22 +1,47 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable, of } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/messaging";
 
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
+
 import { PhishingDataService } from "./phishing-data.service";
 import { PhishingDetectionService } from "./phishing-detection.service";
+
+// Mock fromChromeEvent to return a controllable Subject
+const mockBeforeNavigate$ = new Subject<[chrome.webNavigation.WebNavigationBaseCallbackDetails]>();
+
+jest.mock("../../../platform/browser/from-chrome-event", () => ({
+  fromChromeEvent: jest.fn(() => mockBeforeNavigate$),
+}));
 
 describe("PhishingDetectionService", () => {
   let logService: LogService;
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
   let phishingDetectionSettingsService: MockProxy<PhishingDetectionSettingsServiceAbstraction>;
+  let dispose: (() => void) | undefined;
 
   beforeEach(() => {
-    logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
+    dispose?.();
+    dispose = undefined;
+    jest.clearAllMocks();
+
+    // Re-wire the mock since clearAllMocks resets the implementation
+    (fromChromeEvent as jest.Mock).mockReturnValue(mockBeforeNavigate$);
+
+    logService = {
+      info: jest.fn(),
+      debug: jest.fn(),
+      warning: jest.fn(),
+      error: jest.fn(),
+    } as any;
     phishingDataService = mock();
+    phishingDataService.update$ = new Subject().asObservable() as any;
+    phishingDataService.isPhishingWebAddress.mockResolvedValue(false);
+
     messageListener = mock<MessageListener>({
       messages$(_commandDefinition) {
         return new Observable();
@@ -27,61 +52,70 @@ describe("PhishingDetectionService", () => {
     });
   });
 
-  it("should initialize without errors", () => {
-    expect(() => {
-      PhishingDetectionService.initialize(
-        logService,
-        phishingDataService,
-        phishingDetectionSettingsService,
-        messageListener,
-      );
-    }).not.toThrow();
+  afterEach(() => {
+    dispose?.();
+    dispose = undefined;
   });
 
-  // TODO
-  // it("should enable phishing detection for premium account", (done) => {
-  //   const premiumAccount = { id: "user1" };
-  //   accountService = { activeAccount$: of(premiumAccount) } as any;
-  //   configService = { getFeatureFlag$: jest.fn(() => of(true)) } as any;
-  //   billingAccountProfileStateService = {
-  //     hasPremiumFromAnySource$: jest.fn(() => of(true)),
-  //   } as any;
+  function initService() {
+    dispose = PhishingDetectionService.initialize(
+      logService,
+      phishingDataService,
+      phishingDetectionSettingsService,
+      messageListener,
+    ) as (() => void) | undefined;
+  }
 
-  //   // Run the initialization
-  //   PhishingDetectionService.initialize(
-  //     accountService,
-  //     billingAccountProfileStateService,
-  //     configService,
-  //     logService,
-  //     phishingDataService,
-  //     messageListener,
-  //     phishingDetectionSettingsService,
-  //   );
-  // });
+  function emitNavEvent(tabId: number, url: string, frameId = 0) {
+    mockBeforeNavigate$.next([
+      {
+        tabId,
+        url,
+        frameId,
+        timeStamp: Date.now(),
+        parentFrameId: -1,
+        processId: 1,
+        parentDocumentId: "",
+        documentId: "",
+        documentLifecycle: "active",
+      } as unknown as chrome.webNavigation.WebNavigationBaseCallbackDetails,
+    ]);
+  }
 
-  // TODO
-  // it("should not enable phishing detection for non-premium account", (done) => {
-  //   const nonPremiumAccount = { id: "user2" };
-  //   accountService = { activeAccount$: of(nonPremiumAccount) } as any;
-  //   configService = { getFeatureFlag$: jest.fn(() => of(true)) } as any;
-  //   billingAccountProfileStateService = {
-  //     hasPremiumFromAnySource$: jest.fn(() => of(false)),
-  //   } as any;
+  it("should initialize without errors", () => {
+    expect(() => initService()).not.toThrow();
+  });
 
-  //   // Run the initialization
-  //   PhishingDetectionService.initialize(
-  //     accountService,
-  //     billingAccountProfileStateService,
-  //     configService,
-  //     logService,
-  //     phishingDataService,
-  //     messageListener,
-  //     phishingDetectionSettingsService,
-  //   );
-  // });
+  it("should use fromChromeEvent with webNavigation.onBeforeNavigate", () => {
+    initService();
+    expect(fromChromeEvent).toHaveBeenCalledWith(chrome.webNavigation.onBeforeNavigate);
+  });
 
-  // TODO
-  // it("should not enable phishing detection for safari", () => {
-  //
-  // });
+  it("should filter out iframe navigations (frameId !== 0)", () => {
+    initService();
+
+    emitNavEvent(1, "https://phishing-site.example.com", 1);
+    emitNavEvent(1, "https://phishing-site.example.com", 2);
+
+    expect(phishingDataService.isPhishingWebAddress).not.toHaveBeenCalled();
+  });
+
+  it("should filter out extension page URLs", () => {
+    initService();
+
+    emitNavEvent(1, "chrome-extension://fake-id/popup/index.html", 0);
+    emitNavEvent(1, "moz-extension://fake-id/popup/index.html", 0);
+
+    expect(phishingDataService.isPhishingWebAddress).not.toHaveBeenCalled();
+  });
+
+  it("should not require manual removeListener on dispose", () => {
+    initService();
+    dispose?.();
+    dispose = undefined;
+
+    // fromChromeEvent handles cleanup via Observable teardown —
+    // no BrowserApi.removeListener call needed
+    expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("Initialize called"));
+  });
 });

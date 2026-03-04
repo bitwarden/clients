@@ -1,18 +1,13 @@
-import { distinctUntilChanged, EMPTY, filter, map, merge, Subject, switchMap, tap } from "rxjs";
+import { distinctUntilChanged, EMPTY, filter, map, merge, switchMap, tap } from "rxjs";
 
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 
 import { PhishingDataService } from "./phishing-data.service";
-
-type PhishingDetectionNavigationEvent = {
-  tabId: number;
-  changeInfo: chrome.tabs.OnUpdatedInfo;
-  tab: chrome.tabs.Tab;
-};
 
 /**
  * Sends a message to the phishing detection service to continue to the caught url
@@ -30,7 +25,6 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
 
@@ -47,8 +41,6 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
-
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
@@ -60,16 +52,14 @@ export class PhishingDetectionService {
       }),
     );
 
-    const onTabUpdated$ = this._tabUpdated$.pipe(
-      filter(
-        (navEvent) =>
-          navEvent.changeInfo.status === "complete" &&
-          !!navEvent.tab.url &&
-          !this._isExtensionPage(navEvent.tab.url),
-      ),
-      map(({ tab, tabId }) => {
-        const url = new URL(tab.url!);
-        return { tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+    const onTabUpdated$ = fromChromeEvent(chrome.webNavigation.onBeforeNavigate).pipe(
+      // Only check top-level frame navigations (frameId 0), not iframes
+      filter(([details]) => details.frameId === 0),
+      // Filter out extension pages
+      filter(([details]) => !!details.url && !this._isExtensionPage(details.url)),
+      map(([details]) => {
+        const url = new URL(details.url);
+        return { tabId: details.tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
       }),
       distinctUntilChanged(
         (prev, curr) =>
@@ -134,26 +124,7 @@ export class PhishingDetectionService {
 
       initSub.unsubscribe();
       this._didInit = false;
-
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
     };
-  }
-
-  private static _handleTabUpdated(
-    tabId: number,
-    changeInfo: chrome.tabs.OnUpdatedInfo,
-    tab: chrome.tabs.Tab,
-  ): boolean {
-    this._tabUpdated$.next({ tabId, changeInfo, tab });
-
-    // Return value for supporting BrowserApi event listener signature
-    return true;
   }
 
   private static _isExtensionPage(url: string): boolean {
