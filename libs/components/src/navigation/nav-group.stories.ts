@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
@@ -7,7 +8,6 @@ import { GlobalStateProvider } from "@bitwarden/state";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { SharedModule } from "../shared/shared.module";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
@@ -28,7 +28,7 @@ export default {
     positionFixedWrapperDecorator((story) => `<bit-layout>${story}</bit-layout>`),
     moduleMetadata({
       imports: [
-        SharedModule,
+        CommonModule,
         RouterModule,
         NavigationModule,
         DummyContentComponent,
