@@ -15,7 +15,7 @@
   } @else {
     @for (section of policySections; track section.category) {
       <section [class.tw-mt-6]="!$first">
-        <h2 bitTypography="h2" class="tw-py-3 tw-pl-3">
+        <h2 bitTypography="h2" class="tw-py-3 tw-pl-3 !tw-mb-0">
           {{ section.labelKey | i18n }}
         </h2>
         <bit-table>
