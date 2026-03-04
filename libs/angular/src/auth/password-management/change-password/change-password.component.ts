@@ -40,12 +40,12 @@ import {
 } from "./change-password.service.abstraction";
 
 /**
- * Change Password Component
+ * The `ChangePasswordComponent` makes use of the `InputPasswordComponent` by passing in one of the following flows:
+ * - {@link InputPasswordFlow.ChangePassword}
+ * - {@link InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation} (when `ChangePasswordComponent` is
+ *    embedded in the `PasswordSettingsComponent`)
  *
- * NOTE: The change password component uses the input-password component which will show the
- * current password input form in some flows, although it could be left off. This is intentional
- * and by design to maintain a strong security posture as some flows could have the user
- * end up at a change password without having one before.
+ * Both of these flows include showing the current password field to the user.
  */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
