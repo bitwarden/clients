@@ -161,7 +161,7 @@ describe("WebCrypto Function Service", () => {
       const data = Utils.fromUtf8ToArray(value);
       const encValue = new Uint8Array(await cryptoFunctionService.rsaEncrypt(data, pubKey, "sha1"));
       const decValue = await cryptoFunctionService.rsaDecrypt(encValue, privKey, "sha1");
-      expect(Utils.fromArrayToHex(decValue)).toBe(value);
+      expect(Utils.fromArrayToUtf8(decValue)).toBe(value);
     });
   });
 
@@ -176,7 +176,7 @@ describe("WebCrypto Function Service", () => {
           "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await cryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
-      expect(Utils.fromArrayToHex(decValue)).toBe("EncryptMe!");
+      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
 

@@ -139,5 +139,4 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     hmac.update(value);
     return Promise.resolve(new Uint8Array(hmac.digest()));
   }
-
 }
