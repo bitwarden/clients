@@ -2,7 +2,7 @@ import { Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule } from "@bitwarden/components";
+import { ChipActionComponent } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -13,15 +13,15 @@ import { BadgeModule } from "@bitwarden/components";
     <button
       type="button"
       *appNotPremium
-      bitBadge
-      [variant]="'primary'"
-      class="!tw-text-primary-600 !tw-border-primary-600"
+      bit-chip-action
+      startIcon="bwi-premium"
+      [variant]="'accent-primary'"
       (click)="promptForPremium($event)"
     >
-      <i class="bwi bwi-premium tw-pe-1"></i>{{ "upgrade" | i18n }}
+      {{ "upgrade" | i18n }}
     </button>
   `,
-  imports: [BadgeModule, JslibModule],
+  imports: [ChipActionComponent, JslibModule],
 })
 export class PremiumBadgeComponent {
   readonly organizationId = input<string>();
