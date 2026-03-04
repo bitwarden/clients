@@ -16,6 +16,7 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonModule } from "../../button";
 import { IconComponent } from "../../icon";
@@ -44,6 +45,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   templateUrl: "chip-filter.component.html",
   imports: [
     CommonModule,
+    I18nPipe,
     ButtonModule,
     IconButtonModule,
     MenuModule,
