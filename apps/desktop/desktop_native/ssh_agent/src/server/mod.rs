@@ -22,6 +22,9 @@ use tracing::{debug, info};
 
 use crate::KeyStore;
 
+/// Buffer accepted connections pending dispatch to handler tasks.
+const CONNECTION_CHANNEL_CAPACITY: usize = 32;
+
 /// SSH Agent protocol server.
 ///
 /// Handles SSH agent protocol messages and delegates to provided
@@ -34,7 +37,7 @@ pub struct SSHAgentServer<K, A> {
     keystore: Arc<K>,
     /// The authenticator policy to invoke for operations that require authorization
     auth_policy: Arc<A>,
-    /// Async task coordination to use when asked to stop. Is `None` when non running.
+    /// Async task coordination to use when asked to stop. Is `None` when not running.
     cancellation_token: Option<CancellationToken>,
     /// Task handle for the accept loop. Is `None` when not running.
     accept_handle: Option<JoinHandle<()>>,
@@ -120,7 +123,7 @@ where
         L: Listener + 'static,
         L::Stream: 'static,
     {
-        let (tx, mut rx) = mpsc::channel::<Connection<L::Stream>>(32);
+        let (tx, mut rx) = mpsc::channel::<Connection<L::Stream>>(CONNECTION_CHANNEL_CAPACITY);
 
         debug!("Accept loop spawning listener tasks");
         listener::spawn_listener_tasks(listeners, &tx, &cancel_token);
