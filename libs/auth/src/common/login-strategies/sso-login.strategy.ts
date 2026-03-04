@@ -118,54 +118,6 @@ export class SsoLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(tokenResponse: IdentityTokenResponse, userId: UserId) {
-    // The only way we can be setting a master key at this point is if we are using Key Connector.
-    // First, check to make sure that we should do so based on the token response.
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse)) {
-      // If we're here, we know that the user should use Key Connector (they have a KeyConnectorUrl) and does not have a master password.
-      // We can now check the key on the token response to see whether they are a brand new user or an existing user.
-      // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
-      const newSsoUser = tokenResponse.key == null;
-      if (newSsoUser) {
-        // Store Key Connector domain confirmation data in state instead of AuthResult
-        await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
-          {
-            kdfConfig: tokenResponse.kdfConfig,
-            keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
-            organizationId: this.cache.value.orgId,
-          },
-          userId,
-        );
-      } else {
-        const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        if (!await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
-          await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-        }
-      }
-    }
-  }
-
-  /**
-   * Determines if it is possible set the `masterKey` from Key Connector.
-   * @param tokenResponse
-   * @returns `true` if the master key can be set from Key Connector, `false` otherwise
-   */
-  private shouldSetMasterKeyFromKeyConnector(tokenResponse: IdentityTokenResponse): boolean {
-    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-
-    if (userDecryptionOptions != null) {
-      const userHasMasterPassword = userDecryptionOptions.hasMasterPassword;
-      const userHasKeyConnectorUrl =
-        userDecryptionOptions.keyConnectorOption?.keyConnectorUrl != null;
-
-      // In order for us to set the master key from Key Connector, we need to have a Key Connector URL
-      // and the user must not have a master password.
-      return userHasKeyConnectorUrl && !userHasMasterPassword;
-    }
-  }
-
-  private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
-    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-    return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
   }
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
@@ -190,7 +142,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
-    if (tokenResponse.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+    if (tokenResponse.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
         tokenResponse.intoKeyConnectorUnlockData(),
         userId,
@@ -214,14 +166,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
-    } else if (
-      masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null &&
-      !await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)
-    ) {
-      // Key connector enabled for user
-      await this.trySetUserKeyWithMasterKey(userId);
-    }
+    } 
 
     // Note: In the traditional SSO flow with MP without key connector, the lock component
     // is responsible for deriving master key from MP entry and then decrypting the user key
@@ -316,23 +261,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     if (userKey) {
       await this.keyService.setUserKey(userKey, userId);
     }
-  }
-
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-
-    // There are two scenarios in which the master key is not set here:
-    // 1. If the user has a master password and is using Key Connector. In that case, we cannot set the master key
-    // because the user hasn't entered their master password yet.
-    // 2. For new users with Key Connector, we will not have a master key yet, since Key Connector domain
-    // has to be confirmed first.
-    // In both cases, we'll return here and let the migration to Key Connector handle setting the master key.
-    if (!masterKey) {
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
   }
 
   protected override async setAccountCryptographicState(
