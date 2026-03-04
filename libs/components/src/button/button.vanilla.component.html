@@ -1,0 +1,18 @@
+<span [class]="styles.wrapper">
+  <span [class]="contentClasses()">
+    @if (startIcon()) {
+      <i class="{{ startIconClasses() }}"></i>
+    }
+    <div>
+      <ng-content></ng-content>
+    </div>
+    @if (endIcon()) {
+      <i class="{{ endIconClasses() }}"></i>
+    }
+  </span>
+  @if (showLoadingStyle()) {
+    <span [class]="styles.loadingOverlay">
+      <bit-spinner size="fill" noColor></bit-spinner>
+    </span>
+  }
+</span>
