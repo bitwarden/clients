@@ -1663,13 +1663,16 @@
     "message": "month"
   },
   "monthly": {
-    "message": "month"
+    "message": "Monthly"
   },
   "year": {
     "message": "year"
   },
   "annually": {
     "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Refresh complete"
