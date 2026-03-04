@@ -10,13 +10,7 @@ If the proto definitions change, regenerate the TypeScript files:
 
 ```bash
 cd libs/importer
-npx protoc --ts_opt ts_nocheck,eslint_disable --ts_out src/importers/keeper/access/generated --proto_path src/importers/keeper/access/proto src/importers/keeper/access/proto/*.proto
-```
-
-This requires `@protobuf-ts/plugin` and `@protobuf-ts/protoc` to be installed:
-
-```bash
-npm install -D @protobuf-ts/plugin @protobuf-ts/protoc
+npx -p @protobuf-ts/protoc -p @protobuf-ts/plugin protoc --ts_opt ts_nocheck,eslint_disable --ts_out src/importers/keeper/access/generated --proto_path src/importers/keeper/access/proto src/importers/keeper/access/proto/*.proto
 ```
 
 Commit the updated generated files after regeneration.
