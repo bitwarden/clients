@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Sevimlilər"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Növlər"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Elementə düzəliş edildi"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Elementi sil"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "continue": {
     "message": "Davam"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Bilinməyən"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Tullantı qutusunda axtar"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "Elementi birdəfəlik sil"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "\"Send\"ə düzəliş et",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Seyfim"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
@@ -4587,6 +4635,36 @@
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "sendPasswordHelperText": {
     "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4615,7 +4693,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

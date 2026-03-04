@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
@@ -163,9 +165,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userHandle = Fido2Utils.bufferToString(
-      new Uint8Array(lastRegistrationRequest.userHandle),
-    );
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
 
     this.ciphers$ = combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
