@@ -26,7 +26,7 @@ import {
   OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -58,7 +58,7 @@ export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private accountBillingClient: AccountBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private logService: LogService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
@@ -101,7 +101,7 @@ export class UpgradePaymentService {
     const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
     const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
 
-    let taxClientCall: Promise<TaxAmounts> | null = null;
+    let previewInvoiceClientCall: Promise<TaxAmounts> | null = null;
 
     if (isFamiliesPlan) {
       // Currently, only Families plan is supported for organization plans
@@ -111,22 +111,26 @@ export class UpgradePaymentService {
         passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
       };
 
-      taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-        request,
+      previewInvoiceClientCall =
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
+          request,
+          billingAddress,
+        );
+    }
+
+    if (isPremiumPlan) {
+      previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
+        0,
         billingAddress,
       );
     }
 
-    if (isPremiumPlan) {
-      taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
-    }
-
-    if (taxClientCall === null) {
-      throw new Error("Tax client call is not defined");
+    if (previewInvoiceClientCall === null) {
+      throw new Error("Preview client call is not defined");
     }
 
     try {
-      const preview = await taxClientCall;
+      const preview = await previewInvoiceClientCall;
       return preview.tax;
     } catch (error) {
       this.logService.error("Tax calculation failed:", error);

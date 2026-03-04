@@ -31,6 +31,7 @@ futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
+rsa = "=0.9.6"
 sha2 = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
@@ -84,6 +85,9 @@ windows = { workspace = true, features = [
     "Win32_System_Pipes",
 ], optional = true }
 windows-future = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [lints]
 workspace = true

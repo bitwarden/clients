@@ -4,6 +4,8 @@
 
 export { LockComponent } from "./lock/components/lock.component";
 export { LockComponentService, UnlockOptions } from "./lock/services/lock-component.service";
+export { WebAuthnPrfUnlockService } from "./lock/services/webauthn-prf-unlock.service";
+export { DefaultWebAuthnPrfUnlockService } from "./lock/services/default-webauthn-prf-unlock.service";
 export { KeyRotationTrustInfoComponent } from "./key-rotation/key-rotation-trust-info.component";
 export { AccountRecoveryTrustComponent } from "./trust/account-recovery-trust.component";
 export { EmergencyAccessTrustComponent } from "./trust/emergency-access-trust.component";

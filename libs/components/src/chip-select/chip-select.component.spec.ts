@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal, computed } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -499,6 +499,160 @@ class TestAppComponent {
       ],
     },
   ]);
+  readonly disabled = signal(false);
+  readonly fullWidth = signal(false);
+}
+
+describe("ChipSelectComponentWithDynamicOptions", () => {
+  let component: ChipSelectComponent<string>;
+  let fixture: ComponentFixture<TestAppWithDynamicOptionsComponent>;
+
+  const getChipButton = () =>
+    fixture.debugElement.query(By.css("[data-fvw-target]"))?.nativeElement as HTMLButtonElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TestAppWithDynamicOptionsComponent, NoopAnimationsModule],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TestAppWithDynamicOptionsComponent);
+    fixture.detectChanges();
+
+    component = fixture.debugElement.query(By.directive(ChipSelectComponent)).componentInstance;
+
+    fixture.componentInstance.firstCounter.set(0);
+    fixture.componentInstance.secondCounter.set(0);
+
+    fixture.detectChanges();
+  });
+
+  describe("User-Facing Behavior", () => {
+    it("should update available options when they change", () => {
+      const first = 5;
+      const second = 10;
+
+      const testApp = fixture.componentInstance;
+      testApp.firstCounter.set(first);
+      testApp.secondCounter.set(second);
+      fixture.detectChanges();
+
+      getChipButton().click();
+      fixture.detectChanges();
+
+      const menuItems = Array.from(document.querySelectorAll<HTMLButtonElement>("[bitMenuItem]"));
+      expect(menuItems.some((el) => el.textContent?.includes(`Option - ${first}`))).toBe(true);
+      expect(menuItems.some((el) => el.textContent?.includes(`Option - ${second}`))).toBe(true);
+    });
+  });
+
+  describe("Form Integration Behavior", () => {
+    it("should display selected option when form control value is set", () => {
+      const testApp = fixture.componentInstance;
+      testApp.firstCounter.set(1);
+      testApp.secondCounter.set(2);
+
+      component.writeValue("opt2"); // select second menu option which has dynamic label
+      fixture.detectChanges();
+
+      const button = getChipButton();
+      expect(button.textContent?.trim()).toContain("Option - 2"); // verify that the label reflects the dynamic value
+
+      // change the dynamic values and verify that the menu still shows the correct labels for the options
+      // it should also keep opt2 selected since it's the same value, just with an updated label
+      const first = 10;
+      const second = 20;
+
+      testApp.firstCounter.set(first);
+      testApp.secondCounter.set(second);
+      fixture.detectChanges();
+
+      // again, verify that the label reflects the dynamic value
+      expect(button.textContent?.trim()).toContain(`Option - ${second}`);
+
+      // click the button to open the menu
+      getChipButton().click();
+      fixture.detectChanges();
+
+      // verify that the menu items also reflect the updated dynamic values
+      const menuItems = Array.from(document.querySelectorAll<HTMLButtonElement>("[bitMenuItem]"));
+      expect(menuItems.some((el) => el.textContent?.includes(`Option - ${first}`))).toBe(true);
+      expect(menuItems.some((el) => el.textContent?.includes(`Option - ${second}`))).toBe(true);
+    });
+
+    it("should find and display nested option when form control value is set", () => {
+      const testApp = fixture.componentInstance;
+      testApp.firstCounter.set(1);
+      testApp.secondCounter.set(2);
+
+      component.writeValue("child1"); // select a child menu item
+      fixture.detectChanges();
+
+      const button = getChipButton();
+      // verify that the label reflects the dynamic value for the child option
+      expect(button.textContent?.trim()).toContain("Child - 1");
+
+      const first = 10;
+      const second = 20;
+
+      testApp.firstCounter.set(first);
+      testApp.secondCounter.set(second);
+      fixture.detectChanges();
+
+      // again, verify that the label reflects the dynamic value
+      expect(button.textContent?.trim()).toContain(`Child - ${first}`);
+    });
+
+    it("should clear selection when form control value is set to null", () => {
+      const testApp = fixture.componentInstance;
+      testApp.firstCounter.set(1);
+      testApp.secondCounter.set(2);
+
+      component.writeValue("opt1");
+      fixture.detectChanges();
+
+      expect(getChipButton().textContent).toContain("Option - 1");
+
+      component.writeValue(null as any);
+      fixture.detectChanges();
+      expect(getChipButton().textContent).toContain("Select an option");
+    });
+  });
+}); /* end of ChipSelectComponentWithDynamicOptions tests */
+@Component({
+  selector: "test-app-with-dynamic-options",
+  template: `
+    <bit-chip-select
+      placeholderText="Select an option"
+      placeholderIcon="bwi-filter"
+      [options]="options()"
+      [disabled]="disabled()"
+      [fullWidth]="fullWidth()"
+    />
+  `,
+  imports: [ChipSelectComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestAppWithDynamicOptionsComponent {
+  readonly firstCounter = signal(1);
+  readonly secondCounter = signal(2);
+  readonly options = computed(() => {
+    const first = this.firstCounter();
+    const second = this.secondCounter();
+    return [
+      { label: `Option - ${first}`, value: "opt1", icon: "bwi-folder" },
+      { label: `Option - ${second}`, value: "opt2" },
+      {
+        label: "Parent Option",
+        value: "parent",
+        children: [
+          { label: `Child - ${first}`, value: "child1" },
+          { label: `Child - ${second}`, value: "child2" },
+        ],
+      },
+    ];
+  });
+
   readonly disabled = signal(false);
   readonly fullWidth = signal(false);
 }

@@ -16,6 +16,8 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
+import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
+
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
@@ -28,6 +30,7 @@ import { LogService } from "../../abstractions/log.service";
 import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import { ServerSettings } from "../../models/domain/server-settings";
+import { ServerConfigResponse } from "../../models/response/server-config.response";
 import { CONFIG_DISK, KeyDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
 export const RETRIEVAL_INTERVAL = devFlagEnabled("configRetrievalIntervalMs")
@@ -58,8 +61,13 @@ const environmentComparer = (previous: Environment, current: Environment) => {
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
   private failedFetchFallbackSubject = new Subject<ServerConfig | null>();
+  private serverCommunicationConfigSubject = new ReplaySubject<{
+    hostname: string;
+    config: ServerCommunicationConfig;
+  }>(1);
 
   serverConfig$: Observable<ServerConfig | null>;
+  serverCommunicationConfig$ = this.serverCommunicationConfigSubject.asObservable();
 
   serverSettings$: Observable<ServerSettings>;
 
@@ -206,6 +214,8 @@ export class DefaultConfigService implements ConfigService {
       clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 
+      this.parseBoostrapConfig(environment.getApiUrl(), response);
+
       // Update the environment region
       if (
         newConfig?.environment?.cloudRegion != null &&
@@ -240,5 +250,27 @@ export class DefaultConfigService implements ConfigService {
 
   private userConfigFor$(userId: UserId): Observable<ServerConfig | null> {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
+  }
+
+  private parseBoostrapConfig(hostname: string, response: ServerConfigResponse) {
+    const bootstrap = response.communication?.bootstrap ?? null;
+
+    // Emit communication config so subscribers (e.g. ServerCommunicationConfigService) can persist it
+    const communicationConfig: ServerCommunicationConfig =
+      bootstrap?.type === "ssoCookieVendor"
+        ? {
+            bootstrap: {
+              type: "ssoCookieVendor",
+              idpLoginUrl: bootstrap.idpLoginUrl,
+              cookieName: bootstrap.cookieName,
+              cookieDomain: bootstrap.cookieDomain,
+              cookieValue: undefined,
+            },
+          }
+        : { bootstrap: { type: "direct" } };
+    this.serverCommunicationConfigSubject.next({
+      hostname,
+      config: communicationConfig,
+    });
   }
 }

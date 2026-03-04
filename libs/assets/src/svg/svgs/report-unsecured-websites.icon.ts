@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const ReportUnsecuredWebsites = svgIcon`
+export const ReportUnsecuredWebsites = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0.4 10.07 79.2 60">
     <path class="tw-fill-illustration-bg-primary" d="M.4 14.872a4.8 4.8 0 0 1 4.8-4.8h69.6a4.8 4.8 0 0 1 4.8 4.8v50.4a4.8 4.8 0 0 1-4.8 4.8H5.2a4.8 4.8 0 0 1-4.8-4.8v-50.4Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M74.8 11.672H5.2a3.2 3.2 0 0 0-3.2 3.2v50.4a3.2 3.2 0 0 0 3.2 3.2h69.6a3.2 3.2 0 0 0 3.2-3.2v-50.4a3.2 3.2 0 0 0-3.2-3.2Zm-69.6-1.6a4.8 4.8 0 0 0-4.8 4.8v50.4a4.8 4.8 0 0 0 4.8 4.8h69.6a4.8 4.8 0 0 0 4.8-4.8v-50.4a4.8 4.8 0 0 0-4.8-4.8H5.2Z" clip-rule="evenodd"/>

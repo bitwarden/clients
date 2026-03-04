@@ -2,6 +2,8 @@
   "name": "@bitwarden/lit-components",
   "version": "2025.1.1",
   "scripts": {
-    "storybook:lit": "storybook dev -p 6006 -c ./.lit-storybook"
+    "storybook:lit": "storybook dev -p 6006 -c ./.lit-storybook",
+    "storybook:lit:combined": "storybook dev -p 6007 -c ./.lit-storybook --no-open",
+    "storybook:build-lit:ci": "storybook build -c ./.lit-storybook --webpack-stats-json"
   }
 }

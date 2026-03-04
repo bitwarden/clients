@@ -278,13 +278,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       const expectedUserKey = new SymmetricCryptoKey(new Uint8Array(mockUserKeyBytes));
 
       // Verify keys were set
-      expect(keyService.setPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockUserId);
-      expect(keyService.setSignedPublicKey).toHaveBeenCalledWith(mockSignedPublicKey, mockUserId);
-      expect(keyService.setUserSigningKey).toHaveBeenCalledWith(mockSigningKey, mockUserId);
-      expect(securityStateService.setAccountSecurityState).toHaveBeenCalledWith(
-        mockSecurityState,
-        mockUserId,
-      );
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
         expect.objectContaining({
           V2: {

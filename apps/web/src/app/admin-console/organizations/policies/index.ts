@@ -5,3 +5,4 @@ export { POLICY_EDIT_REGISTER } from "./policy-register-token";
 export { AutoConfirmPolicy } from "./policy-edit-definitions";
 export { PolicyEditDialogResult } from "./policy-edit-dialog.component";
 export * from "./policy-edit-dialogs";
+export { PolicyOrderPipe } from "./pipes/policy-order.pipe";

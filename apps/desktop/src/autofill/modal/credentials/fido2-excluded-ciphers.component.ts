@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
@@ -9,7 +11,7 @@ import {
   BadgeModule,
   ButtonModule,
   DialogModule,
-  IconModule,
+  SvgModule,
   ItemModule,
   SectionComponent,
   TableModule,
@@ -32,7 +34,7 @@ import {
     BitIconButtonComponent,
     TableModule,
     JslibModule,
-    IconModule,
+    SvgModule,
     ButtonModule,
     DialogModule,
     SectionComponent,

@@ -7,13 +7,16 @@
   </popup-header>
 
   <ng-container *ngIf="availableAccounts$ | async as availableAccounts">
-    <bit-section [disableMargin]="!enableAccountSwitching">
+    <bit-section [disableMargin]="!(enableAccountSwitching$ | async)">
       <ng-container *ngFor="let availableAccount of availableAccounts; first as isFirst">
-        <div *ngIf="availableAccount.isActive" [ngClass]="{ 'tw-mb-6': enableAccountSwitching }">
+        <div
+          *ngIf="availableAccount.isActive"
+          [ngClass]="{ 'tw-mb-6': enableAccountSwitching$ | async }"
+        >
           <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
         </div>
 
-        <ng-container *ngIf="enableAccountSwitching">
+        <ng-container *ngIf="enableAccountSwitching$ | async">
           <bit-section-header *ngIf="isFirst">
             <h2 bitTypography="h6">{{ "availableAccounts" | i18n }}</h2>
           </bit-section-header>
@@ -55,19 +58,19 @@
           [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
           [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
         >
-          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
+          <bit-icon slot="start" name="bwi-lock" class="tw-text-lg tw-text-main"></bit-icon>
           {{ "lockNow" | i18n }}
         </button>
       </bit-item>
       <bit-item>
         <button type="button" bit-item-content (click)="logOut(currentAccount.id)">
-          <i slot="start" class="bwi bwi-sign-out tw-text-lg tw-text-main" aria-hidden="true"></i>
+          <bit-icon slot="start" name="bwi-sign-out" class="tw-text-lg tw-text-main"></bit-icon>
           {{ "logOut" | i18n }}
         </button>
       </bit-item>
       <bit-item *ngIf="showLockAll$ | async">
         <button type="button" bit-item-content (click)="lockAll()">
-          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
+          <bit-icon slot="start" name="bwi-lock" class="tw-text-lg tw-text-main"></bit-icon>
           {{ "lockAll" | i18n }}
         </button>
       </bit-item>

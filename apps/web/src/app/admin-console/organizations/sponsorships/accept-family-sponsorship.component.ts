@@ -8,7 +8,7 @@ import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { IconModule, ToastService } from "@bitwarden/components";
+import { SvgModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
@@ -22,7 +22,7 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-family-sponsorship.component.html",
-  imports: [CommonModule, I18nPipe, IconModule],
+  imports: [CommonModule, I18nPipe, SvgModule],
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;

@@ -14,6 +14,7 @@ import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
 import { PolicyRequest } from "../../models/request/policy.request";
+import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
 export class PolicyApiService implements PolicyApiServiceAbstraction {
@@ -23,7 +24,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     private accountService: AccountService,
   ) {}
 
-  async getPolicy(organizationId: string, type: PolicyType): Promise<PolicyResponse> {
+  async getPolicy(organizationId: string, type: PolicyType): Promise<PolicyStatusResponse> {
     const r = await this.apiService.send(
       "GET",
       "/organizations/" + organizationId + "/policies/" + type,

@@ -55,7 +55,7 @@ export class AuditService implements AuditServiceAbstraction {
    */
   protected async fetchLeakedPasswordCount(password: string): Promise<number> {
     const hashBytes = await this.cryptoFunctionService.hash(password, "sha1");
-    const hash = Utils.fromBufferToHex(hashBytes).toUpperCase();
+    const hash = Utils.fromArrayToHex(hashBytes)!.toUpperCase();
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 

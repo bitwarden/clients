@@ -11,7 +11,6 @@ import { FormFieldModule } from "../../form-field";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { SectionComponent, SectionHeaderComponent } from "../../section";
-import { SharedModule } from "../../shared";
 import { TabsModule } from "../../tabs";
 import { TypographyModule } from "../../typography";
 import { I18nMockService } from "../../utils/i18n-mock.service";
@@ -28,7 +27,6 @@ export default {
         DialogModule,
         BadgeModule,
         ButtonModule,
-        SharedModule,
         IconButtonModule,
         TabsModule,
         NoopAnimationsModule,
@@ -225,8 +223,7 @@ export const WithCards: Story = {
       ...args,
     },
     template: /*html*/ `
-      <form [formGroup]="formObj">
-      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <form [formGroup]="formObj" bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -270,7 +267,7 @@ export const WithCards: Story = {
           </bit-section>
         </ng-container>
         <ng-container bitDialogFooter>
-          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="submit" bitButton buttonType="primary" [disabled]="loading">Save</button>
           <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             type="button"
@@ -281,8 +278,7 @@ export const WithCards: Story = {
             size="default"
             label="Delete"></button>
         </ng-container>
-      </bit-dialog>
-  </form>
+      </form>
     `,
   }),
   args: {

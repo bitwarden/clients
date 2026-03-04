@@ -75,7 +75,7 @@ export class Fido2CredentialExport {
     domain.userDisplayName =
       req.userDisplayName != null ? new EncString(req.userDisplayName) : null;
     domain.discoverable = req.discoverable != null ? new EncString(req.discoverable) : null;
-    domain.creationDate = req.creationDate;
+    domain.creationDate = req.creationDate != null ? new Date(req.creationDate) : null;
     return domain;
   }
 
@@ -111,10 +111,12 @@ export class Fido2CredentialExport {
     this.rpId = safeGetString(o.rpId);
     this.userHandle = safeGetString(o.userHandle);
     this.userName = safeGetString(o.userName);
-    this.counter = safeGetString(String(o.counter));
+    this.counter = safeGetString(o instanceof Fido2CredentialView ? String(o.counter) : o.counter);
     this.rpName = safeGetString(o.rpName);
     this.userDisplayName = safeGetString(o.userDisplayName);
-    this.discoverable = safeGetString(String(o.discoverable));
+    this.discoverable = safeGetString(
+      o instanceof Fido2CredentialView ? String(o.discoverable) : o.discoverable,
+    );
     this.creationDate = o.creationDate;
   }
 }

@@ -1,0 +1,11 @@
+@let integrationsList = integrations();
+
+<section class="tw-mb-9">
+  <h2 bitTypography="h2">
+    {{ "deviceManagement" | i18n }}
+  </h2>
+  <p bitTypography="body1">{{ "deviceManagementDesc" | i18n }}</p>
+  <app-integration-grid
+    [integrations]="integrationsList | filterIntegrations: IntegrationType.DEVICE"
+  ></app-integration-grid>
+</section>

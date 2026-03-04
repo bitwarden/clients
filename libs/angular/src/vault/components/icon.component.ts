@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
@@ -19,7 +20,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
   selector: "app-vault-icon",
   templateUrl: "icon.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [CommonModule],
 })
 export class IconComponent {
   /**

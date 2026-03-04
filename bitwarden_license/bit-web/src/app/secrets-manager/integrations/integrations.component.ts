@@ -1,6 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, Signal } from "@angular/core";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -11,10 +12,8 @@ import { IntegrationType } from "@bitwarden/common/enums";
   standalone: false,
 })
 export class IntegrationsComponent {
-  private integrationsAndSdks: Integration[] = [];
-
-  constructor() {
-    this.integrationsAndSdks = [
+  constructor(private state: IntegrationStateService) {
+    const integrations = [
       {
         name: "Rust",
         linkURL: "https://github.com/bitwarden/sdk-sm",
@@ -106,19 +105,16 @@ export class IntegrationsComponent {
         newBadgeExpiration: "2025-12-12", // December 12, 2025
       },
     ];
+
+    this.state.setIntegrations(integrations);
   }
 
-  /** Filter out content for the integrations sections */
-  get integrations(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.Integration,
-    );
+  get integrations(): Signal<Integration[]> {
+    return this.state.integrations;
   }
 
-  /** Filter out content for the SDKs section */
-  get sdks(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.SDK,
-    );
+  // use in the view
+  get IntegrationType(): typeof IntegrationType {
+    return IntegrationType;
   }
 }

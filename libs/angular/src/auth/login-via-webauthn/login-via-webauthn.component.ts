@@ -25,7 +25,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import {
   AnonLayoutWrapperDataService,
   ButtonModule,
-  IconModule,
+  SvgModule,
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -43,7 +43,7 @@ export type State = "assert" | "assertFailed";
     RouterModule,
     JslibModule,
     ButtonModule,
-    IconModule,
+    SvgModule,
     LinkModule,
     TypographyModule,
   ],

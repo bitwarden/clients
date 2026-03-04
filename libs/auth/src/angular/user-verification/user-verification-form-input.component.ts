@@ -28,6 +28,7 @@ import {
   CalloutModule,
   FormFieldModule,
   IconButtonModule,
+  SvgModule,
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
@@ -65,6 +66,7 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     AsyncActionsModule,
     IconButtonModule,
     IconModule,
+    SvgModule,
     LinkModule,
     ButtonModule,
     CalloutModule,

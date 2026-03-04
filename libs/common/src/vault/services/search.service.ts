@@ -21,7 +21,6 @@ import { IndexedEntityId, UserId } from "../../types/guid";
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
-import { CipherView } from "../models/view/cipher.view";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 // Time to wait before performing a search after the user stops typing.
@@ -169,7 +168,7 @@ export class SearchService implements SearchServiceAbstraction {
 
   async indexCiphers(
     userId: UserId,
-    ciphers: CipherView[],
+    ciphers: CipherViewLike[],
     indexedEntityId?: string,
   ): Promise<void> {
     if (await this.getIsIndexing(userId)) {
@@ -182,34 +181,47 @@ export class SearchService implements SearchServiceAbstraction {
     const builder = new lunr.Builder();
     builder.pipeline.add(this.normalizeAccentsPipelineFunction);
     builder.ref("id");
-    builder.field("shortid", { boost: 100, extractor: (c: CipherView) => c.id.substr(0, 8) });
+    builder.field("shortid", {
+      boost: 100,
+      extractor: (c: CipherViewLike) => uuidAsString(c.id).substr(0, 8),
+    });
     builder.field("name", {
       boost: 10,
     });
     builder.field("subtitle", {
       boost: 5,
-      extractor: (c: CipherView) => {
-        if (c.subTitle != null && c.type === CipherType.Card) {
-          return c.subTitle.replace(/\*/g, "");
+      extractor: (c: CipherViewLike) => {
+        const subtitle = CipherViewLikeUtils.subtitle(c);
+        if (subtitle != null && CipherViewLikeUtils.getType(c) === CipherType.Card) {
+          return subtitle.replace(/\*/g, "");
         }
-        return c.subTitle;
+        return subtitle;
       },
     });
-    builder.field("notes");
+    builder.field("notes", { extractor: (c: CipherViewLike) => CipherViewLikeUtils.getNotes(c) });
     builder.field("login.username", {
-      extractor: (c: CipherView) =>
-        c.type === CipherType.Login && c.login != null ? c.login.username : null,
+      extractor: (c: CipherViewLike) => {
+        const login = CipherViewLikeUtils.getLogin(c);
+        return login?.username ?? null;
+      },
     });
-    builder.field("login.uris", { boost: 2, extractor: (c: CipherView) => this.uriExtractor(c) });
-    builder.field("fields", { extractor: (c: CipherView) => this.fieldExtractor(c, false) });
-    builder.field("fields_joined", { extractor: (c: CipherView) => this.fieldExtractor(c, true) });
+    builder.field("login.uris", {
+      boost: 2,
+      extractor: (c: CipherViewLike) => this.uriExtractor(c),
+    });
+    builder.field("fields", {
+      extractor: (c: CipherViewLike) => this.fieldExtractor(c, false),
+    });
+    builder.field("fields_joined", {
+      extractor: (c: CipherViewLike) => this.fieldExtractor(c, true),
+    });
     builder.field("attachments", {
-      extractor: (c: CipherView) => this.attachmentExtractor(c, false),
+      extractor: (c: CipherViewLike) => this.attachmentExtractor(c, false),
     });
     builder.field("attachments_joined", {
-      extractor: (c: CipherView) => this.attachmentExtractor(c, true),
+      extractor: (c: CipherViewLike) => this.attachmentExtractor(c, true),
     });
-    builder.field("organizationid", { extractor: (c: CipherView) => c.organizationId });
+    builder.field("organizationid", { extractor: (c: CipherViewLike) => c.organizationId });
     ciphers = ciphers || [];
     ciphers.forEach((c) => builder.add(c));
     const index = builder.build();
@@ -400,37 +412,44 @@ export class SearchService implements SearchServiceAbstraction {
     return await firstValueFrom(this.searchIsIndexing$(userId));
   }
 
-  private fieldExtractor(c: CipherView, joined: boolean) {
-    if (!c.hasFields) {
+  private fieldExtractor(c: CipherViewLike, joined: boolean) {
+    const fields = CipherViewLikeUtils.getFields(c);
+    if (!fields || fields.length === 0) {
       return null;
     }
-    let fields: string[] = [];
-    c.fields.forEach((f) => {
+    let fieldStrings: string[] = [];
+    fields.forEach((f) => {
       if (f.name != null) {
-        fields.push(f.name);
+        fieldStrings.push(f.name);
       }
-      if (f.type === FieldType.Text && f.value != null) {
-        fields.push(f.value);
+      // For CipherListView, value is only populated for Text fields
+      // For CipherView, we check the type explicitly
+      if (f.value != null) {
+        const fieldType = (f as { type?: FieldType }).type;
+        if (fieldType === undefined || fieldType === FieldType.Text) {
+          fieldStrings.push(f.value);
+        }
       }
     });
-    fields = fields.filter((f) => f.trim() !== "");
-    if (fields.length === 0) {
+    fieldStrings = fieldStrings.filter((f) => f.trim() !== "");
+    if (fieldStrings.length === 0) {
       return null;
     }
-    return joined ? fields.join(" ") : fields;
+    return joined ? fieldStrings.join(" ") : fieldStrings;
   }
 
-  private attachmentExtractor(c: CipherView, joined: boolean) {
-    if (!c.hasAttachments) {
+  private attachmentExtractor(c: CipherViewLike, joined: boolean) {
+    const attachmentNames = CipherViewLikeUtils.getAttachmentNames(c);
+    if (!attachmentNames || attachmentNames.length === 0) {
       return null;
     }
     let attachments: string[] = [];
-    c.attachments.forEach((a) => {
-      if (a != null && a.fileName != null) {
-        if (joined && a.fileName.indexOf(".") > -1) {
-          attachments.push(a.fileName.substr(0, a.fileName.lastIndexOf(".")));
+    attachmentNames.forEach((fileName) => {
+      if (fileName != null) {
+        if (joined && fileName.indexOf(".") > -1) {
+          attachments.push(fileName.substring(0, fileName.lastIndexOf(".")));
         } else {
-          attachments.push(a.fileName);
+          attachments.push(fileName);
         }
       }
     });
@@ -441,43 +460,39 @@ export class SearchService implements SearchServiceAbstraction {
     return joined ? attachments.join(" ") : attachments;
   }
 
-  private uriExtractor(c: CipherView) {
-    if (c.type !== CipherType.Login || c.login == null || !c.login.hasUris) {
+  private uriExtractor(c: CipherViewLike) {
+    if (CipherViewLikeUtils.getType(c) !== CipherType.Login) {
+      return null;
+    }
+    const login = CipherViewLikeUtils.getLogin(c);
+    if (!login?.uris?.length) {
       return null;
     }
     const uris: string[] = [];
-    c.login.uris.forEach((u) => {
+    login.uris.forEach((u) => {
       if (u.uri == null || u.uri === "") {
         return;
       }
 
-      // Match ports
+      // Extract port from URI
       const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
       const port = portMatch?.[1];
 
-      let uri = u.uri;
-
-      if (u.hostname !== null) {
-        uris.push(u.hostname);
+      const hostname = CipherViewLikeUtils.getUriHostname(u);
+      if (hostname !== undefined) {
+        uris.push(hostname);
         if (port) {
-          uris.push(`${u.hostname}:${port}`);
-          uris.push(port);
-        }
-        return;
-      } else {
-        const slash = uri.indexOf("/");
-        const hostPart = slash > -1 ? uri.substring(0, slash) : uri;
-        uris.push(hostPart);
-        if (port) {
-          uris.push(`${hostPart}`);
+          uris.push(`${hostname}:${port}`);
           uris.push(port);
         }
       }
 
+      // Add processed URI (strip protocol and query params for non-regex matches)
+      let uri = u.uri;
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {
-          uri = uri.substr(protocolIndex + 3);
+          uri = uri.substring(protocolIndex + 3);
         }
         const queryIndex = uri.search(/\?|&|#/);
         if (queryIndex > -1) {
@@ -486,6 +501,7 @@ export class SearchService implements SearchServiceAbstraction {
       }
       uris.push(uri);
     });
+
     return uris.length > 0 ? uris : null;
   }
 

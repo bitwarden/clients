@@ -1,15 +1,4 @@
-import { mock, MockProxy } from "jest-mock-extended";
-
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
-
-import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../../platform/enums";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
-import { UserKey, OrgKey } from "../../../types/key";
-import { EncryptService } from "../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 
@@ -75,41 +64,6 @@ describe("EncString", () => {
         const dataBytes = encString.dataBytes;
         expect(dataBytes).not.toBeNull();
         expect(dataBytes.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe("decrypt", () => {
-      const encString = new EncString(EncryptionType.Rsa2048_OaepSha256_B64, "data");
-
-      const keyService = mock<KeyService>();
-      keyService.hasUserKey.mockResolvedValue(true);
-      keyService.getUserKey.mockResolvedValue(
-        new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
-      );
-
-      const encryptService = mock<EncryptService>();
-      encryptService.decryptString
-        .calledWith(encString, expect.anything())
-        .mockResolvedValue("decrypted");
-
-      beforeEach(() => {
-        (window as any).bitwardenContainerService = new ContainerService(
-          keyService,
-          encryptService,
-        );
-      });
-
-      it("decrypts correctly", async () => {
-        const decrypted = await encString.decrypt(null);
-
-        expect(decrypted).toBe("decrypted");
-      });
-
-      it("result should be cached", async () => {
-        const decrypted = await encString.decrypt(null);
-        expect(encryptService.decryptString).toBeCalledTimes(1);
-
-        expect(decrypted).toBe("decrypted");
       });
     });
   });
@@ -246,66 +200,6 @@ describe("EncString", () => {
 
     expect(encString).toEqual({
       encryptedString: null,
-    });
-  });
-
-  describe("decrypt", () => {
-    let keyService: MockProxy<KeyService>;
-    let encryptService: MockProxy<EncryptService>;
-    let encString: EncString;
-
-    beforeEach(() => {
-      keyService = mock<KeyService>();
-      encryptService = mock<EncryptService>();
-      encString = new EncString(null);
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-    });
-
-    it("handles value it can't decrypt", async () => {
-      encryptService.decryptString.mockRejectedValue("error");
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const decrypted = await encString.decrypt(null);
-
-      expect(decrypted).toBe("[error: cannot decrypt]");
-
-      expect(encString).toEqual({
-        decryptedValue: "[error: cannot decrypt]",
-        encryptedString: null,
-      });
-    });
-
-    it("uses provided key without depending on KeyService", async () => {
-      const key = mock<SymmetricCryptoKey>();
-
-      await encString.decrypt(null, key);
-
-      expect(keyService.getUserKey).not.toHaveBeenCalled();
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encString, key);
-    });
-
-    it("gets an organization key if required", async () => {
-      const orgKey = mock<OrgKey>();
-
-      keyService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
-
-      await encString.decrypt("orgId", null);
-
-      expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encString, orgKey);
-    });
-
-    it("gets the user's decryption key if required", async () => {
-      const userKey = mock<UserKey>();
-
-      keyService.getUserKey.mockResolvedValue(userKey);
-
-      await encString.decrypt(null, null);
-
-      expect(keyService.getUserKey).toHaveBeenCalledWith();
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encString, userKey);
     });
   });
 

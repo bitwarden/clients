@@ -6,6 +6,7 @@ use tracing::info;
 
 use crate::password::PASSWORD_NOT_FOUND;
 
+/// Retrieves a password from the Linux Secret Service keyring.
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     match get_password_new(service, account).await {
         Ok(res) => Ok(res),
@@ -51,6 +52,7 @@ async fn get_password_legacy(service: &str, account: &str) -> Result<String> {
     }
 }
 
+/// Stores a password in the Linux Secret Service keyring.
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     let keyring = oo7::Keyring::new().await?;
     let _ = try_prompt(&keyring).await;

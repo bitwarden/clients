@@ -6,7 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
-import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { PopoverTriggerForDirective } from "./popover-trigger-for.directive";
@@ -16,7 +15,7 @@ export default {
   title: "Component Library/Popover",
   decorators: [
     moduleMetadata({
-      imports: [PopoverModule, ButtonModule, IconButtonModule, SharedModule, LinkModule],
+      imports: [PopoverModule, ButtonModule, IconButtonModule, LinkModule],
       providers: [
         {
           provide: I18nService,

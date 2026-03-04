@@ -1,0 +1,34 @@
+<div
+  class="tw-max-w-3xl tw-p-9 tw-border tw-border-solid tw-border-border-base tw-rounded-xl tw-bg-background tw-text-center"
+>
+  <img
+    src="/images/vault/extension-mock-login.png"
+    [alt]="'extensionPromptImageAlt' | i18n"
+    class="tw-mb-[1.875rem]"
+  />
+  <div class="tw-flex tw-flex-col tw-gap-[1.6875rem]">
+    <h2 class="tw-mb-0">
+      {{ "extensionPromptHeading" | i18n }}
+    </h2>
+    <p class="tw-mb-0">
+      {{ "extensionPromptBody" | i18n }}
+    </p>
+    <div class="tw-flex tw-gap-[1.125rem] tw-justify-center">
+      <button bitButton="secondary" type="button" (click)="dismissPrompt()">
+        {{ "skip" | i18n }}
+      </button>
+
+      <a
+        bitButton
+        buttonType="primary"
+        [href]="webStoreUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        (click)="dismissPrompt()"
+      >
+        {{ "downloadExtension" | i18n }}
+        <bit-icon name="bwi-external-link" class="tw-ml-[0.42rem]"></bit-icon>
+      </a>
+    </div>
+  </div>
+</div>

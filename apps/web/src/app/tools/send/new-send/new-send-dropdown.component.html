@@ -1,17 +1,19 @@
 <button bitButton [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
-  <i *ngIf="!hideIcon" class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+  @if (!hideIcon) {
+    <bit-icon name="bwi-plus" class="tw-me-2" slot="start"></bit-icon>
+  }
   {{ (hideIcon ? "createSend" : "new") | i18n }}
 </button>
 <bit-menu #itemOptions>
-  <a bitMenuItem (click)="createSend(sendType.Text)">
-    <i class="bwi bwi-file-text" slot="start" aria-hidden="true"></i>
+  <button type="button" bitMenuItem (click)="createSend(sendType.Text)">
+    <bit-icon name="bwi-file-text" slot="start"></bit-icon>
     {{ "sendTypeText" | i18n }}
-  </a>
-  <a bitMenuItem (click)="createSend(sendType.File)">
-    <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
+  </button>
+  <button type="button" bitMenuItem (click)="createSend(sendType.File)">
+    <bit-icon name="bwi-file" slot="start"></bit-icon>
     <div class="tw-flex tw-items-center tw-gap-2">
       {{ "sendTypeFile" | i18n }}
       <app-premium-badge></app-premium-badge>
     </div>
-  </a>
+  </button>
 </bit-menu>

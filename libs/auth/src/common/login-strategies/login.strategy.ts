@@ -25,7 +25,6 @@ import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -33,7 +32,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
@@ -265,7 +263,7 @@ export abstract class LoginStrategy {
 
     await this.setMasterKey(response, userId);
     await this.setUserKey(response, userId);
-    await this.setPrivateKey(response, userId);
+    await this.setAccountCryptographicState(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -283,7 +281,10 @@ export abstract class LoginStrategy {
 
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  protected abstract setAccountCryptographicState(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void>;
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins
@@ -313,28 +314,6 @@ export abstract class LoginStrategy {
     );
 
     return true;
-  }
-
-  protected async createKeyPairForOldAccount(userId: UserId) {
-    try {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      if (userKey === null) {
-        throw new Error("User key is null when creating key pair for old account");
-      }
-
-      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
-        throw new Error("Cannot create key pair for account on V2 encryption");
-      }
-
-      const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
-      if (!privateKey.encryptedString) {
-        throw new Error("Failed to create encrypted private key");
-      }
-      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
-      return privateKey.encryptedString;
-    } catch (e) {
-      this.logService.error(e);
-    }
   }
 
   /**

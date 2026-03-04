@@ -11,8 +11,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -84,30 +82,17 @@ export class SendV2Component implements OnDestroy {
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
-  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.VaultLoadingSkeletons,
-  );
   protected sendsLoading$ = this.sendItemsService.loading$.pipe(
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  /** Spinner Loading State */
-  protected showSpinnerLoaders$ = combineLatest([
-    this.sendsLoading$,
-    this.skeletonFeatureFlag$,
-  ]).pipe(map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled));
-
   /** Skeleton Loading State */
   protected showSkeletonsLoaders$ = combineLatest([
     this.sendsLoading$,
     this.searchService.isSendSearching$,
-    this.skeletonFeatureFlag$,
   ]).pipe(
-    map(
-      ([loading, cipherSearching, skeletonsEnabled]) =>
-        (loading || cipherSearching) && skeletonsEnabled,
-    ),
+    map(([loading, cipherSearching]) => loading || cipherSearching),
     distinctUntilChanged(),
     skeletonLoadingDelay(),
   );
@@ -128,7 +113,6 @@ export class SendV2Component implements OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
-    private configService: ConfigService,
     private searchService: SearchService,
   ) {
     combineLatest([

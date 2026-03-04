@@ -1,0 +1,40 @@
+<td bitCell [ngClass]="RowHeightClass">
+  <div class="tw-flex tw-gap-3">
+    <div aria-hidden="true">
+      <i
+        [class]="[
+          'bwi',
+          'bwi-fw',
+          'bwi-lg',
+          collection().type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared',
+        ]"
+      ></i>
+    </div>
+    <button
+      bitLink
+      [disabled]="disabled()"
+      type="button"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      linkType="secondary"
+      title="{{ 'viewCollectionWithName' | i18n: collection().name }}"
+      [routerLink]="[]"
+      [queryParams]="{ collectionId: collection().id }"
+      queryParamsHandling="merge"
+      appStopProp
+    >
+      <span class="tw-truncate tw-mr-1">{{ collection().name }}</span>
+    </button>
+  </div>
+</td>
+@if (showOwner()) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @md:tw-table-cell">
+    <app-org-badge
+      [disabled]="disabled()"
+      [organizationId]="collection().organizationId"
+      [organizationName]="collection().organizationId | orgNameFromId: organizations()"
+      appStopProp
+    >
+    </app-org-badge>
+  </td>
+}
+<td bitCell [ngClass]="RowHeightClass" class="tw-text-right"></td>

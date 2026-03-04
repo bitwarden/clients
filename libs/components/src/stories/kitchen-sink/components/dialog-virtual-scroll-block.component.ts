@@ -11,7 +11,6 @@ import { TableDataSource, TableModule } from "../../../table";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dialog-virtual-scroll-block",
-  standalone: true,
   imports: [
     DialogModule,
     IconButtonModule,

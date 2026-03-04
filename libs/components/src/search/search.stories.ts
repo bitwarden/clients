@@ -5,7 +5,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { InputModule } from "../input/input.module";
-import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SearchComponent } from "./search.component";
@@ -15,7 +14,7 @@ export default {
   component: SearchComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, InputModule, FormsModule, ReactiveFormsModule],
+      imports: [InputModule, FormsModule, ReactiveFormsModule],
       providers: [
         {
           provide: I18nService,

@@ -10,6 +10,7 @@ import {
   DialogService,
   ButtonModule,
   DialogModule,
+  IconModule,
   LinkModule,
   TypographyModule,
   CenterPositionStrategy,
@@ -35,7 +36,7 @@ export type LeaveConfirmationDialogResultType = UnionOfValues<typeof LeaveConfir
 @Component({
   templateUrl: "./leave-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, LinkModule, TypographyModule, JslibModule],
+  imports: [ButtonModule, DialogModule, IconModule, LinkModule, TypographyModule, JslibModule],
 })
 export class LeaveConfirmationDialogComponent {
   private readonly params = inject<LeaveConfirmationDialogParams>(DIALOG_DATA);

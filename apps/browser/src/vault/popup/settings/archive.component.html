@@ -74,9 +74,11 @@
                   <button type="button" bitMenuItem (click)="edit(cipher)">
                     {{ "edit" | i18n }}
                   </button>
-                  <button type="button" bitMenuItem (click)="clone(cipher)">
-                    {{ "clone" | i18n }}
-                  </button>
+                  @if (userHasPremium$ | async) {
+                    <button type="button" bitMenuItem (click)="clone(cipher)">
+                      {{ "clone" | i18n }}
+                    </button>
+                  }
                   @if (canAssignCollections$ | async) {
                     <button
                       type="button"

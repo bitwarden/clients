@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { LogService } from "@bitwarden/logging";
+
 import { BrowserApi } from "./browser-api";
 
 type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
@@ -26,6 +28,104 @@ describe("BrowserApi", () => {
       const result = BrowserApi.isManifestVersion(2);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("senderIsInternal", () => {
+    const EXTENSION_ORIGIN = "chrome-extension://id";
+
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue(`${EXTENSION_ORIGIN}/`);
+    });
+
+    it("returns false when sender is undefined", () => {
+      const result = BrowserApi.senderIsInternal(undefined);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when sender has no origin", () => {
+      const result = BrowserApi.senderIsInternal({ id: "abc" } as any);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when the extension URL cannot be determined", () => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue("");
+
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN });
+
+      expect(result).toBe(false);
+    });
+
+    it.each([
+      ["an external origin", "https://evil.com"],
+      ["a subdomain of the extension origin", "chrome-extension://id.evil.com"],
+      ["a file: URL (opaque origin)", "file:///home/user/page.html"],
+      ["a data: URL (opaque origin)", "data:text/html,<h1>hi</h1>"],
+    ])("returns false when sender origin is %s", (_, senderOrigin) => {
+      const result = BrowserApi.senderIsInternal({ origin: senderOrigin });
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when sender is from a non-top-level frame", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 });
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when sender origin matches and no frameId is present (popup)", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN });
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when sender origin matches and frameId is 0 (top-level frame)", () => {
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 0 });
+
+      expect(result).toBe(true);
+    });
+
+    it("calls logger.warning when sender has no origin", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({} as any, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("no origin"));
+    });
+
+    it("calls logger.warning when the extension URL cannot be determined", () => {
+      jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue("");
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("extension URL"));
+    });
+
+    it("calls logger.warning when origin does not match", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: "https://evil.com" }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("does not match"));
+    });
+
+    it("calls logger.warning when sender is from a non-top-level frame", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 }, logger);
+
+      expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("top-level frame"));
+    });
+
+    it("calls logger.info when sender is confirmed internal", () => {
+      const logger = mock<LogService>();
+
+      BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN }, logger);
+
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("internal"));
     });
   });
 

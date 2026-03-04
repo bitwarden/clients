@@ -3,6 +3,7 @@
 @let showConfirmBanner = showConfirmBanner$ | async;
 @let dataSource = this.dataSource();
 @let isProcessing = this.isProcessing();
+@let isSingleInvite = isSingleInvite$ | async;
 
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
@@ -92,7 +93,7 @@
                     (click)="isProcessing ? null : bulkReinvite(providerId)"
                   >
                     <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                    {{ "reinviteSelected" | i18n }}
+                    {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
                   </button>
                 }
                 @if (bulkMenuOptions.showBulkConfirmUsers) {

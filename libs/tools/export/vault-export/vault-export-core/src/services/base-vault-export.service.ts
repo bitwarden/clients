@@ -59,6 +59,7 @@ export class BaseVaultExportService {
     cipher.notes = c.notes;
     cipher.fields = null;
     cipher.reprompt = c.reprompt;
+    cipher.archivedDate = c.archivedDate ? c.archivedDate.toISOString() : null;
     // Login props
     cipher.login_uri = null;
     cipher.login_username = null;

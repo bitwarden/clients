@@ -4,96 +4,124 @@
   <ul aria-labelledby="attachments" class="tw-list-none tw-pl-0">
     @for (attachment of attachments; track attachment.id) {
       <li>
-        <bit-item>
-          <bit-item-content>
-            <span data-testid="file-name" [title]="attachment.fileName">{{
-              attachment.fileName
-            }}</span>
-            <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
-            <i
-              *ngIf="attachment.key == null"
-              slot="default-trailing"
-              class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
-              [appA11yTitle]="'fixEncryptionTooltip' | i18n"
-            ></i>
-          </bit-item-content>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              @if (attachment.key != null) {
-                <app-download-attachment
-                  [admin]="admin() && organization()?.canEditAllCiphers"
-                  [cipher]="cipher()"
-                  [attachment]="attachment"
-                ></app-download-attachment>
-              } @else {
-                <button
-                  [bitAction]="fixOldAttachment(attachment)"
-                  bitButton
-                  buttonType="primary"
-                  size="small"
-                  type="button"
-                >
-                  {{ "fixEncryption" | i18n }}
-                </button>
+        @if (!attachment.hasDecryptionError) {
+          <bit-item>
+            <bit-item-content>
+              <span data-testid="file-name" [title]="attachment.fileName">
+                {{ attachment.fileName }}
+              </span>
+              <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+              @if (attachment.key == null) {
+                <i
+                  slot="default-trailing"
+                  class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
+                  [appA11yTitle]="'fixEncryptionTooltip' | i18n"
+                ></i>
               }
-            </bit-item-action>
-            <bit-item-action>
-              <app-delete-attachment
-                [admin]="admin() && organization()?.canEditAllCiphers"
-                [cipherId]="cipher().id"
-                [attachment]="attachment"
-                (onDeletionSuccess)="removeAttachment(attachment)"
-              ></app-delete-attachment>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
+            </bit-item-content>
+
+            <ng-container slot="end">
+              <bit-item-action>
+                @if (attachment.key != null) {
+                  <app-download-attachment
+                    [admin]="admin() && organization()?.canEditAllCiphers"
+                    [cipher]="cipher()"
+                    [attachment]="attachment"
+                  ></app-download-attachment>
+                } @else {
+                  <button
+                    [bitAction]="fixOldAttachment(attachment)"
+                    bitButton
+                    buttonType="primary"
+                    size="small"
+                    type="button"
+                  >
+                    {{ "fixEncryption" | i18n }}
+                  </button>
+                }
+              </bit-item-action>
+              @if (cipher().edit) {
+                <bit-item-action>
+                  <app-delete-attachment
+                    [admin]="admin() && organization()?.canEditAllCiphers"
+                    [cipherId]="cipher().id"
+                    [attachment]="attachment"
+                    (onDeletionSuccess)="removeAttachment(attachment)"
+                  ></app-delete-attachment>
+                </bit-item-action>
+              }
+            </ng-container>
+          </bit-item>
+        } @else {
+          <bit-item>
+            <bit-item-content>
+              <span data-testid="file-name" [title]="'errorCannotDecrypt' | i18n">
+                {{ "errorCannotDecrypt" | i18n }}
+              </span>
+            </bit-item-content>
+
+            <ng-container slot="end">
+              @if (cipher().edit) {
+                <bit-item-action>
+                  <app-delete-attachment
+                    [admin]="admin() && organization()?.canEditAllCiphers"
+                    [cipherId]="cipher().id"
+                    [attachment]="attachment"
+                    (onDeletionSuccess)="removeAttachment(attachment)"
+                  ></app-delete-attachment>
+                </bit-item-action>
+              }
+            </ng-container>
+          </bit-item>
+        }
       </li>
     }
   </ul>
 }
 
 <form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
-  <bit-card>
-    <label for="file" bitTypography="body2" class="tw-block tw-text-muted tw-px-1 tw-pb-1.5">
-      {{ "addAttachment" | i18n }}
-    </label>
-    <div class="tw-relative">
-      <!-- Input elements are notoriously difficult to style, --->
-      <!-- The native `<input>` will be used for screen readers -->
-      <!-- Visual & keyboard users will interact with the styled button element -->
-      <input
-        #fileInput
-        class="tw-sr-only"
-        type="file"
-        id="file"
-        name="file"
-        aria-describedby="fileHelp"
-        tabindex="-1"
-        required
-        (change)="onFileChange($event)"
-      />
-      <div class="tw-flex tw-gap-2 tw-items-center" aria-hidden="true">
-        <button
-          bitButton
-          buttonType="secondary"
-          type="button"
-          (click)="fileInput.click()"
-          class="tw-whitespace-nowrap"
-        >
-          {{ "chooseFile" | i18n }}
-        </button>
-        <p bitTypography="body2" class="tw-text-muted tw-mb-0">
-          {{
-            this.attachmentForm.controls.file?.value
-              ? this.attachmentForm.controls.file.value.name
-              : ("noFileChosen" | i18n)
-          }}
-        </p>
+  @if (cipher()?.edit) {
+    <bit-card>
+      <label for="file" bitTypography="body2" class="tw-block tw-text-muted tw-px-1 tw-pb-1.5">
+        {{ "addAttachment" | i18n }}
+      </label>
+      <div class="tw-relative">
+        <!-- Input elements are notoriously difficult to style, --->
+        <!-- The native `<input>` will be used for screen readers -->
+        <!-- Visual & keyboard users will interact with the styled button element -->
+        <input
+          #fileInput
+          class="tw-sr-only"
+          type="file"
+          id="file"
+          name="file"
+          aria-describedby="fileHelp"
+          tabindex="-1"
+          required
+          (change)="onFileChange($event)"
+        />
+        <div class="tw-flex tw-gap-2 tw-items-center" aria-hidden="true">
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            (click)="fileInput.click()"
+            class="tw-whitespace-nowrap"
+          >
+            {{ "chooseFile" | i18n }}
+          </button>
+          <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+            {{
+              this.attachmentForm.controls.file?.value
+                ? this.attachmentForm.controls.file.value.name
+                : ("noFileChosen" | i18n)
+            }}
+          </p>
+        </div>
       </div>
-    </div>
-    <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
-      {{ "maxFileSizeSansPunctuation" | i18n }}
-    </p>
-  </bit-card>
+      <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
+        {{ "maxFileSizeSansPunctuation" | i18n }}
+      </p>
+    </bit-card>
+  }
 </form>

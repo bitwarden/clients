@@ -99,9 +99,6 @@ export class ArchiveCommand {
           errorMessage: "Item is in the trash, the item must be restored before archiving.",
         };
       }
-      case cipher.organizationId != null: {
-        return { canArchive: false, errorMessage: "Cannot archive items in an organization." };
-      }
       default:
         return { canArchive: true };
     }

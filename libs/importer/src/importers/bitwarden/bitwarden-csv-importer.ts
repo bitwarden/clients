@@ -51,6 +51,15 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
         cipher.reprompt = CipherRepromptType.None;
       }
 
+      if (!this.isNullOrWhitespace(value.archivedDate)) {
+        try {
+          cipher.archivedDate = new Date(value.archivedDate);
+        } catch (e) {
+          // eslint-disable-next-line
+          console.error("Unable to parse archivedDate value", e);
+        }
+      }
+
       if (!this.isNullOrWhitespace(value.fields)) {
         const fields = this.splitNewLine(value.fields);
         for (let i = 0; i < fields.length; i++) {

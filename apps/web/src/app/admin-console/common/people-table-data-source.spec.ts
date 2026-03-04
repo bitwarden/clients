@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { ReplaySubject } from "rxjs";
 
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -46,23 +45,16 @@ describe("PeopleTableDataSource", () => {
       isCloud: () => false,
     } as Environment);
 
-    const mockConfigService = {
-      getFeatureFlag$: jest.fn(() => featureFlagSubject.asObservable()),
-    } as any;
-
     const mockEnvironmentService = {
       environment$: environmentSubject.asObservable(),
     } as any;
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: ConfigService, useValue: mockConfigService },
-        { provide: EnvironmentService, useValue: mockEnvironmentService },
-      ],
+      providers: [{ provide: EnvironmentService, useValue: mockEnvironmentService }],
     });
 
     dataSource = TestBed.runInInjectionContext(
-      () => new TestPeopleTableDataSource(mockConfigService, mockEnvironmentService),
+      () => new TestPeopleTableDataSource(mockEnvironmentService),
     );
   });
 

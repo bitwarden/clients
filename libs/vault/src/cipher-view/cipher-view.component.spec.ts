@@ -8,7 +8,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -42,11 +41,9 @@ describe("CipherViewComponent", () => {
   let mockLogService: LogService;
   let mockCipherRiskService: CipherRiskService;
   let mockBillingAccountProfileStateService: BillingAccountProfileStateService;
-  let mockConfigService: ConfigService;
 
   // Mock data
   let mockCipherView: CipherView;
-  let featureFlagEnabled$: BehaviorSubject<boolean>;
   let hasPremiumFromAnySource$: BehaviorSubject<boolean>;
   let activeAccount$: BehaviorSubject<Account>;
 
@@ -57,7 +54,6 @@ describe("CipherViewComponent", () => {
       email: "test@example.com",
     } as Account);
 
-    featureFlagEnabled$ = new BehaviorSubject(false);
     hasPremiumFromAnySource$ = new BehaviorSubject(true);
 
     // Create service mocks
@@ -83,9 +79,6 @@ describe("CipherViewComponent", () => {
       .fn()
       .mockReturnValue(hasPremiumFromAnySource$);
 
-    mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(featureFlagEnabled$);
-
     // Setup mock cipher view
     mockCipherView = new CipherView();
     mockCipherView.id = "cipher-id";
@@ -110,7 +103,6 @@ describe("CipherViewComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -145,7 +137,6 @@ describe("CipherViewComponent", () => {
 
     beforeEach(() => {
       // Reset observables to default values for this test suite
-      featureFlagEnabled$.next(true);
       hasPremiumFromAnySource$.next(true);
 
       // Setup default mock for computeCipherRiskForUser (individual tests can override)
@@ -161,18 +152,6 @@ describe("CipherViewComponent", () => {
       fixture = TestBed.createComponent(CipherViewComponent);
       component = fixture.componentInstance;
     });
-
-    it("returns false when feature flag is disabled", fakeAsync(() => {
-      featureFlagEnabled$.next(false);
-
-      const cipher = createLoginCipherView();
-      fixture.componentRef.setInput("cipher", cipher);
-      fixture.detectChanges();
-      tick();
-
-      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
-      expect(component.passwordIsAtRisk()).toBe(false);
-    }));
 
     it("returns false when cipher has no login password", fakeAsync(() => {
       const cipher = createLoginCipherView();

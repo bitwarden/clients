@@ -1,8 +1,9 @@
-// this svg includes the Yubico logo, which contains colors not part of our bitwarden theme colors
 /* eslint-disable @bitwarden/components/require-theme-colors-in-svg */
-import { svgIcon } from "../icon-service";
+// this svg includes the Yubico logo, which contains colors not part of our bitwarden theme colors
 
-export const TwoFactorAuthYubicoIcon = svgIcon`
+import { svg } from "../svg";
+
+export const TwoFactorAuthYubicoIcon = svg`
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 121 33">
     <g fill="#84BD00" clip-path="url(#two-factor-auth-yubico-clip)">
         <path

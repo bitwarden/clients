@@ -21,11 +21,7 @@ export abstract class BillingApiServiceAbstraction {
     organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse>;
 
-  abstract getOrganizationBillingMetadataVNext(
-    organizationId: OrganizationId,
-  ): Promise<OrganizationBillingMetadataResponse>;
-
-  abstract getOrganizationBillingMetadataVNextSelfHost(
+  abstract getOrganizationBillingMetadataSelfHost(
     organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse>;
 

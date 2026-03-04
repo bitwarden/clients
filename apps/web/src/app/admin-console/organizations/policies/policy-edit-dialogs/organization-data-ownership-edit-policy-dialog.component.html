@@ -38,10 +38,6 @@
   {{ policy.name | i18n }}
 </ng-template>
 
-<ng-template #step1Title>
-  {{ "centralizeDataOwnershipWarningTitle" | i18n }}
-</ng-template>
-
 <ng-template #step0>
   <button
     bitButton
@@ -50,22 +46,9 @@
     bitFormButton
     type="submit"
   >
-    @if (policyComponent?.policyResponse?.enabled) {
-      {{ "save" | i18n }}
-    } @else {
-      {{ "continue" | i18n }}
-    }
+    {{ "save" | i18n }}
   </button>
 
-  <button bitButton buttonType="secondary" bitDialogClose type="button">
-    {{ "cancel" | i18n }}
-  </button>
-</ng-template>
-
-<ng-template #step1>
-  <button bitButton buttonType="primary" bitFormButton type="submit">
-    {{ "continue" | i18n }}
-  </button>
   <button bitButton buttonType="secondary" bitDialogClose type="button">
     {{ "cancel" | i18n }}
   </button>

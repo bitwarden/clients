@@ -18,6 +18,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
   ButtonModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   ToastService,
@@ -27,6 +28,7 @@ import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
+import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
 
@@ -41,6 +43,8 @@ describe("MasterPasswordLockComponent", () => {
   const logService = mock<LogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const messageListener = mock<MessageListener>();
+  const webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+  const dialogService = mock<DialogService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -64,6 +68,7 @@ describe("MasterPasswordLockComponent", () => {
         enabled: false,
         biometricsStatus: BiometricsStatus.NotEnabledLocally,
       },
+      prf: { enabled: false },
     };
 
     accountService.activeAccount$ = of(account);
@@ -110,6 +115,8 @@ describe("MasterPasswordLockComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: MessageListener, useValue: messageListener },
+        { provide: WebAuthnPrfUnlockService, useValue: webAuthnPrfUnlockService },
+        { provide: DialogService, useValue: dialogService },
       ],
     }).compileComponents();
 

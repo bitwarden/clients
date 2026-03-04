@@ -3,7 +3,7 @@ import { lastValueFrom, map, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
+import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -15,12 +15,9 @@ import { EncString } from "@bitwarden/sdk-internal";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export interface VNextPolicyRequest {
-  policy: PolicyRequest;
-  metadata: {
-    defaultUserCollectionName: string;
-  };
-}
+type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
+  defaultUserCollectionName: string;
+}>;
 
 export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
@@ -69,14 +66,16 @@ export class OrganizationDataOwnershipPolicyComponent
     return true;
   }
 
-  async buildVNextRequest(orgKey: OrgKey): Promise<VNextPolicyRequest> {
+  async buildVNextRequest(
+    orgKey: OrgKey,
+  ): Promise<VNextSaveOrganizationDataOwnershipPolicyRequest> {
     if (!this.policy) {
       throw new Error("Policy was not found");
     }
 
     const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
-    const request: VNextPolicyRequest = {
+    const request: VNextSaveOrganizationDataOwnershipPolicyRequest = {
       policy: {
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),

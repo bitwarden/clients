@@ -3,6 +3,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
@@ -36,6 +37,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -131,6 +133,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     policyService = mock<InternalPolicyService>();
 
+    autoConfirmService = mock<AutomaticUserConfirmationService>();
+
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
       syncService,
@@ -145,6 +149,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      autoConfirmService,
     );
   });
 

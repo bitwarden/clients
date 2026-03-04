@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CreditCardNumberPipe } from "@bitwarden/angular/pipes/credit-card-number.pipe";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,6 +31,7 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     FormFieldModule,
     IconButtonModule,
     ReadOnlyCipherCardComponent,
+    CreditCardNumberPipe,
   ],
 })
 export class CardDetailsComponent implements OnChanges {

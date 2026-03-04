@@ -15,7 +15,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     @IBOutlet weak var logoImageView: NSImageView!
     
     // The IPC client to communicate with the Bitwarden desktop app
-    private var client: MacOsProviderClient?
+    private var client: AutofillProviderClient?
     
     // Timer for checking connection status
     private var connectionMonitorTimer: Timer?
@@ -25,11 +25,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     // This is so that we can check if the app is running, and launch it, without blocking the main thread
     // Blocking the main thread caused MacOS layouting to 'fail' or at least be very delayed, which caused our getWindowPositioning code to sent 0,0.
     // We also properly retry the IPC connection which sometimes would take some time to be up and running, depending on CPU load, phase of jupiters moon, etc.
-    private func getClient() async -> MacOsProviderClient {
+    private func getClient() async -> AutofillProviderClient {
         if let client = self.client {
             return client
         }
         
+        initializeLogging()
         let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
         // Check if the Electron app is running
@@ -61,13 +62,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         // Retry connecting to the Bitwarden IPC with an increasing delay
         let maxRetries = 20
         let delayMs = 500
-        var newClient: MacOsProviderClient?
+        var newClient: AutofillProviderClient?
         
         for attempt in 1...maxRetries {
             logger.log("[autofill-extension] Connection attempt \(attempt)")
             
             // Create a new client instance for each retry
-            newClient = MacOsProviderClient.connect()
+            newClient = AutofillProviderClient.connect()
             try? await Task.sleep(nanoseconds: UInt64(100 * attempt + (delayMs * 1_000_000))) // Convert ms to nanoseconds
             let connectionStatus = newClient!.getConnectionStatus()
             
@@ -129,7 +130,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             
             // If we just disconnected, try to cancel the request
             if currentStatus == .disconnected {
-                self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Bitwarden desktop app disconnected"))
+                self.extensionContext.cancelRequest(withError: BitwardenError.Disconnected)
             }
         }
     }

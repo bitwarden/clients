@@ -4,7 +4,7 @@ import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,6 +55,11 @@ export class WindowMain {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
+      if (isDev()) {
+        this.logService.info("Process reload requested, but skipping in development mode");
+        return;
+      }
+
       this.logService.info("Reloading render process");
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
@@ -122,7 +127,6 @@ export class WindowMain {
         if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
-            dialog.showErrorBox("Error", "An instance of Bitwarden Desktop is already running.");
             app.quit();
             return;
           } else {

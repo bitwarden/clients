@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { IconModule } from "../icon";
-import { SharedModule } from "../shared";
+import { SvgModule } from "../svg";
 
 /**
  * Header component for landing pages with optional Bitwarden logo and header actions slot.
@@ -34,7 +34,7 @@ import { SharedModule } from "../shared";
   selector: "bit-landing-header",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-header.component.html",
-  imports: [RouterModule, IconModule, SharedModule],
+  imports: [I18nPipe, RouterModule, SvgModule],
 })
 export class LandingHeaderComponent {
   readonly hideLogo = input<boolean>(false);

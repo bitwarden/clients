@@ -1,6 +1,6 @@
 <ng-container>
   <div class="tw-size-[70px] tw-content-center" *ngIf="!!IconProviderMap[provider]">
-    <bit-icon [icon]="IconProviderMap[provider]"></bit-icon>
+    <bit-svg [content]="IconProviderMap[provider]"></bit-svg>
   </div>
   <!-- Other 2FA Types (Duo, Yubico, U2F as PNG) -->
   <img

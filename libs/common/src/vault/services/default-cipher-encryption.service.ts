@@ -2,12 +2,7 @@ import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
 import { UserKey } from "@bitwarden/common/types/key";
 import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
-import {
-  CipherListView,
-  BitwardenClient,
-  CipherView as SdkCipherView,
-  DecryptCipherListResult,
-} from "@bitwarden/sdk-internal";
+import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
@@ -34,7 +29,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           }
 
           using ref = sdk.take();
-          const sdkCipherView = this.toSdkCipherView(model, ref.value);
+          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
           const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
 
@@ -65,21 +60,14 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           using ref = sdk.take();
 
-          const results: EncryptionContext[] = [];
-
-          // TODO: https://bitwarden.atlassian.net/browse/PM-30580
-          // Replace this loop with a native SDK encryptMany method for better performance.
-          for (const model of models) {
-            const sdkCipherView = this.toSdkCipherView(model, ref.value);
-            const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
-
-            results.push({
+          return ref.value
+            .vault()
+            .ciphers()
+            .encrypt_list(models.map((model) => model.toSdkCipherView(ref.value.vault().ciphers())))
+            .map((encryptionContext) => ({
               cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
               encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
-            });
-          }
-
-          return results;
+            }));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
@@ -102,7 +90,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           }
 
           using ref = sdk.take();
-          const sdkCipherView = this.toSdkCipherView(model, ref.value);
+          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
           const movedCipherView = ref.value
             .vault()
@@ -137,7 +125,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           }
 
           using ref = sdk.take();
-          const sdkCipherView = this.toSdkCipherView(model, ref.value);
+          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
           const encryptionContext = ref.value
             .vault()
@@ -337,26 +325,5 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         }),
       ),
     );
-  }
-
-  /**
-   * Helper method to convert a CipherView model to an SDK CipherView. Has special handling for Fido2 credentials
-   * that need to be encrypted before being sent to the SDK.
-   * @param model The CipherView model to convert
-   * @param sdk An instance of SDK client
-   * @private
-   */
-  private toSdkCipherView(model: CipherView, sdk: BitwardenClient): SdkCipherView {
-    let sdkCipherView = model.toSdkCipherView();
-
-    if (model.type === CipherType.Login && model.login?.hasFido2Credentials) {
-      // Encrypt Fido2 credentials separately
-      const fido2Credentials = model.login.fido2Credentials?.map((f) =>
-        f.toSdkFido2CredentialFullView(),
-      );
-      sdkCipherView = sdk.vault().ciphers().set_fido2_credentials(sdkCipherView, fido2Credentials);
-    }
-
-    return sdkCipherView;
   }
 }

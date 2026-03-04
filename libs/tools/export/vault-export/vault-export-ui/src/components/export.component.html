@@ -34,9 +34,11 @@
 
   <bit-form-field>
     <bit-label>{{ "fileFormat" | i18n }}</bit-label>
-    <bit-select formControlName="format">
-      <bit-option *ngFor="let f of formatOptions$ | async" [value]="f.format" [label]="f.name" />
-    </bit-select>
+    <select bitInput formControlName="format">
+      @for (f of formatOptions$ | async; track f.format) {
+        <option [value]="f.format">{{ f.name }}</option>
+      }
+    </select>
   </bit-form-field>
 
   <ng-container *ngIf="format === 'encrypted_json'">

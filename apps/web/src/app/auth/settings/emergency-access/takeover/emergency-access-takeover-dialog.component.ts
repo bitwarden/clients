@@ -21,6 +21,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -59,6 +60,7 @@ export type EmergencyAccessTakeoverDialogResultType =
     CommonModule,
     DialogModule,
     I18nPipe,
+    IconModule,
     InputPasswordComponent,
   ],
 })

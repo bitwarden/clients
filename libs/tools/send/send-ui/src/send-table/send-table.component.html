@@ -15,14 +15,31 @@
           <div class="tw-flex tw-gap-2 tw-items-center">
             <span aria-hidden="true">
               @if (s.type == sendType.File) {
-                <i class="bwi bwi-fw bwi-lg bwi-file"></i>
+                <i class="bwi bwi-fw bwi-lg bwi-file tw-text-muted"></i>
               }
               @if (s.type == sendType.Text) {
-                <i class="bwi bwi-fw bwi-lg bwi-file-text"></i>
+                <i class="bwi bwi-fw bwi-lg bwi-file-text tw-text-muted"></i>
               }
             </span>
             <button type="button" bitLink>
               {{ s.name }}
+              @if (s.disabled) {
+                <span class="tw-sr-only">, {{ "disabled" | i18n }}</span>
+              }
+              @if (s.authType !== authType.None) {
+                @let titleKey =
+                  s.authType === authType.Email ? "emailProtected" : "passwordProtected";
+                <span class="tw-sr-only">, {{ titleKey | i18n }}</span>
+              }
+              @if (s.maxAccessCountReached) {
+                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
+              }
+              @if (s.expired) {
+                <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+              }
+              @if (s.pendingDelete) {
+                <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
+              }
             </button>
             @if (s.disabled) {
               <i
@@ -31,7 +48,6 @@
                 title="{{ 'disabled' | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
             }
             @if (s.authType !== authType.None) {
               @let titleKey =
@@ -42,7 +58,6 @@
                 title="{{ titleKey | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ titleKey | i18n }}</span>
             }
             @if (s.maxAccessCountReached) {
               <i
@@ -51,7 +66,6 @@
                 title="{{ 'maxAccessCountReached' | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
             }
             @if (s.expired) {
               <i
@@ -60,7 +74,6 @@
                 title="{{ 'expired' | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ "expired" | i18n }}</span>
             }
             @if (s.pendingDelete) {
               <i
@@ -69,7 +82,6 @@
                 title="{{ 'pendingDeletion' | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
             }
           </div>
         </td>
@@ -85,6 +97,7 @@
         <td bitCell class="tw-w-0 tw-text-right">
           <button
             type="button"
+            size="small"
             [bitMenuTriggerFor]="sendOptions"
             bitIconButton="bwi-ellipsis-v"
             label="{{ 'options' | i18n }}"

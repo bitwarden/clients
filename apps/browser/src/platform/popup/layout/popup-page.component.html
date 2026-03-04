@@ -40,7 +40,7 @@
     class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-text-main"
     [ngClass]="{ 'tw-invisible': !loading() }"
   >
-    <i class="bwi bwi-spinner bwi-lg bwi-spin" [attr.aria-label]="loadingText()"></i>
+    <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" [ariaLabel]="loadingText()"></bit-icon>
   </span>
 </main>
 <ng-content select="[slot=footer]"></ng-content>

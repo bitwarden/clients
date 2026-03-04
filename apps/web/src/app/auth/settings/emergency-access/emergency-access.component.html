@@ -30,7 +30,7 @@
           [bitAction]="invite"
           [disabled]="!(canAccessPremium$ | async)"
         >
-          <i aria-hidden="true" class="bwi bwi-plus bwi-fw"></i>
+          <bit-icon name="bwi-plus" class="bwi-fw"></bit-icon>
           {{ "addEmergencyContact" | i18n }}
         </button>
       </div>
@@ -100,7 +100,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.Invited"
                 (click)="reinvite(c)"
               >
-                <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                <bit-icon name="bwi-envelope" class="bwi-fw"></bit-icon>
                 {{ "resendInvitation" | i18n }}
               </button>
               <button
@@ -109,7 +109,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.Accepted"
                 (click)="confirm(c)"
               >
-                <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                <bit-icon name="bwi-check" class="bwi-fw"></bit-icon>
                 {{ "confirm" | i18n }}
               </button>
               <button
@@ -118,7 +118,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.RecoveryInitiated"
                 (click)="approve(c)"
               >
-                <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                <bit-icon name="bwi-check" class="bwi-fw"></bit-icon>
                 {{ "approve" | i18n }}
               </button>
               <button
@@ -130,11 +130,11 @@
                 "
                 (click)="reject(c)"
               >
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                <bit-icon name="bwi-close" class="bwi-fw"></bit-icon>
                 {{ "reject" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="remove(c)">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                <bit-icon name="bwi-close" class="bwi-fw"></bit-icon>
                 {{ "remove" | i18n }}
               </button>
             </bit-menu>
@@ -145,12 +145,11 @@
     <ng-container *ngIf="!trustedContacts || !trustedContacts.length">
       <p bitTypography="body1" class="tw-mt-2" *ngIf="loaded">{{ "noTrustedContacts" | i18n }}</p>
       <ng-container *ngIf="!loaded">
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin tw-text-muted"
+          [ariaLabel]="'loading' | i18n"
+        ></bit-icon>
       </ng-container>
     </ng-container>
   </bit-section>
@@ -223,7 +222,7 @@
                 *ngIf="c.status === emergencyAccessStatusType.Confirmed"
                 (click)="requestAccess(c)"
               >
-                <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                <bit-icon name="bwi-envelope" class="bwi-fw"></bit-icon>
                 {{ "requestAccess" | i18n }}
               </button>
               <button
@@ -235,7 +234,7 @@
                 "
                 (click)="takeover(c)"
               >
-                <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>
+                <bit-icon name="bwi-key" class="bwi-fw"></bit-icon>
                 {{ "takeover" | i18n }}
               </button>
               <button
@@ -247,11 +246,11 @@
                 "
                 [routerLink]="c.id"
               >
-                <i class="bwi bwi-fw bwi-eye" aria-hidden="true"></i>
+                <bit-icon name="bwi-eye" class="bwi-fw"></bit-icon>
                 {{ "view" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="remove(c)">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                <bit-icon name="bwi-close" class="bwi-fw"></bit-icon>
                 {{ "remove" | i18n }}
               </button>
             </bit-menu>
@@ -262,12 +261,11 @@
     <ng-container *ngIf="!grantedContacts || !grantedContacts.length">
       <p bitTypography="body1" *ngIf="loaded">{{ "noGrantedAccess" | i18n }}</p>
       <ng-container *ngIf="!loaded">
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin tw-text-muted"
+          [ariaLabel]="'loading' | i18n"
+        ></bit-icon>
       </ng-container>
     </ng-container>
   </bit-section>

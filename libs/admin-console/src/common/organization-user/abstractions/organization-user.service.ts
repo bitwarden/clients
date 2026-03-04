@@ -42,4 +42,11 @@ export abstract class OrganizationUserService {
     organization: Organization,
     userIdsWithKeys: { id: string; key: string }[],
   ): Observable<ListResponse<OrganizationUserBulkResponse>>;
+
+  abstract restoreUser(organization: Organization, userId: string): Observable<void>;
+
+  abstract bulkRestoreUsers(
+    organization: Organization,
+    userIds: string[],
+  ): Observable<ListResponse<OrganizationUserBulkResponse>>;
 }

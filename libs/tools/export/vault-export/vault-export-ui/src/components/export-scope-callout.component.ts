@@ -4,13 +4,13 @@ import { CommonModule } from "@angular/common";
 import { Component, effect, input } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { ExportFormat } from "@bitwarden/vault-export-core";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -18,7 +18,7 @@ import { ExportFormat } from "@bitwarden/vault-export-core";
 @Component({
   selector: "tools-export-scope-callout",
   templateUrl: "export-scope-callout.component.html",
-  imports: [CommonModule, JslibModule, CalloutModule],
+  imports: [CommonModule, I18nPipe, CalloutModule],
 })
 export class ExportScopeCalloutComponent {
   show = false;

@@ -9,6 +9,17 @@ COPY package*.json ./
 COPY . .
 RUN npm ci
 
+# Override SDK if custom artifacts are present
+RUN if [ -d "sdk-internal" ]; then \
+      echo "Overriding SDK with custom artifacts from sdk-internal" ; \
+      npm link ./sdk-internal ; \
+    fi
+
+RUN if [ -d "commercial-sdk-internal" ]; then \
+      echo "Overriding Commercial SDK with custom artifacts from commercial-sdk-internal" ; \
+      npm link ./commercial-sdk-internal ; \
+    fi
+
 # Remove commercial packages if LICENSE_TYPE is not 'commercial'
 ARG LICENSE_TYPE=oss
 RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \

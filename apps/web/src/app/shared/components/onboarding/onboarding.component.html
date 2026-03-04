@@ -6,11 +6,7 @@
       <span *ngIf="tasks.length > 0; else spinner">
         {{ "complete" | i18n: amountCompleted : tasks.length }}
       </span>
-      <i
-        class="bwi tw-my-auto"
-        [ngClass]="open ? 'bwi-angle-down' : 'bwi-angle-up'"
-        aria-hidden="true"
-      ></i>
+      <bit-icon [name]="open ? 'bwi-angle-down' : 'bwi-angle-up'" class="tw-my-auto"></bit-icon>
     </div>
   </summary>
   <ul class="tw-mb-0 tw-ml-6 tw-flex tw-flex-col tw-gap-4">
@@ -24,5 +20,5 @@
 </details>
 
 <ng-template #spinner>
-  <i class="bwi bwi-spinner bwi-spin"></i>
+  <bit-icon name="bwi-spinner" class="bwi-spin"></bit-icon>
 </ng-template>

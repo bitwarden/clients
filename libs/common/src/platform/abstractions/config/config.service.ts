@@ -3,6 +3,8 @@
 import { Observable } from "rxjs";
 import { SemVer } from "semver";
 
+import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
+
 import { FeatureFlag, FeatureFlagValueType } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ServerSettings } from "../../models/domain/server-settings";
@@ -13,6 +15,12 @@ import { ServerConfig } from "./server-config";
 export abstract class ConfigService {
   /** The server config of the currently active user */
   serverConfig$: Observable<ServerConfig | null>;
+  /**
+   * Emits whenever a server config is successfully fetched, pairing the server's
+   * API URL with the parsed ServerCommunicationConfig. Use this to react to
+   * communication config changes without coupling to the config fetch pipeline.
+   */
+  serverCommunicationConfig$: Observable<{ hostname: string; config: ServerCommunicationConfig }>;
   /** The server settings of the currently active user */
   serverSettings$: Observable<ServerSettings | null>;
   /** The cloud region of the currently active user */

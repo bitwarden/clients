@@ -15,6 +15,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -277,6 +279,25 @@ describe("ImportService", () => {
       expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
       expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
+  });
+});
+
+describe("FolderWithIdRequest", () => {
+  function makeFolder(id: string): Folder {
+    const folder = new Folder();
+    folder.id = id;
+    return folder;
+  }
+
+  it("preserves a real folder id", () => {
+    const guid = "f1a2b3c4-d5e6-7890-abcd-ef1234567890";
+    const request = new FolderWithIdRequest(makeFolder(guid));
+    expect(request.id).toBe(guid);
+  });
+
+  it("sends null when folder id is empty string (new import folder)", () => {
+    const request = new FolderWithIdRequest(makeFolder(""));
+    expect(request.id).toBeNull();
   });
 });
 

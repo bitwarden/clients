@@ -1,46 +1,49 @@
-<ng-container [ngTemplateOutlet]="steps[step()]()"></ng-container>
+<p>
+  {{ "centralizeDataOwnershipDesc" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/resources/credential-lifecycle-management/"
+    target="_blank"
+  >
+    {{ "centralizeDataOwnershipContentAnchor" | i18n }}
+    <i class="bwi bwi-external-link"></i>
+  </a>
+</p>
 
-<ng-template #step0>
-  <p>
-    {{ "centralizeDataOwnershipDesc" | i18n }}
+<div class="tw-text-left tw-overflow-hidden tw-mb-2">
+  <strong>{{ "benefits" | i18n }}:</strong>
+  <ul class="tw-pl-7 tw-space-y-2 tw-pt-2">
+    <li>
+      {{ "centralizeDataOwnershipBenefit1" | i18n }}
+    </li>
+    <li>
+      {{ "centralizeDataOwnershipBenefit2" | i18n }}
+    </li>
+    <li>
+      {{ "centralizeDataOwnershipBenefit3" | i18n }}
+    </li>
+  </ul>
+</div>
+
+<bit-form-control>
+  <input class="tw-mt-4" type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+
+<bit-form-control>
+  <input
+    type="checkbox"
+    bitCheckbox
+    [formControl]="data.controls.enableIndividualItemsTransfer"
+    id="enableIndividualItemsTransfer"
+  />
+  <bit-label>{{ "promptUsersToMoveItems" | i18n }}</bit-label>
+</bit-form-control>
+
+@if (enableIndividualItemsTransfer()) {
+  <bit-callout type="info">
+    {{ "promptUsersToMoveItemsCallout" | i18n }}
     <a
-      bitLink
-      href="https://bitwarden.com/resources/credential-lifecycle-management/"
-      target="_blank"
-    >
-      {{ "centralizeDataOwnershipContentAnchor" | i18n }}
-      <i class="bwi bwi-external-link"></i>
-    </a>
-  </p>
-
-  <div class="tw-text-left tw-overflow-hidden tw-mb-2">
-    <strong>{{ "benefits" | i18n }}:</strong>
-    <ul class="tw-pl-7 tw-space-y-2 tw-pt-2">
-      <li>
-        {{ "centralizeDataOwnershipBenefit1" | i18n }}
-      </li>
-      <li>
-        {{ "centralizeDataOwnershipBenefit2" | i18n }}
-      </li>
-      <li>
-        {{ "centralizeDataOwnershipBenefit3" | i18n }}
-      </li>
-    </ul>
-  </div>
-
-  <bit-form-control>
-    <input class="tw-mt-4" type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-    <bit-label>{{ "turnOn" | i18n }}</bit-label>
-  </bit-form-control>
-</ng-template>
-
-<ng-template #step1>
-  <div class="tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden">
-    <span>
-      {{ "centralizeDataOwnershipWarningDesc" | i18n }}
-    </span>
-    <a
-      class="tw-mt-4"
       bitLink
       href="https://bitwarden.com/resources/credential-lifecycle-management/"
       target="_blank"
@@ -48,5 +51,5 @@
       {{ "centralizeDataOwnershipWarningLink" | i18n }}
       <i class="bwi bwi-external-link"></i>
     </a>
-  </div>
-</ng-template>
+  </bit-callout>
+}

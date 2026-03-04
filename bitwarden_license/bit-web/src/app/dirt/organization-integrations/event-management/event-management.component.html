@@ -1,0 +1,11 @@
+@let integrationsList = integrations();
+
+<section class="tw-mb-9">
+  <h2 bitTypography="h2">
+    {{ "eventManagement" | i18n }}
+  </h2>
+  <p bitTypography="body1">{{ "eventManagementDesc" | i18n }}</p>
+  <app-integration-grid
+    [integrations]="integrationsList | filterIntegrations: IntegrationType.EVENT"
+  ></app-integration-grid>
+</section>

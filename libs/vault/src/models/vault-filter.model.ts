@@ -134,7 +134,7 @@ export class VaultFilter {
       if (this.selectedFolderNode) {
         // No folder
         if (this.folderId === null && cipherPassesFilter) {
-          cipherPassesFilter = cipher.folderId === null;
+          cipherPassesFilter = cipher.folderId == null || cipher.folderId === "";
         }
         // Folder
         if (this.folderId !== null && cipherPassesFilter) {

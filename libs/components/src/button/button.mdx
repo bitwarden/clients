@@ -80,21 +80,20 @@ where the width is fixed and the text wraps to 2 lines if exceeding the buttonâ€
 
 ## With Icon
 
-To ensure consistent icon spacing, the icon should have .5rem spacing on left or right(depending on
-placement).
+Use the `startIcon` and `endIcon` inputs to add a Bitwarden icon (`bwi-*`) before or after the
+button label. Do not use a `<bit-icon>` component inside the button as this may not have the correct
+styling and spacing.
 
-> NOTE: Use logical css properties to ensure LTR/RTL support.
-
-**If icon is placed before button label**
+### Icon before the label
 
 ```html
-<i class="bwi bwi-plus tw-me-2"></i>
+<button bitButton startIcon="bwi-plus">Add item</button>
 ```
 
-**If icon is placed after button label**
+### Icon after the label
 
 ```html
-<i class="bwi bwi-plus tw-ms-2"></i>
+<button bitButton endIcon="bwi-angle-right">Next</button>
 ```
 
 <Canvas of={stories.WithIcon} />

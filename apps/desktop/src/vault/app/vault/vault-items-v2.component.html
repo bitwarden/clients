@@ -95,5 +95,13 @@
         {{ itemTypes.labelKey | i18n }}
       </button>
     }
+    @if (desktopMigrationMilestone1()) {
+      <bit-menu-divider />
+
+      <button type="button" bitMenuItem (click)="onAddFolder.emit()">
+        <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
+        {{ "folder" | i18n }}
+      </button>
+    }
   </bit-menu>
 </ng-template>

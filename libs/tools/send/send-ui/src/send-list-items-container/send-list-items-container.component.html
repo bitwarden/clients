@@ -26,16 +26,22 @@
           ></i>
         </div>
         {{ send.name }}
-        <ng-container *ngIf="send.maxAccessCountReached">
-          <i
-            class="bwi bwi-exclamation-triangle"
-            appStopProp
-            title="{{ 'maxAccessCountReached' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
-        </ng-container>
-
+        <div slot="default-trailing" class="tw-flex tw-gap-2 tw-relative tw-z-10">
+          @if (send.authType !== authType.None) {
+            @let titleKey =
+              send.authType === authType.Email ? "emailProtected" : "passwordProtected";
+            <i class="bwi bwi-lock" appA11yTitle="{{ titleKey | i18n }}" aria-hidden="true"></i>
+            <span class="tw-sr-only">{{ titleKey | i18n }}</span>
+          }
+          @if (send.maxAccessCountReached) {
+            <i
+              class="bwi bwi-exclamation-triangle"
+              appA11yTitle="{{ 'maxAccessCountReached' | i18n }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+          }
+        </div>
         <span slot="secondary">
           {{ "deletionDate" | i18n }}:&nbsp;{{ send.deletionDate | date: "mediumDate" }}
         </span>

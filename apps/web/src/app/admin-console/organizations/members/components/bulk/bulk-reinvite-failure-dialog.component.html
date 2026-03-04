@@ -1,0 +1,70 @@
+<bit-dialog dialogSize="large">
+  @let failCount = dataSource().data.length;
+  <div bitDialogTitle>
+    @if (failCount > 1) {
+      {{ "bulkReinviteFailuresTitle" | i18n: failCount }}
+    } @else {
+      {{ "bulkReinviteFailureTitle" | i18n }}
+    }
+  </div>
+
+  <div bitDialogContent>
+    {{ "bulkReinviteFailureDescription" | i18n: failCount : totalCount }}
+
+    <a bitLink href="https://bitwarden.com/contact/" target="_blank" rel="noopener noreferrer">
+      {{ "contactSupportShort" | i18n | lowercase }}
+      <bit-icon name="bwi-external-link"></bit-icon>
+    </a>
+
+    <div class="tw-max-h-[304px] tw-overflow-auto tw-mt-4">
+      <bit-table [dataSource]="dataSource()">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+          </tr>
+        </ng-container>
+
+        <ng-template body let-rows$>
+          @let rows = $any(rows$ | async);
+          @for (u of rows; track u.id) {
+            <tr bitRow class="tw-h-16">
+              <td bitCell>
+                <div class="tw-flex tw-items-center">
+                  <bit-avatar
+                    size="small"
+                    [text]="u | userName"
+                    [id]="u.userId"
+                    [color]="u.avatarColor"
+                    class="tw-mr-3"
+                  ></bit-avatar>
+                  <div class="tw-flex tw-flex-col">
+                    <div class="tw-flex tw-flex-row tw-gap-2">
+                      <button type="button" bitLink>
+                        {{ u.name ?? u.email }}
+                      </button>
+                    </div>
+                    @if (u.name) {
+                      <div class="tw-text-sm tw-text-muted">
+                        {{ u.email }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    </div>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" type="button" (click)="resendInvitations()">
+      {{ "bulkResendInvitations" | i18n }}
+    </button>
+
+    <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

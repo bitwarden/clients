@@ -54,8 +54,6 @@ describe("SendListFiltersComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         { provide: AccountService, useValue: accountService },
       ],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownProperties: false,
     }).compileComponents();
 
     fixture = TestBed.createComponent(SendListFiltersComponent);

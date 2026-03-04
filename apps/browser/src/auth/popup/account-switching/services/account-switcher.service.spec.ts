@@ -9,6 +9,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -37,6 +38,7 @@ describe("AccountSwitcherService", () => {
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
   const authService = mock<AuthService>();
+  const configService = mock<ConfigService>();
 
   let accountSwitcherService: AccountSwitcherService;
 
@@ -60,6 +62,7 @@ describe("AccountSwitcherService", () => {
       messagingService,
       environmentService,
       logService,
+      configService,
       authService,
     );
   });

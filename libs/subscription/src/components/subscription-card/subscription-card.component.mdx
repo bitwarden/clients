@@ -78,6 +78,7 @@ type SubscriptionCardAction =
   | "contact-support"
   | "manage-invoices"
   | "reinstate-subscription"
+  | "resubscribe"
   | "update-payment"
   | "upgrade-plan";
 ```
@@ -279,7 +280,7 @@ Payment issue expired, subscription has been suspended:
 </billing-subscription-card>
 ```
 
-**Actions available:** Contact Support
+**Actions available:** Resubscribe
 
 ### Past Due
 
@@ -370,7 +371,7 @@ Subscription that has been canceled:
 </billing-subscription-card>
 ```
 
-**Note:** Canceled subscriptions display no callout or actions.
+**Actions available:** Resubscribe
 
 ### Enterprise
 

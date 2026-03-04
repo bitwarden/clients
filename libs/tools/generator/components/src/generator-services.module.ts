@@ -57,7 +57,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     safeProvider({
       provide: RANDOMIZER,
       useFactory: createRandomizer,
-      deps: [KeyService],
+      deps: [],
     }),
     safeProvider({
       provide: LegacyEncryptorProvider,

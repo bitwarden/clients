@@ -13,6 +13,8 @@ import {
   OrganizationUserUpdateRequest,
   OrganizationUserBulkRequest,
 } from "../models/requests";
+import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
+import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
@@ -349,11 +351,15 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  restoreOrganizationUser(organizationId: string, id: string): Promise<void> {
+  restoreOrganizationUser(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserRestoreRequest,
+  ): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore",
-      null,
+      "/organizations/" + organizationId + "/users/" + id + "/restore/vnext",
+      request,
       true,
       false,
     );
@@ -361,12 +367,12 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
 
   async restoreManyOrganizationUsers(
     organizationId: string,
-    ids: string[],
+    request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/restore",
-      new OrganizationUserBulkRequest(ids),
+      request,
       true,
       true,
     );

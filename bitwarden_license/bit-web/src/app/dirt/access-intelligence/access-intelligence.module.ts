@@ -59,7 +59,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
     safeProvider({
       provide: AccessIntelligenceSecurityTasksService,
       useClass: AccessIntelligenceSecurityTasksService,
-      deps: [DefaultAdminTaskService, SecurityTasksApiService],
+      deps: [DefaultAdminTaskService, SecurityTasksApiService, RiskInsightsDataService],
     }),
     safeProvider({
       provide: PasswordHealthService,

@@ -16,9 +16,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
-import { CopyCipherFieldDirective, CopyCipherFieldService } from "@bitwarden/vault";
-
-import { OrganizationNameBadgeComponent } from "../../individual-vault/organization-badge/organization-name-badge.component";
+import {
+  CopyCipherFieldDirective,
+  CopyCipherFieldService,
+  OrganizationNameBadgeComponent,
+} from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -45,7 +47,7 @@ describe("VaultCipherRowComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VaultCipherRowComponent, OrganizationNameBadgeComponent],
+      declarations: [VaultCipherRowComponent],
       imports: [
         CommonModule,
         RouterModule.forRoot([]),
@@ -53,6 +55,7 @@ describe("VaultCipherRowComponent", () => {
         IconButtonModule,
         JslibModule,
         CopyCipherFieldDirective,
+        OrganizationNameBadgeComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },

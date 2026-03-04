@@ -79,20 +79,14 @@ export class UserApiLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setPrivateKey(
+  protected override async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
       userId,
     );
-    if (response.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
   }
 
   // Overridden to save client ID and secret to token service

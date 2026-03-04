@@ -8,6 +8,8 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
+import { import_ssh_key } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -79,6 +81,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           case Category.SocialSecurityNumber:
             cipher.type = CipherType.Identity;
             cipher.identity = new IdentityView();
+            break;
+          case Category.SSH_Key:
+            cipher.type = CipherType.SshKey;
+            cipher.sshKey = new SshKeyView();
             break;
           default:
             break;
@@ -315,6 +321,19 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
             break;
           default:
             break;
+        }
+      } else if (cipher.type === CipherType.SshKey) {
+        if (valueKey === "sshKey") {
+          // Use sshKey.metadata.privateKey instead of the sshKey.privateKey field.
+          // The sshKey.privateKey field doesn't have a consistent format for every item.
+          const { privateKey } = field.value.sshKey.metadata;
+          // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using SDK
+          // Note: 1Password does not store password-protected SSH keys, so no password handling needed for now
+          const parsedKey = import_ssh_key(privateKey);
+          cipher.sshKey.privateKey = parsedKey.privateKey;
+          cipher.sshKey.publicKey = parsedKey.publicKey;
+          cipher.sshKey.keyFingerprint = parsedKey.fingerprint;
+          return;
         }
       }
 

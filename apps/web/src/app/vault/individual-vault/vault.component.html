@@ -83,7 +83,7 @@
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
     <div
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1"
       *ngIf="isEmpty && !performingInitialLoad"
     >
       <bit-no-items [icon]="(emptyState$ | async)?.icon">

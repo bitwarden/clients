@@ -16,6 +16,8 @@ const RLIMIT_CORE: c_uint = 4;
 // https://github.com/torvalds/linux/blob/a38297e3fb012ddfa7ce0321a7e5a8daeb1872b6/include/uapi/linux/prctl.h#L14
 const PR_SET_DUMPABLE: c_int = 4;
 
+/// Disables core dumps by setting RLIMIT_CORE to prevent memory from being
+/// persisted to disk on crashes.
 pub fn disable_coredumps() -> Result<()> {
     let rlimit = libc::rlimit {
         rlim_cur: 0,
@@ -34,6 +36,7 @@ pub fn disable_coredumps() -> Result<()> {
     Ok(())
 }
 
+/// Checks if core dumping is disabled by verifying that RLIMIT_CORE is set to 0.
 pub fn is_core_dumping_disabled() -> Result<bool> {
     let mut rlimit = libc::rlimit {
         rlim_cur: 0,
@@ -47,6 +50,8 @@ pub fn is_core_dumping_disabled() -> Result<bool> {
     Ok(rlimit.rlim_cur == 0 && rlimit.rlim_max == 0)
 }
 
+/// Prevents other processes from dumping this process's memory or attaching a
+/// debugger by setting PR_SET_DUMPABLE.
 pub fn isolate_process() -> Result<()> {
     let pid = std::process::id();
     info!(

@@ -27,7 +27,7 @@ export abstract class KeyGenerationService {
    * Uses HKDF, see {@link https://datatracker.ietf.org/doc/html/rfc5869 RFC 5869}
    * for details.
    *
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. This is a low-level cryptographic function.
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. This is a low-level cryptographic function.
    * New functionality should not be built on top of it, and instead should be built in the sdk.
    *
    * @param bitLength Length of key material.
@@ -44,7 +44,7 @@ export abstract class KeyGenerationService {
   /**
    * Derives a 64 byte key from key material.
    *
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. This is a low-level cryptographic function.
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. This is a low-level cryptographic function.
    * New functionality should not be built on top of it, and instead should be built in the sdk.
    *
    * @remark The key material should be generated from {@link createKey}, or {@link createKeyWithPurpose}.
@@ -63,7 +63,7 @@ export abstract class KeyGenerationService {
   /**
    * Derives a 32 byte key from a password using a key derivation function.
    *
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. This is a low-level cryptographic function.
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. This is a low-level cryptographic function.
    * New functionality should not be built on top of it, and instead should be built in the sdk.
    *
    * @param password Password to derive the key from.
@@ -80,7 +80,7 @@ export abstract class KeyGenerationService {
   /**
    * Derives a 64 byte key from a 32 byte key using a key derivation function.
    *
-   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. This is a low-level cryptographic function.
+   * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. This is a low-level cryptographic function.
    * New functionality should not be built on top of it, and instead should be built in the sdk.
    *
    * @param key 32 byte key.

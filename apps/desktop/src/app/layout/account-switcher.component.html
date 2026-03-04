@@ -31,11 +31,7 @@
     <ng-template #noActiveAccount>
       <span>{{ "switchAccount" | i18n }}</span>
     </ng-template>
-    <i
-      class="bwi"
-      aria-hidden="true"
-      [ngClass]="{ 'bwi-angle-down': !isOpen, 'bwi-angle-up': isOpen }"
-    ></i>
+    <bit-icon [name]="isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"></bit-icon>
   </button>
 
   <ng-template
@@ -86,20 +82,19 @@
               }}<span class="sr-only">)</span></span
             >
           </div>
-          <i
-            class="bwi bwi-2x text-muted"
-            [ngClass]="
+          <bit-icon
+            [name]="
               account.value.authenticationStatus === authStatus.Unlocked ? 'bwi-unlock' : 'bwi-lock'
             "
-            aria-hidden="true"
-          ></i>
+            class="bwi-2x text-muted"
+          ></bit-icon>
         </button>
       </div>
       <ng-container *ngIf="view.activeAccount">
         <div class="border" *ngIf="view.numberOfAccounts > 0"></div>
         <ng-container *ngIf="view.numberOfAccounts < 4">
           <button type="button" class="add" (click)="addAccount()">
-            <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
+            <bit-icon name="bwi-plus"></bit-icon> {{ "addAccount" | i18n }}
           </button>
         </ng-container>
         <ng-container *ngIf="view.numberOfAccounts === 4">

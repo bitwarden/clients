@@ -11,9 +11,8 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterService, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { RoutedVaultFilterService, RoutedVaultFilterModel, VaultItem } from "@bitwarden/vault";
 
-import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {

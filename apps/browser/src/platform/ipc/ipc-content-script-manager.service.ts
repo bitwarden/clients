@@ -15,7 +15,7 @@ export class IpcContentScriptManagerService {
     }
 
     configService
-      .getFeatureFlag$(FeatureFlag.IpcChannelFramework)
+      .getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework)
       .pipe(
         mergeMap(async (enabled) => {
           if (!enabled) {

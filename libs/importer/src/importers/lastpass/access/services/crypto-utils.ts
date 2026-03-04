@@ -1,3 +1,7 @@
+import {
+  DANGEROUS_aesEcbDecryptLastpassImport,
+  DANGEROUS_aesCbcDecryptLastpassImport,
+} from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -17,10 +21,7 @@ export class CryptoUtils {
   async deriveKeyHash(username: string, password: string, iterationCount: number) {
     const key = await this.deriveKey(username, password, iterationCount);
     if (iterationCount == 1) {
-      return await this.cryptoFunctionService.hash(
-        Utils.fromBufferToHex(key.buffer) + password,
-        "sha256",
-      );
+      return await this.cryptoFunctionService.hash(Utils.fromArrayToHex(key) + password, "sha256");
     }
     return await this.cryptoFunctionService.pbkdf2(key, password, "sha256", 1);
   }
@@ -91,8 +92,15 @@ export class CryptoUtils {
     if (data.length === 0) {
       return "";
     }
-    const plain = await this.cryptoFunctionService.aesDecrypt(data, iv, encryptionKey, mode);
-    return Utils.fromBufferToUtf8(plain);
+    if (mode === "ecb") {
+      return Utils.fromArrayToByteString(
+        DANGEROUS_aesEcbDecryptLastpassImport(data, encryptionKey),
+      );
+    } else {
+      return Utils.fromArrayToByteString(
+        DANGEROUS_aesCbcDecryptLastpassImport(data, encryptionKey, iv),
+      );
+    }
   }
 
   private async decryptAes256EcbPlain(data: Uint8Array, encryptionKey: Uint8Array) {
@@ -100,7 +108,7 @@ export class CryptoUtils {
   }
 
   private async decryptAes256EcbBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromBufferToUtf8(data));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data)!)!;
     return this.decryptAes256(d, encryptionKey, "ecb");
   }
 
@@ -111,8 +119,8 @@ export class CryptoUtils {
   }
 
   private async decryptAes256CbcBase64(data: Uint8Array, encryptionKey: Uint8Array) {
-    const d = Utils.fromB64ToArray(Utils.fromBufferToUtf8(data.subarray(26)));
-    const iv = Utils.fromB64ToArray(Utils.fromBufferToUtf8(data.subarray(1, 25)));
+    const d = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(26))!)!;
+    const iv = Utils.fromB64ToArray(Utils.fromArrayToUtf8(data.subarray(1, 25))!)!;
     return this.decryptAes256(d, encryptionKey, "cbc", iv);
   }
 }

@@ -1,6 +1,8 @@
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
+import { EventSecurity } from "../utils/event-security";
+
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
@@ -92,7 +94,10 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
  */
 function handleWindowMessageEvent(event: MessageEvent) {
   const { source, data, origin } = event;
-  if (source !== window || !data?.command) {
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   */
+  if (!EventSecurity.isEventTrusted(event) || source !== window || !data?.command) {
     return;
   }
 

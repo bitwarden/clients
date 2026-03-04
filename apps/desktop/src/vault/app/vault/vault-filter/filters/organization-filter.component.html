@@ -121,7 +121,7 @@
               }}"
               [attr.aria-pressed]="activeFilter.selectedOrganizationId === organization.id"
             >
-              <i class="bwi bwi-fw bwi-business" aria-hidden="true"></i>
+              <i class="bwi bwi-fw {{ getIconString(organization) }}" aria-hidden="true"></i>
               &nbsp;{{ organization.name }}
             </button>
             <span *ngIf="!organization.enabled" class="tw-ml-auto">

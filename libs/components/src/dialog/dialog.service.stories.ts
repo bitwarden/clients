@@ -11,7 +11,6 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { SharedModule } from "../shared";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
@@ -209,7 +208,6 @@ export default {
     positionFixedWrapperDecorator(),
     moduleMetadata({
       imports: [
-        SharedModule,
         ButtonModule,
         NoopAnimationsModule,
         DialogModule,

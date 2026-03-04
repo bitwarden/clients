@@ -69,6 +69,34 @@ const config: StorybookConfig = {
   },
   docs: {},
   staticDirs: ["../apps/web/src/images"],
+  refs: (config, { configType }) => {
+    if (configType === "PRODUCTION") {
+      const branchName = process.env.STORYBOOK_BRANCH_NAME;
+
+      return {
+        autofill: {
+          title: `Autofill Components (branch: ${branchName})`,
+          url: `https://${branchName}--695ffc4bef53d3a5ae4c8067.chromatic.com`,
+        },
+      };
+    }
+
+    // Only use storybook composition if we're running the script for both storybooks
+    if (process.env.STORYBOOK_DEV === "combined") {
+      return {
+        autofill: {
+          title: "Autofill Components",
+          url: "http://localhost:6007",
+        },
+      };
+    }
+
+    return {
+      autofill: {
+        disable: true,
+      },
+    };
+  },
 };
 
 export default config;

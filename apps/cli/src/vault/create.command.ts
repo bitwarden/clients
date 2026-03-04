@@ -103,10 +103,11 @@ export class CreateCommand {
         return Response.error("Creating this item type is restricted by organizational policy.");
       }
 
-      const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
-      const newCipher = await this.cipherService.createWithServer(cipher);
-      const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
-      const res = new CipherResponse(decCipher);
+      const newCipher = await this.cipherService.createWithServer(
+        CipherExport.toView(req),
+        activeUserId,
+      );
+      const res = new CipherResponse(newCipher);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -169,7 +170,7 @@ export class CreateCommand {
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
-        new Uint8Array(fileBuf).buffer,
+        new Uint8Array(fileBuf),
         activeUserId,
       );
       const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);

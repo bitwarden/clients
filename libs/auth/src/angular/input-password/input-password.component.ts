@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -10,7 +11,9 @@ import {
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -27,6 +30,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   InputModule,
   LinkModule,
   ToastService,
@@ -40,9 +44,6 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
@@ -105,18 +106,19 @@ interface InputPasswordForm {
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
   imports: [
+    CommonModule,
     AsyncActionsModule,
     ButtonModule,
     CheckboxModule,
     FormFieldModule,
     IconButtonModule,
+    IconModule,
     InputModule,
     JslibModule,
     PasswordCalloutComponent,
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
-    SharedModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
@@ -209,6 +211,7 @@ export class InputPasswordComponent implements OnInit {
   constructor(
     private auditService: AuditService,
     private cipherService: CipherService,
+    private configService: ConfigService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
@@ -312,7 +315,7 @@ export class InputPasswordComponent implements OnInit {
       }
 
       if (!this.email) {
-        throw new Error("Email is required to create master key.");
+        throw new Error("Email not found.");
       }
 
       // 1. Determine kdfConfig
@@ -320,13 +323,13 @@ export class InputPasswordComponent implements OnInit {
         this.kdfConfig = DEFAULT_KDF_CONFIG;
       } else {
         if (!this.userId) {
-          throw new Error("userId not passed down");
+          throw new Error("userId not found.");
         }
         this.kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
       }
 
       if (this.kdfConfig == null) {
-        throw new Error("KdfConfig is required to create master key.");
+        throw new Error("KdfConfig not found.");
       }
 
       const salt =
@@ -334,7 +337,7 @@ export class InputPasswordComponent implements OnInit {
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))
           : this.masterPasswordService.emailToSalt(this.email);
       if (salt == null) {
-        throw new Error("Salt is required to create master key.");
+        throw new Error("Salt not found.");
       }
 
       // 2. Verify current password is correct (if necessary)
@@ -360,6 +363,41 @@ export class InputPasswordComponent implements OnInit {
       if (!newPasswordVerified) {
         return;
       }
+
+      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
+      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+      );
+
+      if (newApisWithInputPasswordFlagEnabled) {
+        // 4. Build a PasswordInputResult object
+        const passwordInputResult: PasswordInputResult = {
+          newPassword,
+          kdfConfig: this.kdfConfig,
+          salt,
+          newPasswordHint,
+          newApisWithInputPasswordFlagEnabled, // To be removed in PM-28143
+        };
+
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
+          passwordInputResult.currentPassword = currentPassword;
+        }
+
+        if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+          passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
+        }
+
+        // 5. Emit and return PasswordInputResult object
+        this.onPasswordFormSubmit.emit(passwordInputResult);
+        return passwordInputResult;
+      }
+
+      /*******************************************************************
+       * The following code (within this `try`) to be removed in PM-28143
+       *******************************************************************/
 
       // 4. Create cryptographic keys and build a PasswordInputResult object
       const newMasterKey = await this.keyService.makeMasterKey(

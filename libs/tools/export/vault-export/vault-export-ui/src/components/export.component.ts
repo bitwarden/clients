@@ -31,7 +31,6 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -55,6 +54,7 @@ import {
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
+  CopyClickDirective,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -64,6 +64,7 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ExportedVault,
   ExportFormatMetadata,
@@ -82,7 +83,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
@@ -93,6 +94,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     ExportScopeCalloutComponent,
     PasswordStrengthV2Component,
     GeneratorServicesModule,
+    CopyClickDirective,
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {

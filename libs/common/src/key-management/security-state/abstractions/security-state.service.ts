@@ -11,11 +11,4 @@ export abstract class SecurityStateService {
    * must be used. This security state is validated on initialization of the SDK.
    */
   abstract accountSecurityState$(userId: UserId): Observable<SignedSecurityState | null>;
-  /**
-   * Sets the security state for the provided user.
-   */
-  abstract setAccountSecurityState(
-    accountSecurityState: SignedSecurityState,
-    userId: UserId,
-  ): Promise<void>;
 }

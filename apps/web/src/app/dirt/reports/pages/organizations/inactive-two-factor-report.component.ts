@@ -1,9 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, takeUntil } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -11,7 +12,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { ChipSelectComponent, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -39,7 +40,7 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
 })
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent
@@ -81,33 +82,33 @@ export class InactiveTwoFactorReportComponent
     this.isAdminConsoleActive = true;
 
     this.route.parent?.parent?.params
-      ?.pipe(takeUntil(this.destroyed$))
-      // eslint-disable-next-line rxjs/no-async-subscribe
-      .subscribe(async (params) => {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
-
-        if (userId) {
+      .pipe(
+        tap(async (params) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
           this.organization = await firstValueFrom(
             this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
           );
           this.manageableCiphers = await this.cipherService.getAll(userId);
           await super.ngOnInit();
-        }
-        this.changeDetectorRef.markForCheck();
-      });
+          this.changeDetectorRef.markForCheck();
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
   async getAllCiphers(): Promise<CipherView[]> {
     if (this.organization) {
-      return await this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
     }
     return [];
   }
 
   protected canManageCipher(c: CipherView): boolean {
     if (c.collectionIds.length === 0) {
+      return true;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
     return this.manageableCiphers.some((x) => x.id === c.id);

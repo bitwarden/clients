@@ -3,7 +3,6 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -14,6 +13,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BannerModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
@@ -54,8 +54,8 @@ describe("VaultBannersComponent", () => {
         VerifyEmailComponent,
         VaultBannersComponent,
         RouterTestingModule,
+        I18nPipe,
       ],
-      declarations: [I18nPipe],
       providers: [
         {
           provide: I18nService,

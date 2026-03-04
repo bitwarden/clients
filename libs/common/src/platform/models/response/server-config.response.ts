@@ -13,6 +13,7 @@ export class ServerConfigResponse extends BaseResponse {
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
   push: PushSettingsConfigResponse;
   settings: ServerSettings;
+  communication: CommunicationServerConfigResponse;
 
   constructor(response: any) {
     super(response);
@@ -28,6 +29,9 @@ export class ServerConfigResponse extends BaseResponse {
     this.featureStates = this.getResponseProperty("FeatureStates");
     this.push = new PushSettingsConfigResponse(this.getResponseProperty("Push"));
     this.settings = new ServerSettings(this.getResponseProperty("Settings"));
+    this.communication = new CommunicationServerConfigResponse(
+      this.getResponseProperty("Communication"),
+    );
   }
 }
 
@@ -84,5 +88,39 @@ export class ThirdPartyServerConfigResponse extends BaseResponse {
 
     this.name = this.getResponseProperty("Name");
     this.url = this.getResponseProperty("Url");
+  }
+}
+
+export class CommunicationServerConfigResponse extends BaseResponse {
+  bootstrap: BootstrapServerConfigResponse;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.bootstrap = new BootstrapServerConfigResponse(this.getResponseProperty("Bootstrap"));
+  }
+}
+
+export class BootstrapServerConfigResponse extends BaseResponse {
+  type: string;
+  idpLoginUrl: string;
+  cookieName: string;
+  cookieDomain: string;
+
+  constructor(data: any = null) {
+    super(data);
+
+    if (data == null) {
+      return;
+    }
+
+    this.type = this.getResponseProperty("Type");
+    this.idpLoginUrl = this.getResponseProperty("IdpLoginUrl");
+    this.cookieName = this.getResponseProperty("CookieName");
+    this.cookieDomain = this.getResponseProperty("CookieDomain");
   }
 }

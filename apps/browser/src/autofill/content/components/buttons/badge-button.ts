@@ -3,6 +3,7 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { border, themes, typography, spacing } from "../constants/styles";
 
 export type BadgeButtonProps = {
@@ -23,7 +24,7 @@ export function BadgeButton({
   username,
 }: BadgeButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled) {
+    if (EventSecurity.isEventTrusted(event) && !disabled) {
       buttonAction(event);
     }
   };

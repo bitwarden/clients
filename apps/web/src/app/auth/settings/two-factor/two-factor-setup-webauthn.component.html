@@ -17,7 +17,7 @@
       <ul class="bwi-ul">
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
           <ng-container *ngIf="k.configured">
-            <i class="bwi bwi-li bwi-key"></i>
+            <bit-icon name="bwi-key" class="bwi-li"></bit-icon>
             <span *ngIf="k.configured" bitTypography="body1" class="tw-font-medium">
               {{ k.name || ("unnamedKey" | i18n) }}
             </span>
@@ -27,12 +27,12 @@
               </ng-container>
             </ng-container>
             <ng-container *ngIf="keysConfiguredCount > 1 && k.configured">
-              <i
-                class="bwi bwi-spin bwi-spinner tw-text-muted bwi-fw"
-                title="{{ 'loading' | i18n }}"
+              <bit-icon
+                name="bwi-spinner"
+                class="bwi-spin tw-text-muted bwi-fw"
+                [ariaLabel]="'loading' | i18n"
                 *ngIf="$any(removeKeyBtn).loading"
-                aria-hidden="true"
-              ></i>
+              ></bit-icon>
               -
               <a bitLink href="#" appStopClick (click)="remove(k)">{{ "remove" | i18n }}</a>
             </ng-container>
@@ -68,19 +68,27 @@
         {{ "readKey" | i18n }}
       </button>
       <ng-container *ngIf="$any(readKeyBtn).loading()">
-        <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
+        <bit-icon
+          name="bwi-spinner"
+          class="bwi-spin tw-text-muted"
+          [ariaLabel]="'loading' | i18n"
+        ></bit-icon>
       </ng-container>
       <ng-container *ngIf="!$any(readKeyBtn).loading()">
         <ng-container *ngIf="webAuthnListening">
-          <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
+          <bit-icon
+            name="bwi-spinner"
+            class="bwi-spin tw-text-muted"
+            [ariaLabel]="'loading' | i18n"
+          ></bit-icon>
           {{ "twoFactorU2fWaiting" | i18n }}...
         </ng-container>
         <ng-container *ngIf="webAuthnResponse">
-          <i class="bwi bwi-check-circle tw-text-success" aria-hidden="true"></i>
+          <bit-icon name="bwi-check-circle" class="tw-text-success"></bit-icon>
           {{ "twoFactorU2fClickSave" | i18n }}
         </ng-container>
         <ng-container *ngIf="webAuthnError">
-          <i class="bwi bwi-exclamation-triangle tw-text-danger" aria-hidden="true"></i>
+          <bit-icon name="bwi-exclamation-triangle" class="tw-text-danger"></bit-icon>
           {{ "twoFactorU2fProblemReadingTryAgain" | i18n }}
         </ng-container>
       </ng-container>
