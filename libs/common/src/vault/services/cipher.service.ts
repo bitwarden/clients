@@ -1253,6 +1253,7 @@ export class CipherService implements CipherServiceAbstraction {
       throw new Error("Cipher is already associated with an organization.");
     }
 
+    await this.clearCache(userId);
     const result = await this.cipherSdkService.shareWithServer(
       cipher,
       organizationId as OrganizationId,
@@ -1261,7 +1262,6 @@ export class CipherService implements CipherServiceAbstraction {
       originalCipherView,
     );
 
-    await this.clearCache(userId);
     return result;
   }
 
@@ -1277,14 +1277,13 @@ export class CipherService implements CipherServiceAbstraction {
       }
     }
 
+    await this.clearCache(userId);
     await this.cipherSdkService.shareManyWithServer(
       ciphers,
       organizationId as OrganizationId,
       collectionIds as CollectionId[],
       userId,
     );
-
-    await this.clearCache(userId);
   }
 
   saveAttachmentWithServer(
