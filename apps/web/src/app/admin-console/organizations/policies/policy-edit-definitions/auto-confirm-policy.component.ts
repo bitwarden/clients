@@ -6,25 +6,25 @@ import {
   TemplateRef,
   viewChild,
 } from "@angular/core";
-import { BehaviorSubject, combineLatest, map, Observable, of, startWith, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { MultiStepPolicyEditDialogComponent, PolicyStep } from "../policy-edit-dialogs";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { getById } from "@bitwarden/common/platform/misc";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
-  name = "autoConfirm";
+  name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
   type = PolicyType.AutoConfirm;
   component = AutoConfirmPolicyEditComponent;
@@ -51,7 +51,6 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent impl
     private policyService: PolicyService,
   ) {
     super();
-    console.log(this);
   }
 
   protected readonly autoConfirmSvg = AutoConfirmSvg;
