@@ -243,7 +243,7 @@ export class CipherViewLikeUtils {
         _copyField = "usernameIdentity";
       }
 
-      return cipher.copyableFields.includes(copyActionToCopyableFieldMap[_copyField]);
+      return cipher.copyableFields?.includes(copyActionToCopyableFieldMap[_copyField]) ?? false;
     }
 
     // When the full cipher is available, check the specific field
