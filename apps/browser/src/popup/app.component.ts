@@ -1,27 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  inject,
-  NgZone,
-  OnDestroy,
-  OnInit,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, NgZone, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import {
-  catchError,
-  concatMap,
-  filter,
-  firstValueFrom,
-  map,
-  of,
-  Subject,
-  takeUntil,
-  tap,
-} from "rxjs";
+import { catchError, concatMap, filter, firstValueFrom, map, of, Subject, tap } from "rxjs";
 
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -71,7 +53,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   templateUrl: "app.component.html",
   standalone: false,
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   private compactModeService = inject(PopupCompactModeService);
   private sdkService = inject(SdkService);
 
@@ -120,6 +102,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const langSubscription = this.documentLangSetter.start();
     this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destoryRef.onDestroy(() => {
+      this.destroy$.next();
+      this.destroy$.complete();
+    });
   }
 
   async ngOnInit() {
@@ -128,9 +114,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.compactModeService.init();
     await this.popupSizeService.setHeight();
 
-    this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
-      this.activeUserId = account?.id;
-    });
+    this.accountService.activeAccount$
+      .pipe(takeUntilDestroyed(this.destoryRef))
+      .subscribe((account) => {
+        this.activeUserId = account?.id;
+      });
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
@@ -140,7 +128,7 @@ export class AppComponent implements OnInit, OnDestroy {
         concatMap(async () => {
           await this.recordActivity();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destoryRef),
       )
       .subscribe();
 
@@ -265,12 +253,12 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destoryRef),
       )
       .subscribe();
 
     // eslint-disable-next-line rxjs/no-async-subscribe
-    this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destoryRef)).subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects || event.url || "";
         if (url.startsWith("/tabs/")) {
@@ -288,15 +276,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.animationControlService.enableRoutingAnimation$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destoryRef))
       .subscribe((state) => {
         this.routerAnimations = state;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getRouteElevation(outlet: RouterOutlet) {
