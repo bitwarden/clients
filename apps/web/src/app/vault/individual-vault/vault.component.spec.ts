@@ -1,8 +1,9 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, Params, provideRouter } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of } from "rxjs";
+import { BehaviorSubject, EMPTY, of, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
 import {
@@ -45,7 +46,8 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
 import {
   DefaultCipherFormConfigService,
@@ -54,11 +56,17 @@ import {
   RoutedVaultFilterService,
   VaultFilter,
   VaultFilterServiceAbstraction,
+  VaultItemEvent,
   VaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
+import {
+  VaultItemDialogComponent,
+  VaultItemDialogResult,
+} from "../components/vault-item-dialog/vault-item-dialog.component";
+import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { WebVaultExtensionPromptService } from "../services/web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
@@ -75,10 +83,18 @@ describe("VaultComponent", () => {
   let fixture: ComponentFixture<VaultComponent<any>>;
   let queryParamsSubject: BehaviorSubject<Params>;
 
+  let mockCipher: Cipher;
+  let openVaultItemDialogSpy: jest.SpyInstance;
+
   beforeEach(async () => {
     queryParamsSubject = new BehaviorSubject<Params>({});
+    openVaultItemDialogSpy = jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue({
+      closed: new Subject<VaultItemDialogResult>(),
+    } as unknown as DialogRef<VaultItemDialogResult, unknown>);
 
-    const mockCipher = {
+    openVaultItemDialogSpy.mockClear();
+
+    mockCipher = {
       id: TEST_CIPHER_ID,
       reprompt: 0,
       type: CipherType.Login,
@@ -247,16 +263,18 @@ describe("VaultComponent", () => {
             {
               provide: DefaultCipherFormConfigService,
               useValue: {
-                buildConfig: jest.fn().mockResolvedValue({
-                  mode: "view" as const,
-                  cipherType: CipherType.Login,
-                  admin: false,
-                  organizationDataOwnershipDisabled: true,
-                  originalCipher: mockCipher,
-                  collections: [],
-                  organizations: [],
-                  folders: [],
-                }),
+                buildConfig: jest.fn().mockImplementation((mode) =>
+                  Promise.resolve({
+                    mode,
+                    cipherType: mockCipher.type,
+                    admin: false,
+                    organizationDataOwnershipDisabled: true,
+                    originalCipher: mockCipher,
+                    collections: [],
+                    organizations: [],
+                    folders: [],
+                  }),
+                ),
               },
             },
             {
@@ -281,5 +299,100 @@ describe("VaultComponent", () => {
 
   it("creates", () => {
     expect(component).toBeTruthy();
+  });
+
+  [
+    { action: "view", formDetails: { mode: "view", formMode: "edit" } },
+    { action: "edit", eventName: "editCipher", formDetails: { mode: "form", formMode: "edit" } },
+    { action: "clone", eventName: "clone", formDetails: { mode: "form", formMode: "clone" } },
+  ].forEach(({ action, eventName, formDetails }) => {
+    describe(`${action} cipher`, () => {
+      it(`${action}s cipher when from action query param when initializing`, async () => {
+        queryParamsSubject.next({ action, itemId: TEST_CIPHER_ID });
+        // recreate component to trigger constructor logic
+        fixture = TestBed.createComponent(VaultComponent);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(openVaultItemDialogSpy).toHaveBeenCalled();
+
+        const params = openVaultItemDialogSpy.mock.lastCall[1];
+        expect(params.mode).toBe(formDetails.mode);
+        expect(params.formConfig.mode).toBe(formDetails.formMode);
+      });
+
+      it(`${action}s cipher when from action query param when query param changes`, async () => {
+        queryParamsSubject.next({});
+        // recreate component to trigger constructor logic
+        fixture = TestBed.createComponent(VaultComponent);
+        fixture.detectChanges();
+
+        expect(openVaultItemDialogSpy).not.toHaveBeenCalled();
+
+        queryParamsSubject.next({ action, cipherId: TEST_CIPHER_ID });
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(openVaultItemDialogSpy).toHaveBeenCalled();
+      });
+
+      if (eventName) {
+        it(`${action}s cipher from ${eventName} event`, async () => {
+          const vaultItemsComponent = fixture.debugElement.query(By.directive(VaultItemsComponent))
+            .componentInstance as VaultItemsComponent<CipherViewLike>;
+
+          vaultItemsComponent.onEvent.emit({
+            type: eventName,
+            item: { id: TEST_CIPHER_ID },
+          } as unknown as VaultItemEvent<CipherViewLike>);
+          fixture.detectChanges();
+          await fixture.whenStable();
+
+          expect(openVaultItemDialogSpy).toHaveBeenCalled();
+        });
+      }
+
+      describe("password reprompt", () => {
+        let promptSpy: jest.SpyInstance;
+        let navigateSpy: jest.SpyInstance;
+
+        beforeEach(async () => {
+          const passwordRepromptService = TestBed.inject(PasswordRepromptService);
+          const router = TestBed.inject(Router);
+          navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+          promptSpy = jest
+            .spyOn(passwordRepromptService, "showPasswordPrompt")
+            .mockResolvedValue(true);
+
+          mockCipher.reprompt = 1; // Require reprompt
+          queryParamsSubject.next({ action, itemId: TEST_CIPHER_ID });
+        });
+
+        it("prompts the user for password reprompt if the cipher requires reprompt", async () => {
+          fixture = TestBed.createComponent(VaultComponent);
+          fixture.detectChanges();
+          await fixture.whenStable();
+
+          expect(promptSpy).toHaveBeenCalled();
+        });
+
+        it("resets the params when the user fails reprompt", async () => {
+          promptSpy.mockResolvedValueOnce(false);
+
+          fixture = TestBed.createComponent(VaultComponent);
+          fixture.detectChanges();
+          await fixture.whenStable();
+
+          const params = navigateSpy.mock.calls[0][1];
+          expect(params).toMatchObject({
+            queryParams: {
+              action: null,
+              cipherId: null,
+              itemId: null,
+            },
+          });
+        });
+      });
+    });
   });
 });
