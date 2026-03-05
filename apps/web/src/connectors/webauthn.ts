@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { b64Decode, getQsParam } from "./common";
+import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
 const mobileCallbackUri = "bitwarden://webauthn-callback";
@@ -13,7 +13,7 @@ let btnAwaitingInteractionText: string = null;
 let btnReturnText: string = null;
 let parentUrl: string = null;
 let parentOrigin: string = null;
-let mobileResponse = false;
+let callbackUri: string = null;
 let stopWebAuthn = false;
 let sentSuccess = false;
 let obj: any = null;
@@ -84,10 +84,7 @@ function parseParameters() {
   }
 
   parentUrl = getQsParam("parent");
-  if (!parentUrl) {
-    error("No parent.");
-    return;
-  } else {
+  if (parentUrl) {
     parentUrl = decodeURIComponent(parentUrl);
     parentOrigin = new URL(parentUrl).origin;
   }
@@ -99,6 +96,13 @@ function parseParameters() {
   } else {
     parseParametersV2();
   }
+
+  // Require at least one return mechanism
+  if (!parentUrl && !callbackUri) {
+    error("No return target provided.");
+    return;
+  }
+
   parsed = true;
 }
 
@@ -122,7 +126,6 @@ function parseParametersV2() {
     headerText: string;
     btnText: string;
     btnReturnText: string;
-    callbackUri?: string;
     mobile?: boolean;
   } = null;
   try {
@@ -134,7 +137,15 @@ function parseParametersV2() {
     return;
   }
 
-  mobileResponse = dataObj.callbackUri != null || dataObj.mobile === true;
+  // Determine callback URI for mobile deep-link return
+  // Priority: 1) deeplinkScheme query param, 2) mobile flag with hardcoded URI
+  const deeplinkScheme = getQsParam("deeplinkScheme");
+  if (deeplinkScheme) {
+    callbackUri = buildMobileDeeplinkUriFromParam("webauthn");
+  } else if (dataObj.mobile === true) {
+    callbackUri = mobileCallbackUri;
+  }
+
   webauthnJson = dataObj.data;
   headerText = dataObj.headerText;
   btnText = dataObj.btnText;
@@ -175,8 +186,8 @@ function start() {
   stopWebAuthn = false;
 
   if (
-    mobileResponse ||
-    (navigator.userAgent.indexOf(" Safari/") !== -1 && navigator.userAgent.indexOf("Chrome") === -1)
+    navigator.userAgent.indexOf(" Safari/") !== -1 &&
+    navigator.userAgent.indexOf("Chrome") === -1
   ) {
     // Safari and mobile chrome blocks non-user initiated WebAuthn requests.
   } else {
@@ -199,7 +210,7 @@ function onMessage() {
   window.addEventListener(
     "message",
     (event) => {
-      if (!event.origin || event.origin === "" || event.origin !== parentOrigin) {
+      if (parentOrigin && (!event.origin || event.origin === "" || event.origin !== parentOrigin)) {
         return;
       }
 
@@ -215,10 +226,11 @@ function onMessage() {
 }
 
 function error(message: string) {
-  if (mobileResponse) {
-    document.location.replace(mobileCallbackUri + "?error=" + encodeURIComponent(message));
-    returnButton(mobileCallbackUri + "?error=" + encodeURIComponent(message));
-  } else {
+  if (callbackUri) {
+    const uri = callbackUri + "?error=" + encodeURIComponent(message);
+    document.location.replace(uri);
+    returnButton(uri);
+  } else if (parentUrl) {
     parent.postMessage("error|" + message, parentUrl);
     setDefaultWebAuthnButtonState();
   }
@@ -231,17 +243,18 @@ function success(assertedCredential: PublicKeyCredential) {
 
   const dataString = buildDataString(assertedCredential);
 
-  if (mobileResponse) {
-    document.location.replace(mobileCallbackUri + "?data=" + encodeURIComponent(dataString));
-    returnButton(mobileCallbackUri + "?data=" + encodeURIComponent(dataString));
-  } else {
+  if (callbackUri) {
+    const uri = callbackUri + "?data=" + encodeURIComponent(dataString);
+    document.location.replace(uri);
+    returnButton(uri);
+  } else if (parentUrl) {
     parent.postMessage("success|" + dataString, parentUrl);
     sentSuccess = true;
   }
 }
 
 function info(message: string) {
-  if (mobileResponse) {
+  if (!parentUrl) {
     return;
   }
 
