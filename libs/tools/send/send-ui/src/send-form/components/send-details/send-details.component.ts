@@ -42,13 +42,9 @@ import {
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
+import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
-import {
-  SendGeneratorDialogComponent,
-  SendGeneratorDialogParams,
-  SendGeneratorDialogResult,
-} from "../send-generator-dialog/send-generator-dialog.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
@@ -186,6 +182,7 @@ export class SendDetailsComponent implements OnInit {
     private sendApiService: SendApiService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private sendFormGenerationService: SendFormGenerationService,
   ) {
     this.sendDetailsForm.valueChanges
       .pipe(
@@ -322,18 +319,11 @@ export class SendDetailsComponent implements OnInit {
   }
 
   generatePassword = async () => {
-    const dialogRef = this.dialogService.open<SendGeneratorDialogResult, SendGeneratorDialogParams>(
-      SendGeneratorDialogComponent,
-      {
-        data: { type: "password" },
-      },
-    );
+    const generatedValue = await this.sendFormGenerationService.generatePassword();
 
-    const result = await firstValueFrom(dialogRef.closed);
-
-    if (result && result.action === "selected" && result.generatedValue) {
+    if (generatedValue) {
       this.sendDetailsForm.patchValue({
-        password: result.generatedValue,
+        password: generatedValue,
       });
     }
   };
