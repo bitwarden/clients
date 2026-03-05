@@ -7,15 +7,15 @@ import { RiskOverTimeDataPoint } from "./risk-over-time-data-point";
 /**
  * Domain model for risk-over-time chart data.
  *
- * - See {@link GetRiskOverTimeResponse} for API response model
+ * Contains an array of data points, each with a date and atRisk/total counts
+ * extracted from decrypted OrganizationReportSummary entries for the selected
+ * RiskOverTimeDataView.
+ *
+ * - See {@link RiskOverTimeSummaryEntryResponse} for API response model
  * - See {@link RiskOverTimeData} for data model
  * - See {@link RiskOverTimeView} for view model
  */
 export class RiskOverTime extends Domain {
-  // TODO: If encryption is added (PM-28531), timeframe/dataView may become EncString.
-  // See concerns-and-gaps.md #4. [PM-28529]
-  timeframe: string = "";
-  dataView: string = "";
   dataPoints: RiskOverTimeDataPoint[] = [];
 
   constructor(data?: RiskOverTimeData) {
@@ -24,9 +24,6 @@ export class RiskOverTime extends Domain {
       return;
     }
 
-    this.timeframe = data.timeframe;
-    this.dataView = data.dataView;
-
     if (data.dataPoints != null) {
       this.dataPoints = data.dataPoints.map((dp) => new RiskOverTimeDataPoint(dp));
     }
@@ -34,8 +31,6 @@ export class RiskOverTime extends Domain {
 
   toRiskOverTimeData(): RiskOverTimeData {
     const d = new RiskOverTimeData();
-    d.timeframe = this.timeframe;
-    d.dataView = this.dataView;
     d.dataPoints = this.dataPoints.map((dp) => dp.toRiskOverTimeDataPointData());
     return d;
   }

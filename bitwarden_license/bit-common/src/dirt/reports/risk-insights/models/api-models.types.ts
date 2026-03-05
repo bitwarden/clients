@@ -4,7 +4,6 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 import { createNewSummaryData } from "../helpers";
 
-import { RiskOverTimeDataPointApi } from "./api/risk-over-time-data-point.api";
 import { RiskInsightsMetricsData } from "./data/risk-insights-metrics.data";
 import { OrganizationReportSummary, PasswordHealthReportApplicationId } from "./report-models";
 
@@ -152,13 +151,24 @@ export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {
 }
 
 // -------------------- Risk Over Time Models --------------------
-export class GetRiskOverTimeResponse extends BaseResponse {
-  // TODO: The response "timeframe" value may differ from the request value
-  // (e.g., request sends "month", response returns "past_month").
-  // Stored as plain string — no validation against request params. See concerns-and-gaps.md #5. [PM-28529]
-  timeframe: string = "";
-  dataView: string = "";
-  dataPoints: RiskOverTimeDataPointApi[] = [];
+
+/**
+ * Response model for a single entry from the summary-by-date-range endpoint.
+ * Matches server's OrganizationReportSummaryDataResponse.
+ *
+ * Server endpoint: GET /reports/organizations/{orgId}/data/summary?startDate=...&endDate=...
+ * Returns an array of these entries (up to 6, evenly spaced across the date range).
+ *
+ * Each entry contains encrypted summary data that must be decrypted using
+ * the encryptionKey to obtain an OrganizationReportSummary with member/application counts.
+ * The consuming code (domain service) should handle decryption and metric extraction
+ * based on the selected RiskOverTimeDataView.
+ */
+export class RiskOverTimeSummaryEntryResponse extends BaseResponse {
+  organizationId: string = "";
+  encryptedData: EncString;
+  encryptionKey: EncString;
+  date: Date;
 
   constructor(response: any) {
     super(response);
@@ -166,14 +176,9 @@ export class GetRiskOverTimeResponse extends BaseResponse {
       return;
     }
 
-    // FIXME: Verify property names match server response when PM-28531 is implemented.
-    // These names are from the proposed contract (marked "TO BE UPDATED" in PM-28531). [PM-28529]
-    this.timeframe = this.getResponseProperty("timeframe");
-    this.dataView = this.getResponseProperty("dataView");
-
-    const dataPoints = this.getResponseProperty("dataPoints");
-    if (dataPoints != null) {
-      this.dataPoints = dataPoints.map((dp: any) => new RiskOverTimeDataPointApi(dp));
-    }
+    this.organizationId = this.getResponseProperty("organizationId");
+    this.encryptedData = new EncString(this.getResponseProperty("encryptedData"));
+    this.encryptionKey = new EncString(this.getResponseProperty("encryptionKey"));
+    this.date = new Date(this.getResponseProperty("date"));
   }
 }

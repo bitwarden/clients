@@ -1,24 +1,20 @@
-import { RiskOverTimeDataPointApi } from "../api/risk-over-time-data-point.api";
-
 /**
  * Serializable data model for a single data point in risk-over-time chart data.
  *
- * - See {@link RiskOverTimeDataPointApi} for API model
+ * Each data point represents one encrypted summary entry from the server.
+ * The date comes directly from the server response. The encryptedData and
+ * encryptionKey are preserved for decryption by the domain layer, which
+ * extracts atRisk/total based on the selected RiskOverTimeDataView.
+ *
+ * - See {@link RiskOverTimeSummaryEntryResponse} for API model
  * - See {@link RiskOverTimeDataPoint} for domain model
  * - See {@link RiskOverTimeDataPointView} for view model
  */
 export class RiskOverTimeDataPointData {
-  timestamp: string = "";
+  date: string = "";
+  encryptedData: string = "";
+  encryptionKey: string = "";
+  // Populated after decryption by the domain layer
   atRisk: number = 0;
   total: number = 0;
-
-  constructor(data?: RiskOverTimeDataPointApi) {
-    if (data == null) {
-      return;
-    }
-
-    this.timestamp = data.timestamp;
-    this.atRisk = data.atRisk;
-    this.total = data.total;
-  }
 }

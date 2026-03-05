@@ -1,31 +1,40 @@
-import { GetRiskOverTimeResponse } from "../api-models.types";
+import { RiskOverTimeSummaryEntryResponse } from "../api-models.types";
 
 import { RiskOverTimeDataPointData } from "./risk-over-time-data-point.data";
 
 /**
  * Serializable data model for risk-over-time chart data.
  *
- * - See {@link GetRiskOverTimeResponse} for API response model
+ * The server returns encrypted OrganizationReportSummary entries via the
+ * summary-by-date-range endpoint (PM-28531). Each entry must be decrypted
+ * before the relevant metric pair (atRisk/total) can be extracted based
+ * on the selected RiskOverTimeDataView.
+ *
+ * - See {@link RiskOverTimeSummaryEntryResponse} for API response model
  * - See {@link RiskOverTime} for domain model
  * - See {@link RiskOverTimeView} for view model
  */
 export class RiskOverTimeData {
-  timeframe: string = "";
-  dataView: string = "";
   dataPoints: RiskOverTimeDataPointData[] = [];
 
-  // TODO: If encryption is added, this constructor may accept a RiskOverTimeApi class
-  // instead of GetRiskOverTimeResponse (Solution B approach). See concerns-and-gaps.md #4. [PM-28529]
-  constructor(data?: GetRiskOverTimeResponse) {
-    if (data == null) {
+  /**
+   * Constructs from the raw API response entries.
+   *
+   * NOTE: The entries contain encrypted data. This constructor only extracts
+   * the date from each entry. The atRisk/total values must be populated
+   * separately after decryption by the domain layer.
+   */
+  constructor(entries?: RiskOverTimeSummaryEntryResponse[]) {
+    if (entries == null) {
       return;
     }
 
-    this.timeframe = data.timeframe;
-    this.dataView = data.dataView;
-
-    if (data.dataPoints != null) {
-      this.dataPoints = data.dataPoints.map((dp) => new RiskOverTimeDataPointData(dp));
-    }
+    this.dataPoints = entries.map((entry) => {
+      const dp = new RiskOverTimeDataPointData();
+      dp.date = entry.date.toISOString();
+      dp.encryptedData = entry.encryptedData?.encryptedString ?? "";
+      dp.encryptionKey = entry.encryptionKey?.encryptedString ?? "";
+      return dp;
+    });
   }
 }

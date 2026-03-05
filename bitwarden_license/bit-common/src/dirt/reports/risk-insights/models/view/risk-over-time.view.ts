@@ -6,24 +6,19 @@ import { RiskOverTime } from "../domain/risk-over-time";
 import { RiskOverTimeDataPointView } from "./risk-over-time-data-point.view";
 
 /**
- * View model for risk-over-time chart data containing decrypted properties.
+ * View model for risk-over-time chart data containing decrypted data points.
  *
- * - See {@link GetRiskOverTimeResponse} for API response model
+ * - See {@link RiskOverTimeSummaryEntryResponse} for API response model
  * - See {@link RiskOverTimeData} for data model
  * - See {@link RiskOverTime} for domain model
  */
 export class RiskOverTimeView implements View {
-  timeframe: string = "";
-  dataView: string = "";
   dataPoints: RiskOverTimeDataPointView[] = [];
 
   constructor(data?: RiskOverTime) {
     if (data == null) {
       return;
     }
-
-    this.timeframe = data.timeframe;
-    this.dataView = data.dataView;
 
     if (data.dataPoints != null) {
       this.dataPoints = data.dataPoints.map((dp) => new RiskOverTimeDataPointView(dp));

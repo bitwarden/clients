@@ -1,5 +1,6 @@
-// TODO: Verify these values match the finalized server query parameter values
-// when PM-28531 is implemented. Current values are from the proposed contract. [PM-28529]
+// Client-side timeframe options for the risk-over-time widget.
+// These are NOT sent to the server — they are converted to startDate/endDate
+// via timeframeToDateRange() before calling the summary endpoint.
 export const RiskOverTimeTimeframe = Object.freeze({
   Month: "month",
   ThreeMonths: "3mo",
@@ -19,11 +20,11 @@ export function isRiskOverTimeTimeframe(value: string): value is RiskOverTimeTim
   return Object.values(RiskOverTimeTimeframe).includes(value as RiskOverTimeTimeframe);
 }
 
-// TODO: Verify these values match the finalized server query parameter values
-// when PM-28531 is implemented. Current values are from the proposed contract. [PM-28529]
+// Client-side data view options for the risk-over-time widget.
+// These are NOT sent to the server — they determine which metric pair
+// (atRisk/total) to extract from decrypted OrganizationReportSummary data.
 export const RiskOverTimeDataView = Object.freeze({
   Applications: "applications",
-  Passwords: "passwords",
   Members: "members",
 } as const);
 
@@ -35,4 +36,40 @@ export type RiskOverTimeDataView = (typeof RiskOverTimeDataView)[keyof typeof Ri
  */
 export function isRiskOverTimeDataView(value: string): value is RiskOverTimeDataView {
   return Object.values(RiskOverTimeDataView).includes(value as RiskOverTimeDataView);
+}
+
+/**
+ * Converts a UI timeframe selection into a startDate/endDate range
+ * for the server's summary-by-date-range endpoint.
+ *
+ * The server endpoint is: GET /reports/organizations/{orgId}/data/summary?startDate=...&endDate=...
+ * It returns up to 6 evenly-spaced encrypted summary entries within the range.
+ */
+export function timeframeToDateRange(timeframe: RiskOverTimeTimeframe): {
+  startDate: Date;
+  endDate: Date;
+} {
+  const endDate = new Date();
+  const startDate = new Date();
+
+  switch (timeframe) {
+    case RiskOverTimeTimeframe.Month:
+      startDate.setMonth(startDate.getMonth() - 1);
+      break;
+    case RiskOverTimeTimeframe.ThreeMonths:
+      startDate.setMonth(startDate.getMonth() - 3);
+      break;
+    case RiskOverTimeTimeframe.SixMonths:
+      startDate.setMonth(startDate.getMonth() - 6);
+      break;
+    case RiskOverTimeTimeframe.TwelveMonths:
+      startDate.setMonth(startDate.getMonth() - 12);
+      break;
+    case RiskOverTimeTimeframe.All:
+      // Use a far-back date to capture all available data
+      startDate.setFullYear(startDate.getFullYear() - 5);
+      break;
+  }
+
+  return { startDate, endDate };
 }
