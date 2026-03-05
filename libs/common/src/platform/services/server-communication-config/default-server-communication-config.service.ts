@@ -5,6 +5,7 @@ import {
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
 
+import { ConfigService } from "../../abstractions/config/config.service";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
 
@@ -35,6 +36,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
   constructor(
     protected repository: ServerCommunicationConfigRepository,
     protected platformApi: ServerCommunicationConfigPlatformApi,
+    private configService: ConfigService,
   ) {}
 
   async init() {
@@ -42,6 +44,10 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     await SdkLoadService.Ready;
     // Initialize SDK client with repository and platform API
     this.client = new ServerCommunicationConfigClient(this.repository, this.platformApi);
+    // Forward each server communication config update to the SDK client
+    this.configService.serverCommunicationConfig$.subscribe(({ hostname, config }) => {
+      void this.client.setCommunicationType(hostname, config);
+    });
   }
 
   needsBootstrap$(hostname: string): Observable<boolean> {

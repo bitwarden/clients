@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import {
   ServerCommunicationConfig,
@@ -6,6 +6,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { awaitAsync, FakeAccountService, FakeStateProvider } from "../../../../spec";
+import { ConfigService } from "../../abstractions/config/config.service";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
@@ -22,6 +23,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   ServerCommunicationConfigClient: jest.fn().mockImplementation(() => ({
     needsBootstrap: jest.fn(),
     cookies: jest.fn(),
+    setCommunicationType: jest.fn(),
   })),
 }));
 
@@ -29,6 +31,7 @@ describe("DefaultServerCommunicationConfigService", () => {
   let stateProvider: FakeStateProvider;
   let repository: ServerCommunicationConfigRepository;
   let mockPlatformApi: ServerCommunicationConfigPlatformApi;
+  let mockConfigService: jest.Mocked<Pick<ConfigService, "serverCommunicationConfig$">>;
   let service: DefaultServerCommunicationConfigService;
   let mockClient: any;
 
@@ -42,30 +45,38 @@ describe("DefaultServerCommunicationConfigService", () => {
       acquireCookies: jest.fn(),
     };
 
-    service = new DefaultServerCommunicationConfigService(repository, mockPlatformApi);
+    mockConfigService = {
+      serverCommunicationConfig$: of(),
+    };
+
+    service = new DefaultServerCommunicationConfigService(
+      repository,
+      mockPlatformApi,
+      mockConfigService as unknown as ConfigService,
+    );
     await service.init();
     mockClient = (service as any).client;
   });
 
-  // describe("init", () => {
-  //   it("calls setCommunicationType for each emission on serverCommunicationConfig$", async () => {
-  //     const config: ServerCommunicationConfig = { bootstrap: { type: "direct" } };
-  //     mockConfigService.serverCommunicationConfig$ = of({
-  //       hostname: "https://api.example.com",
-  //       config,
-  //     });
+  describe("init", () => {
+    it("calls setCommunicationType for each emission on serverCommunicationConfig$", async () => {
+      const config: ServerCommunicationConfig = { bootstrap: { type: "direct" } };
+      mockConfigService.serverCommunicationConfig$ = of({
+        hostname: "https://api.example.com",
+        config,
+      });
 
-  //     await service.init();
-  //     mockClient = (service as any).client;
+      await service.init();
+      mockClient = (service as any).client;
 
-  //     await awaitAsync();
+      await awaitAsync();
 
-  //     expect(mockClient.setCommunicationType).toHaveBeenCalledWith(
-  //       "https://api.example.com",
-  //       config,
-  //     );
-  //   });
-  // });
+      expect(mockClient.setCommunicationType).toHaveBeenCalledWith(
+        "https://api.example.com",
+        config,
+      );
+    });
+  });
 
   describe("needsBootstrap$", () => {
     it("emits false when direct bootstrap configured", async () => {
