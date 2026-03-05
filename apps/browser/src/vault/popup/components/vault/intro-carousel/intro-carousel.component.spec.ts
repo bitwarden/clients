@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { IntroCarouselComponent } from "@bitwarden/browser/vault/popup/components/vault/intro-carousel/intro-carousel.component";
@@ -8,16 +9,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 describe("IntroCarouselComponent", () => {
   let component: IntroCarouselComponent;
   let fixture: ComponentFixture<IntroCarouselComponent>;
+  let mockRouter: Router;
   let mockIntroCarouselService: IntroCarouselService;
-  let navigateSpy: any;
-  let carouselDismissedSpy: any;
+  let navigateSpy: jest.SpyInstance;
+  let carouselDismissedSpy: jest.SpyInstance;
 
   beforeEach(async () => {
+    mockRouter = mock<Router>();
     mockIntroCarouselService = mock<IntroCarouselService>();
 
     await TestBed.configureTestingModule({
       imports: [],
       providers: [
+        { provide: Router, useValue: mockRouter },
         { provide: IntroCarouselService, useValue: mockIntroCarouselService },
         { provide: I18nService, useValue: mock<I18nService>() },
       ],
@@ -26,7 +30,7 @@ describe("IntroCarouselComponent", () => {
     fixture = TestBed.createComponent(IntroCarouselComponent);
     component = fixture.componentInstance;
 
-    navigateSpy = jest.spyOn(component["router"], "navigate").mockResolvedValue(true);
+    navigateSpy = jest.spyOn(mockRouter, "navigate").mockResolvedValue(true);
     carouselDismissedSpy = jest
       .spyOn(mockIntroCarouselService, "setIntroCarouselDismissed")
       .mockResolvedValue();
