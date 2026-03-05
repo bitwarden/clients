@@ -210,6 +210,16 @@ export class DialogService {
         )
         .subscribe(() => this.closeAll());
     }
+
+    /** Close the drawer on navigation */
+    if (this.router) {
+      this.router.events
+        .pipe(
+          filter((event) => event instanceof NavigationEnd),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => this.closeDrawer());
+    }
   }
 
   open<R = unknown, D = unknown, C = unknown>(

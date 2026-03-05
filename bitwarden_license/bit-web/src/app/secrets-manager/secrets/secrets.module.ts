@@ -4,6 +4,7 @@ import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
 import { SecretDeleteDialogComponent } from "./dialog/secret-delete.component";
 import { SecretDialogComponent } from "./dialog/secret-dialog.component";
+import { SecretVersionDialogComponent } from "./dialog/secret-version.component";
 import { SecretViewDialogComponent } from "./dialog/secret-view-dialog.component";
 import { SecretsRoutingModule } from "./secrets-routing.module";
 import { SecretsComponent } from "./secrets.component";
@@ -13,6 +14,7 @@ import { SecretsComponent } from "./secrets.component";
   declarations: [
     SecretDeleteDialogComponent,
     SecretDialogComponent,
+    SecretVersionDialogComponent,
     SecretViewDialogComponent,
     SecretsComponent,
   ],

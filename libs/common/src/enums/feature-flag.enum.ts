@@ -90,6 +90,9 @@ export enum FeatureFlag {
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
+
+  /* Secrets Manager */
+  SecretVersioning = "sm-secret-versioning",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -186,6 +189,9 @@ export const DefaultFeatureFlagValue = {
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
+
+  /* Secrets Manager */
+  [FeatureFlag.SecretVersioning]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

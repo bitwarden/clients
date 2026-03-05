@@ -33,6 +33,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
+import { openSecretVersionDialog } from "./dialog/secret-version.component";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -176,6 +177,19 @@ export class SecretsComponent implements OnInit {
       data: {
         organizationId: this.organizationId,
         secretId: secretId,
+      },
+    });
+  }
+
+  async openVersionHistory(secretId: string) {
+    const secret = await this.secretService.getBySecretId(secretId);
+    openSecretVersionDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
+        name: secret?.name,
+        currentValue: secret?.value,
+        revisionDate: secret?.revisionDate,
       },
     });
   }
