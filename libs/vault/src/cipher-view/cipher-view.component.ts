@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -265,6 +265,12 @@ export class CipherViewComponent {
 
   readonly showChangePasswordLink = computed(() => {
     return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
+  });
+
+  protected readonly changePasswordUrl = resource({
+    params: () => ({ cipher: this.cipher() }),
+    loader: async ({ params }) =>
+      await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher),
   });
 
   launchChangePassword = async () => {
