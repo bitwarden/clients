@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "单词最少个数"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "密码类型",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "将事件数据发送到您的 Huntress SIEM 实例"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ 成功连接。",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "保存集成失败。请稍后再试。"
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "关闭"
+  },
+  "memberAccessReportLoadError": {
+    "message": "成员访问报告加载失败。这可能是由于组织规模过大或网络问题导致的。请重试，如果问题持续存在，请联系支持人员。"
   },
   "kdfIterationRecommends": {
     "message": "我们推荐 600,000 或更高"
@@ -12884,7 +12896,7 @@
     "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
   },
   "extensionPromptImageAlt": {
-    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+    "message": "一个网页浏览器显示着 Bitwarden 扩展程序，该程序带有当前网页的自动填充项目。"
   },
   "skip": {
     "message": "跳过"
