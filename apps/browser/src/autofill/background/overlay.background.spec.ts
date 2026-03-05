@@ -3625,7 +3625,7 @@ describe("OverlayBackground", () => {
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuGeneratedPassword",
-          generatedPassword: "refresh",
+          generatedPassword: "generated-password",
           refreshPassword: true,
         });
       });

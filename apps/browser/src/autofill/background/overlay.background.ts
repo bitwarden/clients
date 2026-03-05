@@ -5,13 +5,15 @@ import {
   combineLatest,
   concatMap,
   debounceTime,
+  filter,
   firstValueFrom,
   map,
-  mapTo,
   merge,
   Observable,
   ReplaySubject,
+  skip,
   Subject,
+  Subscription,
   switchMap,
   throttleTime,
 } from "rxjs";
@@ -132,6 +134,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly clearGeneratedPassword$ = new Subject<void>();
   private yieldedPassword$: Observable<GeneratedCredential>;
   protected credential$ = new BehaviorSubject<string>("");
+  private credentialPipelineSubscription: Subscription | undefined;
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -155,8 +158,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string;
-  private generatedPassword: string;
-
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
     AutofillOverlayPort.ButtonMessageConnector,
@@ -264,20 +265,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.iconsServerUrl = env.getIconsUrl();
     this.yieldedPassword$ = merge(
       this.yieldGeneratedPassword(this.requestGeneratedPassword$),
-      this.clearGeneratedPassword$.pipe(mapTo(null)),
+      this.clearGeneratedPassword$.pipe(map(() => null)),
     );
 
-    this.yieldedPassword$
-      .pipe(
-        concatMap(async (generated) => {
-          if (!generated) {
-            return;
-          }
-          await this.trackCredentialHistory(generated.credential);
-          return generated.credential;
-        }),
-      )
-      .subscribe(this.credential$);
+    if (!this.credentialPipelineSubscription) {
+      this.credentialPipelineSubscription = this.yieldedPassword$
+        .pipe(
+          concatMap(async (generated) => {
+            if (!generated) {
+              return;
+            }
+            await this.trackCredentialHistory(generated.credential);
+            return generated.credential;
+          }),
+        )
+        .subscribe(this.credential$);
+    }
   }
 
   /**
@@ -1846,6 +1849,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.credential$.value || refreshPassword) {
       this.requestGeneratedPassword({ source: "inline-menu", type: Type.password });
+      const generatedPassword = await firstValueFrom(
+        this.credential$.pipe(skip(1), filter(Boolean)),
+      );
+      this.postMessageToPort(this.inlineMenuListPort, {
+        command: "updateAutofillInlineMenuGeneratedPassword",
+        generatedPassword,
+        refreshPassword,
+      });
+      return;
     }
 
     this.postMessageToPort(this.inlineMenuListPort, {
