@@ -11,6 +11,9 @@
   "favorites": {
     "message": "我的最愛"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "類型"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "項目已儲存"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "刪除項目"
   },
@@ -1024,7 +1033,7 @@
     "message": "無效的驗證碼"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "電子郵件或驗證碼無效"
   },
   "continue": {
     "message": "繼續"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "不詳"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "複製使用者名稱"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "搜尋垃圾桶"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "永久刪除項目"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "編輯 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "我的密碼庫"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "缺少網站"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
     "placeholders": {
@@ -4391,10 +4436,10 @@
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "項目已封存"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "項目已取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
@@ -4490,7 +4535,7 @@
     "message": "逾時後動作"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "錯誤：無法解密"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
@@ -4590,6 +4635,36 @@
   "whyAmISeeingThis": {
     "message": "為什麼我會看到此訊息？"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4619,12 +4694,12 @@
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "使用者驗證失敗。"
   }
 }
