@@ -96,6 +96,7 @@ export class MultiStepPolicyEditDialogComponent
     this.policyComponentRef.setInput("policyResponse", policyResponse);
     this.policyComponentRef.setInput("policy", this.data.policy);
     this.policyComponentRef.setInput("currentStep", this.currentStep);
+    this.policyComponentRef.setInput("organizationId", this.data.organizationId);
 
     // Read step configuration from child component
     this.policySteps = this.policyComponent.policySteps ?? [];

@@ -90,6 +90,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() currentStep: Signal<number> = signal(0);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() organizationId: string | undefined;
 
   /**
    * Whether the policy is enabled.

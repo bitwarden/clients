@@ -1,21 +1,45 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { Observable, startWith } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  defer,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { OrganizationDataOwnershipPolicyDialogComponent } from "../policy-edit-dialogs";
+import { MultiStepPolicyEditDialogComponent, PolicyStep } from "../policy-edit-dialogs";
 
 type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -32,7 +56,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
-  editDialogComponent = OrganizationDataOwnershipPolicyDialogComponent;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.MigrateMyVaultToMyItems);
@@ -49,10 +73,60 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent
   implements OnInit
 {
+  private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
+  private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
+
+  protected centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
+    from(
+      this.policyApiService.getPolicy(
+        this.organizationId ?? "",
+        PolicyType.OrganizationDataOwnership,
+      ),
+    ).pipe(
+      map((policy) => policy.enabled),
+      catchError(() => of(false)),
+    ),
+  );
+
+  protected saveDisabled$: Observable<boolean> = combineLatest([
+    this.centralizeDataOwnershipEnabled$,
+    this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
+  ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
+
+  policySteps: PolicyStep[] = [
+    {
+      titleContent: this.step0Title,
+      footerContent: this.step0Footer,
+      disableSave: this.saveDisabled$,
+      sideEffect: async () => {
+        const orgKeys = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) => this.keyService.orgKeys$(userId)),
+          ),
+        );
+
+        assertNonNullish(orgKeys, "Org keys not provided");
+
+        const orgKey = orgKeys[this.organizationId as OrganizationId];
+        const request = await this.buildVNextRequest(orgKey);
+
+        await this.policyApiService.putPolicyVNext(
+          this.organizationId ?? "",
+          this.policy?.type ?? PolicyType.OrganizationDataOwnership,
+          request,
+        );
+      },
+    },
+  ];
+
   constructor(
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private formBuilder: FormBuilder,
+    private policyApiService: PolicyApiServiceAbstraction,
+    private accountService: AccountService,
+    private keyService: KeyService,
   ) {
     super();
 
