@@ -21,7 +21,7 @@ export class BreachReportComponent implements OnInit {
   checkedUsername: string;
   breachedAccounts: BreachAccountResponse[] = [];
   formGroup = this.formBuilder.group({
-    username: ["", { validators: [Validators.required], updateOn: "change" }],
+    username: ["", { validators: [Validators.required, Validators.email], updateOn: "change" }],
   });
 
   constructor(

@@ -111,11 +111,11 @@ describe("BreachReportComponent", () => {
 
   it("should call auditService.breachedAccounts with lowercase username", async () => {
     auditService.breachedAccounts.mockResolvedValue(breachedAccounts);
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("username").setValue("ValidUser@example.com");
 
     await component.submit();
 
-    expect(auditService.breachedAccounts).toHaveBeenCalledWith("validusername");
+    expect(auditService.breachedAccounts).toHaveBeenCalledWith("validuser@example.com");
   });
 
   it("should set breachedAccounts and checkedUsername after successful submit", async () => {
@@ -129,7 +129,7 @@ describe("BreachReportComponent", () => {
 
   it("should set error to true if auditService.breachedAccounts throws an error", async () => {
     auditService.breachedAccounts.mockRejectedValue(new Error("test error"));
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("username").setValue("valid@example.com");
 
     await component.submit();
 
@@ -138,10 +138,32 @@ describe("BreachReportComponent", () => {
 
   it("should set loading to false after submit", async () => {
     auditService.breachedAccounts.mockResolvedValue([]);
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("username").setValue("valid@example.com");
 
     await component.submit();
 
     expect(component.loading).toBe(false);
+  });
+
+  it("should mark form as invalid when email format is invalid", () => {
+    component.formGroup.get("username").setValue("invalid-email");
+
+    expect(component.formGroup.get("username").hasError("email")).toBe(true);
+    expect(component.formGroup.invalid).toBe(true);
+  });
+
+  it("should mark form as valid when email format is valid", () => {
+    component.formGroup.get("username").setValue("valid@example.com");
+
+    expect(component.formGroup.get("username").hasError("email")).toBe(false);
+    expect(component.formGroup.invalid).toBe(false);
+  });
+
+  it("should not call auditService when email format is invalid", async () => {
+    component.formGroup.get("username").setValue("invalid-email");
+
+    await component.submit();
+
+    expect(auditService.breachedAccounts).not.toHaveBeenCalled();
   });
 });
