@@ -160,7 +160,7 @@ export class Utils {
     }
 
     // @ts-expect-error - polyfilled by core-js
-    return arr.toBase64({ alphabet: "base64" });
+    return arr.toBase64({ alphabet: "base64", omitPadding: true });
   }
 
   static fromArrayToUrlB64(arr: Uint8Array): string;
