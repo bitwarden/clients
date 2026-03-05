@@ -19,7 +19,6 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
@@ -31,7 +30,6 @@ import {
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
 
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 import { AddEditComponent } from "../send/add-edit.component";
 
@@ -58,13 +56,7 @@ type Action = (typeof Action)[keyof typeof Action];
     NewSendDropdownV2Component,
     DesktopHeaderComponent,
   ],
-  providers: [
-    DefaultSendFormConfigService,
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-  ],
+  providers: [DefaultSendFormConfigService],
   templateUrl: "./send-v2.component.html",
 })
 export class SendV2Component {

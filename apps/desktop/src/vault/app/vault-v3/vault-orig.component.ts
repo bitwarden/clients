@@ -100,7 +100,6 @@ import {
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { ItemFooterComponent } from "../vault/item-footer.component";
@@ -138,10 +137,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: ViewPasswordHistoryService,
       useClass: VaultViewPasswordHistoryService,
-    },
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
     },
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
     {

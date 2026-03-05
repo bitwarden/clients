@@ -102,7 +102,6 @@ import {
 import { NavComponent } from "../../../app/layout/nav.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AssignCollectionsDesktopComponent } from "./assign-collections";
@@ -145,10 +144,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: ViewPasswordHistoryService,
       useClass: VaultViewPasswordHistoryService,
-    },
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
     },
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
     {
