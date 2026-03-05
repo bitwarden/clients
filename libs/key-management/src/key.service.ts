@@ -68,6 +68,8 @@ import {
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
 
+const USER_KEY_STATE_KEY: string = "";
+
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
    * Retrieves a stream of the active users organization keys,
@@ -108,7 +110,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, key, userId);
+    await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
@@ -140,16 +142,18 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .state$.pipe(map((x) => x ?? false));
   }
 
-  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
-    return this.stateProvider.getUserState$(USER_KEY, userId);
+  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
+    return this.stateProvider
+      .getUserState$(USER_KEY, userId)
+      .pipe(map((userKey) => this.stateObjectToUserKey(userKey)));
   }
 
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
-  async getUserKey(userId?: UserId): Promise<UserKey> {
+  async getUserKey(userId?: UserId): Promise<UserKey | null> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
-    return userKey;
+    return this.stateObjectToUserKey(userKey);
   }
 
   async getUserKeyFromStorage(
@@ -301,45 +305,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       iterations,
     );
     return Utils.fromBufferToB64(hash);
-  }
-
-  async compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean> {
-    if (masterKey == null) {
-      throw new Error("'masterKey' is required to be non-null.");
-    }
-
-    if (masterPassword == null) {
-      // If they don't give us a master password, we can't hash it, and therefore
-      // it will never match what we have stored.
-      return false;
-    }
-
-    // Retrieve the current password hash
-    const storedPasswordHash = await firstValueFrom(
-      this.masterPasswordService.masterKeyHash$(userId),
-    );
-
-    if (storedPasswordHash == null) {
-      return false;
-    }
-
-    // Hash the key for local use
-    const localKeyHash = await this.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    // Check if the stored hash is already equal to the hash we create locally
-    if (localKeyHash == null || storedPasswordHash !== localKeyHash) {
-      return false;
-    }
-
-    return true;
   }
 
   async setOrgKeys(
@@ -679,7 +644,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUser(userId, USER_KEY).state$;
+    return this.stateProvider
+      .getUser(userId, USER_KEY)
+      .state$.pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
   }
 
   userPublicKey$(userId: UserId) {
@@ -957,5 +924,19 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
       }),
     );
+  }
+
+  private userKeyToStateObject(userKey: UserKey | null): Record<string, UserKey> | null {
+    if (userKey == null) {
+      return null;
+    }
+    return { [USER_KEY_STATE_KEY]: userKey };
+  }
+
+  private stateObjectToUserKey(stateObject: Record<string, UserKey> | null): UserKey | null {
+    if (stateObject == null) {
+      return null;
+    }
+    return stateObject[USER_KEY_STATE_KEY] ?? null;
   }
 }
