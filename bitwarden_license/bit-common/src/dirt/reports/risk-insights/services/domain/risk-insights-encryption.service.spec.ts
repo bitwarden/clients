@@ -12,6 +12,10 @@ import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { EncryptedReportData, DecryptedReportData } from "../../models";
+import {
+  MemberRegistryEntryData,
+  RiskInsightsReportData,
+} from "../../models/data/risk-insights-report.data";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
@@ -299,6 +303,116 @@ describe("RiskInsightsEncryptionService", () => {
       ).rejects.toThrow(
         /Application data validation failed.*This may indicate data corruption or tampering/,
       );
+    });
+
+    it("should transform V2 blob into V1 ApplicationHealthReportDetail[] without throwing", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const registry: Record<string, MemberRegistryEntryData> = {
+        "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
+        "member-2": { id: "member-2", userName: "Bob", email: "bob@example.com" },
+      };
+      const v2Report: RiskInsightsReportData = Object.assign(new RiskInsightsReportData(), {
+        applicationName: "app.example.com",
+        passwordCount: 3,
+        atRiskPasswordCount: 1,
+        memberCount: 2,
+        atRiskMemberCount: 1,
+        memberRefs: { "member-1": true, "member-2": false },
+        cipherRefs: { "cipher-a": true, "cipher-b": false, "cipher-c": false },
+      });
+      const v2Blob = { version: 2, reports: [v2Report], memberRegistry: registry };
+
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(v2Blob))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.reportData).toHaveLength(1);
+      const app = result.reportData[0];
+      expect(app.applicationName).toBe("app.example.com");
+      expect(app.passwordCount).toBe(3);
+      expect(app.atRiskPasswordCount).toBe(1);
+      expect(app.memberCount).toBe(2);
+      expect(app.atRiskMemberCount).toBe(1);
+      expect(app.cipherIds).toContain("cipher-a");
+      expect(app.cipherIds).toContain("cipher-b");
+      expect(app.atRiskCipherIds).toEqual(["cipher-a"]);
+      expect(app.memberDetails).toHaveLength(2);
+      expect(app.memberDetails.find((m) => m.email === "alice@example.com")).toBeDefined();
+      expect(app.memberDetails.find((m) => m.email === "bob@example.com")).toBeDefined();
+      expect(app.atRiskMemberDetails).toHaveLength(1);
+      expect(app.atRiskMemberDetails[0].email).toBe("alice@example.com");
+      // cipherId sentinel
+      expect(
+        app.memberDetails.every((m) => m.cipherId === "00000000-0000-0000-0000-000000000000"),
+      ).toBe(true);
+    });
+
+    it("should return empty reportData array when V2 blob has empty reports", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const v2Blob = {
+        version: 2,
+        reports: [] as RiskInsightsReportData[],
+        memberRegistry: {} as Record<string, MemberRegistryEntryData>,
+      };
+
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(v2Blob))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.reportData).toEqual([]);
+    });
+
+    it("should skip members not found in registry during V2 downgrade", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const registry: Record<string, MemberRegistryEntryData> = {
+        "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
+        // member-2 intentionally missing from registry
+      };
+      const v2Report: RiskInsightsReportData = Object.assign(new RiskInsightsReportData(), {
+        applicationName: "app.example.com",
+        passwordCount: 1,
+        atRiskPasswordCount: 0,
+        memberCount: 2,
+        atRiskMemberCount: 0,
+        memberRefs: { "member-1": false, "member-2": false },
+        cipherRefs: {},
+      });
+      const v2Blob = { version: 2, reports: [v2Report], memberRegistry: registry };
+
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(v2Blob))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      // Only the member found in registry appears
+      expect(result.reportData[0].memberDetails).toHaveLength(1);
+      expect(result.reportData[0].memberDetails[0].email).toBe("alice@example.com");
     });
 
     it("should throw error for invalid date in application data", async () => {

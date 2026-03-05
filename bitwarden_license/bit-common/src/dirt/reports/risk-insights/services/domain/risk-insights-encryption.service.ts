@@ -4,12 +4,13 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
+  validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
@@ -19,11 +20,24 @@ import {
   DecryptedReportData,
   EncryptedDataWithKey,
   EncryptedReportData,
+  MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
+import {
+  MemberRegistryEntryData,
+  RiskInsightsReportData,
+} from "../../models/data/risk-insights-report.data";
 
 export class RiskInsightsEncryptionService {
+  /**
+   * Sentinel value for MemberDetails.cipherId in downgraded V2→V1 reports.
+   * V2 does not store per-cipher member associations (that mapping was already lossy in V1
+   * due to email-based deduplication — see report-data-model-evolution.md). An empty string
+   * fails isBoundedString, and using the userId risks confusion, so we use the nil UUID.
+   */
+  private readonly _nilCipherId = "00000000-0000-0000-0000-000000000000" as CipherId;
+
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -187,7 +201,17 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
+      // Downgrade path: V2 blob detected in V1 context (feature flag was reverted).
+      // Validate and reconstruct V1 structure from V2 payload using the member registry.
+      if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
+        this.logService.warning(
+          "[RiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
+        );
+        const payload = validateAccessReportPayload(parsedData);
+        return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
+      }
+
+      // Normal V1 path: validate parsed data structure with runtime type guards
       return validateApplicationHealthReportDetailArray(parsedData);
     } catch (error: unknown) {
       // Log detailed error for debugging
@@ -254,5 +278,55 @@ export class RiskInsightsEncryptionService {
         "Application data validation failed. This may indicate data corruption or tampering.",
       );
     }
+  }
+
+  /**
+   * Reconstructs a V1 ApplicationHealthReportDetail[] from a V2 report payload.
+   * Used when a V2-format blob is encountered during V1 decryption (feature flag downgrade).
+   */
+  private _convertV2ReportToV1(
+    reports: RiskInsightsReportData[],
+    memberRegistry: Record<string, MemberRegistryEntryData>,
+  ): ApplicationHealthReportDetail[] {
+    return reports.map((report) => {
+      const cipherIds = Object.keys(report.cipherRefs) as CipherId[];
+      const atRiskCipherIds = Object.entries(report.cipherRefs)
+        .filter(([, isAtRisk]) => isAtRisk)
+        .map(([id]) => id as CipherId);
+
+      const toMemberDetails = (userId: string): MemberDetails | null => {
+        const entry = memberRegistry[userId];
+        if (!entry) {
+          return null;
+        }
+        return {
+          userGuid: entry.id,
+          userName: entry.userName,
+          email: entry.email,
+          cipherId: this._nilCipherId,
+        };
+      };
+
+      const memberDetails = Object.keys(report.memberRefs)
+        .map(toMemberDetails)
+        .filter((m): m is MemberDetails => m !== null);
+
+      const atRiskMemberDetails = Object.entries(report.memberRefs)
+        .filter(([, isAtRisk]) => isAtRisk)
+        .map(([userId]) => toMemberDetails(userId))
+        .filter((m): m is MemberDetails => m !== null);
+
+      return {
+        applicationName: report.applicationName,
+        passwordCount: report.passwordCount,
+        atRiskPasswordCount: report.atRiskPasswordCount,
+        memberCount: report.memberCount,
+        atRiskMemberCount: report.atRiskMemberCount,
+        cipherIds,
+        atRiskCipherIds,
+        memberDetails,
+        atRiskMemberDetails,
+      };
+    });
   }
 }
