@@ -31,7 +31,6 @@ import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request
 import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -40,20 +39,21 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KdfConfig,
-KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {  KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
-import { MasterPasswordAuthenticationData,
-MasterPasswordSalt,MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 export class LoginCommand {
   protected canInteract: boolean;
@@ -500,7 +500,13 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.authenticateWith(await this.masterPasswordService.makeMasterPasswordAuthenticationData(currentPassword, await this.kdfConfigService.getKdfConfig(userId), await firstValueFrom(this.masterPasswordService.saltForUser$(userId))));
+      request.authenticateWith(
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          currentPassword,
+          await this.kdfConfigService.getKdfConfig(userId),
+          await firstValueFrom(this.masterPasswordService.saltForUser$(userId)),
+        ),
+      );
       request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
       request.key = unlockData.masterKeyWrappedUserKey;
       request.masterPasswordHint = hint;
@@ -538,10 +544,7 @@ export class LoginCommand {
         "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now.",
       );
 
-      const request = UpdateTempPasswordRequest.newConstructor(
-        authenticationData,
-        unlockData,
-      );
+      const request = UpdateTempPasswordRequest.newConstructor(authenticationData, unlockData);
       request.masterPasswordHint = hint;
       await this.masterPasswordApiService.putUpdateTempPassword(request);
 
@@ -658,7 +661,12 @@ export class LoginCommand {
       throw new Error("User key not found.");
     }
     const salt = await firstValueFrom(this.masterPasswordService.saltForUser$(userId));
-    const authenticationData = await this.masterPasswordService.makeMasterPasswordAuthenticationData(masterPassword, kdfConfig, salt);
+    const authenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        kdfConfig,
+        salt,
+      );
     const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
       masterPassword,
       kdfConfig,
