@@ -69,7 +69,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   hostDirectives: [
     {
       directive: BaseChipDirective,
-      inputs: ["size", "maxWidthClass", "fullWidth"],
+      inputs: ["maxWidthClass", "fullWidth"],
     },
   ],
 })
@@ -115,13 +115,6 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** Store the pending value when writeValue is called before options are initialized */
   private pendingValue?: T;
-
-  // Specific padding to account for visual design consistency with Figma
-  protected readonly buttonPbClass = computed(() =>
-    this.baseChip.size() === "small"
-      ? "tw-pb-[calc(theme(spacing.0_5)_-_1px)]"
-      : "tw-pb-[calc(theme(spacing.1)_-_1px)]",
-  );
 
   constructor() {
     this.baseChip.variant.set("subtle");

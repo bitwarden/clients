@@ -1,4 +1,4 @@
-<bit-chip-content [size]="baseChip.size()">
+<bit-chip-content size="large">
   <button
     bit-chip-content
     [startIcon]="icon"
@@ -6,10 +6,8 @@
       !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
     "
     type="button"
-    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit]"
-    [class.tw-ps-1.5]="baseChip.size() === 'small'"
-    [class.tw-ps-2]="baseChip.size() === 'large'"
-    [class]="buttonPbClass()"
+    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] tw-ps-2"
+    [class]="'tw-pb-[calc(theme(spacing.1)_-_1px)]'"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled()"
