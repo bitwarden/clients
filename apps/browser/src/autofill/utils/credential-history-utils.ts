@@ -2,7 +2,8 @@ import { firstValueFrom, Observable } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
-import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
+import { GeneratedCredential } from "@bitwarden/generator-core";
+import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
 /**
  * Tracks a generated credential for the active user.

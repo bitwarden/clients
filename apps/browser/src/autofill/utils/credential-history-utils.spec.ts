@@ -4,7 +4,8 @@ import { of } from "rxjs";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
-import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
+import { GeneratedCredential } from "@bitwarden/generator-core";
+import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
 import { trackGeneratedCredential } from "./credential-history-utils";
 
