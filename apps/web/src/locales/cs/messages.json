@@ -1925,7 +1925,7 @@
     "message": "Ověřovací aplikace"
   },
   "authenticatorAppDescV2": {
-    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Autentikátor Bitwarden.",
+    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -2704,7 +2704,7 @@
     "message": "Pokračovat na bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Autentikátor Bitwarden umožňuje ukládat ověřovací klíče a generovat TOTP kódy pro 2-fázové ověřování. Další informace naleznete na stránkách bitwarden.com"
+    "message": "Bitwarden Authenticator umožňuje ukládat ověřovací klíče a generovat TOTP kódy pro 2-fázové ověřování. Další informace naleznete na stránkách bitwarden.com"
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Naskenujte QR kód pomocí Vaší ověřovací aplikace nebo zadejte klíč."
@@ -4337,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automaticky potvrzený uživatel $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Byl upraven uživatel $ID$.",
     "placeholders": {
@@ -4596,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Generování Vaší přístupové inteligence..."
   },
-  "fetchingMemberData": {
-    "message": "Načítání dat člena..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Analyzování zdraví hesla..."
-  },
-  "calculatingRiskScores": {
-    "message": "Výpočet skóre rizik..."
-  },
-  "generatingReportData": {
-    "message": "Generování dat hlášení..."
-  },
-  "savingReport": {
-    "message": "Ukládání hlášení..."
-  },
-  "compilingInsights": {
-    "message": "Sestavování přehledů..."
-  },
   "loadingProgress": {
     "message": "Průběh načítání"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Může to trvat několik minut."
+  "reviewingMemberData": {
+    "message": "Přezkoumávání dat členů..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzování hesel..."
+  },
+  "calculatingRisks": {
+    "message": "Výpočet rizik..."
+  },
+  "generatingReports": {
+    "message": "Generování zpráv..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Sestavování přehledů..."
+  },
+  "reportGenerationDone": {
+    "message": "Hotovo!"
   },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
@@ -5439,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minimální počet slov"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -5849,10 +5855,6 @@
     "message": "Neznáte heslo? Požádejte odesílatele o heslo potřebné pro přístup k tomuto Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendHiddenByDefault": {
-    "message": "Tento Send je ve výchozím nastavení skrytý. Viditelnost můžete přepnout pomocí tlačítka níže.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
   },
@@ -6144,6 +6146,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Přijímám tato rizika a aktualizace zásad"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Zapnuto Automatické potvrzování uživatele"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Vypnuto Automatické potvrzování uživatele"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Přidána zásada automatického potvrzování uživatele"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Odebrána zásada automatického potvrzování uživatele"
+  },
+  "system": {
+    "message": "Systém"
   },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
@@ -6757,7 +6774,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Zkusit odeslat znovu"
   },
   "bulkRemovedMessage": {
     "message": "Úspěšně odebráno"
@@ -7399,6 +7416,9 @@
   },
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Neplatný e-mail nebo ověřovací kód"
   },
   "keyConnectorDomain": {
     "message": "Doména Key Connectoru"
@@ -10604,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Odešle data události do Vaší instanci SIEM Huntress"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ - úspěšně připojeno.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -10956,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Nepodařilo se načíst zprávu o přístupu člena. Může to být způsobeno velikostí organizace nebo problémy se sítí. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává."
   },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
@@ -12857,6 +12889,21 @@
   "storageFullDescription": {
     "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
   },
+  "extensionPromptHeading": {
+    "message": "Získejte rozšíření pro snadný přístup k trezoru"
+  },
+  "extensionPromptBody": {
+    "message": "S nainstalovaným rozšířením prohlížeče budete mít Bitwarden všude online. Budou se vyplňovat hesla, takže se můžete přihlásit do svých účtů jediným klepnutím."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Webový prohlížeč zobrazující rozšíření Bitwarden s položkami automatického vyplňování aktuální webové stránky."
+  },
+  "skip": {
+    "message": "Přeskočit"
+  },
+  "downloadExtension": {
+    "message": "Nainstalovat rozšíření"
+  },
   "whoCanView": {
     "message": "Kdo může zobrazit"
   },
@@ -12868,6 +12915,9 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadejte více e-mailů oddělených čárkou."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -12892,6 +12942,18 @@
   },
   "invalidSendPassword": {
     "message": "Neplatné heslo k Send"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Jste u nás! Vítejte v Bitwardenu"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Uložte všechna Vaše hesla a osobní informace v trezoru Bitwarden. Provedeme Vás tady."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Zahájit prohlídku"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Přeskočit"
   },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
@@ -12948,5 +13010,23 @@
   },
   "paymentMethodUpdateError": {
     "message": "Při aktualizaci Vaší platební metody došlo k chybě."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Neplatné heslo. Požádejte odesílatele o heslo potřebné pro přístup k tomuto Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Tento Send vyprší v $TIME$ dne $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

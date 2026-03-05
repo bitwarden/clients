@@ -300,7 +300,7 @@
     "message": "接下來造訪網頁 App 嗎？"
   },
   "continueToWebAppDesc": {
-    "message": "在 Web 應用程式上探索 Bitwarden 帳號的更多功能。"
+    "message": "在 Web 應用程式上探索 Bitwarden 帳戶的更多功能。"
   },
   "continueToHelpCenter": {
     "message": "接下來前往說明中心嗎？"
@@ -895,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "驗證碼無效"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "電子郵件或驗證碼無效"
   },
   "valueCopied": {
     "message": "$VALUE$ 已複製",
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "有風險登入清單的示意圖。"
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Bitwarden 密碼庫頁面版面配置示意圖。"
+  },
   "generatePasswordSlideDesc": {
     "message": "在有風險的網站上，透過 Bitwarden 自動填入選單快速產生強且唯一的密碼。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小時",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結與您所設定密碼的人，都可在接下來的 $TIME$ 內存取該 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，只有您指定的人可以檢視。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6106,6 +6151,15 @@
   "searchResults": {
     "message": "搜尋結果"
   },
+  "simplifiedAutofill": {
+    "message": "簡化自動填入"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "當您點擊建議的自動填入項目時，將直接填入，而不會進入詳細資料頁面。您仍可從「更多」選單檢視這些項目。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "開啟簡化自動填入彈出視窗"
+  },
   "resizeSideNavigation": {
     "message": "調整側邊欄大小"
   },
@@ -6121,6 +6175,9 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6133,5 +6190,8 @@
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "使用者驗證失敗。"
   }
 }
