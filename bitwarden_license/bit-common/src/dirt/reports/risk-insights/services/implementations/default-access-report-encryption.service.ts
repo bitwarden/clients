@@ -14,6 +14,7 @@ import {
   validateAccessReportPayload,
 } from "../../helpers/type-guards/risk-insights-type-guards";
 import { EncryptedDataWithKey, EncryptedReportData } from "../../models";
+import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 import {
   AccessReportPayload,
   DecryptedAccessReportData,
@@ -184,6 +185,41 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             summaryData,
             applicationData,
           })),
+        );
+      }),
+    );
+  }
+
+  decryptSummary$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    encryptedSummary: EncString,
+    wrappedKey: EncString,
+  ): Observable<RiskInsightsSummaryData> {
+    this.logService.info("[DefaultAccessReportEncryptionService] Decrypting summary");
+    const { userId, organizationId } = context;
+
+    return this.keyService.orgKeys$(userId).pipe(
+      take(1),
+      map((keys) => (keys ? keys[organizationId] : null)),
+      switchMap((orgKey) => {
+        if (!orgKey) {
+          this.logService.warning(
+            "[DefaultAccessReportEncryptionService] Attempted to decrypt without org key",
+          );
+          throw new Error("Organization key not found");
+        }
+
+        return from(this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey)).pipe(
+          switchMap((contentEncryptionKey) => {
+            if (!contentEncryptionKey) {
+              this.logService.error(
+                "[DefaultAccessReportEncryptionService] Encryption key not found",
+              );
+              throw new Error("Encryption key not found");
+            }
+
+            return from(this._decryptSummaryBlob(encryptedSummary, contentEncryptionKey));
+          }),
         );
       }),
     );

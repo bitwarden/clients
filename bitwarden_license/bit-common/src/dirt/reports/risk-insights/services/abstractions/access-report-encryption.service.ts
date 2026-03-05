@@ -95,4 +95,21 @@ export abstract class AccessReportEncryptionService {
     encryptedData: EncryptedReportData,
     wrappedKey: EncString,
   ): Observable<DecryptedAccessReportData>;
+
+  /**
+   * Decrypts a standalone encrypted summary blob and emits the summary aggregates.
+   *
+   * Used when only the summary is needed (e.g., dashboard load) without fetching
+   * the full report payload.
+   *
+   * @param context - The organization and user identifiers for key lookup.
+   * @param encryptedSummary - The encrypted summary blob to decrypt.
+   * @param wrappedKey - The wrapped content key stored alongside the summary.
+   * @returns Observable emitting the decrypted summary data.
+   */
+  abstract decryptSummary$(
+    context: { organizationId: OrganizationId; userId: UserId },
+    encryptedSummary: EncString,
+    wrappedKey: EncString,
+  ): Observable<RiskInsightsSummaryData>;
 }

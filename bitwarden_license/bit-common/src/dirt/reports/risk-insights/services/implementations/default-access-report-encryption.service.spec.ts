@@ -326,4 +326,82 @@ describe("DefaultAccessReportEncryptionService", () => {
       expect(result.applicationData).toEqual([]);
     });
   });
+
+  describe("decryptSummary$", () => {
+    it("should decrypt summary data and return RiskInsightsSummaryData", async () => {
+      mockEncryptService.decryptString.mockResolvedValueOnce(JSON.stringify(mockSummaryData));
+
+      const result = await firstValueFrom(
+        service.decryptSummary$(
+          { organizationId: orgId, userId },
+          new EncString("encrypted-summary"),
+          mockKey,
+        ),
+      );
+
+      expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
+      expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
+      expect(result).toEqual(mockSummaryData);
+    });
+
+    it("should throw if org key is not found", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
+
+      await expect(
+        firstValueFrom(
+          service.decryptSummary$(
+            { organizationId: orgId, userId },
+            new EncString("encrypted-summary"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Organization key not found");
+    });
+
+    it("should throw if content encryption key is null after unwrap", async () => {
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(
+        null as unknown as SymmetricCryptoKey,
+      );
+
+      await expect(
+        firstValueFrom(
+          service.decryptSummary$(
+            { organizationId: orgId, userId },
+            new EncString("encrypted-summary"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Encryption key not found");
+    });
+
+    it("should throw when summary blob is null", async () => {
+      await expect(
+        firstValueFrom(
+          service.decryptSummary$(
+            { organizationId: orgId, userId },
+            null as unknown as EncString,
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Summary data not found");
+    });
+
+    it("should throw when summary data validation fails", async () => {
+      mockEncryptService.decryptString.mockResolvedValueOnce(
+        JSON.stringify({ invalid: "summary" }),
+      );
+
+      await expect(
+        firstValueFrom(
+          service.decryptSummary$(
+            { organizationId: orgId, userId },
+            new EncString("encrypted-summary"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow(
+        /Summary data validation failed.*This may indicate data corruption or tampering/,
+      );
+    });
+  });
 });
