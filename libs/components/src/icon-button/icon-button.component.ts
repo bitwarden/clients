@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import { Component, computed, effect, ElementRef, inject, input, model } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
@@ -28,7 +27,7 @@ type IconButtonSize = "default" | "xsmall" | "small" | "large";
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  imports: [NgClass, SpinnerComponent],
+  imports: [SpinnerComponent],
   host: {
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
