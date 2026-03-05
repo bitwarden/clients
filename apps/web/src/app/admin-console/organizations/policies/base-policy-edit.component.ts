@@ -143,15 +143,6 @@ export abstract class BasePolicyEditComponent implements OnInit {
     return Promise.resolve(request);
   }
 
-  /**
-   * This is called before the policy is saved. If it returns false, it will not be saved
-   * and the user will remain on the policy edit dialog.
-   * This can be used to trigger an additional confirmation modal before saving.
-   * */
-  confirm(): Promise<boolean> | boolean {
-    return true;
-  }
-
   protected loadData() {
     this.data?.patchValue(this.policyResponse?.data ?? {});
   }

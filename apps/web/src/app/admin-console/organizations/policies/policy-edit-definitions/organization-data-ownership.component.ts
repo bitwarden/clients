@@ -55,7 +55,7 @@ export class OrganizationDataOwnershipPolicyComponent
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
 
-  override async confirm(): Promise<boolean> {
+  async confirm(): Promise<boolean> {
     if (this.policyResponse?.enabled && !this.enabled.value) {
       const dialogRef = this.dialogService.open(this.warningContent, {
         positionStrategy: new CenterPositionStrategy(),
